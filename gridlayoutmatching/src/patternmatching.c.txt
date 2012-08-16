@@ -1,0 +1,1170 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+//#include "mex.h"
+
+//C言語用
+#define NODES 300 //ノード数
+#define DIVIDE 2 //分割法 1:kd木、2:４分木
+#define GRID 100
+#define CUTSIZE 10
+#define ERR 1e-5
+
+double xtrans(double x);
+double xtrans2(double x);
+double ytrans(double y);
+double ytrans2(double y);
+double energy(double x, double y);
+double patternmatching(double *x,double *y,double score,int numk,int n);
+void memorizedRecursion(int n,int k,double *x,double *y,double score,int *K);
+void mr(double *x,double *y,int kn, int *K);
+void qSort(double *x,int left,int right,int *index);
+void kdtree(double *x,double *y,int n);
+void quadtree(double *x,double *y,int n);
+
+double GetRandom(int min,int max);
+void patternmatch(int n,const double *x0,const double *y0);
+
+//MATLAB用
+//void mexFunction( int Nreturned, mxArray *returned[], int Noperand, const mxArray *operand[] );
+
+//MATLABから設定する
+int nodes=NODES;
+int grid=GRID;//グリッド幅
+int cutsize=CUTSIZE;//分割するときの分けるノード数
+int method=DIVIDE;//分割法の選択
+
+//MATLABの戻り値
+double *xfinal,*yfinal;//最終座標
+double *area;
+
+int maxf;//分割した区画の数
+int *num,*flag;//順列探索用
+double fscore;//ローカルの最小スコア
+double *xdp,*ydp;//DPの最終座標
+double **xstore,**ystore;//途中の座標保存用
+double *sstore;//途中のスコア保存用
+int ac=1;//重複したときの移動させる方向を決める
+
+double tscore;//total スコア
+int **occ;//グリッド領域のノードの有無をチェックする
+int **occstore;//途中のグリッドのノードの有無保存用
+
+int *nearc;//描画領域の中心から近いノードの順番
+
+//ノードからグリッドまでの距離＝評価値
+//近いグリッドまでの距離
+//計算誤差が生じるらしい
+double xtrans(double x){
+	int xinteger;
+
+	xinteger = (int)x;
+	
+	if(x>0){
+		if( (x-xinteger) >= 0.5)
+			return (1 - (x - xinteger) );//xinteger+1にずらす分
+		else
+			return (- (x - xinteger) );//xintegerにずらす分
+	}
+	else{
+		if( (x-xinteger) <= -0.5)
+			return (-1 - (x - xinteger) );//xintegerにずらす分
+		else
+			return (- (x - xinteger) );//xinteger-1にずらす分
+	}
+}
+
+//遠いグリッドまでの距離
+double xtrans2(double x){
+	int xinteger;
+
+	xinteger = (int)x;
+
+	if(x>0){
+		if( (x-xinteger) >= 0.5)
+			return (- (x - xinteger) );//x-xintegerにずらす分
+		else
+			return (1 - (x - xinteger) );//xinteger+1にずらす分
+	}
+	else{
+		if( (x-xinteger) <= -0.5)
+			return (- (x - xinteger) );//x-xintegerにずらす分
+		else
+			return (-1 - (x - xinteger) );//xinteger+1にずらす分
+	}
+}
+
+
+double ytrans(double y){
+	int yinteger;
+
+	yinteger = (int)y;
+
+	if(y>0){
+		if( (y - yinteger) >= 0.5)
+			return (1 - (y - yinteger) );
+		else
+			return (- (y - yinteger) );
+	}
+	else{
+		if( (y - yinteger) <= -0.5)
+			return (-1 - (y - yinteger) );
+		else
+			return (- (y - yinteger) );
+	}
+}
+
+double ytrans2(double y){
+	int yinteger;
+
+	yinteger = (int)y;
+
+	if(y>0){
+		if( (y - yinteger) >= 0.5)
+			return (- (y - yinteger) );
+		else
+			return (1 - (y - yinteger) );
+	}
+	else{
+		if( (y - yinteger) <= -0.5)
+			return (- (y - yinteger) );
+		else
+			return (-1 - (y - yinteger) );
+	}
+}
+
+//評価値計算
+double energy(double x, double y){
+	if(x<0) x=-x;
+	if(y<0) y=-y;
+	return (x+y);//abs(xtrans(x)) + abs(ytrans(y));
+}
+
+//最初の４つの格子点から(nつ遠い格子点の中で)近い格子点までの距離を計算
+void disn(double *x,double *y,int j,int a){
+	int near = (int)fmod(j,a+1);
+	//printf("near=%d j=%d a=%d",near,j,a);
+	if(*x <= 0 && *y <= 0 ){
+		if(*x > *y){//xのほうが格子点に近いなら
+			*x -=(a-near);
+			*y -=near;
+		}
+		else{
+			*x -=near;
+			*y -=(a-near);
+		}
+	}
+	else if(*x <= 0 && *y > 0){
+		if((*x+*y) > 0){//xのほうが格子点に近いなら
+			*x -=(a-near);
+			*y +=near;
+		}
+		else{
+			*x -=near;
+			*y +=(a-near);
+		}
+	}
+	else if(*x > 0 && *y <= 0 ){
+		if((*x+*y) < 0 ){
+			*x +=(a-near);
+			*y -=near;
+		}
+		else{
+			*x +=near;
+			*y -=(a-near);
+		}
+	}
+	else if(*x > 0 && *y > 0){
+		if(*x < *y){
+			*x +=(a-near);
+			*y +=near;
+		}
+		else{
+			*x +=near;
+			*y +=(a-near);
+		}
+	}
+	
+}
+
+double patternmatching(double *x,double *y,double score,int numk,int n){
+	int i,j,overlap,a,corner;
+	double x2[4],y2[4];//グリッドまでの移動幅
+	double e[4];
+	double x22,y22,e2;
+	double tempx2,tempy2,tempe;
+	int xnew,ynew;
+	double x0,y0;
+	
+	x0=x[numk];y0=y[numk];
+	//printf("x=%.2f y=%.2f\n",x[numk],y[numk]);
+	
+	//近い格子点の距離の平行移動分を計算
+	x2[0]=x2[2]=xtrans(x0);
+	y2[0]=y2[1]=ytrans(y0);
+	//遠い格子点の距離の平行移動分を計算
+	x2[1]=x2[3]=xtrans2(x0);
+	y2[2]=y2[3]=ytrans2(y0);
+	
+	//score計算
+	e2=e[0]=energy(x2[0],y2[0]);//1番近い
+	e[1]=energy(x2[1],y2[1]);//2番目
+	e[2]=energy(x2[2],y2[2]);//3番目
+	e[3]=energy(x2[3],y2[3]);//4番目
+	if(e[1]>e[2]){
+		tempx2=x2[1];tempy2=y2[1];tempe=e[1];
+		x2[1]=x2[2];y2[1]=y2[2];e[1]=e[2];
+		x2[2]=tempx2;y2[2]=tempy2;e[2]=tempe;
+	}
+	//printf("e2=%f\n",e2);
+
+	//新しい場所でノードが重複していないかを探索,重複していたら別の格子点を探す
+	overlap=1;a=0;
+	while(overlap==1){
+		if(a<=grid){
+			for(j=0;j<(4+4*a);j++){
+				overlap=0;
+
+				corner=(int)(j/(a+1));
+				x22=x2[corner];y22=y2[corner];
+				//if((x22 < 0 && x0 < 0) || (y22 < 0 && y0 < 0) || (x22 > 0 && x0 > grid) || (y22 > 0 && y0 > grid))
+				//	continue;
+				if(a==0);//一番近い格子点
+				else  disn(&x22,&y22,j,a);
+				if((x0+x22)>0) x22+=ERR;
+				else x22-=ERR;
+				if((y0+y22)>0) y22+=ERR;
+				else y22-=ERR;
+				xnew=(int)(x0+x22);ynew=(int)(y0+y22);
+				//printf("%d:%d:xnew=%d ynew=%d x22=%.2f y22=%.2f x=%.2f y=%.2f\n",a,j,xnew,ynew,x22,y22,x[numk],y[numk]);
+
+				if(xnew < 0 || ynew < 0 || xnew > grid || ynew > grid){//グリッドの範囲内かを調べる
+					overlap=1;
+					//printf("grid\n");
+				}
+				else if(occstore[xnew][ynew] == 1){
+					overlap=1;
+					//printf("node  [%d][%d]\n",xnew,ynew);
+				}
+				else{//重複なし
+					e2=e[corner]+a;
+					break;
+				}
+				
+			}
+			//printf("0:overlap=%d\n",overlap);
+		}
+		else{
+			printf("error: no vacant grids near the node.\n\n");
+			//mexErrMsgTxt("error: no vacant grids near the node.\n\n");
+			exit(1);
+			
+		}
+		
+		a++;
+	}
+
+	//printf("e2=%f\n",e2);
+
+	score+=e2;
+	//fscoreより大きい組み合わせは省く
+	if(fscore<score){
+		score-=e2;
+		return (score+10000);
+	}
+
+	//正常にパターンマッチされた
+	for(i=0;i<n;i++){
+		if(flag[i]==0){
+			x[i]+=x22;
+			y[i]+=y22;
+		}
+	}
+	occstore[xnew][ynew]=1;
+	
+	//printf("score=%f\n",score);
+	return score;
+}
+
+
+
+void memorizedRecursion(int n,int k,double *x,double *y,double score,int *K){
+	int i,j,f;
+	int xnew,ynew;
+
+	//近似照合の途中の座標,スコアを保存
+	for(i=0;i<n;i++){
+		xstore[k][i]=x[i];
+		ystore[k][i]=y[i];
+	}
+	//printf("k=%d score=%f\n",k,score);
+	sstore[k]=score;
+	
+	//printf("k=%d\n",k);
+	for(i=0;i<n;++i){
+		f=flag[i];
+		if(f==0){
+			
+			score=patternmatching(x,y,score,i,n);
+
+			if(score>=10000){//fscoreより大きいスコアのときはそれ以下の探索はやめる
+				score-=10000;
+				continue;
+			}
+			else{
+				flag[i]=1;
+				num[k] = K[i];//動かすノードの組み合わせ
+			}
+
+			if(k==0){
+				if(score < fscore){
+					//最小セットを保存
+					for(j=0;j<n;j++){
+						xdp[j]=(int)x[j];
+						ydp[j]=(int)y[j];
+					}
+					fscore=score;
+					//最小セットの組み合わせを表示
+					//for(j=n-1;j>=0;--j){
+					//	printf(" %d",num[j]);
+					//}
+					//printf(" score=%f\n",score);
+				}
+
+				
+			}
+			else{
+				memorizedRecursion(n,k-1,x,y,score,K);
+			}
+
+			//次のセットのため、前の座標に入れ替え
+			xnew=(int)x[i];ynew=(int)y[i];
+			occstore[xnew][ynew]=0;
+			flag[i] = 0;
+			for(j=0;j<n;j++){
+				x[j]=xstore[k][j];
+				y[j]=ystore[k][j];
+			}
+			score=sstore[k];
+
+		}
+	}
+}
+
+//memorizedRecusionの準備
+void mr(double *x,double *y,int kn, int *K){
+	double *xd,*yd;//ローカルのノードセット
+	double score;
+	int i,j,h;
+	int xo,yo;
+	
+	fscore=100000;
+	score=0;
+
+	//ローカルでの初期配置
+	xd = (double*)malloc( (kn+1) * sizeof(double) );
+	yd = (double*)malloc( (kn+1) * sizeof(double) );
+
+	//ローカルでの最終的な座標:グローバル変数
+	xdp = (double*)malloc( (kn+1) * sizeof(double) );
+	ydp = (double*)malloc( (kn+1) * sizeof(double) );
+	
+	//順列用:グローバル変数
+	num = (int*)malloc( (kn+1) * sizeof(int) );
+	flag = (int*)malloc( (kn+1) * sizeof(int) );
+
+	//深さ優先探索で考えたときの各階層での座標データを保存する用:グローバル変数
+	xstore = (double**)malloc( (kn+1) * sizeof(double*) );
+	ystore = (double**)malloc( (kn+1) * sizeof(double*) );
+	sstore = (double*)malloc( (kn+1) * sizeof(double) );
+	occstore = (int**)malloc( (grid+2) * sizeof(int*) );
+
+	for(i=0;i<kn;i++){
+		xstore[i] = (double*)malloc( (kn+1) * sizeof(double) );
+		ystore[i] = (double*)malloc( (kn+1) * sizeof(double) );
+		//sstore[i] = 0.0;
+		num[i] = flag[i] = 0;
+
+	}
+
+	for(j=0;j<=grid;j++){
+		occstore[j] = (int*)malloc( (grid+2) * sizeof(int) );
+		for(h=0;h<=grid;h++){
+			occstore[j][h]=occ[j][h];
+		}
+	}
+	
+
+
+	//ローカル変数セット-調整
+	for(i=0;i<kn;i++){
+		xd[i] = x[K[i]];
+		yd[i] = y[K[i]];
+		xdp[i] = ydp[i] = 0;
+	}
+
+	//printf("%d:DP!!!!!!!!!!!!!!!!!!!!!!\n",kn);
+	//getchar();
+	/////////////////////////////////////////
+	//printf("Dynamic Programming... kn=%d\n",kn);
+	memorizedRecursion(kn,kn-1,xd,yd,score,K);
+	//printf("\n");
+
+	//最終的な座標を代入
+	for(i=0;i<kn;i++){
+		xfinal[K[i]] = xdp[i];
+		yfinal[K[i]] = ydp[i];
+		xo=(int)xfinal[K[i]];yo=(int)yfinal[K[i]];
+		occ[xo][yo]=1;
+	}
+	tscore+=fscore;
+
+	free(xdp);free(ydp);free(xd);free(yd);
+	free(num);free(flag);free(xstore);free(ystore);free(sstore);
+	free(occstore);
+}
+
+void qSort(double *x,int left,int right,int *index){
+    int i, j,center;
+    double pivot;
+	double temp;
+	int itemp;
+
+    i = left;                      /* ソートする配列の一番小さい要素の添字 */
+    j = right;                     /* ソートする配列の一番大きい要素の添字 */
+	center = (left + right) / 2;
+    pivot = x[center]; /* 基準値を配列の中央付近にとる */
+	//printf("left=%d\tright=%d\tpivot=%f\n",left,right,pivot);
+
+    while (1) {                    /* 無限ループ */
+
+        while (x[i] < pivot)  /* pivot より大きい値が */
+            i++;					  /* 出るまで i を増加させる */
+
+        while (pivot < x[j] )   /* pivot より小さい値が */
+            j--;                       /*  出るまで j を減少させる */
+        if (i >= j)                    /* i >= j なら */
+            break;                     /* 無限ループから抜ける */
+
+        temp = x[i];
+		x[i] = x[j];
+		x[j] = temp;
+		itemp = index[i];
+		index[i] = index[j];
+		index[j] = itemp;
+
+		//printf("i=%d\tj=%d\n",i,j);
+		//getchar();
+        i++;                       /* 次のデータ */
+        j--;
+    }
+
+    if (left < i - 1)              /* 基準値の左に 2 以上要素があれば */
+        qSort(x, left, i - 1,index);     /* 左の配列を Q ソートする */
+    if (j + 1 <  right)            /* 基準値の右に 2 以上要素があれば */
+        qSort(x, j + 1, right,index);    /* 右の配列を Q ソートする */
+}
+
+
+
+void kdtree(double *x,double *y,int n){
+	double *x0,*y0;
+	int *xi,*yi;
+	int *xsort,*ysort;
+	int i,kn,a;
+	int *K,*K2i;
+	double *K2;
+	int partc=0;//探索の番号
+	int part=0;//節の番号
+	int term=1;//分割方向: -1=x軸, 1=y軸
+	int stagex=0;//x軸の階層の個数確認
+	int stagey=1;//y軸の階層の個数確認
+	
+	//区画番号付け替え用
+	double *cf;
+	int ci,j;
+
+	int *mr_run;//メモ化再帰を行ったかの確認
+	mr_run = (int*)malloc( (n+1) * sizeof(int) );
+	for(i=0;i<n;i++) mr_run[i]=0;
+	
+	//printf("kdtree.\n");
+
+	x0 = (double*)malloc( (n+1) * sizeof(double) );
+	y0 = (double*)malloc( (n+1) * sizeof(double) );
+	xi = (int*)malloc( (n+1) * sizeof(int) );
+	yi = (int*)malloc( (n+1) * sizeof(int) );
+	xsort = (int*)malloc( (n+1) * sizeof(int) );
+	ysort = (int*)malloc( (n+1) * sizeof(int) );
+
+	for(i=0;i<n;i++){
+		x0[i] = x[i]; y0[i] = y[i];
+		xi[i] = i; yi[i] = i;
+	}
+
+	qSort(x0,0,n-1,xi);
+	qSort(y0,0,n-1,yi);
+	//元データをソートした後の配列番号
+	for(i=0;i<n;i++){
+		xsort[xi[i]] = i;
+		ysort[yi[i]] = i;	
+	}
+	free(xi);free(yi);free(x0);free(y0);
+	
+	
+	while(1){
+
+		kn=0;
+		for(i=0;i<n;i++){
+			if(area[i]==partc)
+				kn++;//メモリ確保用
+		}
+		K = (int*)malloc( (kn+1) * sizeof(int) );
+		K2 = (double*)malloc( (kn+1) * sizeof(double) );
+		K2i = (int*)malloc( (kn+1) * sizeof(int) );
+    
+		kn=0;
+		for(i=0;i<n;i++){//探索対象領域を決める
+			if(area[i]==partc){
+				K[kn]=i;//partcのタグを持つノードのインデックス
+				K2i[kn]=kn;//K2のインデックスの番号			
+				kn++;//領域内のノード数
+			}
+		}
+    
+		//printf("kn=%d\n",kn);
+		if((term==1&&stagex==0) || (term==-1&&stagey==0)){//分割方向を変える
+			term = term * (-1);
+			//printf("change\n");
+		}
+    
+		if( term == -1)
+			stagey = stagey - 1;
+		else
+			stagex = stagex - 1;
+    
+
+		if (kn <= cutsize){//分割された領域のノード数がcutsize個以内なら
+        
+			free(K2);free(K2i);
+			//Memorized Recursion
+			//mr(x,y,kn,K);
+			free(K);
+
+			if( partc == part)//全部探索が終わったら
+				break;
+        
+			partc++;//次の探索
+			continue;
+		}
+        
+		a=(int)(kn/2);//分割の境目
+
+		if( term == -1){//x軸方向で分割
+			for(i=0;i<kn;i++)
+				K2[i]=xsort[K[i]];//オリジナルのインデックスが小さいほうから何番目にあるか
+			qSort(K2,0,kn-1,K2i);
+
+			part=part+1;
+			for(i=0;i<=a;i++){
+				area[K[K2i[i]]]=part;
+			}
+			part=part+1;
+			for(i=a+1;i<kn;i++){
+				area[K[K2i[i]]]=part;
+			}
+			stagex = stagex +1;//分割するごとにその方向に探索する回数が増えるので
+		}
+		else if( term == 1){//y軸方向で分割
+			for(i=0;i<kn;i++)
+				K2[i]=ysort[K[i]];//何番目にあるか
+			qSort(K2,0,kn-1,K2i);
+
+			part=part+1;
+			for(i=0;i<=a;i++){
+				area[K[K2i[i]]]=part;
+			}
+			part=part+1;
+			for(i=a+1;i<kn;i++){
+				area[K[K2i[i]]]=part;
+			}
+			stagey = stagey +1;
+		}
+    
+		partc++;
+	}
+
+
+	//番号つけかえ
+	maxf=0;
+	for(i=0;i<n;i++){
+		if(maxf<area[i])
+			maxf=(int)area[i];
+	}
+	cf = (double*)malloc( (maxf+1) * sizeof(double) );
+	for(i=0;i<=maxf;i++) cf[i]=0;
+	ci=0;
+	for(i=0;i<=maxf;i++){
+		for(j=0;j<n;j++){
+			if(area[j]==i){
+				if(cf[i]==0){
+					ci++;
+					cf[i]=ci;
+				}
+				break;
+			}
+		}
+	}
+	maxf=ci;
+
+	for( i=0;i<n;i++){
+		area[i] = cf[(int)area[i]];
+		//printf(" area[%d]=%d",i,area[i]);
+	}
+	//printf("\n\n");
+
+	free(xsort);free(ysort);free(cf);
+	
+	
+	//中心に近いノードから近似照合する
+	for(i=0;i<n;i++){
+		if(mr_run[nearc[i]]==0){
+			kn=0;//近似照合を行うノード数
+			part=area[nearc[i]];//近似照合を行うエリア
+			for(j=0;j<n;j++){
+				if(part==area[nearc[j]])
+					kn++;
+			}
+			K = (int*)malloc( (kn+1) * sizeof(int) );
+			kn=0;
+			for(j=0;j<n;j++){
+				if(part==area[nearc[j]]){
+					K[kn]=nearc[j];
+					mr_run[nearc[j]]=1;
+					kn++;
+				}
+			}
+			//Memorized Recursion
+			mr(x,y,kn,K);
+			free(K);
+		}
+	}
+	free(mr_run);free(nearc);
+}
+
+void quadtree(double *x,double *y,int n){
+
+	int i,h1,h2,kn;
+	int *K;
+	int partc=0;//探索の番号
+	int part=0;//節の番号
+
+	int a,b,c;
+	double lxmax,lxmin,lymax,lymin;//階層での最大・最小座標
+	double width0,width1;
+	int *depth;//階層の深さ
+	int component;//区画
+
+	//区画番号付け替え用
+	double *cf;
+	int ci,j;
+
+	int *mr_run;//メモ化再帰を行ったかの確認
+	mr_run = (int*)malloc( (n+1) * sizeof(int) );
+	for(i=0;i<n;i++) mr_run[i]=0;
+	
+	//printf("quadtree.\n");
+	depth = (int*)malloc( (n+1) * sizeof(int) );
+
+	lxmax=0;lxmin=0;lymax=0;lymin=0;
+	width0=width1=grid;
+	for(i=0;i<n;i++)	depth[i]=1;
+
+
+	while(1){
+		//printf("partc=%d\n",partc);
+		kn=0;
+		for(i=0;i<n;i++){
+			if(area[i]==partc){
+				kn++;
+			}
+		}
+		K = (int*)malloc( (kn+1) * sizeof(int) );
+    
+		kn=0;
+		for(i=0;i<n;i++){//探索対象領域を決める
+			if(area[i]==partc){
+				K[kn]=i;//partcのタグを持つノードのインデックス
+				kn++;//領域内のノード数
+			}
+		}
+    
+		//printf("width1=%f partc=%d part=%d kn=%d depth=%d\n",width1,partc,part,kn,depth[K[0]]);
+		if (kn <= cutsize){//分割された領域のノード数がcutsize個以内なら
+        
+			//Memorized Recursion
+			//mr(x,y,kn,K);
+			free(K);
+
+			if( partc == part)//全部探索が終わったら
+				break;
+        
+			partc++;//次の探索
+			continue;
+		}
+        
+		//分割してタグをつける::4分木メイン
+		lxmax=0;lxmin=0;lymax=0;lymin=0;		
+		component=(int)pow(2,(double)(depth[K[0]]-1));//現在のx,y軸の分割数
+		width0=(double)grid/component;//現在の分割の幅
+		if(x[K[0]]!=grid) a = (int)(x[K[0]]/width0);//どこの区画にあるかを探索
+		else a = (int)((x[K[0]]-0.000001)/width0);//x[K[0]]がgrid上にあったとき、lxmin等がgridを越えてしまう
+		if(y[K[0]]!=grid) b = (int)(y[K[0]]/width0);
+		else b = (int)((y[K[0]]-0.000001)/width0);
+		component=(int)pow(2,(double)depth[K[0]]);//次のx,y軸の分割数
+		width1=(double)grid/component;//次の分割の幅
+		c=0;
+		
+		//printf("a=%d b=%d width0=%.1f depth=%d component=%d\n",a,b,width0,depth[K[0]],component);
+		//for(i=0;i<kn;i++){
+		//	printf("x[%d]=%.1f y[%d]=%.1f\n",K[i],x[K[i]],K[i],y[K[i]]);
+		//}
+
+		//どこかの区画に入るはず
+		//cは次の分割区画内にノードがある場合のタグ,ノードがない場合は無視
+		for(h1=1;h1<=2;h1++){
+			for(h2=1;h2<=2;h2++){
+				lxmin=width0*a+width1*(h1-1);lxmax=width0*a+width1*h1;
+				lymin=width0*b+width1*(h2-1);lymax=width0*b+width1*h2;
+				//printf("lxmin=%.1f lxmax=%.1f lymin=%.1f lymax=%.1f\n",lxmin,lxmax,lymin,lymax);
+				for(i=0;i<kn;i++){
+					if(h1 == 1 && h2 == 1 && lxmin <= x[K[i]] && x[K[i]] < lxmax && lymin <= y[K[i]] && y[K[i]] < lymax){//左下の区画内にあれば
+						c++;//区画内にノードがある分だけ数える
+						break;
+					}
+					if(h1 == 1 && h2 == 2 && lxmin <= x[K[i]] && x[K[i]] < lxmax && lymin <= y[K[i]] && y[K[i]] <= lymax){//左上の区画内にあれば
+						if( (y[K[i]] != lymax) || (y[K[i]] == grid) ){
+							c++;//区画内にノードがある分だけ数える
+							break;
+						}
+					}
+					if(h1 == 2 && h2 == 1 && lxmin <= x[K[i]] && x[K[i]] <= lxmax && lymin <= y[K[i]] && y[K[i]] < lymax){//右下の区画内にあれば
+						if( (x[K[i]] != lxmax) || (x[K[i]] == grid) ){
+							c++;//区画内にノードがある分だけ数える
+							break;
+						}
+					}
+					if(h1 == 2 && h2 == 2 && lxmin <= x[K[i]] && x[K[i]] <= lxmax && lymin <= y[K[i]] && y[K[i]] <= lymax){//右上の区画内にあれば
+						if( ((x[K[i]] != lxmax) || (x[K[i]] == grid) )){
+							c++;//区画内にノードがある分だけ数える
+							break;
+						}
+						else if( (y[K[i]] != lymax) || (y[K[i]] == grid) ){
+							c++;//区画内にノードがある分だけ数える
+							break;
+						}
+					}
+					
+				}
+				for(i=0;i<kn;i++){
+					if(h1 == 1 && h2 == 1 && lxmin <= x[K[i]] && x[K[i]] < lxmax && lymin <= y[K[i]] && y[K[i]] < lymax){//次の分割区画内にあれば
+						area[K[i]]=part+c;//次の区画のタグをつける
+						continue;
+					}
+					if(h1 == 1 && h2 == 2 && lxmin <= x[K[i]] && x[K[i]] < lxmax && lymin <= y[K[i]] && y[K[i]] <= lymax){//次の分割区画内にあれば
+						if( (y[K[i]] != lymax) || (y[K[i]] == grid) ){
+							area[K[i]]=part+c;//次の区画のタグをつける
+							continue;
+						}
+					}
+					if(h1 == 2 && h2 == 1 && lxmin <= x[K[i]] && x[K[i]] <= lxmax && lymin <= y[K[i]] && y[K[i]] < lymax){//次の分割区画内にあれば
+						if( (x[K[i]] != lxmax) || (x[K[i]] == grid) ){
+							area[K[i]]=part+c;//次の区画のタグをつける
+							continue;
+						}
+					}
+					if(h1 == 2 && h2 == 2 && lxmin <= x[K[i]] && x[K[i]] <= lxmax && lymin <= y[K[i]] && y[K[i]] <= lymax){//次の分割区画内にあれば
+						if( ((x[K[i]] != lxmax) || (x[K[i]] == grid) ) ){
+							area[K[i]]=part+c;//次の区画のタグをつける
+							continue;
+						}
+						else if( (y[K[i]] != lymax) || (y[K[i]] == grid) ){
+							area[K[i]]=part+c;//次の区画のタグをつける
+							continue;						
+						}
+					}
+
+				}
+			}
+			
+		}
+		//printf("c=%d\n",c);
+
+		for(i=0;i<kn;i++){
+			depth[K[i]]=depth[K[i]]+1;//ひとつ下の階層	
+		}
+
+		if(width1 < ERR){//分割しきれないので、ランダムに分ける
+			for(i=0;i<kn;i++){
+				area[K[i]]=(double)(part+1+(int)fmod(i,cutsize));
+				//printf("DAME:area=%f\n",area[K[i]]);
+			}
+			//printf("error: Can't divide.\n\n");
+			//mexErrMsgTxt("error: Can't divide.\n\n");
+			//exit(1);
+		}
+		
+		part+=c;
+   
+		partc++;
+	}
+
+
+	//番号つけかえ::区画は1～maxf
+	maxf=0;
+	for(i=0;i<n;i++){
+		if(maxf<area[i])
+			maxf=area[i];
+		//printf(" area[%d]=%d ",i,(int)area[i]);
+	}
+	cf = (double*)malloc( (maxf+1) * sizeof(double) );
+	for(i=0;i<=maxf;i++) cf[i]=0;
+	ci=0;
+	for(i=0;i<=maxf;i++){
+		for(j=0;j<n;j++){
+			if(area[j]==i){
+				if(cf[i]==0){
+					ci++;
+					cf[i]=ci;
+				}
+				break;
+			}
+		}
+	}
+	maxf=ci;
+	
+	for( i=0;i<n;i++){
+		area[i] = cf[(int)area[i]];
+		//printf(" area[%d]=%d",i,(int)area[i]);
+	}
+	//printf("\n\n");
+	free(cf);
+
+	//中心に近いノードから近似照合する
+	for(i=0;i<n;i++){
+		if(mr_run[nearc[i]]==0){
+			kn=0;//近似照合を行うノード数
+			part=area[nearc[i]];//近似照合を行うエリア
+			for(j=0;j<n;j++){
+				if(part==area[nearc[j]])
+					kn++;
+			}
+			K = (int*)malloc( (kn+1) * sizeof(int) );
+			kn=0;
+			for(j=0;j<n;j++){
+				if(part==area[nearc[j]]){
+					K[kn]=nearc[j];
+					mr_run[nearc[j]]=1;
+					kn++;
+				}
+			}
+			//Memorized Recursion
+			mr(x,y,kn,K);
+			free(K);
+		}
+	}
+	free(mr_run);free(nearc);
+}
+
+
+
+//ランダムセット作成
+double GetRandom(int min,int max){
+	return min + (rand()*(max-min+1.0)/(1.0+RAND_MAX));
+}
+
+int numcheck(){
+	FILE *fp;	/* (1)ファイルポインタの宣言 */
+	char s[256];
+	int n;
+
+	/* (2)ファイルのオープン */
+	/*  ここで、ファイルポインタを取得する */
+	if ((fp = fopen("coordinate.txt", "r")) == NULL) {
+		printf("file open error!!\n");
+		exit(EXIT_FAILURE);	/* (3)エラーの場合は通常、異常終了する */
+	}
+	n=0;
+	while(fgets(s,256,fp)!=NULL){
+		n++;
+	}
+	fclose(fp);
+
+	printf("n=%d\n",n);
+	return n;
+}
+//バグチェック用
+void input(double *x,double *y,int n){
+	FILE *fp;	/* (1)ファイルポインタの宣言 */
+	int i;
+
+	/* (2)ファイルのオープン */
+	/*  ここで、ファイルポインタを取得する */
+	if ((fp = fopen("coordinate.txt", "r")) == NULL) {
+		printf("file open error!!\n");
+		exit(EXIT_FAILURE);	/* (3)エラーの場合は通常、異常終了する */
+	}
+
+	/* (4)ファイルの読み（書き）*/
+	for (i=0;i<n;i++) {
+		fscanf(fp,"%lf %lf",&x[i],&y[i]);
+		printf("x[%d]=%f \ty[%d]=%f\n",i,x[i],i,y[i]);
+	}
+	fclose(fp);	/* (5)ファイルのクローズ */
+
+	//printf("\n\n");
+
+}
+
+
+void patternmatch(int n,const double *x0,const double *y0){
+	double *x,*y;
+	double xmax,xmin,ymax,ymin;
+	double regionx,regiony,regionxy;
+	int i,j,k;
+	//clock_t t1,t2,t3;
+
+	double centerx,centery;//描画領域の中心座標
+	double *dis;//中心座標からノードまでの距離
+	double temp;
+	int tempi;
+	
+	//t1=clock();
+
+	tscore=0;
+	nodes=n;
+	
+	occ = (int**)malloc((grid+2)*sizeof(int*));
+	for(i=0;i<=grid;i++){
+		occ[i] = (int*)malloc((grid+2)*sizeof(int));
+		for(j=0;j<=grid;j++)
+			occ[i][j]=0;
+	}
+	
+	centerx=grid/2.0;
+	centery=grid/2.0;
+	nearc=(int*)malloc((n+1)*sizeof(int));
+	dis=(double*)malloc((n+1)*sizeof(double));
+	
+	//初期配置
+	x = x0;
+	y = y0;
+	xmax=-100000;xmin=100000;ymax=-100000;ymin=100000;		
+	for(i=0;i<n;i++){
+		nearc[i]=i;
+		area[i] = 0;//mexFunctionでメモリ確保された
+		xfinal[i] = yfinal[i] = 0;
+		if(xmax < x[i])
+			xmax = x[i];
+		if(xmin > x[i])
+			xmin = x[i];
+		if(ymax < y[i])
+			ymax = y[i];
+		if(ymin > y[i])
+			ymin = y[i];	
+	}
+	//printf("\nxmin=%f xmax=%f ymin=%f ymax=%f\n",xmin,xmax,ymin,ymax);
+	regionxy=regionx=xmax-xmin;regiony=ymax-ymin;
+	if(regionxy < regiony) regionxy = regiony;
+	
+	//printf("regionxy=%f\n",regionxy);
+
+	for(i=0;i<n;i++){//grid*grid領域に拡大する
+		x[i] = ((x[i]-xmin)/(regionxy))*(double)grid;
+		y[i] = ((y[i]-ymin)/(regionxy))*(double)grid;
+		
+		//中心からのノードまでの距離を計算して、距離の近い順に並び替える
+		dis[i] = sqrt((x[i]-centerx)*(x[i]-centerx)+(y[i]-centery)*(y[i]-centery));
+		for(j=0;j<i;j++){
+			if(dis[j]>dis[i]){
+				temp=dis[i];
+				tempi=nearc[i];
+				for(k=i-1;k>=j;k--){
+					dis[k+1]=dis[k];
+					nearc[k+1]=nearc[k];
+				}
+				dis[j]=temp;
+				nearc[j]=tempi;
+				break;
+			}
+		}
+	}
+	
+	/*
+	printf("Initial position.\n");
+	xmax=0;xmin=100000;ymax=0;ymin=100000;	
+	for(i=0;i<n;i++){
+	//	printf(" (%.1f,%.1f)",x[i],y[i]);
+		if(xmax < x[i])
+			xmax = x[i];
+		if(xmin > x[i])
+			xmin = x[i];
+		if(ymax < y[i])
+			ymax = y[i];
+		if(ymin > y[i])
+			ymin = y[i];	
+	}
+	printf("\n");
+	printf("\nxmin=%f xmax=%f ymin=%f ymax=%f\n",xmin,xmax,ymin,ymax);
+	*/
+
+	//分割->近似照合->統治
+	if(method==1)
+		kdtree(x,y,n);
+	else
+		quadtree(x,y,n);
+
+	
+	//t3=clock();
+
+	printf("tscore=%f\n",tscore);
+	//printf("Total time=%f (sec)\n",(double)(t3 - t1) / CLOCKS_PER_SEC);
+
+}
+
+
+int main(){
+	double *x,*y;
+	double xymax,xymin;
+	int n=NODES;
+	int i,j,k;
+	clock_t t1,t2,t3;
+
+
+	double temp;
+	int tempi;
+
+	double xmax,xmin,ymax,ymin;
+
+	t1=clock();
+
+	//n=numcheck();
+	printf("\nNumber of nodes=%d\n",n);
+
+	area = (double*)malloc( (n+1) * sizeof(double) );
+
+	//最終的な座標
+	xfinal = (double*)malloc( (n+1) * sizeof(double) );
+	yfinal = (double*)malloc( (n+1) * sizeof(double) );
+	tscore=0;
+
+	//初期配置
+	x = (double*)malloc( (n+1) * sizeof(double) );
+	y = (double*)malloc( (n+1) * sizeof(double) );
+	for(i=0;i<n;i++){
+		x[i]=0;y[i]=0;
+		xfinal[i] = yfinal[i] = 0;
+	}
+	
+	//input(x,y,n);
+
+	grid=(int)2*sqrt(n);
+	printf("grid=%d\n",grid);
+
+
+	srand((unsigned int)time(NULL));
+	xymax=0;xymin=100000;
+	for(i=0;i<n;i++){
+		x[i] = GetRandom(1,grid);
+		y[i] = GetRandom(1,grid);
+		area[i] = 0;
+
+		if(xymax < x[i])
+			xymax = x[i];
+		if(xymin > x[i])
+			xymin = x[i];
+		if(xymax < y[i])
+			xymax = y[i];
+		if(xymin > y[i])
+			xymin = y[i];
+	
+	}
+	printf("\nxymin=%f xymax=%f\n",xymin,xymax);
+	
+
+	patternmatch(n,x,y);
+
+	t3=clock();
+	printf("Final position.\n");
+	xmax=0;xmin=100000;ymax=0;ymin=100000;	
+	for(i=0;i<n;i++){
+		printf(" (%d,%d)",(int)xfinal[i],(int)yfinal[i]);
+		
+		if(xmax < xfinal[i])
+			xmax = xfinal[i];
+		if(xmin > xfinal[i])
+			xmin = xfinal[i];
+		if(ymax < yfinal[i])
+			ymax = yfinal[i];
+		if(ymin > yfinal[i])
+			ymin = yfinal[i];	
+
+	}
+	printf("\n");
+	printf("\nxmin=%f xmax=%f ymin=%f ymax=%f\n",xmin,xmax,ymin,ymax);
+	//printf("tscore=%f\n",tscore);
+	printf("Total time=%f (sec)\n",(double)(t3 - t1) / CLOCKS_PER_SEC);
+
+	return 0;
+}
+
+
+
+
+
+
+//  Nreturnedは戻り値(戻される行列)の個数．returned[0]，returned[1]，returned[2]などが，その行列．
+//  Cのコード中では，returned[i]を，行の数と列の数がセットになった一次元配列と考えればよい．
+//  Noperandとoperandも同様．
+
+//mex関数 [x y area] = patternmach(x0,y0,grid,cutsize,method)
+//x0,y0はpatternmatch前の座標
+//gridはpatternmatchをするときの初期格子幅
+//cutsizeは分割したときの区画内のノード数
+//methodは 1:kdtree, 2:quadtree
+/*
+void mexFunction( int Nreturned, mxArray *returned[], int Noperand, const mxArray *operand[] ){
+	double *x0, *y0;
+	double *b,*c,*d;
+	int n;
+
+	//入力引数チェック
+	if(Noperand!=5 || Nreturned!=3){
+		mexErrMsgTxt("Failed: Correct format: [x y area] = patternmach(x0,y0,grid,cutsize,method)\n\n");
+	}
+
+
+	// xとyの行の数を保存
+	n = mxGetM(operand[0]);
+
+	//mexPrintf("n=%d\n",n);
+	returned[0] = mxCreateDoubleMatrix(n,1, mxREAL);
+	returned[1] = mxCreateDoubleMatrix(n,1, mxREAL);
+	returned[2] = mxCreateDoubleMatrix(n,1, mxREAL);
+
+	//Matlab側の変数のアドレスをC側の変数にコピーする
+	x0 = mxGetPr(operand[0]);//元のx座標
+	y0 = mxGetPr(operand[1]);//元のy座標
+	b = mxGetPr(operand[2]);
+	c = mxGetPr(operand[3]);
+	d = mxGetPr(operand[4]);
+	grid=(int)b[0];cutsize=(int)c[0];method=(int)d[0];
+	mexPrintf("grid=%d cutsize=%d\n",grid,cutsize);
+	xfinal = mxGetPr(returned[0]);//patternmatch後のx座標
+	yfinal = mxGetPr(returned[1]);//patternmatch後のy座標
+	area = mxGetPr(returned[2]);//patternmatch後のy座標
+
+	patternmatch( n, x0, y0);
+}
+*/

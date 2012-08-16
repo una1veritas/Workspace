@@ -1,0 +1,50 @@
+/*
+*
+@file		sockutil.h
+@brief	Implementation of useful function of W5100
+*
+*/
+
+#ifndef __SOCKUTIL_H
+#define __SOCKUTIL_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//#define NO_USE_SOCKUTIL_FUNC
+
+uint16_t in_chk ( uint8_t *addr, uint16_t count); /* the Internet checksum */
+
+uint16_t htons( uint16_t hostshort);		/* converts a uint16_t from host to TCP/IP network byte order (which is big-endian).*/
+uint32_t htonl(uint32_t hostlong);			/* converts a uint32_t from host to TCP/IP network byte order (which is big-endian). */
+uint32_t ntohs(uint16_t netshort);			/* converts a uint16_t from TCP/IP network byte order to host byte order (which is little-endian on Intel processors). */
+uint32_t ntohl(uint32_t netlong);			/* converts a uint32_t from TCP/IP network order to host byte order (which is little-endian on Intel processors). */
+
+uint8_t* inet_ntoa(uint32_t addr);			/* Convert 32bit Address into Dotted Decimal Format */
+
+#ifndef NO_USE_SOCKUTIL_FUNC
+uint8_t* inet_ntoa_pad(uint32_t addr);
+uint32_t inet_addr( uint8_t* addr);			/* Converts a string containing an (Ipv4) Internet Protocol decimal dotted address into a 32bit address */
+uint8_t  VerifyIPAddress(uint8_t* src);		/* Verify dotted notation IP address string */
+uint32_t GetDestAddr(SOCKET s);				/* Output destination IP address of appropriate channel */
+uint16_t GetDestPort(SOCKET s);				/* Output destination port number of appropriate channel */
+
+uint8_t  CheckDestInLocal(uint32_t destip);			/* Check Destination in local or remote */
+SOCKET   getSocket( uint8_t status, SOCKET start); 	/* Get handle of socket which status is same to 'status' */
+uint16_t checksum( uint8_t * src, uint16_t len);	/* Calculate checksum of a stream */
+
+uint32_t GetIPAddress(void);				/* Get Source IP Address of W5100. */
+uint32_t GetGWAddress(void);				/* Get Source IP Address of W5100. */
+uint32_t GetSubMask(void);					/* Get Source Subnet mask of W5100. */
+
+void	GetMacAddress( uint8_t* mac);		/* Get Mac address of W5100. */
+void	GetDestMacAddr( SOCKET s, uint8_t* mac);
+void	GetNetConfig(void);					/* Read established network information(G/W, IP, S/N, Mac) of W5100 and Output that through Serial.*/
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

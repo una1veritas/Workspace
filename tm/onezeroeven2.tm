@@ -1,0 +1,9 @@
+sel0 0 _	sel0 0 R 0 R
+sel0 1 _	sel0 1 R _ N
+sel0 _ _	mate _ L _ L
+mate 0 0	mate 0 L 0 N
+mate 1 0	mate 1 L 0 L
+mate _ _	!acpt _ N _ N
+mate _ 0	few1 _ N _ N
+mate 0 _ few0 _ N _ N
+mate 1 _	few0 _ N _ N

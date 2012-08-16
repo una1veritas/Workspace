@@ -1,0 +1,81 @@
+/*
+ twi.h - TWI/I2C library for Wiring & Arduino modified the original
+  twi.h/.c by Sin
+ Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
+#ifndef TwoWire_h
+#define TwoWire_h
+
+#include <Arduino.h>
+#include <inttypes.h>
+
+class TwoWire {
+	// globals and constants.
+	static const long TWI_FREQ = 100000L;
+	static const int TWI_BUFFER_LENGTH = min(32, 64);
+
+	enum TWT_STATE {
+		TWI_READY = 0, TWI_MRX = 1, TWI_MTX = 2, TWI_SRX = 3, TWI_STX = 4,
+	};
+
+private:
+	static volatile uint8_t twi_state;
+	static volatile uint8_t twi_slarw;
+	static volatile uint8_t twi_sendStop;			// should the transaction end with a stop
+	static volatile uint8_t twi_inRepStart;			// in the middle of a repeated start
+
+	//static uint8_t twi_masterBuffer[TWI_BUFFER_LENGTH];
+	byte masterBuffer[];
+	const byte & MASTER_BUFFER_LENGTH;
+	static volatile uint8_t twi_masterBufferIndex;
+	static volatile uint8_t twi_masterBufferLength;
+
+	//static uint8_t twi_txBuffer[TWI_BUFFER_LENGTH];
+	byte *txBuffer;
+	const byte & TX_BUFFER_LENGTH;
+	static volatile uint8_t twi_txBufferIndex;
+	static volatile uint8_t twi_txBufferLength;
+
+	//static uint8_t twi_rxBuffer[TWI_BUFFER_LENGTH];
+	byte *rxBuffer;
+	const byte & RX_BUFFER_LENGTH;
+	static volatile uint8_t twi_rxBufferIndex;
+
+private:
+	volatile uint8_t twi_error;
+
+public:
+	// class methods.
+	TwoWire(byte * mbuf, byte mlen, byte * rbuf, byte rlen, byte * tbuf, byte tlen) :
+
+	// instance methods.
+	void init(void);
+	void setAddress(uint8_t);
+	uint8_t readFrom(uint8_t, uint8_t*, uint8_t, uint8_t);
+	uint8_t writeTo(uint8_t, uint8_t*, uint8_t, uint8_t, uint8_t);
+	uint8_t transmit(const uint8_t*, uint8_t);
+	void attachSlaveRxEvent(void (*)(uint8_t*, int));
+	void attachSlaveTxEvent(void (*)(void));
+	void reply(uint8_t);
+	void stop(void);
+	void releaseBus(void);
+
+};
+
+#endif
+

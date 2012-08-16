@@ -1,0 +1,54 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+# Add inputs and outputs from these tool invocations to the build variables 
+C_SRCS += \
+/Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/hd44780.c \
+/Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/lcd.c \
+/Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/stdiodemo.c \
+/Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/uart.c 
+
+OBJS += \
+./Arduino\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/hd44780.o \
+./Arduino\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/lcd.o \
+./Arduino\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/stdiodemo.o \
+./Arduino\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/uart.o 
+
+C_DEPS += \
+./Arduino\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/hd44780.d \
+./Arduino\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/lcd.d \
+./Arduino\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/stdiodemo.d \
+./Arduino\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/uart.d 
+
+
+# Each subdirectory must supply rules for building sources it contributes
+Arduino\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/hd44780.o: /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/hd44780.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: AVR Compiler'
+	avr-gcc -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/cores/arduino" -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard" -DARDUINO=100 -Wall -Os -fpack-struct -fshort-enums -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=16000000UL -MMD -MP -MF"Arduino base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/hd44780.d" -MT"Arduino\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/hd44780.d" -c -o "$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+Arduino\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/lcd.o: /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/lcd.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: AVR Compiler'
+	avr-gcc -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/cores/arduino" -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard" -DARDUINO=100 -Wall -Os -fpack-struct -fshort-enums -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=16000000UL -MMD -MP -MF"Arduino base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/lcd.d" -MT"Arduino\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/lcd.d" -c -o "$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+Arduino\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/stdiodemo.o: /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/stdiodemo.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: AVR Compiler'
+	avr-gcc -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/cores/arduino" -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard" -DARDUINO=100 -Wall -Os -fpack-struct -fshort-enums -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=16000000UL -MMD -MP -MF"Arduino base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/stdiodemo.d" -MT"Arduino\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/stdiodemo.d" -c -o "$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+Arduino\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/uart.o: /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/uart.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: AVR Compiler'
+	avr-gcc -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/cores/arduino" -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard" -DARDUINO=100 -Wall -Os -fpack-struct -fshort-enums -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=16000000UL -MMD -MP -MF"Arduino base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/uart.d" -MT"Arduino\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/uart.d" -c -o "$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+

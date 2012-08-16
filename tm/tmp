@@ -1,0 +1,104 @@
+Sapphire:tm sin$ ./Debug/tm onezeroeven.tm 1101010010
+Version 12.0419
+
+This is 2 tape machine w/ states !q2, q0, q1, 
+and, for each tape, alphabet is as follows: 
+Tape 1 alphabet = {0, 1, _, }, Tape 2 alphabet = {0, _, }, 
+---Transition table---
+q0 0 _ -> q1 (0, N), (0, N) 
+q0 1 _ -> q1 (1, N), (0, N) 
+q1 0 0 -> q1 (0, R), (0, L) 
+q1 0 _ -> q1 (0, R), (_, L) 
+q1 1 0 -> q1 (1, R), (0, R) 
+q1 1 _ -> q1 (1, R), (_, R) 
+q1 _ 0 -> q2 (_, N), (0, N) 
+---Table end---
+Accepting states: q2, 
+ Go next step         -> '[return]'
+ Continue until halt  -> 'c'
+ Exit                 -> 'e'
+
+
+Step: 0, State: q0
+Input tape: 
+[1]1 0 1 0 1 0 0 1 0 
+Working tape:
+[_]
+>>
+c
+
+Step: 1, State: q1
+Input tape: 
+[1]1 0 1 0 1 0 0 1 0 
+Working tape:
+[0]
+
+Step: 2, State: q1
+Input tape: 
+ 1[1]0 1 0 1 0 0 1 0 
+Working tape:
+ 0[_]
+
+Step: 3, State: q1
+Input tape: 
+ 1 1[0]1 0 1 0 0 1 0 
+Working tape:
+ 0 _[_]
+
+Step: 4, State: q1
+Input tape: 
+ 1 1 0[1]0 1 0 0 1 0 
+Working tape:
+ 0[_]_ 
+
+Step: 5, State: q1
+Input tape: 
+ 1 1 0 1[0]1 0 0 1 0 
+Working tape:
+ 0 _[_]
+
+Step: 6, State: q1
+Input tape: 
+ 1 1 0 1 0[1]0 0 1 0 
+Working tape:
+ 0[_]_ 
+
+Step: 7, State: q1
+Input tape: 
+ 1 1 0 1 0 1[0]0 1 0 
+Working tape:
+ 0 _[_]
+
+Step: 8, State: q1
+Input tape: 
+ 1 1 0 1 0 1 0[0]1 0 
+Working tape:
+ 0[_]_ 
+
+Step: 9, State: q1
+Input tape: 
+ 1 1 0 1 0 1 0 0[1]0 
+Working tape:
+[0]_ _ 
+
+Step: 10, State: q1
+Input tape: 
+ 1 1 0 1 0 1 0 0 1[0]
+Working tape:
+ 0[_]_ 
+
+Step: 11, State: q1
+Input tape: 
+ 1 1 0 1 0 1 0 0 1 0[_]
+Working tape:
+[0]_ _ 
+
+Step: 12, Accepting State: q2
+Input tape: 
+ 1 1 0 1 0 1 0 0 1 0[_]
+Working tape:
+[0]_ _ 
+
+The Machine has halted and accepted input '1101010010'.
+
+Sapphire:tm sin$ 
