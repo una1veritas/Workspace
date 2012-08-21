@@ -1,0 +1,29 @@
+/*
+ * PrintUtility.h
+ *
+ *  Created on: 2012/08/21
+ *      Author: sin
+ */
+
+#ifndef PRINTUTILITY_H_
+#define PRINTUTILITY_H_
+
+namespace util {
+
+const char endl = '\n';
+const char cr = '\r';
+const char tab = '\t';
+
+template<class T>
+inline Stream &operator <<(Stream &stream, T arg) {
+	arg.rintOn(stream);
+	return stream;
+}
+
+class PrintUtility {
+
+};
+
+}
+
+#endif /* PRINTUTILITY_H_ */
