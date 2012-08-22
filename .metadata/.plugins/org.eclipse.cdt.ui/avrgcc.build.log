@@ -1,0 +1,10 @@
+01:09:51 **** Build of configuration Default for project avrgcc ****
+make all 
+avr-g++ -Wall -Os -DF_CPU=16000000L -mmcu=atmega328p -I./arduino/cores/arduino -I./arduino/variants/standard -c main.cpp -o main.o
+avr-gcc -Wall -Os -DF_CPU=16000000L -mmcu=atmega328p -I./arduino/cores/arduino -I./arduino/variants/standard -o main.elf main.o  -L./arduino -larduinocore
+rm -f main.hex
+avr-objcopy -j .text -j .data -O ihex main.elf main.hex
+Build finished.
+
+01:09:52 Build Finished (took 427ms)
+

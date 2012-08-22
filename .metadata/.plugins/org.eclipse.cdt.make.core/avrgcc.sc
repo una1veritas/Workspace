@@ -2,7 +2,7 @@
 <?scdStore version="2"?>
 
 <scannerInfo id="org.eclipse.cdt.make.core.discoveredScannerInfo">
-<instance id="de.innot.avreclipse.configuration.app.release.1717355230;de.innot.avreclipse.configuration.app.release.1717355230.;de.innot.avreclipse.tool.compiler.winavr.app.release.1958696326;de.innot.avreclipse.compiler.winavr.input.1197490541">
+<instance id="de.innot.avreclipse.toolchain.winavr.base.938560070;de.innot.avreclipse.toolchain.winavr.base.938560070.700947415;de.innot.avreclipse.tool.compiler.winavr.base.2081921848;de.innot.avreclipse.compiler.winavr.input.766101939">
 <collector id="org.eclipse.cdt.make.core.PerProjectSICollector">
 <includePath path="/usr/local/CrossPack-AVR-20100115/lib/gcc/avr/4.3.3/include"/>
 <includePath path="/usr/local/CrossPack-AVR-20100115/lib/gcc/avr/4.3.3/include-fixed"/>
@@ -114,7 +114,7 @@
 <definedSymbol symbol="__AVR__=1"/>
 <definedSymbol symbol="AVR=1"/>
 <definedSymbol symbol="__AVR_ARCH__=5"/>
-<definedSymbol symbol="__AVR_ATmega328P__=1"/>
+<definedSymbol symbol="__AVR_ATmega16__=1"/>
 <definedSymbol symbol="__AVR_HAVE_MOVW__=1"/>
 <definedSymbol symbol="__AVR_HAVE_LPMX__=1"/>
 <definedSymbol symbol="__AVR_ENHANCED__=1"/>
@@ -122,10 +122,10 @@
 <definedSymbol symbol="__AVR_MEGA__=1"/>
 <definedSymbol symbol="__AVR_HAVE_JMP_CALL__=1"/>
 <definedSymbol symbol="__AVR_2_BYTE_PC__=1"/>
-<definedSymbol symbol="F_CPU=16000000UL"/>
+<definedSymbol symbol="F_CPU=1000000UL"/>
 </collector>
 </instance>
-<instance id="de.innot.avreclipse.configuration.app.release.1717355230;de.innot.avreclipse.configuration.app.release.1717355230.;de.innot.avreclipse.tool.cppcompiler.app.release.2145250954;de.innot.avreclipse.cppcompiler.input.1797378629">
+<instance id="de.innot.avreclipse.toolchain.winavr.base.938560070;de.innot.avreclipse.toolchain.winavr.base.938560070.700947415;de.innot.avreclipse.tool.cppcompiler.base.1999841788;de.innot.avreclipse.cppcompiler.input.1648589746">
 <collector id="org.eclipse.cdt.make.core.PerProjectSICollector">
 <includePath path="/usr/local/CrossPack-AVR-20100115/lib/gcc/avr/4.3.3/include"/>
 <includePath path="/usr/local/CrossPack-AVR-20100115/lib/gcc/avr/4.3.3/include-fixed"/>
@@ -241,7 +241,7 @@
 <definedSymbol symbol="__AVR__=1"/>
 <definedSymbol symbol="AVR=1"/>
 <definedSymbol symbol="__AVR_ARCH__=5"/>
-<definedSymbol symbol="__AVR_ATmega328P__=1"/>
+<definedSymbol symbol="__AVR_ATmega16__=1"/>
 <definedSymbol symbol="__AVR_HAVE_MOVW__=1"/>
 <definedSymbol symbol="__AVR_HAVE_LPMX__=1"/>
 <definedSymbol symbol="__AVR_ENHANCED__=1"/>
@@ -249,7 +249,7 @@
 <definedSymbol symbol="__AVR_MEGA__=1"/>
 <definedSymbol symbol="__AVR_HAVE_JMP_CALL__=1"/>
 <definedSymbol symbol="__AVR_2_BYTE_PC__=1"/>
-<definedSymbol symbol="F_CPU=16000000UL"/>
+<definedSymbol symbol="F_CPU=1000000UL"/>
 </collector>
 </instance>
 </scannerInfo>

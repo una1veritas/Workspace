@@ -17,7 +17,7 @@ C_DEPS += \
 Arduino\ app\ base/hardware/arduino/bootloaders/bt/ATmegaBOOT_168.o: /Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/bootloaders/bt/ATmegaBOOT_168.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: AVR Compiler'
-	avr-gcc -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/cores/arduino" -I"/Users/sin/Documents/Arduino/libraries/SD__/utility" -I"/Applications/Arduino.app/Contents/Resources/Java/libraries/SPI" -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard" -DARDUINO=100 -Wall -Os -fpack-struct -fshort-enums -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=16000000UL -MMD -MP -MF"Arduino app base/hardware/arduino/bootloaders/bt/ATmegaBOOT_168.d" -MT"Arduino\ app\ base/hardware/arduino/bootloaders/bt/ATmegaBOOT_168.d" -c -o "$@" "$<"
+	avr-gcc -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/cores/arduino" -I"/Applications/Arduino.app/Contents/Resources/Java/libraries/SPI" -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard" -DARDUINO=100 -Wall -Os -fpack-struct -fshort-enums -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=16000000UL -MMD -MP -MF"Arduino app base/hardware/arduino/bootloaders/bt/ATmegaBOOT_168.d" -MT"Arduino\ app\ base/hardware/arduino/bootloaders/bt/ATmegaBOOT_168.d" -c -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

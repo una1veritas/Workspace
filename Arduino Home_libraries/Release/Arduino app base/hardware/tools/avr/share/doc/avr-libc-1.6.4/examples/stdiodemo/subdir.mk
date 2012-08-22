@@ -26,28 +26,28 @@ C_DEPS += \
 Arduino\ app\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/hd44780.o: /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/hd44780.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: AVR Compiler'
-	avr-gcc -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/cores/arduino" -I"/Users/sin/Documents/Arduino/libraries/SD__/utility" -I"/Applications/Arduino.app/Contents/Resources/Java/libraries/SPI" -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard" -DARDUINO=100 -Wall -Os -fpack-struct -fshort-enums -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=16000000UL -MMD -MP -MF"Arduino app base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/hd44780.d" -MT"Arduino\ app\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/hd44780.d" -c -o "$@" "$<"
+	avr-gcc -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/cores/arduino" -I"/Applications/Arduino.app/Contents/Resources/Java/libraries/SPI" -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard" -DARDUINO=100 -Wall -Os -fpack-struct -fshort-enums -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=16000000UL -MMD -MP -MF"Arduino app base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/hd44780.d" -MT"Arduino\ app\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/hd44780.d" -c -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
 Arduino\ app\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/lcd.o: /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/lcd.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: AVR Compiler'
-	avr-gcc -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/cores/arduino" -I"/Users/sin/Documents/Arduino/libraries/SD__/utility" -I"/Applications/Arduino.app/Contents/Resources/Java/libraries/SPI" -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard" -DARDUINO=100 -Wall -Os -fpack-struct -fshort-enums -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=16000000UL -MMD -MP -MF"Arduino app base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/lcd.d" -MT"Arduino\ app\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/lcd.d" -c -o "$@" "$<"
+	avr-gcc -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/cores/arduino" -I"/Applications/Arduino.app/Contents/Resources/Java/libraries/SPI" -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard" -DARDUINO=100 -Wall -Os -fpack-struct -fshort-enums -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=16000000UL -MMD -MP -MF"Arduino app base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/lcd.d" -MT"Arduino\ app\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/lcd.d" -c -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
 Arduino\ app\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/stdiodemo.o: /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/stdiodemo.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: AVR Compiler'
-	avr-gcc -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/cores/arduino" -I"/Users/sin/Documents/Arduino/libraries/SD__/utility" -I"/Applications/Arduino.app/Contents/Resources/Java/libraries/SPI" -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard" -DARDUINO=100 -Wall -Os -fpack-struct -fshort-enums -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=16000000UL -MMD -MP -MF"Arduino app base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/stdiodemo.d" -MT"Arduino\ app\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/stdiodemo.d" -c -o "$@" "$<"
+	avr-gcc -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/cores/arduino" -I"/Applications/Arduino.app/Contents/Resources/Java/libraries/SPI" -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard" -DARDUINO=100 -Wall -Os -fpack-struct -fshort-enums -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=16000000UL -MMD -MP -MF"Arduino app base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/stdiodemo.d" -MT"Arduino\ app\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/stdiodemo.d" -c -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
 Arduino\ app\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/uart.o: /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/uart.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: AVR Compiler'
-	avr-gcc -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/cores/arduino" -I"/Users/sin/Documents/Arduino/libraries/SD__/utility" -I"/Applications/Arduino.app/Contents/Resources/Java/libraries/SPI" -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard" -DARDUINO=100 -Wall -Os -fpack-struct -fshort-enums -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=16000000UL -MMD -MP -MF"Arduino app base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/uart.d" -MT"Arduino\ app\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/uart.d" -c -o "$@" "$<"
+	avr-gcc -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/cores/arduino" -I"/Applications/Arduino.app/Contents/Resources/Java/libraries/SPI" -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard" -DARDUINO=100 -Wall -Os -fpack-struct -fshort-enums -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=16000000UL -MMD -MP -MF"Arduino app base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/uart.d" -MT"Arduino\ app\ base/hardware/tools/avr/share/doc/avr-libc-1.6.4/examples/stdiodemo/uart.d" -c -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

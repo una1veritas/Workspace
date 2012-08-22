@@ -8,7 +8,6 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include libraries/uALFAT/subdir.mk
 -include libraries/Wire__/utility/subdir.mk
 -include libraries/Wire__/subdir.mk
 -include libraries/WaveHC/subdir.mk
@@ -25,10 +24,7 @@ RM := rm -rf
 -include libraries/SpiSRAM_23X256/subdir.mk
 -include libraries/Sparkfun6DOF/subdir.mk
 -include libraries/Sensirion/subdir.mk
--include libraries/SD__/utility/subdir.mk
--include libraries/SD__/subdir.mk
--include libraries/SD_Reader/examples/subdir.mk
--include libraries/SD_Reader/subdir.mk
+-include libraries/Sd2Card/subdir.mk
 -include libraries/SCP1000D01/subdir.mk
 -include libraries/Roomba500/subdir.mk
 -include libraries/Roomba/subdir.mk
@@ -71,8 +67,6 @@ RM := rm -rf
 -include libraries/GPS/subdir.mk
 -include libraries/FeliCaPlug/subdir.mk
 -include libraries/Fat16/subdir.mk
--include libraries/Ethernet__/utility/subdir.mk
--include libraries/Ethernet__/subdir.mk
 -include libraries/Digital6DOF/subdir.mk
 -include libraries/Des/subdir.mk
 -include libraries/DataFlash/subdir.mk
@@ -91,7 +85,6 @@ RM := rm -rf
 -include libraries/Adafruit_GFX/subdir.mk
 -include libraries/AP_GPS/subdir.mk
 -include libraries/APM_Compass/subdir.mk
--include libraries/AF_Wave/subdir.mk
 -include libraries/AFMotor/subdir.mk
 -include libraries/AES128/subdir.mk
 -include libraries/ADC_MCP320X/subdir.mk
@@ -101,6 +94,8 @@ RM := rm -rf
 -include Arduino\ app\ base/libraries/SoftwareSerial/subdir.mk
 -include Arduino\ app\ base/libraries/Servo/subdir.mk
 -include Arduino\ app\ base/libraries/SPI/subdir.mk
+-include Arduino\ app\ base/libraries/SD/utility/subdir.mk
+-include Arduino\ app\ base/libraries/SD/subdir.mk
 -include Arduino\ app\ base/libraries/LiquidCrystal/subdir.mk
 -include Arduino\ app\ base/libraries/Firmata/subdir.mk
 -include Arduino\ app\ base/libraries/Ethernet/utility/subdir.mk

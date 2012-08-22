@@ -29,7 +29,6 @@ SIZEDUMMY :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-libraries/uALFAT \
 libraries/Wire__/utility \
 libraries/Wire__ \
 libraries/WaveHC \
@@ -46,10 +45,7 @@ libraries/TFTLCD \
 libraries/SpiSRAM_23X256 \
 libraries/Sparkfun6DOF \
 libraries/Sensirion \
-libraries/SD__/utility \
-libraries/SD__ \
-libraries/SD_Reader \
-libraries/SD_Reader/examples \
+libraries/Sd2Card \
 libraries/SCP1000D01 \
 libraries/Roomba500 \
 libraries/Roomba \
@@ -92,8 +88,6 @@ libraries/HC595 \
 libraries/GPS \
 libraries/FeliCaPlug \
 libraries/Fat16 \
-libraries/Ethernet__/utility \
-libraries/Ethernet__ \
 libraries/Digital6DOF \
 libraries/Des \
 libraries/DataFlash \
@@ -112,7 +106,6 @@ libraries/Adafruit_LED_Backpack \
 libraries/Adafruit_GFX \
 libraries/AP_GPS \
 libraries/APM_Compass \
-libraries/AF_Wave \
 libraries/AFMotor \
 libraries/AES128 \
 libraries/ADC_MCP320X \
@@ -122,6 +115,8 @@ Arduino\ app\ base/libraries/Stepper \
 Arduino\ app\ base/libraries/SoftwareSerial \
 Arduino\ app\ base/libraries/Servo \
 Arduino\ app\ base/libraries/SPI \
+Arduino\ app\ base/libraries/SD/utility \
+Arduino\ app\ base/libraries/SD \
 Arduino\ app\ base/libraries/LiquidCrystal \
 Arduino\ app\ base/libraries/Firmata \
 Arduino\ app\ base/libraries/Ethernet/utility \
