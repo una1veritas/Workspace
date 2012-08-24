@@ -1,0 +1,798 @@
+Archive member included because of file (symbol)
+
+lib/librxduino.a(analogio.o)  userapp.o (analogWrite)
+lib/librxduino.a(digitalio.o)
+                              userapp.o (pinMode)
+lib/librxduino.a(rxduino.o)   lib/start.o (main)
+lib/librxduino.a(serial.o)    userapp.o (CSerial::begin(int))
+lib/librxduino.a(delay.o)     lib/librxduino.a(digitalio.o) (micros)
+lib/gcc/libc.a(lib_a-errno.o)
+                              common/lowlevel.o (__errno)
+lib/gcc/libc.a(lib_a-impure.o)
+                              lib/gcc/libc.a(lib_a-errno.o) (_impure_ptr)
+lib/libtkdnhal.a(hwsetup.o)   lib/start.o (tkdn_hwsetup)
+lib/libtkdnhal.a(tkdn_sci.o)  common/intvect.o (Excep_SCI0_ERI0)
+lib/libtkdnhal.a(tkdn_ether.o)
+                              common/intvect.o (Excep_ETHER_EINT)
+lib/libtkdnhal.a(tkdn_timer.o)
+                              userapp.o (timer_wait_ms)
+lib/libtkdnhal.a(tkdn_gpio.o)
+                              lib/librxduino.a(digitalio.o) (gpio_set_pinmode)
+lib/libtkdnhal.a(tkdn_pwm.o)  lib/librxduino.a(analogio.o) (pwm_init)
+lib/libtkdnhal.a(tkdn_tone.o)
+                              common/intvect.o (Excep_MTU2_TGIA2)
+lib/libtkdnhal.a(tkdn_adc.o)  lib/librxduino.a(analogio.o) (adc_sample)
+lib/libtkdnhal.a(tkdn_dac.o)  lib/librxduino.a(analogio.o) (dac_output)
+lib/libtkdnhal.a(phy.o)       lib/libtkdnhal.a(tkdn_ether.o) (_phy_read)
+lib/libtkdnhal.a(eidi.o)      lib/libtkdnhal.a(tkdn_ether.o) (enable_interrupt)
+lib/libtkdnhal.a(usb_cdc.o)   lib/libtkdnhal.a(tkdn_sci.o) (TKUSB_Init)
+lib/libtkdnhal.a(usb_core.o)  lib/libtkdnhal.a(usb_cdc.o) (USBCORE_Init)
+lib/libtkdnhal.a(usb_hal.o)   lib/libtkdnhal.a(tkdn_sci.o) (TKUSB_RecvByte)
+lib/libtkdnhal.a(usbdescriptors.o)
+                              lib/libtkdnhal.a(usb_cdc.o) (gStringDescriptorSerialNum)
+lib/libtkdnhal.a(tkdn_interrupt.o)
+                              common/intvect.o (Excep_IRQ0)
+
+Allocating common symbols
+Common symbol       size              file
+
+sci_default         0x21c             lib/libtkdnhal.a(tkdn_sci.o)
+user_rx_func        0x4               lib/libtkdnhal.a(tkdn_ether.o)
+sci_handles         0x18              lib/libtkdnhal.a(tkdn_sci.o)
+ifunc               0x20              lib/libtkdnhal.a(tkdn_interrupt.o)
+psci_default        0x4               lib/libtkdnhal.a(tkdn_sci.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD lib/start.o
+LOAD common/intvect.o
+LOAD common/lowlevel.o
+LOAD userapp.o
+                0x0000000000017f00                _usp_init = 0x17f00
+                0x0000000000018000                _isp_init = 0x18000
+
+.fvectors       0x00000000ffffffd0       0x30
+ *.o(.fvectors)
+ .fvectors      0x00000000ffffffd0       0x30 common/intvect.o
+                0x00000000ffffffd0                Fixed_Vectors
+
+.rvectors       0x00000000fff80000      0x400
+ *.o(.rvectors)
+ .rvectors      0x00000000fff80000      0x400 common/intvect.o
+                0x00000000fff80000                Relocatable_Vectors
+
+.text           0x00000000fff80400     0x4260
+                0x00000000fff80400                PROVIDE (_start, .)
+ *(.text P .stub .text.* .gnu.linkonce.t.*)
+ P              0x00000000fff80400       0x8c lib/start.o
+                0x00000000fff80400                start
+                0x00000000fff80400                PowerON_Reset_PC
+                0x00000000fff8048a                _rx_fini
+                0x00000000fff8048b                __cxa_atexit
+ P              0x00000000fff8048c      0x444 common/intvect.o
+                0x00000000fff8048c                Excep_SuperVisorInst
+                0x00000000fff80494                Excep_UndefinedInst
+                0x00000000fff8049c                Excep_FloatingPoint
+                0x00000000fff804a4                NonMaskableInterrupt
+                0x00000000fff804ac                Excep_BRK
+                0x00000000fff804b4                Excep_BUSERR
+                0x00000000fff804bc                Excep_FCU_FCUERR
+                0x00000000fff804c4                Excep_FCU_FRDYI
+                0x00000000fff804cc                Excep_ICU_SWINT
+                0x00000000fff804d4                Excep_CMTU0_CMT1
+                0x00000000fff804dc                Excep_CMTU1_CMT3
+                0x00000000fff804e4                Excep_USB0_D0FIFO0
+                0x00000000fff804ec                Excep_USB0_D1FIFO0
+                0x00000000fff804f4                Excep_USB0_USBI0
+                0x00000000fff80506                Excep_USB1_D0FIFO1
+                0x00000000fff8050e                Excep_USB1_D1FIFO1
+                0x00000000fff80516                Excep_USB1_USBI1
+                0x00000000fff80528                Excep_RSPI0_SPEI0
+                0x00000000fff80530                Excep_RSPI0_SPRI0
+                0x00000000fff80538                Excep_RSPI0_SPTI0
+                0x00000000fff80540                Excep_RSPI0_SPII0
+                0x00000000fff80548                Excep_RSPI1_SPEI1
+                0x00000000fff80550                Excep_RSPI1_SPRI1
+                0x00000000fff80558                Excep_RSPI1_SPTI1
+                0x00000000fff80560                Excep_RSPI1_SPII1
+                0x00000000fff80568                Excep_CAN0_ERS0
+                0x00000000fff80570                Excep_CAN0_RXF0
+                0x00000000fff80578                Excep_CAN0_TXF0
+                0x00000000fff80580                Excep_CAN0_RXM0
+                0x00000000fff80588                Excep_CAN0_TXM0
+                0x00000000fff80590                Excep_RTC_PRD
+                0x00000000fff80598                Excep_RTC_CUP
+                0x00000000fff805a0                Excep_IRQ8
+                0x00000000fff805a8                Excep_IRQ9
+                0x00000000fff805b0                Excep_IRQ10
+                0x00000000fff805b8                Excep_IRQ11
+                0x00000000fff805c0                Excep_IRQ12
+                0x00000000fff805c8                Excep_IRQ13
+                0x00000000fff805d0                Excep_IRQ14
+                0x00000000fff805d8                Excep_IRQ15
+                0x00000000fff805e0                Excep_USB_USBR0
+                0x00000000fff805e8                Excep_USB_USBR1
+                0x00000000fff805f0                Excep_RTC_ALM
+                0x00000000fff805f8                Excep_WDT_WOVI
+                0x00000000fff80600                Excep_AD0_ADI0
+                0x00000000fff80608                Excep_AD1_ADI1
+                0x00000000fff80610                Excep_S12AD_ADI12
+                0x00000000fff80618                Excep_MTU0_TCIV0
+                0x00000000fff80620                Excep_MTU1_TGIB1
+                0x00000000fff80628                Excep_MTU1_TCIV1
+                0x00000000fff80630                Excep_MTU1_TCIU1
+                0x00000000fff80638                Excep_MTU2_TGIB2
+                0x00000000fff80640                Excep_MTU2_TCIV2
+                0x00000000fff80648                Excep_MTU2_TCIU2
+                0x00000000fff80650                Excep_MTU3_TGIA3
+                0x00000000fff80658                Excep_MTU3_TGIB3
+                0x00000000fff80660                Excep_MTU3_TGIC3
+                0x00000000fff80668                Excep_MTU3_TGID3
+                0x00000000fff80670                Excep_MTU3_TCIV3
+                0x00000000fff80678                Excep_MTU4_TGIA4
+                0x00000000fff80680                Excep_MTU4_TGIB4
+                0x00000000fff80688                Excep_MTU4_TGIC4
+                0x00000000fff80690                Excep_MTU4_TGID4
+                0x00000000fff80698                Excep_MTU4_TCIV4
+                0x00000000fff806a0                Excep_MTU5_TCIU5
+                0x00000000fff806a8                Excep_MTU5_TCIV5
+                0x00000000fff806b0                Excep_MTU5_TCIW5
+                0x00000000fff806b8                Excep_MTU6_TGIA6
+                0x00000000fff806c0                Excep_MTU6_TGIB6
+                0x00000000fff806c8                Excep_MTU6_TGIC6
+                0x00000000fff806d0                Excep_MTU6_TGID6
+                0x00000000fff806d8                Excep_MTU6_TCIV6
+                0x00000000fff806e0                Excep_MTU6_TGIE6
+                0x00000000fff806e8                Excep_MTU6_TGIF6
+                0x00000000fff806f0                Excep_MTU7_TGIA7
+                0x00000000fff806f8                Excep_MTU7_TGIB7
+                0x00000000fff80700                Excep_MTU7_TCIV7
+                0x00000000fff80708                Excep_MTU7_TCIU7
+                0x00000000fff80710                Excep_MTU8_TGIA8
+                0x00000000fff80718                Excep_MTU8_TGIB8
+                0x00000000fff80720                Excep_MTU8_TCIV8
+                0x00000000fff80728                Excep_MTU8_TCIU8
+                0x00000000fff80730                Excep_MTU9_TGIA9
+                0x00000000fff80738                Excep_MTU9_TGIB9
+                0x00000000fff80740                Excep_MTU9_TGIC9
+                0x00000000fff80748                Excep_MTU9_TGID9
+                0x00000000fff80750                Excep_MTU9_TCIV9
+                0x00000000fff80758                Excep_MTU10_TGIA10
+                0x00000000fff80760                Excep_MTU10_TGIB10
+                0x00000000fff80768                Excep_MTU10_TGIC10
+                0x00000000fff80770                Excep_MTU10_TGID10
+                0x00000000fff80778                Excep_MTU10_TCIV10
+                0x00000000fff80780                Excep_MTU11_TCIU11
+                0x00000000fff80788                Excep_MTU11_TCIV11
+                0x00000000fff80790                Excep_MTU11_TCIW11
+                0x00000000fff80798                Excep_POE_OEI1
+                0x00000000fff807a0                Excep_POE_OEI2
+                0x00000000fff807a8                Excep_POE_OEI3
+                0x00000000fff807b0                Excep_POE_OEI4
+                0x00000000fff807b8                Excep_TMR0_CMI0A
+                0x00000000fff807c0                Excep_TMR0_CMI0B
+                0x00000000fff807c8                Excep_TMR0_OV0I
+                0x00000000fff807d0                Excep_TMR1_CMI1A
+                0x00000000fff807d8                Excep_TMR1_CMI1B
+                0x00000000fff807e0                Excep_TMR1_OV1I
+                0x00000000fff807e8                Excep_TMR2_CMI2A
+                0x00000000fff807f0                Excep_TMR2_CMI2B
+                0x00000000fff807f8                Excep_TMR2_OV2I
+                0x00000000fff80800                Excep_TMR3_CMI3A
+                0x00000000fff80808                Excep_TMR3_CMI3B
+                0x00000000fff80810                Excep_TMR3_OV3I
+                0x00000000fff80818                Excep_DMACA_DMAC0
+                0x00000000fff80820                Excep_DMACA_DMAC1
+                0x00000000fff80828                Excep_DMACA_DMAC2
+                0x00000000fff80830                Excep_DMACA_DMAC3
+                0x00000000fff80838                Excep_EXDMAC_DMAC0
+                0x00000000fff80840                Excep_EXDMAC_DMAC1
+                0x00000000fff80848                Excep_SCI3_ERI3
+                0x00000000fff80850                Excep_SCI3_RXI3
+                0x00000000fff80858                Excep_SCI3_TXI3
+                0x00000000fff80860                Excep_SCI3_TEI3
+                0x00000000fff80868                Excep_SCI5_ERI5
+                0x00000000fff80870                Excep_SCI5_RXI5
+                0x00000000fff80878                Excep_SCI5_TXI5
+                0x00000000fff80880                Excep_SCI5_TEI5
+                0x00000000fff80888                Excep_RIIC0_EEI0
+                0x00000000fff80890                Excep_RIIC0_RXI0
+                0x00000000fff80898                Excep_RIIC0_TXI0
+                0x00000000fff808a0                Excep_RIIC0_TEI0
+                0x00000000fff808a8                Excep_RIIC1_EEI1
+                0x00000000fff808b0                Excep_RIIC1_RXI1
+                0x00000000fff808b8                Excep_RIIC1_TXI1
+                0x00000000fff808c0                Excep_RIIC1_TEI1
+                0x00000000fff808c8                Dummy
+ P              0x00000000fff808d0      0x130 common/lowlevel.o
+                0x00000000fff808d0                sbrk
+                0x00000000fff808d0                _sbrk
+                0x00000000fff808df                open
+                0x00000000fff808e2                read
+                0x00000000fff80968                write
+                0x00000000fff809c1                lseek
+                0x00000000fff809c4                isatty
+                0x00000000fff809c7                fstat
+                0x00000000fff809f7                close
+ P              0x00000000fff80a00      0x123 userapp.o
+                0x00000000fff80a00                setup
+                0x00000000fff80a4e                ledbright(unsigned char)
+                0x00000000fff80a58                loop
+ *fill*         0x00000000fff80b23        0x5 00
+ P              0x00000000fff80b28       0x30 lib/librxduino.a(analogio.o)
+                0x00000000fff80b28                analogRead
+                0x00000000fff80b3b                analogWrite
+                0x00000000fff80b3f                analogWriteDAC
+                0x00000000fff80b48                analogReference
+                0x00000000fff80b51                analogWriteFrequency
+ P              0x00000000fff80b58       0x98 lib/librxduino.a(digitalio.o)
+                0x00000000fff80b58                pinMode
+                0x00000000fff80b7b                digitalWrite
+                0x00000000fff80b9e                digitalRead
+                0x00000000fff80ba2                pulseIn
+ P              0x00000000fff80bf0        0x0 lib/librxduino.a(rxduino.o)
+ .text.startup  0x00000000fff80bf0       0x18 lib/librxduino.a(rxduino.o)
+                0x00000000fff80bf0                main
+ P              0x00000000fff80c08      0x210 lib/librxduino.a(serial.o)
+                0x00000000fff80c08                CSerial::~CSerial()
+                0x00000000fff80c08                CSerial::~CSerial()
+                0x00000000fff80c09                CSerial::CSerial(SCI_PORT)
+                0x00000000fff80c09                CSerial::CSerial(SCI_PORT)
+                0x00000000fff80c0c                CSerial::begin(int)
+                0x00000000fff80c35                CSerial::begin(int, SCI_PORT)
+                0x00000000fff80c5a                CSerial::end()
+                0x00000000fff80c5b                CSerial::setDefault()
+                0x00000000fff80c61                CSerial::available()
+                0x00000000fff80c67                CSerial::read()
+                0x00000000fff80c87                CSerial::write(char)
+                0x00000000fff80c8d                CSerial::write(char const*)
+                0x00000000fff80c93                CSerial::write(char const*, int)
+                0x00000000fff80c99                CSerial::print(int, CSerial::PRINT_TYPE)
+                0x00000000fff80d7c                CSerial::println(int, CSerial::PRINT_TYPE)
+                0x00000000fff80d98                CSerial::print(double, int)
+                0x00000000fff80da4                CSerial::println(double, int)
+                0x00000000fff80dc7                CSerial::print(char const*)
+                0x00000000fff80dcd                CSerial::println(char const*)
+                0x00000000fff80dea                CSerial::peek()
+                0x00000000fff80e0a                CSerial::flush()
+                0x00000000fff80e10                CSerial::get_handle()
+ .text.startup  0x00000000fff80e18       0x66 lib/librxduino.a(serial.o)
+ P              0x00000000fff80e7e       0x10 lib/librxduino.a(delay.o)
+                0x00000000fff80e7e                millis
+                0x00000000fff80e82                micros
+                0x00000000fff80e86                delay
+                0x00000000fff80e8a                delayMicroseconds
+ P              0x00000000fff80e8e        0x0 lib/gcc/libc.a(lib_a-errno.o)
+ .text.__errno  0x00000000fff80e8e        0x9 lib/gcc/libc.a(lib_a-errno.o)
+                0x00000000fff80e8e                __errno
+ P              0x00000000fff80e97        0x0 lib/gcc/libc.a(lib_a-impure.o)
+ P              0x00000000fff80e97       0x45 lib/libtkdnhal.a(hwsetup.o)
+                0x00000000fff80e97                tkdn_hwsetup
+                0x00000000fff80edb                sdram_init
+ *fill*         0x00000000fff80edc        0x4 00
+ P              0x00000000fff80ee0      0xe70 lib/libtkdnhal.a(tkdn_sci.o)
+                0x00000000fff81251                sci_getport
+                0x00000000fff8125d                sci_readdata
+                0x00000000fff8125e                sci_convert_crlf
+                0x00000000fff8126d                Excep_SCI0_ERI0
+                0x00000000fff81296                Excep_SCI0_RXI0
+                0x00000000fff812bf                Excep_SCI0_TXI0
+                0x00000000fff8130b                Excep_SCI0_TEI0
+                0x00000000fff81323                Excep_SCI1_ERI1
+                0x00000000fff8134d                Excep_SCI1_RXI1
+                0x00000000fff81377                Excep_SCI1_TXI1
+                0x00000000fff813c4                Excep_SCI1_TEI1
+                0x00000000fff813dc                Excep_SCI2_ERI2
+                0x00000000fff81406                Excep_SCI2_RXI2
+                0x00000000fff81430                Excep_SCI2_TXI2
+                0x00000000fff8147d                Excep_SCI2_TEI2
+                0x00000000fff81495                Excep_SCI6_ERI6
+                0x00000000fff814bf                Excep_SCI6_RXI6
+                0x00000000fff814e9                Excep_SCI6_TXI6
+                0x00000000fff81536                Excep_SCI6_TEI6
+                0x00000000fff8154e                sci_putc_ex
+                0x00000000fff81604                sci_putc
+                0x00000000fff81612                sci_puts_ex
+                0x00000000fff81643                sci_puts
+                0x00000000fff81651                sci_getc_ex
+                0x00000000fff816a5                sci_getc
+                0x00000000fff816b1                sci_writedata_ex
+                0x00000000fff817a9                sci_writedata
+                0x00000000fff817bb                sci_readdata_ex
+                0x00000000fff817bc                sci_rxcount_ex
+                0x00000000fff817d7                sci_gets_ex
+                0x00000000fff8184a                sci_gets
+                0x00000000fff8185c                sci_rxcount
+                0x00000000fff81868                sci_init_ex
+                0x00000000fff81cee                sci_init
+                0x00000000fff81d10                sci_getport_ex
+                0x00000000fff81d14                sci_convert_crlf_ex
+                0x00000000fff81d1b                sci_peek_ex
+                0x00000000fff81d3b                sci_flush_ex
+                0x00000000fff81d47                sci_regist_default
+ P              0x00000000fff81d50      0x5b0 lib/libtkdnhal.a(tkdn_ether.o)
+                0x00000000fff81d50                ether_close
+                0x00000000fff81d67                ether_write
+                0x00000000fff81e25                _eth_fifoInit
+                0x00000000fff81e96                _eth_fifoWrite
+                0x00000000fff81ed4                _eth_fifoRead
+                0x00000000fff81f28                ether_read
+                0x00000000fff81fe7                ether_regist_user_rx_procedure
+                0x00000000fff81ff0                ether_is_linkup
+                0x00000000fff81ffc                ether_autonegotiate
+                0x00000000fff82071                ether_open
+                0x00000000fff82261                Excep_ETHER_EINT
+                0x00000000fff822e0                ether_is_100M
+                0x00000000fff822e9                ether_is_fullduplex
+                0x00000000fff822f2                ether_link_changed
+ P              0x00000000fff82300      0x140 lib/libtkdnhal.a(tkdn_timer.o)
+                0x00000000fff82300                timer_init
+                0x00000000fff82313                timer_wait_ms
+                0x00000000fff82324                timer_wait_us
+                0x00000000fff8239e                timer_get_ms
+                0x00000000fff823a7                timer_get_us
+                0x00000000fff823de                timer_regist_userfunc
+                0x00000000fff823e9                timer_regist_disktimer
+                0x00000000fff823f4                Excep_CMTU0_CMT0
+                0x00000000fff8243d                Excep_CMTU1_CMT2
+ P              0x00000000fff82440      0x118 lib/libtkdnhal.a(tkdn_gpio.o)
+                0x00000000fff82489                gpio_set_pinmode
+                0x00000000fff824e7                gpio_write_port
+                0x00000000fff82525                gpio_read_port
+ P              0x00000000fff82558      0x490 lib/libtkdnhal.a(tkdn_pwm.o)
+                0x00000000fff82558                pwm_init
+                0x00000000fff826ea                pwm_output
+                0x00000000fff82819                pwm_stop
+                0x00000000fff828a6                Excep_MTU1_TGIA1
+                0x00000000fff828da                Excep_MTU0_TGIA0
+                0x00000000fff82906                Excep_MTU0_TGIB0
+                0x00000000fff82933                Excep_MTU0_TGIC0
+                0x00000000fff82960                Excep_MTU0_TGID0
+                0x00000000fff8298d                Excep_MTU0_TGIE0
+                0x00000000fff829ba                Excep_MTU0_TGIF0
+ P              0x00000000fff829e8      0x180 lib/libtkdnhal.a(tkdn_tone.o)
+                0x00000000fff829e8                tone_start
+                0x00000000fff82b29                tone_stop
+                0x00000000fff82b43                Excep_MTU2_TGIA2
+ P              0x00000000fff82b68      0x120 lib/libtkdnhal.a(tkdn_adc.o)
+                0x00000000fff82b68                adc_init
+                0x00000000fff82b8e                adc_terminate
+                0x00000000fff82baa                adc_sample
+ P              0x00000000fff82c88       0x88 lib/libtkdnhal.a(tkdn_dac.o)
+                0x00000000fff82c88                dac_init
+                0x00000000fff82ca2                dac_terminate
+                0x00000000fff82cb9                dac_output
+ P              0x00000000fff82d10      0x240 lib/libtkdnhal.a(phy.o)
+                0x00000000fff82d10                _phy_reg_read
+                0x00000000fff82d4e                _phy_ta_z0
+                0x00000000fff82d74                _phy_mii_write_1
+                0x00000000fff82d9a                _phy_preamble
+                0x00000000fff82db2                _phy_mii_write_0
+                0x00000000fff82dd8                _phy_ta_10
+                0x00000000fff82de0                _phy_reg_write
+                0x00000000fff82e1b                _phy_reg_set
+                0x00000000fff82e69                _phy_write
+                0x00000000fff82e8f                phy_set_10half
+                0x00000000fff82e97                phy_set_100full
+                0x00000000fff82ea1                _phy_read
+                0x00000000fff82ec8                phy_set_autonegotiate
+                0x00000000fff82f18                phy_init
+ P              0x00000000fff82f50       0x18 lib/libtkdnhal.a(eidi.o)
+                0x00000000fff82f50                enable_interrupt
+                0x00000000fff82f5c                disable_interrupt
+ P              0x00000000fff82f68      0x118 lib/libtkdnhal.a(usb_cdc.o)
+                0x00000000fff83004                TKUSB_Init
+                0x00000000fff83071                TKUSB_IsConnected
+ P              0x00000000fff83080      0x338 lib/libtkdnhal.a(usb_core.o)
+                0x00000000fff8333e                USBCORE_Init
+ P              0x00000000fff833b8      0xfe0 lib/libtkdnhal.a(usb_hal.o)
+                0x00000000fff83489                TKUSB_RecvByte
+                0x00000000fff834e8                TKUSB_PeekByte
+                0x00000000fff8350e                TKUSB_RecvDataCount
+                0x00000000fff83528                TKUSB_SendByte
+                0x00000000fff8358a                TKUSB_SendDataCount
+                0x00000000fff835a4                USBHAL_Init
+                0x00000000fff837fe                USBHAL_Disable
+                0x00000000fff8380e                USBHAL_Control_Status
+                0x00000000fff8383a                USBHAL_Control_IN
+                0x00000000fff8385f                USBHAL_Control_OUT
+                0x00000000fff838a9                USBHAL_Bulk_OUT
+                0x00000000fff838e1                ClearOUTBusy
+                0x00000000fff838ec                USBHAL_Bulk_IN
+                0x00000000fff8392c                USBHAL_Interrupt_IN
+                0x00000000fff8396c                USBHAL_Control_Stall
+                0x00000000fff83996                USBHAL_Bulk_IN_Stall
+                0x00000000fff839b5                USBHAL_Bulk_OUT_Stall
+                0x00000000fff839d4                USBHAL_Interrupt_IN_Stall
+                0x00000000fff839f3                USBHAL_Bulk_IN_Stall_Clear
+                0x00000000fff83a32                USBHAL_Bulk_OUT_Stall_Clear
+                0x00000000fff83a90                USBHAL_Interrupt_IN_Stall_Clear
+                0x00000000fff83aca                USBHAL_Bulk_IN_Is_Stalled
+                0x00000000fff83aea                USBHAL_Bulk_OUT_Is_Stalled
+                0x00000000fff83b0a                USBHAL_Interrupt_IN_Is_Stalled
+                0x00000000fff83b2a                USBHAL_Config_Get
+                0x00000000fff83b31                USBHAL_Config_Set
+                0x00000000fff83b47                USBHAL_Reset
+                0x00000000fff83cc2                USBHAL_Cancel
+                0x00000000fff83d10                USBHAL_ResetEndpoints
+                0x00000000fff83de2                USBHALInterruptHandler
+ P              0x00000000fff84398        0x0 lib/libtkdnhal.a(usbdescriptors.o)
+ P              0x00000000fff84398      0x2c8 lib/libtkdnhal.a(tkdn_interrupt.o)
+                0x00000000fff8439a                attach_interrupt
+                0x00000000fff84501                detach_interrupt
+                0x00000000fff84519                Excep_IRQ0
+                0x00000000fff84541                Excep_IRQ1
+                0x00000000fff8456a                Excep_IRQ2
+                0x00000000fff84593                Excep_IRQ3
+                0x00000000fff845bc                Excep_IRQ4
+                0x00000000fff845e5                Excep_IRQ5
+                0x00000000fff8460e                Excep_IRQ6
+                0x00000000fff84637                Excep_IRQ7
+ *(.text.*personality*)
+ *(.gnu.warning)
+ *(.interp .hash .dynsym .dynstr .gnu.version*)
+                0x00000000fff84660                PROVIDE (__etext, .)
+                0x00000000fff84660                PROVIDE (_etext, .)
+                0x00000000fff84660                PROVIDE (etext, .)
+                0x00000000fff84660                . = ALIGN (0x4)
+ *(.init)
+ *(.fini)
+
+.rodata         0x00000000fff84660      0x240
+                0x00000000fff84660                . = ALIGN (0x4)
+ *(.plt)
+ *(.rodata C C_2 C_1 .rodata.* .gnu.linkonce.r.*)
+ .rodata.str1.1
+                0x00000000fff84660        0xf userapp.o
+ .rodata.str1.1
+                0x00000000fff8466f       0x35 lib/librxduino.a(serial.o)
+ .rodata._global_impure_ptr
+                0x00000000fff846a4        0x4 lib/gcc/libc.a(lib_a-impure.o)
+                0x00000000fff846a4                _global_impure_ptr
+ .rodata.str1.1
+                0x00000000fff846a8        0x2 lib/gcc/libc.a(lib_a-impure.o)
+ .rodata.str1.1
+                0x00000000fff846aa        0x5 lib/libtkdnhal.a(tkdn_ether.o)
+ *fill*         0x00000000fff846af        0x1 00
+ .rodata.cst4   0x00000000fff846b0        0x4 lib/libtkdnhal.a(tkdn_ether.o)
+ C              0x00000000fff846b4       0x84 lib/libtkdnhal.a(tkdn_gpio.o)
+                0x00000000fff846b4                SFP_PINMAP
+                0x00000000fff846c8                GPIO_PINMAP
+ C              0x00000000fff84738       0x30 lib/libtkdnhal.a(tkdn_pwm.o)
+ C              0x00000000fff84768       0x20 lib/libtkdnhal.a(tkdn_adc.o)
+ C              0x00000000fff84788        0x8 lib/libtkdnhal.a(usb_cdc.o)
+ C              0x00000000fff84790       0x2c lib/libtkdnhal.a(usb_core.o)
+                0x00000000fff847b8                gStringDescriptorLanguageIDsData
+ C              0x00000000fff847bc       0xc4 lib/libtkdnhal.a(usbdescriptors.o)
+                0x00000000fff847bc                gStringDescriptorSerialNum
+                0x00000000fff847c4                gStringDescriptorProduct
+                0x00000000fff847cc                gStringDescriptorManufacturer
+                0x00000000fff847d4                gConfigurationDescriptor
+                0x00000000fff847dc                gDeviceDescriptor
+ C              0x00000000fff84880       0x20 lib/libtkdnhal.a(tkdn_interrupt.o)
+ *(.rodata1)
+ *(.eh_frame_hdr)
+ *(.eh_frame)
+ *(.gcc_except_table)
+ *(.gcc_except_table.*)
+                0x00000000fff848a0                . = ALIGN (0x4)
+                0x00000000fff848a0                __rodataend = .
+
+.data           0x0000000000001000      0x508 load address 0x00000000fff848a0
+                0x0000000000001000                . = ALIGN (0x4)
+                0x00000000fff848a0                PROVIDE (__romdatastart, __rodataend)
+                0x0000000000001000                PROVIDE (__datastart, .)
+                0x0000000000001000                PROVIDE (__preinit_array_start, .)
+ *(.preinit_array)
+                0x0000000000001000                PROVIDE (__preinit_array_end, .)
+                0x0000000000001000                PROVIDE (__init_array_start, .)
+ *(SORT(.init_array.*))
+ *(.init_array)
+ .init_array    0x0000000000001000        0x4 lib/librxduino.a(serial.o)
+                0x0000000000001004                PROVIDE (__init_array_end, .)
+                0x0000000000001004                PROVIDE (__fini_array_start, .)
+ *(.fini_array)
+ *(SORT(.fini_array.*))
+                0x0000000000001004                PROVIDE (__fini_array_end, .)
+                0x0000000000001004        0x4 LONG 0x0
+ *crtbegin*.o(.ctors)
+ *(EXCLUDE_FILE(*crtend*.o) .ctors)
+ *(SORT(.ctors.*))
+ *(.ctors)
+ *crtbegin*.o(.dtors)
+ *(EXCLUDE_FILE(*crtend*.o) .dtors)
+ *(SORT(.dtors.*))
+ *(.dtors)
+ *(.jcr)
+ *(.data.rel.ro.local)
+ *(.data.rel.ro*)
+ *(.dynamic)
+ *(.data D .data.* .gnu.linkonce.d.*)
+ .data          0x0000000000001008        0x4 lib/start.o
+                0x0000000000001008                __dso_handle
+ D              0x000000000000100c        0x4 common/lowlevel.o
+ .data._impure_ptr
+                0x0000000000001010        0x4 lib/gcc/libc.a(lib_a-impure.o)
+                0x0000000000001010                _impure_ptr
+ .data.impure_data
+                0x0000000000001014      0x424 lib/gcc/libc.a(lib_a-impure.o)
+ D              0x0000000000001438       0x6c lib/libtkdnhal.a(tkdn_ether.o)
+                0x0000000000001438                le0
+ D              0x00000000000014a4        0x4 lib/libtkdnhal.a(tkdn_pwm.o)
+ D              0x00000000000014a8        0x4 lib/libtkdnhal.a(tkdn_tone.o)
+ D              0x00000000000014ac       0x30 lib/libtkdnhal.a(usb_core.o)
+ D              0x00000000000014dc       0x24 lib/libtkdnhal.a(usb_hal.o)
+ D              0x0000000000001500        0x8 lib/libtkdnhal.a(tkdn_interrupt.o)
+                0x0000000000001500                USBI1_handler
+                0x0000000000001504                USBI0_handler
+ *(.gnu.linkonce.d.*personality*)
+ *(.data1)
+ *(.got.plt)
+ *(.got)
+                0x0000000000001508                . = ALIGN (0x4)
+ *(.sdata .sdata.* .gnu.linkonce.s.* D_2 D_1)
+ D_1            0x0000000000001508        0x0 lib/start.o
+ D_1            0x0000000000001508        0x0 common/intvect.o
+ D_1            0x0000000000001508        0x0 common/lowlevel.o
+ D_1            0x0000000000001508        0x0 userapp.o
+ D_1            0x0000000000001508        0x0 lib/librxduino.a(analogio.o)
+ D_1            0x0000000000001508        0x0 lib/librxduino.a(digitalio.o)
+ D_1            0x0000000000001508        0x0 lib/librxduino.a(rxduino.o)
+ D_1            0x0000000000001508        0x0 lib/librxduino.a(serial.o)
+ D_1            0x0000000000001508        0x0 lib/librxduino.a(delay.o)
+ D_1            0x0000000000001508        0x0 lib/gcc/libc.a(lib_a-errno.o)
+ D_1            0x0000000000001508        0x0 lib/gcc/libc.a(lib_a-impure.o)
+ D_1            0x0000000000001508        0x0 lib/libtkdnhal.a(hwsetup.o)
+ D_1            0x0000000000001508        0x0 lib/libtkdnhal.a(tkdn_sci.o)
+ D_1            0x0000000000001508        0x0 lib/libtkdnhal.a(tkdn_ether.o)
+ D_1            0x0000000000001508        0x0 lib/libtkdnhal.a(tkdn_timer.o)
+ D_1            0x0000000000001508        0x0 lib/libtkdnhal.a(tkdn_gpio.o)
+ D_1            0x0000000000001508        0x0 lib/libtkdnhal.a(tkdn_pwm.o)
+ D_1            0x0000000000001508        0x0 lib/libtkdnhal.a(tkdn_tone.o)
+ D_1            0x0000000000001508        0x0 lib/libtkdnhal.a(tkdn_adc.o)
+ D_1            0x0000000000001508        0x0 lib/libtkdnhal.a(tkdn_dac.o)
+ D_1            0x0000000000001508        0x0 lib/libtkdnhal.a(phy.o)
+ D_1            0x0000000000001508        0x0 lib/libtkdnhal.a(eidi.o)
+ D_1            0x0000000000001508        0x0 lib/libtkdnhal.a(usb_cdc.o)
+ D_1            0x0000000000001508        0x0 lib/libtkdnhal.a(usb_core.o)
+ D_1            0x0000000000001508        0x0 lib/libtkdnhal.a(usb_hal.o)
+ D_1            0x0000000000001508        0x0 lib/libtkdnhal.a(usbdescriptors.o)
+ D_1            0x0000000000001508        0x0 lib/libtkdnhal.a(tkdn_interrupt.o)
+                0x0000000000001508                . = ALIGN (0x4)
+                0x0000000000001508                _edata = .
+                0x0000000000001508                PROVIDE (edata, .)
+                0x0000000000001508                PROVIDE (__dataend, .)
+                0x0000000000000508                PROVIDE (__romdatacopysize, SIZEOF (.data))
+
+.bss            0x0000000000001508     0x2098 load address 0x00000000fff84da8
+                0x0000000000001508                . = ALIGN (0x4)
+                0x0000000000001508                PROVIDE (__bssstart, .)
+ *(.dynbss)
+ *(.sbss .sbss.*)
+ *(.bss B B_2 B_1 .bss.* .gnu.linkonce.b.*)
+ B_1            0x0000000000001508        0x0 lib/start.o
+ B_1            0x0000000000001508        0x0 common/intvect.o
+ B_1            0x0000000000001508        0x0 common/lowlevel.o
+ B_1            0x0000000000001508        0x0 userapp.o
+ B              0x0000000000001508        0x4 userapp.o
+                0x0000000000001508                x
+ B_1            0x000000000000150c        0x0 lib/librxduino.a(analogio.o)
+ B              0x000000000000150c        0x4 lib/librxduino.a(analogio.o)
+                0x000000000000150c                artype
+ B_1            0x0000000000001510        0x0 lib/librxduino.a(digitalio.o)
+ B_1            0x0000000000001510        0x0 lib/librxduino.a(rxduino.o)
+ B_1            0x0000000000001510        0x0 lib/librxduino.a(serial.o)
+ B              0x0000000000001510      0x880 lib/librxduino.a(serial.o)
+                0x0000000000001510                Serial3
+                0x0000000000001730                Serial2
+                0x0000000000001950                Serial1
+                0x0000000000001b70                Serial
+ B_1            0x0000000000001d90        0x0 lib/librxduino.a(delay.o)
+ B_1            0x0000000000001d90        0x0 lib/gcc/libc.a(lib_a-errno.o)
+ B_1            0x0000000000001d90        0x0 lib/gcc/libc.a(lib_a-impure.o)
+ B_1            0x0000000000001d90        0x0 lib/libtkdnhal.a(hwsetup.o)
+ B_1            0x0000000000001d90        0x0 lib/libtkdnhal.a(tkdn_sci.o)
+ B_1            0x0000000000001d90        0x4 lib/libtkdnhal.a(tkdn_ether.o)
+ B_1            0x0000000000001d94        0x0 lib/libtkdnhal.a(tkdn_timer.o)
+ B              0x0000000000001d94        0xc lib/libtkdnhal.a(tkdn_timer.o)
+                0x0000000000001d94                disktimer
+                0x0000000000001d98                userfunc
+                0x0000000000001d9c                tim_1ms
+ B_1            0x0000000000001da0        0x0 lib/libtkdnhal.a(tkdn_gpio.o)
+ B_1            0x0000000000001da0       0x28 lib/libtkdnhal.a(tkdn_pwm.o)
+ B              0x0000000000001dc8        0x4 lib/libtkdnhal.a(tkdn_pwm.o)
+                0x0000000000001dc8                pwmpincount
+ B_1            0x0000000000001dcc        0x4 lib/libtkdnhal.a(tkdn_tone.o)
+ B_1            0x0000000000001dd0        0x1 lib/libtkdnhal.a(tkdn_adc.o)
+ B_1            0x0000000000001dd1        0x1 lib/libtkdnhal.a(tkdn_dac.o)
+ B_1            0x0000000000001dd2        0x0 lib/libtkdnhal.a(phy.o)
+ B_1            0x0000000000001dd2        0x0 lib/libtkdnhal.a(eidi.o)
+ *fill*         0x0000000000001dd2        0x2 00
+ B_1            0x0000000000001dd4       0x10 lib/libtkdnhal.a(usb_cdc.o)
+ B_1            0x0000000000001de4       0x14 lib/libtkdnhal.a(usb_core.o)
+ B_1            0x0000000000001df8      0x44c lib/libtkdnhal.a(usb_hal.o)
+ B_1            0x0000000000002244        0x0 lib/libtkdnhal.a(usbdescriptors.o)
+ B_1            0x0000000000002244        0x0 lib/libtkdnhal.a(tkdn_interrupt.o)
+                0x0000000000002244                . = ALIGN (0x4)
+ *(COMMON)
+ COMMON         0x0000000000002244      0x238 lib/libtkdnhal.a(tkdn_sci.o)
+                0x0000000000002244                sci_default
+                0x0000000000002460                sci_handles
+                0x0000000000002478                psci_default
+ COMMON         0x000000000000247c        0x4 lib/libtkdnhal.a(tkdn_ether.o)
+                0x000000000000247c                user_rx_func
+ COMMON         0x0000000000002480       0x20 lib/libtkdnhal.a(tkdn_interrupt.o)
+                0x0000000000002480                ifunc
+                0x00000000000024a0                . = ALIGN (0x20)
+ *(.etherdesc)
+ .etherdesc     0x00000000000024a0     0x1100 lib/libtkdnhal.a(tkdn_ether.o)
+                0x00000000000035a0                . = ALIGN (0x4)
+                0x00000000000035a0                PROVIDE (__bssend, .)
+                0x00000000000035a0                _end = .
+                0x00000000000035a0                PROVIDE (end, .)
+                0x0000000000000826                PROVIDE (__bsssize, (SIZEOF (.bss) / 0x4))
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 common/intvect.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000000       0x12 common/lowlevel.o
+ .comment       0x0000000000000000       0x12 userapp.o
+ .comment       0x0000000000000000       0x12 lib/librxduino.a(analogio.o)
+ .comment       0x0000000000000000       0x12 lib/librxduino.a(digitalio.o)
+ .comment       0x0000000000000000       0x12 lib/librxduino.a(rxduino.o)
+ .comment       0x0000000000000000       0x12 lib/librxduino.a(serial.o)
+ .comment       0x0000000000000000       0x12 lib/librxduino.a(delay.o)
+ .comment       0x0000000000000000       0x12 lib/gcc/libc.a(lib_a-errno.o)
+ .comment       0x0000000000000000       0x12 lib/gcc/libc.a(lib_a-impure.o)
+ .comment       0x0000000000000000       0x12 lib/libtkdnhal.a(hwsetup.o)
+ .comment       0x0000000000000000       0x12 lib/libtkdnhal.a(tkdn_sci.o)
+ .comment       0x0000000000000000       0x12 lib/libtkdnhal.a(tkdn_ether.o)
+ .comment       0x0000000000000000       0x12 lib/libtkdnhal.a(tkdn_timer.o)
+ .comment       0x0000000000000000       0x12 lib/libtkdnhal.a(tkdn_gpio.o)
+ .comment       0x0000000000000000       0x12 lib/libtkdnhal.a(tkdn_pwm.o)
+ .comment       0x0000000000000000       0x12 lib/libtkdnhal.a(tkdn_tone.o)
+ .comment       0x0000000000000000       0x12 lib/libtkdnhal.a(tkdn_adc.o)
+ .comment       0x0000000000000000       0x12 lib/libtkdnhal.a(tkdn_dac.o)
+ .comment       0x0000000000000000       0x12 lib/libtkdnhal.a(phy.o)
+ .comment       0x0000000000000000       0x12 lib/libtkdnhal.a(usb_cdc.o)
+ .comment       0x0000000000000000       0x12 lib/libtkdnhal.a(usb_core.o)
+ .comment       0x0000000000000000       0x12 lib/libtkdnhal.a(usb_hal.o)
+ .comment       0x0000000000000000       0x12 lib/libtkdnhal.a(usbdescriptors.o)
+ .comment       0x0000000000000000       0x12 lib/libtkdnhal.a(tkdn_interrupt.o)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges  0x0000000000000000       0x80
+ *(.debug_aranges)
+ .debug_aranges
+                0x0000000000000000       0x20 common/intvect.o
+ .debug_aranges
+                0x0000000000000020       0x20 common/lowlevel.o
+ .debug_aranges
+                0x0000000000000040       0x20 userapp.o
+ .debug_aranges
+                0x0000000000000060       0x20 lib/gcc/libc.a(lib_a-errno.o)
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info     0x0000000000000000     0x29d6
+ *(.debug_info .gnu.linkonce.wi.*)
+ .debug_info    0x0000000000000000      0xc6d common/intvect.o
+ .debug_info    0x0000000000000c6d      0x4bf common/lowlevel.o
+ .debug_info    0x000000000000112c      0x5de userapp.o
+ .debug_info    0x000000000000170a      0x967 lib/gcc/libc.a(lib_a-errno.o)
+ .debug_info    0x0000000000002071      0x965 lib/gcc/libc.a(lib_a-impure.o)
+
+.debug_abbrev   0x0000000000000000      0x6aa
+ *(.debug_abbrev)
+ .debug_abbrev  0x0000000000000000       0x97 common/intvect.o
+ .debug_abbrev  0x0000000000000097      0x140 common/lowlevel.o
+ .debug_abbrev  0x00000000000001d7      0x1fd userapp.o
+ .debug_abbrev  0x00000000000003d4      0x170 lib/gcc/libc.a(lib_a-errno.o)
+ .debug_abbrev  0x0000000000000544      0x166 lib/gcc/libc.a(lib_a-impure.o)
+
+.debug_line     0x0000000000000000     0x1067
+ *(.debug_line)
+ .debug_line    0x0000000000000000      0x8b1 common/intvect.o
+ .debug_line    0x00000000000008b1      0x38d common/lowlevel.o
+ .debug_line    0x0000000000000c3e      0x209 userapp.o
+ .debug_line    0x0000000000000e47      0x126 lib/gcc/libc.a(lib_a-errno.o)
+ .debug_line    0x0000000000000f6d       0xfa lib/gcc/libc.a(lib_a-impure.o)
+
+.debug_frame    0x0000000000000000      0xe18
+ *(.debug_frame)
+ .debug_frame   0x0000000000000000      0xcdc common/intvect.o
+ .debug_frame   0x0000000000000cdc       0xbc common/lowlevel.o
+ .debug_frame   0x0000000000000d98       0x5c userapp.o
+ .debug_frame   0x0000000000000df4       0x24 lib/gcc/libc.a(lib_a-errno.o)
+
+.debug_str      0x0000000000000000     0x131d
+ *(.debug_str)
+ .debug_str     0x0000000000000000      0x979 common/intvect.o
+                                        0x990 (size before relaxing)
+ .debug_str     0x0000000000000979      0x18d common/lowlevel.o
+                                        0x248 (size before relaxing)
+ .debug_str     0x0000000000000b06      0x384 userapp.o
+                                        0x404 (size before relaxing)
+ .debug_str     0x0000000000000e8a      0x404 lib/gcc/libc.a(lib_a-errno.o)
+                                        0x4c7 (size before relaxing)
+ .debug_str     0x000000000000128e       0x8f lib/gcc/libc.a(lib_a-impure.o)
+                                        0x4df (size before relaxing)
+
+.debug_loc      0x0000000000000000     0x1b4e
+ *(.debug_loc)
+ .debug_loc     0x0000000000000000     0x170c common/intvect.o
+ .debug_loc     0x000000000000170c      0x35e common/lowlevel.o
+ .debug_loc     0x0000000000001a6a       0xe4 userapp.o
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+
+/DISCARD/
+ *(.note.GNU-stack)
+LOAD lib/libspi.a
+LOAD lib/libservo.a
+LOAD lib/libliquidcrystal.a
+LOAD lib/libsdmmc.a
+LOAD lib/libeeprom.a
+LOAD lib/librxduino.a
+LOAD lib/gcc/libstdc++.a
+LOAD lib/gcc/libsupc++.a
+LOAD lib/gcc/libc.a
+LOAD lib/gcc/libsim.a
+LOAD lib/gcc/libgcc.a
+LOAD lib/gcc/libm.a
+LOAD lib/libtkdnhal.a
+OUTPUT(userapp.elf elf32-rx-le)
+
+.debug_ranges   0x0000000000000000       0x50
+ .debug_ranges  0x0000000000000000       0x28 common/lowlevel.o
+ .debug_ranges  0x0000000000000028       0x18 userapp.o
+ .debug_ranges  0x0000000000000040       0x10 lib/gcc/libc.a(lib_a-errno.o)
