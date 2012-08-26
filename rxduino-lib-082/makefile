@@ -25,7 +25,7 @@
 ###################################################################################################
 
 TARGET = userapp
-CCPATH = /usr/local/rx-elf/bin/
+CCPATH = /usr/local/cross/bin/
 AS  = $(CCPATH)rx-elf-as 
 CC  = $(CCPATH)rx-elf-gcc -Wall -g -I./include/tkdnhal -I./include/lib/ 
 CPP = $(CCPATH)rx-elf-gcc -Wall -g -I./include/tkdnhal -I./include/rxduino -I./include/lib/ 
