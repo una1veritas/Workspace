@@ -55,7 +55,7 @@ home_libraries/TimerCounter \
 home_libraries/TFTLCD \
 home_libraries/Sparkfun6DOF \
 home_libraries/Sensirion \
-home_libraries/SPISRAM_Microchip \
+home_libraries/SPISRAM \
 home_libraries/SD_SPI/utility \
 home_libraries/SD_SPI \
 home_libraries/SCP1000D01 \

@@ -34,7 +34,7 @@ RM := rm -rf
 -include home_libraries/TFTLCD/subdir.mk
 -include home_libraries/Sparkfun6DOF/subdir.mk
 -include home_libraries/Sensirion/subdir.mk
--include home_libraries/SPISRAM_Microchip/subdir.mk
+-include home_libraries/SPISRAM/subdir.mk
 -include home_libraries/SD_SPI/utility/subdir.mk
 -include home_libraries/SD_SPI/subdir.mk
 -include home_libraries/SCP1000D01/subdir.mk
