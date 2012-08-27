@@ -1,0 +1,31 @@
+13:30:04 **** Build of configuration Release for project Arduino_Home_libraries ****
+make all 
+home_libraries/UsbKeyboard/subdir.mk:59: warning: overriding commands for target `home_libraries/UsbKeyboard/usbdrvasm.o'
+home_libraries/UsbKeyboard/subdir.mk:52: warning: ignoring old commands for target `home_libraries/UsbKeyboard/usbdrvasm.o'
+Building file: /Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/utility/twi.c
+Invoking: AVR Compiler
+avr-gcc -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/cores/arduino" -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard" -I"/Applications/Arduino.app/Contents/Resources/Java/libraries/SPI" -DARDUINO=100 -DARDUINO_MAIN -Wall -Os -fpack-struct -fshort-enums -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=16000000UL -MMD -MP -MF"libraries/Wire/utility/twi.d" -MT"libraries/Wire/utility/twi.d" -c -o "libraries/Wire/utility/twi.o" "/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/utility/twi.c"
+Finished building: /Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/utility/twi.c
+ 
+Building file: /Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp
+Invoking: AVR C++ Compiler
+avr-g++ -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/cores/arduino" -I"/Applications/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard" -I"/Applications/Arduino.app/Contents/Resources/Java/libraries/SPI" -DARDUINO=100 -DARDUINO_MAIN -Wall -Os -fpack-struct -fshort-enums -funsigned-char -funsigned-bitfields -fno-exceptions -mmcu=atmega328p -DF_CPU=16000000UL -MMD -MP -MF"libraries/Wire/Wire.d" -MT"libraries/Wire/Wire.d" -c -o "libraries/Wire/Wire.o" "/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp"
+/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp:26:19: error: twi.h: No such file or directory
+/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp: In member function 'void TwoWire::begin()':
+/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp:62: error: 'twi_init' was not declared in this scope
+/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp: In member function 'void TwoWire::begin(uint8_t)':
+/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp:67: error: 'twi_setAddress' was not declared in this scope
+/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp:68: error: 'twi_attachSlaveTxEvent' was not declared in this scope
+/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp:69: error: 'twi_attachSlaveRxEvent' was not declared in this scope
+/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp: In member function 'uint8_t TwoWire::requestFrom(uint8_t, uint8_t, uint8_t)':
+/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp:85: error: 'twi_readFrom' was not declared in this scope
+/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp: In member function 'uint8_t TwoWire::endTransmission(uint8_t)':
+/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp:140: error: 'twi_writeTo' was not declared in this scope
+/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp: In member function 'virtual size_t TwoWire::write(uint8_t)':
+/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp:177: error: 'twi_transmit' was not declared in this scope
+/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp: In member function 'virtual size_t TwoWire::write(const uint8_t*, size_t)':
+/Applications/Arduino.app/Contents/Resources/Java/libraries/Wire/Wire.cpp:195: error: 'twi_transmit' was not declared in this scope
+make: *** [libraries/Wire/Wire.o] Error 1
+
+13:30:04 Build Finished (took 716ms)
+
