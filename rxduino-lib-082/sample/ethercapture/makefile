@@ -1,5 +1,5 @@
 TARGET = ether-sample
-CCPATH = /usr/local/tkdn-20110720/rx-elf/bin/
+CCPATH = /usr/local/cross/bin/
 AS  = $(CCPATH)rx-elf-as 
 CC  = $(CCPATH)rx-elf-gcc -Wall -g -I../../include/tkdnhal $(CFLAGS)
 CPP = $(CCPATH)rx-elf-gcc -Wall -g -I../../include/tkdnhal $(CFLAGS) -I./include/rxduino

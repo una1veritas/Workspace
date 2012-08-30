@@ -31,6 +31,7 @@ RM := rm -rf
 -include home_libraries/Tlc5940/subdir.mk
 -include home_libraries/TimerOne/subdir.mk
 -include home_libraries/TimerCounter/subdir.mk
+-include home_libraries/TextStream/subdir.mk
 -include home_libraries/TFTLCD/subdir.mk
 -include home_libraries/Sparkfun6DOF/subdir.mk
 -include home_libraries/Sensirion/subdir.mk
@@ -62,7 +63,6 @@ RM := rm -rf
 -include home_libraries/OneWire2/subdir.mk
 -include home_libraries/OneWire/subdir.mk
 -include home_libraries/NewSoftSerial/subdir.mk
--include home_libraries/Monitor/subdir.mk
 -include home_libraries/MindSet/mdt/tgcd/win32/subdir.mk
 -include home_libraries/MindSet/mdt/tg/subdir.mk
 -include home_libraries/MindSet/subdir.mk
@@ -73,14 +73,13 @@ RM := rm -rf
 -include home_libraries/LCD_HC595/subdir.mk
 -include home_libraries/LCD12864/subdir.mk
 -include home_libraries/KeyMatrix/subdir.mk
--include home_libraries/I2C/subdir.mk
 -include home_libraries/HMC5843/subdir.mk
 -include home_libraries/HC595/subdir.mk
 -include home_libraries/GPS/subdir.mk
 -include home_libraries/FeliCaPlug/subdir.mk
 -include home_libraries/Fat16/subdir.mk
--include home_libraries/Ethernet_W5100/utility/subdir.mk
--include home_libraries/Ethernet_W5100/subdir.mk
+-include home_libraries/Ethernet_w5100/utility/subdir.mk
+-include home_libraries/Ethernet_w5100/subdir.mk
 -include home_libraries/Digital6DOF/subdir.mk
 -include home_libraries/Des/subdir.mk
 -include home_libraries/DataFlash/subdir.mk
@@ -177,7 +176,7 @@ libArduino_Home_libraries.lss: libArduino_Home_libraries.a
 
 sizedummy: libArduino_Home_libraries.a
 	@echo 'Invoking: Print Size'
-	-avr-size --format=avr --mcu=atmega328p libArduino_Home_libraries.a
+	-avr-size --format=berkeley -t libArduino_Home_libraries.a
 	@echo 'Finished building: $@'
 	@echo ' '
 

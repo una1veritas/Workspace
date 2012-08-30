@@ -1,9 +1,9 @@
-// RX62N‚ÌGCCƒTƒ“ƒvƒ‹ƒvƒƒOƒ‰ƒ€
-// ƒC[ƒTƒlƒbƒg
-// (C)Copyright 2011 “Áê“dq‰ñ˜H
+// RX62Nï¿½ï¿½GCCï¿½Tï¿½ï¿½ï¿½vï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½
+// ï¿½Cï¿½[ï¿½Tï¿½lï¿½bï¿½g
+// (C)Copyright 2011 ï¿½ï¿½ï¿½ï¿½dï¿½qï¿½ï¿½H
 
-// g‚¢•û
-// ‚±‚ÌƒvƒƒOƒ‰ƒ€‚Ìƒtƒ@ƒCƒ‹–¼‚ğmain.c‚É•ÏX‚µ‚ÄAmake‚µ‚Ä‚­‚¾‚³‚¢B
+// ï¿½gï¿½ï¿½ï¿½ï¿½
+// ï¿½ï¿½ï¿½Ìƒvï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½Ìƒtï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½main.cï¿½É•ÏXï¿½ï¿½ï¿½ÄAmakeï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½B
 
 #ifdef __GNUC__
   #ifdef CPU_IS_RX62N
@@ -17,7 +17,7 @@
   #include "iodefine.h"
 #endif
 
-// “Á“dHAL
+// ï¿½ï¿½ï¿½dHAL
 #include "tkdn_hal.h"
 
 #include <stdio.h>
@@ -28,8 +28,8 @@ int main()
 	int i;
 	char tmp[128];
 
-	sci_init(SCI_AUTO,38400);
-	sci_convert_crlf(CRLF_CRLF,CRLF_CRLF); // \n‚ğ\r\n‚É•ÏŠ·
+	sci_init(SCI_USB0,38400);
+	sci_convert_crlf(CRLF_CRLF,CRLF_CRLF); // \nï¿½ï¿½\r\nï¿½É•ÏŠï¿½
 
 	sci_puts("\nEthernet sample program\n");
 	sprintf(tmp,"Compiled at %s %s\n",__DATE__,__TIME__);

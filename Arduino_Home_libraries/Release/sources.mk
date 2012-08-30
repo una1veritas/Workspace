@@ -52,6 +52,7 @@ home_libraries/TouchScreen \
 home_libraries/Tlc5940 \
 home_libraries/TimerOne \
 home_libraries/TimerCounter \
+home_libraries/TextStream \
 home_libraries/TFTLCD \
 home_libraries/Sparkfun6DOF \
 home_libraries/Sensirion \
@@ -83,7 +84,6 @@ home_libraries/OneWire2/examples \
 home_libraries/OneWire2 \
 home_libraries/OneWire \
 home_libraries/NewSoftSerial \
-home_libraries/Monitor \
 home_libraries/MindSet/mdt/tgcd/win32 \
 home_libraries/MindSet/mdt/tg \
 home_libraries/MindSet \
@@ -94,14 +94,13 @@ home_libraries/LCD_MCP2300x \
 home_libraries/LCD_HC595 \
 home_libraries/LCD12864 \
 home_libraries/KeyMatrix \
-home_libraries/I2C \
 home_libraries/HMC5843 \
 home_libraries/HC595 \
 home_libraries/GPS \
 home_libraries/FeliCaPlug \
 home_libraries/Fat16 \
-home_libraries/Ethernet_W5100/utility \
-home_libraries/Ethernet_W5100 \
+home_libraries/Ethernet_w5100/utility \
+home_libraries/Ethernet_w5100 \
 home_libraries/Digital6DOF \
 home_libraries/Des \
 home_libraries/DataFlash \
