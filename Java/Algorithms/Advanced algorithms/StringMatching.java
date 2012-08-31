@@ -1,0 +1,1 @@
+class StringMatching extends Algorithm {	String pattern;		StringMatching(String targetPattern) {		// subclass responcibility;	}}

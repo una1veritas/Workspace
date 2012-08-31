@@ -1,0 +1,518 @@
+%#!jlatex
+\documentclass[12pt]{jarticle}
+
+\input{A4}
+
+\def\linesparpage#1{\baselineskip=\textheight\divide\baselineskip#1}
+
+\usepackage{theorem}
+
+\newtheorem{lesson}{練習}
+\newtheorem{problem}{問題}
+
+
+\title{{\Large\bf 知能情報工学実験$\cdot$演習I} \\
+オブジェクト指向プログラミングと C++
+\author{乃万\ \quad 司\\
+下薗\ 真一}
+}
+
+\begin{document}
+
+\maketitle
+
+\section{C と C++}
+
+ここでは, C 言語によるプログラミングを十分理解・習得していることを前提に,
+オブジェクト指向プログラミングの考え方をいくつか学び, C++ 言語によってオ
+ブジェクト指向の考え方に沿ったプログラミングができるよう演習を行う. 
+
+なお, 時間的制約のため, 本演習では継承およびオーバーロードの概念とその
+C++ でのプログラミング(クラス \verb$class$ 型と \verb$extend$ キーワード
+の利用), 演算子の再定義, ストリーム入出力, STL ライブラリの利用について
+は, 説明しない. 
+
+\subsection{C 言語でのデータの構造化}
+
+C 言語で, トランプをつかったカードゲームを作ることを考えよう. 
+まず, カード一枚を表すデータ型と, カード 52 枚 (およびジョーカー) からな
+るデッキ(トランプの一セット)を表すデータ型を準備し, それぞれに必要な操作
+手続きを作ってゆく. 
+
+トランプのカードには, スペード $\spadesuit$, ダイヤモンド
+$\diamondsuit$, ハート $\heartsuit$, クラブ $\clubsuit$ の 4 つのスー
+ト suit があり, それぞれのスートにエース (A), 2 から 10 までの字札, そ
+して Jack (J), Queen (Q), King (K) のコートカード (絵札) の計 13 枚がある. 
+ゲームによっては, さらに 1 枚ジョーカー (道化師) Joker を加える. 
+
+\begin{lesson}\label{lesson:card.c}
+ソースファイル \verb$card.c$ として, 
+\begin{itemize}
+\item[(1)] 
+	   まずカード 1 枚を表すデータ型 \verb$struct card$ と, そのデータ型
+	   を用いてデッキを表すデータ型 \verb$struct deck$ を定義し, 
+\item[(2)] 
+	   つぎに \verb$struct card$ 型変数 1 つを引数に取りカードのスー
+	   トと数字を印字する関数と, \verb$struct deck *$ 型変数 1 つを
+	   引数に取りデッキのカードをシャフルする (切る) 関数を作れ. 
+\item[(3)]
+	   そしてデッキを 1 つ用意し, よくシャフルし, その後順番にすべてのカー
+	   ドを印字するプログラムを作れ. 
+\end{itemize}
+完成したら C コンパイラ \verb$gcc$ でコンパイルして実行し, プログラムが
+ 正しく動作しているか確認せよ. 
+
+\noindent
+{\bf ヒント：}
+カード 1 枚の表現には, 例えばスートを表す値と 1 から 13 までの整数を組に
+ する方法や, 0 から 51 までの整数で表し 13 で割った商をスート, 余りに 1
+ を加えた値を札の数とみなす方法などがあるだろう. 
+デッキは 52 枚のカードを配列で持てばよい. 
+また乱数は \verb$random()$ (インクルードファイル \verb$<stdlib.h>$) を使え. 
+乱数のタネは, 必ずしも初期化しなくてもよい. 
+\end{lesson}
+
+時間内に完成したら, 下のリスト \ref{list:card.c} のプログラムと比較しその違いを考察せよ. 
+完成しなかった場合, リスト \ref{list:card.c} を参考にしてプログラムを完成させよ. 
+
+
+\begin{quote}\label{list:card.c}
+\noindent
+リスト \ref{list:card.c}: \verb$card.c$
+\linesparpage{60}
+\begin{verbatim}
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+enum {
+  spade = 0,
+  diamond, 
+  heart, 
+  club
+};
+
+struct card {
+  int number;
+  int suit;
+};
+
+struct deck {
+  struct card cards[52];
+};
+
+void shuffle_deck(struct deck * d) {
+  int t, i, j;
+  struct card swap;
+  time_t seed;
+
+  time(&seed);
+  srandom(seed);
+  for (t = 0; t < 200; t++) {
+    i = random() % 52;
+    j = ((random() % 51) + 1 + i) % 52;
+    swap = d->cards[i];
+    d->cards[i] = d->cards[j];
+    d->cards[j] = swap;
+  }
+}
+
+void print_card(struct card * c) {
+  printf("[");
+  switch (c->suit) {
+    case spade:
+      printf("Spade");
+      break;
+    case club:
+      printf("Club");
+      break;
+    case heart:
+      printf("Heart");
+      break;
+    case diamond:
+      printf("Diamond");
+      break;
+    }
+  printf(" ");
+  switch (c->number) {
+    case 1:
+      printf("A");
+      break;
+    case 11:
+      printf("J");
+      break;
+    case 12:
+      printf("Q");
+      break;
+    case 13:
+      printf("K");
+      break;
+    default:
+      printf("%d", c->number);
+      break;
+    }
+    printf("]");
+}
+
+void print_deck(struct deck * d) {
+  int i;
+  for (i = 0; i < 52; i++) {
+    print_card( & d->cards[i] );
+    printf(", ");
+  }
+  printf("\n");
+}
+
+int main(int argc, char * argv[]) {
+  struct deck myDeck;
+  int n, i, s;
+
+  i = 0;
+  for (s = spade; s <= club; s++) {
+    for (n = 1; n <= 13; n++) {
+      myDeck.cards[i].suit = s;
+      myDeck.cards[i].number = n;
+      i++;
+    }
+  }
+
+  shuffle_deck( & myDeck );
+  print_deck( & myDeck);
+
+  return 0;
+}
+\end{verbatim}
+\end{quote}
+
+\begin{problem}
+関数 \verb$void shuffle_deck(struct deck *)$ と 
+\verb$void print_card(struct card *)$ は, 関数の中から引数を書き換える目
+ 的は持っていないが, それぞれ引数をポインタ型で取っている. 
+これは一般にどのような場合に, なぜ行うのか. 
+\end{problem}
+
+\begin{problem}
+関数 \verb$void shuffle_deck(struct deck *)$ で, 
+(1) \verb$random()$ の 52 の剰余を取っているのはなぜか. 
+またその次はなぜ 51 なのか. 
+(2) カードの入れ替えを変数 \verb$swap$ を仲介とした入れ替えから,
+ \verb$void$ を返値とする関数の呼び出しで行うように変更したい. 
+関数の引数の型はどのようにする必要があるか. 
+\end{problem}
+
+\subsection{データの構造化からデータと手続きのカプセル化へ}
+
+リスト \ref{list:card.c} の C プログラムでは, カードを配ったりプレイヤー
+のプログラムを入れたりしてソースコードがもっと複雑で大規模になった場合,
+また複数のプログラマで分担して作業するような場合に, 次のような問題や不都
+合が生じる. 
+\begin{enumerate}
+\item
+     構造体 \verb$struct deck$ や \verb$struct card$ のフィールド変数に
+     どのような状況でも直接アクセスができる. 
+     そのため整数値によって表されるスートや番号の意味が変更されても, ど
+     の関数に影響があるのかわかりにくい. 
+     たとえばデッキにジョーカー Joker を追加したとき, ある関数が書き換え
+     必要かどうかは明らかでない. 
+     また, プログラマの都合で設計者の意図しない値が書き込まれたりしかね
+     ない. 
+\item
+     関数 \verb$shuffle_deck$ の計算対象は \verb$deck$ のみであり, 関数
+     \verb$print_card$ の計算対象は \verb$card$ のみであるにもかかわらず,
+     プログラマが自発的に関数名で表現する以外に, その対応を表現する方法
+     がない. 
+\end{enumerate}
+
+C++ 言語では, これらの問題を解消するために, まず構造体の中で関数
+(その型のメンバ関数)が宣言できるようになっている. 
+メンバ関数は \verb$myDeck.stack[i]$ のようなフィールド値の参照と同様に
+\begin{quote}
+構造体変数$.$関数名(引数, $\ldots$ )
+\end{quote}
+の形式で呼び出す. 
+またこのとき対象となる構造体データは一意に決まるので, 関数の中ではその構
+造体データの各フィールドの値をフィールド名のみで参照できる. 
+したがって, 以下の \verb$card.cpp$ のように引数を省いた形で書き直せる. 
+
+\begin{quote}\label{list:card.cpp}
+\noindent
+リスト \ref{list:card.cpp}: \verb$card.cpp$
+\linesparpage{60}
+\begin{verbatim}
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+enum {
+  spade = 0,
+  diamond, 
+  heart, 
+  club
+};
+
+struct card {
+  int number;
+  int suit;
+
+  void print() {
+    printf("[");
+    switch (suit) {
+    case spade:
+      printf("Spade");
+      break;
+    case club:
+      printf("Club");
+      break;
+    case heart:
+      printf("Heart");
+      break;
+    case diamond:
+      printf("Diamond");
+      break;
+    }
+    printf(" ");
+    switch (number) {
+    case 1:
+      printf("A");
+      break;
+    case 11:
+      printf("J");
+      break;
+    case 12:
+      printf("Q");
+      break;
+    case 13:
+      printf("K");
+      break;
+    default:
+      printf("%d", number);
+      break;
+    }
+    printf("]");
+  }
+};
+
+struct deck {
+  struct card cards[52];
+
+  void shuffle() {
+    int t, i, j;
+    struct card swap;
+    time_t seed;
+    
+    time(&seed);
+    srandom(seed);
+    for (t = 0; t < 100; t++) {
+      i = random() % 52;
+      j = ((random() % 51) + 1 + i) % 52;
+      swap = cards[i];
+      cards[i] = cards[j];
+      cards[j] = swap;
+    }
+  }
+
+  void print() {
+    int i;
+    for (i = 0; i < 52; i++) {
+      cards[i].print();
+      printf(", ");
+    }
+    printf("\n");
+  }
+};
+
+
+int main(int argc, char * argv[]) {
+  struct deck myDeck;
+  int n, i, s;
+
+  i = 0;
+  for (s = spade; s <= club; s++) {
+    for (n = 1; n <= 13; n++) {
+      myDeck.cards[i].suit = s;
+      myDeck.cards[i].number = n;
+      i++;
+    }
+  }
+
+  myDeck.shuffle();
+
+  for (i = 0; i < 52; i++) {
+    myDeck.cards[i].print();
+    printf(", ");
+  }
+  printf("\n");
+  return 0;
+}
+\end{verbatim}
+\end{quote}
+
+このような考え方は{\bf データと手続きのカプセル化 encapsulation} と呼ば
+れている. 
+一般にオブジェクト指向言語はカプセル化の考え方をソースコードに反映できる
+よう設計されている. 
+\begin{lesson}
+リスト 2 を参考に練習 \ref{lesson:card.c} で作ったソースコードをデータと
+ 手続きのカプセル化の考えに基づいて書き直し, GNU C++ コンパイラ
+ \verb$g++$ でコンパイルして
+\begin{itemize}
+\item[(1)]
+	  先に作ったプログラムとまったく同じ動作をすること, 
+\item[(2)]
+	  構造体の中に関数を書けること, 
+\item[(3)]
+	  メンバ関数は呼び出し対象となったデータを引数にとらなくてよいこ
+	  と
+\end{itemize}
+を, それぞれ確かめよ. 
+\end{lesson}
+
+\subsection{ポリモルフィズム (多様性)}
+
+リスト \ref{list:card.c} と \ref{list:card.cpp} の \verb$main$ 関数にお
+いて, \verb$struct card$ の印字関数を用いて \verb$struct deck *$ の内容
+を印字するプログラムを書いていた. 
+その部分は \verb$struct deck$ 型データのための作業であるから, カプセル化
+の考え方からすると \verb$struct deck$ のメンバ関数とするのが自然である. 
+
+ところで, リスト \ref{list:card.cpp} で  \verb$struct card$ 型の印字のた
+めにメンバ関数 \verb$print()$ を定義しており, すでに \verb$print$ という
+名前は使われている. 
+\verb$struct deck$ 型の印字のためのメンバ関数も, やはり印字のための関数
+であるから \verb$print$ という名にするのが自然に思われる. 
+しかし, C 言語では当然のこととして異なる関数には別の名前をつける必要が
+あり, プログラマは自分で名前を工夫したりやりくりする必要があった. 
+
+オブジェクト指向言語では, 主な対象となるデータ型 --- つまりメンバ関数の
+属する型 --- や, 引数の型, 個数などが異なれるならば, 異なる関数に同じ名
+前をつけることを許している. 
+これによって, プログラムコードが異なっていても, 同じ役割や目的を果たす関
+数には同じ名前をつけ, プログラムを読みやすく, 書きやすくすることができる. 
+このような考え方は, {\bf ポリモルフィズム (多様主義)} と呼ばれ, 
+オブジェクト指向言語一般に採り入れられている. 
+
+C++ や Object Pascal のような言語では, データ型や引数の個数はコンパイル
+時に決まる. 
+したがって, コンパイラがコンパイルの時点で同じ名前の関数の中から適切なも
+のを選ぶ仕組みになっている. 
+言語によっては, データ型が実行時に決まり, 実行時に関数を選ぶ仕組みになっ
+ているものもある. 
+
+\begin{lesson}
+\verb$card.cpp$ の \verb$struct deck$ 型データを印字する部分を
+ \verb$struct deck$ のメンバ関数 \verb$void print()$ として定義して書き直
+ し, コンパイルし実行して \verb$print()$ 関数が適切に選択されていること
+ を確認せよ. 
+\end{lesson}
+
+\subsection{情報の隠蔽}
+
+これまでにデータ型とその操作を行う関数の結び付きをソースコードで実現する
+機能についてみてきたが, 先に指摘した問題点のうち, 「どこからでもデータの
+内部データをアクセスできる」という部分は解決していなかった. 
+
+この解決には, 構造体のようなデータ型が内部に持つデータについてメンバ関数
+以外からのアクセスを禁止したり, あるいは許可したりといった制御の機構が必
+要である. 
+また, メンバ関数はデータの内部にアクセスするので, メンバ関数自体にも呼び
+出しを制御する機構が必要である. 
+一般にオブジェクト指向言語は, データ型の持つ内部データ, メンバ関数それぞ
+れにアクセスのレベルを設定でき, 外部から内部データの書き換えや読み出しを
+禁止したり, 見えないようにしたりできる. 
+この機能は {\bf 情報隠蔽} とよばれている. 
+
+C++ で情報隠蔽の機能を利用するには, データのアクセスレベルを指示する
+{\bf アクセス指定子キーワード}を使用する. 
+たとえば, \verb$struct card$ のフィールド変数 \verb$number$ と
+\verb$suit$ を外から直接アクセスできないように, またメンバ関数は外からア
+クセスできるようにするには, キーワード \verb$private$ と \verb$public$
+を使って
+\begin{quote}
+\linesparpage{60}
+\begin{verbatim}
+struct card {
+private:
+  int number;
+  int suit;
+
+public:
+  void print() {
+\end{verbatim}
+\end{quote}
+のように宣言する. 
+アクセス指定子は, 以下の通りである. 
+
+\begin{quote}
+\begin{tabular}{ll}
+\hline 
+\verb$public$ & 公開 \\
+\verb$private$ & 非公開 \\
+\verb$protected$ & サブクラス\footnote{クラス {\tt class} 型の場合のみ
+ 使用. }にのみ公開 \\
+\hline
+\end{tabular}
+\end{quote}
+
+また C++ 言語には構造体 \verb$struct$ と同等のクラス \verb$class$ という
+データ型宣言が用意されている. 
+\verb$struct$ と \verb$class$ の違いは, アクセス指定子を明記しない部分が
+\verb$struct$ が \verb$public$ に, \verb$class$ が \verb$private$ になる
+ということだけである. 
+つまり, これまでの \verb$struct$ を使ったプログラムではメンバ変数, 関数
+すべてが \verb$public$ な公開メンバーとして宣言されていたことになる. 
+逆に \verb$class$ 宣言を使うと
+\begin{quote}
+\linesparpage{60}
+\begin{verbatim}
+struct card {
+  プライベートメンバー
+
+public:
+  公開メンバー
+
+\end{verbatim}
+\end{quote}
+となる. 
+
+\begin{lesson}
+上記の例のように, データ型 \verb$struct card$ のフィールド(メンバ)変数を
+ すべて非公開に, メンバ関数を公開にして, コンパイルせよ. 
+どのようなコンパイルエラーが報告されるか, またどこでそのエラーが起きてい
+ るかを確認し, \verb$number$ と \verb$suit$ が非公開な変数として隠蔽され
+ ていることを確認せよ. 
+\end{lesson}
+
+このコンパイルエラーを回避するには, 非公開な変数にアクセスしないプログラ
+ムコードに変更しなければならない. 
+一般に, たとえば非公開メンバ変数 \verb$suit$ の値を読み取りについてのみ
+公開したい場合には,
+\verb$struct card$ に \verb$suit$ の値を返す公開メンバ関数 --- たとえば
+\verb$int suitVal()$ --- を実装する. 
+また値のセットも外から可能にしたい場合には, たとえば関数 
+\verb$int suitVal(int s)$ を \verb$s$ の値が \verb$suit$ にセットされる
+ように実装する. 
+(C++ ではメンバ変数と同じ名前のメンバ関数は宣言できない. )
+外部からはこの関数を呼ぶことで, カードのスートを知る, あるいは設定するこ
+とができる. 
+
+こういった仕組みによって達成できることの中でもっとも重要なのは, カードの
+データ表現形式がたとえば整数の組から 1 つの整数で商と余りを使う方法に変
+更されたとしても, プログラムの他の部分を変更する必要がないことが保証され
+るということである. 
+データ型へのアクセス方法として整備された関数群や使用手順のことを{\bf
+インターフェース}とよぶ. 
+ポリモルフィズムや公開と隠蔽, その他の機能により, データ型や実現方法の違
+いによらない統一的で整理されたインターフェースを実現できるのがオブジェク
+ト指向言語の特徴である. 
+
+\begin{lesson}
+\verb$struct card$ のメンバ変数を非公開として, 公開メンバ関数により値の
+書き込み, 読み出しを行えるようにして, プログラムを完成させよ. 
+\end{lesson}
+
+\subsection{データの生成と初期化}
+
+初期化のためにコンストラクタをつくろう！
+
+そして１日がおわるだろう. 
+\end{document}

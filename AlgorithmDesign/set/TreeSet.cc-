@@ -1,0 +1,139 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+/* datatype 型の定義 */
+typedef int datatype;
+
+bool equals(datatype x, datatype y) {
+  return x == y;
+}
+
+bool lessthan(datatype x, datatype y) {
+  return x < y;
+}
+
+/* TreeNode の定義 */
+struct TreeNode {
+  datatype element;
+  TreeNode * left, * right;
+
+  // Make new node as a leaf.
+  TreeNode(datatype x) {
+    element = x;
+    left = NULL;
+    right = NULL;
+  }
+
+  bool is_leaf() {
+    return (left == NULL) && (right == NULL);
+  }
+
+  void print(FILE * fp) {
+    fprintf(fp, "%d", element);
+    if ( (left == NULL) && (right == NULL) ) {
+      return;
+    }
+    fprintf(fp, "(");
+    if (left != NULL)
+      left->print(fp);
+    fprintf(fp, ", ");
+    if (right != NULL)
+      right->print(fp);
+    fprintf(fp,")");
+  }
+};
+
+/* TreeSet */
+struct TreeSet {
+  TreeNode * root;
+
+  TreeSet() {
+    root = NULL;
+  }
+
+  TreeNode * find(datatype x) {
+    return *find(&root, x);
+  }
+
+  TreeNode ** find(TreeNode ** ptr, datatype x) {
+    while ( *ptr != NULL ) {
+      if ( equals( (*ptr)->element, x) ) 
+	return ptr;
+      if ( lessthan(x, (*ptr)->element) ) 
+	ptr = &(*ptr)->left;
+      else
+	ptr = &(*ptr)->right;
+    }
+    return ptr;
+  }
+
+  TreeNode ** insert(datatype x) {
+    TreeNode ** v;
+    v = find(&root, x);
+    if ( *v == NULL )
+      *v = new TreeNode(x);
+    return v;
+  }
+    
+  TreeNode ** remove(datatype x) {
+    TreeNode ** v, **u, * w;
+    v = find(&root, x);
+    if ( *v == NULL )
+      return v;
+    if ( (*v)->is_leaf() ) {
+      delete *v;
+      *v = NULL;
+      return v;
+    }
+    if ( ((*v)->left == NULL) || ((*v)->right == NULL) ) {
+      if ( (*v)->left == NULL ) 
+	w = (*v)->right;
+      else 
+	w = (*v)->left;
+      delete *v;
+      *v = w;
+      return v;
+    } 
+    u = &((*v)->left);
+    for ( ; (*u)->right != NULL; u = &((*u)->right) ) ;
+    w = *u;
+    *u = (*u)->left;
+    w->left = (*v)->left;
+    w->right = (*v)->right;
+    *v = w;
+    return v;
+  }
+
+  int size() {
+  }
+
+  void print(FILE * fp) {
+    root->print(fp);
+  }
+};
+
+/* テスト用プログラム */
+int main(int argc, char * argv[]) {
+  TreeSet set;
+  int i;
+
+  for (i = 1; i < argc; i++)
+    set.insert(atoi(argv[i]));
+
+  for (i = 1; i < 10; i++) {
+    if ( set.find(i) != NULL )
+      printf("%d is included.\n", i);
+    else 
+      printf("%d is not included.\n", i);
+  }
+
+  set.print(stdout);
+  printf("\n");
+  set.remove(9);
+  set.print(stdout);
+  printf("\n");
+  set.remove(12);
+
+  set.print(stdout);
+  printf("\n");
+}

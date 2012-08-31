@@ -1,0 +1,83 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef int datatype;
+
+/* definitions for data */
+int equals(datatype x, datatype y) {
+  return x == y;
+}
+
+int lessthan(datatype x, datatype y) {
+  return x < y;
+}
+
+typedef struct ArraySet {
+  datatype * elements;
+  int capacity;
+  int tally;
+} ArraySet;
+
+/* definitions for ArraySet */
+void new_ArraySet(ArraySet * set, int maxsize) {
+  set->elements = (datatype *) malloc(sizeof(datatype) * maxsize);
+  set->capacity = maxsize;
+  set->tally = 0;
+}
+
+void delete_ArraySet(ArraySet * set) {
+  free(set->elements);
+}
+
+int find(ArraySet * set, datatype x) {
+  int i;
+  for (i = 0; i < set->tally; i++) {
+    if ( equals(set->elements[i], x) ) 
+      return i;
+  }
+  return -1;
+}
+
+int add(ArraySet * set, datatype x) {
+  int i;
+  if ( (i = find(set, x)) != -1)
+    return i;
+  if (! (set->tally < set->capacity) )
+    return -1;
+  set->elements[set->tally] = x;
+  set->tally++;
+  return set->tally - 1;
+}
+
+int delete(ArraySet * set, datatype x) {
+  int i;
+  if ( (i = find(set, x)) == -1)
+    return i;
+  set->tally--;
+  set->elements[i] = set->elements[set->tally];
+  return i;
+}
+
+int size(ArraySet * set) {
+  return set->tally;
+}
+
+int main(int argc, char * argv[]) {
+  ArraySet s;
+  int i;
+  new_ArraySet(&s, 10);
+  for (i = 1; i < argc; i++) {
+    add(&s, atoi(argv[i]));
+  }
+
+  delete(&s, 8);
+
+  printf("size = %d.\n", size(&s));
+
+  for ( i = 0; i < size(&s); i++) {
+    printf("%d, ", (int) s.elements[i]);
+  }
+  printf("\n");
+
+  delete_ArraySet(&s);
+}

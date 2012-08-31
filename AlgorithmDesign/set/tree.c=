@@ -1,0 +1,184 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* definitions for `datatype.' */
+typedef char datatype[256];
+
+int equals(datatype a, datatype b) {
+  return ! strcmp(a,b);
+}
+
+int lessthan(datatype a, datatype b) {
+  return strcmp(a,b) < 0;
+}
+
+void putinto(datatype a, datatype b) {
+  strcpy(b, a);
+}
+
+void print(datatype a) {
+  printf("%s", a);
+}
+
+
+typedef struct Node {
+  datatype data;
+  struct Node * left, * right;
+} Node, * Tree;
+
+Node * make_new_node(datatype data) {
+  Node * node;
+  
+  node = (Node *) malloc(sizeof(Node));
+  node->left  = NULL;
+  node->right = NULL;
+  putinto(data, node->data);
+  return node;
+}
+
+Node * find_parent(Node * root, datatype data) {
+  Node * node = root, * parent = NULL;
+  
+  while (node != NULL) {
+    if ( equals(data, node->data) ) { 
+      return parent;
+    }
+    parent = node;
+    if ( lessthan(data, node->data) ) {
+      node = parent->left;
+    } else {
+      node = parent->right;
+    }
+  }
+  return parent;
+}
+
+void Tree_initialize(Tree * tree) {
+  *tree = NULL;
+}
+
+void Tree_add(Tree * tree, datatype data) {
+  Node * parent;
+  
+  if (*tree == NULL) {
+    *tree = make_new_node(data);
+    return;
+  }
+  parent = find_parent(*tree, data);
+  if (parent == NULL) {
+    return;  // the "str" has been found at the root.
+  }
+  if ( lessthan(data, parent->data) ) {
+    if ( parent->left == NULL )
+      parent->left = make_new_node(data);
+  } else {
+    if ( parent->right == NULL )
+      parent->right = make_new_node(data);
+  }
+  return;
+}
+
+Node * extract(Tree * tree) {
+  Node * parent = * tree, * largest;
+  
+  if ( (*tree)->right == NULL ) {
+    largest = *tree;
+    *tree = (*tree)->left;
+  } else {
+    while (parent->right->right != NULL) 
+      parent = parent->right;
+    largest = parent->right;
+    parent->right = parent->right->left;
+  }
+  largest->left = NULL;
+  largest->right = NULL;
+  return largest;
+}
+
+int bypass_child(Node ** parent, Node * child) {
+  if ( child->left == NULL ) {
+    *parent = child->right;
+    return 1;
+  } else if ( child->right == NULL) {
+    *parent = child->left;
+    return 1;
+  }
+  return 0;
+}
+
+void Tree_delete(Tree * tree, datatype data) {
+  Node * parent, * node, *newnode;
+
+  if ( *tree == NULL)
+    return;
+  parent = find_parent(*tree, data);
+  if (parent == NULL) {
+    node = *tree;
+    if ( bypass_child( tree, node) ) {
+    } else {
+      newnode = extract( &(node->left) );
+      *tree = newnode;
+      newnode->left = node->left;
+      newnode->right = node->right;
+    }
+  } else if ( lessthan(data, parent->data) ) {
+    node = parent->left;
+    if ( node == NULL)
+      return;
+    if ( bypass_child( &(parent->left), node) ) {
+    } else {
+      newnode = extract(&(node->left));
+      parent->left = newnode;
+      newnode->left = node->left;
+      newnode->right = node->right;
+    }
+  } else {
+    node = parent->right;
+    if ( node == NULL )
+      return;
+    if ( bypass_child( &(parent->right), node) ) {
+    } else {
+      newnode = extract(&(node->left));
+      parent->right = newnode;
+      newnode->left = node->left;
+      newnode->right = node->right;
+    }
+  }
+  free(node);
+  return;
+}
+
+void Tree_print(Tree * tree) {
+  Node * root = * tree;
+  
+  if ( root == NULL ) 
+    return;
+  print(root->data);
+  if ( (root->left == NULL) && (root->right == NULL) )
+     return;
+  printf("(");
+  Tree_print( &(root->left) );
+  printf(",");
+  Tree_print( &(root->right) );
+  printf(")");
+}
+
+int main(int argc, char * argv[]) {
+  Tree tree;
+  int i;
+
+  Tree_initialize(& tree);
+
+  for(i = 1; i < argc; i++)
+    Tree_add(&tree, argv[i]);
+
+  Tree_print(&tree);
+  printf("\n");
+
+  Tree_delete(&tree, "7");
+  Tree_print(&tree);
+  printf("\n");
+
+  return 0;
+}

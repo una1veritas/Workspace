@@ -1,0 +1,96 @@
+レポート課題2： ソートアルゴリズム
+問題  C言語を使って，ファイルから整数列を読み，ヒープソートで昇順にソートするプログラムをつくれ．まず講義で説明した関数down_to_leafとmake_heapを完成させ，つぎにこれらを利用して関数make_heapを完成させよ．なお作成においては以下を行い，レポートにはその結果と考察を書くこと．また完成したヒープソートのプログラムを電子メールで提出すること．
+	それぞれの関数について，さまざまな入力を与えその出力を調べ，正しく動作することを確認する．また同時に，繰り返しが最も多くなる部分に「通過カウンタ」を設置して，入力サイズと通過回数の関係を実験的に調べ，オーダー評価との比較検討をする．
+	作成する関数のプロトタイプ（引数と返値の型）と，main関数の入出力はリスト1のものをそのまま使うこと．なおリスト2のプログラムを利用すれば，整数列のファイルの作成は容易である．プログラムの提出は，大学内のアカウントから電子メールにてSubject（題目）に学籍番号を半角数字で記入し，プログラムのみをメール本文として
+a.design@daisy.ai.kyutech.ac.jp
+宛に送ること．
+リスト1
+#include <stdio.h>
+#include <stdlib.h>
+
+/* prototypes */
+void make_heap(int a[], int n);
+void down_to_leaf(int a[], int i, int n);
+void heap_sort(int a[], int n);
+
+/* 上記3関数の本体を，自分でつくる．*/
+
+int main(int argc, char * argv[]) {
+  int n, i;
+  FILE * fp;
+
+  fp = fopen(argv[1],"r");
+  for (i = 0; fscanf(fp, "%*d") != EOF; i++);
+  n = i;
+  int array[n];
+
+  rewind(fp);
+  for (i = 0; i < n; i++) {
+    fscanf(fp, "%d", &array[i]);
+    printf("%d, ", array[i]);
+  }
+  printf("\n\n");
+
+  heap_sort(array, n);
+
+  for (i = 0; i < n; i++)
+    printf("%d, ", array[i]);
+  printf("\n");
+
+  return 0;
+}
+
+実行例1
+% cat > data
+5 7 3 9 7
+^D
+% ./a.out data
+5, 7, 3, 9, 7, 
+
+3, 5, 7, 7, 9
+%
+
+リスト2
+#include <stdio.h>
+#include <stdlib.h>
+
+/* prototypes */
+void make_heap(int a[], int n);
+void down_to_leaf(int a[], int i, int n);
+void heap_sort(int a[], int n);
+
+/* 上記3関数の本体を，自分でつくる．*/
+
+int main(int argc, char * argv[]) {
+  int n, i;
+  FILE * fp;
+
+  fp = fopen(argv[1],"r");
+  for (i = 0; fscanf(fp, "%*d") != EOF; i++);
+  n = i;
+  int array[n];
+
+  rewind(fp);
+  for (i = 0; i < n; i++) {
+    fscanf(fp, "%d", &array[i]);
+    printf("%d, ", array[i]);
+  }
+  printf("\n\n");
+
+  heap_sort(array, n);
+
+  for (i = 0; i < n; i++)
+    printf("%d, ", array[i]);
+  printf("\n");
+
+  return 0;
+}
+
+
+
+アルゴリズム設計A：レポート課題2		2003年度・後期
+
+2
+
+
+

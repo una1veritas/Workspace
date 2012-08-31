@@ -1,0 +1,1 @@
+class Algorithm extends Object {	// subclass responcibility;}
