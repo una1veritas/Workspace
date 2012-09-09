@@ -1,0 +1,97 @@
+// typeinfo standard header -*-c++-*-
+// Copyright 2009-2010 IAR Systems AB. 
+#ifndef _TYPEINFO_
+#define _TYPEINFO_
+
+#ifndef _SYSTEM_BUILD
+#pragma system_include
+#endif
+
+#include <exception>
+
+_X_STD_BEGIN
+
+// CLASS bad_cast
+class bad_cast
+  : public _XSTD exception
+{       // base of all bad-cast exceptions
+public:
+  bad_cast() _THROW0()
+  {       // construct with no message string
+  }
+
+  virtual const char *what() const _THROW0()
+  {       // report a bad cast
+    return ("bad cast");
+  }
+};
+
+// CLASS bad_typeid
+class bad_typeid
+  : public _XSTD exception
+{       // base of all bad-typeid exceptions
+public:
+  bad_typeid() _THROW0()
+  {       // construct with no message string
+  }
+
+  virtual const char *what() const _THROW0()
+  {       // report a bad typeid
+    return ("bad typeid");
+  }
+};
+
+_X_STD_END
+
+#if 0
+#if defined(__EDG_IA64_ABI)
+namespace __cxxabiv1
+{       // declare forward reference to __class_type_info
+  class __class_type_info;
+}
+#endif
+#endif
+
+_X_STD_BEGIN
+
+#pragma define_type_info
+
+// CLASS type_info
+class type_info
+{       // translator-supplied descriptor for a type
+public:
+  virtual ~type_info();   // destroy the object
+
+  bool before(const type_info&) const;    // test if this precedes arg
+
+  bool operator==(const type_info&) const;        // test for equality
+
+  bool operator!=(const type_info&) const;        // test for inequality
+
+  const char *name() const;       // return name of type
+
+protected:      // to shut up compiler
+  type_info(const type_info&);    // not defined
+
+private:
+  type_info& operator=(const type_info&); // not defined
+
+#ifdef __EDG_IA64_ABI
+protected:
+  char const * __type_name;
+#endif
+};
+
+_X_STD_END
+
+#if _HAS_NAMESPACE
+
+#else /* _HAS_NAMESPACE */
+  using _STD type_info;
+#endif /* _HAS_NAMESPACE */
+#endif /* _TYPE_INFO_ */
+
+/*
+ * Copyright (c) 1992-2009 by P.J. Plauger.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+ V5.04:0576 */

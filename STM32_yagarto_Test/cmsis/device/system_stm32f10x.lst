@@ -1,0 +1,3058 @@
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1	@ Tag_ABI_FP_denormal
+   5              		.eabi_attribute 21, 1	@ Tag_ABI_FP_exceptions
+   6              		.eabi_attribute 23, 3	@ Tag_ABI_FP_number_model
+   7              		.eabi_attribute 24, 1	@ Tag_ABI_align8_needed
+   8              		.eabi_attribute 25, 1	@ Tag_ABI_align8_preserved
+   9              		.eabi_attribute 26, 1	@ Tag_ABI_enum_size
+  10              		.eabi_attribute 30, 6	@ Tag_ABI_optimization_goals
+  11              		.eabi_attribute 34, 1	@ Tag_CPU_unaligned_access
+  12              		.eabi_attribute 18, 4	@ Tag_ABI_PCS_wchar_t
+  13              		.file	"system_stm32f10x.c"
+  14              	@ GNU C (GCC) version 4.7.1 (arm-none-eabi)
+  15              	@	compiled by GNU C version 4.2.1 (Apple Inc. build 5666) (dot 3), GMP version 5.0.4, MPFR version 
+  16              	@ GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+  17              	@ options passed:  -I . -I ./inc -I ./cmsis/core -I ./cmsis/device
+  18              	@ -imultilib thumb/v7m
+  19              	@ -iprefix /usr/local/yagarto-4.7.1/bin/../lib/gcc/arm-none-eabi/4.7.1/
+  20              	@ -MD cmsis/device/system_stm32f10x.d -MF .dep/system_stm32f10x.o.d -MP
+  21              	@ -MQ cmsis/device/system_stm32f10x.o -D__USES_INITFINI__ -D STM32F10X_MD
+  22              	@ -D _DEBUG=1 -D RUN_FROM_FLASH=1 cmsis/device/system_stm32f10x.c -mthumb
+  23              	@ -mcpu=cortex-m4 -mfloat-abi=soft -mfpu=fpv4-sp-d16
+  24              	@ -auxbase-strip cmsis/device/system_stm32f10x.o -gdwarf-2 -O0 -Wall
+  25              	@ -Wstrict-prototypes -fverbose-asm
+  26              	@ options enabled:  -fauto-inc-dec -fbranch-count-reg -fcommon
+  27              	@ -fdebug-types-section -fdelete-null-pointer-checks -fdwarf2-cfi-asm
+  28              	@ -fearly-inlining -feliminate-unused-debug-types -ffunction-cse -fgcse-lm
+  29              	@ -fgnu-runtime -fident -finline-atomics -fira-share-save-slots
+  30              	@ -fira-share-spill-slots -fivopts -fkeep-static-consts
+  31              	@ -fleading-underscore -fmath-errno -fmerge-debug-strings
+  32              	@ -fmove-loop-invariants -fpeephole -fprefetch-loop-arrays
+  33              	@ -freg-struct-return -fsched-critical-path-heuristic
+  34              	@ -fsched-dep-count-heuristic -fsched-group-heuristic -fsched-interblock
+  35              	@ -fsched-last-insn-heuristic -fsched-rank-heuristic -fsched-spec
+  36              	@ -fsched-spec-insn-heuristic -fsched-stalled-insns-dep -fshow-column
+  37              	@ -fsigned-zeros -fsplit-ivs-in-unroller -fstrict-volatile-bitfields
+  38              	@ -ftrapping-math -ftree-cselim -ftree-forwprop -ftree-loop-if-convert
+  39              	@ -ftree-loop-im -ftree-loop-ivcanon -ftree-loop-optimize
+  40              	@ -ftree-parallelize-loops= -ftree-phiprop -ftree-pta -ftree-reassoc
+  41              	@ -ftree-scev-cprop -ftree-slp-vectorize -ftree-vect-loop-version
+  42              	@ -funit-at-a-time -fverbose-asm -fzero-initialized-in-bss -mlittle-endian
+  43              	@ -msched-prolog -mthumb -munaligned-access -mvectorize-with-neon-quad
+  44              	
+  45              		.text
+  46              	.Ltext0:
+  47              		.cfi_sections	.debug_frame
+  48              		.global	SystemCoreClock
+  49              		.data
+  50              		.align	2
+  51              		.type	SystemCoreClock, %object
+  52              		.size	SystemCoreClock, 4
+  53              	SystemCoreClock:
+  54 0000 00A24A04 		.word	72000000
+  55              		.global	AHBPrescTable
+  56              		.align	2
+  57              		.type	AHBPrescTable, %object
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 2
+
+
+  58              		.size	AHBPrescTable, 16
+  59              	AHBPrescTable:
+  60 0004 00       		.byte	0
+  61 0005 00       		.byte	0
+  62 0006 00       		.byte	0
+  63 0007 00       		.byte	0
+  64 0008 00       		.byte	0
+  65 0009 00       		.byte	0
+  66 000a 00       		.byte	0
+  67 000b 00       		.byte	0
+  68 000c 01       		.byte	1
+  69 000d 02       		.byte	2
+  70 000e 03       		.byte	3
+  71 000f 04       		.byte	4
+  72 0010 06       		.byte	6
+  73 0011 07       		.byte	7
+  74 0012 08       		.byte	8
+  75 0013 09       		.byte	9
+  76              		.text
+  77              		.align	2
+  78              		.global	SystemInit
+  79              		.thumb
+  80              		.thumb_func
+  81              		.type	SystemInit, %function
+  82              	SystemInit:
+  83              	.LFB55:
+  84              		.file 1 "cmsis/device/system_stm32f10x.c"
+   1:cmsis/device/system_stm32f10x.c **** /**
+   2:cmsis/device/system_stm32f10x.c ****   ******************************************************************************
+   3:cmsis/device/system_stm32f10x.c ****   * @file    system_stm32f10x.c
+   4:cmsis/device/system_stm32f10x.c ****   * @author  MCD Application Team
+   5:cmsis/device/system_stm32f10x.c ****   * @version V3.5.0
+   6:cmsis/device/system_stm32f10x.c ****   * @date    11-March-2011
+   7:cmsis/device/system_stm32f10x.c ****   * @brief   CMSIS Cortex-M3 Device Peripheral Access Layer System Source File.
+   8:cmsis/device/system_stm32f10x.c ****   * 
+   9:cmsis/device/system_stm32f10x.c ****   * 1.  This file provides two functions and one global variable to be called from 
+  10:cmsis/device/system_stm32f10x.c ****   *     user application:
+  11:cmsis/device/system_stm32f10x.c ****   *      - SystemInit(): Setups the system clock (System clock source, PLL Multiplier
+  12:cmsis/device/system_stm32f10x.c ****   *                      factors, AHB/APBx prescalers and Flash settings). 
+  13:cmsis/device/system_stm32f10x.c ****   *                      This function is called at startup just after reset and 
+  14:cmsis/device/system_stm32f10x.c ****   *                      before branch to main program. This call is made inside
+  15:cmsis/device/system_stm32f10x.c ****   *                      the "startup_stm32f10x_xx.s" file.
+  16:cmsis/device/system_stm32f10x.c ****   *
+  17:cmsis/device/system_stm32f10x.c ****   *      - SystemCoreClock variable: Contains the core clock (HCLK), it can be used
+  18:cmsis/device/system_stm32f10x.c ****   *                                  by the user application to setup the SysTick 
+  19:cmsis/device/system_stm32f10x.c ****   *                                  timer or configure other parameters.
+  20:cmsis/device/system_stm32f10x.c ****   *                                     
+  21:cmsis/device/system_stm32f10x.c ****   *      - SystemCoreClockUpdate(): Updates the variable SystemCoreClock and must
+  22:cmsis/device/system_stm32f10x.c ****   *                                 be called whenever the core clock is changed
+  23:cmsis/device/system_stm32f10x.c ****   *                                 during program execution.
+  24:cmsis/device/system_stm32f10x.c ****   *
+  25:cmsis/device/system_stm32f10x.c ****   * 2. After each device reset the HSI (8 MHz) is used as system clock source.
+  26:cmsis/device/system_stm32f10x.c ****   *    Then SystemInit() function is called, in "startup_stm32f10x_xx.s" file, to
+  27:cmsis/device/system_stm32f10x.c ****   *    configure the system clock before to branch to main program.
+  28:cmsis/device/system_stm32f10x.c ****   *
+  29:cmsis/device/system_stm32f10x.c ****   * 3. If the system clock source selected by user fails to startup, the SystemInit()
+  30:cmsis/device/system_stm32f10x.c ****   *    function will do nothing and HSI still used as system clock source. User can 
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 3
+
+
+  31:cmsis/device/system_stm32f10x.c ****   *    add some code to deal with this issue inside the SetSysClock() function.
+  32:cmsis/device/system_stm32f10x.c ****   *
+  33:cmsis/device/system_stm32f10x.c ****   * 4. The default value of HSE crystal is set to 8 MHz (or 25 MHz, depedning on
+  34:cmsis/device/system_stm32f10x.c ****   *    the product used), refer to "HSE_VALUE" define in "stm32f10x.h" file. 
+  35:cmsis/device/system_stm32f10x.c ****   *    When HSE is used as system clock source, directly or through PLL, and you
+  36:cmsis/device/system_stm32f10x.c ****   *    are using different crystal you have to adapt the HSE value to your own
+  37:cmsis/device/system_stm32f10x.c ****   *    configuration.
+  38:cmsis/device/system_stm32f10x.c ****   *        
+  39:cmsis/device/system_stm32f10x.c ****   ******************************************************************************
+  40:cmsis/device/system_stm32f10x.c ****   * @attention
+  41:cmsis/device/system_stm32f10x.c ****   *
+  42:cmsis/device/system_stm32f10x.c ****   * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
+  43:cmsis/device/system_stm32f10x.c ****   * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
+  44:cmsis/device/system_stm32f10x.c ****   * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
+  45:cmsis/device/system_stm32f10x.c ****   * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
+  46:cmsis/device/system_stm32f10x.c ****   * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
+  47:cmsis/device/system_stm32f10x.c ****   * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  48:cmsis/device/system_stm32f10x.c ****   *
+  49:cmsis/device/system_stm32f10x.c ****   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
+  50:cmsis/device/system_stm32f10x.c ****   ******************************************************************************
+  51:cmsis/device/system_stm32f10x.c ****   */
+  52:cmsis/device/system_stm32f10x.c **** 
+  53:cmsis/device/system_stm32f10x.c **** /** @addtogroup CMSIS
+  54:cmsis/device/system_stm32f10x.c ****   * @{
+  55:cmsis/device/system_stm32f10x.c ****   */
+  56:cmsis/device/system_stm32f10x.c **** 
+  57:cmsis/device/system_stm32f10x.c **** /** @addtogroup stm32f10x_system
+  58:cmsis/device/system_stm32f10x.c ****   * @{
+  59:cmsis/device/system_stm32f10x.c ****   */  
+  60:cmsis/device/system_stm32f10x.c ****   
+  61:cmsis/device/system_stm32f10x.c **** /** @addtogroup STM32F10x_System_Private_Includes
+  62:cmsis/device/system_stm32f10x.c ****   * @{
+  63:cmsis/device/system_stm32f10x.c ****   */
+  64:cmsis/device/system_stm32f10x.c **** 
+  65:cmsis/device/system_stm32f10x.c **** #include "stm32f10x.h"
+  66:cmsis/device/system_stm32f10x.c **** 
+  67:cmsis/device/system_stm32f10x.c **** /**
+  68:cmsis/device/system_stm32f10x.c ****   * @}
+  69:cmsis/device/system_stm32f10x.c ****   */
+  70:cmsis/device/system_stm32f10x.c **** 
+  71:cmsis/device/system_stm32f10x.c **** /** @addtogroup STM32F10x_System_Private_TypesDefinitions
+  72:cmsis/device/system_stm32f10x.c ****   * @{
+  73:cmsis/device/system_stm32f10x.c ****   */
+  74:cmsis/device/system_stm32f10x.c **** 
+  75:cmsis/device/system_stm32f10x.c **** /**
+  76:cmsis/device/system_stm32f10x.c ****   * @}
+  77:cmsis/device/system_stm32f10x.c ****   */
+  78:cmsis/device/system_stm32f10x.c **** 
+  79:cmsis/device/system_stm32f10x.c **** /** @addtogroup STM32F10x_System_Private_Defines
+  80:cmsis/device/system_stm32f10x.c ****   * @{
+  81:cmsis/device/system_stm32f10x.c ****   */
+  82:cmsis/device/system_stm32f10x.c **** 
+  83:cmsis/device/system_stm32f10x.c **** /*!< Uncomment the line corresponding to the desired System clock (SYSCLK)
+  84:cmsis/device/system_stm32f10x.c ****    frequency (after reset the HSI is used as SYSCLK source)
+  85:cmsis/device/system_stm32f10x.c ****    
+  86:cmsis/device/system_stm32f10x.c ****    IMPORTANT NOTE:
+  87:cmsis/device/system_stm32f10x.c ****    ============== 
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 4
+
+
+  88:cmsis/device/system_stm32f10x.c ****    1. After each device reset the HSI is used as System clock source.
+  89:cmsis/device/system_stm32f10x.c **** 
+  90:cmsis/device/system_stm32f10x.c ****    2. Please make sure that the selected System clock doesn't exceed your device's
+  91:cmsis/device/system_stm32f10x.c ****       maximum frequency.
+  92:cmsis/device/system_stm32f10x.c ****       
+  93:cmsis/device/system_stm32f10x.c ****    3. If none of the define below is enabled, the HSI is used as System clock
+  94:cmsis/device/system_stm32f10x.c ****     source.
+  95:cmsis/device/system_stm32f10x.c **** 
+  96:cmsis/device/system_stm32f10x.c ****    4. The System clock configuration functions provided within this file assume that:
+  97:cmsis/device/system_stm32f10x.c ****         - For Low, Medium and High density Value line devices an external 8MHz 
+  98:cmsis/device/system_stm32f10x.c ****           crystal is used to drive the System clock.
+  99:cmsis/device/system_stm32f10x.c ****         - For Low, Medium and High density devices an external 8MHz crystal is
+ 100:cmsis/device/system_stm32f10x.c ****           used to drive the System clock.
+ 101:cmsis/device/system_stm32f10x.c ****         - For Connectivity line devices an external 25MHz crystal is used to drive
+ 102:cmsis/device/system_stm32f10x.c ****           the System clock.
+ 103:cmsis/device/system_stm32f10x.c ****      If you are using different crystal you have to adapt those functions accordingly.
+ 104:cmsis/device/system_stm32f10x.c ****     */
+ 105:cmsis/device/system_stm32f10x.c ****     
+ 106:cmsis/device/system_stm32f10x.c **** #if defined (STM32F10X_LD_VL) || (defined STM32F10X_MD_VL) || (defined STM32F10X_HD_VL)
+ 107:cmsis/device/system_stm32f10x.c **** /* #define SYSCLK_FREQ_HSE    HSE_VALUE */
+ 108:cmsis/device/system_stm32f10x.c ****  #define SYSCLK_FREQ_24MHz  24000000
+ 109:cmsis/device/system_stm32f10x.c **** #else
+ 110:cmsis/device/system_stm32f10x.c **** /* #define SYSCLK_FREQ_HSE    HSE_VALUE */
+ 111:cmsis/device/system_stm32f10x.c **** /* #define SYSCLK_FREQ_24MHz  24000000 */ 
+ 112:cmsis/device/system_stm32f10x.c **** /* #define SYSCLK_FREQ_36MHz  36000000 */
+ 113:cmsis/device/system_stm32f10x.c **** /* #define SYSCLK_FREQ_48MHz  48000000 */
+ 114:cmsis/device/system_stm32f10x.c **** /* #define SYSCLK_FREQ_56MHz  56000000 */
+ 115:cmsis/device/system_stm32f10x.c **** #define SYSCLK_FREQ_72MHz  72000000
+ 116:cmsis/device/system_stm32f10x.c **** #endif
+ 117:cmsis/device/system_stm32f10x.c **** 
+ 118:cmsis/device/system_stm32f10x.c **** /*!< Uncomment the following line if you need to use external SRAM mounted
+ 119:cmsis/device/system_stm32f10x.c ****      on STM3210E-EVAL board (STM32 High density and XL-density devices) or on 
+ 120:cmsis/device/system_stm32f10x.c ****      STM32100E-EVAL board (STM32 High-density value line devices) as data memory */ 
+ 121:cmsis/device/system_stm32f10x.c **** #if defined (STM32F10X_HD) || (defined STM32F10X_XL) || (defined STM32F10X_HD_VL)
+ 122:cmsis/device/system_stm32f10x.c **** /* #define DATA_IN_ExtSRAM */
+ 123:cmsis/device/system_stm32f10x.c **** #endif
+ 124:cmsis/device/system_stm32f10x.c **** 
+ 125:cmsis/device/system_stm32f10x.c **** /*!< Uncomment the following line if you need to relocate your vector Table in
+ 126:cmsis/device/system_stm32f10x.c ****      Internal SRAM. */ 
+ 127:cmsis/device/system_stm32f10x.c **** /* #define VECT_TAB_SRAM */
+ 128:cmsis/device/system_stm32f10x.c **** #define VECT_TAB_OFFSET  0x0 /*!< Vector Table base offset field. 
+ 129:cmsis/device/system_stm32f10x.c ****                                   This value must be a multiple of 0x200. */
+ 130:cmsis/device/system_stm32f10x.c **** 
+ 131:cmsis/device/system_stm32f10x.c **** 
+ 132:cmsis/device/system_stm32f10x.c **** /**
+ 133:cmsis/device/system_stm32f10x.c ****   * @}
+ 134:cmsis/device/system_stm32f10x.c ****   */
+ 135:cmsis/device/system_stm32f10x.c **** 
+ 136:cmsis/device/system_stm32f10x.c **** /** @addtogroup STM32F10x_System_Private_Macros
+ 137:cmsis/device/system_stm32f10x.c ****   * @{
+ 138:cmsis/device/system_stm32f10x.c ****   */
+ 139:cmsis/device/system_stm32f10x.c **** 
+ 140:cmsis/device/system_stm32f10x.c **** /**
+ 141:cmsis/device/system_stm32f10x.c ****   * @}
+ 142:cmsis/device/system_stm32f10x.c ****   */
+ 143:cmsis/device/system_stm32f10x.c **** 
+ 144:cmsis/device/system_stm32f10x.c **** /** @addtogroup STM32F10x_System_Private_Variables
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 5
+
+
+ 145:cmsis/device/system_stm32f10x.c ****   * @{
+ 146:cmsis/device/system_stm32f10x.c ****   */
+ 147:cmsis/device/system_stm32f10x.c **** 
+ 148:cmsis/device/system_stm32f10x.c **** /*******************************************************************************
+ 149:cmsis/device/system_stm32f10x.c **** *  Clock Definitions
+ 150:cmsis/device/system_stm32f10x.c **** *******************************************************************************/
+ 151:cmsis/device/system_stm32f10x.c **** #ifdef SYSCLK_FREQ_HSE
+ 152:cmsis/device/system_stm32f10x.c ****   uint32_t SystemCoreClock         = SYSCLK_FREQ_HSE;        /*!< System Clock Frequency (Core Cloc
+ 153:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_24MHz
+ 154:cmsis/device/system_stm32f10x.c ****   uint32_t SystemCoreClock         = SYSCLK_FREQ_24MHz;        /*!< System Clock Frequency (Core Cl
+ 155:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_36MHz
+ 156:cmsis/device/system_stm32f10x.c ****   uint32_t SystemCoreClock         = SYSCLK_FREQ_36MHz;        /*!< System Clock Frequency (Core Cl
+ 157:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_48MHz
+ 158:cmsis/device/system_stm32f10x.c ****   uint32_t SystemCoreClock         = SYSCLK_FREQ_48MHz;        /*!< System Clock Frequency (Core Cl
+ 159:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_56MHz
+ 160:cmsis/device/system_stm32f10x.c ****   uint32_t SystemCoreClock         = SYSCLK_FREQ_56MHz;        /*!< System Clock Frequency (Core Cl
+ 161:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_72MHz
+ 162:cmsis/device/system_stm32f10x.c ****   uint32_t SystemCoreClock         = SYSCLK_FREQ_72MHz;        /*!< System Clock Frequency (Core Cl
+ 163:cmsis/device/system_stm32f10x.c **** #else /*!< HSI Selected as System Clock source */
+ 164:cmsis/device/system_stm32f10x.c ****   uint32_t SystemCoreClock         = HSI_VALUE;        /*!< System Clock Frequency (Core Clock) */
+ 165:cmsis/device/system_stm32f10x.c **** #endif
+ 166:cmsis/device/system_stm32f10x.c **** 
+ 167:cmsis/device/system_stm32f10x.c **** __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+ 168:cmsis/device/system_stm32f10x.c **** /**
+ 169:cmsis/device/system_stm32f10x.c ****   * @}
+ 170:cmsis/device/system_stm32f10x.c ****   */
+ 171:cmsis/device/system_stm32f10x.c **** 
+ 172:cmsis/device/system_stm32f10x.c **** /** @addtogroup STM32F10x_System_Private_FunctionPrototypes
+ 173:cmsis/device/system_stm32f10x.c ****   * @{
+ 174:cmsis/device/system_stm32f10x.c ****   */
+ 175:cmsis/device/system_stm32f10x.c **** 
+ 176:cmsis/device/system_stm32f10x.c **** static void SetSysClock(void);
+ 177:cmsis/device/system_stm32f10x.c **** 
+ 178:cmsis/device/system_stm32f10x.c **** #ifdef SYSCLK_FREQ_HSE
+ 179:cmsis/device/system_stm32f10x.c ****   static void SetSysClockToHSE(void);
+ 180:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_24MHz
+ 181:cmsis/device/system_stm32f10x.c ****   static void SetSysClockTo24(void);
+ 182:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_36MHz
+ 183:cmsis/device/system_stm32f10x.c ****   static void SetSysClockTo36(void);
+ 184:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_48MHz
+ 185:cmsis/device/system_stm32f10x.c ****   static void SetSysClockTo48(void);
+ 186:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_56MHz
+ 187:cmsis/device/system_stm32f10x.c ****   static void SetSysClockTo56(void);  
+ 188:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_72MHz
+ 189:cmsis/device/system_stm32f10x.c ****   static void SetSysClockTo72(void);
+ 190:cmsis/device/system_stm32f10x.c **** #endif
+ 191:cmsis/device/system_stm32f10x.c **** 
+ 192:cmsis/device/system_stm32f10x.c **** #ifdef DATA_IN_ExtSRAM
+ 193:cmsis/device/system_stm32f10x.c ****   static void SystemInit_ExtMemCtl(void); 
+ 194:cmsis/device/system_stm32f10x.c **** #endif /* DATA_IN_ExtSRAM */
+ 195:cmsis/device/system_stm32f10x.c **** 
+ 196:cmsis/device/system_stm32f10x.c **** /**
+ 197:cmsis/device/system_stm32f10x.c ****   * @}
+ 198:cmsis/device/system_stm32f10x.c ****   */
+ 199:cmsis/device/system_stm32f10x.c **** 
+ 200:cmsis/device/system_stm32f10x.c **** /** @addtogroup STM32F10x_System_Private_Functions
+ 201:cmsis/device/system_stm32f10x.c ****   * @{
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 6
+
+
+ 202:cmsis/device/system_stm32f10x.c ****   */
+ 203:cmsis/device/system_stm32f10x.c **** 
+ 204:cmsis/device/system_stm32f10x.c **** /**
+ 205:cmsis/device/system_stm32f10x.c ****   * @brief  Setup the microcontroller system
+ 206:cmsis/device/system_stm32f10x.c ****   *         Initialize the Embedded Flash Interface, the PLL and update the 
+ 207:cmsis/device/system_stm32f10x.c ****   *         SystemCoreClock variable.
+ 208:cmsis/device/system_stm32f10x.c ****   * @note   This function should be used only after reset.
+ 209:cmsis/device/system_stm32f10x.c ****   * @param  None
+ 210:cmsis/device/system_stm32f10x.c ****   * @retval None
+ 211:cmsis/device/system_stm32f10x.c ****   */
+ 212:cmsis/device/system_stm32f10x.c **** void SystemInit (void)
+ 213:cmsis/device/system_stm32f10x.c **** {
+  85              		.loc 1 213 0
+  86              		.cfi_startproc
+  87              		@ args = 0, pretend = 0, frame = 0
+  88              		@ frame_needed = 1, uses_anonymous_args = 0
+  89 0000 80B5     		push	{r7, lr}	@
+  90              	.LCFI0:
+  91              		.cfi_def_cfa_offset 8
+  92              		.cfi_offset 7, -8
+  93              		.cfi_offset 14, -4
+  94 0002 00AF     		add	r7, sp, #0	@,,
+  95              	.LCFI1:
+  96              		.cfi_def_cfa_register 7
+ 214:cmsis/device/system_stm32f10x.c ****   /* Reset the RCC clock configuration to the default reset state(for debug purpose) */
+ 215:cmsis/device/system_stm32f10x.c ****   /* Set HSION bit */
+ 216:cmsis/device/system_stm32f10x.c ****   RCC->CR |= (uint32_t)0x00000001;
+  97              		.loc 1 216 0
+  98 0004 4FF48053 		mov	r3, #4096	@ D.5138,
+  99 0008 C4F20203 		movt	r3, 16386	@ D.5138,
+ 100 000c 4FF48052 		mov	r2, #4096	@ D.5139,
+ 101 0010 C4F20202 		movt	r2, 16386	@ D.5139,
+ 102 0014 1268     		ldr	r2, [r2, #0]	@ D.5140, D.5139_2->CR
+ 103 0016 42F00102 		orr	r2, r2, #1	@ D.5141, D.5140,
+ 104 001a 1A60     		str	r2, [r3, #0]	@ D.5141, D.5138_1->CR
+ 217:cmsis/device/system_stm32f10x.c **** 
+ 218:cmsis/device/system_stm32f10x.c ****   /* Reset SW, HPRE, PPRE1, PPRE2, ADCPRE and MCO bits */
+ 219:cmsis/device/system_stm32f10x.c **** #ifndef STM32F10X_CL
+ 220:cmsis/device/system_stm32f10x.c ****   RCC->CFGR &= (uint32_t)0xF8FF0000;
+ 105              		.loc 1 220 0
+ 106 001c 4FF48052 		mov	r2, #4096	@ D.5142,
+ 107 0020 C4F20202 		movt	r2, 16386	@ D.5142,
+ 108 0024 4FF48053 		mov	r3, #4096	@ D.5143,
+ 109 0028 C4F20203 		movt	r3, 16386	@ D.5143,
+ 110 002c 5968     		ldr	r1, [r3, #4]	@ D.5144, D.5143_6->CFGR
+ 111 002e 4FF00003 		mov	r3, #0	@ D.5145,
+ 112 0032 CFF6FF03 		movt	r3, 63743	@ D.5145,
+ 113 0036 0B40     		ands	r3, r3, r1	@, D.5145, D.5145, D.5144
+ 114 0038 5360     		str	r3, [r2, #4]	@ D.5145, D.5142_5->CFGR
+ 221:cmsis/device/system_stm32f10x.c **** #else
+ 222:cmsis/device/system_stm32f10x.c ****   RCC->CFGR &= (uint32_t)0xF0FF0000;
+ 223:cmsis/device/system_stm32f10x.c **** #endif /* STM32F10X_CL */   
+ 224:cmsis/device/system_stm32f10x.c ****   
+ 225:cmsis/device/system_stm32f10x.c ****   /* Reset HSEON, CSSON and PLLON bits */
+ 226:cmsis/device/system_stm32f10x.c ****   RCC->CR &= (uint32_t)0xFEF6FFFF;
+ 115              		.loc 1 226 0
+ 116 003a 4FF48053 		mov	r3, #4096	@ D.5146,
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 7
+
+
+ 117 003e C4F20203 		movt	r3, 16386	@ D.5146,
+ 118 0042 4FF48052 		mov	r2, #4096	@ D.5147,
+ 119 0046 C4F20202 		movt	r2, 16386	@ D.5147,
+ 120 004a 1268     		ldr	r2, [r2, #0]	@ D.5148, D.5147_10->CR
+ 121 004c 22F08472 		bic	r2, r2, #17301504	@ D.5149, D.5148,
+ 122 0050 22F48032 		bic	r2, r2, #65536	@ D.5149, D.5149,
+ 123 0054 1A60     		str	r2, [r3, #0]	@ D.5149, D.5146_9->CR
+ 227:cmsis/device/system_stm32f10x.c **** 
+ 228:cmsis/device/system_stm32f10x.c ****   /* Reset HSEBYP bit */
+ 229:cmsis/device/system_stm32f10x.c ****   RCC->CR &= (uint32_t)0xFFFBFFFF;
+ 124              		.loc 1 229 0
+ 125 0056 4FF48053 		mov	r3, #4096	@ D.5150,
+ 126 005a C4F20203 		movt	r3, 16386	@ D.5150,
+ 127 005e 4FF48052 		mov	r2, #4096	@ D.5151,
+ 128 0062 C4F20202 		movt	r2, 16386	@ D.5151,
+ 129 0066 1268     		ldr	r2, [r2, #0]	@ D.5152, D.5151_14->CR
+ 130 0068 22F48022 		bic	r2, r2, #262144	@ D.5153, D.5152,
+ 131 006c 1A60     		str	r2, [r3, #0]	@ D.5153, D.5150_13->CR
+ 230:cmsis/device/system_stm32f10x.c **** 
+ 231:cmsis/device/system_stm32f10x.c ****   /* Reset PLLSRC, PLLXTPRE, PLLMUL and USBPRE/OTGFSPRE bits */
+ 232:cmsis/device/system_stm32f10x.c ****   RCC->CFGR &= (uint32_t)0xFF80FFFF;
+ 132              		.loc 1 232 0
+ 133 006e 4FF48053 		mov	r3, #4096	@ D.5154,
+ 134 0072 C4F20203 		movt	r3, 16386	@ D.5154,
+ 135 0076 4FF48052 		mov	r2, #4096	@ D.5155,
+ 136 007a C4F20202 		movt	r2, 16386	@ D.5155,
+ 137 007e 5268     		ldr	r2, [r2, #4]	@ D.5156, D.5155_18->CFGR
+ 138 0080 22F4FE02 		bic	r2, r2, #8323072	@ D.5157, D.5156,
+ 139 0084 5A60     		str	r2, [r3, #4]	@ D.5157, D.5154_17->CFGR
+ 233:cmsis/device/system_stm32f10x.c **** 
+ 234:cmsis/device/system_stm32f10x.c **** #ifdef STM32F10X_CL
+ 235:cmsis/device/system_stm32f10x.c ****   /* Reset PLL2ON and PLL3ON bits */
+ 236:cmsis/device/system_stm32f10x.c ****   RCC->CR &= (uint32_t)0xEBFFFFFF;
+ 237:cmsis/device/system_stm32f10x.c **** 
+ 238:cmsis/device/system_stm32f10x.c ****   /* Disable all interrupts and clear pending bits  */
+ 239:cmsis/device/system_stm32f10x.c ****   RCC->CIR = 0x00FF0000;
+ 240:cmsis/device/system_stm32f10x.c **** 
+ 241:cmsis/device/system_stm32f10x.c ****   /* Reset CFGR2 register */
+ 242:cmsis/device/system_stm32f10x.c ****   RCC->CFGR2 = 0x00000000;
+ 243:cmsis/device/system_stm32f10x.c **** #elif defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL) || (defined STM32F10X_HD_VL)
+ 244:cmsis/device/system_stm32f10x.c ****   /* Disable all interrupts and clear pending bits  */
+ 245:cmsis/device/system_stm32f10x.c ****   RCC->CIR = 0x009F0000;
+ 246:cmsis/device/system_stm32f10x.c **** 
+ 247:cmsis/device/system_stm32f10x.c ****   /* Reset CFGR2 register */
+ 248:cmsis/device/system_stm32f10x.c ****   RCC->CFGR2 = 0x00000000;      
+ 249:cmsis/device/system_stm32f10x.c **** #else
+ 250:cmsis/device/system_stm32f10x.c ****   /* Disable all interrupts and clear pending bits  */
+ 251:cmsis/device/system_stm32f10x.c ****   RCC->CIR = 0x009F0000;
+ 140              		.loc 1 251 0
+ 141 0086 4FF48053 		mov	r3, #4096	@ D.5158,
+ 142 008a C4F20203 		movt	r3, 16386	@ D.5158,
+ 143 008e 4FF41F02 		mov	r2, #10420224	@ tmp156,
+ 144 0092 9A60     		str	r2, [r3, #8]	@ tmp156, D.5158_21->CIR
+ 252:cmsis/device/system_stm32f10x.c **** #endif /* STM32F10X_CL */
+ 253:cmsis/device/system_stm32f10x.c ****     
+ 254:cmsis/device/system_stm32f10x.c **** #if defined (STM32F10X_HD) || (defined STM32F10X_XL) || (defined STM32F10X_HD_VL)
+ 255:cmsis/device/system_stm32f10x.c ****   #ifdef DATA_IN_ExtSRAM
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 8
+
+
+ 256:cmsis/device/system_stm32f10x.c ****     SystemInit_ExtMemCtl(); 
+ 257:cmsis/device/system_stm32f10x.c ****   #endif /* DATA_IN_ExtSRAM */
+ 258:cmsis/device/system_stm32f10x.c **** #endif 
+ 259:cmsis/device/system_stm32f10x.c **** 
+ 260:cmsis/device/system_stm32f10x.c ****   /* Configure the System clock frequency, HCLK, PCLK2 and PCLK1 prescalers */
+ 261:cmsis/device/system_stm32f10x.c ****   /* Configure the Flash Latency cycles and enable prefetch buffer */
+ 262:cmsis/device/system_stm32f10x.c ****   SetSysClock();
+ 145              		.loc 1 262 0
+ 146 0094 00F0ACF8 		bl	SetSysClock	@
+ 263:cmsis/device/system_stm32f10x.c **** 
+ 264:cmsis/device/system_stm32f10x.c **** #ifdef VECT_TAB_SRAM
+ 265:cmsis/device/system_stm32f10x.c ****   SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM. */
+ 266:cmsis/device/system_stm32f10x.c **** #else
+ 267:cmsis/device/system_stm32f10x.c ****   SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH. */
+ 147              		.loc 1 267 0
+ 148 0098 4FF46D43 		mov	r3, #60672	@ D.5159,
+ 149 009c CEF20003 		movt	r3, 57344	@ D.5159,
+ 150 00a0 4FF00062 		mov	r2, #134217728	@ tmp157,
+ 151 00a4 9A60     		str	r2, [r3, #8]	@ tmp157, D.5159_22->VTOR
+ 268:cmsis/device/system_stm32f10x.c **** #endif 
+ 269:cmsis/device/system_stm32f10x.c **** }
+ 152              		.loc 1 269 0
+ 153 00a6 80BD     		pop	{r7, pc}	@
+ 154              		.cfi_endproc
+ 155              	.LFE55:
+ 156              		.size	SystemInit, .-SystemInit
+ 157              		.align	2
+ 158              		.global	SystemCoreClockUpdate
+ 159              		.thumb
+ 160              		.thumb_func
+ 161              		.type	SystemCoreClockUpdate, %function
+ 162              	SystemCoreClockUpdate:
+ 163              	.LFB56:
+ 270:cmsis/device/system_stm32f10x.c **** 
+ 271:cmsis/device/system_stm32f10x.c **** /**
+ 272:cmsis/device/system_stm32f10x.c ****   * @brief  Update SystemCoreClock variable according to Clock Register Values.
+ 273:cmsis/device/system_stm32f10x.c ****   *         The SystemCoreClock variable contains the core clock (HCLK), it can
+ 274:cmsis/device/system_stm32f10x.c ****   *         be used by the user application to setup the SysTick timer or configure
+ 275:cmsis/device/system_stm32f10x.c ****   *         other parameters.
+ 276:cmsis/device/system_stm32f10x.c ****   *           
+ 277:cmsis/device/system_stm32f10x.c ****   * @note   Each time the core clock (HCLK) changes, this function must be called
+ 278:cmsis/device/system_stm32f10x.c ****   *         to update SystemCoreClock variable value. Otherwise, any configuration
+ 279:cmsis/device/system_stm32f10x.c ****   *         based on this variable will be incorrect.         
+ 280:cmsis/device/system_stm32f10x.c ****   *     
+ 281:cmsis/device/system_stm32f10x.c ****   * @note   - The system frequency computed by this function is not the real 
+ 282:cmsis/device/system_stm32f10x.c ****   *           frequency in the chip. It is calculated based on the predefined 
+ 283:cmsis/device/system_stm32f10x.c ****   *           constant and the selected clock source:
+ 284:cmsis/device/system_stm32f10x.c ****   *             
+ 285:cmsis/device/system_stm32f10x.c ****   *           - If SYSCLK source is HSI, SystemCoreClock will contain the HSI_VALUE(*)
+ 286:cmsis/device/system_stm32f10x.c ****   *                                              
+ 287:cmsis/device/system_stm32f10x.c ****   *           - If SYSCLK source is HSE, SystemCoreClock will contain the HSE_VALUE(**)
+ 288:cmsis/device/system_stm32f10x.c ****   *                          
+ 289:cmsis/device/system_stm32f10x.c ****   *           - If SYSCLK source is PLL, SystemCoreClock will contain the HSE_VALUE(**) 
+ 290:cmsis/device/system_stm32f10x.c ****   *             or HSI_VALUE(*) multiplied by the PLL factors.
+ 291:cmsis/device/system_stm32f10x.c ****   *         
+ 292:cmsis/device/system_stm32f10x.c ****   *         (*) HSI_VALUE is a constant defined in stm32f1xx.h file (default value
+ 293:cmsis/device/system_stm32f10x.c ****   *             8 MHz) but the real value may vary depending on the variations
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 9
+
+
+ 294:cmsis/device/system_stm32f10x.c ****   *             in voltage and temperature.   
+ 295:cmsis/device/system_stm32f10x.c ****   *    
+ 296:cmsis/device/system_stm32f10x.c ****   *         (**) HSE_VALUE is a constant defined in stm32f1xx.h file (default value
+ 297:cmsis/device/system_stm32f10x.c ****   *              8 MHz or 25 MHz, depedning on the product used), user has to ensure
+ 298:cmsis/device/system_stm32f10x.c ****   *              that HSE_VALUE is same as the real frequency of the crystal used.
+ 299:cmsis/device/system_stm32f10x.c ****   *              Otherwise, this function may have wrong result.
+ 300:cmsis/device/system_stm32f10x.c ****   *                
+ 301:cmsis/device/system_stm32f10x.c ****   *         - The result of this function could be not correct when using fractional
+ 302:cmsis/device/system_stm32f10x.c ****   *           value for HSE crystal.
+ 303:cmsis/device/system_stm32f10x.c ****   * @param  None
+ 304:cmsis/device/system_stm32f10x.c ****   * @retval None
+ 305:cmsis/device/system_stm32f10x.c ****   */
+ 306:cmsis/device/system_stm32f10x.c **** void SystemCoreClockUpdate (void)
+ 307:cmsis/device/system_stm32f10x.c **** {
+ 164              		.loc 1 307 0
+ 165              		.cfi_startproc
+ 166              		@ args = 0, pretend = 0, frame = 16
+ 167              		@ frame_needed = 1, uses_anonymous_args = 0
+ 168              		@ link register save eliminated.
+ 169 00a8 80B4     		push	{r7}	@
+ 170              	.LCFI2:
+ 171              		.cfi_def_cfa_offset 4
+ 172              		.cfi_offset 7, -4
+ 173 00aa 85B0     		sub	sp, sp, #20	@,,
+ 174              	.LCFI3:
+ 175              		.cfi_def_cfa_offset 24
+ 176 00ac 00AF     		add	r7, sp, #0	@,,
+ 177              	.LCFI4:
+ 178              		.cfi_def_cfa_register 7
+ 308:cmsis/device/system_stm32f10x.c ****   uint32_t tmp = 0, pllmull = 0, pllsource = 0;
+ 179              		.loc 1 308 0
+ 180 00ae 4FF00003 		mov	r3, #0	@ tmp155,
+ 181 00b2 FB60     		str	r3, [r7, #12]	@ tmp155, tmp
+ 182 00b4 4FF00003 		mov	r3, #0	@ tmp156,
+ 183 00b8 BB60     		str	r3, [r7, #8]	@ tmp156, pllmull
+ 184 00ba 4FF00003 		mov	r3, #0	@ tmp157,
+ 185 00be 7B60     		str	r3, [r7, #4]	@ tmp157, pllsource
+ 309:cmsis/device/system_stm32f10x.c **** 
+ 310:cmsis/device/system_stm32f10x.c **** #ifdef  STM32F10X_CL
+ 311:cmsis/device/system_stm32f10x.c ****   uint32_t prediv1source = 0, prediv1factor = 0, prediv2factor = 0, pll2mull = 0;
+ 312:cmsis/device/system_stm32f10x.c **** #endif /* STM32F10X_CL */
+ 313:cmsis/device/system_stm32f10x.c **** 
+ 314:cmsis/device/system_stm32f10x.c **** #if defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL) || (defined STM32F10X_HD_VL)
+ 315:cmsis/device/system_stm32f10x.c ****   uint32_t prediv1factor = 0;
+ 316:cmsis/device/system_stm32f10x.c **** #endif /* STM32F10X_LD_VL or STM32F10X_MD_VL or STM32F10X_HD_VL */
+ 317:cmsis/device/system_stm32f10x.c ****     
+ 318:cmsis/device/system_stm32f10x.c ****   /* Get SYSCLK source -------------------------------------------------------*/
+ 319:cmsis/device/system_stm32f10x.c ****   tmp = RCC->CFGR & RCC_CFGR_SWS;
+ 186              		.loc 1 319 0
+ 187 00c0 4FF48053 		mov	r3, #4096	@ D.5111,
+ 188 00c4 C4F20203 		movt	r3, 16386	@ D.5111,
+ 189 00c8 5B68     		ldr	r3, [r3, #4]	@ D.5112, D.5111_4->CFGR
+ 190 00ca 03F00C03 		and	r3, r3, #12	@ tmp158, D.5112,
+ 191 00ce FB60     		str	r3, [r7, #12]	@ tmp158, tmp
+ 320:cmsis/device/system_stm32f10x.c ****   
+ 321:cmsis/device/system_stm32f10x.c ****   switch (tmp)
+ 192              		.loc 1 321 0
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 10
+
+
+ 193 00d0 FB68     		ldr	r3, [r7, #12]	@ tmp159, tmp
+ 194 00d2 042B     		cmp	r3, #4	@ tmp159,
+ 195 00d4 0DD0     		beq	.L5	@,
+ 196 00d6 082B     		cmp	r3, #8	@ tmp159,
+ 197 00d8 15D0     		beq	.L6	@,
+ 198 00da 002B     		cmp	r3, #0	@ tmp159,
+ 199 00dc 5CD1     		bne	.L11	@,
+ 200              	.L4:
+ 322:cmsis/device/system_stm32f10x.c ****   {
+ 323:cmsis/device/system_stm32f10x.c ****     case 0x00:  /* HSI used as system clock */
+ 324:cmsis/device/system_stm32f10x.c ****       SystemCoreClock = HSI_VALUE;
+ 201              		.loc 1 324 0
+ 202 00de 40F20003 		movw	r3, #:lower16:SystemCoreClock	@ tmp160,
+ 203 00e2 C0F20003 		movt	r3, #:upper16:SystemCoreClock	@ tmp160,
+ 204 00e6 4FF49052 		mov	r2, #4608	@ tmp161,
+ 205 00ea C0F27A02 		movt	r2, 122	@ tmp161,
+ 206 00ee 1A60     		str	r2, [r3, #0]	@ tmp161, SystemCoreClock
+ 325:cmsis/device/system_stm32f10x.c ****       break;
+ 207              		.loc 1 325 0
+ 208 00f0 5CE0     		b	.L7	@
+ 209              	.L5:
+ 326:cmsis/device/system_stm32f10x.c ****     case 0x04:  /* HSE used as system clock */
+ 327:cmsis/device/system_stm32f10x.c ****       SystemCoreClock = HSE_VALUE;
+ 210              		.loc 1 327 0
+ 211 00f2 40F20003 		movw	r3, #:lower16:SystemCoreClock	@ tmp162,
+ 212 00f6 C0F20003 		movt	r3, #:upper16:SystemCoreClock	@ tmp162,
+ 213 00fa 4FF49052 		mov	r2, #4608	@ tmp163,
+ 214 00fe C0F27A02 		movt	r2, 122	@ tmp163,
+ 215 0102 1A60     		str	r2, [r3, #0]	@ tmp163, SystemCoreClock
+ 328:cmsis/device/system_stm32f10x.c ****       break;
+ 216              		.loc 1 328 0
+ 217 0104 52E0     		b	.L7	@
+ 218              	.L6:
+ 329:cmsis/device/system_stm32f10x.c ****     case 0x08:  /* PLL used as system clock */
+ 330:cmsis/device/system_stm32f10x.c **** 
+ 331:cmsis/device/system_stm32f10x.c ****       /* Get PLL clock source and multiplication factor ----------------------*/
+ 332:cmsis/device/system_stm32f10x.c ****       pllmull = RCC->CFGR & RCC_CFGR_PLLMULL;
+ 219              		.loc 1 332 0
+ 220 0106 4FF48053 		mov	r3, #4096	@ D.5113,
+ 221 010a C4F20203 		movt	r3, 16386	@ D.5113,
+ 222 010e 5B68     		ldr	r3, [r3, #4]	@ D.5114, D.5113_7->CFGR
+ 223 0110 03F47013 		and	r3, r3, #3932160	@ tmp164, D.5114,
+ 224 0114 BB60     		str	r3, [r7, #8]	@ tmp164, pllmull
+ 333:cmsis/device/system_stm32f10x.c ****       pllsource = RCC->CFGR & RCC_CFGR_PLLSRC;
+ 225              		.loc 1 333 0
+ 226 0116 4FF48053 		mov	r3, #4096	@ D.5115,
+ 227 011a C4F20203 		movt	r3, 16386	@ D.5115,
+ 228 011e 5B68     		ldr	r3, [r3, #4]	@ D.5116, D.5115_10->CFGR
+ 229 0120 03F48033 		and	r3, r3, #65536	@ tmp165, D.5116,
+ 230 0124 7B60     		str	r3, [r7, #4]	@ tmp165, pllsource
+ 334:cmsis/device/system_stm32f10x.c ****       
+ 335:cmsis/device/system_stm32f10x.c **** #ifndef STM32F10X_CL      
+ 336:cmsis/device/system_stm32f10x.c ****       pllmull = ( pllmull >> 18) + 2;
+ 231              		.loc 1 336 0
+ 232 0126 BB68     		ldr	r3, [r7, #8]	@ tmp166, pllmull
+ 233 0128 4FEA9343 		lsr	r3, r3, #18	@ D.5117, tmp166,
+ 234 012c 03F10203 		add	r3, r3, #2	@ tmp167, D.5117,
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 11
+
+
+ 235 0130 BB60     		str	r3, [r7, #8]	@ tmp167, pllmull
+ 337:cmsis/device/system_stm32f10x.c ****       
+ 338:cmsis/device/system_stm32f10x.c ****       if (pllsource == 0x00)
+ 236              		.loc 1 338 0
+ 237 0132 7B68     		ldr	r3, [r7, #4]	@ tmp168, pllsource
+ 238 0134 002B     		cmp	r3, #0	@ tmp168,
+ 239 0136 0CD1     		bne	.L8	@,
+ 339:cmsis/device/system_stm32f10x.c ****       {
+ 340:cmsis/device/system_stm32f10x.c ****         /* HSI oscillator clock divided by 2 selected as PLL clock entry */
+ 341:cmsis/device/system_stm32f10x.c ****         SystemCoreClock = (HSI_VALUE >> 1) * pllmull;
+ 240              		.loc 1 341 0
+ 241 0138 BA68     		ldr	r2, [r7, #8]	@ tmp169, pllmull
+ 242 013a 4FF41063 		mov	r3, #2304	@ tmp170,
+ 243 013e C0F23D03 		movt	r3, 61	@ tmp170,
+ 244 0142 03FB02F2 		mul	r2, r3, r2	@ SystemCoreClock.6, tmp170, tmp169
+ 245 0146 40F20003 		movw	r3, #:lower16:SystemCoreClock	@ tmp171,
+ 246 014a C0F20003 		movt	r3, #:upper16:SystemCoreClock	@ tmp171,
+ 247 014e 1A60     		str	r2, [r3, #0]	@ SystemCoreClock.6, SystemCoreClock
+ 342:cmsis/device/system_stm32f10x.c ****       }
+ 343:cmsis/device/system_stm32f10x.c ****       else
+ 344:cmsis/device/system_stm32f10x.c ****       {
+ 345:cmsis/device/system_stm32f10x.c ****  #if defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL) || (defined STM32F10X_HD_VL)
+ 346:cmsis/device/system_stm32f10x.c ****        prediv1factor = (RCC->CFGR2 & RCC_CFGR2_PREDIV1) + 1;
+ 347:cmsis/device/system_stm32f10x.c ****        /* HSE oscillator clock selected as PREDIV1 clock entry */
+ 348:cmsis/device/system_stm32f10x.c ****        SystemCoreClock = (HSE_VALUE / prediv1factor) * pllmull; 
+ 349:cmsis/device/system_stm32f10x.c ****  #else
+ 350:cmsis/device/system_stm32f10x.c ****         /* HSE selected as PLL clock entry */
+ 351:cmsis/device/system_stm32f10x.c ****         if ((RCC->CFGR & RCC_CFGR_PLLXTPRE) != (uint32_t)RESET)
+ 352:cmsis/device/system_stm32f10x.c ****         {/* HSE oscillator clock divided by 2 */
+ 353:cmsis/device/system_stm32f10x.c ****           SystemCoreClock = (HSE_VALUE >> 1) * pllmull;
+ 354:cmsis/device/system_stm32f10x.c ****         }
+ 355:cmsis/device/system_stm32f10x.c ****         else
+ 356:cmsis/device/system_stm32f10x.c ****         {
+ 357:cmsis/device/system_stm32f10x.c ****           SystemCoreClock = HSE_VALUE * pllmull;
+ 358:cmsis/device/system_stm32f10x.c ****         }
+ 359:cmsis/device/system_stm32f10x.c ****  #endif
+ 360:cmsis/device/system_stm32f10x.c ****       }
+ 361:cmsis/device/system_stm32f10x.c **** #else
+ 362:cmsis/device/system_stm32f10x.c ****       pllmull = pllmull >> 18;
+ 363:cmsis/device/system_stm32f10x.c ****       
+ 364:cmsis/device/system_stm32f10x.c ****       if (pllmull != 0x0D)
+ 365:cmsis/device/system_stm32f10x.c ****       {
+ 366:cmsis/device/system_stm32f10x.c ****          pllmull += 2;
+ 367:cmsis/device/system_stm32f10x.c ****       }
+ 368:cmsis/device/system_stm32f10x.c ****       else
+ 369:cmsis/device/system_stm32f10x.c ****       { /* PLL multiplication factor = PLL input clock * 6.5 */
+ 370:cmsis/device/system_stm32f10x.c ****         pllmull = 13 / 2; 
+ 371:cmsis/device/system_stm32f10x.c ****       }
+ 372:cmsis/device/system_stm32f10x.c ****             
+ 373:cmsis/device/system_stm32f10x.c ****       if (pllsource == 0x00)
+ 374:cmsis/device/system_stm32f10x.c ****       {
+ 375:cmsis/device/system_stm32f10x.c ****         /* HSI oscillator clock divided by 2 selected as PLL clock entry */
+ 376:cmsis/device/system_stm32f10x.c ****         SystemCoreClock = (HSI_VALUE >> 1) * pllmull;
+ 377:cmsis/device/system_stm32f10x.c ****       }
+ 378:cmsis/device/system_stm32f10x.c ****       else
+ 379:cmsis/device/system_stm32f10x.c ****       {/* PREDIV1 selected as PLL clock entry */
+ 380:cmsis/device/system_stm32f10x.c ****         
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 12
+
+
+ 381:cmsis/device/system_stm32f10x.c ****         /* Get PREDIV1 clock source and division factor */
+ 382:cmsis/device/system_stm32f10x.c ****         prediv1source = RCC->CFGR2 & RCC_CFGR2_PREDIV1SRC;
+ 383:cmsis/device/system_stm32f10x.c ****         prediv1factor = (RCC->CFGR2 & RCC_CFGR2_PREDIV1) + 1;
+ 384:cmsis/device/system_stm32f10x.c ****         
+ 385:cmsis/device/system_stm32f10x.c ****         if (prediv1source == 0)
+ 386:cmsis/device/system_stm32f10x.c ****         { 
+ 387:cmsis/device/system_stm32f10x.c ****           /* HSE oscillator clock selected as PREDIV1 clock entry */
+ 388:cmsis/device/system_stm32f10x.c ****           SystemCoreClock = (HSE_VALUE / prediv1factor) * pllmull;          
+ 389:cmsis/device/system_stm32f10x.c ****         }
+ 390:cmsis/device/system_stm32f10x.c ****         else
+ 391:cmsis/device/system_stm32f10x.c ****         {/* PLL2 clock selected as PREDIV1 clock entry */
+ 392:cmsis/device/system_stm32f10x.c ****           
+ 393:cmsis/device/system_stm32f10x.c ****           /* Get PREDIV2 division factor and PLL2 multiplication factor */
+ 394:cmsis/device/system_stm32f10x.c ****           prediv2factor = ((RCC->CFGR2 & RCC_CFGR2_PREDIV2) >> 4) + 1;
+ 395:cmsis/device/system_stm32f10x.c ****           pll2mull = ((RCC->CFGR2 & RCC_CFGR2_PLL2MUL) >> 8 ) + 2; 
+ 396:cmsis/device/system_stm32f10x.c ****           SystemCoreClock = (((HSE_VALUE / prediv2factor) * pll2mull) / prediv1factor) * pllmull;  
+ 397:cmsis/device/system_stm32f10x.c ****         }
+ 398:cmsis/device/system_stm32f10x.c ****       }
+ 399:cmsis/device/system_stm32f10x.c **** #endif /* STM32F10X_CL */ 
+ 400:cmsis/device/system_stm32f10x.c ****       break;
+ 248              		.loc 1 400 0
+ 249 0150 2CE0     		b	.L7	@
+ 250              	.L8:
+ 351:cmsis/device/system_stm32f10x.c ****         if ((RCC->CFGR & RCC_CFGR_PLLXTPRE) != (uint32_t)RESET)
+ 251              		.loc 1 351 0
+ 252 0152 4FF48053 		mov	r3, #4096	@ D.5122,
+ 253 0156 C4F20203 		movt	r3, 16386	@ D.5122,
+ 254 015a 5B68     		ldr	r3, [r3, #4]	@ D.5123, D.5122_16->CFGR
+ 255 015c 03F40033 		and	r3, r3, #131072	@ D.5124, D.5123,
+ 256 0160 002B     		cmp	r3, #0	@ D.5124,
+ 257 0162 0CD0     		beq	.L10	@,
+ 353:cmsis/device/system_stm32f10x.c ****           SystemCoreClock = (HSE_VALUE >> 1) * pllmull;
+ 258              		.loc 1 353 0
+ 259 0164 BA68     		ldr	r2, [r7, #8]	@ tmp172, pllmull
+ 260 0166 4FF41063 		mov	r3, #2304	@ tmp173,
+ 261 016a C0F23D03 		movt	r3, 61	@ tmp173,
+ 262 016e 03FB02F2 		mul	r2, r3, r2	@ SystemCoreClock.7, tmp173, tmp172
+ 263 0172 40F20003 		movw	r3, #:lower16:SystemCoreClock	@ tmp174,
+ 264 0176 C0F20003 		movt	r3, #:upper16:SystemCoreClock	@ tmp174,
+ 265 017a 1A60     		str	r2, [r3, #0]	@ SystemCoreClock.7, SystemCoreClock
+ 266              		.loc 1 400 0
+ 267 017c 16E0     		b	.L7	@
+ 268              	.L10:
+ 357:cmsis/device/system_stm32f10x.c ****           SystemCoreClock = HSE_VALUE * pllmull;
+ 269              		.loc 1 357 0
+ 270 017e BA68     		ldr	r2, [r7, #8]	@ tmp175, pllmull
+ 271 0180 4FF49053 		mov	r3, #4608	@ tmp176,
+ 272 0184 C0F27A03 		movt	r3, 122	@ tmp176,
+ 273 0188 03FB02F2 		mul	r2, r3, r2	@ SystemCoreClock.8, tmp176, tmp175
+ 274 018c 40F20003 		movw	r3, #:lower16:SystemCoreClock	@ tmp177,
+ 275 0190 C0F20003 		movt	r3, #:upper16:SystemCoreClock	@ tmp177,
+ 276 0194 1A60     		str	r2, [r3, #0]	@ SystemCoreClock.8, SystemCoreClock
+ 277              		.loc 1 400 0
+ 278 0196 09E0     		b	.L7	@
+ 279              	.L11:
+ 401:cmsis/device/system_stm32f10x.c **** 
+ 402:cmsis/device/system_stm32f10x.c ****     default:
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 13
+
+
+ 403:cmsis/device/system_stm32f10x.c ****       SystemCoreClock = HSI_VALUE;
+ 280              		.loc 1 403 0
+ 281 0198 40F20003 		movw	r3, #:lower16:SystemCoreClock	@ tmp178,
+ 282 019c C0F20003 		movt	r3, #:upper16:SystemCoreClock	@ tmp178,
+ 283 01a0 4FF49052 		mov	r2, #4608	@ tmp179,
+ 284 01a4 C0F27A02 		movt	r2, 122	@ tmp179,
+ 285 01a8 1A60     		str	r2, [r3, #0]	@ tmp179, SystemCoreClock
+ 404:cmsis/device/system_stm32f10x.c ****       break;
+ 286              		.loc 1 404 0
+ 287 01aa 00BF     		nop
+ 288              	.L7:
+ 405:cmsis/device/system_stm32f10x.c ****   }
+ 406:cmsis/device/system_stm32f10x.c ****   
+ 407:cmsis/device/system_stm32f10x.c ****   /* Compute HCLK clock frequency ----------------*/
+ 408:cmsis/device/system_stm32f10x.c ****   /* Get HCLK prescaler */
+ 409:cmsis/device/system_stm32f10x.c ****   tmp = AHBPrescTable[((RCC->CFGR & RCC_CFGR_HPRE) >> 4)];
+ 289              		.loc 1 409 0
+ 290 01ac 4FF48053 		mov	r3, #4096	@ D.5130,
+ 291 01b0 C4F20203 		movt	r3, 16386	@ D.5130,
+ 292 01b4 5B68     		ldr	r3, [r3, #4]	@ D.5131, D.5130_21->CFGR
+ 293 01b6 03F0F003 		and	r3, r3, #240	@ D.5132, D.5131,
+ 294 01ba 4FEA1312 		lsr	r2, r3, #4	@ D.5133, D.5132,
+ 295 01be 40F20003 		movw	r3, #:lower16:AHBPrescTable	@ tmp180,
+ 296 01c2 C0F20003 		movt	r3, #:upper16:AHBPrescTable	@ tmp180,
+ 297 01c6 9B5C     		ldrb	r3, [r3, r2]	@ tmp182, AHBPrescTable
+ 298 01c8 DBB2     		uxtb	r3, r3	@ D.5134, tmp182
+ 299 01ca FB60     		str	r3, [r7, #12]	@ D.5134, tmp
+ 410:cmsis/device/system_stm32f10x.c ****   /* HCLK clock frequency */
+ 411:cmsis/device/system_stm32f10x.c ****   SystemCoreClock >>= tmp;  
+ 300              		.loc 1 411 0
+ 301 01cc 40F20003 		movw	r3, #:lower16:SystemCoreClock	@ tmp183,
+ 302 01d0 C0F20003 		movt	r3, #:upper16:SystemCoreClock	@ tmp183,
+ 303 01d4 1A68     		ldr	r2, [r3, #0]	@ SystemCoreClock.9, SystemCoreClock
+ 304 01d6 FB68     		ldr	r3, [r7, #12]	@ tmp.10, tmp
+ 305 01d8 22FA03F2 		lsr	r2, r2, r3	@ SystemCoreClock.11, SystemCoreClock.9, tmp.10
+ 306 01dc 40F20003 		movw	r3, #:lower16:SystemCoreClock	@ tmp184,
+ 307 01e0 C0F20003 		movt	r3, #:upper16:SystemCoreClock	@ tmp184,
+ 308 01e4 1A60     		str	r2, [r3, #0]	@ SystemCoreClock.11, SystemCoreClock
+ 412:cmsis/device/system_stm32f10x.c **** }
+ 309              		.loc 1 412 0
+ 310 01e6 07F11407 		add	r7, r7, #20	@,,
+ 311 01ea BD46     		mov	sp, r7
+ 312 01ec 80BC     		pop	{r7}
+ 313 01ee 7047     		bx	lr
+ 314              		.cfi_endproc
+ 315              	.LFE56:
+ 316              		.size	SystemCoreClockUpdate, .-SystemCoreClockUpdate
+ 317              		.align	2
+ 318              		.thumb
+ 319              		.thumb_func
+ 320              		.type	SetSysClock, %function
+ 321              	SetSysClock:
+ 322              	.LFB57:
+ 413:cmsis/device/system_stm32f10x.c **** 
+ 414:cmsis/device/system_stm32f10x.c **** /**
+ 415:cmsis/device/system_stm32f10x.c ****   * @brief  Configures the System clock frequency, HCLK, PCLK2 and PCLK1 prescalers.
+ 416:cmsis/device/system_stm32f10x.c ****   * @param  None
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 14
+
+
+ 417:cmsis/device/system_stm32f10x.c ****   * @retval None
+ 418:cmsis/device/system_stm32f10x.c ****   */
+ 419:cmsis/device/system_stm32f10x.c **** static void SetSysClock(void)
+ 420:cmsis/device/system_stm32f10x.c **** {
+ 323              		.loc 1 420 0
+ 324              		.cfi_startproc
+ 325              		@ args = 0, pretend = 0, frame = 0
+ 326              		@ frame_needed = 1, uses_anonymous_args = 0
+ 327 01f0 80B5     		push	{r7, lr}	@
+ 328              	.LCFI5:
+ 329              		.cfi_def_cfa_offset 8
+ 330              		.cfi_offset 7, -8
+ 331              		.cfi_offset 14, -4
+ 332 01f2 00AF     		add	r7, sp, #0	@,,
+ 333              	.LCFI6:
+ 334              		.cfi_def_cfa_register 7
+ 421:cmsis/device/system_stm32f10x.c **** #ifdef SYSCLK_FREQ_HSE
+ 422:cmsis/device/system_stm32f10x.c ****   SetSysClockToHSE();
+ 423:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_24MHz
+ 424:cmsis/device/system_stm32f10x.c ****   SetSysClockTo24();
+ 425:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_36MHz
+ 426:cmsis/device/system_stm32f10x.c ****   SetSysClockTo36();
+ 427:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_48MHz
+ 428:cmsis/device/system_stm32f10x.c ****   SetSysClockTo48();
+ 429:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_56MHz
+ 430:cmsis/device/system_stm32f10x.c ****   SetSysClockTo56();  
+ 431:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_72MHz
+ 432:cmsis/device/system_stm32f10x.c ****   SetSysClockTo72();
+ 335              		.loc 1 432 0
+ 336 01f4 00F002F8 		bl	SetSysClockTo72	@
+ 433:cmsis/device/system_stm32f10x.c **** #endif
+ 434:cmsis/device/system_stm32f10x.c ****  
+ 435:cmsis/device/system_stm32f10x.c ****  /* If none of the define above is enabled, the HSI is used as System clock
+ 436:cmsis/device/system_stm32f10x.c ****     source (default after reset) */ 
+ 437:cmsis/device/system_stm32f10x.c **** }
+ 337              		.loc 1 437 0
+ 338 01f8 80BD     		pop	{r7, pc}	@
+ 339              		.cfi_endproc
+ 340              	.LFE57:
+ 341              		.size	SetSysClock, .-SetSysClock
+ 342 01fa 00BF     		.align	2
+ 343              		.thumb
+ 344              		.thumb_func
+ 345              		.type	SetSysClockTo72, %function
+ 346              	SetSysClockTo72:
+ 347              	.LFB58:
+ 438:cmsis/device/system_stm32f10x.c **** 
+ 439:cmsis/device/system_stm32f10x.c **** /**
+ 440:cmsis/device/system_stm32f10x.c ****   * @brief  Setup the external memory controller. Called in startup_stm32f10x.s 
+ 441:cmsis/device/system_stm32f10x.c ****   *          before jump to __main
+ 442:cmsis/device/system_stm32f10x.c ****   * @param  None
+ 443:cmsis/device/system_stm32f10x.c ****   * @retval None
+ 444:cmsis/device/system_stm32f10x.c ****   */ 
+ 445:cmsis/device/system_stm32f10x.c **** #ifdef DATA_IN_ExtSRAM
+ 446:cmsis/device/system_stm32f10x.c **** /**
+ 447:cmsis/device/system_stm32f10x.c ****   * @brief  Setup the external memory controller. 
+ 448:cmsis/device/system_stm32f10x.c ****   *         Called in startup_stm32f10x_xx.s/.c before jump to main.
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 15
+
+
+ 449:cmsis/device/system_stm32f10x.c ****   * 	      This function configures the external SRAM mounted on STM3210E-EVAL
+ 450:cmsis/device/system_stm32f10x.c ****   *         board (STM32 High density devices). This SRAM will be used as program
+ 451:cmsis/device/system_stm32f10x.c ****   *         data memory (including heap and stack).
+ 452:cmsis/device/system_stm32f10x.c ****   * @param  None
+ 453:cmsis/device/system_stm32f10x.c ****   * @retval None
+ 454:cmsis/device/system_stm32f10x.c ****   */ 
+ 455:cmsis/device/system_stm32f10x.c **** void SystemInit_ExtMemCtl(void) 
+ 456:cmsis/device/system_stm32f10x.c **** {
+ 457:cmsis/device/system_stm32f10x.c **** /*!< FSMC Bank1 NOR/SRAM3 is used for the STM3210E-EVAL, if another Bank is 
+ 458:cmsis/device/system_stm32f10x.c ****   required, then adjust the Register Addresses */
+ 459:cmsis/device/system_stm32f10x.c **** 
+ 460:cmsis/device/system_stm32f10x.c ****   /* Enable FSMC clock */
+ 461:cmsis/device/system_stm32f10x.c ****   RCC->AHBENR = 0x00000114;
+ 462:cmsis/device/system_stm32f10x.c ****   
+ 463:cmsis/device/system_stm32f10x.c ****   /* Enable GPIOD, GPIOE, GPIOF and GPIOG clocks */  
+ 464:cmsis/device/system_stm32f10x.c ****   RCC->APB2ENR = 0x000001E0;
+ 465:cmsis/device/system_stm32f10x.c ****   
+ 466:cmsis/device/system_stm32f10x.c **** /* ---------------  SRAM Data lines, NOE and NWE configuration ---------------*/
+ 467:cmsis/device/system_stm32f10x.c **** /*----------------  SRAM Address lines configuration -------------------------*/
+ 468:cmsis/device/system_stm32f10x.c **** /*----------------  NOE and NWE configuration --------------------------------*/  
+ 469:cmsis/device/system_stm32f10x.c **** /*----------------  NE3 configuration ----------------------------------------*/
+ 470:cmsis/device/system_stm32f10x.c **** /*----------------  NBL0, NBL1 configuration ---------------------------------*/
+ 471:cmsis/device/system_stm32f10x.c ****   
+ 472:cmsis/device/system_stm32f10x.c ****   GPIOD->CRL = 0x44BB44BB;  
+ 473:cmsis/device/system_stm32f10x.c ****   GPIOD->CRH = 0xBBBBBBBB;
+ 474:cmsis/device/system_stm32f10x.c **** 
+ 475:cmsis/device/system_stm32f10x.c ****   GPIOE->CRL = 0xB44444BB;  
+ 476:cmsis/device/system_stm32f10x.c ****   GPIOE->CRH = 0xBBBBBBBB;
+ 477:cmsis/device/system_stm32f10x.c **** 
+ 478:cmsis/device/system_stm32f10x.c ****   GPIOF->CRL = 0x44BBBBBB;  
+ 479:cmsis/device/system_stm32f10x.c ****   GPIOF->CRH = 0xBBBB4444;
+ 480:cmsis/device/system_stm32f10x.c **** 
+ 481:cmsis/device/system_stm32f10x.c ****   GPIOG->CRL = 0x44BBBBBB;  
+ 482:cmsis/device/system_stm32f10x.c ****   GPIOG->CRH = 0x44444B44;
+ 483:cmsis/device/system_stm32f10x.c ****    
+ 484:cmsis/device/system_stm32f10x.c **** /*----------------  FSMC Configuration ---------------------------------------*/  
+ 485:cmsis/device/system_stm32f10x.c **** /*----------------  Enable FSMC Bank1_SRAM Bank ------------------------------*/
+ 486:cmsis/device/system_stm32f10x.c ****   
+ 487:cmsis/device/system_stm32f10x.c ****   FSMC_Bank1->BTCR[4] = 0x00001011;
+ 488:cmsis/device/system_stm32f10x.c ****   FSMC_Bank1->BTCR[5] = 0x00000200;
+ 489:cmsis/device/system_stm32f10x.c **** }
+ 490:cmsis/device/system_stm32f10x.c **** #endif /* DATA_IN_ExtSRAM */
+ 491:cmsis/device/system_stm32f10x.c **** 
+ 492:cmsis/device/system_stm32f10x.c **** #ifdef SYSCLK_FREQ_HSE
+ 493:cmsis/device/system_stm32f10x.c **** /**
+ 494:cmsis/device/system_stm32f10x.c ****   * @brief  Selects HSE as System clock source and configure HCLK, PCLK2
+ 495:cmsis/device/system_stm32f10x.c ****   *         and PCLK1 prescalers.
+ 496:cmsis/device/system_stm32f10x.c ****   * @note   This function should be used only after reset.
+ 497:cmsis/device/system_stm32f10x.c ****   * @param  None
+ 498:cmsis/device/system_stm32f10x.c ****   * @retval None
+ 499:cmsis/device/system_stm32f10x.c ****   */
+ 500:cmsis/device/system_stm32f10x.c **** static void SetSysClockToHSE(void)
+ 501:cmsis/device/system_stm32f10x.c **** {
+ 502:cmsis/device/system_stm32f10x.c ****   __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
+ 503:cmsis/device/system_stm32f10x.c ****   
+ 504:cmsis/device/system_stm32f10x.c ****   /* SYSCLK, HCLK, PCLK2 and PCLK1 configuration ---------------------------*/    
+ 505:cmsis/device/system_stm32f10x.c ****   /* Enable HSE */    
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 16
+
+
+ 506:cmsis/device/system_stm32f10x.c ****   RCC->CR |= ((uint32_t)RCC_CR_HSEON);
+ 507:cmsis/device/system_stm32f10x.c ****  
+ 508:cmsis/device/system_stm32f10x.c ****   /* Wait till HSE is ready and if Time out is reached exit */
+ 509:cmsis/device/system_stm32f10x.c ****   do
+ 510:cmsis/device/system_stm32f10x.c ****   {
+ 511:cmsis/device/system_stm32f10x.c ****     HSEStatus = RCC->CR & RCC_CR_HSERDY;
+ 512:cmsis/device/system_stm32f10x.c ****     StartUpCounter++;  
+ 513:cmsis/device/system_stm32f10x.c ****   } while((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
+ 514:cmsis/device/system_stm32f10x.c **** 
+ 515:cmsis/device/system_stm32f10x.c ****   if ((RCC->CR & RCC_CR_HSERDY) != RESET)
+ 516:cmsis/device/system_stm32f10x.c ****   {
+ 517:cmsis/device/system_stm32f10x.c ****     HSEStatus = (uint32_t)0x01;
+ 518:cmsis/device/system_stm32f10x.c ****   }
+ 519:cmsis/device/system_stm32f10x.c ****   else
+ 520:cmsis/device/system_stm32f10x.c ****   {
+ 521:cmsis/device/system_stm32f10x.c ****     HSEStatus = (uint32_t)0x00;
+ 522:cmsis/device/system_stm32f10x.c ****   }  
+ 523:cmsis/device/system_stm32f10x.c **** 
+ 524:cmsis/device/system_stm32f10x.c ****   if (HSEStatus == (uint32_t)0x01)
+ 525:cmsis/device/system_stm32f10x.c ****   {
+ 526:cmsis/device/system_stm32f10x.c **** 
+ 527:cmsis/device/system_stm32f10x.c **** #if !defined STM32F10X_LD_VL && !defined STM32F10X_MD_VL && !defined STM32F10X_HD_VL
+ 528:cmsis/device/system_stm32f10x.c ****     /* Enable Prefetch Buffer */
+ 529:cmsis/device/system_stm32f10x.c ****     FLASH->ACR |= FLASH_ACR_PRFTBE;
+ 530:cmsis/device/system_stm32f10x.c **** 
+ 531:cmsis/device/system_stm32f10x.c ****     /* Flash 0 wait state */
+ 532:cmsis/device/system_stm32f10x.c ****     FLASH->ACR &= (uint32_t)((uint32_t)~FLASH_ACR_LATENCY);
+ 533:cmsis/device/system_stm32f10x.c **** 
+ 534:cmsis/device/system_stm32f10x.c **** #ifndef STM32F10X_CL
+ 535:cmsis/device/system_stm32f10x.c ****     FLASH->ACR |= (uint32_t)FLASH_ACR_LATENCY_0;
+ 536:cmsis/device/system_stm32f10x.c **** #else
+ 537:cmsis/device/system_stm32f10x.c ****     if (HSE_VALUE <= 24000000)
+ 538:cmsis/device/system_stm32f10x.c **** 	{
+ 539:cmsis/device/system_stm32f10x.c ****       FLASH->ACR |= (uint32_t)FLASH_ACR_LATENCY_0;
+ 540:cmsis/device/system_stm32f10x.c **** 	}
+ 541:cmsis/device/system_stm32f10x.c **** 	else
+ 542:cmsis/device/system_stm32f10x.c **** 	{
+ 543:cmsis/device/system_stm32f10x.c ****       FLASH->ACR |= (uint32_t)FLASH_ACR_LATENCY_1;
+ 544:cmsis/device/system_stm32f10x.c **** 	}
+ 545:cmsis/device/system_stm32f10x.c **** #endif /* STM32F10X_CL */
+ 546:cmsis/device/system_stm32f10x.c **** #endif
+ 547:cmsis/device/system_stm32f10x.c ****  
+ 548:cmsis/device/system_stm32f10x.c ****     /* HCLK = SYSCLK */
+ 549:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;
+ 550:cmsis/device/system_stm32f10x.c ****       
+ 551:cmsis/device/system_stm32f10x.c ****     /* PCLK2 = HCLK */
+ 552:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV1;
+ 553:cmsis/device/system_stm32f10x.c ****     
+ 554:cmsis/device/system_stm32f10x.c ****     /* PCLK1 = HCLK */
+ 555:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV1;
+ 556:cmsis/device/system_stm32f10x.c ****     
+ 557:cmsis/device/system_stm32f10x.c ****     /* Select HSE as system clock source */
+ 558:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
+ 559:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_SW_HSE;    
+ 560:cmsis/device/system_stm32f10x.c **** 
+ 561:cmsis/device/system_stm32f10x.c ****     /* Wait till HSE is used as system clock source */
+ 562:cmsis/device/system_stm32f10x.c ****     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)0x04)
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 17
+
+
+ 563:cmsis/device/system_stm32f10x.c ****     {
+ 564:cmsis/device/system_stm32f10x.c ****     }
+ 565:cmsis/device/system_stm32f10x.c ****   }
+ 566:cmsis/device/system_stm32f10x.c ****   else
+ 567:cmsis/device/system_stm32f10x.c ****   { /* If HSE fails to start-up, the application will have wrong clock 
+ 568:cmsis/device/system_stm32f10x.c ****          configuration. User can add here some code to deal with this error */
+ 569:cmsis/device/system_stm32f10x.c ****   }  
+ 570:cmsis/device/system_stm32f10x.c **** }
+ 571:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_24MHz
+ 572:cmsis/device/system_stm32f10x.c **** /**
+ 573:cmsis/device/system_stm32f10x.c ****   * @brief  Sets System clock frequency to 24MHz and configure HCLK, PCLK2 
+ 574:cmsis/device/system_stm32f10x.c ****   *         and PCLK1 prescalers.
+ 575:cmsis/device/system_stm32f10x.c ****   * @note   This function should be used only after reset.
+ 576:cmsis/device/system_stm32f10x.c ****   * @param  None
+ 577:cmsis/device/system_stm32f10x.c ****   * @retval None
+ 578:cmsis/device/system_stm32f10x.c ****   */
+ 579:cmsis/device/system_stm32f10x.c **** static void SetSysClockTo24(void)
+ 580:cmsis/device/system_stm32f10x.c **** {
+ 581:cmsis/device/system_stm32f10x.c ****   __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
+ 582:cmsis/device/system_stm32f10x.c ****   
+ 583:cmsis/device/system_stm32f10x.c ****   /* SYSCLK, HCLK, PCLK2 and PCLK1 configuration ---------------------------*/    
+ 584:cmsis/device/system_stm32f10x.c ****   /* Enable HSE */    
+ 585:cmsis/device/system_stm32f10x.c ****   RCC->CR |= ((uint32_t)RCC_CR_HSEON);
+ 586:cmsis/device/system_stm32f10x.c ****  
+ 587:cmsis/device/system_stm32f10x.c ****   /* Wait till HSE is ready and if Time out is reached exit */
+ 588:cmsis/device/system_stm32f10x.c ****   do
+ 589:cmsis/device/system_stm32f10x.c ****   {
+ 590:cmsis/device/system_stm32f10x.c ****     HSEStatus = RCC->CR & RCC_CR_HSERDY;
+ 591:cmsis/device/system_stm32f10x.c ****     StartUpCounter++;  
+ 592:cmsis/device/system_stm32f10x.c ****   } while((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
+ 593:cmsis/device/system_stm32f10x.c **** 
+ 594:cmsis/device/system_stm32f10x.c ****   if ((RCC->CR & RCC_CR_HSERDY) != RESET)
+ 595:cmsis/device/system_stm32f10x.c ****   {
+ 596:cmsis/device/system_stm32f10x.c ****     HSEStatus = (uint32_t)0x01;
+ 597:cmsis/device/system_stm32f10x.c ****   }
+ 598:cmsis/device/system_stm32f10x.c ****   else
+ 599:cmsis/device/system_stm32f10x.c ****   {
+ 600:cmsis/device/system_stm32f10x.c ****     HSEStatus = (uint32_t)0x00;
+ 601:cmsis/device/system_stm32f10x.c ****   }  
+ 602:cmsis/device/system_stm32f10x.c **** 
+ 603:cmsis/device/system_stm32f10x.c ****   if (HSEStatus == (uint32_t)0x01)
+ 604:cmsis/device/system_stm32f10x.c ****   {
+ 605:cmsis/device/system_stm32f10x.c **** #if !defined STM32F10X_LD_VL && !defined STM32F10X_MD_VL && !defined STM32F10X_HD_VL 
+ 606:cmsis/device/system_stm32f10x.c ****     /* Enable Prefetch Buffer */
+ 607:cmsis/device/system_stm32f10x.c ****     FLASH->ACR |= FLASH_ACR_PRFTBE;
+ 608:cmsis/device/system_stm32f10x.c **** 
+ 609:cmsis/device/system_stm32f10x.c ****     /* Flash 0 wait state */
+ 610:cmsis/device/system_stm32f10x.c ****     FLASH->ACR &= (uint32_t)((uint32_t)~FLASH_ACR_LATENCY);
+ 611:cmsis/device/system_stm32f10x.c ****     FLASH->ACR |= (uint32_t)FLASH_ACR_LATENCY_0;    
+ 612:cmsis/device/system_stm32f10x.c **** #endif
+ 613:cmsis/device/system_stm32f10x.c ****  
+ 614:cmsis/device/system_stm32f10x.c ****     /* HCLK = SYSCLK */
+ 615:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;
+ 616:cmsis/device/system_stm32f10x.c ****       
+ 617:cmsis/device/system_stm32f10x.c ****     /* PCLK2 = HCLK */
+ 618:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV1;
+ 619:cmsis/device/system_stm32f10x.c ****     
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 18
+
+
+ 620:cmsis/device/system_stm32f10x.c ****     /* PCLK1 = HCLK */
+ 621:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV1;
+ 622:cmsis/device/system_stm32f10x.c ****     
+ 623:cmsis/device/system_stm32f10x.c **** #ifdef STM32F10X_CL
+ 624:cmsis/device/system_stm32f10x.c ****     /* Configure PLLs ------------------------------------------------------*/
+ 625:cmsis/device/system_stm32f10x.c ****     /* PLL configuration: PLLCLK = PREDIV1 * 6 = 24 MHz */ 
+ 626:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)~(RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLSRC | RCC_CFGR_PLLMULL);
+ 627:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLXTPRE_PREDIV1 | RCC_CFGR_PLLSRC_PREDIV1 | 
+ 628:cmsis/device/system_stm32f10x.c ****                             RCC_CFGR_PLLMULL6); 
+ 629:cmsis/device/system_stm32f10x.c **** 
+ 630:cmsis/device/system_stm32f10x.c ****     /* PLL2 configuration: PLL2CLK = (HSE / 5) * 8 = 40 MHz */
+ 631:cmsis/device/system_stm32f10x.c ****     /* PREDIV1 configuration: PREDIV1CLK = PLL2 / 10 = 4 MHz */       
+ 632:cmsis/device/system_stm32f10x.c ****     RCC->CFGR2 &= (uint32_t)~(RCC_CFGR2_PREDIV2 | RCC_CFGR2_PLL2MUL |
+ 633:cmsis/device/system_stm32f10x.c ****                               RCC_CFGR2_PREDIV1 | RCC_CFGR2_PREDIV1SRC);
+ 634:cmsis/device/system_stm32f10x.c ****     RCC->CFGR2 |= (uint32_t)(RCC_CFGR2_PREDIV2_DIV5 | RCC_CFGR2_PLL2MUL8 |
+ 635:cmsis/device/system_stm32f10x.c ****                              RCC_CFGR2_PREDIV1SRC_PLL2 | RCC_CFGR2_PREDIV1_DIV10);
+ 636:cmsis/device/system_stm32f10x.c ****   
+ 637:cmsis/device/system_stm32f10x.c ****     /* Enable PLL2 */
+ 638:cmsis/device/system_stm32f10x.c ****     RCC->CR |= RCC_CR_PLL2ON;
+ 639:cmsis/device/system_stm32f10x.c ****     /* Wait till PLL2 is ready */
+ 640:cmsis/device/system_stm32f10x.c ****     while((RCC->CR & RCC_CR_PLL2RDY) == 0)
+ 641:cmsis/device/system_stm32f10x.c ****     {
+ 642:cmsis/device/system_stm32f10x.c ****     }   
+ 643:cmsis/device/system_stm32f10x.c **** #elif defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL) || defined (STM32F10X_HD_VL)
+ 644:cmsis/device/system_stm32f10x.c ****     /*  PLL configuration:  = (HSE / 2) * 6 = 24 MHz */
+ 645:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLMULL));
+ 646:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_PREDIV1 | RCC_CFGR_PLLXTPRE_PREDIV1_Div2 | RCC_CFGR_PLL
+ 647:cmsis/device/system_stm32f10x.c **** #else    
+ 648:cmsis/device/system_stm32f10x.c ****     /*  PLL configuration:  = (HSE / 2) * 6 = 24 MHz */
+ 649:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLMULL));
+ 650:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_HSE | RCC_CFGR_PLLXTPRE_HSE_Div2 | RCC_CFGR_PLLMULL6);
+ 651:cmsis/device/system_stm32f10x.c **** #endif /* STM32F10X_CL */
+ 652:cmsis/device/system_stm32f10x.c **** 
+ 653:cmsis/device/system_stm32f10x.c ****     /* Enable PLL */
+ 654:cmsis/device/system_stm32f10x.c ****     RCC->CR |= RCC_CR_PLLON;
+ 655:cmsis/device/system_stm32f10x.c **** 
+ 656:cmsis/device/system_stm32f10x.c ****     /* Wait till PLL is ready */
+ 657:cmsis/device/system_stm32f10x.c ****     while((RCC->CR & RCC_CR_PLLRDY) == 0)
+ 658:cmsis/device/system_stm32f10x.c ****     {
+ 659:cmsis/device/system_stm32f10x.c ****     }
+ 660:cmsis/device/system_stm32f10x.c **** 
+ 661:cmsis/device/system_stm32f10x.c ****     /* Select PLL as system clock source */
+ 662:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
+ 663:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;    
+ 664:cmsis/device/system_stm32f10x.c **** 
+ 665:cmsis/device/system_stm32f10x.c ****     /* Wait till PLL is used as system clock source */
+ 666:cmsis/device/system_stm32f10x.c ****     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)0x08)
+ 667:cmsis/device/system_stm32f10x.c ****     {
+ 668:cmsis/device/system_stm32f10x.c ****     }
+ 669:cmsis/device/system_stm32f10x.c ****   }
+ 670:cmsis/device/system_stm32f10x.c ****   else
+ 671:cmsis/device/system_stm32f10x.c ****   { /* If HSE fails to start-up, the application will have wrong clock 
+ 672:cmsis/device/system_stm32f10x.c ****          configuration. User can add here some code to deal with this error */
+ 673:cmsis/device/system_stm32f10x.c ****   } 
+ 674:cmsis/device/system_stm32f10x.c **** }
+ 675:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_36MHz
+ 676:cmsis/device/system_stm32f10x.c **** /**
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 19
+
+
+ 677:cmsis/device/system_stm32f10x.c ****   * @brief  Sets System clock frequency to 36MHz and configure HCLK, PCLK2 
+ 678:cmsis/device/system_stm32f10x.c ****   *         and PCLK1 prescalers. 
+ 679:cmsis/device/system_stm32f10x.c ****   * @note   This function should be used only after reset.
+ 680:cmsis/device/system_stm32f10x.c ****   * @param  None
+ 681:cmsis/device/system_stm32f10x.c ****   * @retval None
+ 682:cmsis/device/system_stm32f10x.c ****   */
+ 683:cmsis/device/system_stm32f10x.c **** static void SetSysClockTo36(void)
+ 684:cmsis/device/system_stm32f10x.c **** {
+ 685:cmsis/device/system_stm32f10x.c ****   __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
+ 686:cmsis/device/system_stm32f10x.c ****   
+ 687:cmsis/device/system_stm32f10x.c ****   /* SYSCLK, HCLK, PCLK2 and PCLK1 configuration ---------------------------*/    
+ 688:cmsis/device/system_stm32f10x.c ****   /* Enable HSE */    
+ 689:cmsis/device/system_stm32f10x.c ****   RCC->CR |= ((uint32_t)RCC_CR_HSEON);
+ 690:cmsis/device/system_stm32f10x.c ****  
+ 691:cmsis/device/system_stm32f10x.c ****   /* Wait till HSE is ready and if Time out is reached exit */
+ 692:cmsis/device/system_stm32f10x.c ****   do
+ 693:cmsis/device/system_stm32f10x.c ****   {
+ 694:cmsis/device/system_stm32f10x.c ****     HSEStatus = RCC->CR & RCC_CR_HSERDY;
+ 695:cmsis/device/system_stm32f10x.c ****     StartUpCounter++;  
+ 696:cmsis/device/system_stm32f10x.c ****   } while((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
+ 697:cmsis/device/system_stm32f10x.c **** 
+ 698:cmsis/device/system_stm32f10x.c ****   if ((RCC->CR & RCC_CR_HSERDY) != RESET)
+ 699:cmsis/device/system_stm32f10x.c ****   {
+ 700:cmsis/device/system_stm32f10x.c ****     HSEStatus = (uint32_t)0x01;
+ 701:cmsis/device/system_stm32f10x.c ****   }
+ 702:cmsis/device/system_stm32f10x.c ****   else
+ 703:cmsis/device/system_stm32f10x.c ****   {
+ 704:cmsis/device/system_stm32f10x.c ****     HSEStatus = (uint32_t)0x00;
+ 705:cmsis/device/system_stm32f10x.c ****   }  
+ 706:cmsis/device/system_stm32f10x.c **** 
+ 707:cmsis/device/system_stm32f10x.c ****   if (HSEStatus == (uint32_t)0x01)
+ 708:cmsis/device/system_stm32f10x.c ****   {
+ 709:cmsis/device/system_stm32f10x.c ****     /* Enable Prefetch Buffer */
+ 710:cmsis/device/system_stm32f10x.c ****     FLASH->ACR |= FLASH_ACR_PRFTBE;
+ 711:cmsis/device/system_stm32f10x.c **** 
+ 712:cmsis/device/system_stm32f10x.c ****     /* Flash 1 wait state */
+ 713:cmsis/device/system_stm32f10x.c ****     FLASH->ACR &= (uint32_t)((uint32_t)~FLASH_ACR_LATENCY);
+ 714:cmsis/device/system_stm32f10x.c ****     FLASH->ACR |= (uint32_t)FLASH_ACR_LATENCY_1;    
+ 715:cmsis/device/system_stm32f10x.c ****  
+ 716:cmsis/device/system_stm32f10x.c ****     /* HCLK = SYSCLK */
+ 717:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;
+ 718:cmsis/device/system_stm32f10x.c ****       
+ 719:cmsis/device/system_stm32f10x.c ****     /* PCLK2 = HCLK */
+ 720:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV1;
+ 721:cmsis/device/system_stm32f10x.c ****     
+ 722:cmsis/device/system_stm32f10x.c ****     /* PCLK1 = HCLK */
+ 723:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV1;
+ 724:cmsis/device/system_stm32f10x.c ****     
+ 725:cmsis/device/system_stm32f10x.c **** #ifdef STM32F10X_CL
+ 726:cmsis/device/system_stm32f10x.c ****     /* Configure PLLs ------------------------------------------------------*/
+ 727:cmsis/device/system_stm32f10x.c ****     
+ 728:cmsis/device/system_stm32f10x.c ****     /* PLL configuration: PLLCLK = PREDIV1 * 9 = 36 MHz */ 
+ 729:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)~(RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLSRC | RCC_CFGR_PLLMULL);
+ 730:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLXTPRE_PREDIV1 | RCC_CFGR_PLLSRC_PREDIV1 | 
+ 731:cmsis/device/system_stm32f10x.c ****                             RCC_CFGR_PLLMULL9); 
+ 732:cmsis/device/system_stm32f10x.c **** 
+ 733:cmsis/device/system_stm32f10x.c **** 	/*!< PLL2 configuration: PLL2CLK = (HSE / 5) * 8 = 40 MHz */
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 20
+
+
+ 734:cmsis/device/system_stm32f10x.c ****     /* PREDIV1 configuration: PREDIV1CLK = PLL2 / 10 = 4 MHz */
+ 735:cmsis/device/system_stm32f10x.c ****         
+ 736:cmsis/device/system_stm32f10x.c ****     RCC->CFGR2 &= (uint32_t)~(RCC_CFGR2_PREDIV2 | RCC_CFGR2_PLL2MUL |
+ 737:cmsis/device/system_stm32f10x.c ****                               RCC_CFGR2_PREDIV1 | RCC_CFGR2_PREDIV1SRC);
+ 738:cmsis/device/system_stm32f10x.c ****     RCC->CFGR2 |= (uint32_t)(RCC_CFGR2_PREDIV2_DIV5 | RCC_CFGR2_PLL2MUL8 |
+ 739:cmsis/device/system_stm32f10x.c ****                              RCC_CFGR2_PREDIV1SRC_PLL2 | RCC_CFGR2_PREDIV1_DIV10);
+ 740:cmsis/device/system_stm32f10x.c ****   
+ 741:cmsis/device/system_stm32f10x.c ****     /* Enable PLL2 */
+ 742:cmsis/device/system_stm32f10x.c ****     RCC->CR |= RCC_CR_PLL2ON;
+ 743:cmsis/device/system_stm32f10x.c ****     /* Wait till PLL2 is ready */
+ 744:cmsis/device/system_stm32f10x.c ****     while((RCC->CR & RCC_CR_PLL2RDY) == 0)
+ 745:cmsis/device/system_stm32f10x.c ****     {
+ 746:cmsis/device/system_stm32f10x.c ****     }
+ 747:cmsis/device/system_stm32f10x.c ****     
+ 748:cmsis/device/system_stm32f10x.c **** #else    
+ 749:cmsis/device/system_stm32f10x.c ****     /*  PLL configuration: PLLCLK = (HSE / 2) * 9 = 36 MHz */
+ 750:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLMULL));
+ 751:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_HSE | RCC_CFGR_PLLXTPRE_HSE_Div2 | RCC_CFGR_PLLMULL9);
+ 752:cmsis/device/system_stm32f10x.c **** #endif /* STM32F10X_CL */
+ 753:cmsis/device/system_stm32f10x.c **** 
+ 754:cmsis/device/system_stm32f10x.c ****     /* Enable PLL */
+ 755:cmsis/device/system_stm32f10x.c ****     RCC->CR |= RCC_CR_PLLON;
+ 756:cmsis/device/system_stm32f10x.c **** 
+ 757:cmsis/device/system_stm32f10x.c ****     /* Wait till PLL is ready */
+ 758:cmsis/device/system_stm32f10x.c ****     while((RCC->CR & RCC_CR_PLLRDY) == 0)
+ 759:cmsis/device/system_stm32f10x.c ****     {
+ 760:cmsis/device/system_stm32f10x.c ****     }
+ 761:cmsis/device/system_stm32f10x.c **** 
+ 762:cmsis/device/system_stm32f10x.c ****     /* Select PLL as system clock source */
+ 763:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
+ 764:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;    
+ 765:cmsis/device/system_stm32f10x.c **** 
+ 766:cmsis/device/system_stm32f10x.c ****     /* Wait till PLL is used as system clock source */
+ 767:cmsis/device/system_stm32f10x.c ****     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)0x08)
+ 768:cmsis/device/system_stm32f10x.c ****     {
+ 769:cmsis/device/system_stm32f10x.c ****     }
+ 770:cmsis/device/system_stm32f10x.c ****   }
+ 771:cmsis/device/system_stm32f10x.c ****   else
+ 772:cmsis/device/system_stm32f10x.c ****   { /* If HSE fails to start-up, the application will have wrong clock 
+ 773:cmsis/device/system_stm32f10x.c ****          configuration. User can add here some code to deal with this error */
+ 774:cmsis/device/system_stm32f10x.c ****   } 
+ 775:cmsis/device/system_stm32f10x.c **** }
+ 776:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_48MHz
+ 777:cmsis/device/system_stm32f10x.c **** /**
+ 778:cmsis/device/system_stm32f10x.c ****   * @brief  Sets System clock frequency to 48MHz and configure HCLK, PCLK2 
+ 779:cmsis/device/system_stm32f10x.c ****   *         and PCLK1 prescalers. 
+ 780:cmsis/device/system_stm32f10x.c ****   * @note   This function should be used only after reset.
+ 781:cmsis/device/system_stm32f10x.c ****   * @param  None
+ 782:cmsis/device/system_stm32f10x.c ****   * @retval None
+ 783:cmsis/device/system_stm32f10x.c ****   */
+ 784:cmsis/device/system_stm32f10x.c **** static void SetSysClockTo48(void)
+ 785:cmsis/device/system_stm32f10x.c **** {
+ 786:cmsis/device/system_stm32f10x.c ****   __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
+ 787:cmsis/device/system_stm32f10x.c ****   
+ 788:cmsis/device/system_stm32f10x.c ****   /* SYSCLK, HCLK, PCLK2 and PCLK1 configuration ---------------------------*/    
+ 789:cmsis/device/system_stm32f10x.c ****   /* Enable HSE */    
+ 790:cmsis/device/system_stm32f10x.c ****   RCC->CR |= ((uint32_t)RCC_CR_HSEON);
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 21
+
+
+ 791:cmsis/device/system_stm32f10x.c ****  
+ 792:cmsis/device/system_stm32f10x.c ****   /* Wait till HSE is ready and if Time out is reached exit */
+ 793:cmsis/device/system_stm32f10x.c ****   do
+ 794:cmsis/device/system_stm32f10x.c ****   {
+ 795:cmsis/device/system_stm32f10x.c ****     HSEStatus = RCC->CR & RCC_CR_HSERDY;
+ 796:cmsis/device/system_stm32f10x.c ****     StartUpCounter++;  
+ 797:cmsis/device/system_stm32f10x.c ****   } while((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
+ 798:cmsis/device/system_stm32f10x.c **** 
+ 799:cmsis/device/system_stm32f10x.c ****   if ((RCC->CR & RCC_CR_HSERDY) != RESET)
+ 800:cmsis/device/system_stm32f10x.c ****   {
+ 801:cmsis/device/system_stm32f10x.c ****     HSEStatus = (uint32_t)0x01;
+ 802:cmsis/device/system_stm32f10x.c ****   }
+ 803:cmsis/device/system_stm32f10x.c ****   else
+ 804:cmsis/device/system_stm32f10x.c ****   {
+ 805:cmsis/device/system_stm32f10x.c ****     HSEStatus = (uint32_t)0x00;
+ 806:cmsis/device/system_stm32f10x.c ****   }  
+ 807:cmsis/device/system_stm32f10x.c **** 
+ 808:cmsis/device/system_stm32f10x.c ****   if (HSEStatus == (uint32_t)0x01)
+ 809:cmsis/device/system_stm32f10x.c ****   {
+ 810:cmsis/device/system_stm32f10x.c ****     /* Enable Prefetch Buffer */
+ 811:cmsis/device/system_stm32f10x.c ****     FLASH->ACR |= FLASH_ACR_PRFTBE;
+ 812:cmsis/device/system_stm32f10x.c **** 
+ 813:cmsis/device/system_stm32f10x.c ****     /* Flash 1 wait state */
+ 814:cmsis/device/system_stm32f10x.c ****     FLASH->ACR &= (uint32_t)((uint32_t)~FLASH_ACR_LATENCY);
+ 815:cmsis/device/system_stm32f10x.c ****     FLASH->ACR |= (uint32_t)FLASH_ACR_LATENCY_1;    
+ 816:cmsis/device/system_stm32f10x.c ****  
+ 817:cmsis/device/system_stm32f10x.c ****     /* HCLK = SYSCLK */
+ 818:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;
+ 819:cmsis/device/system_stm32f10x.c ****       
+ 820:cmsis/device/system_stm32f10x.c ****     /* PCLK2 = HCLK */
+ 821:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV1;
+ 822:cmsis/device/system_stm32f10x.c ****     
+ 823:cmsis/device/system_stm32f10x.c ****     /* PCLK1 = HCLK */
+ 824:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV2;
+ 825:cmsis/device/system_stm32f10x.c ****     
+ 826:cmsis/device/system_stm32f10x.c **** #ifdef STM32F10X_CL
+ 827:cmsis/device/system_stm32f10x.c ****     /* Configure PLLs ------------------------------------------------------*/
+ 828:cmsis/device/system_stm32f10x.c ****     /* PLL2 configuration: PLL2CLK = (HSE / 5) * 8 = 40 MHz */
+ 829:cmsis/device/system_stm32f10x.c ****     /* PREDIV1 configuration: PREDIV1CLK = PLL2 / 5 = 8 MHz */
+ 830:cmsis/device/system_stm32f10x.c ****         
+ 831:cmsis/device/system_stm32f10x.c ****     RCC->CFGR2 &= (uint32_t)~(RCC_CFGR2_PREDIV2 | RCC_CFGR2_PLL2MUL |
+ 832:cmsis/device/system_stm32f10x.c ****                               RCC_CFGR2_PREDIV1 | RCC_CFGR2_PREDIV1SRC);
+ 833:cmsis/device/system_stm32f10x.c ****     RCC->CFGR2 |= (uint32_t)(RCC_CFGR2_PREDIV2_DIV5 | RCC_CFGR2_PLL2MUL8 |
+ 834:cmsis/device/system_stm32f10x.c ****                              RCC_CFGR2_PREDIV1SRC_PLL2 | RCC_CFGR2_PREDIV1_DIV5);
+ 835:cmsis/device/system_stm32f10x.c ****   
+ 836:cmsis/device/system_stm32f10x.c ****     /* Enable PLL2 */
+ 837:cmsis/device/system_stm32f10x.c ****     RCC->CR |= RCC_CR_PLL2ON;
+ 838:cmsis/device/system_stm32f10x.c ****     /* Wait till PLL2 is ready */
+ 839:cmsis/device/system_stm32f10x.c ****     while((RCC->CR & RCC_CR_PLL2RDY) == 0)
+ 840:cmsis/device/system_stm32f10x.c ****     {
+ 841:cmsis/device/system_stm32f10x.c ****     }
+ 842:cmsis/device/system_stm32f10x.c ****     
+ 843:cmsis/device/system_stm32f10x.c ****    
+ 844:cmsis/device/system_stm32f10x.c ****     /* PLL configuration: PLLCLK = PREDIV1 * 6 = 48 MHz */ 
+ 845:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)~(RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLSRC | RCC_CFGR_PLLMULL);
+ 846:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLXTPRE_PREDIV1 | RCC_CFGR_PLLSRC_PREDIV1 | 
+ 847:cmsis/device/system_stm32f10x.c ****                             RCC_CFGR_PLLMULL6); 
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 22
+
+
+ 848:cmsis/device/system_stm32f10x.c **** #else    
+ 849:cmsis/device/system_stm32f10x.c ****     /*  PLL configuration: PLLCLK = HSE * 6 = 48 MHz */
+ 850:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLMULL));
+ 851:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_HSE | RCC_CFGR_PLLMULL6);
+ 852:cmsis/device/system_stm32f10x.c **** #endif /* STM32F10X_CL */
+ 853:cmsis/device/system_stm32f10x.c **** 
+ 854:cmsis/device/system_stm32f10x.c ****     /* Enable PLL */
+ 855:cmsis/device/system_stm32f10x.c ****     RCC->CR |= RCC_CR_PLLON;
+ 856:cmsis/device/system_stm32f10x.c **** 
+ 857:cmsis/device/system_stm32f10x.c ****     /* Wait till PLL is ready */
+ 858:cmsis/device/system_stm32f10x.c ****     while((RCC->CR & RCC_CR_PLLRDY) == 0)
+ 859:cmsis/device/system_stm32f10x.c ****     {
+ 860:cmsis/device/system_stm32f10x.c ****     }
+ 861:cmsis/device/system_stm32f10x.c **** 
+ 862:cmsis/device/system_stm32f10x.c ****     /* Select PLL as system clock source */
+ 863:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
+ 864:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;    
+ 865:cmsis/device/system_stm32f10x.c **** 
+ 866:cmsis/device/system_stm32f10x.c ****     /* Wait till PLL is used as system clock source */
+ 867:cmsis/device/system_stm32f10x.c ****     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)0x08)
+ 868:cmsis/device/system_stm32f10x.c ****     {
+ 869:cmsis/device/system_stm32f10x.c ****     }
+ 870:cmsis/device/system_stm32f10x.c ****   }
+ 871:cmsis/device/system_stm32f10x.c ****   else
+ 872:cmsis/device/system_stm32f10x.c ****   { /* If HSE fails to start-up, the application will have wrong clock 
+ 873:cmsis/device/system_stm32f10x.c ****          configuration. User can add here some code to deal with this error */
+ 874:cmsis/device/system_stm32f10x.c ****   } 
+ 875:cmsis/device/system_stm32f10x.c **** }
+ 876:cmsis/device/system_stm32f10x.c **** 
+ 877:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_56MHz
+ 878:cmsis/device/system_stm32f10x.c **** /**
+ 879:cmsis/device/system_stm32f10x.c ****   * @brief  Sets System clock frequency to 56MHz and configure HCLK, PCLK2 
+ 880:cmsis/device/system_stm32f10x.c ****   *         and PCLK1 prescalers. 
+ 881:cmsis/device/system_stm32f10x.c ****   * @note   This function should be used only after reset.
+ 882:cmsis/device/system_stm32f10x.c ****   * @param  None
+ 883:cmsis/device/system_stm32f10x.c ****   * @retval None
+ 884:cmsis/device/system_stm32f10x.c ****   */
+ 885:cmsis/device/system_stm32f10x.c **** static void SetSysClockTo56(void)
+ 886:cmsis/device/system_stm32f10x.c **** {
+ 887:cmsis/device/system_stm32f10x.c ****   __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
+ 888:cmsis/device/system_stm32f10x.c ****   
+ 889:cmsis/device/system_stm32f10x.c ****   /* SYSCLK, HCLK, PCLK2 and PCLK1 configuration ---------------------------*/   
+ 890:cmsis/device/system_stm32f10x.c ****   /* Enable HSE */    
+ 891:cmsis/device/system_stm32f10x.c ****   RCC->CR |= ((uint32_t)RCC_CR_HSEON);
+ 892:cmsis/device/system_stm32f10x.c ****  
+ 893:cmsis/device/system_stm32f10x.c ****   /* Wait till HSE is ready and if Time out is reached exit */
+ 894:cmsis/device/system_stm32f10x.c ****   do
+ 895:cmsis/device/system_stm32f10x.c ****   {
+ 896:cmsis/device/system_stm32f10x.c ****     HSEStatus = RCC->CR & RCC_CR_HSERDY;
+ 897:cmsis/device/system_stm32f10x.c ****     StartUpCounter++;  
+ 898:cmsis/device/system_stm32f10x.c ****   } while((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
+ 899:cmsis/device/system_stm32f10x.c **** 
+ 900:cmsis/device/system_stm32f10x.c ****   if ((RCC->CR & RCC_CR_HSERDY) != RESET)
+ 901:cmsis/device/system_stm32f10x.c ****   {
+ 902:cmsis/device/system_stm32f10x.c ****     HSEStatus = (uint32_t)0x01;
+ 903:cmsis/device/system_stm32f10x.c ****   }
+ 904:cmsis/device/system_stm32f10x.c ****   else
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 23
+
+
+ 905:cmsis/device/system_stm32f10x.c ****   {
+ 906:cmsis/device/system_stm32f10x.c ****     HSEStatus = (uint32_t)0x00;
+ 907:cmsis/device/system_stm32f10x.c ****   }  
+ 908:cmsis/device/system_stm32f10x.c **** 
+ 909:cmsis/device/system_stm32f10x.c ****   if (HSEStatus == (uint32_t)0x01)
+ 910:cmsis/device/system_stm32f10x.c ****   {
+ 911:cmsis/device/system_stm32f10x.c ****     /* Enable Prefetch Buffer */
+ 912:cmsis/device/system_stm32f10x.c ****     FLASH->ACR |= FLASH_ACR_PRFTBE;
+ 913:cmsis/device/system_stm32f10x.c **** 
+ 914:cmsis/device/system_stm32f10x.c ****     /* Flash 2 wait state */
+ 915:cmsis/device/system_stm32f10x.c ****     FLASH->ACR &= (uint32_t)((uint32_t)~FLASH_ACR_LATENCY);
+ 916:cmsis/device/system_stm32f10x.c ****     FLASH->ACR |= (uint32_t)FLASH_ACR_LATENCY_2;    
+ 917:cmsis/device/system_stm32f10x.c ****  
+ 918:cmsis/device/system_stm32f10x.c ****     /* HCLK = SYSCLK */
+ 919:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;
+ 920:cmsis/device/system_stm32f10x.c ****       
+ 921:cmsis/device/system_stm32f10x.c ****     /* PCLK2 = HCLK */
+ 922:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV1;
+ 923:cmsis/device/system_stm32f10x.c ****     
+ 924:cmsis/device/system_stm32f10x.c ****     /* PCLK1 = HCLK */
+ 925:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV2;
+ 926:cmsis/device/system_stm32f10x.c **** 
+ 927:cmsis/device/system_stm32f10x.c **** #ifdef STM32F10X_CL
+ 928:cmsis/device/system_stm32f10x.c ****     /* Configure PLLs ------------------------------------------------------*/
+ 929:cmsis/device/system_stm32f10x.c ****     /* PLL2 configuration: PLL2CLK = (HSE / 5) * 8 = 40 MHz */
+ 930:cmsis/device/system_stm32f10x.c ****     /* PREDIV1 configuration: PREDIV1CLK = PLL2 / 5 = 8 MHz */
+ 931:cmsis/device/system_stm32f10x.c ****         
+ 932:cmsis/device/system_stm32f10x.c ****     RCC->CFGR2 &= (uint32_t)~(RCC_CFGR2_PREDIV2 | RCC_CFGR2_PLL2MUL |
+ 933:cmsis/device/system_stm32f10x.c ****                               RCC_CFGR2_PREDIV1 | RCC_CFGR2_PREDIV1SRC);
+ 934:cmsis/device/system_stm32f10x.c ****     RCC->CFGR2 |= (uint32_t)(RCC_CFGR2_PREDIV2_DIV5 | RCC_CFGR2_PLL2MUL8 |
+ 935:cmsis/device/system_stm32f10x.c ****                              RCC_CFGR2_PREDIV1SRC_PLL2 | RCC_CFGR2_PREDIV1_DIV5);
+ 936:cmsis/device/system_stm32f10x.c ****   
+ 937:cmsis/device/system_stm32f10x.c ****     /* Enable PLL2 */
+ 938:cmsis/device/system_stm32f10x.c ****     RCC->CR |= RCC_CR_PLL2ON;
+ 939:cmsis/device/system_stm32f10x.c ****     /* Wait till PLL2 is ready */
+ 940:cmsis/device/system_stm32f10x.c ****     while((RCC->CR & RCC_CR_PLL2RDY) == 0)
+ 941:cmsis/device/system_stm32f10x.c ****     {
+ 942:cmsis/device/system_stm32f10x.c ****     }
+ 943:cmsis/device/system_stm32f10x.c ****     
+ 944:cmsis/device/system_stm32f10x.c ****    
+ 945:cmsis/device/system_stm32f10x.c ****     /* PLL configuration: PLLCLK = PREDIV1 * 7 = 56 MHz */ 
+ 946:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)~(RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLSRC | RCC_CFGR_PLLMULL);
+ 947:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLXTPRE_PREDIV1 | RCC_CFGR_PLLSRC_PREDIV1 | 
+ 948:cmsis/device/system_stm32f10x.c ****                             RCC_CFGR_PLLMULL7); 
+ 949:cmsis/device/system_stm32f10x.c **** #else     
+ 950:cmsis/device/system_stm32f10x.c ****     /* PLL configuration: PLLCLK = HSE * 7 = 56 MHz */
+ 951:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLMULL));
+ 952:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_HSE | RCC_CFGR_PLLMULL7);
+ 953:cmsis/device/system_stm32f10x.c **** 
+ 954:cmsis/device/system_stm32f10x.c **** #endif /* STM32F10X_CL */
+ 955:cmsis/device/system_stm32f10x.c **** 
+ 956:cmsis/device/system_stm32f10x.c ****     /* Enable PLL */
+ 957:cmsis/device/system_stm32f10x.c ****     RCC->CR |= RCC_CR_PLLON;
+ 958:cmsis/device/system_stm32f10x.c **** 
+ 959:cmsis/device/system_stm32f10x.c ****     /* Wait till PLL is ready */
+ 960:cmsis/device/system_stm32f10x.c ****     while((RCC->CR & RCC_CR_PLLRDY) == 0)
+ 961:cmsis/device/system_stm32f10x.c ****     {
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 24
+
+
+ 962:cmsis/device/system_stm32f10x.c ****     }
+ 963:cmsis/device/system_stm32f10x.c **** 
+ 964:cmsis/device/system_stm32f10x.c ****     /* Select PLL as system clock source */
+ 965:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
+ 966:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;    
+ 967:cmsis/device/system_stm32f10x.c **** 
+ 968:cmsis/device/system_stm32f10x.c ****     /* Wait till PLL is used as system clock source */
+ 969:cmsis/device/system_stm32f10x.c ****     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)0x08)
+ 970:cmsis/device/system_stm32f10x.c ****     {
+ 971:cmsis/device/system_stm32f10x.c ****     }
+ 972:cmsis/device/system_stm32f10x.c ****   }
+ 973:cmsis/device/system_stm32f10x.c ****   else
+ 974:cmsis/device/system_stm32f10x.c ****   { /* If HSE fails to start-up, the application will have wrong clock 
+ 975:cmsis/device/system_stm32f10x.c ****          configuration. User can add here some code to deal with this error */
+ 976:cmsis/device/system_stm32f10x.c ****   } 
+ 977:cmsis/device/system_stm32f10x.c **** }
+ 978:cmsis/device/system_stm32f10x.c **** 
+ 979:cmsis/device/system_stm32f10x.c **** #elif defined SYSCLK_FREQ_72MHz
+ 980:cmsis/device/system_stm32f10x.c **** /**
+ 981:cmsis/device/system_stm32f10x.c ****   * @brief  Sets System clock frequency to 72MHz and configure HCLK, PCLK2 
+ 982:cmsis/device/system_stm32f10x.c ****   *         and PCLK1 prescalers. 
+ 983:cmsis/device/system_stm32f10x.c ****   * @note   This function should be used only after reset.
+ 984:cmsis/device/system_stm32f10x.c ****   * @param  None
+ 985:cmsis/device/system_stm32f10x.c ****   * @retval None
+ 986:cmsis/device/system_stm32f10x.c ****   */
+ 987:cmsis/device/system_stm32f10x.c **** static void SetSysClockTo72(void)
+ 988:cmsis/device/system_stm32f10x.c **** {
+ 348              		.loc 1 988 0
+ 349              		.cfi_startproc
+ 350              		@ args = 0, pretend = 0, frame = 8
+ 351              		@ frame_needed = 1, uses_anonymous_args = 0
+ 352              		@ link register save eliminated.
+ 353 01fc 80B4     		push	{r7}	@
+ 354              	.LCFI7:
+ 355              		.cfi_def_cfa_offset 4
+ 356              		.cfi_offset 7, -4
+ 357 01fe 83B0     		sub	sp, sp, #12	@,,
+ 358              	.LCFI8:
+ 359              		.cfi_def_cfa_offset 16
+ 360 0200 00AF     		add	r7, sp, #0	@,,
+ 361              	.LCFI9:
+ 362              		.cfi_def_cfa_register 7
+ 989:cmsis/device/system_stm32f10x.c ****   __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
+ 363              		.loc 1 989 0
+ 364 0202 4FF00003 		mov	r3, #0	@ tmp197,
+ 365 0206 7B60     		str	r3, [r7, #4]	@ tmp197, StartUpCounter
+ 366 0208 4FF00003 		mov	r3, #0	@ tmp198,
+ 367 020c 3B60     		str	r3, [r7, #0]	@ tmp198, HSEStatus
+ 990:cmsis/device/system_stm32f10x.c ****   
+ 991:cmsis/device/system_stm32f10x.c ****   /* SYSCLK, HCLK, PCLK2 and PCLK1 configuration ---------------------------*/    
+ 992:cmsis/device/system_stm32f10x.c ****   /* Enable HSE */    
+ 993:cmsis/device/system_stm32f10x.c ****   RCC->CR |= ((uint32_t)RCC_CR_HSEON);
+ 368              		.loc 1 993 0
+ 369 020e 4FF48053 		mov	r3, #4096	@ D.5041,
+ 370 0212 C4F20203 		movt	r3, 16386	@ D.5041,
+ 371 0216 4FF48052 		mov	r2, #4096	@ D.5042,
+ 372 021a C4F20202 		movt	r2, 16386	@ D.5042,
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 25
+
+
+ 373 021e 1268     		ldr	r2, [r2, #0]	@ D.5043, D.5042_2->CR
+ 374 0220 42F48032 		orr	r2, r2, #65536	@ D.5044, D.5043,
+ 375 0224 1A60     		str	r2, [r3, #0]	@ D.5044, D.5041_1->CR
+ 376              	.L15:
+ 994:cmsis/device/system_stm32f10x.c ****  
+ 995:cmsis/device/system_stm32f10x.c ****   /* Wait till HSE is ready and if Time out is reached exit */
+ 996:cmsis/device/system_stm32f10x.c ****   do
+ 997:cmsis/device/system_stm32f10x.c ****   {
+ 998:cmsis/device/system_stm32f10x.c ****     HSEStatus = RCC->CR & RCC_CR_HSERDY;
+ 377              		.loc 1 998 0 discriminator 1
+ 378 0226 4FF48053 		mov	r3, #4096	@ D.5045,
+ 379 022a C4F20203 		movt	r3, 16386	@ D.5045,
+ 380 022e 1B68     		ldr	r3, [r3, #0]	@ D.5046, D.5045_5->CR
+ 381 0230 03F40033 		and	r3, r3, #131072	@ HSEStatus.0, D.5046,
+ 382 0234 3B60     		str	r3, [r7, #0]	@ HSEStatus.0, HSEStatus
+ 999:cmsis/device/system_stm32f10x.c ****     StartUpCounter++;  
+ 383              		.loc 1 999 0 discriminator 1
+ 384 0236 7B68     		ldr	r3, [r7, #4]	@ StartUpCounter.1, StartUpCounter
+ 385 0238 03F10103 		add	r3, r3, #1	@ StartUpCounter.2, StartUpCounter.1,
+ 386 023c 7B60     		str	r3, [r7, #4]	@ StartUpCounter.2, StartUpCounter
+1000:cmsis/device/system_stm32f10x.c ****   } while((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
+ 387              		.loc 1 1000 0 discriminator 1
+ 388 023e 3B68     		ldr	r3, [r7, #0]	@ HSEStatus.3, HSEStatus
+ 389 0240 002B     		cmp	r3, #0	@ HSEStatus.3,
+ 390 0242 03D1     		bne	.L14	@,
+ 391 0244 7B68     		ldr	r3, [r7, #4]	@ StartUpCounter.4, StartUpCounter
+ 392 0246 B3F5A06F 		cmp	r3, #1280	@ StartUpCounter.4,
+ 393 024a ECD1     		bne	.L15	@,
+ 394              	.L14:
+1001:cmsis/device/system_stm32f10x.c **** 
+1002:cmsis/device/system_stm32f10x.c ****   if ((RCC->CR & RCC_CR_HSERDY) != RESET)
+ 395              		.loc 1 1002 0
+ 396 024c 4FF48053 		mov	r3, #4096	@ D.5053,
+ 397 0250 C4F20203 		movt	r3, 16386	@ D.5053,
+ 398 0254 1B68     		ldr	r3, [r3, #0]	@ D.5054, D.5053_12->CR
+ 399 0256 03F40033 		and	r3, r3, #131072	@ D.5055, D.5054,
+ 400 025a 002B     		cmp	r3, #0	@ D.5055,
+ 401 025c 03D0     		beq	.L16	@,
+1003:cmsis/device/system_stm32f10x.c ****   {
+1004:cmsis/device/system_stm32f10x.c ****     HSEStatus = (uint32_t)0x01;
+ 402              		.loc 1 1004 0
+ 403 025e 4FF00103 		mov	r3, #1	@ tmp199,
+ 404 0262 3B60     		str	r3, [r7, #0]	@ tmp199, HSEStatus
+ 405 0264 02E0     		b	.L17	@
+ 406              	.L16:
+1005:cmsis/device/system_stm32f10x.c ****   }
+1006:cmsis/device/system_stm32f10x.c ****   else
+1007:cmsis/device/system_stm32f10x.c ****   {
+1008:cmsis/device/system_stm32f10x.c ****     HSEStatus = (uint32_t)0x00;
+ 407              		.loc 1 1008 0
+ 408 0266 4FF00003 		mov	r3, #0	@ tmp200,
+ 409 026a 3B60     		str	r3, [r7, #0]	@ tmp200, HSEStatus
+ 410              	.L17:
+1009:cmsis/device/system_stm32f10x.c ****   }  
+1010:cmsis/device/system_stm32f10x.c **** 
+1011:cmsis/device/system_stm32f10x.c ****   if (HSEStatus == (uint32_t)0x01)
+ 411              		.loc 1 1011 0
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 26
+
+
+ 412 026c 3B68     		ldr	r3, [r7, #0]	@ HSEStatus.5, HSEStatus
+ 413 026e 012B     		cmp	r3, #1	@ HSEStatus.5,
+ 414 0270 40F09480 		bne	.L13	@,
+1012:cmsis/device/system_stm32f10x.c ****   {
+1013:cmsis/device/system_stm32f10x.c ****     /* Enable Prefetch Buffer */
+1014:cmsis/device/system_stm32f10x.c ****     FLASH->ACR |= FLASH_ACR_PRFTBE;
+ 415              		.loc 1 1014 0
+ 416 0274 4FF40053 		mov	r3, #8192	@ D.5062,
+ 417 0278 C4F20203 		movt	r3, 16386	@ D.5062,
+ 418 027c 4FF40052 		mov	r2, #8192	@ D.5063,
+ 419 0280 C4F20202 		movt	r2, 16386	@ D.5063,
+ 420 0284 1268     		ldr	r2, [r2, #0]	@ D.5064, D.5063_17->ACR
+ 421 0286 42F01002 		orr	r2, r2, #16	@ D.5065, D.5064,
+ 422 028a 1A60     		str	r2, [r3, #0]	@ D.5065, D.5062_16->ACR
+1015:cmsis/device/system_stm32f10x.c **** 
+1016:cmsis/device/system_stm32f10x.c ****     /* Flash 2 wait state */
+1017:cmsis/device/system_stm32f10x.c ****     FLASH->ACR &= (uint32_t)((uint32_t)~FLASH_ACR_LATENCY);
+ 423              		.loc 1 1017 0
+ 424 028c 4FF40053 		mov	r3, #8192	@ D.5066,
+ 425 0290 C4F20203 		movt	r3, 16386	@ D.5066,
+ 426 0294 4FF40052 		mov	r2, #8192	@ D.5067,
+ 427 0298 C4F20202 		movt	r2, 16386	@ D.5067,
+ 428 029c 1268     		ldr	r2, [r2, #0]	@ D.5068, D.5067_21->ACR
+ 429 029e 22F00302 		bic	r2, r2, #3	@ D.5069, D.5068,
+ 430 02a2 1A60     		str	r2, [r3, #0]	@ D.5069, D.5066_20->ACR
+1018:cmsis/device/system_stm32f10x.c ****     FLASH->ACR |= (uint32_t)FLASH_ACR_LATENCY_2;    
+ 431              		.loc 1 1018 0
+ 432 02a4 4FF40053 		mov	r3, #8192	@ D.5070,
+ 433 02a8 C4F20203 		movt	r3, 16386	@ D.5070,
+ 434 02ac 4FF40052 		mov	r2, #8192	@ D.5071,
+ 435 02b0 C4F20202 		movt	r2, 16386	@ D.5071,
+ 436 02b4 1268     		ldr	r2, [r2, #0]	@ D.5072, D.5071_25->ACR
+ 437 02b6 42F00202 		orr	r2, r2, #2	@ D.5073, D.5072,
+ 438 02ba 1A60     		str	r2, [r3, #0]	@ D.5073, D.5070_24->ACR
+1019:cmsis/device/system_stm32f10x.c **** 
+1020:cmsis/device/system_stm32f10x.c ****  
+1021:cmsis/device/system_stm32f10x.c ****     /* HCLK = SYSCLK */
+1022:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;
+ 439              		.loc 1 1022 0
+ 440 02bc 4FF48053 		mov	r3, #4096	@ D.5074,
+ 441 02c0 C4F20203 		movt	r3, 16386	@ D.5074,
+ 442 02c4 4FF48052 		mov	r2, #4096	@ D.5075,
+ 443 02c8 C4F20202 		movt	r2, 16386	@ D.5075,
+ 444 02cc 5268     		ldr	r2, [r2, #4]	@ D.5076, D.5075_29->CFGR
+ 445 02ce 5A60     		str	r2, [r3, #4]	@ D.5076, D.5074_28->CFGR
+1023:cmsis/device/system_stm32f10x.c ****       
+1024:cmsis/device/system_stm32f10x.c ****     /* PCLK2 = HCLK */
+1025:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV1;
+ 446              		.loc 1 1025 0
+ 447 02d0 4FF48053 		mov	r3, #4096	@ D.5077,
+ 448 02d4 C4F20203 		movt	r3, 16386	@ D.5077,
+ 449 02d8 4FF48052 		mov	r2, #4096	@ D.5078,
+ 450 02dc C4F20202 		movt	r2, 16386	@ D.5078,
+ 451 02e0 5268     		ldr	r2, [r2, #4]	@ D.5079, D.5078_32->CFGR
+ 452 02e2 5A60     		str	r2, [r3, #4]	@ D.5079, D.5077_31->CFGR
+1026:cmsis/device/system_stm32f10x.c ****     
+1027:cmsis/device/system_stm32f10x.c ****     /* PCLK1 = HCLK */
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 27
+
+
+1028:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV2;
+ 453              		.loc 1 1028 0
+ 454 02e4 4FF48053 		mov	r3, #4096	@ D.5080,
+ 455 02e8 C4F20203 		movt	r3, 16386	@ D.5080,
+ 456 02ec 4FF48052 		mov	r2, #4096	@ D.5081,
+ 457 02f0 C4F20202 		movt	r2, 16386	@ D.5081,
+ 458 02f4 5268     		ldr	r2, [r2, #4]	@ D.5082, D.5081_35->CFGR
+ 459 02f6 42F48062 		orr	r2, r2, #1024	@ D.5083, D.5082,
+ 460 02fa 5A60     		str	r2, [r3, #4]	@ D.5083, D.5080_34->CFGR
+1029:cmsis/device/system_stm32f10x.c **** 
+1030:cmsis/device/system_stm32f10x.c **** #ifdef STM32F10X_CL
+1031:cmsis/device/system_stm32f10x.c ****     /* Configure PLLs ------------------------------------------------------*/
+1032:cmsis/device/system_stm32f10x.c ****     /* PLL2 configuration: PLL2CLK = (HSE / 5) * 8 = 40 MHz */
+1033:cmsis/device/system_stm32f10x.c ****     /* PREDIV1 configuration: PREDIV1CLK = PLL2 / 5 = 8 MHz */
+1034:cmsis/device/system_stm32f10x.c ****         
+1035:cmsis/device/system_stm32f10x.c ****     RCC->CFGR2 &= (uint32_t)~(RCC_CFGR2_PREDIV2 | RCC_CFGR2_PLL2MUL |
+1036:cmsis/device/system_stm32f10x.c ****                               RCC_CFGR2_PREDIV1 | RCC_CFGR2_PREDIV1SRC);
+1037:cmsis/device/system_stm32f10x.c ****     RCC->CFGR2 |= (uint32_t)(RCC_CFGR2_PREDIV2_DIV5 | RCC_CFGR2_PLL2MUL8 |
+1038:cmsis/device/system_stm32f10x.c ****                              RCC_CFGR2_PREDIV1SRC_PLL2 | RCC_CFGR2_PREDIV1_DIV5);
+1039:cmsis/device/system_stm32f10x.c ****   
+1040:cmsis/device/system_stm32f10x.c ****     /* Enable PLL2 */
+1041:cmsis/device/system_stm32f10x.c ****     RCC->CR |= RCC_CR_PLL2ON;
+1042:cmsis/device/system_stm32f10x.c ****     /* Wait till PLL2 is ready */
+1043:cmsis/device/system_stm32f10x.c ****     while((RCC->CR & RCC_CR_PLL2RDY) == 0)
+1044:cmsis/device/system_stm32f10x.c ****     {
+1045:cmsis/device/system_stm32f10x.c ****     }
+1046:cmsis/device/system_stm32f10x.c ****     
+1047:cmsis/device/system_stm32f10x.c ****    
+1048:cmsis/device/system_stm32f10x.c ****     /* PLL configuration: PLLCLK = PREDIV1 * 9 = 72 MHz */ 
+1049:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)~(RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLSRC | RCC_CFGR_PLLMULL);
+1050:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLXTPRE_PREDIV1 | RCC_CFGR_PLLSRC_PREDIV1 | 
+1051:cmsis/device/system_stm32f10x.c ****                             RCC_CFGR_PLLMULL9); 
+1052:cmsis/device/system_stm32f10x.c **** #else    
+1053:cmsis/device/system_stm32f10x.c ****     /*  PLL configuration: PLLCLK = HSE * 9 = 72 MHz */
+1054:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE |
+ 461              		.loc 1 1054 0
+ 462 02fc 4FF48053 		mov	r3, #4096	@ D.5084,
+ 463 0300 C4F20203 		movt	r3, 16386	@ D.5084,
+ 464 0304 4FF48052 		mov	r2, #4096	@ D.5085,
+ 465 0308 C4F20202 		movt	r2, 16386	@ D.5085,
+ 466 030c 5268     		ldr	r2, [r2, #4]	@ D.5086, D.5085_39->CFGR
+ 467 030e 22F47C12 		bic	r2, r2, #4128768	@ D.5087, D.5086,
+ 468 0312 5A60     		str	r2, [r3, #4]	@ D.5087, D.5084_38->CFGR
+1055:cmsis/device/system_stm32f10x.c ****                                         RCC_CFGR_PLLMULL));
+1056:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_HSE | RCC_CFGR_PLLMULL9);
+ 469              		.loc 1 1056 0
+ 470 0314 4FF48053 		mov	r3, #4096	@ D.5088,
+ 471 0318 C4F20203 		movt	r3, 16386	@ D.5088,
+ 472 031c 4FF48052 		mov	r2, #4096	@ D.5089,
+ 473 0320 C4F20202 		movt	r2, 16386	@ D.5089,
+ 474 0324 5268     		ldr	r2, [r2, #4]	@ D.5090, D.5089_43->CFGR
+ 475 0326 42F4E812 		orr	r2, r2, #1900544	@ D.5091, D.5090,
+ 476 032a 5A60     		str	r2, [r3, #4]	@ D.5091, D.5088_42->CFGR
+1057:cmsis/device/system_stm32f10x.c **** #endif /* STM32F10X_CL */
+1058:cmsis/device/system_stm32f10x.c **** 
+1059:cmsis/device/system_stm32f10x.c ****     /* Enable PLL */
+1060:cmsis/device/system_stm32f10x.c ****     RCC->CR |= RCC_CR_PLLON;
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 28
+
+
+ 477              		.loc 1 1060 0
+ 478 032c 4FF48053 		mov	r3, #4096	@ D.5092,
+ 479 0330 C4F20203 		movt	r3, 16386	@ D.5092,
+ 480 0334 4FF48052 		mov	r2, #4096	@ D.5093,
+ 481 0338 C4F20202 		movt	r2, 16386	@ D.5093,
+ 482 033c 1268     		ldr	r2, [r2, #0]	@ D.5094, D.5093_47->CR
+ 483 033e 42F08072 		orr	r2, r2, #16777216	@ D.5095, D.5094,
+ 484 0342 1A60     		str	r2, [r3, #0]	@ D.5095, D.5092_46->CR
+1061:cmsis/device/system_stm32f10x.c **** 
+1062:cmsis/device/system_stm32f10x.c ****     /* Wait till PLL is ready */
+1063:cmsis/device/system_stm32f10x.c ****     while((RCC->CR & RCC_CR_PLLRDY) == 0)
+ 485              		.loc 1 1063 0
+ 486 0344 00BF     		nop
+ 487              	.L19:
+ 488              		.loc 1 1063 0 is_stmt 0 discriminator 1
+ 489 0346 4FF48053 		mov	r3, #4096	@ D.5096,
+ 490 034a C4F20203 		movt	r3, 16386	@ D.5096,
+ 491 034e 1B68     		ldr	r3, [r3, #0]	@ D.5097, D.5096_50->CR
+ 492 0350 03F00073 		and	r3, r3, #33554432	@ D.5098, D.5097,
+ 493 0354 002B     		cmp	r3, #0	@ D.5098,
+ 494 0356 F6D0     		beq	.L19	@,
+1064:cmsis/device/system_stm32f10x.c ****     {
+1065:cmsis/device/system_stm32f10x.c ****     }
+1066:cmsis/device/system_stm32f10x.c ****     
+1067:cmsis/device/system_stm32f10x.c ****     /* Select PLL as system clock source */
+1068:cmsis/device/system_stm32f10x.c ****     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
+ 495              		.loc 1 1068 0 is_stmt 1
+ 496 0358 4FF48053 		mov	r3, #4096	@ D.5099,
+ 497 035c C4F20203 		movt	r3, 16386	@ D.5099,
+ 498 0360 4FF48052 		mov	r2, #4096	@ D.5100,
+ 499 0364 C4F20202 		movt	r2, 16386	@ D.5100,
+ 500 0368 5268     		ldr	r2, [r2, #4]	@ D.5101, D.5100_54->CFGR
+ 501 036a 22F00302 		bic	r2, r2, #3	@ D.5102, D.5101,
+ 502 036e 5A60     		str	r2, [r3, #4]	@ D.5102, D.5099_53->CFGR
+1069:cmsis/device/system_stm32f10x.c ****     RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;    
+ 503              		.loc 1 1069 0
+ 504 0370 4FF48053 		mov	r3, #4096	@ D.5103,
+ 505 0374 C4F20203 		movt	r3, 16386	@ D.5103,
+ 506 0378 4FF48052 		mov	r2, #4096	@ D.5104,
+ 507 037c C4F20202 		movt	r2, 16386	@ D.5104,
+ 508 0380 5268     		ldr	r2, [r2, #4]	@ D.5105, D.5104_58->CFGR
+ 509 0382 42F00202 		orr	r2, r2, #2	@ D.5106, D.5105,
+ 510 0386 5A60     		str	r2, [r3, #4]	@ D.5106, D.5103_57->CFGR
+1070:cmsis/device/system_stm32f10x.c **** 
+1071:cmsis/device/system_stm32f10x.c ****     /* Wait till PLL is used as system clock source */
+1072:cmsis/device/system_stm32f10x.c ****     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)0x08)
+ 511              		.loc 1 1072 0
+ 512 0388 00BF     		nop
+ 513              	.L20:
+ 514              		.loc 1 1072 0 is_stmt 0 discriminator 1
+ 515 038a 4FF48053 		mov	r3, #4096	@ D.5107,
+ 516 038e C4F20203 		movt	r3, 16386	@ D.5107,
+ 517 0392 5B68     		ldr	r3, [r3, #4]	@ D.5108, D.5107_61->CFGR
+ 518 0394 03F00C03 		and	r3, r3, #12	@ D.5109, D.5108,
+ 519 0398 082B     		cmp	r3, #8	@ D.5109,
+ 520 039a F6D1     		bne	.L20	@,
+ 521              	.L13:
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 29
+
+
+1073:cmsis/device/system_stm32f10x.c ****     {
+1074:cmsis/device/system_stm32f10x.c ****     }
+1075:cmsis/device/system_stm32f10x.c ****   }
+1076:cmsis/device/system_stm32f10x.c ****   else
+1077:cmsis/device/system_stm32f10x.c ****   { /* If HSE fails to start-up, the application will have wrong clock 
+1078:cmsis/device/system_stm32f10x.c ****          configuration. User can add here some code to deal with this error */
+1079:cmsis/device/system_stm32f10x.c ****   }
+1080:cmsis/device/system_stm32f10x.c **** }
+ 522              		.loc 1 1080 0 is_stmt 1
+ 523 039c 07F10C07 		add	r7, r7, #12	@,,
+ 524 03a0 BD46     		mov	sp, r7
+ 525 03a2 80BC     		pop	{r7}
+ 526 03a4 7047     		bx	lr
+ 527              		.cfi_endproc
+ 528              	.LFE58:
+ 529              		.size	SetSysClockTo72, .-SetSysClockTo72
+ 530              	.Letext0:
+ 531              		.file 2 "/usr/local/yagarto-4.7.1/bin/../lib/gcc/arm-none-eabi/4.7.1/../../../../arm-none-eabi/sys
+ 532              		.file 3 "./cmsis/core/core_cm3.h"
+ 533              		.file 4 "cmsis/device/stm32f10x.h"
+ 534 03a6 00BF     		.section	.debug_info,"",%progbits
+ 535              	.Ldebug_info0:
+ 536 0000 B4040000 		.4byte	0x4b4
+ 537 0004 0200     		.2byte	0x2
+ 538 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 539 000a 04       		.byte	0x4
+ 540 000b 01       		.uleb128 0x1
+ 541 000c 39010000 		.4byte	.LASF51
+ 542 0010 01       		.byte	0x1
+ 543 0011 FD010000 		.4byte	.LASF52
+ 544 0015 97010000 		.4byte	.LASF53
+ 545 0019 00000000 		.4byte	.Ltext0
+ 546 001d A6030000 		.4byte	.Letext0
+ 547 0021 00000000 		.4byte	.Ldebug_line0
+ 548 0025 02       		.uleb128 0x2
+ 549 0026 01       		.byte	0x1
+ 550 0027 06       		.byte	0x6
+ 551 0028 F7000000 		.4byte	.LASF0
+ 552 002c 03       		.uleb128 0x3
+ 553 002d 40000000 		.4byte	.LASF3
+ 554 0031 02       		.byte	0x2
+ 555 0032 2A       		.byte	0x2a
+ 556 0033 37000000 		.4byte	0x37
+ 557 0037 02       		.uleb128 0x2
+ 558 0038 01       		.byte	0x1
+ 559 0039 08       		.byte	0x8
+ 560 003a C3000000 		.4byte	.LASF1
+ 561 003e 02       		.uleb128 0x2
+ 562 003f 02       		.byte	0x2
+ 563 0040 05       		.byte	0x5
+ 564 0041 50000000 		.4byte	.LASF2
+ 565 0045 03       		.uleb128 0x3
+ 566 0046 30010000 		.4byte	.LASF4
+ 567 004a 02       		.byte	0x2
+ 568 004b 36       		.byte	0x36
+ 569 004c 50000000 		.4byte	0x50
+ 570 0050 02       		.uleb128 0x2
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 30
+
+
+ 571 0051 02       		.byte	0x2
+ 572 0052 07       		.byte	0x7
+ 573 0053 72010000 		.4byte	.LASF5
+ 574 0057 03       		.uleb128 0x3
+ 575 0058 8A010000 		.4byte	.LASF6
+ 576 005c 02       		.byte	0x2
+ 577 005d 4F       		.byte	0x4f
+ 578 005e 62000000 		.4byte	0x62
+ 579 0062 02       		.uleb128 0x2
+ 580 0063 04       		.byte	0x4
+ 581 0064 05       		.byte	0x5
+ 582 0065 7A000000 		.4byte	.LASF7
+ 583 0069 03       		.uleb128 0x3
+ 584 006a 1A010000 		.4byte	.LASF8
+ 585 006e 02       		.byte	0x2
+ 586 006f 50       		.byte	0x50
+ 587 0070 74000000 		.4byte	0x74
+ 588 0074 02       		.uleb128 0x2
+ 589 0075 04       		.byte	0x4
+ 590 0076 07       		.byte	0x7
+ 591 0077 1D020000 		.4byte	.LASF9
+ 592 007b 02       		.uleb128 0x2
+ 593 007c 08       		.byte	0x8
+ 594 007d 05       		.byte	0x5
+ 595 007e 67000000 		.4byte	.LASF10
+ 596 0082 02       		.uleb128 0x2
+ 597 0083 08       		.byte	0x8
+ 598 0084 07       		.byte	0x7
+ 599 0085 03010000 		.4byte	.LASF11
+ 600 0089 04       		.uleb128 0x4
+ 601 008a 04       		.byte	0x4
+ 602 008b 05       		.byte	0x5
+ 603 008c 696E7400 		.ascii	"int\000"
+ 604 0090 02       		.uleb128 0x2
+ 605 0091 04       		.byte	0x4
+ 606 0092 07       		.byte	0x7
+ 607 0093 23010000 		.4byte	.LASF12
+ 608 0097 02       		.uleb128 0x2
+ 609 0098 04       		.byte	0x4
+ 610 0099 07       		.byte	0x7
+ 611 009a 0E000000 		.4byte	.LASF13
+ 612 009e 05       		.uleb128 0x5
+ 613 009f 69000000 		.4byte	0x69
+ 614 00a3 06       		.uleb128 0x6
+ 615 00a4 8C       		.byte	0x8c
+ 616 00a5 03       		.byte	0x3
+ 617 00a6 3201     		.2byte	0x132
+ 618 00a8 E9010000 		.4byte	0x1e9
+ 619 00ac 07       		.uleb128 0x7
+ 620 00ad 26000000 		.4byte	.LASF14
+ 621 00b1 03       		.byte	0x3
+ 622 00b2 3401     		.2byte	0x134
+ 623 00b4 E9010000 		.4byte	0x1e9
+ 624 00b8 02       		.byte	0x2
+ 625 00b9 23       		.byte	0x23
+ 626 00ba 00       		.uleb128 0
+ 627 00bb 07       		.uleb128 0x7
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 31
+
+
+ 628 00bc 5A000000 		.4byte	.LASF15
+ 629 00c0 03       		.byte	0x3
+ 630 00c1 3501     		.2byte	0x135
+ 631 00c3 9E000000 		.4byte	0x9e
+ 632 00c7 02       		.byte	0x2
+ 633 00c8 23       		.byte	0x23
+ 634 00c9 04       		.uleb128 0x4
+ 635 00ca 07       		.uleb128 0x7
+ 636 00cb 85010000 		.4byte	.LASF16
+ 637 00cf 03       		.byte	0x3
+ 638 00d0 3601     		.2byte	0x136
+ 639 00d2 9E000000 		.4byte	0x9e
+ 640 00d6 02       		.byte	0x2
+ 641 00d7 23       		.byte	0x23
+ 642 00d8 08       		.uleb128 0x8
+ 643 00d9 07       		.uleb128 0x7
+ 644 00da D1000000 		.4byte	.LASF17
+ 645 00de 03       		.byte	0x3
+ 646 00df 3701     		.2byte	0x137
+ 647 00e1 9E000000 		.4byte	0x9e
+ 648 00e5 02       		.byte	0x2
+ 649 00e6 23       		.byte	0x23
+ 650 00e7 0C       		.uleb128 0xc
+ 651 00e8 08       		.uleb128 0x8
+ 652 00e9 53435200 		.ascii	"SCR\000"
+ 653 00ed 03       		.byte	0x3
+ 654 00ee 3801     		.2byte	0x138
+ 655 00f0 9E000000 		.4byte	0x9e
+ 656 00f4 02       		.byte	0x2
+ 657 00f5 23       		.byte	0x23
+ 658 00f6 10       		.uleb128 0x10
+ 659 00f7 08       		.uleb128 0x8
+ 660 00f8 43435200 		.ascii	"CCR\000"
+ 661 00fc 03       		.byte	0x3
+ 662 00fd 3901     		.2byte	0x139
+ 663 00ff 9E000000 		.4byte	0x9e
+ 664 0103 02       		.byte	0x2
+ 665 0104 23       		.byte	0x23
+ 666 0105 14       		.uleb128 0x14
+ 667 0106 08       		.uleb128 0x8
+ 668 0107 53485000 		.ascii	"SHP\000"
+ 669 010b 03       		.byte	0x3
+ 670 010c 3A01     		.2byte	0x13a
+ 671 010e FE010000 		.4byte	0x1fe
+ 672 0112 02       		.byte	0x2
+ 673 0113 23       		.byte	0x23
+ 674 0114 18       		.uleb128 0x18
+ 675 0115 07       		.uleb128 0x7
+ 676 0116 45010000 		.4byte	.LASF18
+ 677 011a 03       		.byte	0x3
+ 678 011b 3B01     		.2byte	0x13b
+ 679 011d 9E000000 		.4byte	0x9e
+ 680 0121 02       		.byte	0x2
+ 681 0122 23       		.byte	0x23
+ 682 0123 24       		.uleb128 0x24
+ 683 0124 07       		.uleb128 0x7
+ 684 0125 A4000000 		.4byte	.LASF19
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 32
+
+
+ 685 0129 03       		.byte	0x3
+ 686 012a 3C01     		.2byte	0x13c
+ 687 012c 9E000000 		.4byte	0x9e
+ 688 0130 02       		.byte	0x2
+ 689 0131 23       		.byte	0x23
+ 690 0132 28       		.uleb128 0x28
+ 691 0133 07       		.uleb128 0x7
+ 692 0134 D9010000 		.4byte	.LASF20
+ 693 0138 03       		.byte	0x3
+ 694 0139 3D01     		.2byte	0x13d
+ 695 013b 9E000000 		.4byte	0x9e
+ 696 013f 02       		.byte	0x2
+ 697 0140 23       		.byte	0x23
+ 698 0141 2C       		.uleb128 0x2c
+ 699 0142 07       		.uleb128 0x7
+ 700 0143 92010000 		.4byte	.LASF21
+ 701 0147 03       		.byte	0x3
+ 702 0148 3E01     		.2byte	0x13e
+ 703 014a 9E000000 		.4byte	0x9e
+ 704 014e 02       		.byte	0x2
+ 705 014f 23       		.byte	0x23
+ 706 0150 30       		.uleb128 0x30
+ 707 0151 07       		.uleb128 0x7
+ 708 0152 61010000 		.4byte	.LASF22
+ 709 0156 03       		.byte	0x3
+ 710 0157 3F01     		.2byte	0x13f
+ 711 0159 9E000000 		.4byte	0x9e
+ 712 015d 02       		.byte	0x2
+ 713 015e 23       		.byte	0x23
+ 714 015f 34       		.uleb128 0x34
+ 715 0160 07       		.uleb128 0x7
+ 716 0161 75000000 		.4byte	.LASF23
+ 717 0165 03       		.byte	0x3
+ 718 0166 4001     		.2byte	0x140
+ 719 0168 9E000000 		.4byte	0x9e
+ 720 016c 02       		.byte	0x2
+ 721 016d 23       		.byte	0x23
+ 722 016e 38       		.uleb128 0x38
+ 723 016f 07       		.uleb128 0x7
+ 724 0170 3D020000 		.4byte	.LASF24
+ 725 0174 03       		.byte	0x3
+ 726 0175 4101     		.2byte	0x141
+ 727 0177 9E000000 		.4byte	0x9e
+ 728 017b 02       		.byte	0x2
+ 729 017c 23       		.byte	0x23
+ 730 017d 3C       		.uleb128 0x3c
+ 731 017e 08       		.uleb128 0x8
+ 732 017f 50465200 		.ascii	"PFR\000"
+ 733 0183 03       		.byte	0x3
+ 734 0184 4201     		.2byte	0x142
+ 735 0186 13020000 		.4byte	0x213
+ 736 018a 02       		.byte	0x2
+ 737 018b 23       		.byte	0x23
+ 738 018c 40       		.uleb128 0x40
+ 739 018d 08       		.uleb128 0x8
+ 740 018e 44465200 		.ascii	"DFR\000"
+ 741 0192 03       		.byte	0x3
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 33
+
+
+ 742 0193 4301     		.2byte	0x143
+ 743 0195 E9010000 		.4byte	0x1e9
+ 744 0199 02       		.byte	0x2
+ 745 019a 23       		.byte	0x23
+ 746 019b 48       		.uleb128 0x48
+ 747 019c 08       		.uleb128 0x8
+ 748 019d 41445200 		.ascii	"ADR\000"
+ 749 01a1 03       		.byte	0x3
+ 750 01a2 4401     		.2byte	0x144
+ 751 01a4 E9010000 		.4byte	0x1e9
+ 752 01a8 02       		.byte	0x2
+ 753 01a9 23       		.byte	0x23
+ 754 01aa 4C       		.uleb128 0x4c
+ 755 01ab 07       		.uleb128 0x7
+ 756 01ac DE010000 		.4byte	.LASF25
+ 757 01b0 03       		.byte	0x3
+ 758 01b1 4501     		.2byte	0x145
+ 759 01b3 2D020000 		.4byte	0x22d
+ 760 01b7 02       		.byte	0x2
+ 761 01b8 23       		.byte	0x23
+ 762 01b9 50       		.uleb128 0x50
+ 763 01ba 07       		.uleb128 0x7
+ 764 01bb 09000000 		.4byte	.LASF26
+ 765 01bf 03       		.byte	0x3
+ 766 01c0 4601     		.2byte	0x146
+ 767 01c2 47020000 		.4byte	0x247
+ 768 01c6 02       		.byte	0x2
+ 769 01c7 23       		.byte	0x23
+ 770 01c8 60       		.uleb128 0x60
+ 771 01c9 07       		.uleb128 0x7
+ 772 01ca 31000000 		.4byte	.LASF27
+ 773 01ce 03       		.byte	0x3
+ 774 01cf 4701     		.2byte	0x147
+ 775 01d1 37020000 		.4byte	0x237
+ 776 01d5 02       		.byte	0x2
+ 777 01d6 23       		.byte	0x23
+ 778 01d7 74       		.uleb128 0x74
+ 779 01d8 07       		.uleb128 0x7
+ 780 01d9 66020000 		.4byte	.LASF28
+ 781 01dd 03       		.byte	0x3
+ 782 01de 4801     		.2byte	0x148
+ 783 01e0 9E000000 		.4byte	0x9e
+ 784 01e4 03       		.byte	0x3
+ 785 01e5 23       		.byte	0x23
+ 786 01e6 8801     		.uleb128 0x88
+ 787 01e8 00       		.byte	0
+ 788 01e9 09       		.uleb128 0x9
+ 789 01ea 9E000000 		.4byte	0x9e
+ 790 01ee 0A       		.uleb128 0xa
+ 791 01ef 2C000000 		.4byte	0x2c
+ 792 01f3 FE010000 		.4byte	0x1fe
+ 793 01f7 0B       		.uleb128 0xb
+ 794 01f8 97000000 		.4byte	0x97
+ 795 01fc 0B       		.byte	0xb
+ 796 01fd 00       		.byte	0
+ 797 01fe 05       		.uleb128 0x5
+ 798 01ff EE010000 		.4byte	0x1ee
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 34
+
+
+ 799 0203 0A       		.uleb128 0xa
+ 800 0204 69000000 		.4byte	0x69
+ 801 0208 13020000 		.4byte	0x213
+ 802 020c 0B       		.uleb128 0xb
+ 803 020d 97000000 		.4byte	0x97
+ 804 0211 01       		.byte	0x1
+ 805 0212 00       		.byte	0
+ 806 0213 09       		.uleb128 0x9
+ 807 0214 18020000 		.4byte	0x218
+ 808 0218 05       		.uleb128 0x5
+ 809 0219 03020000 		.4byte	0x203
+ 810 021d 0A       		.uleb128 0xa
+ 811 021e 69000000 		.4byte	0x69
+ 812 0222 2D020000 		.4byte	0x22d
+ 813 0226 0B       		.uleb128 0xb
+ 814 0227 97000000 		.4byte	0x97
+ 815 022b 03       		.byte	0x3
+ 816 022c 00       		.byte	0
+ 817 022d 09       		.uleb128 0x9
+ 818 022e 32020000 		.4byte	0x232
+ 819 0232 05       		.uleb128 0x5
+ 820 0233 1D020000 		.4byte	0x21d
+ 821 0237 0A       		.uleb128 0xa
+ 822 0238 69000000 		.4byte	0x69
+ 823 023c 47020000 		.4byte	0x247
+ 824 0240 0B       		.uleb128 0xb
+ 825 0241 97000000 		.4byte	0x97
+ 826 0245 04       		.byte	0x4
+ 827 0246 00       		.byte	0
+ 828 0247 09       		.uleb128 0x9
+ 829 0248 4C020000 		.4byte	0x24c
+ 830 024c 05       		.uleb128 0x5
+ 831 024d 37020000 		.4byte	0x237
+ 832 0251 0C       		.uleb128 0xc
+ 833 0252 D7000000 		.4byte	.LASF29
+ 834 0256 03       		.byte	0x3
+ 835 0257 4901     		.2byte	0x149
+ 836 0259 A3000000 		.4byte	0xa3
+ 837 025d 05       		.uleb128 0x5
+ 838 025e 57000000 		.4byte	0x57
+ 839 0262 0D       		.uleb128 0xd
+ 840 0263 01       		.byte	0x1
+ 841 0264 04       		.byte	0x4
+ 842 0265 0702     		.2byte	0x207
+ 843 0267 78020000 		.4byte	0x278
+ 844 026b 0E       		.uleb128 0xe
+ 845 026c 37020000 		.4byte	.LASF30
+ 846 0270 00       		.sleb128 0
+ 847 0271 0F       		.uleb128 0xf
+ 848 0272 53455400 		.ascii	"SET\000"
+ 849 0276 01       		.sleb128 1
+ 850 0277 00       		.byte	0
+ 851 0278 06       		.uleb128 0x6
+ 852 0279 24       		.byte	0x24
+ 853 027a 04       		.byte	0x4
+ 854 027b 8503     		.2byte	0x385
+ 855 027d 06030000 		.4byte	0x306
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 35
+
+
+ 856 0281 08       		.uleb128 0x8
+ 857 0282 41435200 		.ascii	"ACR\000"
+ 858 0286 04       		.byte	0x4
+ 859 0287 8703     		.2byte	0x387
+ 860 0289 9E000000 		.4byte	0x9e
+ 861 028d 02       		.byte	0x2
+ 862 028e 23       		.byte	0x23
+ 863 028f 00       		.uleb128 0
+ 864 0290 07       		.uleb128 0x7
+ 865 0291 2C000000 		.4byte	.LASF31
+ 866 0295 04       		.byte	0x4
+ 867 0296 8803     		.2byte	0x388
+ 868 0298 9E000000 		.4byte	0x9e
+ 869 029c 02       		.byte	0x2
+ 870 029d 23       		.byte	0x23
+ 871 029e 04       		.uleb128 0x4
+ 872 029f 07       		.uleb128 0x7
+ 873 02a0 5F000000 		.4byte	.LASF32
+ 874 02a4 04       		.byte	0x4
+ 875 02a5 8903     		.2byte	0x389
+ 876 02a7 9E000000 		.4byte	0x9e
+ 877 02ab 02       		.byte	0x2
+ 878 02ac 23       		.byte	0x23
+ 879 02ad 08       		.uleb128 0x8
+ 880 02ae 08       		.uleb128 0x8
+ 881 02af 535200   		.ascii	"SR\000"
+ 882 02b2 04       		.byte	0x4
+ 883 02b3 8A03     		.2byte	0x38a
+ 884 02b5 9E000000 		.4byte	0x9e
+ 885 02b9 02       		.byte	0x2
+ 886 02ba 23       		.byte	0x23
+ 887 02bb 0C       		.uleb128 0xc
+ 888 02bc 08       		.uleb128 0x8
+ 889 02bd 435200   		.ascii	"CR\000"
+ 890 02c0 04       		.byte	0x4
+ 891 02c1 8B03     		.2byte	0x38b
+ 892 02c3 9E000000 		.4byte	0x9e
+ 893 02c7 02       		.byte	0x2
+ 894 02c8 23       		.byte	0x23
+ 895 02c9 10       		.uleb128 0x10
+ 896 02ca 08       		.uleb128 0x8
+ 897 02cb 415200   		.ascii	"AR\000"
+ 898 02ce 04       		.byte	0x4
+ 899 02cf 8C03     		.2byte	0x38c
+ 900 02d1 9E000000 		.4byte	0x9e
+ 901 02d5 02       		.byte	0x2
+ 902 02d6 23       		.byte	0x23
+ 903 02d7 14       		.uleb128 0x14
+ 904 02d8 07       		.uleb128 0x7
+ 905 02d9 42020000 		.4byte	.LASF33
+ 906 02dd 04       		.byte	0x4
+ 907 02de 8D03     		.2byte	0x38d
+ 908 02e0 9E000000 		.4byte	0x9e
+ 909 02e4 02       		.byte	0x2
+ 910 02e5 23       		.byte	0x23
+ 911 02e6 18       		.uleb128 0x18
+ 912 02e7 08       		.uleb128 0x8
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 36
+
+
+ 913 02e8 4F425200 		.ascii	"OBR\000"
+ 914 02ec 04       		.byte	0x4
+ 915 02ed 8E03     		.2byte	0x38e
+ 916 02ef 9E000000 		.4byte	0x9e
+ 917 02f3 02       		.byte	0x2
+ 918 02f4 23       		.byte	0x23
+ 919 02f5 1C       		.uleb128 0x1c
+ 920 02f6 07       		.uleb128 0x7
+ 921 02f7 9F000000 		.4byte	.LASF34
+ 922 02fb 04       		.byte	0x4
+ 923 02fc 8F03     		.2byte	0x38f
+ 924 02fe 9E000000 		.4byte	0x9e
+ 925 0302 02       		.byte	0x2
+ 926 0303 23       		.byte	0x23
+ 927 0304 20       		.uleb128 0x20
+ 928 0305 00       		.byte	0
+ 929 0306 0C       		.uleb128 0xc
+ 930 0307 4B020000 		.4byte	.LASF35
+ 931 030b 04       		.byte	0x4
+ 932 030c 9803     		.2byte	0x398
+ 933 030e 78020000 		.4byte	0x278
+ 934 0312 06       		.uleb128 0x6
+ 935 0313 28       		.byte	0x28
+ 936 0314 04       		.byte	0x4
+ 937 0315 3404     		.2byte	0x434
+ 938 0317 B1030000 		.4byte	0x3b1
+ 939 031b 08       		.uleb128 0x8
+ 940 031c 435200   		.ascii	"CR\000"
+ 941 031f 04       		.byte	0x4
+ 942 0320 3604     		.2byte	0x436
+ 943 0322 9E000000 		.4byte	0x9e
+ 944 0326 02       		.byte	0x2
+ 945 0327 23       		.byte	0x23
+ 946 0328 00       		.uleb128 0
+ 947 0329 07       		.uleb128 0x7
+ 948 032a 3B000000 		.4byte	.LASF36
+ 949 032e 04       		.byte	0x4
+ 950 032f 3704     		.2byte	0x437
+ 951 0331 9E000000 		.4byte	0x9e
+ 952 0335 02       		.byte	0x2
+ 953 0336 23       		.byte	0x23
+ 954 0337 04       		.uleb128 0x4
+ 955 0338 08       		.uleb128 0x8
+ 956 0339 43495200 		.ascii	"CIR\000"
+ 957 033d 04       		.byte	0x4
+ 958 033e 3804     		.2byte	0x438
+ 959 0340 9E000000 		.4byte	0x9e
+ 960 0344 02       		.byte	0x2
+ 961 0345 23       		.byte	0x23
+ 962 0346 08       		.uleb128 0x8
+ 963 0347 07       		.uleb128 0x7
+ 964 0348 96000000 		.4byte	.LASF37
+ 965 034c 04       		.byte	0x4
+ 966 034d 3904     		.2byte	0x439
+ 967 034f 9E000000 		.4byte	0x9e
+ 968 0353 02       		.byte	0x2
+ 969 0354 23       		.byte	0x23
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 37
+
+
+ 970 0355 0C       		.uleb128 0xc
+ 971 0356 07       		.uleb128 0x7
+ 972 0357 00000000 		.4byte	.LASF38
+ 973 035b 04       		.byte	0x4
+ 974 035c 3A04     		.2byte	0x43a
+ 975 035e 9E000000 		.4byte	0x9e
+ 976 0362 02       		.byte	0x2
+ 977 0363 23       		.byte	0x23
+ 978 0364 10       		.uleb128 0x10
+ 979 0365 07       		.uleb128 0x7
+ 980 0366 8F000000 		.4byte	.LASF39
+ 981 036a 04       		.byte	0x4
+ 982 036b 3B04     		.2byte	0x43b
+ 983 036d 9E000000 		.4byte	0x9e
+ 984 0371 02       		.byte	0x2
+ 985 0372 23       		.byte	0x23
+ 986 0373 14       		.uleb128 0x14
+ 987 0374 07       		.uleb128 0x7
+ 988 0375 E0000000 		.4byte	.LASF40
+ 989 0379 04       		.byte	0x4
+ 990 037a 3C04     		.2byte	0x43c
+ 991 037c 9E000000 		.4byte	0x9e
+ 992 0380 02       		.byte	0x2
+ 993 0381 23       		.byte	0x23
+ 994 0382 18       		.uleb128 0x18
+ 995 0383 07       		.uleb128 0x7
+ 996 0384 48000000 		.4byte	.LASF41
+ 997 0388 04       		.byte	0x4
+ 998 0389 3D04     		.2byte	0x43d
+ 999 038b 9E000000 		.4byte	0x9e
+ 1000 038f 02       		.byte	0x2
+ 1001 0390 23       		.byte	0x23
+ 1002 0391 1C       		.uleb128 0x1c
+ 1003 0392 07       		.uleb128 0x7
+ 1004 0393 17000000 		.4byte	.LASF42
+ 1005 0397 04       		.byte	0x4
+ 1006 0398 3E04     		.2byte	0x43e
+ 1007 039a 9E000000 		.4byte	0x9e
+ 1008 039e 02       		.byte	0x2
+ 1009 039f 23       		.byte	0x23
+ 1010 03a0 20       		.uleb128 0x20
+ 1011 03a1 08       		.uleb128 0x8
+ 1012 03a2 43535200 		.ascii	"CSR\000"
+ 1013 03a6 04       		.byte	0x4
+ 1014 03a7 3F04     		.2byte	0x43f
+ 1015 03a9 9E000000 		.4byte	0x9e
+ 1016 03ad 02       		.byte	0x2
+ 1017 03ae 23       		.byte	0x23
+ 1018 03af 24       		.uleb128 0x24
+ 1019 03b0 00       		.byte	0
+ 1020 03b1 0C       		.uleb128 0xc
+ 1021 03b2 83000000 		.4byte	.LASF43
+ 1022 03b6 04       		.byte	0x4
+ 1023 03b7 4A04     		.2byte	0x44a
+ 1024 03b9 12030000 		.4byte	0x312
+ 1025 03bd 10       		.uleb128 0x10
+ 1026 03be 01       		.byte	0x1
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 38
+
+
+ 1027 03bf 67010000 		.4byte	.LASF54
+ 1028 03c3 01       		.byte	0x1
+ 1029 03c4 D4       		.byte	0xd4
+ 1030 03c5 01       		.byte	0x1
+ 1031 03c6 00000000 		.4byte	.LFB55
+ 1032 03ca A8000000 		.4byte	.LFE55
+ 1033 03ce 00000000 		.4byte	.LLST0
+ 1034 03d2 01       		.byte	0x1
+ 1035 03d3 11       		.uleb128 0x11
+ 1036 03d4 01       		.byte	0x1
+ 1037 03d5 4B010000 		.4byte	.LASF55
+ 1038 03d9 01       		.byte	0x1
+ 1039 03da 3201     		.2byte	0x132
+ 1040 03dc 01       		.byte	0x1
+ 1041 03dd A8000000 		.4byte	.LFB56
+ 1042 03e1 F0010000 		.4byte	.LFE56
+ 1043 03e5 2C000000 		.4byte	.LLST1
+ 1044 03e9 01       		.byte	0x1
+ 1045 03ea 1C040000 		.4byte	0x41c
+ 1046 03ee 12       		.uleb128 0x12
+ 1047 03ef 746D7000 		.ascii	"tmp\000"
+ 1048 03f3 01       		.byte	0x1
+ 1049 03f4 3401     		.2byte	0x134
+ 1050 03f6 69000000 		.4byte	0x69
+ 1051 03fa 02       		.byte	0x2
+ 1052 03fb 91       		.byte	0x91
+ 1053 03fc 74       		.sleb128 -12
+ 1054 03fd 13       		.uleb128 0x13
+ 1055 03fe 2F020000 		.4byte	.LASF44
+ 1056 0402 01       		.byte	0x1
+ 1057 0403 3401     		.2byte	0x134
+ 1058 0405 69000000 		.4byte	0x69
+ 1059 0409 02       		.byte	0x2
+ 1060 040a 91       		.byte	0x91
+ 1061 040b 70       		.sleb128 -16
+ 1062 040c 13       		.uleb128 0x13
+ 1063 040d B9000000 		.4byte	.LASF45
+ 1064 0411 01       		.byte	0x1
+ 1065 0412 3401     		.2byte	0x134
+ 1066 0414 69000000 		.4byte	0x69
+ 1067 0418 02       		.byte	0x2
+ 1068 0419 91       		.byte	0x91
+ 1069 041a 6C       		.sleb128 -20
+ 1070 041b 00       		.byte	0
+ 1071 041c 14       		.uleb128 0x14
+ 1072 041d F1010000 		.4byte	.LASF56
+ 1073 0421 01       		.byte	0x1
+ 1074 0422 A301     		.2byte	0x1a3
+ 1075 0424 01       		.byte	0x1
+ 1076 0425 F0010000 		.4byte	.LFB57
+ 1077 0429 FA010000 		.4byte	.LFE57
+ 1078 042d 64000000 		.4byte	.LLST2
+ 1079 0431 01       		.byte	0x1
+ 1080 0432 15       		.uleb128 0x15
+ 1081 0433 A9000000 		.4byte	.LASF57
+ 1082 0437 01       		.byte	0x1
+ 1083 0438 DB03     		.2byte	0x3db
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 39
+
+
+ 1084 043a 01       		.byte	0x1
+ 1085 043b FC010000 		.4byte	.LFB58
+ 1086 043f A6030000 		.4byte	.LFE58
+ 1087 0443 90000000 		.4byte	.LLST3
+ 1088 0447 01       		.byte	0x1
+ 1089 0448 6B040000 		.4byte	0x46b
+ 1090 044c 13       		.uleb128 0x13
+ 1091 044d E8000000 		.4byte	.LASF46
+ 1092 0451 01       		.byte	0x1
+ 1093 0452 DD03     		.2byte	0x3dd
+ 1094 0454 9E000000 		.4byte	0x9e
+ 1095 0458 02       		.byte	0x2
+ 1096 0459 91       		.byte	0x91
+ 1097 045a 74       		.sleb128 -12
+ 1098 045b 13       		.uleb128 0x13
+ 1099 045c 1C000000 		.4byte	.LASF47
+ 1100 0460 01       		.byte	0x1
+ 1101 0461 DD03     		.2byte	0x3dd
+ 1102 0463 9E000000 		.4byte	0x9e
+ 1103 0467 02       		.byte	0x2
+ 1104 0468 91       		.byte	0x91
+ 1105 0469 70       		.sleb128 -16
+ 1106 046a 00       		.byte	0
+ 1107 046b 16       		.uleb128 0x16
+ 1108 046c 59020000 		.4byte	.LASF48
+ 1109 0470 03       		.byte	0x3
+ 1110 0471 8C04     		.2byte	0x48c
+ 1111 0473 5D020000 		.4byte	0x25d
+ 1112 0477 01       		.byte	0x1
+ 1113 0478 01       		.byte	0x1
+ 1114 0479 17       		.uleb128 0x17
+ 1115 047a C9010000 		.4byte	.LASF49
+ 1116 047e 01       		.byte	0x1
+ 1117 047f A2       		.byte	0xa2
+ 1118 0480 69000000 		.4byte	0x69
+ 1119 0484 01       		.byte	0x1
+ 1120 0485 05       		.byte	0x5
+ 1121 0486 03       		.byte	0x3
+ 1122 0487 00000000 		.4byte	SystemCoreClock
+ 1123 048b 0A       		.uleb128 0xa
+ 1124 048c 2C000000 		.4byte	0x2c
+ 1125 0490 9B040000 		.4byte	0x49b
+ 1126 0494 0B       		.uleb128 0xb
+ 1127 0495 97000000 		.4byte	0x97
+ 1128 0499 0F       		.byte	0xf
+ 1129 049a 00       		.byte	0
+ 1130 049b 17       		.uleb128 0x17
+ 1131 049c E3010000 		.4byte	.LASF50
+ 1132 04a0 01       		.byte	0x1
+ 1133 04a1 A7       		.byte	0xa7
+ 1134 04a2 AD040000 		.4byte	0x4ad
+ 1135 04a6 01       		.byte	0x1
+ 1136 04a7 05       		.byte	0x5
+ 1137 04a8 03       		.byte	0x3
+ 1138 04a9 00000000 		.4byte	AHBPrescTable
+ 1139 04ad 09       		.uleb128 0x9
+ 1140 04ae B2040000 		.4byte	0x4b2
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 40
+
+
+ 1141 04b2 05       		.uleb128 0x5
+ 1142 04b3 8B040000 		.4byte	0x48b
+ 1143 04b7 00       		.byte	0
+ 1144              		.section	.debug_abbrev,"",%progbits
+ 1145              	.Ldebug_abbrev0:
+ 1146 0000 01       		.uleb128 0x1
+ 1147 0001 11       		.uleb128 0x11
+ 1148 0002 01       		.byte	0x1
+ 1149 0003 25       		.uleb128 0x25
+ 1150 0004 0E       		.uleb128 0xe
+ 1151 0005 13       		.uleb128 0x13
+ 1152 0006 0B       		.uleb128 0xb
+ 1153 0007 03       		.uleb128 0x3
+ 1154 0008 0E       		.uleb128 0xe
+ 1155 0009 1B       		.uleb128 0x1b
+ 1156 000a 0E       		.uleb128 0xe
+ 1157 000b 11       		.uleb128 0x11
+ 1158 000c 01       		.uleb128 0x1
+ 1159 000d 12       		.uleb128 0x12
+ 1160 000e 01       		.uleb128 0x1
+ 1161 000f 10       		.uleb128 0x10
+ 1162 0010 06       		.uleb128 0x6
+ 1163 0011 00       		.byte	0
+ 1164 0012 00       		.byte	0
+ 1165 0013 02       		.uleb128 0x2
+ 1166 0014 24       		.uleb128 0x24
+ 1167 0015 00       		.byte	0
+ 1168 0016 0B       		.uleb128 0xb
+ 1169 0017 0B       		.uleb128 0xb
+ 1170 0018 3E       		.uleb128 0x3e
+ 1171 0019 0B       		.uleb128 0xb
+ 1172 001a 03       		.uleb128 0x3
+ 1173 001b 0E       		.uleb128 0xe
+ 1174 001c 00       		.byte	0
+ 1175 001d 00       		.byte	0
+ 1176 001e 03       		.uleb128 0x3
+ 1177 001f 16       		.uleb128 0x16
+ 1178 0020 00       		.byte	0
+ 1179 0021 03       		.uleb128 0x3
+ 1180 0022 0E       		.uleb128 0xe
+ 1181 0023 3A       		.uleb128 0x3a
+ 1182 0024 0B       		.uleb128 0xb
+ 1183 0025 3B       		.uleb128 0x3b
+ 1184 0026 0B       		.uleb128 0xb
+ 1185 0027 49       		.uleb128 0x49
+ 1186 0028 13       		.uleb128 0x13
+ 1187 0029 00       		.byte	0
+ 1188 002a 00       		.byte	0
+ 1189 002b 04       		.uleb128 0x4
+ 1190 002c 24       		.uleb128 0x24
+ 1191 002d 00       		.byte	0
+ 1192 002e 0B       		.uleb128 0xb
+ 1193 002f 0B       		.uleb128 0xb
+ 1194 0030 3E       		.uleb128 0x3e
+ 1195 0031 0B       		.uleb128 0xb
+ 1196 0032 03       		.uleb128 0x3
+ 1197 0033 08       		.uleb128 0x8
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 41
+
+
+ 1198 0034 00       		.byte	0
+ 1199 0035 00       		.byte	0
+ 1200 0036 05       		.uleb128 0x5
+ 1201 0037 35       		.uleb128 0x35
+ 1202 0038 00       		.byte	0
+ 1203 0039 49       		.uleb128 0x49
+ 1204 003a 13       		.uleb128 0x13
+ 1205 003b 00       		.byte	0
+ 1206 003c 00       		.byte	0
+ 1207 003d 06       		.uleb128 0x6
+ 1208 003e 13       		.uleb128 0x13
+ 1209 003f 01       		.byte	0x1
+ 1210 0040 0B       		.uleb128 0xb
+ 1211 0041 0B       		.uleb128 0xb
+ 1212 0042 3A       		.uleb128 0x3a
+ 1213 0043 0B       		.uleb128 0xb
+ 1214 0044 3B       		.uleb128 0x3b
+ 1215 0045 05       		.uleb128 0x5
+ 1216 0046 01       		.uleb128 0x1
+ 1217 0047 13       		.uleb128 0x13
+ 1218 0048 00       		.byte	0
+ 1219 0049 00       		.byte	0
+ 1220 004a 07       		.uleb128 0x7
+ 1221 004b 0D       		.uleb128 0xd
+ 1222 004c 00       		.byte	0
+ 1223 004d 03       		.uleb128 0x3
+ 1224 004e 0E       		.uleb128 0xe
+ 1225 004f 3A       		.uleb128 0x3a
+ 1226 0050 0B       		.uleb128 0xb
+ 1227 0051 3B       		.uleb128 0x3b
+ 1228 0052 05       		.uleb128 0x5
+ 1229 0053 49       		.uleb128 0x49
+ 1230 0054 13       		.uleb128 0x13
+ 1231 0055 38       		.uleb128 0x38
+ 1232 0056 0A       		.uleb128 0xa
+ 1233 0057 00       		.byte	0
+ 1234 0058 00       		.byte	0
+ 1235 0059 08       		.uleb128 0x8
+ 1236 005a 0D       		.uleb128 0xd
+ 1237 005b 00       		.byte	0
+ 1238 005c 03       		.uleb128 0x3
+ 1239 005d 08       		.uleb128 0x8
+ 1240 005e 3A       		.uleb128 0x3a
+ 1241 005f 0B       		.uleb128 0xb
+ 1242 0060 3B       		.uleb128 0x3b
+ 1243 0061 05       		.uleb128 0x5
+ 1244 0062 49       		.uleb128 0x49
+ 1245 0063 13       		.uleb128 0x13
+ 1246 0064 38       		.uleb128 0x38
+ 1247 0065 0A       		.uleb128 0xa
+ 1248 0066 00       		.byte	0
+ 1249 0067 00       		.byte	0
+ 1250 0068 09       		.uleb128 0x9
+ 1251 0069 26       		.uleb128 0x26
+ 1252 006a 00       		.byte	0
+ 1253 006b 49       		.uleb128 0x49
+ 1254 006c 13       		.uleb128 0x13
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 42
+
+
+ 1255 006d 00       		.byte	0
+ 1256 006e 00       		.byte	0
+ 1257 006f 0A       		.uleb128 0xa
+ 1258 0070 01       		.uleb128 0x1
+ 1259 0071 01       		.byte	0x1
+ 1260 0072 49       		.uleb128 0x49
+ 1261 0073 13       		.uleb128 0x13
+ 1262 0074 01       		.uleb128 0x1
+ 1263 0075 13       		.uleb128 0x13
+ 1264 0076 00       		.byte	0
+ 1265 0077 00       		.byte	0
+ 1266 0078 0B       		.uleb128 0xb
+ 1267 0079 21       		.uleb128 0x21
+ 1268 007a 00       		.byte	0
+ 1269 007b 49       		.uleb128 0x49
+ 1270 007c 13       		.uleb128 0x13
+ 1271 007d 2F       		.uleb128 0x2f
+ 1272 007e 0B       		.uleb128 0xb
+ 1273 007f 00       		.byte	0
+ 1274 0080 00       		.byte	0
+ 1275 0081 0C       		.uleb128 0xc
+ 1276 0082 16       		.uleb128 0x16
+ 1277 0083 00       		.byte	0
+ 1278 0084 03       		.uleb128 0x3
+ 1279 0085 0E       		.uleb128 0xe
+ 1280 0086 3A       		.uleb128 0x3a
+ 1281 0087 0B       		.uleb128 0xb
+ 1282 0088 3B       		.uleb128 0x3b
+ 1283 0089 05       		.uleb128 0x5
+ 1284 008a 49       		.uleb128 0x49
+ 1285 008b 13       		.uleb128 0x13
+ 1286 008c 00       		.byte	0
+ 1287 008d 00       		.byte	0
+ 1288 008e 0D       		.uleb128 0xd
+ 1289 008f 04       		.uleb128 0x4
+ 1290 0090 01       		.byte	0x1
+ 1291 0091 0B       		.uleb128 0xb
+ 1292 0092 0B       		.uleb128 0xb
+ 1293 0093 3A       		.uleb128 0x3a
+ 1294 0094 0B       		.uleb128 0xb
+ 1295 0095 3B       		.uleb128 0x3b
+ 1296 0096 05       		.uleb128 0x5
+ 1297 0097 01       		.uleb128 0x1
+ 1298 0098 13       		.uleb128 0x13
+ 1299 0099 00       		.byte	0
+ 1300 009a 00       		.byte	0
+ 1301 009b 0E       		.uleb128 0xe
+ 1302 009c 28       		.uleb128 0x28
+ 1303 009d 00       		.byte	0
+ 1304 009e 03       		.uleb128 0x3
+ 1305 009f 0E       		.uleb128 0xe
+ 1306 00a0 1C       		.uleb128 0x1c
+ 1307 00a1 0D       		.uleb128 0xd
+ 1308 00a2 00       		.byte	0
+ 1309 00a3 00       		.byte	0
+ 1310 00a4 0F       		.uleb128 0xf
+ 1311 00a5 28       		.uleb128 0x28
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 43
+
+
+ 1312 00a6 00       		.byte	0
+ 1313 00a7 03       		.uleb128 0x3
+ 1314 00a8 08       		.uleb128 0x8
+ 1315 00a9 1C       		.uleb128 0x1c
+ 1316 00aa 0D       		.uleb128 0xd
+ 1317 00ab 00       		.byte	0
+ 1318 00ac 00       		.byte	0
+ 1319 00ad 10       		.uleb128 0x10
+ 1320 00ae 2E       		.uleb128 0x2e
+ 1321 00af 00       		.byte	0
+ 1322 00b0 3F       		.uleb128 0x3f
+ 1323 00b1 0C       		.uleb128 0xc
+ 1324 00b2 03       		.uleb128 0x3
+ 1325 00b3 0E       		.uleb128 0xe
+ 1326 00b4 3A       		.uleb128 0x3a
+ 1327 00b5 0B       		.uleb128 0xb
+ 1328 00b6 3B       		.uleb128 0x3b
+ 1329 00b7 0B       		.uleb128 0xb
+ 1330 00b8 27       		.uleb128 0x27
+ 1331 00b9 0C       		.uleb128 0xc
+ 1332 00ba 11       		.uleb128 0x11
+ 1333 00bb 01       		.uleb128 0x1
+ 1334 00bc 12       		.uleb128 0x12
+ 1335 00bd 01       		.uleb128 0x1
+ 1336 00be 40       		.uleb128 0x40
+ 1337 00bf 06       		.uleb128 0x6
+ 1338 00c0 9642     		.uleb128 0x2116
+ 1339 00c2 0C       		.uleb128 0xc
+ 1340 00c3 00       		.byte	0
+ 1341 00c4 00       		.byte	0
+ 1342 00c5 11       		.uleb128 0x11
+ 1343 00c6 2E       		.uleb128 0x2e
+ 1344 00c7 01       		.byte	0x1
+ 1345 00c8 3F       		.uleb128 0x3f
+ 1346 00c9 0C       		.uleb128 0xc
+ 1347 00ca 03       		.uleb128 0x3
+ 1348 00cb 0E       		.uleb128 0xe
+ 1349 00cc 3A       		.uleb128 0x3a
+ 1350 00cd 0B       		.uleb128 0xb
+ 1351 00ce 3B       		.uleb128 0x3b
+ 1352 00cf 05       		.uleb128 0x5
+ 1353 00d0 27       		.uleb128 0x27
+ 1354 00d1 0C       		.uleb128 0xc
+ 1355 00d2 11       		.uleb128 0x11
+ 1356 00d3 01       		.uleb128 0x1
+ 1357 00d4 12       		.uleb128 0x12
+ 1358 00d5 01       		.uleb128 0x1
+ 1359 00d6 40       		.uleb128 0x40
+ 1360 00d7 06       		.uleb128 0x6
+ 1361 00d8 9742     		.uleb128 0x2117
+ 1362 00da 0C       		.uleb128 0xc
+ 1363 00db 01       		.uleb128 0x1
+ 1364 00dc 13       		.uleb128 0x13
+ 1365 00dd 00       		.byte	0
+ 1366 00de 00       		.byte	0
+ 1367 00df 12       		.uleb128 0x12
+ 1368 00e0 34       		.uleb128 0x34
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 44
+
+
+ 1369 00e1 00       		.byte	0
+ 1370 00e2 03       		.uleb128 0x3
+ 1371 00e3 08       		.uleb128 0x8
+ 1372 00e4 3A       		.uleb128 0x3a
+ 1373 00e5 0B       		.uleb128 0xb
+ 1374 00e6 3B       		.uleb128 0x3b
+ 1375 00e7 05       		.uleb128 0x5
+ 1376 00e8 49       		.uleb128 0x49
+ 1377 00e9 13       		.uleb128 0x13
+ 1378 00ea 02       		.uleb128 0x2
+ 1379 00eb 0A       		.uleb128 0xa
+ 1380 00ec 00       		.byte	0
+ 1381 00ed 00       		.byte	0
+ 1382 00ee 13       		.uleb128 0x13
+ 1383 00ef 34       		.uleb128 0x34
+ 1384 00f0 00       		.byte	0
+ 1385 00f1 03       		.uleb128 0x3
+ 1386 00f2 0E       		.uleb128 0xe
+ 1387 00f3 3A       		.uleb128 0x3a
+ 1388 00f4 0B       		.uleb128 0xb
+ 1389 00f5 3B       		.uleb128 0x3b
+ 1390 00f6 05       		.uleb128 0x5
+ 1391 00f7 49       		.uleb128 0x49
+ 1392 00f8 13       		.uleb128 0x13
+ 1393 00f9 02       		.uleb128 0x2
+ 1394 00fa 0A       		.uleb128 0xa
+ 1395 00fb 00       		.byte	0
+ 1396 00fc 00       		.byte	0
+ 1397 00fd 14       		.uleb128 0x14
+ 1398 00fe 2E       		.uleb128 0x2e
+ 1399 00ff 00       		.byte	0
+ 1400 0100 03       		.uleb128 0x3
+ 1401 0101 0E       		.uleb128 0xe
+ 1402 0102 3A       		.uleb128 0x3a
+ 1403 0103 0B       		.uleb128 0xb
+ 1404 0104 3B       		.uleb128 0x3b
+ 1405 0105 05       		.uleb128 0x5
+ 1406 0106 27       		.uleb128 0x27
+ 1407 0107 0C       		.uleb128 0xc
+ 1408 0108 11       		.uleb128 0x11
+ 1409 0109 01       		.uleb128 0x1
+ 1410 010a 12       		.uleb128 0x12
+ 1411 010b 01       		.uleb128 0x1
+ 1412 010c 40       		.uleb128 0x40
+ 1413 010d 06       		.uleb128 0x6
+ 1414 010e 9642     		.uleb128 0x2116
+ 1415 0110 0C       		.uleb128 0xc
+ 1416 0111 00       		.byte	0
+ 1417 0112 00       		.byte	0
+ 1418 0113 15       		.uleb128 0x15
+ 1419 0114 2E       		.uleb128 0x2e
+ 1420 0115 01       		.byte	0x1
+ 1421 0116 03       		.uleb128 0x3
+ 1422 0117 0E       		.uleb128 0xe
+ 1423 0118 3A       		.uleb128 0x3a
+ 1424 0119 0B       		.uleb128 0xb
+ 1425 011a 3B       		.uleb128 0x3b
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 45
+
+
+ 1426 011b 05       		.uleb128 0x5
+ 1427 011c 27       		.uleb128 0x27
+ 1428 011d 0C       		.uleb128 0xc
+ 1429 011e 11       		.uleb128 0x11
+ 1430 011f 01       		.uleb128 0x1
+ 1431 0120 12       		.uleb128 0x12
+ 1432 0121 01       		.uleb128 0x1
+ 1433 0122 40       		.uleb128 0x40
+ 1434 0123 06       		.uleb128 0x6
+ 1435 0124 9742     		.uleb128 0x2117
+ 1436 0126 0C       		.uleb128 0xc
+ 1437 0127 01       		.uleb128 0x1
+ 1438 0128 13       		.uleb128 0x13
+ 1439 0129 00       		.byte	0
+ 1440 012a 00       		.byte	0
+ 1441 012b 16       		.uleb128 0x16
+ 1442 012c 34       		.uleb128 0x34
+ 1443 012d 00       		.byte	0
+ 1444 012e 03       		.uleb128 0x3
+ 1445 012f 0E       		.uleb128 0xe
+ 1446 0130 3A       		.uleb128 0x3a
+ 1447 0131 0B       		.uleb128 0xb
+ 1448 0132 3B       		.uleb128 0x3b
+ 1449 0133 05       		.uleb128 0x5
+ 1450 0134 49       		.uleb128 0x49
+ 1451 0135 13       		.uleb128 0x13
+ 1452 0136 3F       		.uleb128 0x3f
+ 1453 0137 0C       		.uleb128 0xc
+ 1454 0138 3C       		.uleb128 0x3c
+ 1455 0139 0C       		.uleb128 0xc
+ 1456 013a 00       		.byte	0
+ 1457 013b 00       		.byte	0
+ 1458 013c 17       		.uleb128 0x17
+ 1459 013d 34       		.uleb128 0x34
+ 1460 013e 00       		.byte	0
+ 1461 013f 03       		.uleb128 0x3
+ 1462 0140 0E       		.uleb128 0xe
+ 1463 0141 3A       		.uleb128 0x3a
+ 1464 0142 0B       		.uleb128 0xb
+ 1465 0143 3B       		.uleb128 0x3b
+ 1466 0144 0B       		.uleb128 0xb
+ 1467 0145 49       		.uleb128 0x49
+ 1468 0146 13       		.uleb128 0x13
+ 1469 0147 3F       		.uleb128 0x3f
+ 1470 0148 0C       		.uleb128 0xc
+ 1471 0149 02       		.uleb128 0x2
+ 1472 014a 0A       		.uleb128 0xa
+ 1473 014b 00       		.byte	0
+ 1474 014c 00       		.byte	0
+ 1475 014d 00       		.byte	0
+ 1476              		.section	.debug_loc,"",%progbits
+ 1477              	.Ldebug_loc0:
+ 1478              	.LLST0:
+ 1479 0000 00000000 		.4byte	.LFB55-.Ltext0
+ 1480 0004 02000000 		.4byte	.LCFI0-.Ltext0
+ 1481 0008 0200     		.2byte	0x2
+ 1482 000a 7D       		.byte	0x7d
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 46
+
+
+ 1483 000b 00       		.sleb128 0
+ 1484 000c 02000000 		.4byte	.LCFI0-.Ltext0
+ 1485 0010 04000000 		.4byte	.LCFI1-.Ltext0
+ 1486 0014 0200     		.2byte	0x2
+ 1487 0016 7D       		.byte	0x7d
+ 1488 0017 08       		.sleb128 8
+ 1489 0018 04000000 		.4byte	.LCFI1-.Ltext0
+ 1490 001c A8000000 		.4byte	.LFE55-.Ltext0
+ 1491 0020 0200     		.2byte	0x2
+ 1492 0022 77       		.byte	0x77
+ 1493 0023 08       		.sleb128 8
+ 1494 0024 00000000 		.4byte	0
+ 1495 0028 00000000 		.4byte	0
+ 1496              	.LLST1:
+ 1497 002c A8000000 		.4byte	.LFB56-.Ltext0
+ 1498 0030 AA000000 		.4byte	.LCFI2-.Ltext0
+ 1499 0034 0200     		.2byte	0x2
+ 1500 0036 7D       		.byte	0x7d
+ 1501 0037 00       		.sleb128 0
+ 1502 0038 AA000000 		.4byte	.LCFI2-.Ltext0
+ 1503 003c AC000000 		.4byte	.LCFI3-.Ltext0
+ 1504 0040 0200     		.2byte	0x2
+ 1505 0042 7D       		.byte	0x7d
+ 1506 0043 04       		.sleb128 4
+ 1507 0044 AC000000 		.4byte	.LCFI3-.Ltext0
+ 1508 0048 AE000000 		.4byte	.LCFI4-.Ltext0
+ 1509 004c 0200     		.2byte	0x2
+ 1510 004e 7D       		.byte	0x7d
+ 1511 004f 18       		.sleb128 24
+ 1512 0050 AE000000 		.4byte	.LCFI4-.Ltext0
+ 1513 0054 F0010000 		.4byte	.LFE56-.Ltext0
+ 1514 0058 0200     		.2byte	0x2
+ 1515 005a 77       		.byte	0x77
+ 1516 005b 18       		.sleb128 24
+ 1517 005c 00000000 		.4byte	0
+ 1518 0060 00000000 		.4byte	0
+ 1519              	.LLST2:
+ 1520 0064 F0010000 		.4byte	.LFB57-.Ltext0
+ 1521 0068 F2010000 		.4byte	.LCFI5-.Ltext0
+ 1522 006c 0200     		.2byte	0x2
+ 1523 006e 7D       		.byte	0x7d
+ 1524 006f 00       		.sleb128 0
+ 1525 0070 F2010000 		.4byte	.LCFI5-.Ltext0
+ 1526 0074 F4010000 		.4byte	.LCFI6-.Ltext0
+ 1527 0078 0200     		.2byte	0x2
+ 1528 007a 7D       		.byte	0x7d
+ 1529 007b 08       		.sleb128 8
+ 1530 007c F4010000 		.4byte	.LCFI6-.Ltext0
+ 1531 0080 FA010000 		.4byte	.LFE57-.Ltext0
+ 1532 0084 0200     		.2byte	0x2
+ 1533 0086 77       		.byte	0x77
+ 1534 0087 08       		.sleb128 8
+ 1535 0088 00000000 		.4byte	0
+ 1536 008c 00000000 		.4byte	0
+ 1537              	.LLST3:
+ 1538 0090 FC010000 		.4byte	.LFB58-.Ltext0
+ 1539 0094 FE010000 		.4byte	.LCFI7-.Ltext0
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 47
+
+
+ 1540 0098 0200     		.2byte	0x2
+ 1541 009a 7D       		.byte	0x7d
+ 1542 009b 00       		.sleb128 0
+ 1543 009c FE010000 		.4byte	.LCFI7-.Ltext0
+ 1544 00a0 00020000 		.4byte	.LCFI8-.Ltext0
+ 1545 00a4 0200     		.2byte	0x2
+ 1546 00a6 7D       		.byte	0x7d
+ 1547 00a7 04       		.sleb128 4
+ 1548 00a8 00020000 		.4byte	.LCFI8-.Ltext0
+ 1549 00ac 02020000 		.4byte	.LCFI9-.Ltext0
+ 1550 00b0 0200     		.2byte	0x2
+ 1551 00b2 7D       		.byte	0x7d
+ 1552 00b3 10       		.sleb128 16
+ 1553 00b4 02020000 		.4byte	.LCFI9-.Ltext0
+ 1554 00b8 A6030000 		.4byte	.LFE58-.Ltext0
+ 1555 00bc 0200     		.2byte	0x2
+ 1556 00be 77       		.byte	0x77
+ 1557 00bf 10       		.sleb128 16
+ 1558 00c0 00000000 		.4byte	0
+ 1559 00c4 00000000 		.4byte	0
+ 1560              		.section	.debug_aranges,"",%progbits
+ 1561 0000 1C000000 		.4byte	0x1c
+ 1562 0004 0200     		.2byte	0x2
+ 1563 0006 00000000 		.4byte	.Ldebug_info0
+ 1564 000a 04       		.byte	0x4
+ 1565 000b 00       		.byte	0
+ 1566 000c 0000     		.2byte	0
+ 1567 000e 0000     		.2byte	0
+ 1568 0010 00000000 		.4byte	.Ltext0
+ 1569 0014 A6030000 		.4byte	.Letext0-.Ltext0
+ 1570 0018 00000000 		.4byte	0
+ 1571 001c 00000000 		.4byte	0
+ 1572              		.section	.debug_line,"",%progbits
+ 1573              	.Ldebug_line0:
+ 1574 0000 53010000 		.section	.debug_str,"MS",%progbits,1
+ 1574      0200CE00 
+ 1574      00000201 
+ 1574      FB0E0D00 
+ 1574      01010101 
+ 1575              	.LASF38:
+ 1576 0000 41504231 		.ascii	"APB1RSTR\000"
+ 1576      52535452 
+ 1576      00
+ 1577              	.LASF26:
+ 1578 0009 49534152 		.ascii	"ISAR\000"
+ 1578      00
+ 1579              	.LASF13:
+ 1580 000e 73697A65 		.ascii	"sizetype\000"
+ 1580      74797065 
+ 1580      00
+ 1581              	.LASF42:
+ 1582 0017 42444352 		.ascii	"BDCR\000"
+ 1582      00
+ 1583              	.LASF47:
+ 1584 001c 48534553 		.ascii	"HSEStatus\000"
+ 1584      74617475 
+ 1584      7300
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 48
+
+
+ 1585              	.LASF14:
+ 1586 0026 43505549 		.ascii	"CPUID\000"
+ 1586      4400
+ 1587              	.LASF31:
+ 1588 002c 4B455952 		.ascii	"KEYR\000"
+ 1588      00
+ 1589              	.LASF27:
+ 1590 0031 52455345 		.ascii	"RESERVED0\000"
+ 1590      52564544 
+ 1590      3000
+ 1591              	.LASF36:
+ 1592 003b 43464752 		.ascii	"CFGR\000"
+ 1592      00
+ 1593              	.LASF3:
+ 1594 0040 75696E74 		.ascii	"uint8_t\000"
+ 1594      385F7400 
+ 1595              	.LASF41:
+ 1596 0048 41504231 		.ascii	"APB1ENR\000"
+ 1596      454E5200 
+ 1597              	.LASF2:
+ 1598 0050 73686F72 		.ascii	"short int\000"
+ 1598      7420696E 
+ 1598      7400
+ 1599              	.LASF15:
+ 1600 005a 49435352 		.ascii	"ICSR\000"
+ 1600      00
+ 1601              	.LASF32:
+ 1602 005f 4F50544B 		.ascii	"OPTKEYR\000"
+ 1602      45595200 
+ 1603              	.LASF10:
+ 1604 0067 6C6F6E67 		.ascii	"long long int\000"
+ 1604      206C6F6E 
+ 1604      6720696E 
+ 1604      7400
+ 1605              	.LASF23:
+ 1606 0075 42464152 		.ascii	"BFAR\000"
+ 1606      00
+ 1607              	.LASF7:
+ 1608 007a 6C6F6E67 		.ascii	"long int\000"
+ 1608      20696E74 
+ 1608      00
+ 1609              	.LASF43:
+ 1610 0083 5243435F 		.ascii	"RCC_TypeDef\000"
+ 1610      54797065 
+ 1610      44656600 
+ 1611              	.LASF39:
+ 1612 008f 41484245 		.ascii	"AHBENR\000"
+ 1612      4E5200
+ 1613              	.LASF37:
+ 1614 0096 41504232 		.ascii	"APB2RSTR\000"
+ 1614      52535452 
+ 1614      00
+ 1615              	.LASF34:
+ 1616 009f 57525052 		.ascii	"WRPR\000"
+ 1616      00
+ 1617              	.LASF19:
+ 1618 00a4 43465352 		.ascii	"CFSR\000"
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 49
+
+
+ 1618      00
+ 1619              	.LASF57:
+ 1620 00a9 53657453 		.ascii	"SetSysClockTo72\000"
+ 1620      7973436C 
+ 1620      6F636B54 
+ 1620      6F373200 
+ 1621              	.LASF45:
+ 1622 00b9 706C6C73 		.ascii	"pllsource\000"
+ 1622      6F757263 
+ 1622      6500
+ 1623              	.LASF1:
+ 1624 00c3 756E7369 		.ascii	"unsigned char\000"
+ 1624      676E6564 
+ 1624      20636861 
+ 1624      7200
+ 1625              	.LASF17:
+ 1626 00d1 41495243 		.ascii	"AIRCR\000"
+ 1626      5200
+ 1627              	.LASF29:
+ 1628 00d7 5343425F 		.ascii	"SCB_Type\000"
+ 1628      54797065 
+ 1628      00
+ 1629              	.LASF40:
+ 1630 00e0 41504232 		.ascii	"APB2ENR\000"
+ 1630      454E5200 
+ 1631              	.LASF46:
+ 1632 00e8 53746172 		.ascii	"StartUpCounter\000"
+ 1632      74557043 
+ 1632      6F756E74 
+ 1632      657200
+ 1633              	.LASF0:
+ 1634 00f7 7369676E 		.ascii	"signed char\000"
+ 1634      65642063 
+ 1634      68617200 
+ 1635              	.LASF11:
+ 1636 0103 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1636      206C6F6E 
+ 1636      6720756E 
+ 1636      7369676E 
+ 1636      65642069 
+ 1637              	.LASF8:
+ 1638 011a 75696E74 		.ascii	"uint32_t\000"
+ 1638      33325F74 
+ 1638      00
+ 1639              	.LASF12:
+ 1640 0123 756E7369 		.ascii	"unsigned int\000"
+ 1640      676E6564 
+ 1640      20696E74 
+ 1640      00
+ 1641              	.LASF4:
+ 1642 0130 75696E74 		.ascii	"uint16_t\000"
+ 1642      31365F74 
+ 1642      00
+ 1643              	.LASF51:
+ 1644 0139 474E5520 		.ascii	"GNU C 4.7.1\000"
+ 1644      4320342E 
+ 1644      372E3100 
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 50
+
+
+ 1645              	.LASF18:
+ 1646 0145 53484353 		.ascii	"SHCSR\000"
+ 1646      5200
+ 1647              	.LASF55:
+ 1648 014b 53797374 		.ascii	"SystemCoreClockUpdate\000"
+ 1648      656D436F 
+ 1648      7265436C 
+ 1648      6F636B55 
+ 1648      70646174 
+ 1649              	.LASF22:
+ 1650 0161 4D4D4641 		.ascii	"MMFAR\000"
+ 1650      5200
+ 1651              	.LASF54:
+ 1652 0167 53797374 		.ascii	"SystemInit\000"
+ 1652      656D496E 
+ 1652      697400
+ 1653              	.LASF5:
+ 1654 0172 73686F72 		.ascii	"short unsigned int\000"
+ 1654      7420756E 
+ 1654      7369676E 
+ 1654      65642069 
+ 1654      6E7400
+ 1655              	.LASF16:
+ 1656 0185 56544F52 		.ascii	"VTOR\000"
+ 1656      00
+ 1657              	.LASF6:
+ 1658 018a 696E7433 		.ascii	"int32_t\000"
+ 1658      325F7400 
+ 1659              	.LASF21:
+ 1660 0192 44465352 		.ascii	"DFSR\000"
+ 1660      00
+ 1661              	.LASF53:
+ 1662 0197 2F557365 		.ascii	"/Users/sin/Documents/Workspace/STM32_yagarto_Test\000"
+ 1662      72732F73 
+ 1662      696E2F44 
+ 1662      6F63756D 
+ 1662      656E7473 
+ 1663              	.LASF49:
+ 1664 01c9 53797374 		.ascii	"SystemCoreClock\000"
+ 1664      656D436F 
+ 1664      7265436C 
+ 1664      6F636B00 
+ 1665              	.LASF20:
+ 1666 01d9 48465352 		.ascii	"HFSR\000"
+ 1666      00
+ 1667              	.LASF25:
+ 1668 01de 4D4D4652 		.ascii	"MMFR\000"
+ 1668      00
+ 1669              	.LASF50:
+ 1670 01e3 41484250 		.ascii	"AHBPrescTable\000"
+ 1670      72657363 
+ 1670      5461626C 
+ 1670      6500
+ 1671              	.LASF56:
+ 1672 01f1 53657453 		.ascii	"SetSysClock\000"
+ 1672      7973436C 
+ 1672      6F636B00 
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 51
+
+
+ 1673              	.LASF52:
+ 1674 01fd 636D7369 		.ascii	"cmsis/device/system_stm32f10x.c\000"
+ 1674      732F6465 
+ 1674      76696365 
+ 1674      2F737973 
+ 1674      74656D5F 
+ 1675              	.LASF9:
+ 1676 021d 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1676      20756E73 
+ 1676      69676E65 
+ 1676      6420696E 
+ 1676      7400
+ 1677              	.LASF44:
+ 1678 022f 706C6C6D 		.ascii	"pllmull\000"
+ 1678      756C6C00 
+ 1679              	.LASF30:
+ 1680 0237 52455345 		.ascii	"RESET\000"
+ 1680      5400
+ 1681              	.LASF24:
+ 1682 023d 41465352 		.ascii	"AFSR\000"
+ 1682      00
+ 1683              	.LASF33:
+ 1684 0242 52455345 		.ascii	"RESERVED\000"
+ 1684      52564544 
+ 1684      00
+ 1685              	.LASF35:
+ 1686 024b 464C4153 		.ascii	"FLASH_TypeDef\000"
+ 1686      485F5479 
+ 1686      70654465 
+ 1686      6600
+ 1687              	.LASF48:
+ 1688 0259 49544D5F 		.ascii	"ITM_RxBuffer\000"
+ 1688      52784275 
+ 1688      66666572 
+ 1688      00
+ 1689              	.LASF28:
+ 1690 0266 43504143 		.ascii	"CPACR\000"
+ 1690      5200
+ 1691              		.ident	"GCC: (GNU) 4.7.1"
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s 			page 52
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 system_stm32f10x.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s:53     .data:0000000000000000 SystemCoreClock
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s:50     .data:0000000000000000 $d
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s:59     .data:0000000000000004 AHBPrescTable
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s:77     .text:0000000000000000 $t
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s:82     .text:0000000000000000 SystemInit
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s:321    .text:00000000000001f0 SetSysClock
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s:162    .text:00000000000000a8 SystemCoreClockUpdate
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc0dP9AX.s:346    .text:00000000000001fc SetSysClockTo72
+                     .debug_frame:0000000000000010 $d
+
+NO UNDEFINED SYMBOLS

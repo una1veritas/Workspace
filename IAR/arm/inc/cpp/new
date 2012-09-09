@@ -1,0 +1,104 @@
+// new standard header -*-c++-*-
+// Copyright 2003-2010 IAR Systems AB. 
+#ifndef _NEW_
+#define _NEW_
+
+#ifndef _SYSTEM_BUILD
+#pragma system_include
+#endif
+
+#include <exception>
+
+_X_STD_BEGIN
+
+// CLASS bad_alloc
+class bad_alloc : public _XSTD exception
+{
+public:
+  bad_alloc() _THROW0();
+  bad_alloc(const bad_alloc&) _THROW0();
+  bad_alloc& operator=(const bad_alloc&) _THROW0();
+  virtual ~bad_alloc() _THROW0();
+  virtual const char* what() const _THROW0();
+};
+
+_X_STD_END
+
+#if _HAS_NAMESPACE
+
+#else /* _HAS_NAMESPACE */
+  using _STD bad_alloc;
+#endif /* _HAS_NAMESPACE */
+
+_STD_BEGIN
+
+// SUPPORT TYPES
+typedef void (*new_handler)();  // handler for operator new failures
+
+struct nothrow_t
+{       // placement new tag type to suppress exceptions
+};
+
+// constant for placement new tag
+_DLIB_CONST_ATTR extern const nothrow_t nothrow; 
+
+// FUNCTION AND OBJECT DECLARATIONS
+__ATTRIBUTES new_handler set_new_handler(new_handler)
+  _THROW0();      // establish alternate new handler
+
+_DLIB_DATA_ATTR extern new_handler __iar_New_hand;  // pointer to current new handler
+_STD_END
+
+// new AND delete DECLARATIONS (NB: NOT IN std)
+void operator delete(void *) _THROW0(); // delete allocated storage
+
+void *operator new(_CSTD size_t)
+  _THROWS(_XSTD bad_alloc);       // allocate or throw exception
+
+// Declare a nothrow new
+void *operator new(_CSTD size_t, const _STD nothrow_t&)
+  _THROW0();      // allocate or return null pointer
+
+inline void *operator new(_CSTD size_t, void *_Where) _THROW0()
+{       // construct with placement at _Where
+  return (_Where);
+}
+
+void operator delete[](void *) _THROW0();       // delete allocated array
+
+void *operator new[](_CSTD size_t)
+  _THROWS(_XSTD bad_alloc);       // allocate array or throw exception
+
+// Declare a nothrow array new
+void *operator new[](_CSTD size_t, const _STD nothrow_t&)
+  _THROW0();      // allocate array or return null pointer
+
+// Define a placement array new
+inline void *operator new[](_CSTD size_t, void *_Where) _THROW0()
+{       // construct array with placement at _Where
+  return (_Where);
+}
+
+#if _HAS_EXCEPTIONS
+// Declare a nothrow delete
+void operator delete(void *, const _STD nothrow_t&)
+  _THROW0();      // delete if nothrow new fails -- REPLACEABLE
+
+// Declare a nothrow array delete
+void operator delete[](void *, const _STD nothrow_t&)
+  _THROW0();      // delete if nothrow array new fails -- REPLACEABLE
+
+// Define a placement delete
+void operator delete(void *, void *) _THROW0();
+//      {}      // delete if placement new fails
+
+// Define a placement array new
+void operator delete[](void *, void *) _THROW0();
+//      {}      // delete if placement array new fails
+#endif /* _HAS_EXCEPTIONS */
+#endif /* _NEW_ */
+
+/*
+ * Copyright (c) 1992-2009 by P.J. Plauger.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+ V5.04:0576 */

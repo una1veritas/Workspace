@@ -1,0 +1,70 @@
+// exception standard header -*-c++-*-
+// Copyright 2009-2010 IAR Systems AB. 
+#ifndef _EXCEPTION_
+#define _EXCEPTION_
+
+#ifndef _SYSTEM_BUILD
+#pragma system_include
+#endif
+
+#include <xstddef>
+
+_X_STD_BEGIN
+
+// FORWARD REFERENCES
+class exception;
+
+template<class T> __ATTRIBUTES_NORETURN_CAN_THROW void __iar_Throw(const T &);
+__ATTRIBUTES_NORETURN void __iar_ThrowNoThrow(const exception &);
+
+// CLASS exception
+class exception
+{
+public:
+  exception() _THROW0();
+  exception(const exception&) _THROW0();
+  exception& operator=(const exception&) _THROW0();
+  virtual ~exception() _THROW0();
+  virtual const char *what() const _THROW0();
+};
+
+class bad_exception : public _XSTD exception
+{
+public:
+  bad_exception() _THROW0();
+  bad_exception(const bad_exception&) _THROW0();
+  bad_exception& operator=(const bad_exception&) _THROW0();
+  virtual ~bad_exception() _THROW0();
+  virtual const char* what() const _THROW0();
+};
+
+// TYPES
+typedef void (*terminate_handler)();
+typedef void (*unexpected_handler)();
+
+// FUNCTION DECLARATIONS
+__ATTRIBUTES terminate_handler set_terminate(terminate_handler) _THROW0();
+__ATTRIBUTES unexpected_handler set_unexpected(unexpected_handler) _THROW0();
+__ATTRIBUTES bool uncaught_exception() _THROW0();
+__ATTRIBUTES_NORETURN void terminate();
+__ATTRIBUTES_NORETURN_CAN_THROW void unexpected();
+
+_X_STD_END
+
+#if _HAS_NAMESPACE
+
+#else /* _HAS_NAMESPACE */
+using _STD _Throw;
+
+using _STD exception; using _STD bad_exception;
+using _STD terminate_handler; using _STD unexpected_handler;
+using _STD set_terminate; using _STD set_unexpected;
+using _STD terminate; using _STD unexpected;
+using _STD uncaught_exception;
+#endif /* _HAS_NAMESPACE */
+#endif /* _EXCEPTION_ */
+
+/*
+ * Copyright (c) 1992-2009 by P.J. Plauger.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+ V5.04:0576 */

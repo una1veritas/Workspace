@@ -1,0 +1,40 @@
+// iostream standard header -*-c++-*-
+// Copyright 2009-2010 IAR Systems AB. 
+#ifndef _IOSTREAM_
+#define _IOSTREAM_
+
+#ifndef _SYSTEM_BUILD
+#pragma system_include
+#endif
+
+#include <istream>
+_STD_BEGIN
+
+// OBJECTS
+
+_DLIB_DATA_ATTR extern istream cin;
+_DLIB_DATA_ATTR extern ostream cout;
+_DLIB_DATA_ATTR extern ostream cerr;
+_DLIB_DATA_ATTR extern ostream clog;
+
+// CLASS _Winit
+class _Winit
+{       // controller for wide standard-stream initialization
+public:
+  _Winit();
+  ~_Winit();
+private:
+};
+
+// WIDE OBJECTS
+_DLIB_DATA_ATTR extern wistream wcin;
+_DLIB_DATA_ATTR extern wostream wcout;
+_DLIB_DATA_ATTR extern wostream wcerr;
+_DLIB_DATA_ATTR extern wostream wclog;
+_STD_END
+#endif /* _IOSTREAM_ */
+
+/*
+ * Copyright (c) 1992-2009 by P.J. Plauger.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+ V5.04:0576 */
