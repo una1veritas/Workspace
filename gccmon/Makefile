@@ -1,0 +1,27 @@
+CC = /usr/local/cross/bin/arm-none-eabi-gcc
+AS = /usr/local/cross/bin/arm-none-eabi-as
+LD = /usr/local/cross/bin/arm-none-eabi-ld
+OBJCPY = /usr/local/cross/bin/arm-none-eabi-objcopy
+all: gcc_sample.hex gcc_sample.mot gcc_sample_r.hex gcc_sample_r.mot gcc_sample.s gcc_sample.lst 
+
+gcc_sample.hex : gcc_sample
+	$(OBJCPY) -O ihex gcc_sample gcc_sample.hex
+gcc_sample.mot : gcc_sample
+	$(OBJCPY) -O srec gcc_sample gcc_sample.mot
+gcc_sample_r.hex : gcc_sample_r
+	$(OBJCPY) -O ihex gcc_sample_r gcc_sample_r.hex
+gcc_sample_r.mot : gcc_sample_r
+	$(OBJCPY) -O srec gcc_sample_r gcc_sample_r.mot
+gcc_sample: memory.def gcc_sample.o
+	$(LD) startup.o gcc_sample.o -T memory.def -o gcc_sample -Map gcc_sample.map
+gcc_sample_r: memory_r.def gcc_sample.o
+	$(LD) startup.o gcc_sample.o -T memory_r.def -o gcc_sample_r -Map gcc_sample_r.map
+
+startup.o : startup.s makefile
+	$(AS) -ahls=startup.lst startup.s -o startup.o
+gcc_sample.o: gcc_sample.c makefile
+	$(CC) -O -c gcc_sample.c -o gcc_sample.o
+gcc_sample.lst : gcc_sample.s makefile
+	$(AS) -ahls=gcc_sample.lst gcc_sample.s
+gcc_sample.s : gcc_sample.c makefile
+	$(CC) -O -S gcc_sample.c

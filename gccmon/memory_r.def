@@ -1,0 +1,42 @@
+
+SECTIONS
+{
+	.start 0x00000000 : {
+	_stext = .;
+		startup.o(.text)
+	_etext = .;
+	}
+
+	.text : {
+	_stext = .;
+		*(.text)
+	_etext = .;
+	}
+
+	.rdata : {
+	_srdata = .;
+		*(.rodata)
+	        *(.rodata.str1.4)
+	_erdata = .;
+	}
+
+	.data 0x4000F000: {
+	_sdata = .;
+		*(.data)
+		*(.zdata)
+	_edata = .;
+	}
+	.bss : {
+	_sbss = .;
+		*(.bss)
+		*(.comment)
+	_ebss = .;
+	}
+
+	_end = .;
+	. = ALIGN(0x4);
+	. += 0x200;
+	_sp_base = .;
+	. += 0x200;
+	_exception_sp_base = .;
+}

@@ -1,0 +1,2347 @@
+ARM GAS  gcc_sample.s 			page 1
+
+
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.file	"gcc_sample.c"
+  13              		.text
+  14              		.align	2
+  15              		.global	CheckRecvData
+  16              		.type	CheckRecvData, %function
+  17              	CheckRecvData:
+  18              		@ Function supports interworking.
+  19              		@ args = 0, pretend = 0, frame = 0
+  20              		@ frame_needed = 0, uses_anonymous_args = 0
+  21              		@ link register save eliminated.
+  22 0000 08309FE5 		ldr	r3, .L2
+  23 0004 1400D3E5 		ldrb	r0, [r3, #20]	@ zero_extendqisi2
+  24 0008 010000E2 		and	r0, r0, #1
+  25 000c 1EFF2FE1 		bx	lr
+  26              	.L3:
+  27              		.align	2
+  28              	.L2:
+  29 0010 00C000E0 		.word	-536821760
+  30              		.size	CheckRecvData, .-CheckRecvData
+  31              		.align	2
+  32              		.global	RecvData
+  33              		.type	RecvData, %function
+  34              	RecvData:
+  35              		@ Function supports interworking.
+  36              		@ args = 0, pretend = 0, frame = 0
+  37              		@ frame_needed = 0, uses_anonymous_args = 0
+  38              		@ link register save eliminated.
+  39 0014 14209FE5 		ldr	r2, .L7
+  40              	.L5:
+  41 0018 1430D2E5 		ldrb	r3, [r2, #20]	@ zero_extendqisi2
+  42 001c 010013E3 		tst	r3, #1
+  43 0020 FCFFFF0A 		beq	.L5
+  44 0024 04309FE5 		ldr	r3, .L7
+  45 0028 0000D3E5 		ldrb	r0, [r3, #0]	@ zero_extendqisi2
+  46 002c 1EFF2FE1 		bx	lr
+  47              	.L8:
+  48              		.align	2
+  49              	.L7:
+  50 0030 00C000E0 		.word	-536821760
+  51              		.size	RecvData, .-RecvData
+  52              		.align	2
+  53              		.global	SendData
+  54              		.type	SendData, %function
+  55              	SendData:
+  56              		@ Function supports interworking.
+  57              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  gcc_sample.s 			page 2
+
+
+  58              		@ frame_needed = 0, uses_anonymous_args = 0
+  59              		@ link register save eliminated.
+  60 0034 14209FE5 		ldr	r2, .L12
+  61              	.L10:
+  62 0038 1430D2E5 		ldrb	r3, [r2, #20]	@ zero_extendqisi2
+  63 003c 200013E3 		tst	r3, #32
+  64 0040 FCFFFF0A 		beq	.L10
+  65 0044 04309FE5 		ldr	r3, .L12
+  66 0048 0000C3E5 		strb	r0, [r3, #0]
+  67 004c 1EFF2FE1 		bx	lr
+  68              	.L13:
+  69              		.align	2
+  70              	.L12:
+  71 0050 00C000E0 		.word	-536821760
+  72              		.size	SendData, .-SendData
+  73              		.align	2
+  74              		.global	IRQ_func
+  75              		.type	IRQ_func, %function
+  76              	IRQ_func:
+  77              		@ Function supports interworking.
+  78              		@ args = 0, pretend = 0, frame = 0
+  79              		@ frame_needed = 0, uses_anonymous_args = 0
+  80 0054 08402DE9 		stmfd	sp!, {r3, lr}
+  81 0058 0030E0E3 		mvn	r3, #0
+  82 005c FF3F13E5 		ldr	r3, [r3, #-4095]
+  83 0060 400013E3 		tst	r3, #64
+  84 0064 0700000A 		beq	.L16
+  85 0068 20309FE5 		ldr	r3, .L17
+  86 006c 0830D3E5 		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+  87 0070 A330A0E1 		mov	r3, r3, lsr #1
+  88 0074 073003E2 		and	r3, r3, #7
+  89 0078 020053E3 		cmp	r3, #2
+  90 007c 0100001A 		bne	.L16
+  91 0080 FEFFFFEB 		bl	RecvData
+  92 0084 FEFFFFEB 		bl	SendData
+  93              	.L16:
+  94 0088 0840BDE8 		ldmfd	sp!, {r3, lr}
+  95 008c 1EFF2FE1 		bx	lr
+  96              	.L18:
+  97              		.align	2
+  98              	.L17:
+  99 0090 00C000E0 		.word	-536821760
+ 100              		.size	IRQ_func, .-IRQ_func
+ 101              		.align	2
+ 102              		.global	CPU_Initialize
+ 103              		.type	CPU_Initialize, %function
+ 104              	CPU_Initialize:
+ 105              		@ Function supports interworking.
+ 106              		@ args = 0, pretend = 0, frame = 0
+ 107              		@ frame_needed = 0, uses_anonymous_args = 0
+ 108              		@ link register save eliminated.
+ 109 0094 D8309FE5 		ldr	r3, .L27
+ 110 0098 883093E5 		ldr	r3, [r3, #136]
+ 111 009c 020413E3 		tst	r3, #33554432
+ 112 00a0 0600000A 		beq	.L20
+ 113 00a4 C8309FE5 		ldr	r3, .L27
+ 114 00a8 0120A0E3 		mov	r2, #1
+ARM GAS  gcc_sample.s 			page 3
+
+
+ 115 00ac 802083E5 		str	r2, [r3, #128]
+ 116 00b0 AA20A0E3 		mov	r2, #170
+ 117 00b4 8C2083E5 		str	r2, [r3, #140]
+ 118 00b8 5520A0E3 		mov	r2, #85
+ 119 00bc 8C2083E5 		str	r2, [r3, #140]
+ 120              	.L20:
+ 121 00c0 AC309FE5 		ldr	r3, .L27
+ 122 00c4 0020A0E3 		mov	r2, #0
+ 123 00c8 802083E5 		str	r2, [r3, #128]
+ 124 00cc AA20A0E3 		mov	r2, #170
+ 125 00d0 8C2083E5 		str	r2, [r3, #140]
+ 126 00d4 5520A0E3 		mov	r2, #85
+ 127 00d8 8C2083E5 		str	r2, [r3, #140]
+ 128 00dc 2120A0E3 		mov	r2, #33
+ 129 00e0 A02183E5 		str	r2, [r3, #416]
+ 130 00e4 0320A0E1 		mov	r2, r3
+ 131              	.L21:
+ 132 00e8 A03192E5 		ldr	r3, [r2, #416]
+ 133 00ec 400013E3 		tst	r3, #64
+ 134 00f0 FCFFFF0A 		beq	.L21
+ 135 00f4 78309FE5 		ldr	r3, .L27
+ 136 00f8 0100A0E3 		mov	r0, #1
+ 137 00fc 0C0183E5 		str	r0, [r3, #268]
+ 138 0100 70209FE5 		ldr	r2, .L27+4
+ 139 0104 842083E5 		str	r2, [r3, #132]
+ 140 0108 AA10A0E3 		mov	r1, #170
+ 141 010c 8C1083E5 		str	r1, [r3, #140]
+ 142 0110 5520A0E3 		mov	r2, #85
+ 143 0114 8C2083E5 		str	r2, [r3, #140]
+ 144 0118 800083E5 		str	r0, [r3, #128]
+ 145 011c 8C1083E5 		str	r1, [r3, #140]
+ 146 0120 8C2083E5 		str	r2, [r3, #140]
+ 147 0124 0320A0E3 		mov	r2, #3
+ 148 0128 042183E5 		str	r2, [r3, #260]
+ 149 012c 0520A0E3 		mov	r2, #5
+ 150 0130 082183E5 		str	r2, [r3, #264]
+ 151 0134 0320A0E1 		mov	r2, r3
+ 152              	.L22:
+ 153 0138 883092E5 		ldr	r3, [r2, #136]
+ 154 013c 010313E3 		tst	r3, #67108864
+ 155 0140 FCFFFF0A 		beq	.L22
+ 156 0144 28309FE5 		ldr	r3, .L27
+ 157 0148 0320A0E3 		mov	r2, #3
+ 158 014c 802083E5 		str	r2, [r3, #128]
+ 159 0150 AA20A0E3 		mov	r2, #170
+ 160 0154 8C2083E5 		str	r2, [r3, #140]
+ 161 0158 5520A0E3 		mov	r2, #85
+ 162 015c 8C2083E5 		str	r2, [r3, #140]
+ 163 0160 0320A0E1 		mov	r2, r3
+ 164              	.L23:
+ 165 0164 883092E5 		ldr	r3, [r2, #136]
+ 166 0168 020413E3 		tst	r3, #33554432
+ 167 016c FCFFFF0A 		beq	.L23
+ 168 0170 1EFF2FE1 		bx	lr
+ 169              	.L28:
+ 170              		.align	2
+ 171              	.L27:
+ARM GAS  gcc_sample.s 			page 4
+
+
+ 172 0174 00C01FE0 		.word	-534790144
+ 173 0178 8F000B00 		.word	721039
+ 174              		.size	CPU_Initialize, .-CPU_Initialize
+ 175              		.align	2
+ 176              		.global	putscon
+ 177              		.type	putscon, %function
+ 178              	putscon:
+ 179              		@ Function supports interworking.
+ 180              		@ args = 0, pretend = 0, frame = 0
+ 181              		@ frame_needed = 0, uses_anonymous_args = 0
+ 182 017c 10402DE9 		stmfd	sp!, {r4, lr}
+ 183 0180 0040A0E1 		mov	r4, r0
+ 184 0184 0000D0E5 		ldrb	r0, [r0, #0]	@ zero_extendqisi2
+ 185 0188 000050E3 		cmp	r0, #0
+ 186 018c 0300000A 		beq	.L29
+ 187              	.L31:
+ 188 0190 FEFFFFEB 		bl	SendData
+ 189 0194 0100F4E5 		ldrb	r0, [r4, #1]!	@ zero_extendqisi2
+ 190 0198 000050E3 		cmp	r0, #0
+ 191 019c FBFFFF1A 		bne	.L31
+ 192              	.L29:
+ 193 01a0 1040BDE8 		ldmfd	sp!, {r4, lr}
+ 194 01a4 1EFF2FE1 		bx	lr
+ 195              		.size	putscon, .-putscon
+ 196              		.align	2
+ 197              		.global	getscon
+ 198              		.type	getscon, %function
+ 199              	getscon:
+ 200              		@ Function supports interworking.
+ 201              		@ args = 0, pretend = 0, frame = 0
+ 202              		@ frame_needed = 0, uses_anonymous_args = 0
+ 203 01a8 F84F2DE9 		stmfd	sp!, {r3, r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 204 01ac 00A0A0E1 		mov	sl, r0
+ 205 01b0 0260A0E1 		mov	r6, r2
+ 206 01b4 0030A0E3 		mov	r3, #0
+ 207 01b8 0030C0E5 		strb	r3, [r0, #0]
+ 208 01bc 008051E2 		subs	r8, r1, #0
+ 209 01c0 370000BA 		blt	.L40
+ 210 01c4 0370A0E1 		mov	r7, r3
+ 211 01c8 0350A0E1 		mov	r5, r3
+ 212 01cc 08B0A0E3 		mov	fp, #8
+ 213              	.L39:
+ 214 01d0 FEFFFFEB 		bl	RecvData
+ 215 01d4 0040A0E1 		mov	r4, r0
+ 216 01d8 030050E3 		cmp	r0, #3
+ 217 01dc 3500000A 		beq	.L41
+ 218 01e0 0D0050E3 		cmp	r0, #13
+ 219 01e4 0030A003 		moveq	r3, #0
+ 220 01e8 0730CA07 		streqb	r3, [sl, r7]
+ 221 01ec 3600000A 		beq	.L35
+ 222              	.L36:
+ 223 01f0 080050E3 		cmp	r0, #8
+ 224 01f4 7F005013 		cmpne	r0, #127
+ 225 01f8 0D00001A 		bne	.L37
+ 226 01fc 000055E3 		cmp	r5, #0
+ 227 0200 0B00000A 		beq	.L37
+ 228 0204 070055E1 		cmp	r5, r7
+ARM GAS  gcc_sample.s 			page 5
+
+
+ 229 0208 0900001A 		bne	.L37
+ 230 020c 0030A0E3 		mov	r3, #0
+ 231 0210 0530CAE7 		strb	r3, [sl, r5]
+ 232 0214 017045E2 		sub	r7, r5, #1
+ 233 0218 0B00A0E1 		mov	r0, fp
+ 234 021c FEFFFFEB 		bl	SendData
+ 235 0220 2000A0E3 		mov	r0, #32
+ 236 0224 FEFFFFEB 		bl	SendData
+ 237 0228 0B00A0E1 		mov	r0, fp
+ 238 022c FEFFFFEB 		bl	SendData
+ 239 0230 0750A0E1 		mov	r5, r7
+ 240              	.L37:
+ 241 0234 010056E3 		cmp	r6, #1
+ 242 0238 0030A013 		movne	r3, #0
+ 243 023c 0130A003 		moveq	r3, #1
+ 244 0240 720054E3 		cmp	r4, #114
+ 245 0244 01005603 		cmpeq	r6, #1
+ 246 0248 1C00000A 		beq	.L42
+ 247 024c 6E0054E3 		cmp	r4, #110
+ 248 0250 0030A013 		movne	r3, #0
+ 249 0254 01300302 		andeq	r3, r3, #1
+ 250 0258 000053E3 		cmp	r3, #0
+ 251 025c 1900001A 		bne	.L43
+ 252 0260 7F3004E2 		and	r3, r4, #127
+ 253 0264 203043E2 		sub	r3, r3, #32
+ 254 0268 5E0053E3 		cmp	r3, #94
+ 255 026c 0900008A 		bhi	.L38
+ 256 0270 070055E1 		cmp	r5, r7
+ 257 0274 0700001A 		bne	.L38
+ 258 0278 0540CAE7 		strb	r4, [sl, r5]
+ 259 027c 019085E2 		add	r9, r5, #1
+ 260 0280 0400A0E1 		mov	r0, r4
+ 261 0284 FEFFFFEB 		bl	SendData
+ 262 0288 090055E1 		cmp	r5, r9
+ 263 028c 0570A0A1 		movge	r7, r5
+ 264 0290 0970A0B1 		movlt	r7, r9
+ 265 0294 0950A0E1 		mov	r5, r9
+ 266              	.L38:
+ 267 0298 050058E1 		cmp	r8, r5
+ 268 029c CBFFFFAA 		bge	.L39
+ 269 02a0 010000EA 		b	.L34
+ 270              	.L40:
+ 271 02a4 0070A0E3 		mov	r7, #0
+ 272 02a8 0750A0E1 		mov	r5, r7
+ 273              	.L34:
+ 274 02ac 0030A0E3 		mov	r3, #0
+ 275 02b0 0530CAE7 		strb	r3, [sl, r5]
+ 276 02b4 040000EA 		b	.L35
+ 277              	.L41:
+ 278 02b8 0070E0E3 		mvn	r7, #0
+ 279 02bc 020000EA 		b	.L35
+ 280              	.L42:
+ 281 02c0 7270A0E3 		mov	r7, #114
+ 282 02c4 000000EA 		b	.L35
+ 283              	.L43:
+ 284 02c8 6E70A0E3 		mov	r7, #110
+ 285              	.L35:
+ARM GAS  gcc_sample.s 			page 6
+
+
+ 286 02cc 0700A0E1 		mov	r0, r7
+ 287 02d0 F84FBDE8 		ldmfd	sp!, {r3, r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 288 02d4 1EFF2FE1 		bx	lr
+ 289              		.size	getscon, .-getscon
+ 290              		.align	2
+ 291              		.global	paramer
+ 292              		.type	paramer, %function
+ 293              	paramer:
+ 294              		@ Function supports interworking.
+ 295              		@ args = 0, pretend = 0, frame = 0
+ 296              		@ frame_needed = 0, uses_anonymous_args = 0
+ 297 02d8 08402DE9 		stmfd	sp!, {r3, lr}
+ 298 02dc 08009FE5 		ldr	r0, .L47
+ 299 02e0 FEFFFFEB 		bl	putscon
+ 300 02e4 0840BDE8 		ldmfd	sp!, {r3, lr}
+ 301 02e8 1EFF2FE1 		bx	lr
+ 302              	.L48:
+ 303              		.align	2
+ 304              	.L47:
+ 305 02ec 00000000 		.word	.LC0
+ 306              		.size	paramer, .-paramer
+ 307              		.align	2
+ 308              		.global	movem
+ 309              		.type	movem, %function
+ 310              	movem:
+ 311              		@ Function supports interworking.
+ 312              		@ args = 0, pretend = 0, frame = 0
+ 313              		@ frame_needed = 0, uses_anonymous_args = 0
+ 314              		@ link register save eliminated.
+ 315 02f0 002090E5 		ldr	r2, [r0, #0]
+ 316 02f4 043090E5 		ldr	r3, [r0, #4]
+ 317 02f8 080090E5 		ldr	r0, [r0, #8]
+ 318 02fc 000051E3 		cmp	r1, #0
+ 319 0300 0800001A 		bne	.L50
+ 320 0304 000050E3 		cmp	r0, #0
+ 321 0308 1EFF2F01 		bxeq	lr
+ 322 030c 012042E2 		sub	r2, r2, #1
+ 323 0310 000083E0 		add	r0, r3, r0
+ 324              	.L52:
+ 325 0314 0110F2E5 		ldrb	r1, [r2, #1]!	@ zero_extendqisi2
+ 326 0318 0110C3E4 		strb	r1, [r3], #1
+ 327 031c 000053E1 		cmp	r3, r0
+ 328 0320 FBFFFF1A 		bne	.L52
+ 329 0324 1EFF2FE1 		bx	lr
+ 330              	.L50:
+ 331 0328 010051E3 		cmp	r1, #1
+ 332 032c 0900001A 		bne	.L53
+ 333 0330 011040E2 		sub	r1, r0, #1
+ 334 0334 000050E3 		cmp	r0, #0
+ 335 0338 1EFF2F01 		bxeq	lr
+ 336 033c 022042E2 		sub	r2, r2, #2
+ 337              	.L54:
+ 338 0340 B200F2E1 		ldrh	r0, [r2, #2]!
+ 339 0344 B200C3E0 		strh	r0, [r3], #2	@ movhi
+ 340 0348 011041E2 		sub	r1, r1, #1
+ 341 034c 010071E3 		cmn	r1, #1
+ 342 0350 FAFFFF1A 		bne	.L54
+ARM GAS  gcc_sample.s 			page 7
+
+
+ 343 0354 1EFF2FE1 		bx	lr
+ 344              	.L53:
+ 345 0358 020051E3 		cmp	r1, #2
+ 346 035c 1EFF2F11 		bxne	lr
+ 347 0360 011040E2 		sub	r1, r0, #1
+ 348 0364 000050E3 		cmp	r0, #0
+ 349 0368 1EFF2F01 		bxeq	lr
+ 350 036c 042042E2 		sub	r2, r2, #4
+ 351              	.L55:
+ 352 0370 0400B2E5 		ldr	r0, [r2, #4]!
+ 353 0374 040083E4 		str	r0, [r3], #4
+ 354 0378 011041E2 		sub	r1, r1, #1
+ 355 037c 010071E3 		cmn	r1, #1
+ 356 0380 FAFFFF1A 		bne	.L55
+ 357 0384 1EFF2FE1 		bx	lr
+ 358              		.size	movem, .-movem
+ 359              		.align	2
+ 360              		.global	dumpmt
+ 361              		.type	dumpmt, %function
+ 362              	dumpmt:
+ 363              		@ Function supports interworking.
+ 364              		@ args = 0, pretend = 0, frame = 0
+ 365              		@ frame_needed = 0, uses_anonymous_args = 0
+ 366 0388 08402DE9 		stmfd	sp!, {r3, lr}
+ 367 038c 08009FE5 		ldr	r0, .L60
+ 368 0390 FEFFFFEB 		bl	putscon
+ 369 0394 0840BDE8 		ldmfd	sp!, {r3, lr}
+ 370 0398 1EFF2FE1 		bx	lr
+ 371              	.L61:
+ 372              		.align	2
+ 373              	.L60:
+ 374 039c 18000000 		.word	.LC1
+ 375              		.size	dumpmt, .-dumpmt
+ 376              		.align	2
+ 377              		.global	cmpstr
+ 378              		.type	cmpstr, %function
+ 379              	cmpstr:
+ 380              		@ Function supports interworking.
+ 381              		@ args = 0, pretend = 0, frame = 0
+ 382              		@ frame_needed = 0, uses_anonymous_args = 0
+ 383              		@ link register save eliminated.
+ 384 03a0 04402DE5 		str	r4, [sp, #-4]!
+ 385 03a4 FAC080E2 		add	ip, r0, #250
+ 386              	.L64:
+ 387 03a8 0130D1E4 		ldrb	r3, [r1], #1	@ zero_extendqisi2
+ 388 03ac 0120D0E4 		ldrb	r2, [r0], #1	@ zero_extendqisi2
+ 389 03b0 020053E1 		cmp	r3, r2
+ 390 03b4 0900008A 		bhi	.L65
+ 391 03b8 0A00003A 		bcc	.L66
+ 392 03bc 034092E1 		orrs	r4, r2, r3
+ 393 03c0 0A00000A 		beq	.L67
+ 394 03c4 000053E3 		cmp	r3, #0
+ 395 03c8 00005213 		cmpne	r2, #0
+ 396 03cc 0900000A 		beq	.L68
+ 397 03d0 0C0050E1 		cmp	r0, ip
+ 398 03d4 F3FFFF1A 		bne	.L64
+ 399 03d8 0100A0E3 		mov	r0, #1
+ARM GAS  gcc_sample.s 			page 8
+
+
+ 400 03dc 060000EA 		b	.L63
+ 401              	.L65:
+ 402 03e0 0100A0E3 		mov	r0, #1
+ 403 03e4 040000EA 		b	.L63
+ 404              	.L66:
+ 405 03e8 0000E0E3 		mvn	r0, #0
+ 406 03ec 020000EA 		b	.L63
+ 407              	.L67:
+ 408 03f0 0000A0E3 		mov	r0, #0
+ 409 03f4 000000EA 		b	.L63
+ 410              	.L68:
+ 411 03f8 0100A0E3 		mov	r0, #1
+ 412              	.L63:
+ 413 03fc 1000BDE8 		ldmfd	sp!, {r4}
+ 414 0400 1EFF2FE1 		bx	lr
+ 415              		.size	cmpstr, .-cmpstr
+ 416              		.align	2
+ 417              		.global	cpysstr
+ 418              		.type	cpysstr, %function
+ 419              	cpysstr:
+ 420              		@ Function supports interworking.
+ 421              		@ args = 0, pretend = 0, frame = 0
+ 422              		@ frame_needed = 0, uses_anonymous_args = 0
+ 423              		@ link register save eliminated.
+ 424 0404 04402DE5 		str	r4, [sp, #-4]!
+ 425 0408 000052E3 		cmp	r2, #0
+ 426 040c 1000000A 		beq	.L74
+ 427 0410 00C0D1E5 		ldrb	ip, [r1, #0]	@ zero_extendqisi2
+ 428 0414 DF001CE3 		tst	ip, #223
+ 429 0418 0F00000A 		beq	.L75
+ 430 041c 013080E2 		add	r3, r0, #1
+ 431 0420 024080E0 		add	r4, r0, r2
+ 432 0424 0020A0E3 		mov	r2, #0
+ 433 0428 030000EA 		b	.L72
+ 434              	.L73:
+ 435 042c 02C0D1E7 		ldrb	ip, [r1, r2]	@ zero_extendqisi2
+ 436 0430 013083E2 		add	r3, r3, #1
+ 437 0434 DF001CE3 		tst	ip, #223
+ 438 0438 0800000A 		beq	.L71
+ 439              	.L72:
+ 440 043c 0300A0E1 		mov	r0, r3
+ 441 0440 01C043E5 		strb	ip, [r3, #-1]
+ 442 0444 012082E2 		add	r2, r2, #1
+ 443 0448 040053E1 		cmp	r3, r4
+ 444 044c F6FFFF1A 		bne	.L73
+ 445 0450 020000EA 		b	.L71
+ 446              	.L74:
+ 447 0454 0020A0E3 		mov	r2, #0
+ 448 0458 000000EA 		b	.L71
+ 449              	.L75:
+ 450 045c 0020A0E3 		mov	r2, #0
+ 451              	.L71:
+ 452 0460 0030A0E3 		mov	r3, #0
+ 453 0464 0030C0E5 		strb	r3, [r0, #0]
+ 454 0468 0200A0E1 		mov	r0, r2
+ 455 046c 1000BDE8 		ldmfd	sp!, {r4}
+ 456 0470 1EFF2FE1 		bx	lr
+ARM GAS  gcc_sample.s 			page 9
+
+
+ 457              		.size	cpysstr, .-cpysstr
+ 458              		.align	2
+ 459              		.global	spacen
+ 460              		.type	spacen, %function
+ 461              	spacen:
+ 462              		@ Function supports interworking.
+ 463              		@ args = 0, pretend = 0, frame = 0
+ 464              		@ frame_needed = 0, uses_anonymous_args = 0
+ 465 0474 38402DE9 		stmfd	sp!, {r3, r4, r5, lr}
+ 466 0478 000050E3 		cmp	r0, #0
+ 467 047c 0500000A 		beq	.L76
+ 468 0480 0040A0E1 		mov	r4, r0
+ 469 0484 2050A0E3 		mov	r5, #32
+ 470              	.L78:
+ 471 0488 0500A0E1 		mov	r0, r5
+ 472 048c FEFFFFEB 		bl	SendData
+ 473 0490 014054E2 		subs	r4, r4, #1
+ 474 0494 FBFFFF1A 		bne	.L78
+ 475              	.L76:
+ 476 0498 3840BDE8 		ldmfd	sp!, {r3, r4, r5, lr}
+ 477 049c 1EFF2FE1 		bx	lr
+ 478              		.size	spacen, .-spacen
+ 479              		.align	2
+ 480              		.global	crlf
+ 481              		.type	crlf, %function
+ 482              	crlf:
+ 483              		@ Function supports interworking.
+ 484              		@ args = 0, pretend = 0, frame = 0
+ 485              		@ frame_needed = 0, uses_anonymous_args = 0
+ 486 04a0 08402DE9 		stmfd	sp!, {r3, lr}
+ 487 04a4 0D00A0E3 		mov	r0, #13
+ 488 04a8 FEFFFFEB 		bl	SendData
+ 489 04ac 0A00A0E3 		mov	r0, #10
+ 490 04b0 FEFFFFEB 		bl	SendData
+ 491 04b4 0840BDE8 		ldmfd	sp!, {r3, lr}
+ 492 04b8 1EFF2FE1 		bx	lr
+ 493              		.size	crlf, .-crlf
+ 494              		.align	2
+ 495              		.global	chex
+ 496              		.type	chex, %function
+ 497              	chex:
+ 498              		@ Function supports interworking.
+ 499              		@ args = 0, pretend = 0, frame = 0
+ 500              		@ frame_needed = 0, uses_anonymous_args = 0
+ 501              		@ link register save eliminated.
+ 502 04bc 613040E2 		sub	r3, r0, #97
+ 503 04c0 190053E3 		cmp	r3, #25
+ 504 04c4 20004092 		subls	r0, r0, #32
+ 505 04c8 FF000092 		andls	r0, r0, #255
+ 506 04cc 303040E2 		sub	r3, r0, #48
+ 507 04d0 090053E3 		cmp	r3, #9
+ 508 04d4 0100008A 		bhi	.L83
+ 509 04d8 0F0000E2 		and	r0, r0, #15
+ 510 04dc 1EFF2FE1 		bx	lr
+ 511              	.L83:
+ 512 04e0 413040E2 		sub	r3, r0, #65
+ 513 04e4 050053E3 		cmp	r3, #5
+ARM GAS  gcc_sample.s 			page 10
+
+
+ 514 04e8 37004092 		subls	r0, r0, #55
+ 515 04ec FF000092 		andls	r0, r0, #255
+ 516 04f0 0000E083 		mvnhi	r0, #0
+ 517 04f4 1EFF2FE1 		bx	lr
+ 518              		.size	chex, .-chex
+ 519              		.align	2
+ 520              		.global	htol
+ 521              		.type	htol, %function
+ 522              	htol:
+ 523              		@ Function supports interworking.
+ 524              		@ args = 0, pretend = 0, frame = 0
+ 525              		@ frame_needed = 0, uses_anonymous_args = 0
+ 526 04f8 F8452DE9 		stmfd	sp!, {r3, r4, r5, r6, r7, r8, sl, lr}
+ 527 04fc 0080A0E1 		mov	r8, r0
+ 528 0500 0170A0E1 		mov	r7, r1
+ 529 0504 004091E5 		ldr	r4, [r1, #0]
+ 530 0508 0060A0E3 		mov	r6, #0
+ 531              	.L88:
+ 532 050c 0150D4E4 		ldrb	r5, [r4], #1	@ zero_extendqisi2
+ 533 0510 04A0A0E1 		mov	sl, r4
+ 534 0514 0500A0E1 		mov	r0, r5
+ 535 0518 FEFFFFEB 		bl	chex
+ 536 051c 0008A0E1 		mov	r0, r0, asl #16
+ 537 0520 2028A0E1 		mov	r2, r0, lsr #16
+ 538 0524 010870E3 		cmn	r0, #65536
+ 539 0528 0228A011 		movne	r2, r2, asl #16
+ 540 052c 4228A011 		movne	r2, r2, asr #16
+ 541 0530 06628211 		orrne	r6, r2, r6, asl #4
+ 542 0534 F4FFFF1A 		bne	.L88
+ 543              	.L90:
+ 544 0538 006088E5 		str	r6, [r8, #0]
+ 545 053c 004087E5 		str	r4, [r7, #0]
+ 546 0540 0500A0E1 		mov	r0, r5
+ 547 0544 F845BDE8 		ldmfd	sp!, {r3, r4, r5, r6, r7, r8, sl, lr}
+ 548 0548 1EFF2FE1 		bx	lr
+ 549              		.size	htol, .-htol
+ 550              		.align	2
+ 551              		.global	argck
+ 552              		.type	argck, %function
+ 553              	argck:
+ 554              		@ Function supports interworking.
+ 555              		@ args = 0, pretend = 0, frame = 0
+ 556              		@ frame_needed = 0, uses_anonymous_args = 0
+ 557 054c F8402DE9 		stmfd	sp!, {r3, r4, r5, r6, r7, lr}
+ 558 0550 0060A0E1 		mov	r6, r0
+ 559 0554 0150A0E1 		mov	r5, r1
+ 560 0558 0270A0E1 		mov	r7, r2
+ 561 055c 0040A0E3 		mov	r4, #0
+ 562              	.L94:
+ 563 0560 0408A0E1 		mov	r0, r4, asl #16
+ 564 0564 014084E2 		add	r4, r4, #1
+ 565 0568 0448A0E1 		mov	r4, r4, asl #16
+ 566 056c 2448A0E1 		mov	r4, r4, lsr #16
+ 567 0570 400785E0 		add	r0, r5, r0, asr #14
+ 568 0574 0610A0E1 		mov	r1, r6
+ 569 0578 FEFFFFEB 		bl	htol
+ 570 057c DF0010E3 		tst	r0, #223
+ARM GAS  gcc_sample.s 			page 11
+
+
+ 571 0580 0400001A 		bne	.L92
+ 572 0584 0408A0E1 		mov	r0, r4, asl #16
+ 573 0588 4008A0E1 		mov	r0, r0, asr #16
+ 574 058c 070050E1 		cmp	r0, r7
+ 575 0590 0000E0B3 		mvnlt	r0, #0
+ 576 0594 020000EA 		b	.L93
+ 577              	.L92:
+ 578 0598 2C0050E3 		cmp	r0, #44
+ 579 059c EFFFFF0A 		beq	.L94
+ 580 05a0 0000E0E3 		mvn	r0, #0
+ 581              	.L93:
+ 582 05a4 F840BDE8 		ldmfd	sp!, {r3, r4, r5, r6, r7, lr}
+ 583 05a8 1EFF2FE1 		bx	lr
+ 584              		.size	argck, .-argck
+ 585              		.align	2
+ 586              		.global	hex
+ 587              		.type	hex, %function
+ 588              	hex:
+ 589              		@ Function supports interworking.
+ 590              		@ args = 0, pretend = 0, frame = 0
+ 591              		@ frame_needed = 0, uses_anonymous_args = 0
+ 592              		@ link register save eliminated.
+ 593 05ac 0F0000E2 		and	r0, r0, #15
+ 594 05b0 090050E3 		cmp	r0, #9
+ 595 05b4 070080C2 		addgt	r0, r0, #7
+ 596 05b8 300080E2 		add	r0, r0, #48
+ 597 05bc 1EFF2FE1 		bx	lr
+ 598              		.size	hex, .-hex
+ 599              		.align	2
+ 600              		.global	ckasci
+ 601              		.type	ckasci, %function
+ 602              	ckasci:
+ 603              		@ Function supports interworking.
+ 604              		@ args = 0, pretend = 0, frame = 0
+ 605              		@ frame_needed = 0, uses_anonymous_args = 0
+ 606 05c0 08402DE9 		stmfd	sp!, {r3, lr}
+ 607 05c4 FF0000E2 		and	r0, r0, #255
+ 608 05c8 203040E2 		sub	r3, r0, #32
+ 609 05cc 0338A0E1 		mov	r3, r3, asl #16
+ 610 05d0 5E0853E3 		cmp	r3, #6160384
+ 611 05d4 2E00A083 		movhi	r0, #46
+ 612 05d8 FEFFFFEB 		bl	SendData
+ 613 05dc 0840BDE8 		ldmfd	sp!, {r3, lr}
+ 614 05e0 1EFF2FE1 		bx	lr
+ 615              		.size	ckasci, .-ckasci
+ 616              		.align	2
+ 617              		.global	cstrlen
+ 618              		.type	cstrlen, %function
+ 619              	cstrlen:
+ 620              		@ Function supports interworking.
+ 621              		@ args = 0, pretend = 0, frame = 0
+ 622              		@ frame_needed = 0, uses_anonymous_args = 0
+ 623              		@ link register save eliminated.
+ 624 05e4 0030D0E5 		ldrb	r3, [r0, #0]	@ zero_extendqisi2
+ 625 05e8 010053E1 		cmp	r3, r1
+ 626 05ec 0700000A 		beq	.L104
+ 627 05f0 0130A0E3 		mov	r3, #1
+ARM GAS  gcc_sample.s 			page 12
+
+
+ 628              	.L103:
+ 629 05f4 0320D0E7 		ldrb	r2, [r0, r3]	@ zero_extendqisi2
+ 630 05f8 010052E1 		cmp	r2, r1
+ 631 05fc 0400000A 		beq	.L102
+ 632 0600 013083E2 		add	r3, r3, #1
+ 633 0604 500053E3 		cmp	r3, #80
+ 634 0608 F9FFFF1A 		bne	.L103
+ 635 060c 000000EA 		b	.L102
+ 636              	.L104:
+ 637 0610 0030A0E3 		mov	r3, #0
+ 638              	.L102:
+ 639 0614 0300A0E1 		mov	r0, r3
+ 640 0618 1EFF2FE1 		bx	lr
+ 641              		.size	cstrlen, .-cstrlen
+ 642              		.align	2
+ 643              		.global	csprintf
+ 644              		.type	csprintf, %function
+ 645              	csprintf:
+ 646              		@ Function supports interworking.
+ 647              		@ args = 0, pretend = 0, frame = 56
+ 648              		@ frame_needed = 0, uses_anonymous_args = 0
+ 649 061c F04F2DE9 		stmfd	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 650 0620 3CD04DE2 		sub	sp, sp, #60
+ 651 0624 0060A0E1 		mov	r6, r0
+ 652 0628 0170A0E1 		mov	r7, r1
+ 653 062c 14208DE5 		str	r2, [sp, #20]
+ 654 0630 18308DE5 		str	r3, [sp, #24]
+ 655 0634 0100A0E1 		mov	r0, r1
+ 656 0638 0010A0E3 		mov	r1, #0
+ 657 063c FEFFFFEB 		bl	cstrlen
+ 658 0640 000050E3 		cmp	r0, #0
+ 659 0644 08008DE5 		str	r0, [sp, #8]
+ 660 0648 AE0000DA 		ble	.L135
+ 661 064c 0010A0E3 		mov	r1, #0
+ 662 0650 0C108DE5 		str	r1, [sp, #12]
+ 663 0654 0150A0E1 		mov	r5, r1
+ 664 0658 0130A0E1 		mov	r3, r1
+ 665 065c 2BA08DE2 		add	sl, sp, #43
+ 666 0660 F0929FE5 		ldr	r9, .L153
+ 667 0664 2E208DE2 		add	r2, sp, #46
+ 668 0668 04208DE5 		str	r2, [sp, #4]
+ 669              	.L133:
+ 670 066c 0320D7E7 		ldrb	r2, [r7, r3]	@ zero_extendqisi2
+ 671 0670 250052E3 		cmp	r2, #37
+ 672 0674 0120C614 		strneb	r2, [r6], #1
+ 673 0678 01508512 		addne	r5, r5, #1
+ 674 067c 9900001A 		bne	.L117
+ 675 0680 18409DE5 		ldr	r4, [sp, #24]
+ 676 0684 14C09DE5 		ldr	ip, [sp, #20]
+ 677 0688 0C109DE5 		ldr	r1, [sp, #12]
+ 678 068c 000051E3 		cmp	r1, #0
+ 679 0690 0C40A001 		moveq	r4, ip
+ 680 0694 011081E2 		add	r1, r1, #1
+ 681 0698 0C108DE5 		str	r1, [sp, #12]
+ 682 069c 018083E2 		add	r8, r3, #1
+ 683 06a0 0820D7E7 		ldrb	r2, [r7, r8]	@ zero_extendqisi2
+ 684 06a4 301042E2 		sub	r1, r2, #48
+ARM GAS  gcc_sample.s 			page 13
+
+
+ 685 06a8 090051E3 		cmp	r1, #9
+ 686 06ac 1600008A 		bhi	.L137
+ 687 06b0 300052E3 		cmp	r2, #48
+ 688 06b4 02808302 		addeq	r8, r3, #2
+ 689 06b8 0820D707 		ldreqb	r2, [r7, r8]	@ zero_extendqisi2
+ 690 06bc 0030A003 		moveq	r3, #0
+ 691 06c0 10308D05 		streq	r3, [sp, #16]
+ 692 06c4 01C0A013 		movne	ip, #1
+ 693 06c8 10C08D15 		strne	ip, [sp, #16]
+ 694 06cc 313042E2 		sub	r3, r2, #49
+ 695 06d0 080053E3 		cmp	r3, #8
+ 696 06d4 0F00008A 		bhi	.L139
+ 697 06d8 0F1002E2 		and	r1, r2, #15
+ 698 06dc 013088E2 		add	r3, r8, #1
+ 699 06e0 0320D7E7 		ldrb	r2, [r7, r3]	@ zero_extendqisi2
+ 700 06e4 300042E2 		sub	r0, r2, #48
+ 701 06e8 090050E3 		cmp	r0, #9
+ 702 06ec 0380A081 		movhi	r8, r3
+ 703 06f0 0C00008A 		bhi	.L110
+ 704 06f4 011181E0 		add	r1, r1, r1, asl #2
+ 705 06f8 0F2002E2 		and	r2, r2, #15
+ 706 06fc 811082E0 		add	r1, r2, r1, asl #1
+ 707 0700 028088E2 		add	r8, r8, #2
+ 708 0704 0820D7E7 		ldrb	r2, [r7, r8]	@ zero_extendqisi2
+ 709 0708 060000EA 		b	.L110
+ 710              	.L137:
+ 711 070c 0110A0E3 		mov	r1, #1
+ 712 0710 10108DE5 		str	r1, [sp, #16]
+ 713 0714 030000EA 		b	.L110
+ 714              	.L139:
+ 715 0718 0130A0E3 		mov	r3, #1
+ 716 071c 10308DE5 		str	r3, [sp, #16]
+ 717 0720 0310A0E1 		mov	r1, r3
+ 718 0724 FFFFFFEA 		b	.L110
+ 719              	.L110:
+ 720 0728 DF3002E2 		and	r3, r2, #223
+ 721 072c 4C0053E3 		cmp	r3, #76
+ 722 0730 01808802 		addeq	r8, r8, #1
+ 723 0734 0820D707 		ldreqb	r2, [r7, r8]	@ zero_extendqisi2
+ 724 0738 0400A003 		moveq	r0, #4
+ 725 073c 0200A013 		movne	r0, #2
+ 726 0740 DF3002E2 		and	r3, r2, #223
+ 727 0744 580053E3 		cmp	r3, #88
+ 728 0748 0500001A 		bne	.L113
+ 729 074c 780052E3 		cmp	r2, #120
+ 730 0750 7200000A 		beq	.L114
+ 731 0754 00C0A0E3 		mov	ip, #0
+ 732 0758 20C08DE5 		str	ip, [sp, #32]
+ 733 075c 7820A0E3 		mov	r2, #120
+ 734 0760 160000EA 		b	.L119
+ 735              	.L113:
+ 736 0764 440053E3 		cmp	r3, #68
+ 737 0768 6F00000A 		beq	.L142
+ 738 076c 630052E3 		cmp	r2, #99
+ 739 0770 0140C604 		streqb	r4, [r6], #1
+ 740 0774 01508502 		addeq	r5, r5, #1
+ 741 0778 0830A001 		moveq	r3, r8
+ARM GAS  gcc_sample.s 			page 14
+
+
+ 742 077c 5900000A 		beq	.L117
+ 743              	.L116:
+ 744 0780 730052E3 		cmp	r2, #115
+ 745 0784 0D00001A 		bne	.L119
+ 746 0788 040000EA 		b	.L143
+ 747              	.L120:
+ 748 078c 0130C6E4 		strb	r3, [r6], #1
+ 749 0790 010080E2 		add	r0, r0, #1
+ 750 0794 4E0050E3 		cmp	r0, #78
+ 751 0798 020000DA 		ble	.L118
+ 752 079c 6A0000EA 		b	.L146
+ 753              	.L143:
+ 754 07a0 0500A0E1 		mov	r0, r5
+ 755 07a4 044065E0 		rsb	r4, r5, r4
+ 756              	.L118:
+ 757 07a8 0030D4E7 		ldrb	r3, [r4, r0]	@ zero_extendqisi2
+ 758 07ac 000053E3 		cmp	r3, #0
+ 759 07b0 F5FFFF1A 		bne	.L120
+ 760 07b4 0050A0E1 		mov	r5, r0
+ 761 07b8 0830A0E1 		mov	r3, r8
+ 762 07bc 490000EA 		b	.L117
+ 763              	.L119:
+ 764 07c0 020050E3 		cmp	r0, #2
+ 765 07c4 0448A001 		moveq	r4, r4, asl #16
+ 766 07c8 2448A001 		moveq	r4, r4, lsr #16
+ 767 07cc 0A0051E3 		cmp	r1, #10
+ 768 07d0 0A10A0A3 		movge	r1, #10
+ 769 07d4 1C108DE5 		str	r1, [sp, #28]
+ 770 07d8 0010A0E3 		mov	r1, #0
+ 771 07dc 3610CDE5 		strb	r1, [sp, #54]
+ 772 07e0 780052E3 		cmp	r2, #120
+ 773 07e4 35208D12 		addne	r2, sp, #53
+ 774 07e8 1100001A 		bne	.L126
+ 775 07ec 2020A0E3 		mov	r2, #32
+ 776 07f0 2C20CDE5 		strb	r2, [sp, #44]
+ 777 07f4 2D20CDE5 		strb	r2, [sp, #45]
+ 778 07f8 36B08DE2 		add	fp, sp, #54
+ 779 07fc 24808DE5 		str	r8, [sp, #36]
+ 780 0800 20809DE5 		ldr	r8, [sp, #32]
+ 781              	.L124:
+ 782 0804 0400A0E1 		mov	r0, r4
+ 783 0808 FEFFFFEB 		bl	hex
+ 784 080c 000058E3 		cmp	r8, #0
+ 785 0810 39005013 		cmpne	r0, #57
+ 786 0814 200080C3 		orrgt	r0, r0, #32
+ 787 0818 01006BE5 		strb	r0, [fp, #-1]!
+ 788 081c 2442A0E1 		mov	r4, r4, lsr #4
+ 789 0820 04309DE5 		ldr	r3, [sp, #4]
+ 790 0824 03005BE1 		cmp	fp, r3
+ 791 0828 F5FFFF1A 		bne	.L124
+ 792 082c 24809DE5 		ldr	r8, [sp, #36]
+ 793 0830 3F0000EA 		b	.L125
+ 794              	.L126:
+ 795 0834 99C483E0 		umull	ip, r3, r9, r4
+ 796 0838 A331A0E1 		mov	r3, r3, lsr #3
+ 797 083c 031183E0 		add	r1, r3, r3, asl #2
+ 798 0840 814044E0 		sub	r4, r4, r1, asl #1
+ARM GAS  gcc_sample.s 			page 15
+
+
+ 799 0844 304084E3 		orr	r4, r4, #48
+ 800 0848 014042E4 		strb	r4, [r2], #-1
+ 801 084c 0340A0E1 		mov	r4, r3
+ 802 0850 0A0052E1 		cmp	r2, sl
+ 803 0854 F6FFFF1A 		bne	.L126
+ 804 0858 350000EA 		b	.L125
+ 805              	.L130:
+ 806 085c 2C208DE2 		add	r2, sp, #44
+ 807 0860 0220D3E7 		ldrb	r2, [r3, r2]	@ zero_extendqisi2
+ 808 0864 300052E3 		cmp	r2, #48
+ 809 0868 0400001A 		bne	.L127
+ 810 086c 000050E3 		cmp	r0, #0
+ 811 0870 2C208D12 		addne	r2, sp, #44
+ 812 0874 20C0A013 		movne	ip, #32
+ 813 0878 02C0C317 		strneb	ip, [r3, r2]
+ 814 087c 010000EA 		b	.L128
+ 815              	.L127:
+ 816 0880 200052E3 		cmp	r2, #32
+ 817 0884 0200001A 		bne	.L129
+ 818              	.L128:
+ 819 0888 013083E2 		add	r3, r3, #1
+ 820 088c 090053E3 		cmp	r3, #9
+ 821 0890 F1FFFF1A 		bne	.L130
+ 822              	.L129:
+ 823 0894 0A0063E2 		rsb	r0, r3, #10
+ 824 0898 1C109DE5 		ldr	r1, [sp, #28]
+ 825 089c 010050E1 		cmp	r0, r1
+ 826 08a0 0100A0B1 		movlt	r0, r1
+ 827 08a4 00C085E0 		add	ip, r5, r0
+ 828 08a8 4E005CE3 		cmp	ip, #78
+ 829 08ac 170000CA 		bgt	.L144
+ 830 08b0 0A0060E2 		rsb	r0, r0, #10
+ 831 08b4 090050E3 		cmp	r0, #9
+ 832 08b8 200000CA 		bgt	.L131
+ 833 08bc 0030A0E1 		mov	r3, r0
+ 834 08c0 061060E0 		rsb	r1, r0, r6
+ 835              	.L132:
+ 836 08c4 2C208DE2 		add	r2, sp, #44
+ 837 08c8 0220D3E7 		ldrb	r2, [r3, r2]	@ zero_extendqisi2
+ 838 08cc 0320C1E7 		strb	r2, [r1, r3]
+ 839 08d0 013083E2 		add	r3, r3, #1
+ 840 08d4 0A0053E3 		cmp	r3, #10
+ 841 08d8 F9FFFF1A 		bne	.L132
+ 842 08dc 066060E0 		rsb	r6, r0, r6
+ 843 08e0 0A6086E2 		add	r6, r6, #10
+ 844 08e4 150000EA 		b	.L131
+ 845              	.L117:
+ 846 08e8 4E0055E3 		cmp	r5, #78
+ 847 08ec 090000CA 		bgt	.L145
+ 848              	.L134:
+ 849 08f0 013083E2 		add	r3, r3, #1
+ 850 08f4 08209DE5 		ldr	r2, [sp, #8]
+ 851 08f8 030052E1 		cmp	r2, r3
+ 852 08fc 5AFFFFCA 		bgt	.L133
+ 853 0900 0500A0E1 		mov	r0, r5
+ 854 0904 100000EA 		b	.L146
+ 855              	.L135:
+ARM GAS  gcc_sample.s 			page 16
+
+
+ 856 0908 0000A0E3 		mov	r0, #0
+ 857 090c 0E0000EA 		b	.L146
+ 858              	.L144:
+ 859 0910 0500A0E1 		mov	r0, r5
+ 860 0914 0C0000EA 		b	.L146
+ 861              	.L145:
+ 862 0918 0500A0E1 		mov	r0, r5
+ 863 091c 0A0000EA 		b	.L146
+ 864              	.L114:
+ 865 0920 0130A0E3 		mov	r3, #1
+ 866 0924 20308DE5 		str	r3, [sp, #32]
+ 867 0928 A4FFFFEA 		b	.L119
+ 868              	.L142:
+ 869 092c 6420A0E3 		mov	r2, #100
+ 870 0930 A2FFFFEA 		b	.L119
+ 871              	.L125:
+ 872 0934 0030A0E3 		mov	r3, #0
+ 873 0938 10009DE5 		ldr	r0, [sp, #16]
+ 874 093c C6FFFFEA 		b	.L130
+ 875              	.L131:
+ 876 0940 0C50A0E1 		mov	r5, ip
+ 877 0944 0830A0E1 		mov	r3, r8
+ 878 0948 E8FFFFEA 		b	.L134
+ 879              	.L146:
+ 880 094c 3CD08DE2 		add	sp, sp, #60
+ 881 0950 F04FBDE8 		ldmfd	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 882 0954 1EFF2FE1 		bx	lr
+ 883              	.L154:
+ 884              		.align	2
+ 885              	.L153:
+ 886 0958 CDCCCCCC 		.word	-858993459
+ 887              		.size	csprintf, .-csprintf
+ 888              		.align	2
+ 889              		.global	cprintf
+ 890              		.type	cprintf, %function
+ 891              	cprintf:
+ 892              		@ Function supports interworking.
+ 893              		@ args = 0, pretend = 0, frame = 80
+ 894              		@ frame_needed = 0, uses_anonymous_args = 0
+ 895 095c 04E02DE5 		str	lr, [sp, #-4]!
+ 896 0960 54D04DE2 		sub	sp, sp, #84
+ 897 0964 00E0A0E1 		mov	lr, r0
+ 898 0968 01C0A0E1 		mov	ip, r1
+ 899 096c 0230A0E1 		mov	r3, r2
+ 900 0970 0D00A0E1 		mov	r0, sp
+ 901 0974 0E10A0E1 		mov	r1, lr
+ 902 0978 0C20A0E1 		mov	r2, ip
+ 903 097c FEFFFFEB 		bl	csprintf
+ 904 0980 50308DE2 		add	r3, sp, #80
+ 905 0984 000083E0 		add	r0, r3, r0
+ 906 0988 0030A0E3 		mov	r3, #0
+ 907 098c 503040E5 		strb	r3, [r0, #-80]
+ 908 0990 0D00A0E1 		mov	r0, sp
+ 909 0994 FEFFFFEB 		bl	putscon
+ 910 0998 54D08DE2 		add	sp, sp, #84
+ 911 099c 04E09DE4 		ldr	lr, [sp], #4
+ 912 09a0 1EFF2FE1 		bx	lr
+ARM GAS  gcc_sample.s 			page 17
+
+
+ 913              		.size	cprintf, .-cprintf
+ 914              		.align	2
+ 915              		.global	srload
+ 916              		.type	srload, %function
+ 917              	srload:
+ 918              		@ Function supports interworking.
+ 919              		@ args = 0, pretend = 0, frame = 16
+ 920              		@ frame_needed = 0, uses_anonymous_args = 0
+ 921 09a4 F04F2DE9 		stmfd	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 922 09a8 14D04DE2 		sub	sp, sp, #20
+ 923 09ac 08008DE5 		str	r0, [sp, #8]
+ 924 09b0 0090A0E3 		mov	r9, #0
+ 925 09b4 04908DE5 		str	r9, [sp, #4]
+ 926 09b8 09B0A0E1 		mov	fp, r9
+ 927              	.L178:
+ 928 09bc FEFFFFEB 		bl	RecvData
+ 929 09c0 030050E3 		cmp	r0, #3
+ 930 09c4 7A00000A 		beq	.L158
+ 931 09c8 530050E3 		cmp	r0, #83
+ 932 09cc FAFFFF1A 		bne	.L178
+ 933 09d0 FEFFFFEB 		bl	RecvData
+ 934 09d4 0030A0E1 		mov	r3, r0
+ 935 09d8 030050E3 		cmp	r0, #3
+ 936 09dc 7400000A 		beq	.L158
+ 937 09e0 390050E3 		cmp	r0, #57
+ 938 09e4 7600000A 		beq	.L160
+ 939 09e8 380050E3 		cmp	r0, #56
+ 940 09ec 7400000A 		beq	.L160
+ 941 09f0 370050E3 		cmp	r0, #55
+ 942 09f4 7200000A 		beq	.L160
+ 943 09f8 300050E3 		cmp	r0, #48
+ 944 09fc EEFFFF0A 		beq	.L178
+ 945 0a00 350050E3 		cmp	r0, #53
+ 946 0a04 ECFFFF0A 		beq	.L178
+ 947 0a08 313040E2 		sub	r3, r0, #49
+ 948 0a0c 020053E3 		cmp	r3, #2
+ 949 0a10 5600008A 		bhi	.L162
+ 950 0a14 03A000E2 		and	sl, r0, #3
+ 951 0a18 FEFFFFEB 		bl	RecvData
+ 952 0a1c 030050E3 		cmp	r0, #3
+ 953 0a20 6300000A 		beq	.L158
+ 954 0a24 FEFFFFEB 		bl	chex
+ 955 0a28 0080A0E1 		mov	r8, r0
+ 956 0a2c FEFFFFEB 		bl	RecvData
+ 957 0a30 030050E3 		cmp	r0, #3
+ 958 0a34 5E00000A 		beq	.L158
+ 959 0a38 FEFFFFEB 		bl	chex
+ 960 0a3c 088290E0 		adds	r8, r0, r8, asl #4
+ 961 0a40 5E00000A 		beq	.L170
+ 962 0a44 FF5068E2 		rsb	r5, r8, #255
+ 963 0a48 014048E2 		sub	r4, r8, #1
+ 964 0a4c 0B60A0E1 		mov	r6, fp
+ 965              	.L163:
+ 966 0a50 FEFFFFEB 		bl	RecvData
+ 967 0a54 030050E3 		cmp	r0, #3
+ 968 0a58 5500000A 		beq	.L158
+ 969 0a5c FEFFFFEB 		bl	chex
+ARM GAS  gcc_sample.s 			page 18
+
+
+ 970 0a60 0070A0E1 		mov	r7, r0
+ 971 0a64 FEFFFFEB 		bl	RecvData
+ 972 0a68 030050E3 		cmp	r0, #3
+ 973 0a6c 5000000A 		beq	.L158
+ 974 0a70 0772A0E1 		mov	r7, r7, asl #4
+ 975 0a74 FEFFFFEB 		bl	chex
+ 976 0a78 000087E0 		add	r0, r7, r0
+ 977 0a7c 055060E0 		rsb	r5, r0, r5
+ 978 0a80 066480E0 		add	r6, r0, r6, asl #8
+ 979 0a84 014044E2 		sub	r4, r4, #1
+ 980 0a88 023084E2 		add	r3, r4, #2
+ 981 0a8c 0A3083E0 		add	r3, r3, sl
+ 982 0a90 030058E1 		cmp	r8, r3
+ 983 0a94 EDFFFF1A 		bne	.L163
+ 984 0a98 08209DE5 		ldr	r2, [sp, #8]
+ 985 0a9c 003092E5 		ldr	r3, [r2, #0]
+ 986 0aa0 066083E0 		add	r6, r3, r6
+ 987 0aa4 04309DE5 		ldr	r3, [sp, #4]
+ 988 0aa8 000053E3 		cmp	r3, #0
+ 989 0aac 0C608D05 		streq	r6, [sp, #12]
+ 990 0ab0 0120A003 		moveq	r2, #1
+ 991 0ab4 04208D05 		streq	r2, [sp, #4]
+ 992 0ab8 000054E3 		cmp	r4, #0
+ 993 0abc 1200000A 		beq	.L165
+ 994 0ac0 0970A0E1 		mov	r7, r9
+ 995 0ac4 069069E0 		rsb	r9, r9, r6
+ 996              	.L166:
+ 997 0ac8 FEFFFFEB 		bl	RecvData
+ 998 0acc 030050E3 		cmp	r0, #3
+ 999 0ad0 3700000A 		beq	.L158
+ 1000 0ad4 FEFFFFEB 		bl	chex
+ 1001 0ad8 0080A0E1 		mov	r8, r0
+ 1002 0adc FEFFFFEB 		bl	RecvData
+ 1003 0ae0 030050E3 		cmp	r0, #3
+ 1004 0ae4 3200000A 		beq	.L158
+ 1005 0ae8 0882A0E1 		mov	r8, r8, asl #4
+ 1006 0aec FEFFFFEB 		bl	chex
+ 1007 0af0 000088E0 		add	r0, r8, r0
+ 1008 0af4 055060E0 		rsb	r5, r0, r5
+ 1009 0af8 0700C9E7 		strb	r0, [r9, r7]
+ 1010 0afc 017087E2 		add	r7, r7, #1
+ 1011 0b00 014054E2 		subs	r4, r4, #1
+ 1012 0b04 EFFFFF1A 		bne	.L166
+ 1013 0b08 0790A0E1 		mov	r9, r7
+ 1014              	.L165:
+ 1015 0b0c FEFFFFEB 		bl	RecvData
+ 1016 0b10 030050E3 		cmp	r0, #3
+ 1017 0b14 2600000A 		beq	.L158
+ 1018 0b18 FEFFFFEB 		bl	chex
+ 1019 0b1c 0040A0E1 		mov	r4, r0
+ 1020 0b20 FEFFFFEB 		bl	RecvData
+ 1021 0b24 030050E3 		cmp	r0, #3
+ 1022 0b28 2100000A 		beq	.L158
+ 1023 0b2c 0442A0E1 		mov	r4, r4, asl #4
+ 1024 0b30 FEFFFFEB 		bl	chex
+ 1025 0b34 004084E0 		add	r4, r4, r0
+ 1026 0b38 053024E0 		eor	r3, r4, r5
+ARM GAS  gcc_sample.s 			page 19
+
+
+ 1027 0b3c FF0013E3 		tst	r3, #255
+ 1028 0b40 9DFFFF0A 		beq	.L178
+ 1029 0b44 9C009FE5 		ldr	r0, .L179
+ 1030 0b48 FEFFFFEB 		bl	putscon
+ 1031 0b4c 0518A0E1 		mov	r1, r5, asl #16
+ 1032 0b50 0428A0E1 		mov	r2, r4, asl #16
+ 1033 0b54 90009FE5 		ldr	r0, .L179+4
+ 1034 0b58 4118A0E1 		mov	r1, r1, asr #16
+ 1035 0b5c 4228A0E1 		mov	r2, r2, asr #16
+ 1036 0b60 FEFFFFEB 		bl	cprintf
+ 1037 0b64 84009FE5 		ldr	r0, .L179+8
+ 1038 0b68 FEFFFFEB 		bl	putscon
+ 1039 0b6c 1A0000EA 		b	.L156
+ 1040              	.L162:
+ 1041 0b70 7C009FE5 		ldr	r0, .L179+12
+ 1042 0b74 FEFFFFEB 		bl	putscon
+ 1043 0b78 170000EA 		b	.L156
+ 1044              	.L173:
+ 1045 0b7c FEFFFFEB 		bl	RecvData
+ 1046 0b80 014054E2 		subs	r4, r4, #1
+ 1047 0b84 FCFFFF1A 		bne	.L173
+ 1048              	.L169:
+ 1049 0b88 68009FE5 		ldr	r0, .L179+16
+ 1050 0b8c FEFFFFEB 		bl	putscon
+ 1051 0b90 64009FE5 		ldr	r0, .L179+20
+ 1052 0b94 0C109DE5 		ldr	r1, [sp, #12]
+ 1053 0b98 FEFFFFEB 		bl	cprintf
+ 1054 0b9c 5C009FE5 		ldr	r0, .L179+24
+ 1055 0ba0 FEFFFFEB 		bl	putscon
+ 1056 0ba4 58009FE5 		ldr	r0, .L179+28
+ 1057 0ba8 0910A0E1 		mov	r1, r9
+ 1058 0bac FEFFFFEB 		bl	cprintf
+ 1059 0bb0 090000EA 		b	.L156
+ 1060              	.L158:
+ 1061 0bb4 4C009FE5 		ldr	r0, .L179+32
+ 1062 0bb8 FEFFFFEB 		bl	putscon
+ 1063 0bbc 060000EA 		b	.L156
+ 1064              	.L170:
+ 1065 0bc0 3930A0E3 		mov	r3, #57
+ 1066              	.L160:
+ 1067 0bc4 0F3003E2 		and	r3, r3, #15
+ 1068 0bc8 0E4063E2 		rsb	r4, r3, #14
+ 1069 0bcc 8440A0E1 		mov	r4, r4, asl #1
+ 1070 0bd0 000054E3 		cmp	r4, #0
+ 1071 0bd4 E8FFFFCA 		bgt	.L173
+ 1072 0bd8 EAFFFFEA 		b	.L169
+ 1073              	.L156:
+ 1074 0bdc 14D08DE2 		add	sp, sp, #20
+ 1075 0be0 F04FBDE8 		ldmfd	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 1076 0be4 1EFF2FE1 		bx	lr
+ 1077              	.L180:
+ 1078              		.align	2
+ 1079              	.L179:
+ 1080 0be8 54000000 		.word	.LC2
+ 1081 0bec 6C000000 		.word	.LC3
+ 1082 0bf0 78000000 		.word	.LC4
+ 1083 0bf4 8C000000 		.word	.LC5
+ARM GAS  gcc_sample.s 			page 20
+
+
+ 1084 0bf8 9C000000 		.word	.LC6
+ 1085 0bfc B8000000 		.word	.LC7
+ 1086 0c00 C0000000 		.word	.LC8
+ 1087 0c04 DC000000 		.word	.LC9
+ 1088 0c08 E4000000 		.word	.LC10
+ 1089              		.size	srload, .-srload
+ 1090              		.align	2
+ 1091              		.global	verify
+ 1092              		.type	verify, %function
+ 1093              	verify:
+ 1094              		@ Function supports interworking.
+ 1095              		@ args = 0, pretend = 0, frame = 0
+ 1096              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1097 0c0c F84F2DE9 		stmfd	sp!, {r3, r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 1098 0c10 006090E5 		ldr	r6, [r0, #0]
+ 1099 0c14 045090E5 		ldr	r5, [r0, #4]
+ 1100 0c18 084090E5 		ldr	r4, [r0, #8]
+ 1101 0c1c 000054E3 		cmp	r4, #0
+ 1102 0c20 2000000A 		beq	.L182
+ 1103 0c24 016046E2 		sub	r6, r6, #1
+ 1104 0c28 015045E2 		sub	r5, r5, #1
+ 1105 0c2c 80A09FE5 		ldr	sl, .L186
+ 1106 0c30 80B09FE5 		ldr	fp, .L186+4
+ 1107 0c34 80909FE5 		ldr	r9, .L186+8
+ 1108              	.L184:
+ 1109 0c38 0180F6E5 		ldrb	r8, [r6, #1]!	@ zero_extendqisi2
+ 1110 0c3c 0170F5E5 		ldrb	r7, [r5, #1]!	@ zero_extendqisi2
+ 1111 0c40 070058E1 		cmp	r8, r7
+ 1112 0c44 1500000A 		beq	.L183
+ 1113 0c48 FEFFFFEB 		bl	crlf
+ 1114 0c4c 0A00A0E1 		mov	r0, sl
+ 1115 0c50 0610A0E1 		mov	r1, r6
+ 1116 0c54 FEFFFFEB 		bl	cprintf
+ 1117 0c58 0B00A0E1 		mov	r0, fp
+ 1118 0c5c 0810A0E1 		mov	r1, r8
+ 1119 0c60 FEFFFFEB 		bl	cprintf
+ 1120 0c64 0A00A0E1 		mov	r0, sl
+ 1121 0c68 0510A0E1 		mov	r1, r5
+ 1122 0c6c FEFFFFEB 		bl	cprintf
+ 1123 0c70 0900A0E1 		mov	r0, r9
+ 1124 0c74 0710A0E1 		mov	r1, r7
+ 1125 0c78 FEFFFFEB 		bl	cprintf
+ 1126 0c7c FEFFFFEB 		bl	CheckRecvData
+ 1127 0c80 000050E3 		cmp	r0, #0
+ 1128 0c84 0500000A 		beq	.L183
+ 1129 0c88 FEFFFFEB 		bl	RecvData
+ 1130 0c8c 030050E3 		cmp	r0, #3
+ 1131 0c90 0400000A 		beq	.L182
+ 1132 0c94 FEFFFFEB 		bl	RecvData
+ 1133 0c98 030050E3 		cmp	r0, #3
+ 1134 0c9c 0100000A 		beq	.L182
+ 1135              	.L183:
+ 1136 0ca0 014054E2 		subs	r4, r4, #1
+ 1137 0ca4 E3FFFF1A 		bne	.L184
+ 1138              	.L182:
+ 1139 0ca8 0000A0E3 		mov	r0, #0
+ 1140 0cac F84FBDE8 		ldmfd	sp!, {r3, r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ARM GAS  gcc_sample.s 			page 21
+
+
+ 1141 0cb0 1EFF2FE1 		bx	lr
+ 1142              	.L187:
+ 1143              		.align	2
+ 1144              	.L186:
+ 1145 0cb4 F8000000 		.word	.LC11
+ 1146 0cb8 00010000 		.word	.LC12
+ 1147 0cbc 08010000 		.word	.LC13
+ 1148              		.size	verify, .-verify
+ 1149              		.align	2
+ 1150              		.global	setmemo
+ 1151              		.type	setmemo, %function
+ 1152              	setmemo:
+ 1153              		@ Function supports interworking.
+ 1154              		@ args = 0, pretend = 0, frame = 24
+ 1155              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1156 0cc0 F04F2DE9 		stmfd	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 1157 0cc4 1CD04DE2 		sub	sp, sp, #28
+ 1158 0cc8 0140A0E1 		mov	r4, r1
+ 1159 0ccc 040011E3 		tst	r1, #4
+ 1160 0cd0 03400112 		andne	r4, r1, #3
+ 1161 0cd4 01A0A013 		movne	sl, #1
+ 1162 0cd8 00A0A003 		moveq	sl, #0
+ 1163 0cdc 010054E3 		cmp	r4, #1
+ 1164 0ce0 00709005 		ldreq	r7, [r0, #0]
+ 1165 0ce4 0170C703 		biceq	r7, r7, #1
+ 1166 0ce8 00708005 		streq	r7, [r0, #0]
+ 1167 0cec 0200000A 		beq	.L191
+ 1168              	.L190:
+ 1169 0cf0 020054E3 		cmp	r4, #2
+ 1170 0cf4 00609005 		ldreq	r6, [r0, #0]
+ 1171 0cf8 00509015 		ldrne	r5, [r0, #0]
+ 1172              	.L191:
+ 1173 0cfc 010052E3 		cmp	r2, #1
+ 1174 0d00 1D0000DA 		ble	.L193
+ 1175 0d04 103090E5 		ldr	r3, [r0, #16]
+ 1176 0d08 04C090E5 		ldr	ip, [r0, #4]
+ 1177 0d0c 150000EA 		b	.L227
+ 1178              	.L200:
+ 1179 0d10 010054E3 		cmp	r4, #1
+ 1180 0d14 B2C0C700 		streqh	ip, [r7], #2	@ movhi
+ 1181 0d18 0500000A 		beq	.L195
+ 1182 0d1c 020054E3 		cmp	r4, #2
+ 1183 0d20 04C08604 		streq	ip, [r6], #4
+ 1184 0d24 0200000A 		beq	.L195
+ 1185 0d28 000054E3 		cmp	r4, #0
+ 1186 0d2c 01C0C504 		streqb	ip, [r5], #1
+ 1187 0d30 FFFFFFEA 		b	.L195
+ 1188              	.L195:
+ 1189 0d34 0C1090E5 		ldr	r1, [r0, #12]
+ 1190 0d38 01C08CE0 		add	ip, ip, r1
+ 1191 0d3c 013053E2 		subs	r3, r3, #1
+ 1192 0d40 0800001A 		bne	.L227
+ 1193 0d44 103090E5 		ldr	r3, [r0, #16]
+ 1194 0d48 141090E5 		ldr	r1, [r0, #20]
+ 1195 0d4c 015085E0 		add	r5, r5, r1
+ 1196 0d50 817087E0 		add	r7, r7, r1, asl #1
+ 1197 0d54 016186E0 		add	r6, r6, r1, asl #2
+ARM GAS  gcc_sample.s 			page 22
+
+
+ 1198 0d58 04C090E5 		ldr	ip, [r0, #4]
+ 1199 0d5c 181090E5 		ldr	r1, [r0, #24]
+ 1200 0d60 01C08CE0 		add	ip, ip, r1
+ 1201 0d64 04C080E5 		str	ip, [r0, #4]
+ 1202              	.L227:
+ 1203 0d68 081090E5 		ldr	r1, [r0, #8]
+ 1204 0d6c 018041E2 		sub	r8, r1, #1
+ 1205 0d70 088080E5 		str	r8, [r0, #8]
+ 1206 0d74 000051E3 		cmp	r1, #0
+ 1207 0d78 E4FFFF1A 		bne	.L200
+ 1208              	.L193:
+ 1209 0d7c 010052E3 		cmp	r2, #1
+ 1210 0d80 6800001A 		bne	.L202
+ 1211 0d84 AC919FE5 		ldr	r9, .L229
+ 1212 0d88 20B0A0E3 		mov	fp, #32
+ 1213 0d8c 08808DE2 		add	r8, sp, #8
+ 1214              	.L228:
+ 1215 0d90 FEFFFFEB 		bl	crlf
+ 1216 0d94 010054E3 		cmp	r4, #1
+ 1217 0d98 0700001A 		bne	.L203
+ 1218 0d9c 0900A0E1 		mov	r0, r9
+ 1219 0da0 0710A0E1 		mov	r1, r7
+ 1220 0da4 FEFFFFEB 		bl	cprintf
+ 1221 0da8 3D00A0E3 		mov	r0, #61
+ 1222 0dac FEFFFFEB 		bl	SendData
+ 1223 0db0 00005AE3 		cmp	sl, #0
+ 1224 0db4 1200000A 		beq	.L204
+ 1225 0db8 1C0000EA 		b	.L205
+ 1226              	.L203:
+ 1227 0dbc 020054E3 		cmp	r4, #2
+ 1228 0dc0 0700001A 		bne	.L206
+ 1229 0dc4 0900A0E1 		mov	r0, r9
+ 1230 0dc8 0610A0E1 		mov	r1, r6
+ 1231 0dcc FEFFFFEB 		bl	cprintf
+ 1232 0dd0 3D00A0E3 		mov	r0, #61
+ 1233 0dd4 FEFFFFEB 		bl	SendData
+ 1234 0dd8 00005AE3 		cmp	sl, #0
+ 1235 0ddc 0C00000A 		beq	.L207
+ 1236 0de0 120000EA 		b	.L205
+ 1237              	.L206:
+ 1238 0de4 0900A0E1 		mov	r0, r9
+ 1239 0de8 0510A0E1 		mov	r1, r5
+ 1240 0dec FEFFFFEB 		bl	cprintf
+ 1241 0df0 3D00A0E3 		mov	r0, #61
+ 1242 0df4 FEFFFFEB 		bl	SendData
+ 1243 0df8 00005AE3 		cmp	sl, #0
+ 1244 0dfc 0800000A 		beq	.L208
+ 1245 0e00 0A0000EA 		b	.L205
+ 1246              	.L204:
+ 1247 0e04 30019FE5 		ldr	r0, .L229+4
+ 1248 0e08 F010D7E1 		ldrsh	r1, [r7, #0]
+ 1249 0e0c FEFFFFEB 		bl	cprintf
+ 1250 0e10 060000EA 		b	.L205
+ 1251              	.L207:
+ 1252 0e14 0900A0E1 		mov	r0, r9
+ 1253 0e18 001096E5 		ldr	r1, [r6, #0]
+ 1254 0e1c FEFFFFEB 		bl	cprintf
+ARM GAS  gcc_sample.s 			page 23
+
+
+ 1255 0e20 020000EA 		b	.L205
+ 1256              	.L208:
+ 1257 0e24 14019FE5 		ldr	r0, .L229+8
+ 1258 0e28 0010D5E5 		ldrb	r1, [r5, #0]	@ zero_extendqisi2
+ 1259 0e2c FEFFFFEB 		bl	cprintf
+ 1260              	.L205:
+ 1261 0e30 0B00A0E1 		mov	r0, fp
+ 1262 0e34 FEFFFFEB 		bl	SendData
+ 1263 0e38 0800A0E1 		mov	r0, r8
+ 1264 0e3c 0F10A0E3 		mov	r1, #15
+ 1265 0e40 0120A0E3 		mov	r2, #1
+ 1266 0e44 FEFFFFEB 		bl	getscon
+ 1267 0e48 010070E3 		cmn	r0, #1
+ 1268 0e4c 3500000A 		beq	.L202
+ 1269 0e50 0F0050E3 		cmp	r0, #15
+ 1270 0e54 240000DA 		ble	.L209
+ 1271 0e58 2000C0E3 		bic	r0, r0, #32
+ 1272 0e5c 520050E3 		cmp	r0, #82
+ 1273 0e60 0600001A 		bne	.L210
+ 1274 0e64 010054E3 		cmp	r4, #1
+ 1275 0e68 02704702 		subeq	r7, r7, #2
+ 1276 0e6c C7FFFF0A 		beq	.L228
+ 1277              	.L211:
+ 1278 0e70 020054E3 		cmp	r4, #2
+ 1279 0e74 04604602 		subeq	r6, r6, #4
+ 1280 0e78 01504512 		subne	r5, r5, #1
+ 1281 0e7c C3FFFFEA 		b	.L228
+ 1282              	.L210:
+ 1283 0e80 580050E3 		cmp	r0, #88
+ 1284 0e84 1000001A 		bne	.L214
+ 1285 0e88 01005AE3 		cmp	sl, #1
+ 1286 0e8c 0E00001A 		bne	.L214
+ 1287 0e90 010054E3 		cmp	r4, #1
+ 1288 0e94 0300001A 		bne	.L215
+ 1289 0e98 9C009FE5 		ldr	r0, .L229+4
+ 1290 0e9c F010D7E1 		ldrsh	r1, [r7, #0]
+ 1291 0ea0 FEFFFFEB 		bl	cprintf
+ 1292 0ea4 050000EA 		b	.L216
+ 1293              	.L215:
+ 1294 0ea8 020054E3 		cmp	r4, #2
+ 1295 0eac 0900A001 		moveq	r0, r9
+ 1296 0eb0 00109605 		ldreq	r1, [r6, #0]
+ 1297 0eb4 84009F15 		ldrne	r0, .L229+8
+ 1298 0eb8 0010D515 		ldrneb	r1, [r5, #0]	@ zero_extendqisi2
+ 1299 0ebc FEFFFFEB 		bl	cprintf
+ 1300              	.L216:
+ 1301 0ec0 0B00A0E1 		mov	r0, fp
+ 1302 0ec4 FEFFFFEB 		bl	SendData
+ 1303 0ec8 B0FFFFEA 		b	.L228
+ 1304              	.L214:
+ 1305 0ecc 010054E3 		cmp	r4, #1
+ 1306 0ed0 02708702 		addeq	r7, r7, #2
+ 1307 0ed4 0200000A 		beq	.L219
+ 1308              	.L218:
+ 1309 0ed8 020054E3 		cmp	r4, #2
+ 1310 0edc 04608602 		addeq	r6, r6, #4
+ 1311 0ee0 AAFFFF0A 		beq	.L228
+ARM GAS  gcc_sample.s 			page 24
+
+
+ 1312              	.L219:
+ 1313 0ee4 015085E2 		add	r5, r5, #1
+ 1314 0ee8 A8FFFFEA 		b	.L228
+ 1315              	.L209:
+ 1316 0eec 00808DE5 		str	r8, [sp, #0]
+ 1317 0ef0 0830DDE5 		ldrb	r3, [sp, #8]	@ zero_extendqisi2
+ 1318 0ef4 2E0053E3 		cmp	r3, #46
+ 1319 0ef8 0A00000A 		beq	.L202
+ 1320 0efc 04008DE2 		add	r0, sp, #4
+ 1321 0f00 0D10A0E1 		mov	r1, sp
+ 1322 0f04 FEFFFFEB 		bl	htol
+ 1323 0f08 04309DE5 		ldr	r3, [sp, #4]
+ 1324 0f0c 010054E3 		cmp	r4, #1
+ 1325 0f10 B230C700 		streqh	r3, [r7], #2	@ movhi
+ 1326 0f14 9DFFFF0A 		beq	.L228
+ 1327              	.L220:
+ 1328 0f18 020054E3 		cmp	r4, #2
+ 1329 0f1c 04308604 		streq	r3, [r6], #4
+ 1330 0f20 0130C514 		strneb	r3, [r5], #1
+ 1331 0f24 99FFFFEA 		b	.L228
+ 1332              	.L202:
+ 1333 0f28 0000A0E3 		mov	r0, #0
+ 1334 0f2c 1CD08DE2 		add	sp, sp, #28
+ 1335 0f30 F04FBDE8 		ldmfd	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 1336 0f34 1EFF2FE1 		bx	lr
+ 1337              	.L230:
+ 1338              		.align	2
+ 1339              	.L229:
+ 1340 0f38 B8000000 		.word	.LC7
+ 1341 0f3c 10010000 		.word	.LC14
+ 1342 0f40 08010000 		.word	.LC13
+ 1343              		.size	setmemo, .-setmemo
+ 1344              		.align	2
+ 1345              		.global	dumpm
+ 1346              		.type	dumpm, %function
+ 1347              	dumpm:
+ 1348              		@ Function supports interworking.
+ 1349              		@ args = 0, pretend = 0, frame = 16
+ 1350              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1351 0f44 F04F2DE9 		stmfd	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 1352 0f48 14D04DE2 		sub	sp, sp, #20
+ 1353 0f4c 0090A0E1 		mov	r9, r0
+ 1354 0f50 008090E5 		ldr	r8, [r0, #0]
+ 1355 0f54 0F80C8E3 		bic	r8, r8, #15
+ 1356 0f58 008080E5 		str	r8, [r0, #0]
+ 1357 0f5c 044090E5 		ldr	r4, [r0, #4]
+ 1358 0f60 100051E3 		cmp	r1, #16
+ 1359 0f64 1200001A 		bne	.L232
+ 1360 0f68 044068E0 		rsb	r4, r8, r4
+ 1361 0f6c 033084E2 		add	r3, r4, #3
+ 1362 0f70 000054E3 		cmp	r4, #0
+ 1363 0f74 0340A0B1 		movlt	r4, r3
+ 1364 0f78 4441A0E1 		mov	r4, r4, asr #2
+ 1365 0f7c 0C519FE5 		ldr	r5, .L246
+ 1366 0f80 090000EA 		b	.L233
+ 1367              	.L235:
+ 1368 0f84 003099E5 		ldr	r3, [r9, #0]
+ARM GAS  gcc_sample.s 			page 25
+
+
+ 1369 0f88 041093E4 		ldr	r1, [r3], #4
+ 1370 0f8c 003089E5 		str	r3, [r9, #0]
+ 1371 0f90 0500A0E1 		mov	r0, r5
+ 1372 0f94 FEFFFFEB 		bl	cprintf
+ 1373 0f98 014044E2 		sub	r4, r4, #1
+ 1374 0f9c 002099E5 		ldr	r2, [r9, #0]
+ 1375 0fa0 043099E5 		ldr	r3, [r9, #4]
+ 1376 0fa4 030052E1 		cmp	r2, r3
+ 1377 0fa8 350000AA 		bge	.L231
+ 1378              	.L233:
+ 1379 0fac 000054E3 		cmp	r4, #0
+ 1380 0fb0 F3FFFF1A 		bne	.L235
+ 1381              	.L232:
+ 1382 0fb4 FEFFFFEB 		bl	dumpmt
+ 1383 0fb8 0E708DE2 		add	r7, sp, #14
+ 1384 0fbc D0A09FE5 		ldr	sl, .L246+4
+ 1385 0fc0 2AB0A0E3 		mov	fp, #42
+ 1386              	.L245:
+ 1387 0fc4 CC009FE5 		ldr	r0, .L246+8
+ 1388 0fc8 0810A0E1 		mov	r1, r8
+ 1389 0fcc FEFFFFEB 		bl	cprintf
+ 1390 0fd0 0850A0E1 		mov	r5, r8
+ 1391 0fd4 02404DE2 		sub	r4, sp, #2
+ 1392 0fd8 0460A0E1 		mov	r6, r4
+ 1393              	.L238:
+ 1394 0fdc B230D5E0 		ldrh	r3, [r5], #2
+ 1395 0fe0 0580A0E1 		mov	r8, r5
+ 1396 0fe4 B230E6E1 		strh	r3, [r6, #2]!	@ movhi
+ 1397 0fe8 0338A0E1 		mov	r3, r3, asl #16
+ 1398 0fec 4314A0E1 		mov	r1, r3, asr #8
+ 1399 0ff0 0A00A0E1 		mov	r0, sl
+ 1400 0ff4 231C81E1 		orr	r1, r1, r3, lsr #24
+ 1401 0ff8 FEFFFFEB 		bl	cprintf
+ 1402 0ffc FEFFFFEB 		bl	CheckRecvData
+ 1403 1000 000050E3 		cmp	r0, #0
+ 1404 1004 0500000A 		beq	.L237
+ 1405 1008 FEFFFFEB 		bl	RecvData
+ 1406 100c 030050E3 		cmp	r0, #3
+ 1407 1010 1B00000A 		beq	.L231
+ 1408 1014 FEFFFFEB 		bl	RecvData
+ 1409 1018 030050E3 		cmp	r0, #3
+ 1410 101c 1800000A 		beq	.L231
+ 1411              	.L237:
+ 1412 1020 070056E1 		cmp	r6, r7
+ 1413 1024 ECFFFF1A 		bne	.L238
+ 1414 1028 0860A0E1 		mov	r6, r8
+ 1415 102c 0B00A0E1 		mov	r0, fp
+ 1416 1030 FEFFFFEB 		bl	SendData
+ 1417              	.L239:
+ 1418 1034 B250F4E1 		ldrh	r5, [r4, #2]!
+ 1419 1038 0558A0E1 		mov	r5, r5, asl #16
+ 1420 103c 4508A0E1 		mov	r0, r5, asr #16
+ 1421 1040 FEFFFFEB 		bl	ckasci
+ 1422 1044 450CA0E1 		mov	r0, r5, asr #24
+ 1423 1048 FEFFFFEB 		bl	ckasci
+ 1424 104c 070054E1 		cmp	r4, r7
+ 1425 1050 F7FFFF1A 		bne	.L239
+ARM GAS  gcc_sample.s 			page 26
+
+
+ 1426 1054 0B00A0E1 		mov	r0, fp
+ 1427 1058 FEFFFFEB 		bl	SendData
+ 1428 105c 043099E5 		ldr	r3, [r9, #4]
+ 1429 1060 060053E1 		cmp	r3, r6
+ 1430 1064 0600009A 		bls	.L231
+ 1431 1068 0F0016E3 		tst	r6, #15
+ 1432 106c D4FFFF1A 		bne	.L245
+ 1433 1070 FEFFFFEB 		bl	crlf
+ 1434 1074 FF0016E3 		tst	r6, #255
+ 1435 1078 D1FFFF1A 		bne	.L245
+ 1436 107c FEFFFFEB 		bl	dumpmt
+ 1437 1080 CFFFFFEA 		b	.L245
+ 1438              	.L231:
+ 1439 1084 14D08DE2 		add	sp, sp, #20
+ 1440 1088 F04FBDE8 		ldmfd	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 1441 108c 1EFF2FE1 		bx	lr
+ 1442              	.L247:
+ 1443              		.align	2
+ 1444              	.L246:
+ 1445 1090 DC000000 		.word	.LC9
+ 1446 1094 20010000 		.word	.LC16
+ 1447 1098 18010000 		.word	.LC15
+ 1448              		.size	dumpm, .-dumpm
+ 1449              		.align	2
+ 1450              		.global	findp
+ 1451              		.type	findp, %function
+ 1452              	findp:
+ 1453              		@ Function supports interworking.
+ 1454              		@ args = 0, pretend = 0, frame = 0
+ 1455              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1456 109c F0472DE9 		stmfd	sp!, {r4, r5, r6, r7, r8, r9, sl, lr}
+ 1457 10a0 004090E5 		ldr	r4, [r0, #0]
+ 1458 10a4 048090E5 		ldr	r8, [r0, #4]
+ 1459 10a8 085090E5 		ldr	r5, [r0, #8]
+ 1460 10ac 0C7090E5 		ldr	r7, [r0, #12]
+ 1461 10b0 000055E3 		cmp	r5, #0
+ 1462 10b4 3600000A 		beq	.L248
+ 1463 10b8 010055E3 		cmp	r5, #1
+ 1464 10bc FF700702 		andeq	r7, r7, #255
+ 1465 10c0 0500000A 		beq	.L251
+ 1466              	.L250:
+ 1467 10c4 020055E3 		cmp	r5, #2
+ 1468 10c8 0778A001 		moveq	r7, r7, asl #16
+ 1469 10cc 2778A001 		moveq	r7, r7, lsr #16
+ 1470 10d0 0100000A 		beq	.L251
+ 1471              	.L252:
+ 1472 10d4 030055E3 		cmp	r5, #3
+ 1473 10d8 FF74C703 		biceq	r7, r7, #-16777216
+ 1474              	.L251:
+ 1475 10dc FEFFFFEB 		bl	crlf
+ 1476 10e0 080054E1 		cmp	r4, r8
+ 1477 10e4 2300001A 		bne	.L258
+ 1478 10e8 290000EA 		b	.L248
+ 1479              	.L259:
+ 1480 10ec 0610A0E1 		mov	r1, r6
+ 1481 10f0 0630A0E1 		mov	r3, r6
+ 1482              	.L254:
+ARM GAS  gcc_sample.s 			page 27
+
+
+ 1483 10f4 0328A0E1 		mov	r2, r3, asl #16
+ 1484 10f8 4228D4E7 		ldrb	r2, [r4, r2, asr #16]	@ zero_extendqisi2
+ 1485 10fc 011482E1 		orr	r1, r2, r1, asl #8
+ 1486 1100 013083E2 		add	r3, r3, #1
+ 1487 1104 0328A0E1 		mov	r2, r3, asl #16
+ 1488 1108 2238A0E1 		mov	r3, r2, lsr #16
+ 1489 110c 420855E1 		cmp	r5, r2, asr #16
+ 1490 1110 F7FFFFCA 		bgt	.L254
+ 1491              	.L257:
+ 1492 1114 070051E1 		cmp	r1, r7
+ 1493 1118 1200001A 		bne	.L255
+ 1494 111c 0900A0E1 		mov	r0, r9
+ 1495 1120 0410A0E1 		mov	r1, r4
+ 1496 1124 FEFFFFEB 		bl	cprintf
+ 1497 1128 01308AE2 		add	r3, sl, #1
+ 1498 112c 0338A0E1 		mov	r3, r3, asl #16
+ 1499 1130 23A8A0E1 		mov	sl, r3, lsr #16
+ 1500 1134 070853E3 		cmp	r3, #458752
+ 1501 1138 010000DA 		ble	.L256
+ 1502 113c FEFFFFEB 		bl	crlf
+ 1503 1140 06A0A0E1 		mov	sl, r6
+ 1504              	.L256:
+ 1505 1144 FEFFFFEB 		bl	CheckRecvData
+ 1506 1148 000050E3 		cmp	r0, #0
+ 1507 114c 0500000A 		beq	.L255
+ 1508 1150 FEFFFFEB 		bl	RecvData
+ 1509 1154 030050E3 		cmp	r0, #3
+ 1510 1158 0D00000A 		beq	.L248
+ 1511 115c FEFFFFEB 		bl	RecvData
+ 1512 1160 030050E3 		cmp	r0, #3
+ 1513 1164 0A00000A 		beq	.L248
+ 1514              	.L255:
+ 1515 1168 014084E2 		add	r4, r4, #1
+ 1516 116c 040058E1 		cmp	r8, r4
+ 1517 1170 0300001A 		bne	.L253
+ 1518 1174 060000EA 		b	.L248
+ 1519              	.L258:
+ 1520 1178 00A0A0E3 		mov	sl, #0
+ 1521 117c 0A60A0E1 		mov	r6, sl
+ 1522 1180 14909FE5 		ldr	r9, .L261
+ 1523              	.L253:
+ 1524 1184 000055E3 		cmp	r5, #0
+ 1525 1188 0610A0D1 		movle	r1, r6
+ 1526 118c E0FFFFDA 		ble	.L257
+ 1527 1190 D5FFFFEA 		b	.L259
+ 1528              	.L248:
+ 1529 1194 F047BDE8 		ldmfd	sp!, {r4, r5, r6, r7, r8, r9, sl, lr}
+ 1530 1198 1EFF2FE1 		bx	lr
+ 1531              	.L262:
+ 1532              		.align	2
+ 1533              	.L261:
+ 1534 119c 18010000 		.word	.LC15
+ 1535              		.size	findp, .-findp
+ 1536              		.align	2
+ 1537              		.global	sievemain
+ 1538              		.type	sievemain, %function
+ 1539              	sievemain:
+ARM GAS  gcc_sample.s 			page 28
+
+
+ 1540              		@ Function supports interworking.
+ 1541              		@ args = 0, pretend = 0, frame = 0
+ 1542              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1543 11a0 F84F2DE9 		stmfd	sp!, {r3, r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 1544 11a4 C8009FE5 		ldr	r0, .L275
+ 1545 11a8 FEFFFFEB 		bl	cprintf
+ 1546 11ac C4009FE5 		ldr	r0, .L275+4
+ 1547 11b0 FEFFFFEB 		bl	cprintf
+ 1548 11b4 FEFFFFEB 		bl	RecvData
+ 1549 11b8 BC309FE5 		ldr	r3, .L275+8
+ 1550 11bc 082093E5 		ldr	r2, [r3, #8]
+ 1551 11c0 FA9FA0E3 		mov	r9, #1000
+ 1552 11c4 B4B09FE5 		ldr	fp, .L275+12
+ 1553 11c8 01A0A0E3 		mov	sl, #1
+ 1554 11cc B0109FE5 		ldr	r1, .L275+16
+ 1555 11d0 0040A0E3 		mov	r4, #0
+ 1556 11d4 ACE09FE5 		ldr	lr, .L275+20
+ 1557 11d8 AC509FE5 		ldr	r5, .L275+24
+ 1558 11dc 190000EA 		b	.L264
+ 1559              	.L265:
+ 1560 11e0 01A0E3E5 		strb	sl, [r3, #1]!
+ 1561 11e4 010053E1 		cmp	r3, r1
+ 1562 11e8 FCFFFF1A 		bne	.L265
+ 1563 11ec 0370A0E3 		mov	r7, #3
+ 1564 11f0 98609FE5 		ldr	r6, .L275+28
+ 1565 11f4 0BC0A0E1 		mov	ip, fp
+ 1566 11f8 0480A0E1 		mov	r8, r4
+ 1567              	.L269:
+ 1568 11fc 0130FCE5 		ldrb	r3, [ip, #1]!	@ zero_extendqisi2
+ 1569 1200 000053E3 		cmp	r3, #0
+ 1570 1204 0900000A 		beq	.L266
+ 1571 1208 033186E2 		add	r3, r6, #-1073741824
+ 1572 120c 0A3A43E2 		sub	r3, r3, #40960
+ 1573 1210 0E0053E1 		cmp	r3, lr
+ 1574 1214 040000CA 		bgt	.L267
+ 1575 1218 0630A0E1 		mov	r3, r6
+ 1576              	.L268:
+ 1577 121c 0740C3E6 		strb	r4, [r3], r7
+ 1578 1220 030085E0 		add	r0, r5, r3
+ 1579 1224 0E0050E1 		cmp	r0, lr
+ 1580 1228 FBFFFFDA 		ble	.L268
+ 1581              	.L267:
+ 1582 122c 018088E2 		add	r8, r8, #1
+ 1583              	.L266:
+ 1584 1230 036086E2 		add	r6, r6, #3
+ 1585 1234 027087E2 		add	r7, r7, #2
+ 1586 1238 01005CE1 		cmp	ip, r1
+ 1587 123c EEFFFF1A 		bne	.L269
+ 1588 1240 019059E2 		subs	r9, r9, #1
+ 1589 1244 0100000A 		beq	.L270
+ 1590              	.L264:
+ 1591 1248 0B30A0E1 		mov	r3, fp
+ 1592 124c E3FFFFEA 		b	.L265
+ 1593              	.L270:
+ 1594 1250 24309FE5 		ldr	r3, .L275+8
+ 1595 1254 083093E5 		ldr	r3, [r3, #8]
+ 1596 1258 34009FE5 		ldr	r0, .L275+32
+ARM GAS  gcc_sample.s 			page 29
+
+
+ 1597 125c 0810A0E1 		mov	r1, r8
+ 1598 1260 032062E0 		rsb	r2, r2, r3
+ 1599 1264 FEFFFFEB 		bl	cprintf
+ 1600 1268 0800A0E1 		mov	r0, r8
+ 1601 126c F84FBDE8 		ldmfd	sp!, {r3, r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 1602 1270 1EFF2FE1 		bx	lr
+ 1603              	.L276:
+ 1604              		.align	2
+ 1605              	.L275:
+ 1606 1274 28010000 		.word	.LC17
+ 1607 1278 50010000 		.word	.LC18
+ 1608 127c 004000E0 		.word	-536854528
+ 1609 1280 FF9F0040 		.word	1073782783
+ 1610 1284 FFBF0040 		.word	1073790975
+ 1611 1288 FF1F0000 		.word	8191
+ 1612 128c 0060FFBF 		.word	-1073782784
+ 1613 1290 03A00040 		.word	1073782787
+ 1614 1294 78010000 		.word	.LC19
+ 1615              		.size	sievemain, .-sievemain
+ 1616              		.align	2
+ 1617              		.global	main2
+ 1618              		.type	main2, %function
+ 1619              	main2:
+ 1620              		@ Function supports interworking.
+ 1621              		@ args = 0, pretend = 0, frame = 8
+ 1622              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1623 1298 F04F2DE9 		stmfd	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 1624 129c 0CD04DE2 		sub	sp, sp, #12
+ 1625 12a0 14349FE5 		ldr	r3, .L312
+ 1626 12a4 1120A0E3 		mov	r2, #17
+ 1627 12a8 0C2083E5 		str	r2, [r3, #12]
+ 1628 12ac 0120A0E3 		mov	r2, #1
+ 1629 12b0 042083E5 		str	r2, [r3, #4]
+ 1630 12b4 04049FE5 		ldr	r0, .L312+4
+ 1631 12b8 FEFFFFEB 		bl	putscon
+ 1632 12bc 0060A0E3 		mov	r6, #0
+ 1633 12c0 0670A0E1 		mov	r7, r6
+ 1634 12c4 F8539FE5 		ldr	r5, .L312+8
+ 1635 12c8 F8439FE5 		ldr	r4, .L312+12
+ 1636 12cc F8B39FE5 		ldr	fp, .L312+16
+ 1637 12d0 F8939FE5 		ldr	r9, .L312+20
+ 1638 12d4 F8A39FE5 		ldr	sl, .L312+24
+ 1639              	.L311:
+ 1640 12d8 0500A0E1 		mov	r0, r5
+ 1641 12dc FEFFFFEB 		bl	putscon
+ 1642 12e0 0400A0E1 		mov	r0, r4
+ 1643 12e4 4F10A0E3 		mov	r1, #79
+ 1644 12e8 0020A0E3 		mov	r2, #0
+ 1645 12ec FEFFFFEB 		bl	getscon
+ 1646 12f0 010070E3 		cmn	r0, #1
+ 1647 12f4 0100001A 		bne	.L279
+ 1648 12f8 FEFFFFEB 		bl	crlf
+ 1649 12fc F5FFFFEA 		b	.L311
+ 1650              	.L279:
+ 1651 1300 04408DE5 		str	r4, [sp, #4]
+ 1652 1304 0030D4E5 		ldrb	r3, [r4, #0]	@ zero_extendqisi2
+ 1653 1308 533043E2 		sub	r3, r3, #83
+ARM GAS  gcc_sample.s 			page 30
+
+
+ 1654 130c 230053E3 		cmp	r3, #35
+ 1655 1310 03F19F97 		ldrls	pc, [pc, r3, asl #2]
+ 1656 1314 E40000EA 		b	.L281
+ 1657              	.L292:
+ 1658 1318 78160000 		.word	.L282
+ 1659 131c 8C160000 		.word	.L283
+ 1660 1320 AC160000 		.word	.L281
+ 1661 1324 AC160000 		.word	.L281
+ 1662 1328 AC160000 		.word	.L281
+ 1663 132c AC160000 		.word	.L281
+ 1664 1330 AC160000 		.word	.L281
+ 1665 1334 AC160000 		.word	.L281
+ 1666 1338 AC160000 		.word	.L281
+ 1667 133c AC160000 		.word	.L281
+ 1668 1340 AC160000 		.word	.L281
+ 1669 1344 AC160000 		.word	.L281
+ 1670 1348 AC160000 		.word	.L281
+ 1671 134c AC160000 		.word	.L281
+ 1672 1350 AC160000 		.word	.L281
+ 1673 1354 AC160000 		.word	.L281
+ 1674 1358 AC160000 		.word	.L281
+ 1675 135c A8130000 		.word	.L284
+ 1676 1360 AC160000 		.word	.L281
+ 1677 1364 FC140000 		.word	.L285
+ 1678 1368 3C150000 		.word	.L286
+ 1679 136c AC160000 		.word	.L281
+ 1680 1370 B4160000 		.word	.L287
+ 1681 1374 AC160000 		.word	.L281
+ 1682 1378 AC160000 		.word	.L281
+ 1683 137c 90150000 		.word	.L288
+ 1684 1380 48140000 		.word	.L289
+ 1685 1384 AC160000 		.word	.L281
+ 1686 1388 AC160000 		.word	.L281
+ 1687 138c AC160000 		.word	.L281
+ 1688 1390 AC160000 		.word	.L281
+ 1689 1394 AC160000 		.word	.L281
+ 1690 1398 CC150000 		.word	.L290
+ 1691 139c AC160000 		.word	.L281
+ 1692 13a0 AC160000 		.word	.L281
+ 1693 13a4 BC140000 		.word	.L291
+ 1694              	.L284:
+ 1695 13a8 28339FE5 		ldr	r3, .L312+28
+ 1696 13ac 04308DE5 		str	r3, [sp, #4]
+ 1697 13b0 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1698 13b4 780053E3 		cmp	r3, #120
+ 1699 13b8 1C339F05 		ldreq	r3, .L312+32
+ 1700 13bc 04308D05 		streq	r3, [sp, #4]
+ 1701 13c0 1080A003 		moveq	r8, #16
+ 1702 13c4 0080A013 		movne	r8, #0
+ 1703 13c8 04309DE5 		ldr	r3, [sp, #4]
+ 1704 13cc 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1705 13d0 000053E3 		cmp	r3, #0
+ 1706 13d4 0A00001A 		bne	.L294
+ 1707 13d8 00339FE5 		ldr	r3, .L312+36
+ 1708 13dc 041093E5 		ldr	r1, [r3, #4]
+ 1709 13e0 000093E5 		ldr	r0, [r3, #0]
+ 1710 13e4 012060E0 		rsb	r2, r0, r1
+ARM GAS  gcc_sample.s 			page 31
+
+
+ 1711 13e8 022082E2 		add	r2, r2, #2
+ 1712 13ec 0120C2E3 		bic	r2, r2, #1
+ 1713 13f0 020080E0 		add	r0, r0, r2
+ 1714 13f4 000083E5 		str	r0, [r3, #0]
+ 1715 13f8 022081E0 		add	r2, r1, r2
+ 1716 13fc 042083E5 		str	r2, [r3, #4]
+ 1717 1400 0C0000EA 		b	.L295
+ 1718              	.L294:
+ 1719 1404 04008DE2 		add	r0, sp, #4
+ 1720 1408 D0129FE5 		ldr	r1, .L312+36
+ 1721 140c 0120A0E3 		mov	r2, #1
+ 1722 1410 FEFFFFEB 		bl	argck
+ 1723 1414 010070E3 		cmn	r0, #1
+ 1724 1418 0100001A 		bne	.L296
+ 1725 141c FEFFFFEB 		bl	paramer
+ 1726 1420 A30000EA 		b	.L287
+ 1727              	.L296:
+ 1728 1424 010050E3 		cmp	r0, #1
+ 1729 1428 B0329F05 		ldreq	r3, .L312+36
+ 1730 142c 00209305 		ldreq	r2, [r3, #0]
+ 1731 1430 7E208202 		addeq	r2, r2, #126
+ 1732 1434 04208305 		streq	r2, [r3, #4]
+ 1733              	.L295:
+ 1734 1438 A0029FE5 		ldr	r0, .L312+36
+ 1735 143c 0810A0E1 		mov	r1, r8
+ 1736 1440 FEFFFFEB 		bl	dumpm
+ 1737 1444 9A0000EA 		b	.L287
+ 1738              	.L289:
+ 1739 1448 88329FE5 		ldr	r3, .L312+28
+ 1740 144c 04308DE5 		str	r3, [sp, #4]
+ 1741 1450 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1742 1454 DF3003E2 		and	r3, r3, #223
+ 1743 1458 570053E3 		cmp	r3, #87
+ 1744 145c 78329F05 		ldreq	r3, .L312+32
+ 1745 1460 04308D05 		streq	r3, [sp, #4]
+ 1746 1464 0180A003 		moveq	r8, #1
+ 1747 1468 0400000A 		beq	.L298
+ 1748              	.L297:
+ 1749 146c 4C0053E3 		cmp	r3, #76
+ 1750 1470 64329F05 		ldreq	r3, .L312+32
+ 1751 1474 04308D05 		streq	r3, [sp, #4]
+ 1752 1478 0280A003 		moveq	r8, #2
+ 1753 147c 0080A013 		movne	r8, #0
+ 1754              	.L298:
+ 1755 1480 04008DE2 		add	r0, sp, #4
+ 1756 1484 54129FE5 		ldr	r1, .L312+36
+ 1757 1488 0320A0E3 		mov	r2, #3
+ 1758 148c FEFFFFEB 		bl	argck
+ 1759 1490 030050E3 		cmp	r0, #3
+ 1760 1494 0100000A 		beq	.L299
+ 1761 1498 FEFFFFEB 		bl	paramer
+ 1762 149c 840000EA 		b	.L287
+ 1763              	.L299:
+ 1764 14a0 14629FE5 		ldr	r6, .L312
+ 1765 14a4 087096E5 		ldr	r7, [r6, #8]
+ 1766 14a8 30029FE5 		ldr	r0, .L312+36
+ 1767 14ac 0810A0E1 		mov	r1, r8
+ARM GAS  gcc_sample.s 			page 32
+
+
+ 1768 14b0 FEFFFFEB 		bl	movem
+ 1769 14b4 086096E5 		ldr	r6, [r6, #8]
+ 1770 14b8 7D0000EA 		b	.L287
+ 1771              	.L291:
+ 1772 14bc 08008DE2 		add	r0, sp, #8
+ 1773 14c0 10329FE5 		ldr	r3, .L312+28
+ 1774 14c4 043020E5 		str	r3, [r0, #-4]!
+ 1775 14c8 10129FE5 		ldr	r1, .L312+36
+ 1776 14cc 0320A0E3 		mov	r2, #3
+ 1777 14d0 FEFFFFEB 		bl	argck
+ 1778 14d4 030050E3 		cmp	r0, #3
+ 1779 14d8 0100000A 		beq	.L300
+ 1780 14dc FEFFFFEB 		bl	paramer
+ 1781 14e0 730000EA 		b	.L287
+ 1782              	.L300:
+ 1783 14e4 D0619FE5 		ldr	r6, .L312
+ 1784 14e8 087096E5 		ldr	r7, [r6, #8]
+ 1785 14ec EC019FE5 		ldr	r0, .L312+36
+ 1786 14f0 FEFFFFEB 		bl	verify
+ 1787 14f4 086096E5 		ldr	r6, [r6, #8]
+ 1788 14f8 6D0000EA 		b	.L287
+ 1789              	.L285:
+ 1790 14fc 08008DE2 		add	r0, sp, #8
+ 1791 1500 D0319FE5 		ldr	r3, .L312+28
+ 1792 1504 043020E5 		str	r3, [r0, #-4]!
+ 1793 1508 D0119FE5 		ldr	r1, .L312+36
+ 1794 150c 0420A0E3 		mov	r2, #4
+ 1795 1510 FEFFFFEB 		bl	argck
+ 1796 1514 040050E3 		cmp	r0, #4
+ 1797 1518 0100000A 		beq	.L301
+ 1798 151c FEFFFFEB 		bl	paramer
+ 1799 1520 630000EA 		b	.L287
+ 1800              	.L301:
+ 1801 1524 90619FE5 		ldr	r6, .L312
+ 1802 1528 087096E5 		ldr	r7, [r6, #8]
+ 1803 152c AC019FE5 		ldr	r0, .L312+36
+ 1804 1530 FEFFFFEB 		bl	findp
+ 1805 1534 086096E5 		ldr	r6, [r6, #8]
+ 1806 1538 5D0000EA 		b	.L287
+ 1807              	.L286:
+ 1808 153c 08008DE2 		add	r0, sp, #8
+ 1809 1540 90319FE5 		ldr	r3, .L312+28
+ 1810 1544 043020E5 		str	r3, [r0, #-4]!
+ 1811 1548 90119FE5 		ldr	r1, .L312+36
+ 1812 154c 0120A0E3 		mov	r2, #1
+ 1813 1550 FEFFFFEB 		bl	argck
+ 1814 1554 010070E3 		cmn	r0, #1
+ 1815 1558 0100001A 		bne	.L302
+ 1816 155c FEFFFFEB 		bl	paramer
+ 1817 1560 530000EA 		b	.L287
+ 1818              	.L302:
+ 1819 1564 50619FE5 		ldr	r6, .L312
+ 1820 1568 087096E5 		ldr	r7, [r6, #8]
+ 1821 156c 6C319FE5 		ldr	r3, .L312+36
+ 1822 1570 00C093E5 		ldr	ip, [r3, #0]
+ 1823 1574 0FE0A0E1 		mov	lr, pc
+ 1824 1578 1CFF2FE1 		bx	ip
+ARM GAS  gcc_sample.s 			page 33
+
+
+ 1825 157c 0010A0E1 		mov	r1, r0
+ 1826 1580 086096E5 		ldr	r6, [r6, #8]
+ 1827 1584 58019FE5 		ldr	r0, .L312+40
+ 1828 1588 FEFFFFEB 		bl	cprintf
+ 1829 158c 480000EA 		b	.L287
+ 1830              	.L288:
+ 1831 1590 08008DE2 		add	r0, sp, #8
+ 1832 1594 3C319FE5 		ldr	r3, .L312+28
+ 1833 1598 043020E5 		str	r3, [r0, #-4]!
+ 1834 159c 3C119FE5 		ldr	r1, .L312+36
+ 1835 15a0 0120A0E3 		mov	r2, #1
+ 1836 15a4 FEFFFFEB 		bl	argck
+ 1837 15a8 010070E3 		cmn	r0, #1
+ 1838 15ac 0100001A 		bne	.L303
+ 1839 15b0 FEFFFFEB 		bl	paramer
+ 1840 15b4 3E0000EA 		b	.L287
+ 1841              	.L303:
+ 1842 15b8 FEFFFFEB 		bl	crlf
+ 1843 15bc 1C019FE5 		ldr	r0, .L312+36
+ 1844 15c0 0110A0E3 		mov	r1, #1
+ 1845 15c4 FEFFFFEB 		bl	srload
+ 1846 15c8 390000EA 		b	.L287
+ 1847              	.L290:
+ 1848 15cc 04319FE5 		ldr	r3, .L312+28
+ 1849 15d0 04308DE5 		str	r3, [sp, #4]
+ 1850 15d4 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1851 15d8 DF3003E2 		and	r3, r3, #223
+ 1852 15dc 4E0053E3 		cmp	r3, #78
+ 1853 15e0 F4309F05 		ldreq	r3, .L312+32
+ 1854 15e4 04308D05 		streq	r3, [sp, #4]
+ 1855 15e8 0480A003 		moveq	r8, #4
+ 1856 15ec 0080A013 		movne	r8, #0
+ 1857 15f0 04309DE5 		ldr	r3, [sp, #4]
+ 1858 15f4 0020D3E5 		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 1859 15f8 DF2002E2 		and	r2, r2, #223
+ 1860 15fc 570052E3 		cmp	r2, #87
+ 1861 1600 01808803 		orreq	r8, r8, #1
+ 1862 1604 01308302 		addeq	r3, r3, #1
+ 1863 1608 04308D05 		streq	r3, [sp, #4]
+ 1864 160c 0300000A 		beq	.L306
+ 1865              	.L305:
+ 1866 1610 4C0052E3 		cmp	r2, #76
+ 1867 1614 02808803 		orreq	r8, r8, #2
+ 1868 1618 01308302 		addeq	r3, r3, #1
+ 1869 161c 04308D05 		streq	r3, [sp, #4]
+ 1870              	.L306:
+ 1871 1620 B8109FE5 		ldr	r1, .L312+36
+ 1872 1624 0120A0E3 		mov	r2, #1
+ 1873 1628 082081E5 		str	r2, [r1, #8]
+ 1874 162c 0030A0E3 		mov	r3, #0
+ 1875 1630 0C3081E5 		str	r3, [r1, #12]
+ 1876 1634 103081E5 		str	r3, [r1, #16]
+ 1877 1638 143081E5 		str	r3, [r1, #20]
+ 1878 163c 183081E5 		str	r3, [r1, #24]
+ 1879 1640 04008DE2 		add	r0, sp, #4
+ 1880 1644 FEFFFFEB 		bl	argck
+ 1881 1648 0020A0E1 		mov	r2, r0
+ARM GAS  gcc_sample.s 			page 34
+
+
+ 1882 164c 010070E3 		cmn	r0, #1
+ 1883 1650 0100001A 		bne	.L307
+ 1884 1654 FEFFFFEB 		bl	paramer
+ 1885 1658 150000EA 		b	.L287
+ 1886              	.L307:
+ 1887 165c 58609FE5 		ldr	r6, .L312
+ 1888 1660 087096E5 		ldr	r7, [r6, #8]
+ 1889 1664 74009FE5 		ldr	r0, .L312+36
+ 1890 1668 0810A0E1 		mov	r1, r8
+ 1891 166c FEFFFFEB 		bl	setmemo
+ 1892 1670 086096E5 		ldr	r6, [r6, #8]
+ 1893 1674 0E0000EA 		b	.L287
+ 1894              	.L282:
+ 1895 1678 FEFFFFEB 		bl	sievemain
+ 1896 167c 0010A0E1 		mov	r1, r0
+ 1897 1680 60009FE5 		ldr	r0, .L312+44
+ 1898 1684 FEFFFFEB 		bl	cprintf
+ 1899 1688 090000EA 		b	.L287
+ 1900              	.L283:
+ 1901 168c 062067E0 		rsb	r2, r7, r6
+ 1902 1690 0900A0E1 		mov	r0, r9
+ 1903 1694 0210A0E1 		mov	r1, r2
+ 1904 1698 FEFFFFEB 		bl	cprintf
+ 1905 169c 0A00A0E1 		mov	r0, sl
+ 1906 16a0 FEFFFFEB 		bl	cprintf
+ 1907 16a4 FEFFFFEB 		bl	crlf
+ 1908 16a8 010000EA 		b	.L287
+ 1909              	.L281:
+ 1910 16ac 0B00A0E1 		mov	r0, fp
+ 1911 16b0 FEFFFFEB 		bl	cprintf
+ 1912              	.L287:
+ 1913 16b4 FEFFFFEB 		bl	crlf
+ 1914 16b8 06FFFFEA 		b	.L311
+ 1915              	.L313:
+ 1916              		.align	2
+ 1917              	.L312:
+ 1918 16bc 004000E0 		.word	-536854528
+ 1919 16c0 98010000 		.word	.LC20
+ 1920 16c4 B8010000 		.word	.LC21
+ 1921 16c8 00000000 		.word	combuf
+ 1922 16cc 00020000 		.word	.LC26
+ 1923 16d0 E4010000 		.word	.LC24
+ 1924 16d4 FC010000 		.word	.LC25
+ 1925 16d8 01000000 		.word	combuf+1
+ 1926 16dc 02000000 		.word	combuf+2
+ 1927 16e0 00000000 		.word	param
+ 1928 16e4 C8010000 		.word	.LC22
+ 1929 16e8 D8010000 		.word	.LC23
+ 1930              		.size	main2, .-main2
+ 1931              		.align	2
+ 1932              		.global	main
+ 1933              		.type	main, %function
+ 1934              	main:
+ 1935              		@ Function supports interworking.
+ 1936              		@ args = 0, pretend = 0, frame = 0
+ 1937              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1938 16ec 38402DE9 		stmfd	sp!, {r3, r4, r5, lr}
+ARM GAS  gcc_sample.s 			page 35
+
+
+ 1939 16f0 FEFFFFEB 		bl	CPU_Initialize
+ 1940 16f4 D4409FE5 		ldr	r4, .L315
+ 1941 16f8 A03194E5 		ldr	r3, [r4, #416]
+ 1942 16fc 013083E3 		orr	r3, r3, #1
+ 1943 1700 A03184E5 		str	r3, [r4, #416]
+ 1944 1704 C8309FE5 		ldr	r3, .L315+4
+ 1945 1708 0050A0E3 		mov	r5, #0
+ 1946 170c 045083E5 		str	r5, [r3, #4]
+ 1947 1710 445083E5 		str	r5, [r3, #68]
+ 1948 1714 BC209FE5 		ldr	r2, .L315+8
+ 1949 1718 0117A0E3 		mov	r1, #262144
+ 1950 171c DF1F02E5 		str	r1, [r2, #-4063]
+ 1951 1720 CF5F02E5 		str	r5, [r2, #-4047]
+ 1952 1724 CB1F02E5 		str	r1, [r2, #-4043]
+ 1953 1728 002093E5 		ldr	r2, [r3, #0]
+ 1954 172c F020C2E3 		bic	r2, r2, #240
+ 1955 1730 502082E3 		orr	r2, r2, #80
+ 1956 1734 002083E5 		str	r2, [r3, #0]
+ 1957 1738 A83194E5 		ldr	r3, [r4, #424]
+ 1958 173c C030C3E3 		bic	r3, r3, #192
+ 1959 1740 A83184E5 		str	r3, [r4, #424]
+ 1960 1744 C43094E5 		ldr	r3, [r4, #196]
+ 1961 1748 083083E3 		orr	r3, r3, #8
+ 1962 174c C43084E5 		str	r3, [r4, #196]
+ 1963 1750 0030E0E3 		mvn	r3, #0
+ 1964 1754 F32F13E5 		ldr	r2, [r3, #-4083]
+ 1965 1758 4020C2E3 		bic	r2, r2, #64
+ 1966 175c F32F03E5 		str	r2, [r3, #-4083]
+ 1967 1760 EF2F13E5 		ldr	r2, [r3, #-4079]
+ 1968 1764 402082E3 		orr	r2, r2, #64
+ 1969 1768 EF2F03E5 		str	r2, [r3, #-4079]
+ 1970 176c 68309FE5 		ldr	r3, .L315+12
+ 1971 1770 7F20E0E3 		mvn	r2, #127
+ 1972 1774 0C20C3E5 		strb	r2, [r3, #12]
+ 1973 1778 0920A0E3 		mov	r2, #9
+ 1974 177c 0020C3E5 		strb	r2, [r3, #0]
+ 1975 1780 0450C3E5 		strb	r5, [r3, #4]
+ 1976 1784 3E20E0E3 		mvn	r2, #62
+ 1977 1788 2820C3E5 		strb	r2, [r3, #40]
+ 1978 178c 0320A0E3 		mov	r2, #3
+ 1979 1790 0C20C3E5 		strb	r2, [r3, #12]
+ 1980 1794 4F00A0E3 		mov	r0, #79
+ 1981 1798 FEFFFFEB 		bl	SendData
+ 1982 179c 4B00A0E3 		mov	r0, #75
+ 1983 17a0 FEFFFFEB 		bl	SendData
+ 1984 17a4 0A00A0E3 		mov	r0, #10
+ 1985 17a8 FEFFFFEB 		bl	SendData
+ 1986 17ac 0D00A0E3 		mov	r0, #13
+ 1987 17b0 FEFFFFEB 		bl	SendData
+ 1988 17b4 005084E5 		str	r5, [r4, #0]
+ 1989 17b8 0430A0E3 		mov	r3, #4
+ 1990 17bc 043084E5 		str	r3, [r4, #4]
+ 1991 17c0 0230A0E3 		mov	r3, #2
+ 1992 17c4 003084E5 		str	r3, [r4, #0]
+ 1993 17c8 0500A0E1 		mov	r0, r5
+ 1994 17cc FEFFFFEB 		bl	main2
+ 1995              	.L316:
+ARM GAS  gcc_sample.s 			page 36
+
+
+ 1996              		.align	2
+ 1997              	.L315:
+ 1998 17d0 00C01FE0 		.word	-534790144
+ 1999 17d4 00C002E0 		.word	-536690688
+ 2000 17d8 FFCFFF3F 		.word	1073729535
+ 2001 17dc 00C000E0 		.word	-536821760
+ 2002              		.size	main, .-main
+ 2003              		.comm	param,32,4
+ 2004              		.comm	combuf,80,4
+ 2005              		.comm	combuf2f,4,4
+ 2006              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 2007              		.align	2
+ 2008              	.LC0:
+ 2009 0000 0D0A5041 		.ascii	"\015\012PARAMETER ERROR !\015\012\000"
+ 2009      52414D45 
+ 2009      54455220 
+ 2009      4552524F 
+ 2009      5220210D 
+ 2010 0016 0000     		.space	2
+ 2011              	.LC1:
+ 2012 0018 0D0A4144 		.ascii	"\015\012ADDR      0 1  2 3  4 5  6 7  8 9  A B  C D"
+ 2012      44522020 
+ 2012      20202020 
+ 2012      30203120 
+ 2012      20322033 
+ 2013 0045 20204520 		.ascii	"  E F  ascii\015\012\000"
+ 2013      46202061 
+ 2013      73636969 
+ 2013      0D0A00
+ 2014              	.LC2:
+ 2015 0054 63686563 		.ascii	"check sum error !!  \000"
+ 2015      6B207375 
+ 2015      6D206572 
+ 2015      726F7220 
+ 2015      21212020 
+ 2016 0069 000000   		.space	3
+ 2017              	.LC3:
+ 2018 006c 25303458 		.ascii	"%04X %04X\000"
+ 2018      20253034 
+ 2018      5800
+ 2019 0076 0000     		.space	2
+ 2020              	.LC4:
+ 2021 0078 53554D20 		.ascii	"SUM CHECK ERROR\015\012\000"
+ 2021      43484543 
+ 2021      4B204552 
+ 2021      524F520D 
+ 2021      0A00
+ 2022 008a 0000     		.space	2
+ 2023              	.LC5:
+ 2024 008c 53317E53 		.ascii	"S1~S3 abarble\015\012\000"
+ 2024      33206162 
+ 2024      6172626C 
+ 2024      650D0A00 
+ 2025              	.LC6:
+ 2026 009c 73746172 		.ascii	"start loading address = \000"
+ 2026      74206C6F 
+ 2026      6164696E 
+ARM GAS  gcc_sample.s 			page 37
+
+
+ 2026      67206164 
+ 2026      64726573 
+ 2027 00b5 000000   		.space	3
+ 2028              	.LC7:
+ 2029 00b8 2530386C 		.ascii	"%08lX\000"
+ 2029      5800
+ 2030 00be 0000     		.space	2
+ 2031              	.LC8:
+ 2032 00c0 0D0A454E 		.ascii	"\015\012END.     bytes loaded = \000"
+ 2032      442E2020 
+ 2032      20202062 
+ 2032      79746573 
+ 2032      206C6F61 
+ 2033 00db 00       		.space	1
+ 2034              	.LC9:
+ 2035 00dc 2530386C 		.ascii	"%08lX\015\012\000"
+ 2035      580D0A00 
+ 2036              	.LC10:
+ 2037 00e4 3F3F3F3F 		.ascii	"????? S load stop\015\012\000"
+ 2037      3F205320 
+ 2037      6C6F6164 
+ 2037      2073746F 
+ 2037      700D0A00 
+ 2038              	.LC11:
+ 2039 00f8 2530386C 		.ascii	"%08lX=\000"
+ 2039      583D00
+ 2040 00ff 00       		.space	1
+ 2041              	.LC12:
+ 2042 0100 25303258 		.ascii	"%02X \000"
+ 2042      2000
+ 2043 0106 0000     		.space	2
+ 2044              	.LC13:
+ 2045 0108 25303258 		.ascii	"%02X\000"
+ 2045      00
+ 2046 010d 000000   		.space	3
+ 2047              	.LC14:
+ 2048 0110 25303458 		.ascii	"%04X\000"
+ 2048      00
+ 2049 0115 000000   		.space	3
+ 2050              	.LC15:
+ 2051 0118 2530386C 		.ascii	"%08lX \000"
+ 2051      582000
+ 2052 011f 00       		.space	1
+ 2053              	.LC16:
+ 2054 0120 25303458 		.ascii	"%04X \000"
+ 2054      2000
+ 2055 0126 0000     		.space	2
+ 2056              	.LC17:
+ 2057 0128 0D0A4275 		.ascii	"\015\012Buffer = 0x4000A000 --> 0x4000BFFF\000"
+ 2057      66666572 
+ 2057      203D2030 
+ 2057      78343030 
+ 2057      30413030 
+ 2058 014d 000000   		.space	3
+ 2059              	.LC18:
+ 2060 0150 0D0A7479 		.ascii	"\015\012type return to do 1000 iterations:\000"
+ 2060      70652072 
+ARM GAS  gcc_sample.s 			page 38
+
+
+ 2060      65747572 
+ 2060      6E20746F 
+ 2060      20646F20 
+ 2061 0175 000000   		.space	3
+ 2062              	.LC19:
+ 2063 0178 0D0A256C 		.ascii	"\015\012%ld primes Timer0=%ld count\015\012\000"
+ 2063      64207072 
+ 2063      696D6573 
+ 2063      2054696D 
+ 2063      6572303D 
+ 2064              	.LC20:
+ 2065 0198 0D0A4C50 		.ascii	"\015\012LPC2388 monitor 2011.12.5-1\015\012\000"
+ 2065      43323338 
+ 2065      38206D6F 
+ 2065      6E69746F 
+ 2065      72203230 
+ 2066              	.LC21:
+ 2067 01b8 4C504332 		.ascii	"LPC2388-Bug>\000"
+ 2067      3338382D 
+ 2067      4275673E 
+ 2067      00
+ 2068 01c5 000000   		.space	3
+ 2069              	.LC22:
+ 2070 01c8 0D0A7265 		.ascii	"\015\012ret= %08lX\000"
+ 2070      743D2025 
+ 2070      30386C58 
+ 2070      00
+ 2071 01d5 000000   		.space	3
+ 2072              	.LC23:
+ 2073 01d8 73696576 		.ascii	"sieve=%ld \000"
+ 2073      653D256C 
+ 2073      642000
+ 2074 01e3 00       		.space	1
+ 2075              	.LC24:
+ 2076 01e4 0D0A5469 		.ascii	"\015\012Timer HEX = %lX, %ld\000"
+ 2076      6D657220 
+ 2076      48455820 
+ 2076      3D20256C 
+ 2076      582C2025 
+ 2077 01fb 00       		.space	1
+ 2078              	.LC25:
+ 2079 01fc 83CA7300 		.ascii	"\203\312s\000"
+ 2080              	.LC26:
+ 2081 0200 64656661 		.ascii	"default\000"
+ 2081      756C7400 
+ 2082              		.ident	"GCC: (GNU) 4.7.1"
+ARM GAS  gcc_sample.s 			page 39
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 gcc_sample.c
+        gcc_sample.s:14     .text:0000000000000000 $a
+        gcc_sample.s:17     .text:0000000000000000 CheckRecvData
+        gcc_sample.s:29     .text:0000000000000010 $d
+        gcc_sample.s:31     .text:0000000000000014 $a
+        gcc_sample.s:34     .text:0000000000000014 RecvData
+        gcc_sample.s:50     .text:0000000000000030 $d
+        gcc_sample.s:52     .text:0000000000000034 $a
+        gcc_sample.s:55     .text:0000000000000034 SendData
+        gcc_sample.s:71     .text:0000000000000050 $d
+        gcc_sample.s:73     .text:0000000000000054 $a
+        gcc_sample.s:76     .text:0000000000000054 IRQ_func
+        gcc_sample.s:99     .text:0000000000000090 $d
+        gcc_sample.s:101    .text:0000000000000094 $a
+        gcc_sample.s:104    .text:0000000000000094 CPU_Initialize
+        gcc_sample.s:172    .text:0000000000000174 $d
+        gcc_sample.s:175    .text:000000000000017c $a
+        gcc_sample.s:178    .text:000000000000017c putscon
+        gcc_sample.s:199    .text:00000000000001a8 getscon
+        gcc_sample.s:293    .text:00000000000002d8 paramer
+        gcc_sample.s:305    .text:00000000000002ec $d
+        gcc_sample.s:307    .text:00000000000002f0 $a
+        gcc_sample.s:310    .text:00000000000002f0 movem
+        gcc_sample.s:362    .text:0000000000000388 dumpmt
+        gcc_sample.s:374    .text:000000000000039c $d
+        gcc_sample.s:376    .text:00000000000003a0 $a
+        gcc_sample.s:379    .text:00000000000003a0 cmpstr
+        gcc_sample.s:419    .text:0000000000000404 cpysstr
+        gcc_sample.s:461    .text:0000000000000474 spacen
+        gcc_sample.s:482    .text:00000000000004a0 crlf
+        gcc_sample.s:497    .text:00000000000004bc chex
+        gcc_sample.s:522    .text:00000000000004f8 htol
+        gcc_sample.s:553    .text:000000000000054c argck
+        gcc_sample.s:588    .text:00000000000005ac hex
+        gcc_sample.s:602    .text:00000000000005c0 ckasci
+        gcc_sample.s:619    .text:00000000000005e4 cstrlen
+        gcc_sample.s:645    .text:000000000000061c csprintf
+        gcc_sample.s:886    .text:0000000000000958 $d
+        gcc_sample.s:888    .text:000000000000095c $a
+        gcc_sample.s:891    .text:000000000000095c cprintf
+        gcc_sample.s:917    .text:00000000000009a4 srload
+        gcc_sample.s:1080   .text:0000000000000be8 $d
+        gcc_sample.s:1090   .text:0000000000000c0c $a
+        gcc_sample.s:1093   .text:0000000000000c0c verify
+        gcc_sample.s:1145   .text:0000000000000cb4 $d
+        gcc_sample.s:1149   .text:0000000000000cc0 $a
+        gcc_sample.s:1152   .text:0000000000000cc0 setmemo
+        gcc_sample.s:1340   .text:0000000000000f38 $d
+        gcc_sample.s:1344   .text:0000000000000f44 $a
+        gcc_sample.s:1347   .text:0000000000000f44 dumpm
+        gcc_sample.s:1445   .text:0000000000001090 $d
+        gcc_sample.s:1449   .text:000000000000109c $a
+        gcc_sample.s:1452   .text:000000000000109c findp
+        gcc_sample.s:1534   .text:000000000000119c $d
+        gcc_sample.s:1536   .text:00000000000011a0 $a
+        gcc_sample.s:1539   .text:00000000000011a0 sievemain
+ARM GAS  gcc_sample.s 			page 40
+
+
+        gcc_sample.s:1606   .text:0000000000001274 $d
+        gcc_sample.s:1616   .text:0000000000001298 $a
+        gcc_sample.s:1619   .text:0000000000001298 main2
+        gcc_sample.s:1658   .text:0000000000001318 $d
+        gcc_sample.s:1695   .text:00000000000013a8 $a
+        gcc_sample.s:1918   .text:00000000000016bc $d
+                            *COM*:0000000000000050 combuf
+                            *COM*:0000000000000020 param
+        gcc_sample.s:1931   .text:00000000000016ec $a
+        gcc_sample.s:1934   .text:00000000000016ec main
+        gcc_sample.s:1998   .text:00000000000017d0 $d
+                            *COM*:0000000000000004 combuf2f
+        gcc_sample.s:2007   .rodata.str1.4:0000000000000000 $d
+
+NO UNDEFINED SYMBOLS
