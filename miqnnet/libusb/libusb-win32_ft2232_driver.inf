@@ -1,0 +1,243 @@
+[Version]
+Signature = "$Chicago$"
+provider  = %manufacturer%
+DriverVer = 07/07/2009,0.1.12.2
+CatalogFile = libusb-win32_ft2232_driver.cat
+CatalogFile.NT = libusb-win32_ft2232_driver.cat
+CatalogFile.NTAMD64 = libusb-win32_ft2232_driver_x64.cat
+
+Class = LibUsbDevices
+ClassGUID = {EB781AAF-9C70-4523-A5DF-642A87ECA567}
+
+[ClassInstall]
+AddReg=libusb_class_install_add_reg
+
+[ClassInstall32]
+AddReg=libusb_class_install_add_reg
+
+[libusb_class_install_add_reg]
+HKR,,,,"LibUSB-Win32 Devices"
+HKR,,Icon,,"-20"
+
+[Manufacturer]
+%manufacturer%=Devices,NT,NTAMD64
+
+;--------------------------------------------------------------------------
+; Files
+;--------------------------------------------------------------------------
+
+[SourceDisksNames]
+1 = "Libusb-Win32 Driver Installation Disk",,
+
+[SourceDisksFiles]
+libusb0.sys = 1,,
+libusb0.dll = 1,,
+libusb0_x64.sys = 1,,
+libusb0_x64.dll = 1,,
+
+[DestinationDirs]
+libusb_files_sys = 10,system32\drivers
+libusb_files_sys_x64 = 10,system32\drivers
+libusb_files_dll = 10,system32
+libusb_files_dll_wow64 = 10,syswow64
+libusb_files_dll_x64 = 10,system32
+
+[libusb_files_sys]
+libusb0.sys
+
+[libusb_files_sys_x64]
+libusb0_x64.sys
+
+[libusb_files_dll]
+libusb0.dll
+
+[libusb_files_dll_wow64]
+libusb0_x64.dll
+
+[libusb_files_dll_x64]
+libusb0_x64.dll
+
+;--------------------------------------------------------------------------
+; Device driver
+;--------------------------------------------------------------------------
+
+[LIBUSB_DEV]
+CopyFiles = libusb_files_sys, libusb_files_dll
+AddReg    = libusb_add_reg
+
+[LIBUSB_DEV.NT]
+CopyFiles = libusb_files_sys, libusb_files_dll
+
+[LIBUSB_DEV.NTAMD64]
+CopyFiles = libusb_files_sys_x64, libusb_files_dll_wow64, libusb_files_dll_x64
+
+[LIBUSB_DEV.HW]
+DelReg = libusb_del_reg_hw
+AddReg = libusb_add_reg_hw
+
+[LIBUSB_DEV.NT.HW]
+DelReg = libusb_del_reg_hw
+AddReg = libusb_add_reg_hw
+
+[LIBUSB_DEV.NTAMD64.HW]
+DelReg = libusb_del_reg_hw
+AddReg = libusb_add_reg_hw
+
+[LIBUSB_DEV.NT.Services]
+AddService = libusb0, 0x00000002, libusb_add_service
+
+[LIBUSB_DEV.NTAMD64.Services]
+AddService = libusb0_x64, 0x00000002, libusb_add_service_x64
+
+[libusb_add_reg]
+HKR,,DevLoader,,*ntkern
+HKR,,NTMPDriver,,libusb0.sys
+
+; Older versions of this .inf file installed filter drivers. They are not
+; needed any more and must be removed
+[libusb_del_reg_hw]
+HKR,,LowerFilters
+HKR,,UpperFilters
+
+; Device properties
+[libusb_add_reg_hw]
+HKR,,SurpriseRemovalOK, 0x00010001, 1
+
+;--------------------------------------------------------------------------
+; Services
+;--------------------------------------------------------------------------
+
+[libusb_add_service]
+DisplayName    = "LibUsb-Win32 - Kernel Driver 07/07/2009,0.1.12.2"
+ServiceType    = 1
+StartType      = 3
+ErrorControl   = 0
+ServiceBinary  = %12%\libusb0.sys
+
+[libusb_add_service_x64]
+DisplayName    = "LibUsb-Win32 - Kernel Driver 07/07/2009,0.1.12.2"
+ServiceType    = 1
+StartType      = 3
+ErrorControl   = 0
+ServiceBinary  = %12%\libusb0_x64.sys
+
+;--------------------------------------------------------------------------
+; Devices
+;--------------------------------------------------------------------------
+
+; Devices which have USB<=>UART converter on the second channel should have
+; only ONE entry - the second channel is handled by the ft2232 driver from
+; FTDI. egnite Turtelizer2 is an example.
+; Devices which use only the first channel (JTAG only) should have TWO entries
+; for BOTH channels. Amontec JTAGkey is an example.
+
+[Devices]
+"Amontec JTAGkey (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_cff8&MI_00
+"Amontec JTAGkey (Channel B)"=LIBUSB_DEV, USB\VID_0403&PID_cff8&MI_01
+"CALAO Systems USB-A9260-C01 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+"CALAO Systems USB-A9260-C02 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_6001&MI_00
+"egnite Turtelizer 2 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bdc8&MI_00
+"Hitex Cortino (Channel A)"=LIBUSB_DEV, USB\VID_0640&PID_0032&MI_00
+"Hitex Cortino (Channel B)"=LIBUSB_DEV, USB\VID_0640&PID_0032&MI_01
+"Hitex STM32-PerformanceStick (Channel A)"=LIBUSB_DEV, USB\VID_0640&PID_002d&MI_00
+"Hitex STR9-comStick (Channel A)"=LIBUSB_DEV, USB\VID_0640&PID_002c&MI_00
+"Hubert Hoegl's USB to JTAG (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+"Joern Kaipf's OOCDLink (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_baf8&MI_00
+"Kristech usbScarab2 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bbe0&MI_00
+"Luminary Micro BD-ICDI In-Circuit Debug Interface Board (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bcda&MI_00
+"Luminary Micro Stellaris LM3S811 Evaluation Kit (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bcd9&MI_00
+"Marvel SheevaPlug Development Kit (Channel A)"=LIBUSB_DEV, USB\VID_9e88&PID_9e8f&MI_00`
+"Olimex ARM-USB-OCD (Channel A)"=LIBUSB_DEV, USB\VID_15ba&PID_0003&MI_00
+"Olimex ARM-USB-OCD-H (Channel A)"=LIBUSB_DEV, USB\VID_15ba&PID_002b&MI_00
+"Olimex ARM-USB-TINY (Channel A)"=LIBUSB_DEV, USB\VID_15ba&PID_0004&MI_00
+"Olimex ARM-USB-TINY (Channel B)"=LIBUSB_DEV, USB\VID_15ba&PID_0004&MI_01
+"Olimex ARM-USB-TINY-H (Channel A)"=LIBUSB_DEV, USB\VID_15ba&PID_002a&MI_00
+"Olimex ARM-USB-TINY-H (Channel B)"=LIBUSB_DEV, USB\VID_15ba&PID_002a&MI_01
+"Section5 ICEBear (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_c140&MI_00
+"Section5 ICEBear (Channel B)"=LIBUSB_DEV, USB\VID_0403&PID_c140&MI_01	
+"TinCanTools Flyswatter (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+"Xverve Signalyzer (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bca0&MI_00
+"Xverve Signalyzer H2 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bca2&MI_00
+"Xverve Signalyzer H4 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bca4&MI_00
+"Xverve Signalyzer Lite (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bca1&MI_00
+"TINY JTAGインターフェースA"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+"FT2232HX A"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+"FT4232HX A"=LIBUSB_DEV, USB\VID_0403&PID_6011&MI_00
+"AKI-FT2232D A"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+"USB2232 A"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+
+[Devices.NT]
+"Amontec JTAGkey (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_cff8&MI_00
+"Amontec JTAGkey (Channel B)"=LIBUSB_DEV, USB\VID_0403&PID_cff8&MI_01
+"CALAO Systems USB-A9260-C01 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+"CALAO Systems USB-A9260-C02 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_6001&MI_00
+"egnite Turtelizer 2 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bdc8&MI_00
+"Hitex Cortino (Channel A)"=LIBUSB_DEV, USB\VID_0640&PID_0032&MI_00
+"Hitex Cortino (Channel B)"=LIBUSB_DEV, USB\VID_0640&PID_0032&MI_01
+"Hitex STM32-PerformanceStick (Channel A)"=LIBUSB_DEV, USB\VID_0640&PID_002d&MI_00
+"Hitex STR9-comStick (Channel A)"=LIBUSB_DEV, USB\VID_0640&PID_002c&MI_00
+"Hubert Hoegl's USB to JTAG (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+"Joern Kaipf's OOCDLink (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_baf8&MI_00
+"Kristech usbScarab2 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bbe0&MI_00
+"Luminary Micro BD-ICDI In-Circuit Debug Interface Board (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bcda&MI_00
+"Luminary Micro Stellaris LM3S811 Evaluation Kit (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bcd9&MI_00
+"Marvel SheevaPlug Development Kit (Channel A)"=LIBUSB_DEV, USB\VID_9e88&PID_9e8f&MI_00`
+"Olimex ARM-USB-OCD (Channel A)"=LIBUSB_DEV, USB\VID_15ba&PID_0003&MI_00
+"Olimex ARM-USB-OCD-H (Channel A)"=LIBUSB_DEV, USB\VID_15ba&PID_002b&MI_00
+"Olimex ARM-USB-TINY (Channel A)"=LIBUSB_DEV, USB\VID_15ba&PID_0004&MI_00
+"Olimex ARM-USB-TINY (Channel B)"=LIBUSB_DEV, USB\VID_15ba&PID_0004&MI_01
+"Olimex ARM-USB-TINY-H (Channel A)"=LIBUSB_DEV, USB\VID_15ba&PID_002a&MI_00
+"Olimex ARM-USB-TINY-H (Channel B)"=LIBUSB_DEV, USB\VID_15ba&PID_002a&MI_01
+"Section5 ICEBear (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_c140&MI_00
+"Section5 ICEBear (Channel B)"=LIBUSB_DEV, USB\VID_0403&PID_c140&MI_01	
+"TinCanTools Flyswatter (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+"Xverve Signalyzer (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bca0&MI_00
+"Xverve Signalyzer H2 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bca2&MI_00
+"Xverve Signalyzer H4 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bca4&MI_00
+"Xverve Signalyzer Lite (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bca1&MI_00
+"TINY JTAGインターフェースA"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+"FT2232HX A"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+"FT4232HX A"=LIBUSB_DEV, USB\VID_0403&PID_6011&MI_00
+"AKI-FT2232D A"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+"USB2232 A"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+
+[Devices.NTAMD64]
+"Amontec JTAGkey (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_cff8&MI_00
+"Amontec JTAGkey (Channel B)"=LIBUSB_DEV, USB\VID_0403&PID_cff8&MI_01
+"CALAO Systems USB-A9260-C01 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+"CALAO Systems USB-A9260-C02 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_6001&MI_00
+"egnite Turtelizer 2 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bdc8&MI_00
+"Hitex Cortino (Channel A)"=LIBUSB_DEV, USB\VID_0640&PID_0032&MI_00
+"Hitex Cortino (Channel B)"=LIBUSB_DEV, USB\VID_0640&PID_0032&MI_01
+"Hitex STM32-PerformanceStick (Channel A)"=LIBUSB_DEV, USB\VID_0640&PID_002d&MI_00
+"Hitex STR9-comStick (Channel A)"=LIBUSB_DEV, USB\VID_0640&PID_002c&MI_00
+"Hubert Hoegl's USB to JTAG (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+"Joern Kaipf's OOCDLink (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_baf8&MI_00
+"Kristech usbScarab2 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bbe0&MI_00
+"Luminary Micro BD-ICDI In-Circuit Debug Interface Board (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bcda&MI_00
+"Luminary Micro Stellaris LM3S811 Evaluation Kit (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bcd9&MI_00
+"Marvel SheevaPlug Development Kit (Channel A)"=LIBUSB_DEV, USB\VID_9e88&PID_9e8f&MI_00`
+"Olimex ARM-USB-OCD (Channel A)"=LIBUSB_DEV, USB\VID_15ba&PID_0003&MI_00
+"Olimex ARM-USB-OCD-H (Channel A)"=LIBUSB_DEV, USB\VID_15ba&PID_002b&MI_00
+"Olimex ARM-USB-TINY (Channel A)"=LIBUSB_DEV, USB\VID_15ba&PID_0004&MI_00
+"Olimex ARM-USB-TINY (Channel B)"=LIBUSB_DEV, USB\VID_15ba&PID_0004&MI_01
+"Olimex ARM-USB-TINY-H (Channel A)"=LIBUSB_DEV, USB\VID_15ba&PID_002a&MI_00
+"Olimex ARM-USB-TINY-H (Channel B)"=LIBUSB_DEV, USB\VID_15ba&PID_002a&MI_01
+"Section5 ICEBear (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_c140&MI_00
+"Section5 ICEBear (Channel B)"=LIBUSB_DEV, USB\VID_0403&PID_c140&MI_01	
+"TinCanTools Flyswatter (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_6010&MI_00
+"Xverve Signalyzer (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bca0&MI_00
+"Xverve Signalyzer H2 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bca2&MI_00
+"Xverve Signalyzer H4 (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bca4&MI_00
+"Xverve Signalyzer Lite (Channel A)"=LIBUSB_DEV, USB\VID_0403&PID_bca1&MI_00
+
+;--------------------------------------------------------------------------
+; Strings
+;--------------------------------------------------------------------------
+
+[Strings]
+manufacturer = "FTDI"
+
+;--------------------------------------------------------------------------
+; version: 100223
+;--------------------------------------------------------------------------
