@@ -8,7 +8,7 @@ VPATH=src
 SOURCES_LIB=stlink-common.c stlink-usb.c
 OBJS_LIB=$(SOURCES_LIB:.c=.o)
 TEST_PROGRAMS=test_usb
-LDFLAGS=-L/opt/local/lib -L. -lstlink -lusb-1.0
+LDFLAGS=-L. -lstlink -lusb-1.0
 
 ifeq ($(CONFIG_USE_LIBSG),)
 CONFIG_USE_LIBSG=1
@@ -27,7 +27,6 @@ CFLAGS+=-DDEBUG=1
 CFLAGS+=-std=gnu99
 CFLAGS+=-Wall -Wextra
 
-CFLAGS+=-I /opt/local/include -I . 
 
 LIBRARY=libstlink.a
 
