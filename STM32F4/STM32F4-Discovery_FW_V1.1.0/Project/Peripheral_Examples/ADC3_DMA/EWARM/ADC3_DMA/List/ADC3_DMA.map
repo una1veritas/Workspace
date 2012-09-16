@@ -1,0 +1,422 @@
+###############################################################################
+#                                                                             #
+# IAR ELF Linker V6.40.2.53884/W32 for ARM              03/Sep/2012  23:49:40 #
+# Copyright 2007-2012 IAR Systems AB.                                         #
+#                                                                             #
+#    Output file  =  C:\Users\Sin\Documents\STM32F4-Discovery_FW_V1.1.0\Proje #
+#                    ct\Peripheral_Examples\ADC3_DMA\EWARM\ADC3_DMA\Exe\ADC3_ #
+#                    DMA.out                                                  #
+#    Map file     =  C:\Users\Sin\Documents\STM32F4-Discovery_FW_V1.1.0\Proje #
+#                    ct\Peripheral_Examples\ADC3_DMA\EWARM\ADC3_DMA\List\ADC3 #
+#                    _DMA.map                                                 #
+#    Command line =  C:\Users\Sin\Documents\STM32F4-Discovery_FW_V1.1.0\Proje #
+#                    ct\Peripheral_Examples\ADC3_DMA\EWARM\ADC3_DMA\Obj\main. #
+#                    o C:\Users\Sin\Documents\STM32F4-Discovery_FW_V1.1.0\Pro #
+#                    ject\Peripheral_Examples\ADC3_DMA\EWARM\ADC3_DMA\Obj\mis #
+#                    c.o C:\Users\Sin\Documents\STM32F4-Discovery_FW_V1.1.0\P #
+#                    roject\Peripheral_Examples\ADC3_DMA\EWARM\ADC3_DMA\Obj\s #
+#                    tartup_stm32f4xx.o C:\Users\Sin\Documents\STM32F4-Discov #
+#                    ery_FW_V1.1.0\Project\Peripheral_Examples\ADC3_DMA\EWARM #
+#                    \ADC3_DMA\Obj\stm32f4_discovery.o                        #
+#                    C:\Users\Sin\Documents\STM32F4-Discovery_FW_V1.1.0\Proje #
+#                    ct\Peripheral_Examples\ADC3_DMA\EWARM\ADC3_DMA\Obj\stm32 #
+#                    f4xx_adc.o C:\Users\Sin\Documents\STM32F4-Discovery_FW_V #
+#                    1.1.0\Project\Peripheral_Examples\ADC3_DMA\EWARM\ADC3_DM #
+#                    A\Obj\stm32f4xx_dma.o C:\Users\Sin\Documents\STM32F4-Dis #
+#                    covery_FW_V1.1.0\Project\Peripheral_Examples\ADC3_DMA\EW #
+#                    ARM\ADC3_DMA\Obj\stm32f4xx_gpio.o                        #
+#                    C:\Users\Sin\Documents\STM32F4-Discovery_FW_V1.1.0\Proje #
+#                    ct\Peripheral_Examples\ADC3_DMA\EWARM\ADC3_DMA\Obj\stm32 #
+#                    f4xx_it.o C:\Users\Sin\Documents\STM32F4-Discovery_FW_V1 #
+#                    .1.0\Project\Peripheral_Examples\ADC3_DMA\EWARM\ADC3_DMA #
+#                    \Obj\stm32f4xx_rcc.o C:\Users\Sin\Documents\STM32F4-Disc #
+#                    overy_FW_V1.1.0\Project\Peripheral_Examples\ADC3_DMA\EWA #
+#                    RM\ADC3_DMA\Obj\system_stm32f4xx.o --redirect            #
+#                    _Printf=_PrintfSmall --redirect _Scanf=_ScanfSmall -o    #
+#                    C:\Users\Sin\Documents\STM32F4-Discovery_FW_V1.1.0\Proje #
+#                    ct\Peripheral_Examples\ADC3_DMA\EWARM\ADC3_DMA\Exe\ADC3_ #
+#                    DMA.out --map C:\Users\Sin\Documents\STM32F4-Discovery_F #
+#                    W_V1.1.0\Project\Peripheral_Examples\ADC3_DMA\EWARM\ADC3 #
+#                    _DMA\List\ADC3_DMA.map --config                          #
+#                    C:\Users\Sin\Documents\STM32F4-Discovery_FW_V1.1.0\Proje #
+#                    ct\Peripheral_Examples\ADC3_DMA\EWARM\stm32f4xx_flash.ic #
+#                    f --semihosting --entry __iar_program_start --vfe        #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+*******************************************************************************
+*** RUNTIME MODEL ATTRIBUTES
+***
+
+CppFlavor       = *
+__SystemLibrary = DLib
+
+
+*******************************************************************************
+*** PLACEMENT SUMMARY
+***
+
+"A1":  place at 0x08000000 { ro section .intvec };
+"P1":  place in [from 0x08000000 to 0x080fffff] { ro };
+"P2":  place in [from 0x20000000 to 0x20020000] { rw, block CSTACK, block HEAP };
+
+  Section          Kind        Address   Size  Object
+  -------          ----        -------   ----  ------
+"A1":                                   0x188
+  .intvec          ro code  0x08000000  0x188  startup_stm32f4xx.o [1]
+                          - 0x08000188  0x188
+
+"P1":                                   0x670
+  .text            ro code  0x08000188  0x130  stm32f4xx_adc.o [1]
+  .text            ro code  0x080002b8  0x118  main.o [1]
+  .text            ro code  0x080003d0   0x2c  stm32f4xx_rcc.o [1]
+  .text            ro code  0x080003fc   0x68  stm32f4xx_dma.o [1]
+  .text            ro code  0x08000464   0x80  stm32f4xx_gpio.o [1]
+  .text            ro code  0x080004e4   0xdc  system_stm32f4xx.o [1]
+  .text            ro code  0x080005c0   0x28  data_init3.o [4]
+  .text            ro code  0x080005e8   0x22  zero_init3.o [4]
+  .iar.init_table  const    0x0800060c   0x10  - Linker created -
+  .text            ro code  0x0800061c   0x16  cmain.o [4]
+  .text            ro code  0x08000632    0x4  low_level_init.o [3]
+  .text            ro code  0x08000636    0x4  exit.o [3]
+  .text            ro code  0x0800063c    0xa  cexit.o [4]
+  .text            ro code  0x08000648   0x14  exit.o [5]
+  .text            ro code  0x0800065c   0x12  stm32f4xx_it.o [1]
+  .text            ro code  0x08000670   0x10  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000680    0xc  cstartup_M.o [4]
+  .text            ro code  0x0800068c    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000690    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000694    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000698    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x0800069c    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006a0    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006a4    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006a8    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006ac    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006b0    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006b4    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006b8    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006bc    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006c0    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006c4    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006c8    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006cc    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006d0    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006d4    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006d8    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006dc    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006e0    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006e4    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006e8    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006ec    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006f0    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006f4    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006f8    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080006fc    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000700    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000704    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000708    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x0800070c    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000710    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000714    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000718    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x0800071c    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000720    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000724    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000728    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x0800072c    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000730    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000734    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000738    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x0800073c    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000740    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000744    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000748    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x0800074c    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000750    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000754    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000758    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x0800075c    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000760    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000764    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000768    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x0800076c    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000770    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000774    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000778    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x0800077c    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000780    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000784    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000788    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x0800078c    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000790    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000794    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x08000798    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x0800079c    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007a0    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007a4    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007a8    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007ac    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007b0    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007b4    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007b8    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007bc    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007c0    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007c4    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007c8    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007cc    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007d0    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007d4    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007d8    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007dc    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007e0    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007e4    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007e8    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007ec    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007f0    0x4  startup_stm32f4xx.o [1]
+  .text            ro code  0x080007f4    0x4  startup_stm32f4xx.o [1]
+  .rodata          const    0x080007f8    0x0  zero_init3.o [4]
+                          - 0x080007f8  0x670
+
+"P2", part 1 of 2:                        0x8
+  .bss             zero     0x20000000    0x8  main.o [1]
+                          - 0x20000008    0x8
+
+"P2", part 2 of 2:                      0x400
+  CSTACK                    0x20000008  0x400  <Block>
+    CSTACK         uninit   0x20000008  0x400  <Block tail>
+                          - 0x20000408  0x400
+
+
+*******************************************************************************
+*** INIT TABLE
+***
+
+          Address     Size
+          -------     ----
+Zero (__iar_zero_init3)
+    1 destination range, total size 0x8:
+          0x20000000   0x8
+
+
+
+*******************************************************************************
+*** MODULE SUMMARY
+***
+
+    Module               ro code  ro data  rw data
+    ------               -------  -------  -------
+C:\Users\Sin\Documents\STM32F4-Discovery_FW_V1.1.0\Project\Peripheral_Examples\ADC3_DMA\EWARM\ADC3_DMA\Obj: [1]
+    main.o                   280                 8
+    startup_stm32f4xx.o      772
+    stm32f4xx_adc.o          304
+    stm32f4xx_dma.o          104
+    stm32f4xx_gpio.o         128
+    stm32f4xx_it.o            18
+    stm32f4xx_rcc.o           44
+    system_stm32f4xx.o       220
+    ----------------------------------------------
+    Total:                 1 870                 8
+
+command line: [2]
+    ----------------------------------------------
+    Total:
+
+dl7M_tln.a: [3]
+    exit.o                     4
+    low_level_init.o           4
+    ----------------------------------------------
+    Total:                     8
+
+rt7M_tl.a: [4]
+    cexit.o                   10
+    cmain.o                   22
+    cstartup_M.o              12
+    data_init3.o              40
+    zero_init3.o              34
+    ----------------------------------------------
+    Total:                   118
+
+shb_l.a: [5]
+    exit.o                    20
+    ----------------------------------------------
+    Total:                    20
+
+    Gaps                       6        2
+    Linker created                     16    1 024
+--------------------------------------------------
+    Grand Total:           2 022       18    1 032
+
+
+*******************************************************************************
+*** ENTRY LIST
+***
+
+Entry                      Address  Size  Type      Object
+-----                      -------  ----  ----      ------
+?main                   0x0800061d        Code  Gb  cmain.o [4]
+ADC3ConvertedValue      0x20000000   0x2  Data  Gb  main.o [1]
+ADC3ConvertedVoltage    0x20000004   0x4  Data  Gb  main.o [1]
+ADC3_CH12_DMA_Config    0x080002d9  0xde  Code  Gb  main.o [1]
+ADC_Cmd                 0x080001e5  0x12  Code  Gb  stm32f4xx_adc.o [1]
+ADC_CommonInit          0x080001c9  0x1c  Code  Gb  stm32f4xx_adc.o [1]
+ADC_DMACmd              0x08000285  0x12  Code  Gb  stm32f4xx_adc.o [1]
+ADC_DMARequestAfterLastTransferCmd
+                        0x08000297  0x12  Code  Gb  stm32f4xx_adc.o [1]
+ADC_IRQHandler          0x080006f9        Code  Wk  startup_stm32f4xx.o [1]
+ADC_Init                0x08000189  0x40  Code  Gb  stm32f4xx_adc.o [1]
+ADC_RegularChannelConfig
+                        0x080001f7  0x84  Code  Gb  stm32f4xx_adc.o [1]
+ADC_SoftwareStartConv   0x0800027b   0xa  Code  Gb  stm32f4xx_adc.o [1]
+BusFault_Handler        0x08000663   0x2  Code  Gb  stm32f4xx_it.o [1]
+CAN1_RX0_IRQHandler     0x08000701        Code  Wk  startup_stm32f4xx.o [1]
+CAN1_RX1_IRQHandler     0x08000705        Code  Wk  startup_stm32f4xx.o [1]
+CAN1_SCE_IRQHandler     0x08000709        Code  Wk  startup_stm32f4xx.o [1]
+CAN1_TX_IRQHandler      0x080006fd        Code  Wk  startup_stm32f4xx.o [1]
+CAN2_RX0_IRQHandler     0x080007b1        Code  Wk  startup_stm32f4xx.o [1]
+CAN2_RX1_IRQHandler     0x080007b5        Code  Wk  startup_stm32f4xx.o [1]
+CAN2_SCE_IRQHandler     0x080007b9        Code  Wk  startup_stm32f4xx.o [1]
+CAN2_TX_IRQHandler      0x080007ad        Code  Wk  startup_stm32f4xx.o [1]
+CRYP_IRQHandler         0x080007ed        Code  Wk  startup_stm32f4xx.o [1]
+CSTACK$$Base            0x20000008         --   Gb  - Linker created -
+CSTACK$$Limit           0x20000408         --   Gb  - Linker created -
+DCMI_IRQHandler         0x080007e9        Code  Wk  startup_stm32f4xx.o [1]
+DMA1_Stream0_IRQHandler
+                        0x080006dd        Code  Wk  startup_stm32f4xx.o [1]
+DMA1_Stream1_IRQHandler
+                        0x080006e1        Code  Wk  startup_stm32f4xx.o [1]
+DMA1_Stream2_IRQHandler
+                        0x080006e5        Code  Wk  startup_stm32f4xx.o [1]
+DMA1_Stream3_IRQHandler
+                        0x080006e9        Code  Wk  startup_stm32f4xx.o [1]
+DMA1_Stream4_IRQHandler
+                        0x080006ed        Code  Wk  startup_stm32f4xx.o [1]
+DMA1_Stream5_IRQHandler
+                        0x080006f1        Code  Wk  startup_stm32f4xx.o [1]
+DMA1_Stream6_IRQHandler
+                        0x080006f5        Code  Wk  startup_stm32f4xx.o [1]
+DMA1_Stream7_IRQHandler
+                        0x0800076d        Code  Wk  startup_stm32f4xx.o [1]
+DMA2_Stream0_IRQHandler
+                        0x08000791        Code  Wk  startup_stm32f4xx.o [1]
+DMA2_Stream1_IRQHandler
+                        0x08000795        Code  Wk  startup_stm32f4xx.o [1]
+DMA2_Stream2_IRQHandler
+                        0x08000799        Code  Wk  startup_stm32f4xx.o [1]
+DMA2_Stream3_IRQHandler
+                        0x0800079d        Code  Wk  startup_stm32f4xx.o [1]
+DMA2_Stream4_IRQHandler
+                        0x080007a1        Code  Wk  startup_stm32f4xx.o [1]
+DMA2_Stream5_IRQHandler
+                        0x080007c1        Code  Wk  startup_stm32f4xx.o [1]
+DMA2_Stream6_IRQHandler
+                        0x080007c5        Code  Wk  startup_stm32f4xx.o [1]
+DMA2_Stream7_IRQHandler
+                        0x080007c9        Code  Wk  startup_stm32f4xx.o [1]
+DMA_Cmd                 0x0800044f  0x12  Code  Gb  stm32f4xx_dma.o [1]
+DMA_Init                0x080003fd  0x52  Code  Gb  stm32f4xx_dma.o [1]
+DebugMon_Handler        0x08000669   0x2  Code  Gb  stm32f4xx_it.o [1]
+ETH_IRQHandler          0x080007a5        Code  Wk  startup_stm32f4xx.o [1]
+ETH_WKUP_IRQHandler     0x080007a9        Code  Wk  startup_stm32f4xx.o [1]
+EXTI0_IRQHandler        0x080006c9        Code  Wk  startup_stm32f4xx.o [1]
+EXTI15_10_IRQHandler    0x08000751        Code  Wk  startup_stm32f4xx.o [1]
+EXTI1_IRQHandler        0x080006cd        Code  Wk  startup_stm32f4xx.o [1]
+EXTI2_IRQHandler        0x080006d1        Code  Wk  startup_stm32f4xx.o [1]
+EXTI3_IRQHandler        0x080006d5        Code  Wk  startup_stm32f4xx.o [1]
+EXTI4_IRQHandler        0x080006d9        Code  Wk  startup_stm32f4xx.o [1]
+EXTI9_5_IRQHandler      0x0800070d        Code  Wk  startup_stm32f4xx.o [1]
+FLASH_IRQHandler        0x080006c1        Code  Wk  startup_stm32f4xx.o [1]
+FPU_IRQHandler          0x080007f5        Code  Wk  startup_stm32f4xx.o [1]
+FSMC_IRQHandler         0x08000771        Code  Wk  startup_stm32f4xx.o [1]
+GPIO_Init               0x08000465  0x80  Code  Gb  stm32f4xx_gpio.o [1]
+HASH_RNG_IRQHandler     0x080007f1        Code  Wk  startup_stm32f4xx.o [1]
+HardFault_Handler       0x0800065f   0x2  Code  Gb  stm32f4xx_it.o [1]
+I2C1_ER_IRQHandler      0x08000731        Code  Wk  startup_stm32f4xx.o [1]
+I2C1_EV_IRQHandler      0x0800072d        Code  Wk  startup_stm32f4xx.o [1]
+I2C2_ER_IRQHandler      0x08000739        Code  Wk  startup_stm32f4xx.o [1]
+I2C2_EV_IRQHandler      0x08000735        Code  Wk  startup_stm32f4xx.o [1]
+I2C3_ER_IRQHandler      0x080007d5        Code  Wk  startup_stm32f4xx.o [1]
+I2C3_EV_IRQHandler      0x080007d1        Code  Wk  startup_stm32f4xx.o [1]
+MemManage_Handler       0x08000661   0x2  Code  Gb  stm32f4xx_it.o [1]
+NMI_Handler             0x0800065d   0x2  Code  Gb  stm32f4xx_it.o [1]
+OTG_FS_IRQHandler       0x080007bd        Code  Wk  startup_stm32f4xx.o [1]
+OTG_FS_WKUP_IRQHandler  0x08000759        Code  Wk  startup_stm32f4xx.o [1]
+OTG_HS_EP1_IN_IRQHandler
+                        0x080007dd        Code  Wk  startup_stm32f4xx.o [1]
+OTG_HS_EP1_OUT_IRQHandler
+                        0x080007d9        Code  Wk  startup_stm32f4xx.o [1]
+OTG_HS_IRQHandler       0x080007e5        Code  Wk  startup_stm32f4xx.o [1]
+OTG_HS_WKUP_IRQHandler  0x080007e1        Code  Wk  startup_stm32f4xx.o [1]
+PVD_IRQHandler          0x080006b5        Code  Wk  startup_stm32f4xx.o [1]
+PendSV_Handler          0x0800066b   0x2  Code  Gb  stm32f4xx_it.o [1]
+RCC_AHB1PeriphClockCmd  0x080003d1  0x12  Code  Gb  stm32f4xx_rcc.o [1]
+RCC_APB2PeriphClockCmd  0x080003e3  0x12  Code  Gb  stm32f4xx_rcc.o [1]
+RCC_IRQHandler          0x080006c5        Code  Wk  startup_stm32f4xx.o [1]
+RTC_Alarm_IRQHandler    0x08000755        Code  Wk  startup_stm32f4xx.o [1]
+RTC_WKUP_IRQHandler     0x080006bd        Code  Wk  startup_stm32f4xx.o [1]
+Region$$Table$$Base     0x0800060c         --   Gb  - Linker created -
+Region$$Table$$Limit    0x0800061c         --   Gb  - Linker created -
+Reset_Handler           0x08000671        Code  Wk  startup_stm32f4xx.o [1]
+SDIO_IRQHandler         0x08000775        Code  Wk  startup_stm32f4xx.o [1]
+SPI1_IRQHandler         0x0800073d        Code  Wk  startup_stm32f4xx.o [1]
+SPI2_IRQHandler         0x08000741        Code  Wk  startup_stm32f4xx.o [1]
+SPI3_IRQHandler         0x0800077d        Code  Wk  startup_stm32f4xx.o [1]
+SVC_Handler             0x08000667   0x2  Code  Gb  stm32f4xx_it.o [1]
+SysTick_Handler         0x0800066d   0x2  Code  Gb  stm32f4xx_it.o [1]
+SystemInit              0x080004e5  0xc4  Code  Gb  system_stm32f4xx.o [1]
+TAMP_STAMP_IRQHandler   0x080006b9        Code  Wk  startup_stm32f4xx.o [1]
+TIM1_BRK_TIM9_IRQHandler
+                        0x08000711        Code  Wk  startup_stm32f4xx.o [1]
+TIM1_CC_IRQHandler      0x0800071d        Code  Wk  startup_stm32f4xx.o [1]
+TIM1_TRG_COM_TIM11_IRQHandler
+                        0x08000719        Code  Wk  startup_stm32f4xx.o [1]
+TIM1_UP_TIM10_IRQHandler
+                        0x08000715        Code  Wk  startup_stm32f4xx.o [1]
+TIM2_IRQHandler         0x08000721        Code  Wk  startup_stm32f4xx.o [1]
+TIM3_IRQHandler         0x08000725        Code  Wk  startup_stm32f4xx.o [1]
+TIM4_IRQHandler         0x08000729        Code  Wk  startup_stm32f4xx.o [1]
+TIM5_IRQHandler         0x08000779        Code  Wk  startup_stm32f4xx.o [1]
+TIM6_DAC_IRQHandler     0x08000789        Code  Wk  startup_stm32f4xx.o [1]
+TIM7_IRQHandler         0x0800078d        Code  Wk  startup_stm32f4xx.o [1]
+TIM8_BRK_TIM12_IRQHandler
+                        0x0800075d        Code  Wk  startup_stm32f4xx.o [1]
+TIM8_CC_IRQHandler      0x08000769        Code  Wk  startup_stm32f4xx.o [1]
+TIM8_TRG_COM_TIM14_IRQHandler
+                        0x08000765        Code  Wk  startup_stm32f4xx.o [1]
+TIM8_UP_TIM13_IRQHandler
+                        0x08000761        Code  Wk  startup_stm32f4xx.o [1]
+UART4_IRQHandler        0x08000781        Code  Wk  startup_stm32f4xx.o [1]
+UART5_IRQHandler        0x08000785        Code  Wk  startup_stm32f4xx.o [1]
+USART1_IRQHandler       0x08000745        Code  Wk  startup_stm32f4xx.o [1]
+USART2_IRQHandler       0x08000749        Code  Wk  startup_stm32f4xx.o [1]
+USART3_IRQHandler       0x0800074d        Code  Wk  startup_stm32f4xx.o [1]
+USART6_IRQHandler       0x080007cd        Code  Wk  startup_stm32f4xx.o [1]
+UsageFault_Handler      0x08000665   0x2  Code  Gb  stm32f4xx_it.o [1]
+WWDG_IRQHandler         0x080006b1        Code  Wk  startup_stm32f4xx.o [1]
+__cmain                 0x0800061d        Code  Gb  cmain.o [4]
+__exit                  0x08000649  0x14  Code  Gb  exit.o [5]
+__iar_data_init3        0x080005c1  0x28  Code  Gb  data_init3.o [4]
+__iar_program_start     0x08000681        Code  Gb  cstartup_M.o [4]
+__iar_zero_init3        0x080005e9  0x22  Code  Gb  zero_init3.o [4]
+__low_level_init        0x08000633   0x4  Code  Gb  low_level_init.o [3]
+__vector_table          0x08000000        Data  Gb  startup_stm32f4xx.o [1]
+_call_main              0x08000629        Code  Gb  cmain.o [4]
+_exit                   0x0800063d        Code  Gb  cexit.o [4]
+_main                   0x0800062f        Code  Gb  cmain.o [4]
+exit                    0x08000637   0x4  Code  Gb  exit.o [3]
+main                    0x080002b9  0x20  Code  Gb  main.o [1]
+
+
+[1] = C:\Users\Sin\Documents\STM32F4-Discovery_FW_V1.1.0\Project\Peripheral_Examples\ADC3_DMA\EWARM\ADC3_DMA\Obj
+[2] = command line
+[3] = dl7M_tln.a
+[4] = rt7M_tl.a
+[5] = shb_l.a
+
+  2 022 bytes of readonly  code memory
+     18 bytes of readonly  data memory
+  1 032 bytes of readwrite data memory
+
+Errors: none
+Warnings: none
