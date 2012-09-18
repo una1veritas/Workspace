@@ -68,10 +68,6 @@ RM := rm -rf
 -include home_libraries/MindSet/mdt/tg/subdir.mk
 -include home_libraries/MindSet/subdir.mk
 -include home_libraries/MCP23009/subdir.mk
--include home_libraries/LCD_SoftwareSerial/subdir.mk
--include home_libraries/LCD_ST7032i/subdir.mk
--include home_libraries/LCD_MCP2300x/subdir.mk
--include home_libraries/LCD_HC595/subdir.mk
 -include home_libraries/LCD12864/subdir.mk
 -include home_libraries/KeyMatrix/subdir.mk
 -include home_libraries/HMC5843/subdir.mk
@@ -79,16 +75,20 @@ RM := rm -rf
 -include home_libraries/GPS/subdir.mk
 -include home_libraries/FeliCaPlug/subdir.mk
 -include home_libraries/Fat16/subdir.mk
--include home_libraries/Ethernet_W5100/utility/subdir.mk
--include home_libraries/Ethernet_W5100/subdir.mk
+-include home_libraries/Ethernet_w5100/utility/subdir.mk
+-include home_libraries/Ethernet_w5100/subdir.mk
 -include home_libraries/Digital6DOF/subdir.mk
 -include home_libraries/Des/subdir.mk
 -include home_libraries/DataFlash_SPI/subdir.mk
--include home_libraries/DataFlash/subdir.mk
+-include home_libraries/DES_OUTE/subdir.mk
 -include home_libraries/ChibiOS/utility/subdir.mk
 -include home_libraries/ChibiOS/SdFat/subdir.mk
 -include home_libraries/ChibiOS/BufferedWriter/subdir.mk
 -include home_libraries/ChibiOS/subdir.mk
+-include home_libraries/CharacterLCD_SoftwareSerial/subdir.mk
+-include home_libraries/CharacterLCD_ST7032i/subdir.mk
+-include home_libraries/CharacterLCD_MCP2300x/subdir.mk
+-include home_libraries/CharacterLCD_HC595/subdir.mk
 -include home_libraries/CapacitiveSense/subdir.mk
 -include home_libraries/CameraC328R/subdir.mk
 -include home_libraries/BMP085/ATmega328/subdir.mk
@@ -178,7 +178,7 @@ libArduino_Home_libraries.lss: libArduino_Home_libraries.a
 
 sizedummy: libArduino_Home_libraries.a
 	@echo 'Invoking: Print Size'
-	-avr-size --format=avr --mcu=atmega328p libArduino_Home_libraries.a
+	-avr-size --format=berkeley -t libArduino_Home_libraries.a
 	@echo 'Finished building: $@'
 	@echo ' '
 
