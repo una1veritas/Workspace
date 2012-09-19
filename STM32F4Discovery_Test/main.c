@@ -27,7 +27,8 @@
 //#include "usbd_hid_core.h"
 //#include "usbd_usr.h"
 //#include "usbd_desc.h"
-#include "stm32f4xx.h"
+//#include "stm32f4xx.h"
+#include "stm32f4xx_conf.h"
 #include "stm32f4_discovery.h"
 //#include "stm32f4_discovery_audio_codec.h"
 //#include "stm32f4_discovery_lis302dl.h"
@@ -37,8 +38,7 @@ GPIO_InitTypeDef GPIO_InitStructure;
 
 int main(void) {
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 
 	return 0;
 }

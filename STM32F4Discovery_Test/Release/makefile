@@ -8,8 +8,6 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include STM32F4xx_StdPeriph_Driver/src/subdir.mk
--include STM32F4-Discovery/subdir.mk
 -include subdir.mk
 -include objects.mk
 

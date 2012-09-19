@@ -24,6 +24,4 @@ C_UPPER_DEPS :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 . \
-STM32F4xx_StdPeriph_Driver/src \
-STM32F4-Discovery \
 
