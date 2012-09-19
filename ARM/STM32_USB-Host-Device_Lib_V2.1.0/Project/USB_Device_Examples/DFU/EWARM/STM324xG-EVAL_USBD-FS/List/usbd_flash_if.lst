@@ -1,0 +1,348 @@
+###############################################################################
+#                                                                             #
+#                                                       19/Sep/2012  16:16:21 #
+# IAR ANSI C/C++ Compiler V6.40.2.33884/W32 KICKSTART for ARM                 #
+# Copyright 1999-2012 IAR Systems AB.                                         #
+#                                                                             #
+#    Cpu mode     =  thumb                                                    #
+#    Endian       =  little                                                   #
+#    Source file  =  \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Libraries\STM32_USB_Device_Library\C #
+#                    lass\dfu\src\usbd_flash_if.c                             #
+#    Command line =  \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Libraries\STM32_USB_Device_Library\C #
+#                    lass\dfu\src\usbd_flash_if.c -D USE_STDPERIPH_DRIVER -D  #
+#                    STM32F4XX -D USE_STM324xG_EVAL -D USE_USB_OTG_FS -lcN    #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\STM324xG-EVAL_USBD-FS\List\ -o                         #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\STM324xG-EVAL_USBD-FS\Obj\ --debug --endian=little     #
+#                    --cpu=Cortex-M4 -e --fpu=None --dlib_config "C:\Program  #
+#                    Files (x86)\IAR Systems\Embedded Workbench 6.4           #
+#                    Kickstart\arm\INC\c\DLib_Config_Full.h" -I               #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\..\ -I \\psf\Home\Documents\Eclipse\Workspace\ARM\STM3 #
+#                    2_USB-Host-Device_Lib_V2.1.0\Project\USB_Device_Examples #
+#                    \DFU\EWARM\..\inc\ -I \\psf\Home\Documents\Eclipse\Works #
+#                    pace\ARM\STM32_USB-Host-Device_Lib_V2.1.0\Project\USB_De #
+#                    vice_Examples\DFU\EWARM\..\..\..\..\Libraries\CMSIS\Devi #
+#                    ce\ST\STM32F4xx\Include\ -I                              #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\..\..\..\..\Libraries\STM32F4xx_StdPeriph_Driver\inc\  #
+#                    -I \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB- #
+#                    Host-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\E #
+#                    WARM\..\..\..\..\Libraries\STM32_USB_OTG_Driver\inc\ -I  #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\..\..\..\..\Libraries\STM32_USB_Device_Library\Core\in #
+#                    c\ -I \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_U #
+#                    SB-Host-Device_Lib_V2.1.0\Project\USB_Device_Examples\DF #
+#                    U\EWARM\..\..\..\..\Libraries\STM32_USB_Device_Library\C #
+#                    lass\dfu\inc\ -I \\psf\Home\Documents\Eclipse\Workspace\ #
+#                    ARM\STM32_USB-Host-Device_Lib_V2.1.0\Project\USB_Device_ #
+#                    Examples\DFU\EWARM\..\..\..\..\Utilities\STM32_EVAL\ -I  #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\..\..\..\..\Utilities\STM32_EVAL\Common\ -I            #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\..\..\..\..\Utilities\STM32_EVAL\STM3240_41_G_EVAL\    #
+#                    -Ohz --use_c++_inline -I "C:\Program Files (x86)\IAR     #
+#                    Systems\Embedded Workbench 6.4                           #
+#                    Kickstart\arm\CMSIS\Include\"                            #
+#    List file    =  \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\STM324xG-EVAL_USBD-FS\List\usbd_flash_if.lst           #
+#    Object file  =  \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\STM324xG-EVAL_USBD-FS\Obj\usbd_flash_if.o              #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+\\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Host-Device_Lib_V2.1.0\Libraries\STM32_USB_Device_Library\Class\dfu\src\usbd_flash_if.c
+      1          /**
+      2            ******************************************************************************
+      3            * @file    usbd_flash_if.c
+      4            * @author  MCD Application Team
+      5            * @version V1.1.0
+      6            * @date    19-March-2012
+      7            * @brief   Specific media access Layer for internal flash.
+      8            ******************************************************************************
+      9            * @attention
+     10            *
+     11            * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+     12            *
+     13            * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+     14            * You may not use this file except in compliance with the License.
+     15            * You may obtain a copy of the License at:
+     16            *
+     17            *        http://www.st.com/software_license_agreement_liberty_v2
+     18            *
+     19            * Unless required by applicable law or agreed to in writing, software 
+     20            * distributed under the License is distributed on an "AS IS" BASIS, 
+     21            * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     22            * See the License for the specific language governing permissions and
+     23            * limitations under the License.
+     24            *
+     25            ******************************************************************************
+     26            */ 
+     27          
+     28          /* Includes ------------------------------------------------------------------*/
+     29          #include "usbd_flash_if.h"
+     30          #include "usbd_dfu_mal.h"
+     31          
+     32          /* Private typedef -----------------------------------------------------------*/
+     33          /* Private define ------------------------------------------------------------*/
+     34          /* Private macro -------------------------------------------------------------*/
+     35          
+     36          /* Private function prototypes -----------------------------------------------*/
+     37          uint16_t FLASH_If_Init(void);
+     38          uint16_t FLASH_If_Erase (uint32_t Add);
+     39          uint16_t FLASH_If_Write (uint32_t Add, uint32_t Len);
+     40          uint8_t *FLASH_If_Read  (uint32_t Add, uint32_t Len);
+     41          uint16_t FLASH_If_DeInit(void);
+     42          uint16_t FLASH_If_CheckAdd(uint32_t Add);
+     43          
+     44          
+     45          /* Private variables ---------------------------------------------------------*/
+     46          DFU_MAL_Prop_TypeDef DFU_Flash_cb =
+     47            {
+     48              FLASH_IF_STRING,
+     49              FLASH_If_Init,
+     50              FLASH_If_DeInit,
+     51              FLASH_If_Erase,
+     52              FLASH_If_Write,
+     53              FLASH_If_Read,
+     54              FLASH_If_CheckAdd,
+     55              50, /* Erase Time in ms */
+     56              50  /* Programming Time in ms */
+     57            };
+     58          
+     59          /* Private functions ---------------------------------------------------------*/
+     60          
+     61          /**
+     62            * @brief  FLASH_If_Init
+     63            *         Memory initialization routine.
+     64            * @param  None
+     65            * @retval MAL_OK if operation is successeful, MAL_FAIL else.
+     66            */
+     67          uint16_t FLASH_If_Init(void)
+     68          {
+     69            /* Unlock the internal flash */
+     70            FLASH_Unlock();
+     71            
+     72            return MAL_OK;
+     73          }
+     74          
+     75          /**
+     76            * @brief  FLASH_If_DeInit
+     77            *         Memory deinitialization routine.
+     78            * @param  None
+     79            * @retval MAL_OK if operation is successeful, MAL_FAIL else.
+     80            */
+     81          uint16_t FLASH_If_DeInit(void)
+     82          {
+     83            /* Lock the internal flash */
+     84            FLASH_Lock();
+     85            
+     86            return MAL_OK;
+     87          }
+     88          
+     89          /*******************************************************************************
+     90          * Function Name  : FLASH_If_Erase
+     91          * Description    : Erase sector
+     92          * Input          : None
+     93          * Output         : None
+     94          * Return         : None
+     95          *******************************************************************************/
+     96          uint16_t FLASH_If_Erase(uint32_t Add)
+     97          {
+     98          #if defined (STM32F2XX) || defined (STM32F4XX)
+     99            /* Check which sector has to be erased */
+    100            if (Add < 0x08004000)
+    101            {
+    102              FLASH_EraseSector(FLASH_Sector_0, VoltageRange_3);
+    103            }
+    104            else if (Add < 0x08008000)
+    105            {
+    106              FLASH_EraseSector(FLASH_Sector_1, VoltageRange_3);
+    107            }
+    108            else if (Add < 0x0800C000)
+    109            {
+    110              FLASH_EraseSector(FLASH_Sector_2, VoltageRange_3);
+    111            }
+    112            else if (Add < 0x08010000)
+    113            {
+    114              FLASH_EraseSector(FLASH_Sector_3, VoltageRange_3);
+    115            }
+    116            else if (Add < 0x08020000)
+    117            {
+    118              FLASH_EraseSector(FLASH_Sector_4, VoltageRange_3);
+    119            }
+    120            else if (Add < 0x08040000)
+    121            {
+    122              FLASH_EraseSector(FLASH_Sector_5, VoltageRange_3);
+    123            }
+    124            else if (Add < 0x08060000)
+    125            {
+    126              FLASH_EraseSector(FLASH_Sector_6, VoltageRange_3);
+    127            }
+    128            else if (Add < 0x08080000)
+    129            {
+    130              FLASH_EraseSector(FLASH_Sector_7, VoltageRange_3);
+    131            }
+    132            else if (Add < 0x080A0000)
+    133            {
+    134              FLASH_EraseSector(FLASH_Sector_8, VoltageRange_3);
+    135            }
+    136            else if (Add < 0x080C0000)
+    137            {
+    138              FLASH_EraseSector(FLASH_Sector_9, VoltageRange_3);
+    139            }
+    140            else if (Add < 0x080E0000)
+    141            {
+    142              FLASH_EraseSector(FLASH_Sector_10, VoltageRange_3);
+    143            }
+    144            else if (Add < 0x08100000)
+    145            {
+    146              FLASH_EraseSector(FLASH_Sector_11, VoltageRange_3);
+    147            }
+    148            else
+    149            {
+    150              return MAL_FAIL;    
+    151            }
+    152          #elif defined(STM32F10X_CL)
+    153            /* Call the standard Flash erase function */
+    154            FLASH_ErasePage(Add);  
+    155          #endif /* STM32F2XX */
+    156            
+    157            return MAL_OK;
+    158          }
+    159          
+    160          /**
+    161            * @brief  FLASH_If_Write
+    162            *         Memory write routine.
+    163            * @param  Add: Address to be written to.
+    164            * @param  Len: Number of data to be written (in bytes).
+    165            * @retval MAL_OK if operation is successeful, MAL_FAIL else.
+    166            */
+    167          uint16_t FLASH_If_Write(uint32_t Add, uint32_t Len)
+    168          {
+    169            uint32_t idx = 0;
+    170            
+    171            if  (Len & 0x3) /* Not an aligned data */
+    172            {
+    173              for (idx = Len; idx < ((Len & 0xFFFC) + 4); idx++)
+    174              {
+    175                MAL_Buffer[idx] = 0xFF;
+    176              }
+    177            }
+    178            
+    179            /* Data received are Word multiple */
+    180            for (idx = 0; idx <  Len; idx = idx + 4)
+    181            {
+    182              FLASH_ProgramWord(Add, *(uint32_t *)(MAL_Buffer + idx));
+    183              Add += 4;
+    184            }
+    185            return MAL_OK;
+    186          }
+    187          
+    188          /**
+    189            * @brief  FLASH_If_Read
+    190            *         Memory read routine.
+    191            * @param  Add: Address to be read from.
+    192            * @param  Len: Number of data to be read (in bytes).
+    193            * @retval Pointer to the phyisical address where data should be read.
+    194            */
+    195          uint8_t *FLASH_If_Read (uint32_t Add, uint32_t Len)
+    196          {
+    197          #ifdef USB_OTG_HS_INTERNAL_DMA_ENABLED
+    198            uint32_t idx = 0;
+    199            for (idx = 0; idx < Len; idx += 4)
+    200            {
+    201              *(uint32_t*)(MAL_Buffer + idx) = *(uint32_t *)(Add + idx);
+    202            }
+    203            return (uint8_t*)(MAL_Buffer);
+    204          #else  
+    205            return  (uint8_t *)(Add);
+    206          #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
+    207          }
+    208          
+    209          /**
+    210            * @brief  FLASH_If_CheckAdd
+    211            *         Check if the address is an allowed address for this memory.
+    212            * @param  Add: Address to be checked.
+    213            * @param  Len: Number of data to be read (in bytes).
+    214            * @retval MAL_OK if the address is allowed, MAL_FAIL else.
+    215            */
+    216          uint16_t FLASH_If_CheckAdd(uint32_t Add)
+    217          {
+    218            if ((Add >= FLASH_START_ADD) && (Add < FLASH_END_ADD))
+    219            {
+    220              return MAL_OK;
+    221            }
+    222            else
+    223            {
+    224              return MAL_FAIL;
+    225            }
+    226          }
+    227          /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+        0  FLASH_If_CheckAdd
+        8  FLASH_If_DeInit
+              8 -> FLASH_Lock
+        8  FLASH_If_Erase
+              8 -> FLASH_EraseSector
+        8  FLASH_If_Init
+              8 -> FLASH_Unlock
+        0  FLASH_If_Read
+       24  FLASH_If_Write
+             24 -> FLASH_ProgramWord
+             24 -> __aeabi_memset
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      68  ?<Constant "@Internal Flash   /0x...">
+       4  ??DataTable1
+       4  ??DataTable1_1
+       4  ??DataTable1_10
+       4  ??DataTable1_11
+       4  ??DataTable1_2
+       4  ??DataTable1_3
+       4  ??DataTable1_4
+       4  ??DataTable1_5
+       4  ??DataTable1_6
+       4  ??DataTable1_7
+       4  ??DataTable1_8
+       4  ??DataTable1_9
+      36  DFU_Flash_cb
+      16  FLASH_If_CheckAdd
+      10  FLASH_If_DeInit
+     156  FLASH_If_Erase
+      10  FLASH_If_Init
+       2  FLASH_If_Read
+      60  FLASH_If_Write
+
+ 
+  36 bytes in section .data
+  68 bytes in section .rodata
+ 302 bytes in section .text
+ 
+ 302 bytes of CODE  memory
+  68 bytes of CONST memory
+  36 bytes of DATA  memory
+
+Errors: none
+Warnings: none

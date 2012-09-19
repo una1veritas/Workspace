@@ -1,0 +1,172 @@
+# select board name
+#STM32_P103 = 1
+STM32_H103 = 1
+#CQ_STARM = 1
+#CQ_ST103Z = 1
+#STM3210E_EVAL = 1
+#STBee = 1
+#STBee_Mini = 1
+
+# select way to write flash
+#FT2232_JTAG = 1
+#STLINK_JTAG = 1
+DFU = 1
+#UART = 1
+
+# select serial port for debug
+#USART1 = 1
+#USART2 = 1
+#USART3 = 1
+VCP = 1
+
+# CPU can stop at start up until serial data send. This is for a wait until VCP connection.
+#STOP_AT_START_UP = -DSTOP_AT_STARTUP
+
+# Uncomment below if you use Free-RTOS
+#USE_FREERTOS = 1
+
+############# NO NEED TO CHANGE LINES BELOW ###############
+# define xtal clock and chip type
+ifdef STM32_P103
+XTAL_FREQ = 8000000L
+CHIP_TYPE = STM32F10X_MD
+BOARD_USED = USE_STM32_P103
+ ifdef DFU
+ LD_SCRIPT = 128_20_dfu.ld
+ endif
+ ifndef DFU
+ LD_SCRIPT = 128_20.ld
+ endif
+ ifdef USE_FREERTOS
+ START_UP = lib/Startup/startup_stm32f10x_md_rtos.o
+ endif
+ ifndef USE_FREERTOS
+ START_UP = lib/Startup/startup_stm32f10x_md_nortos.o
+ endif
+endif
+ifdef STM32_H103
+XTAL_FREQ = ((uint32_t)8000000)
+CHIP_TYPE = STM32F10X_MD
+BOARD_USED = USE_STM32_H103
+ ifdef DFU
+ LD_SCRIPT = 128_20_dfu.ld
+ endif
+ ifndef DFU
+ LD_SCRIPT = 128_20.ld
+ endif
+  ifdef USE_FREERTOS
+ START_UP = lib/Startup/startup_stm32f10x_md_rtos.o
+ endif
+ ifndef USE_FREERTOS
+ START_UP = lib/Startup/startup_stm32f10x_md_nortos.o
+ endif
+endif
+ifdef CQ_STARM
+XTAL_FREQ = ((uint32_t)8000000)
+CHIP_TYPE = STM32F10X_MD
+BOARD_USED = USE_CQ_STARM
+ ifdef DFU
+ LD_SCRIPT = 128_20_dfu.ld
+ endif
+ ifndef DFU
+ LD_SCRIPT = 128_20.ld
+ endif
+ ifdef USE_FREERTOS
+ START_UP = lib/Startup/startup_stm32f10x_md_rtos.o
+ endif
+ ifndef USE_FREERTOS
+ START_UP = lib/Startup/startup_stm32f10x_md_nortos.o
+ endif
+endif
+ifdef CQ_ST103Z
+XTAL_FREQ = ((uint32_t)8000000)
+CHIP_TYPE = STM32F10X_HD
+BOARD_USED = USE_CQ_ST103Z
+ ifdef DFU
+ LD_SCRIPT = 512_64_dfu.ld
+ endif
+ ifndef DFU
+ LD_SCRIPT = 512_64.ld
+ endif
+ ifdef USE_FREERTOS
+ START_UP = lib/Startup/startup_stm32f10x_hd_rtos.o
+ endif
+ ifndef USE_FREERTOS
+ START_UP = lib/Startup/startup_stm32f10x_hd_nortos.o
+ endif
+endif
+ifdef STM3210E_EVAL
+XTAL_FREQ = ((uint32_t)8000000)
+CHIP_TYPE = STM32F10X_HD
+BOARD_USED = USE_STM3210E_EVAL
+ ifdef DFU
+ LD_SCRIPT = 512_64_dfu.ld
+ endif
+ ifndef DFU
+ LD_SCRIPT = 512_64.ld
+ endif
+ ifdef USE_FREERTOS
+ START_UP = lib/Startup/startup_stm32f10x_hd_rtos.o
+ endif
+ ifndef USE_FREERTOS
+ START_UP = lib/Startup/startup_stm32f10x_hd_nortos.o
+ endif
+endif
+ifdef STBee
+XTAL_FREQ = ((uint32_t)12000000)
+CHIP_TYPE = STM32F10X_HD
+BOARD_USED = USE_STBEE
+ ifdef DFU
+ LD_SCRIPT = 512_64_dfu.ld
+ endif
+ ifndef DFU
+ LD_SCRIPT = 512_64.ld
+ endif
+ ifdef USE_FREERTOS
+ START_UP = lib/Startup/startup_stm32f10x_hd_rtos.o
+ endif
+ ifndef USE_FREERTOS
+ START_UP = lib/Startup/startup_stm32f10x_hd_nortos.o
+ endif
+endif
+ifdef STBee_Mini
+XTAL_FREQ = ((uint32_t)12000000)
+CHIP_TYPE = STM32F10X_MD
+BOARD_USED = USE_STBEE_MINI
+ ifdef DFU
+ LD_SCRIPT = 128_20_dfu.ld
+ endif
+ ifndef DFU
+ LD_SCRIPT = 128_20.ld
+ endif
+ ifdef USE_FREERTOS
+ START_UP = lib/Startup/startup_stm32f10x_md_rtos.o
+ endif
+ ifndef USE_FREERTOS
+ START_UP = lib/Startup/startup_stm32f10x_md_nortos.o
+ endif
+endif
+
+
+ifdef DFU
+WRITE_BY_DFU = -DUSE_DFU
+endif
+
+# select serial port for debug
+ifdef USART1
+DEBUG_SERIAL = USE_USART1
+endif
+ifdef USART2
+DEBUG_SERIAL = USE_USART2
+endif
+ifdef USART3
+DEBUG_SERIAL = USE_USART3
+endif
+ifdef VCP
+DEBUG_SERIAL = USE_VCP
+endif
+
+# Define board specific options
+BOARD_OPTS = -DHSE_VALUE=$(XTAL_FREQ) -USTM32F10X_XL -D$(CHIP_TYPE) \
+             -D$(BOARD_USED) $(WRITE_BY_DFU) -D$(DEBUG_SERIAL) \
+             $(STOP_AT_START_UP)

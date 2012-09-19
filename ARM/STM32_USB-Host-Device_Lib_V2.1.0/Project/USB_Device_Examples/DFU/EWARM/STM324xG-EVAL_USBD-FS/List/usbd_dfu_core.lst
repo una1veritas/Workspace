@@ -1,0 +1,1193 @@
+###############################################################################
+#                                                                             #
+#                                                       19/Sep/2012  16:16:20 #
+# IAR ANSI C/C++ Compiler V6.40.2.33884/W32 KICKSTART for ARM                 #
+# Copyright 1999-2012 IAR Systems AB.                                         #
+#                                                                             #
+#    Cpu mode     =  thumb                                                    #
+#    Endian       =  little                                                   #
+#    Source file  =  \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Libraries\STM32_USB_Device_Library\C #
+#                    lass\dfu\src\usbd_dfu_core.c                             #
+#    Command line =  \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Libraries\STM32_USB_Device_Library\C #
+#                    lass\dfu\src\usbd_dfu_core.c -D USE_STDPERIPH_DRIVER -D  #
+#                    STM32F4XX -D USE_STM324xG_EVAL -D USE_USB_OTG_FS -lcN    #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\STM324xG-EVAL_USBD-FS\List\ -o                         #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\STM324xG-EVAL_USBD-FS\Obj\ --debug --endian=little     #
+#                    --cpu=Cortex-M4 -e --fpu=None --dlib_config "C:\Program  #
+#                    Files (x86)\IAR Systems\Embedded Workbench 6.4           #
+#                    Kickstart\arm\INC\c\DLib_Config_Full.h" -I               #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\..\ -I \\psf\Home\Documents\Eclipse\Workspace\ARM\STM3 #
+#                    2_USB-Host-Device_Lib_V2.1.0\Project\USB_Device_Examples #
+#                    \DFU\EWARM\..\inc\ -I \\psf\Home\Documents\Eclipse\Works #
+#                    pace\ARM\STM32_USB-Host-Device_Lib_V2.1.0\Project\USB_De #
+#                    vice_Examples\DFU\EWARM\..\..\..\..\Libraries\CMSIS\Devi #
+#                    ce\ST\STM32F4xx\Include\ -I                              #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\..\..\..\..\Libraries\STM32F4xx_StdPeriph_Driver\inc\  #
+#                    -I \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB- #
+#                    Host-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\E #
+#                    WARM\..\..\..\..\Libraries\STM32_USB_OTG_Driver\inc\ -I  #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\..\..\..\..\Libraries\STM32_USB_Device_Library\Core\in #
+#                    c\ -I \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_U #
+#                    SB-Host-Device_Lib_V2.1.0\Project\USB_Device_Examples\DF #
+#                    U\EWARM\..\..\..\..\Libraries\STM32_USB_Device_Library\C #
+#                    lass\dfu\inc\ -I \\psf\Home\Documents\Eclipse\Workspace\ #
+#                    ARM\STM32_USB-Host-Device_Lib_V2.1.0\Project\USB_Device_ #
+#                    Examples\DFU\EWARM\..\..\..\..\Utilities\STM32_EVAL\ -I  #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\..\..\..\..\Utilities\STM32_EVAL\Common\ -I            #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\..\..\..\..\Utilities\STM32_EVAL\STM3240_41_G_EVAL\    #
+#                    -Ohz --use_c++_inline -I "C:\Program Files (x86)\IAR     #
+#                    Systems\Embedded Workbench 6.4                           #
+#                    Kickstart\arm\CMSIS\Include\"                            #
+#    List file    =  \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\STM324xG-EVAL_USBD-FS\List\usbd_dfu_core.lst           #
+#    Object file  =  \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\STM324xG-EVAL_USBD-FS\Obj\usbd_dfu_core.o              #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+\\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Host-Device_Lib_V2.1.0\Libraries\STM32_USB_Device_Library\Class\dfu\src\usbd_dfu_core.c
+      1          /**
+      2            ******************************************************************************
+      3            * @file    usbd_dfu_core.c
+      4            * @author  MCD Application Team
+      5            * @version V1.1.0
+      6            * @date    19-March-2012
+      7            * @brief   This file provides the high layer firmware functions to manage the 
+      8            *          following functionalities of the USB DFU Class:
+      9            *           - Initialization and Configuration of high and low layer
+     10            *           - Enumeration as DFU Device (and enumeration for each implemented memory interface)
+     11            *           - Transfers to/from memory interfaces
+     12            *           - Easy-to-customize "plug-in-like" modules for adding/removing memory interfaces.
+     13            *           - Error management
+     14            *           
+     15            *  @verbatim
+     16            *      
+     17            *          ===================================================================      
+     18            *                                DFU Class Driver Description
+     19            *          =================================================================== 
+     20            *           This driver manages the DFU class V1.1 following the "Device Class Specification for 
+     21            *           Device Firmware Upgrade Version 1.1 Aug 5, 2004".
+     22            *           This driver implements the following aspects of the specification:
+     23            *             - Device descriptor management
+     24            *             - Configuration descriptor management
+     25            *             - Enumeration as DFU device (in DFU mode only)
+     26            *             - Requests management (supporting ST DFU sub-protocol)
+     27            *             - Memory operations management (Download/Upload/Erase/Detach/GetState/GetStatus)
+     28            *             - DFU state machine implementation.
+     29            *          
+     30            *           @note
+     31            *            ST DFU sub-protocol is compliant with DFU protocol and use sub-requests to manage
+     32            *            memory addressing, commands processing, specific memories operations (ie. Erase) ...
+     33            *            As required by the DFU specification, only endpoint 0 is used in this application.
+     34            *            Other endpoints and functions may be added to the application (ie. DFU ...)
+     35            * 
+     36            *           These aspects may be enriched or modified for a specific user application.
+     37            *          
+     38            *           This driver doesn't implement the following aspects of the specification 
+     39            *           (but it is possible to manage these features with some modifications on this driver):
+     40            *             - Manifestation Tolerant mode
+     41            *      
+     42            *  @endverbatim
+     43            *                                  
+     44            ******************************************************************************
+     45            * @attention
+     46            *
+     47            * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+     48            *
+     49            * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+     50            * You may not use this file except in compliance with the License.
+     51            * You may obtain a copy of the License at:
+     52            *
+     53            *        http://www.st.com/software_license_agreement_liberty_v2
+     54            *
+     55            * Unless required by applicable law or agreed to in writing, software 
+     56            * distributed under the License is distributed on an "AS IS" BASIS, 
+     57            * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     58            * See the License for the specific language governing permissions and
+     59            * limitations under the License.
+     60            *
+     61            ******************************************************************************
+     62            */
+     63          
+     64          /* Includes ------------------------------------------------------------------*/
+     65          #include "usbd_dfu_core.h"
+     66          #include "usbd_desc.h"
+     67          #include "usbd_req.h"
+     68          #include "usb_bsp.h"
+     69          
+     70          
+     71          /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
+     72            * @{
+     73            */
+     74          
+     75          
+     76          /** @defgroup usbd_dfu 
+     77            * @brief usbd core module
+     78            * @{
+     79            */ 
+     80          
+     81          /** @defgroup usbd_dfu_Private_TypesDefinitions
+     82            * @{
+     83            */ 
+     84          /**
+     85            * @}
+     86            */ 
+     87          
+     88          
+     89          /** @defgroup usbd_dfu_Private_Defines
+     90            * @{
+     91            */ 
+     92          /**
+     93            * @}
+     94            */ 
+     95          
+     96          
+     97          /** @defgroup usbd_dfu_Private_Macros
+     98            * @{
+     99            */ 
+    100          /**
+    101            * @}
+    102            */ 
+    103          
+    104          
+    105          /** @defgroup usbd_dfu_Private_FunctionPrototypes
+    106            * @{
+    107            */
+    108          
+    109          /*********************************************
+    110             DFU Device library callbacks
+    111           *********************************************/
+    112          static uint8_t  usbd_dfu_Init     (void  *pdev, 
+    113                                            uint8_t cfgidx);
+    114          
+    115          static uint8_t  usbd_dfu_DeInit   (void  *pdev, 
+    116                                            uint8_t cfgidx);
+    117          
+    118          static uint8_t  usbd_dfu_Setup    (void  *pdev, 
+    119                                            USB_SETUP_REQ *req);
+    120          
+    121          static uint8_t  EP0_TxSent        (void  *pdev);
+    122          
+    123          static uint8_t  EP0_RxReady       (void  *pdev);
+    124          
+    125          
+    126          static uint8_t  *USBD_DFU_GetCfgDesc (uint8_t speed, 
+    127                                                uint16_t *length);
+    128          
+    129          
+    130          #ifdef USB_OTG_HS_CORE
+    131          static uint8_t  *USBD_DFU_GetOtherCfgDesc (uint8_t speed, 
+    132                                                uint16_t *length);
+    133          #endif
+    134          
+    135          static uint8_t* USBD_DFU_GetUsrStringDesc (uint8_t speed, 
+    136                                                     uint8_t index ,
+    137                                                     uint16_t *length);
+    138          
+    139          /*********************************************
+    140             DFU Requests management functions
+    141           *********************************************/
+    142          static void DFU_Req_DETACH    (void *pdev, 
+    143                                         USB_SETUP_REQ *req);
+    144          
+    145          static void DFU_Req_DNLOAD    (void *pdev,
+    146                                         USB_SETUP_REQ *req);
+    147          
+    148          static void DFU_Req_UPLOAD    (void *pdev,
+    149                                         USB_SETUP_REQ *req);
+    150          
+    151          static void DFU_Req_GETSTATUS (void *pdev);
+    152          
+    153          static void DFU_Req_CLRSTATUS (void *pdev);
+    154          
+    155          static void DFU_Req_GETSTATE  (void *pdev);
+    156          
+    157          static void DFU_Req_ABORT     (void *pdev);
+    158          
+    159          static void DFU_LeaveDFUMode  (void *pdev); 
+    160          
+    161          /**
+    162            * @}
+    163            */ 
+    164          
+    165          /** @defgroup usbd_dfu_Private_Variables
+    166            * @{
+    167            */ 
+    168          #ifdef USB_OTG_HS_INTERNAL_DMA_ENABLED
+    169            #if defined ( __ICCARM__ ) /*!< IAR Compiler */
+    170              #pragma data_alignment=4   
+    171            #endif
+    172          #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
+    173          __ALIGN_BEGIN uint8_t usbd_dfu_CfgDesc[USB_DFU_CONFIG_DESC_SIZ] __ALIGN_END ;
+    174          
+    175          
+    176          #ifdef USB_OTG_HS_INTERNAL_DMA_ENABLED
+    177            #if defined ( __ICCARM__ ) /*!< IAR Compiler */
+    178              #pragma data_alignment=4   
+    179            #endif
+    180          #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
+    181          __ALIGN_BEGIN uint8_t usbd_dfu_OtherCfgDesc[USB_DFU_CONFIG_DESC_SIZ] __ALIGN_END ;
+    182          
+    183          /* The list of Interface String descriptor pointers is defined in usbd_dfu_mal.c 
+    184            file. This list can be updated whenever a memory has to be added or removed */
+    185          extern const uint8_t* usbd_dfu_StringDesc[];
+    186          
+    187          /* State Machine variables */
+    188          uint8_t DeviceState;
+    189          uint8_t DeviceStatus[6];
+    190          uint32_t Manifest_State = Manifest_complete;
+    191          /* Data Management variables */
+    192          static uint32_t wBlockNum = 0, wlength = 0;
+    193          static uint32_t Pointer = APP_DEFAULT_ADD;  /* Base Address to Erase, Program or Read */
+    194          static __IO uint32_t  usbd_dfu_AltSet = 0;
+    195          
+    196          extern uint8_t MAL_Buffer[];
+    197          
+    198          /* DFU interface class callbacks structure */
+    199          USBD_Class_cb_TypeDef  DFU_cb = 
+    200          {
+    201            usbd_dfu_Init,
+    202            usbd_dfu_DeInit,
+    203            usbd_dfu_Setup,
+    204            EP0_TxSent,
+    205            EP0_RxReady,
+    206            NULL, /* DataIn, */
+    207            NULL, /* DataOut, */
+    208            NULL, /*SOF */
+    209            NULL,
+    210            NULL,     
+    211            USBD_DFU_GetCfgDesc,
+    212          #ifdef USB_OTG_HS_CORE  
+    213            USBD_DFU_GetOtherCfgDesc, /* use same cobfig as per FS */
+    214          #endif  
+    215            USBD_DFU_GetUsrStringDesc,
+    216          };
+    217          
+    218          #ifdef USB_OTG_HS_INTERNAL_DMA_ENABLED
+    219            #if defined ( __ICCARM__ ) /*!< IAR Compiler */
+    220              #pragma data_alignment=4   
+    221            #endif
+    222          #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
+    223          /* USB DFU device Configuration Descriptor */
+    224          __ALIGN_BEGIN uint8_t usbd_dfu_CfgDesc[USB_DFU_CONFIG_DESC_SIZ] __ALIGN_END =
+    225          {
+    226            0x09, /* bLength: Configuation Descriptor size */
+    227            USB_CONFIGURATION_DESCRIPTOR_TYPE, /* bDescriptorType: Configuration */
+    228            USB_DFU_CONFIG_DESC_SIZ,
+    229            /* wTotalLength: Bytes returned */
+    230            0x00,
+    231            0x01,         /*bNumInterfaces: 1 interface*/
+    232            0x01,         /*bConfigurationValue: Configuration value*/
+    233            0x02,         /*iConfiguration: Index of string descriptor describing the configuration*/
+    234            0xC0,         /*bmAttributes: bus powered and Supprts Remote Wakeup */
+    235            0x32,         /*MaxPower 100 mA: this current is used for detecting Vbus*/
+    236            /* 09 */
+    237            
+    238            /**********  Descriptor of DFU interface 0 Alternate setting 0 **************/  
+    239            USBD_DFU_IF_DESC(0), /* This interface is mandatory for all devices */
+    240            
+    241          #if (USBD_ITF_MAX_NUM > 1)
+    242            /**********  Descriptor of DFU interface 0 Alternate setting 1 **************/ 
+    243            USBD_DFU_IF_DESC(1),
+    244          #endif /* (USBD_ITF_MAX_NUM > 1) */
+    245          
+    246          #if (USBD_ITF_MAX_NUM > 2)
+    247            /**********  Descriptor of DFU interface 0 Alternate setting 2 **************/ 
+    248            USBD_DFU_IF_DESC(2),
+    249          #endif /* (USBD_ITF_MAX_NUM > 2) */
+    250          
+    251          #if (USBD_ITF_MAX_NUM > 3)
+    252            /**********  Descriptor of DFU interface 0 Alternate setting 3 **************/ 
+    253            USBD_DFU_IF_DESC(3),
+    254          #endif /* (USBD_ITF_MAX_NUM > 3) */
+    255          
+    256          #if (USBD_ITF_MAX_NUM > 4)
+    257            /**********  Descriptor of DFU interface 0 Alternate setting 4 **************/ 
+    258            USBD_DFU_IF_DESC(4),
+    259          #endif /* (USBD_ITF_MAX_NUM > 4) */
+    260          
+    261          #if (USBD_ITF_MAX_NUM > 5)
+    262            /**********  Descriptor of DFU interface 0 Alternate setting 5 **************/ 
+    263            USBD_DFU_IF_DESC(5),
+    264          #endif /* (USBD_ITF_MAX_NUM > 5) */
+    265          
+    266          #if (USBD_ITF_MAX_NUM > 6)
+    267          #error "ERROR: usbd_dfu_core.c: Modify the file to support more descriptors!"
+    268          #endif /* (USBD_ITF_MAX_NUM > 6) */
+    269          
+    270            /******************** DFU Functional Descriptor********************/
+    271            0x09,   /*blength = 9 Bytes*/
+    272            DFU_DESCRIPTOR_TYPE,   /* DFU Functional Descriptor*/
+    273            0x0B,   /*bmAttribute
+    274                          bitCanDnload             = 1      (bit 0)
+    275                          bitCanUpload             = 1      (bit 1)
+    276                          bitManifestationTolerant = 0      (bit 2)
+    277                          bitWillDetach            = 1      (bit 3)
+    278                          Reserved                          (bit4-6)
+    279                          bitAcceleratedST         = 0      (bit 7)*/
+    280            0xFF,   /*DetachTimeOut= 255 ms*/
+    281            0x00,
+    282            /*WARNING: In DMA mode the multiple MPS packets feature is still not supported
+    283             ==> In this case, when using DMA XFERSIZE should be set to 64 in usbd_conf.h */
+    284            TRANSFER_SIZE_BYTES(XFERSIZE),       /* TransferSize = 1024 Byte*/         
+    285            0x1A,                                /* bcdDFUVersion*/
+    286            0x01
+    287            /***********************************************************/
+    288            /* 9*/
+    289          } ;
+    290          
+    291          #ifdef USE_USB_OTG_HS
+    292          #ifdef USB_OTG_HS_INTERNAL_DMA_ENABLED
+    293            #if defined ( __ICCARM__ ) /*!< IAR Compiler */
+    294              #pragma data_alignment=4   
+    295            #endif
+    296          #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
+    297          
+    298          __ALIGN_BEGIN uint8_t usbd_dfu_OtherCfgDesc[USB_DFU_CONFIG_DESC_SIZ] __ALIGN_END =
+    299          {
+    300            0x09, /* bLength: Configuation Descriptor size */
+    301            USB_DESC_TYPE_OTHER_SPEED_CONFIGURATION, /* bDescriptorType: Configuration */
+    302            USB_DFU_CONFIG_DESC_SIZ,
+    303            /* wTotalLength: Bytes returned */
+    304            0x00,
+    305            0x01,         /*bNumInterfaces: 1 interface*/
+    306            0x01,         /*bConfigurationValue: Configuration value*/
+    307            0x02,         /*iConfiguration: Index of string descriptor describing the configuration*/
+    308            0xC0,         /*bmAttributes: bus powered and Supprts Remote Wakeup */
+    309            0x32,         /*MaxPower 100 mA: this current is used for detecting Vbus*/
+    310            /* 09 */
+    311            
+    312            /**********  Descriptor of DFU interface 0 Alternate setting 0 **************/  
+    313            USBD_DFU_IF_DESC(0), /* This interface is mandatory for all devices */
+    314            
+    315          #if (USBD_ITF_MAX_NUM > 1)
+    316            /**********  Descriptor of DFU interface 0 Alternate setting 1 **************/ 
+    317            USBD_DFU_IF_DESC(1),
+    318          #endif /* (USBD_ITF_MAX_NUM > 1) */
+    319          
+    320          #if (USBD_ITF_MAX_NUM > 2)
+    321            /**********  Descriptor of DFU interface 0 Alternate setting 2 **************/ 
+    322            USBD_DFU_IF_DESC(2),
+    323          #endif /* (USBD_ITF_MAX_NUM > 2) */
+    324          
+    325          #if (USBD_ITF_MAX_NUM > 3)
+    326            /**********  Descriptor of DFU interface 0 Alternate setting 3 **************/ 
+    327            USBD_DFU_IF_DESC(3),
+    328          #endif /* (USBD_ITF_MAX_NUM > 3) */
+    329          
+    330          #if (USBD_ITF_MAX_NUM > 4)
+    331            /**********  Descriptor of DFU interface 0 Alternate setting 4 **************/ 
+    332            USBD_DFU_IF_DESC(4),
+    333          #endif /* (USBD_ITF_MAX_NUM > 4) */
+    334          
+    335          #if (USBD_ITF_MAX_NUM > 5)
+    336            /**********  Descriptor of DFU interface 0 Alternate setting 5 **************/ 
+    337            USBD_DFU_IF_DESC(5),
+    338          #endif /* (USBD_ITF_MAX_NUM > 5) */
+    339          
+    340          #if (USBD_ITF_MAX_NUM > 6)
+    341          #error "ERROR: usbd_dfu_core.c: Modify the file to support more descriptors!"
+    342          #endif /* (USBD_ITF_MAX_NUM > 6) */
+    343          
+    344            /******************** DFU Functional Descriptor********************/
+    345            0x09,   /*blength = 9 Bytes*/
+    346            DFU_DESCRIPTOR_TYPE,   /* DFU Functional Descriptor*/
+    347            0x0B,   /*bmAttribute
+    348                          bitCanDnload             = 1      (bit 0)
+    349                          bitCanUpload             = 1      (bit 1)
+    350                          bitManifestationTolerant = 0      (bit 2)
+    351                          bitWillDetach            = 1      (bit 3)
+    352                          Reserved                          (bit4-6)
+    353                          bitAcceleratedST         = 0      (bit 7)*/
+    354            0xFF,   /*DetachTimeOut= 255 ms*/
+    355            0x00,
+    356            /*WARNING: In DMA mode the multiple MPS packets feature is still not supported
+    357             ==> In this case, when using DMA XFERSIZE should be set to 64 in usbd_conf.h */
+    358            TRANSFER_SIZE_BYTES(XFERSIZE),       /* TransferSize = 1024 Byte*/         
+    359            0x1A,                                /* bcdDFUVersion*/
+    360            0x01
+    361            /***********************************************************/
+    362            /* 9*/
+    363          };
+    364          #endif /* USE_USB_OTG_HS */
+    365          
+    366          #ifdef USB_OTG_HS_INTERNAL_DMA_ENABLED
+    367            #if defined ( __ICCARM__ ) /*!< IAR Compiler */
+    368              #pragma data_alignment=4   
+    369            #endif
+    370          
+    371          __ALIGN_BEGIN static uint8_t usbd_dfu_Desc[USB_DFU_DESC_SIZ] __ALIGN_END =
+    372          {
+    373            0x09,   /*blength = 9 Bytes*/
+    374            DFU_DESCRIPTOR_TYPE,   /* DFU Functional Descriptor*/
+    375            0x0B,   /*bmAttribute
+    376                          bitCanDnload             = 1      (bit 0)
+    377                          bitCanUpload             = 1      (bit 1)
+    378                          bitManifestationTolerant = 0      (bit 2)
+    379                          bitWillDetach            = 1      (bit 3)
+    380                          Reserved                          (bit4-6)
+    381                          bitAcceleratedST         = 0      (bit 7)*/
+    382            0xFF,   /*DetachTimeOut= 255 ms*/
+    383            0x00,
+    384            /*WARNING: In DMA mode the multiple MPS packets feature is still not supported
+    385             ==> In this case, when using DMA XFERSIZE should be set to 64 in usbd_conf.h */
+    386            TRANSFER_SIZE_BYTES(XFERSIZE),  /* TransferSize = 1024 Byte*/
+    387            0x1A,                     /* bcdDFUVersion*/
+    388            0x01
+    389          };
+    390          #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
+    391          
+    392          /**
+    393            * @}
+    394            */ 
+    395          
+    396          /** @defgroup usbd_dfu_Private_Functions
+    397            * @{
+    398            */ 
+    399          
+    400          /**
+    401            * @brief  usbd_dfu_Init
+    402            *         Initializes the DFU interface.
+    403            * @param  pdev: device instance
+    404            * @param  cfgidx: Configuration index
+    405            * @retval status
+    406            */
+    407          static uint8_t  usbd_dfu_Init (void  *pdev, 
+    408                                         uint8_t cfgidx)
+    409          {
+    410            /* Initilialize the MAL(Media Access Layer) */
+    411            MAL_Init();
+    412            
+    413            /* Initialize the state of the DFU interface */
+    414            DeviceState = STATE_dfuIDLE;
+    415            DeviceStatus[0] = STATUS_OK;
+    416            DeviceStatus[4] = DeviceState;
+    417            
+    418            return USBD_OK;
+    419          }
+    420          
+    421          /**
+    422            * @brief  usbd_dfu_Init
+    423            *         De-initializes the DFU layer.
+    424            * @param  pdev: device instance
+    425            * @param  cfgidx: Configuration index
+    426            * @retval status
+    427            */
+    428          static uint8_t  usbd_dfu_DeInit (void  *pdev, 
+    429                                           uint8_t cfgidx)
+    430          {
+    431            /* Restore default state */
+    432            DeviceState = STATE_dfuIDLE;
+    433            DeviceStatus[0] = STATUS_OK;
+    434            DeviceStatus[4] = DeviceState;
+    435            wBlockNum = 0;
+    436            wlength = 0;
+    437          
+    438            /* DeInitilialize the MAL(Media Access Layer) */
+    439            MAL_DeInit();
+    440            
+    441            return USBD_OK;
+    442          }
+    443          
+    444          /**
+    445            * @brief  usbd_dfu_Setup
+    446            *         Handles the DFU request parsing.
+    447            * @param  pdev: instance
+    448            * @param  req: usb requests
+    449            * @retval status
+    450            */
+    451          static uint8_t  usbd_dfu_Setup (void  *pdev, 
+    452                                          USB_SETUP_REQ *req)
+    453          {
+    454            uint16_t len = 0;
+    455            uint8_t  *pbuf = NULL;
+    456            
+    457            switch (req->bmRequest & USB_REQ_TYPE_MASK)
+    458            {
+    459              /* DFU Class Requests -------------------------------*/
+    460            case USB_REQ_TYPE_CLASS :  
+    461              switch (req->bRequest)
+    462              {
+    463              case DFU_DNLOAD:
+    464                DFU_Req_DNLOAD(pdev, req);
+    465                break;
+    466                
+    467              case DFU_UPLOAD:
+    468                DFU_Req_UPLOAD(pdev, req);   
+    469                break;
+    470                
+    471              case DFU_GETSTATUS:
+    472                DFU_Req_GETSTATUS(pdev);
+    473                break;
+    474                
+    475              case DFU_CLRSTATUS:
+    476                DFU_Req_CLRSTATUS(pdev);
+    477                break;      
+    478          
+    479              case DFU_GETSTATE:
+    480                DFU_Req_GETSTATE(pdev);
+    481                break;  
+    482          
+    483              case DFU_ABORT:
+    484                DFU_Req_ABORT(pdev);
+    485                break;
+    486          
+    487              case DFU_DETACH:
+    488                DFU_Req_DETACH(pdev, req);
+    489                break;
+    490          
+    491              default:
+    492                USBD_CtlError (pdev, req);
+    493                return USBD_FAIL;
+    494              }
+    495              break;
+    496              
+    497              /* Standard Requests -------------------------------*/
+    498            case USB_REQ_TYPE_STANDARD:
+    499              switch (req->bRequest)
+    500              {
+    501              case USB_REQ_GET_DESCRIPTOR: 
+    502                if( (req->wValue >> 8) == DFU_DESCRIPTOR_TYPE)
+    503                {
+    504          #ifdef USB_OTG_HS_INTERNAL_DMA_ENABLED
+    505                  pbuf = usbd_dfu_Desc;   
+    506          #else
+    507                  pbuf = usbd_dfu_CfgDesc + 9 + (9 * USBD_ITF_MAX_NUM);
+    508          #endif 
+    509                  len = MIN(USB_DFU_DESC_SIZ , req->wLength);
+    510                }
+    511                
+    512                USBD_CtlSendData (pdev, 
+    513                                  pbuf,
+    514                                  len);
+    515                break;
+    516                
+    517              case USB_REQ_GET_INTERFACE :
+    518                USBD_CtlSendData (pdev,
+    519                                  (uint8_t *)&usbd_dfu_AltSet,
+    520                                  1);
+    521                break;
+    522                
+    523              case USB_REQ_SET_INTERFACE :
+    524                if ((uint8_t)(req->wValue) < USBD_ITF_MAX_NUM)
+    525                {
+    526                  usbd_dfu_AltSet = (uint8_t)(req->wValue);
+    527                }
+    528                else
+    529                {
+    530                  /* Call the error management function (command will be nacked */
+    531                  USBD_CtlError (pdev, req);
+    532                }
+    533                break;
+    534              }
+    535            }
+    536            return USBD_OK;
+    537          }
+    538          
+    539          /**
+    540            * @brief  EP0_TxSent
+    541            *         Handles the DFU control endpoint data IN stage.
+    542            * @param  pdev: device instance
+    543            * @retval status
+    544            */
+    545          static uint8_t  EP0_TxSent (void  *pdev)
+    546          {
+    547            uint32_t Addr;
+    548            USB_SETUP_REQ req;  
+    549            
+    550            if (DeviceState == STATE_dfuDNBUSY)
+    551            {
+    552              /* Decode the Special Command*/
+    553              if (wBlockNum == 0)   
+    554              {
+    555                if ((MAL_Buffer[0] ==  CMD_GETCOMMANDS) && (wlength == 1))
+    556                {}
+    557                else if  (( MAL_Buffer[0] ==  CMD_SETADDRESSPOINTER ) && (wlength == 5))
+    558                {
+    559                  Pointer  = MAL_Buffer[1];
+    560                  Pointer += MAL_Buffer[2] << 8;
+    561                  Pointer += MAL_Buffer[3] << 16;
+    562                  Pointer += MAL_Buffer[4] << 24;
+    563                }
+    564                else if (( MAL_Buffer[0] ==  CMD_ERASE ) && (wlength == 5))
+    565                {
+    566                  Pointer  = MAL_Buffer[1];
+    567                  Pointer += MAL_Buffer[2] << 8;
+    568                  Pointer += MAL_Buffer[3] << 16;
+    569                  Pointer += MAL_Buffer[4] << 24;
+    570                  MAL_Erase(Pointer);
+    571                }
+    572                else
+    573                {
+    574                  /* Reset the global length and block number */
+    575                  wlength = 0;
+    576                  wBlockNum = 0;     
+    577                  /* Call the error management function (command will be nacked) */
+    578                  req.bmRequest = 0;
+    579                  req.wLength = 1;
+    580                  USBD_CtlError (pdev, &req);
+    581                }
+    582              }
+    583              /* Regular Download Command */
+    584              else if (wBlockNum > 1)  
+    585              {
+    586                /* Decode the required address */
+    587                Addr = ((wBlockNum - 2) * XFERSIZE) + Pointer;
+    588                
+    589                /* Preform the write operation */
+    590                MAL_Write(Addr, wlength);
+    591              }
+    592              /* Reset the global lenght and block number */
+    593              wlength = 0;
+    594              wBlockNum = 0;
+    595              
+    596              /* Update the state machine */
+    597              DeviceState =  STATE_dfuDNLOAD_SYNC;
+    598              DeviceStatus[4] = DeviceState;
+    599              DeviceStatus[1] = 0;
+    600              DeviceStatus[2] = 0;
+    601              DeviceStatus[3] = 0;
+    602              return USBD_OK;
+    603            }
+    604            else if (DeviceState == STATE_dfuMANIFEST)/* Manifestation in progress*/
+    605            {
+    606              /* Start leaving DFU mode */
+    607              DFU_LeaveDFUMode(pdev);
+    608            }
+    609            
+    610            return USBD_OK;
+    611          }
+    612          
+    613          /**
+    614            * @brief  EP0_RxReady
+    615            *         Handles the DFU control endpoint data OUT stage.
+    616            * @param  pdev: device instance
+    617            * @retval status
+    618            */
+    619          static uint8_t  EP0_RxReady (void  *pdev)
+    620          { 
+    621            return USBD_OK;
+    622          }
+    623          
+    624          
+    625          /******************************************************************************
+    626               DFU Class requests management
+    627          ******************************************************************************/
+    628          /**
+    629            * @brief  DFU_Req_DETACH
+    630            *         Handles the DFU DETACH request.
+    631            * @param  pdev: device instance
+    632            * @param  req: pointer to the request structure.
+    633            * @retval None.
+    634            */
+    635          static void DFU_Req_DETACH(void *pdev, USB_SETUP_REQ *req)
+    636          {
+    637            if (DeviceState == STATE_dfuIDLE || DeviceState == STATE_dfuDNLOAD_SYNC
+    638                || DeviceState == STATE_dfuDNLOAD_IDLE || DeviceState == STATE_dfuMANIFEST_SYNC
+    639                  || DeviceState == STATE_dfuUPLOAD_IDLE )
+    640            {
+    641              /* Update the state machine */
+    642              DeviceState = STATE_dfuIDLE;
+    643              DeviceStatus[0] = STATUS_OK;
+    644              DeviceStatus[1] = 0;
+    645              DeviceStatus[2] = 0;
+    646              DeviceStatus[3] = 0; /*bwPollTimeout=0ms*/
+    647              DeviceStatus[4] = DeviceState;
+    648              DeviceStatus[5] = 0; /*iString*/
+    649              wBlockNum = 0;
+    650              wlength = 0;
+    651            } 
+    652            
+    653            /* Check the detach capability in the DFU functional descriptor */
+    654            if ((usbd_dfu_CfgDesc[12 + (9 * USBD_ITF_MAX_NUM)]) & DFU_DETACH_MASK)
+    655            {
+    656              /* Perform an Attach-Detach operation on USB bus */
+    657              DCD_DevDisconnect (pdev);
+    658              DCD_DevConnect (pdev);  
+    659            }
+    660            else
+    661            {
+    662              /* Wait for the period of time specified in Detach request */
+    663              USB_OTG_BSP_mDelay (req->wValue);  
+    664            }
+    665          }
+    666          
+    667          /**
+    668            * @brief  DFU_Req_DNLOAD
+    669            *         Handles the DFU DNLOAD request.
+    670            * @param  pdev: device instance
+    671            * @param  req: pointer to the request structure
+    672            * @retval None
+    673            */
+    674          static void DFU_Req_DNLOAD(void *pdev, USB_SETUP_REQ *req)
+    675          {
+    676            /* Data setup request */
+    677            if (req->wLength > 0)
+    678            {
+    679              if ((DeviceState == STATE_dfuIDLE) || (DeviceState == STATE_dfuDNLOAD_IDLE))
+    680              {
+    681                /* Update the global length and block number */
+    682                wBlockNum = req->wValue;
+    683                wlength = req->wLength;
+    684                
+    685                /* Update the state machine */
+    686                DeviceState = STATE_dfuDNLOAD_SYNC;
+    687                DeviceStatus[4] = DeviceState;
+    688                
+    689                /* Prepare the reception of the buffer over EP0 */
+    690                USBD_CtlPrepareRx (pdev,
+    691                                   (uint8_t*)MAL_Buffer,                                  
+    692                                   wlength);
+    693              }
+    694              /* Unsupported state */
+    695              else
+    696              {
+    697                /* Call the error management function (command will be nacked */
+    698                USBD_CtlError (pdev, req);
+    699              }
+    700            }
+    701            /* 0 Data DNLOAD request */
+    702            else
+    703            {
+    704              /* End of DNLOAD operation*/
+    705              if (DeviceState == STATE_dfuDNLOAD_IDLE || DeviceState == STATE_dfuIDLE )
+    706              {
+    707                Manifest_State = Manifest_In_Progress;
+    708                DeviceState = STATE_dfuMANIFEST_SYNC;
+    709                DeviceStatus[1] = 0;
+    710                DeviceStatus[2] = 0;
+    711                DeviceStatus[3] = 0;
+    712                DeviceStatus[4] = DeviceState;
+    713              }
+    714              else
+    715              {
+    716                /* Call the error management function (command will be nacked */
+    717                USBD_CtlError (pdev, req);
+    718              }
+    719            }  
+    720          }
+    721          
+    722          /**
+    723            * @brief  DFU_Req_UPLOAD
+    724            *         Handles the DFU UPLOAD request.
+    725            * @param  pdev: instance
+    726            * @param  req: pointer to the request structure
+    727            * @retval status
+    728            */
+    729          static void DFU_Req_UPLOAD(void *pdev, USB_SETUP_REQ *req)
+    730          {
+    731            uint8_t *Phy_Addr = NULL;
+    732            uint32_t Addr = 0;
+    733            
+    734            /* Data setup request */
+    735            if (req->wLength > 0)
+    736            {
+    737              if ((DeviceState == STATE_dfuIDLE) || (DeviceState == STATE_dfuUPLOAD_IDLE))
+    738              {
+    739                /* Update the global langth and block number */
+    740                wBlockNum = req->wValue;
+    741                wlength = req->wLength;
+    742                
+    743                /* DFU Get Command */
+    744                if (wBlockNum == 0)  
+    745                {
+    746                  /* Update the state machine */
+    747                  DeviceState = (wlength > 3)? STATE_dfuIDLE:STATE_dfuUPLOAD_IDLE;        
+    748                  DeviceStatus[4] = DeviceState;
+    749                  DeviceStatus[1] = 0;
+    750                  DeviceStatus[2] = 0;
+    751                  DeviceStatus[3] = 0;
+    752                  
+    753                  /* Store the values of all supported commands */
+    754                  MAL_Buffer[0] = CMD_GETCOMMANDS;
+    755                  MAL_Buffer[1] = CMD_SETADDRESSPOINTER;
+    756                  MAL_Buffer[2] = CMD_ERASE;
+    757                  
+    758                  /* Send the status data over EP0 */
+    759                  USBD_CtlSendData (pdev,
+    760                                    (uint8_t *)(&(MAL_Buffer[0])),
+    761                                    3);
+    762                }
+    763                else if (wBlockNum > 1)
+    764                {
+    765                  DeviceState = STATE_dfuUPLOAD_IDLE ;
+    766                  DeviceStatus[4] = DeviceState;
+    767                  DeviceStatus[1] = 0;
+    768                  DeviceStatus[2] = 0;
+    769                  DeviceStatus[3] = 0;
+    770                  Addr = ((wBlockNum - 2) * XFERSIZE) + Pointer;  /* Change is Accelerated*/
+    771                  
+    772                  /* Return the physical address where data are stored */
+    773                  Phy_Addr = MAL_Read(Addr, wlength);
+    774                  
+    775                  /* Send the status data over EP0 */
+    776                  USBD_CtlSendData (pdev,
+    777                                    Phy_Addr,
+    778                                    wlength);
+    779                }
+    780                else  /* unsupported wBlockNum */
+    781                {
+    782                  DeviceState = STATUS_ERRSTALLEDPKT;
+    783                  DeviceStatus[4] = DeviceState;
+    784                  DeviceStatus[1] = 0;
+    785                  DeviceStatus[2] = 0;
+    786                  DeviceStatus[3] = 0;
+    787                  
+    788                  /* Call the error management function (command will be nacked */
+    789                  USBD_CtlError (pdev, req); 
+    790                }
+    791              }
+    792              /* Unsupported state */
+    793              else
+    794              {
+    795                wlength = 0;
+    796                wBlockNum = 0;   
+    797                /* Call the error management function (command will be nacked */
+    798                USBD_CtlError (pdev, req);
+    799              }
+    800            }
+    801            /* No Data setup request */
+    802            else
+    803            {
+    804              DeviceState = STATE_dfuIDLE;
+    805              DeviceStatus[1] = 0;
+    806              DeviceStatus[2] = 0;
+    807              DeviceStatus[3] = 0;
+    808              DeviceStatus[4] = DeviceState;
+    809            }
+    810          }
+    811          
+    812          /**
+    813            * @brief  DFU_Req_GETSTATUS
+    814            *         Handles the DFU GETSTATUS request.
+    815            * @param  pdev: instance
+    816            * @retval status
+    817            */
+    818          static void DFU_Req_GETSTATUS(void *pdev)
+    819          {
+    820            switch (DeviceState)
+    821            {
+    822            case   STATE_dfuDNLOAD_SYNC:
+    823              if (wlength != 0)
+    824              {
+    825                DeviceState = STATE_dfuDNBUSY;
+    826                DeviceStatus[4] = DeviceState;
+    827                if ((wBlockNum == 0) && (MAL_Buffer[0] == CMD_ERASE))
+    828                {
+    829                  MAL_GetStatus(Pointer, 0, DeviceStatus);
+    830                }
+    831                else
+    832                {
+    833                  MAL_GetStatus(Pointer, 1, DeviceStatus);
+    834                }
+    835              }
+    836              else  /* (wlength==0)*/
+    837              {
+    838                DeviceState = STATE_dfuDNLOAD_IDLE;
+    839                DeviceStatus[4] = DeviceState;
+    840                DeviceStatus[1] = 0;
+    841                DeviceStatus[2] = 0;
+    842                DeviceStatus[3] = 0;
+    843              }
+    844              break;
+    845              
+    846            case   STATE_dfuMANIFEST_SYNC :
+    847              if (Manifest_State == Manifest_In_Progress)
+    848              {
+    849                DeviceState = STATE_dfuMANIFEST;
+    850                DeviceStatus[4] = DeviceState;
+    851                DeviceStatus[1] = 1;             /*bwPollTimeout = 1ms*/
+    852                DeviceStatus[2] = 0;
+    853                DeviceStatus[3] = 0;
+    854                //break;
+    855              }
+    856              else if ((Manifest_State == Manifest_complete) && \
+    857                ((usbd_dfu_CfgDesc[(11 + (9 * USBD_ITF_MAX_NUM))]) & 0x04))
+    858              {
+    859                DeviceState = STATE_dfuIDLE;
+    860                DeviceStatus[4] = DeviceState;
+    861                DeviceStatus[1] = 0;
+    862                DeviceStatus[2] = 0;
+    863                DeviceStatus[3] = 0;
+    864                //break;
+    865              }
+    866              break;
+    867              
+    868            default :
+    869              break;
+    870            }
+    871            
+    872            /* Send the status data over EP0 */
+    873            USBD_CtlSendData (pdev,
+    874                              (uint8_t *)(&(DeviceStatus[0])),
+    875                              6);
+    876          }
+    877          
+    878          /**
+    879            * @brief  DFU_Req_CLRSTATUS 
+    880            *         Handles the DFU CLRSTATUS request.
+    881            * @param  pdev: device instance
+    882            * @retval status
+    883            */
+    884          static void DFU_Req_CLRSTATUS(void *pdev)
+    885          {
+    886            if (DeviceState == STATE_dfuERROR)
+    887            {
+    888              DeviceState = STATE_dfuIDLE;
+    889              DeviceStatus[0] = STATUS_OK;/*bStatus*/
+    890              DeviceStatus[1] = 0;
+    891              DeviceStatus[2] = 0;
+    892              DeviceStatus[3] = 0; /*bwPollTimeout=0ms*/
+    893              DeviceStatus[4] = DeviceState;/*bState*/
+    894              DeviceStatus[5] = 0;/*iString*/
+    895            }
+    896            else
+    897            {   /*State Error*/
+    898              DeviceState = STATE_dfuERROR;
+    899              DeviceStatus[0] = STATUS_ERRUNKNOWN;/*bStatus*/
+    900              DeviceStatus[1] = 0;
+    901              DeviceStatus[2] = 0;
+    902              DeviceStatus[3] = 0; /*bwPollTimeout=0ms*/
+    903              DeviceStatus[4] = DeviceState;/*bState*/
+    904              DeviceStatus[5] = 0;/*iString*/
+    905            }
+    906          }
+    907          
+    908          /**
+    909            * @brief  DFU_Req_GETSTATE
+    910            *         Handles the DFU GETSTATE request.
+    911            * @param  pdev: device instance
+    912            * @retval None
+    913            */
+    914          static void DFU_Req_GETSTATE(void *pdev)
+    915          {
+    916            /* Return the current state of the DFU interface */
+    917            USBD_CtlSendData (pdev, 
+    918                              &DeviceState,
+    919                              1);  
+    920          }
+    921          
+    922          /**
+    923            * @brief  DFU_Req_ABORT
+    924            *         Handles the DFU ABORT request.
+    925            * @param  pdev: device instance
+    926            * @retval None
+    927            */
+    928          static void DFU_Req_ABORT(void *pdev)
+    929          {
+    930            if (DeviceState == STATE_dfuIDLE || DeviceState == STATE_dfuDNLOAD_SYNC
+    931                || DeviceState == STATE_dfuDNLOAD_IDLE || DeviceState == STATE_dfuMANIFEST_SYNC
+    932                  || DeviceState == STATE_dfuUPLOAD_IDLE )
+    933            {
+    934              DeviceState = STATE_dfuIDLE;
+    935              DeviceStatus[0] = STATUS_OK;
+    936              DeviceStatus[1] = 0;
+    937              DeviceStatus[2] = 0;
+    938              DeviceStatus[3] = 0; /*bwPollTimeout=0ms*/
+    939              DeviceStatus[4] = DeviceState;
+    940              DeviceStatus[5] = 0; /*iString*/
+    941              wBlockNum = 0;
+    942              wlength = 0;
+    943            }  
+    944          }
+    945          
+    946          /**
+    947            * @brief  DFU_LeaveDFUMode
+    948            *         Handles the sub-protocol DFU leave DFU mode request (leaves DFU mode
+    949            *         and resets device to jump to user loaded code).
+    950            * @param  pdev: device instance
+    951            * @retval None
+    952            */
+    953          void DFU_LeaveDFUMode(void *pdev)
+    954          {
+    955           Manifest_State = Manifest_complete;
+    956          
+    957            if ((usbd_dfu_CfgDesc[(11 + (9 * USBD_ITF_MAX_NUM))]) & 0x04)
+    958            {
+    959              DeviceState = STATE_dfuMANIFEST_SYNC;
+    960              DeviceStatus[4] = DeviceState;
+    961              DeviceStatus[1] = 0;
+    962              DeviceStatus[2] = 0;
+    963              DeviceStatus[3] = 0;
+    964              return;
+    965            }
+    966            else
+    967            {
+    968              DeviceState = STATE_dfuMANIFEST_WAIT_RESET;
+    969              DeviceStatus[4] = DeviceState;
+    970              DeviceStatus[1] = 0;
+    971              DeviceStatus[2] = 0;
+    972              DeviceStatus[3] = 0;
+    973          
+    974              /* Disconnect the USB device */
+    975              DCD_DevDisconnect (pdev);
+    976          
+    977              /* DeInitilialize the MAL(Media Access Layer) */
+    978              MAL_DeInit();
+    979              
+    980              /* Generate system reset to allow jumping to the user code */
+    981              NVIC_SystemReset();
+    982             
+    983              /* This instruction will not be reached (system reset) */
+    984              return;
+    985            }  
+    986          }
+    987          
+    988          /**
+    989            * @brief  USBD_DFU_GetCfgDesc 
+    990            *         Returns configuration descriptor
+    991            * @param  speed : current device speed
+    992            * @param  length : pointer data length
+    993            * @retval pointer to descriptor buffer
+    994            */
+    995          static uint8_t  *USBD_DFU_GetCfgDesc (uint8_t speed, uint16_t *length)
+    996          {
+    997            *length = sizeof (usbd_dfu_CfgDesc);
+    998            return usbd_dfu_CfgDesc;
+    999          }
+   1000          
+   1001          #ifdef USB_OTG_HS_CORE
+   1002          /**
+   1003            * @brief  USBD_DFU_GetOtherCfgDesc 
+   1004            *         Returns other speed configuration descriptor.
+   1005            * @param  speed : current device speed
+   1006            * @param  length : pointer data length
+   1007            * @retval pointer to descriptor buffer
+   1008            */
+   1009          static uint8_t  *USBD_DFU_GetOtherCfgDesc (uint8_t speed, uint16_t *length)
+   1010          {
+   1011            *length = sizeof (usbd_dfu_OtherCfgDesc);
+   1012            return usbd_dfu_OtherCfgDesc;
+   1013          }
+   1014          #endif
+   1015          
+   1016          /**
+   1017            * @brief  USBD_DFU_GetUsrStringDesc
+   1018            *         Manages the transfer of memory interfaces string descriptors.
+   1019            * @param  speed : current device speed
+   1020            * @param  index: desciptor index
+   1021            * @param  length : pointer data length
+   1022            * @retval pointer to the descriptor table or NULL if the descriptor is not supported.
+   1023            */
+   1024          static uint8_t* USBD_DFU_GetUsrStringDesc (uint8_t speed, uint8_t index , uint16_t *length)
+   1025          {
+   1026            /* Check if the requested string interface is supported */
+   1027            if (index <= (USBD_IDX_INTERFACE_STR + USBD_ITF_MAX_NUM))
+   1028            {
+   1029              
+   1030              
+   1031              USBD_GetString ((uint8_t *)usbd_dfu_StringDesc[index - USBD_IDX_INTERFACE_STR - 1], USBD_StrDesc, length);
+   1032              return USBD_StrDesc;  
+   1033            }
+   1034            /* Not supported Interface Descriptor index */
+   1035            else
+   1036            {
+   1037              return NULL;
+   1038            }
+   1039          }
+   1040          /**
+   1041            * @}
+   1042            */ 
+   1043          
+   1044          /**
+   1045            * @}
+   1046            */ 
+   1047          
+   1048          /**
+   1049            * @}
+   1050            */ 
+   1051          
+   1052          /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       16  DFU_Req_UPLOAD
+             16 -> MAL_Read
+              0 -> USBD_CtlError
+              0 -> USBD_CtlSendData
+        0  EP0_RxReady
+       16  EP0_TxSent
+             16 -> DCD_DevDisconnect
+             16 -> MAL_DeInit
+             16 -> MAL_Erase
+             16 -> MAL_Write
+             16 -> USBD_CtlError
+        0  USBD_DFU_GetCfgDesc
+        8  USBD_DFU_GetUsrStringDesc
+              8 -> USBD_GetString
+        8  usbd_dfu_DeInit
+              8 -> MAL_DeInit
+        8  usbd_dfu_Init
+              8 -> MAL_Init
+       16  usbd_dfu_Setup
+             16 -> DCD_DevConnect
+             16 -> DCD_DevDisconnect
+             16 -> DFU_Req_UPLOAD
+             16 -> MAL_GetStatus
+             16 -> USBD_CtlError
+             16 -> USBD_CtlPrepareRx
+             16 -> USBD_CtlSendData
+             16 -> USB_OTG_BSP_mDelay
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable6
+       4  ??DataTable6_1
+       4  ??DataTable6_2
+       4  ??DataTable6_3
+       4  ??DataTable6_4
+       4  ??DataTable6_5
+       4  ??DataTable6_6
+     158  DFU_Req_UPLOAD
+      48  DFU_cb
+      32  DeviceStatus
+          DeviceState
+          Manifest_State
+          wBlockNum
+          wlength
+          Pointer
+          usbd_dfu_AltSet
+       4  EP0_RxReady
+     228  EP0_TxSent
+       8  USBD_DFU_GetCfgDesc
+      34  USBD_DFU_GetUsrStringDesc
+      36  usbd_dfu_CfgDesc
+      32  usbd_dfu_DeInit
+      26  usbd_dfu_Init
+      36  usbd_dfu_OtherCfgDesc
+     466  usbd_dfu_Setup
+
+ 
+  36 bytes in section .bss
+ 116 bytes in section .data
+ 984 bytes in section .text
+ 
+ 984 bytes of CODE memory
+ 152 bytes of DATA memory
+
+Errors: none
+Warnings: none

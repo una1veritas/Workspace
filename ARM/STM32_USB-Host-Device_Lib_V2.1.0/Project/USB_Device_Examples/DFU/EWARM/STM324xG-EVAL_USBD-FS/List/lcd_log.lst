@@ -1,0 +1,668 @@
+###############################################################################
+#                                                                             #
+#                                                       19/Sep/2012  16:16:01 #
+# IAR ANSI C/C++ Compiler V6.40.2.33884/W32 KICKSTART for ARM                 #
+# Copyright 1999-2012 IAR Systems AB.                                         #
+#                                                                             #
+#    Cpu mode     =  thumb                                                    #
+#    Endian       =  little                                                   #
+#    Source file  =  \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Utilities\STM32_EVAL\Common\lcd_log. #
+#                    c                                                        #
+#    Command line =  \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Utilities\STM32_EVAL\Common\lcd_log. #
+#                    c -D USE_STDPERIPH_DRIVER -D STM32F4XX -D                #
+#                    USE_STM324xG_EVAL -D USE_USB_OTG_FS -lcN                 #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\STM324xG-EVAL_USBD-FS\List\ -o                         #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\STM324xG-EVAL_USBD-FS\Obj\ --debug --endian=little     #
+#                    --cpu=Cortex-M4 -e --fpu=None --dlib_config "C:\Program  #
+#                    Files (x86)\IAR Systems\Embedded Workbench 6.4           #
+#                    Kickstart\arm\INC\c\DLib_Config_Full.h" -I               #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\..\ -I \\psf\Home\Documents\Eclipse\Workspace\ARM\STM3 #
+#                    2_USB-Host-Device_Lib_V2.1.0\Project\USB_Device_Examples #
+#                    \DFU\EWARM\..\inc\ -I \\psf\Home\Documents\Eclipse\Works #
+#                    pace\ARM\STM32_USB-Host-Device_Lib_V2.1.0\Project\USB_De #
+#                    vice_Examples\DFU\EWARM\..\..\..\..\Libraries\CMSIS\Devi #
+#                    ce\ST\STM32F4xx\Include\ -I                              #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\..\..\..\..\Libraries\STM32F4xx_StdPeriph_Driver\inc\  #
+#                    -I \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB- #
+#                    Host-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\E #
+#                    WARM\..\..\..\..\Libraries\STM32_USB_OTG_Driver\inc\ -I  #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\..\..\..\..\Libraries\STM32_USB_Device_Library\Core\in #
+#                    c\ -I \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_U #
+#                    SB-Host-Device_Lib_V2.1.0\Project\USB_Device_Examples\DF #
+#                    U\EWARM\..\..\..\..\Libraries\STM32_USB_Device_Library\C #
+#                    lass\dfu\inc\ -I \\psf\Home\Documents\Eclipse\Workspace\ #
+#                    ARM\STM32_USB-Host-Device_Lib_V2.1.0\Project\USB_Device_ #
+#                    Examples\DFU\EWARM\..\..\..\..\Utilities\STM32_EVAL\ -I  #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\..\..\..\..\Utilities\STM32_EVAL\Common\ -I            #
+#                    \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\..\..\..\..\Utilities\STM32_EVAL\STM3240_41_G_EVAL\    #
+#                    -Ohz --use_c++_inline -I "C:\Program Files (x86)\IAR     #
+#                    Systems\Embedded Workbench 6.4                           #
+#                    Kickstart\arm\CMSIS\Include\"                            #
+#    List file    =  \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\STM324xG-EVAL_USBD-FS\List\lcd_log.lst                 #
+#    Object file  =  \\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Hos #
+#                    t-Device_Lib_V2.1.0\Project\USB_Device_Examples\DFU\EWAR #
+#                    M\STM324xG-EVAL_USBD-FS\Obj\lcd_log.o                    #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+\\psf\Home\Documents\Eclipse\Workspace\ARM\STM32_USB-Host-Device_Lib_V2.1.0\Utilities\STM32_EVAL\Common\lcd_log.c
+      1          /**
+      2            ******************************************************************************
+      3            * @file    lcd_log.c
+      4            * @author  MCD Application Team
+      5            * @version V5.0.2
+      6            * @date    05-March-2012
+      7            * @brief   This file provides all the LCD Log firmware functions.
+      8            *          
+      9            *          The LCD Log module allows to automatically set a header and footer
+     10            *          on any application using the LCD display and allows to dump user,
+     11            *          debug and error messages by using the following macros: LCD_ErrLog(),
+     12            *          LCD_UsrLog() and LCD_DbgLog().
+     13            *         
+     14            *          It supports also the scroll feature by embedding an internal software
+     15            *          cache for display. This feature allows to dump message sequentially
+     16            *          on the display even if the number of displayed lines is bigger than
+     17            *          the total number of line allowed by the display.
+     18            *      
+     19            ******************************************************************************
+     20            * @attention
+     21            *
+     22            * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+     23            *
+     24            * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+     25            * You may not use this file except in compliance with the License.
+     26            * You may obtain a copy of the License at:
+     27            *
+     28            *        http://www.st.com/software_license_agreement_liberty_v2
+     29            *
+     30            * Unless required by applicable law or agreed to in writing, software 
+     31            * distributed under the License is distributed on an "AS IS" BASIS, 
+     32            * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     33            * See the License for the specific language governing permissions and
+     34            * limitations under the License.
+     35            *
+     36            ******************************************************************************
+     37            */
+     38          
+     39          /* Includes ------------------------------------------------------------------*/
+     40          #include  "lcd_log.h"
+     41          
+     42          /** @addtogroup Utilities
+     43            * @{
+     44            */
+     45          
+     46          /** @addtogroup STM32_EVAL
+     47          * @{
+     48          */
+     49          
+     50          /** @addtogroup Common
+     51            * @{
+     52            */
+     53          
+     54          /** @defgroup LCD_LOG 
+     55          * @brief LCD Log LCD_Application module
+     56          * @{
+     57          */ 
+     58          
+     59          /** @defgroup LCD_LOG_Private_Types
+     60          * @{
+     61          */ 
+     62          /**
+     63          * @}
+     64          */ 
+     65          
+     66          
+     67          /** @defgroup LCD_LOG_Private_Defines
+     68          * @{
+     69          */ 
+     70          
+     71          /**
+     72          * @}
+     73          */ 
+     74          
+     75          
+     76          /** @defgroup LCD_LOG_Private_Macros
+     77          * @{
+     78          */ 
+     79          /**
+     80          * @}
+     81          */ 
+     82          
+     83          
+     84          /** @defgroup LCD_LOG_Private_Variables
+     85          * @{
+     86          */ 
+     87          
+     88          LCD_LOG_line LCD_CacheBuffer [LCD_CACHE_DEPTH]; 
+     89          uint16_t LCD_LineColor;
+     90          uint16_t LCD_CacheBuffer_xptr;
+     91          uint16_t LCD_CacheBuffer_yptr_top;
+     92          uint16_t LCD_CacheBuffer_yptr_bottom;
+     93          
+     94          uint16_t LCD_CacheBuffer_yptr_top_bak;
+     95          uint16_t LCD_CacheBuffer_yptr_bottom_bak;
+     96          
+     97          FunctionalState LCD_CacheBuffer_yptr_invert;
+     98          FunctionalState LCD_ScrollActive;
+     99          FunctionalState LCD_Lock;
+    100          FunctionalState LCD_Scrolled;
+    101          uint16_t LCD_ScrollBackStep;
+    102          
+    103          /**
+    104          * @}
+    105          */ 
+    106          
+    107          
+    108          /** @defgroup LCD_LOG_Private_FunctionPrototypes
+    109          * @{
+    110          */ 
+    111          static void LCD_LOG_UpdateDisplay (void);
+    112          /**
+    113          * @}
+    114          */ 
+    115          
+    116          
+    117          /** @defgroup LCD_LOG_Private_Functions
+    118          * @{
+    119          */ 
+    120          
+    121          
+    122          /**
+    123          * @brief  Init the LCD Log module 
+    124          * @param  None
+    125          * @retval None
+    126          */
+    127          
+    128          void LCD_LOG_Init ( void)
+    129          {
+    130            /* Deinit LCD cache */
+    131            LCD_LOG_DeInit();
+    132            /* Clear the LCD */
+    133            LCD_Clear(Black);  
+    134          }
+    135          
+    136          /**
+    137          * @brief DeInitializes the LCD Log module. 
+    138          * @param  None
+    139          * @retval None
+    140          */
+    141          void LCD_LOG_DeInit(void)
+    142          {
+    143            LCD_LineColor = LCD_LOG_DEFAULT_COLOR;
+    144            LCD_CacheBuffer_xptr = 0;
+    145            LCD_CacheBuffer_yptr_top = 0;
+    146            LCD_CacheBuffer_yptr_bottom = 0;
+    147            
+    148            LCD_CacheBuffer_yptr_top_bak = 0;
+    149            LCD_CacheBuffer_yptr_bottom_bak = 0;
+    150            
+    151            LCD_CacheBuffer_yptr_invert= ENABLE;
+    152            LCD_ScrollActive = DISABLE;
+    153            LCD_Lock = DISABLE;
+    154            LCD_Scrolled = DISABLE;
+    155            LCD_ScrollBackStep = 0;
+    156          }
+    157          
+    158          /**
+    159          * @brief  Display the application header (title) on the LCD screen 
+    160          * @param  Title :  pointer to the string to be displayed
+    161          * @retval None
+    162          */
+    163          void LCD_LOG_SetHeader (uint8_t *Title)
+    164          {
+    165            sFONT *cFont;
+    166            uint32_t size = 0 , idx; 
+    167            uint8_t  *ptr = Title;
+    168            uint8_t  tmp[27];
+    169            
+    170            /* center the header */
+    171            while (*ptr++) size ++ ;
+    172          
+    173            /* truncate extra text */
+    174            if(size > 26)
+    175            {
+    176               size = 26;
+    177            }
+    178            
+    179            for (idx = 0 ; idx < 27 ; idx ++)
+    180            { 
+    181              tmp[idx] = ' '; 
+    182            }
+    183          
+    184            for (idx = 0 ; idx < size ; idx ++)
+    185            { 
+    186              tmp[idx + (27 - size)/2] = Title[idx];
+    187            }
+    188            
+    189            /* Clear the LCD */
+    190            LCD_Clear(Black);
+    191              
+    192            /* Set the LCD Font */
+    193            LCD_SetFont (&Font12x12);
+    194          
+    195            cFont = LCD_GetFont();  
+    196            /* Set the LCD Text Color */
+    197            LCD_SetTextColor(White);
+    198            LCD_SetBackColor(Blue);
+    199            LCD_ClearLine(0);
+    200            LCD_DisplayStringLine(cFont->Height, tmp);
+    201            LCD_ClearLine(2 * cFont->Height);
+    202          
+    203            LCD_SetBackColor(Black);
+    204            LCD_SetFont (&Font8x12);
+    205          }
+    206          
+    207          /**
+    208          * @brief  Display the application footer (status) on the LCD screen 
+    209          * @param  Status :  pointer to the string to be displayed
+    210          * @retval None
+    211          */
+    212          void LCD_LOG_SetFooter(uint8_t *Status)
+    213          {
+    214            sFONT *cFont;
+    215            uint8_t  tmp[40], i;
+    216            LCD_SetBackColor(Blue);
+    217            cFont = LCD_GetFont();
+    218            
+    219            for (i= 0; i< (320/cFont->Width)-1 ; i++)
+    220            {
+    221              tmp[i] = ' ';
+    222            }
+    223            
+    224            tmp[(320/cFont->Width)-1] = 0;
+    225            LCD_DisplayStringLine(LCD_PIXEL_HEIGHT - cFont->Height, tmp);
+    226            LCD_DisplayStringLine(LCD_PIXEL_HEIGHT - cFont->Height, Status);
+    227            LCD_SetBackColor(Black);  
+    228          }
+    229          
+    230          /**
+    231          * @brief  Clear the Text Zone 
+    232          * @param  None 
+    233          * @retval None
+    234          */
+    235          void LCD_LOG_ClearTextZone(void)
+    236          {
+    237            uint8_t i=0;
+    238            sFONT *cFont = LCD_GetFont();
+    239            
+    240            for (i= 0 ; i < YWINDOW_SIZE; i++)
+    241            {
+    242              LCD_ClearLine((i + YWINDOW_MIN) * cFont->Height);
+    243            }
+    244            
+    245            LCD_LOG_DeInit();
+    246          }
+    247          
+    248          /**
+    249          * @brief  Redirect the printf to the lcd 
+    250          * @param  c: character to be displayed
+    251          * @param  f: output file pointer
+    252          * @retval None
+    253          */
+    254          PUTCHAR_PROTOTYPE
+    255          {
+    256            
+    257            sFONT *cFont = LCD_GetFont();
+    258            uint32_t idx;
+    259            
+    260            if(LCD_Lock == DISABLE)
+    261            {
+    262              if((LCD_ScrollActive == ENABLE)||(LCD_ScrollActive == ENABLE))
+    263              {
+    264                LCD_CacheBuffer_yptr_bottom = LCD_CacheBuffer_yptr_bottom_bak;
+    265                LCD_CacheBuffer_yptr_top    = LCD_CacheBuffer_yptr_top_bak;
+    266                LCD_ScrollActive = DISABLE;
+    267                LCD_Scrolled = DISABLE;
+    268                LCD_ScrollBackStep = 0;
+    269                
+    270              }
+    271              
+    272              if(( LCD_CacheBuffer_xptr < LCD_PIXEL_WIDTH /cFont->Width ) &&  ( ch != '\n'))
+    273              {
+    274                LCD_CacheBuffer[LCD_CacheBuffer_yptr_bottom].line[LCD_CacheBuffer_xptr++] = (uint16_t)ch;
+    275              }   
+    276              else 
+    277              {
+    278                if(LCD_CacheBuffer_yptr_top >= LCD_CacheBuffer_yptr_bottom)
+    279                {
+    280                  
+    281                  if(LCD_CacheBuffer_yptr_invert == DISABLE)
+    282                  {
+    283                    LCD_CacheBuffer_yptr_top++;
+    284                    
+    285                    if(LCD_CacheBuffer_yptr_top == LCD_CACHE_DEPTH)
+    286                    {
+    287                      LCD_CacheBuffer_yptr_top = 0;  
+    288                    }
+    289                  }
+    290                  else
+    291                  {
+    292                    LCD_CacheBuffer_yptr_invert= DISABLE;
+    293                  }
+    294                }
+    295                
+    296                for(idx = LCD_CacheBuffer_xptr ; idx < LCD_PIXEL_WIDTH /cFont->Width; idx++)
+    297                {
+    298                  LCD_CacheBuffer[LCD_CacheBuffer_yptr_bottom].line[LCD_CacheBuffer_xptr++] = ' ';
+    299                }   
+    300                LCD_CacheBuffer[LCD_CacheBuffer_yptr_bottom].color = LCD_LineColor;  
+    301                
+    302                LCD_CacheBuffer_xptr = 0;
+    303                
+    304                LCD_LOG_UpdateDisplay (); 
+    305                
+    306                LCD_CacheBuffer_yptr_bottom ++; 
+    307                
+    308                if (LCD_CacheBuffer_yptr_bottom == LCD_CACHE_DEPTH) 
+    309                {
+    310                  LCD_CacheBuffer_yptr_bottom = 0;
+    311                  LCD_CacheBuffer_yptr_top = 1;    
+    312                  LCD_CacheBuffer_yptr_invert = ENABLE;
+    313                }
+    314                
+    315                if( ch != '\n')
+    316                {
+    317                  LCD_CacheBuffer[LCD_CacheBuffer_yptr_bottom].line[LCD_CacheBuffer_xptr++] = (uint16_t)ch;
+    318                }
+    319                
+    320              }
+    321            }
+    322            return ch;
+    323          }
+    324            
+    325          /**
+    326          * @brief  Update the text area display
+    327          * @param  None
+    328          * @retval None
+    329          */
+    330          static void LCD_LOG_UpdateDisplay (void)
+    331          {
+    332            uint8_t cnt = 0 ;
+    333            uint16_t length = 0 ;
+    334            uint16_t ptr = 0, index = 0;
+    335            
+    336            sFONT *cFont = LCD_GetFont();
+    337            
+    338            if((LCD_CacheBuffer_yptr_bottom  < (YWINDOW_SIZE -1)) && 
+    339               (LCD_CacheBuffer_yptr_bottom  >= LCD_CacheBuffer_yptr_top))
+    340            {
+    341              LCD_SetTextColor(LCD_CacheBuffer[cnt + LCD_CacheBuffer_yptr_bottom].color);
+    342              LCD_DisplayStringLine ((YWINDOW_MIN + LCD_CacheBuffer_yptr_bottom) * cFont->Height,
+    343                                     (uint8_t *)(LCD_CacheBuffer[cnt + LCD_CacheBuffer_yptr_bottom].line));
+    344            }
+    345            else
+    346            {
+    347              
+    348              if(LCD_CacheBuffer_yptr_bottom < LCD_CacheBuffer_yptr_top)
+    349              {
+    350                /* Virtual length for rolling */
+    351                length = LCD_CACHE_DEPTH + LCD_CacheBuffer_yptr_bottom ;
+    352              }
+    353              else
+    354              {
+    355                length = LCD_CacheBuffer_yptr_bottom;
+    356              }
+    357              
+    358              ptr = length - YWINDOW_SIZE + 1;
+    359              
+    360              for  (cnt = 0 ; cnt < YWINDOW_SIZE ; cnt ++)
+    361              {
+    362                
+    363                index = (cnt + ptr )% LCD_CACHE_DEPTH ;
+    364                
+    365                LCD_SetTextColor(LCD_CacheBuffer[index].color);
+    366                LCD_DisplayStringLine ((cnt + YWINDOW_MIN) * cFont->Height, 
+    367                                       (uint8_t *)(LCD_CacheBuffer[index].line));
+    368                
+    369              }
+    370            }
+    371            
+    372          }
+    373          
+    374          #ifdef LCD_SCROLL_ENABLED
+    375          /**
+    376          * @brief  Display previous text frame
+    377          * @param  None
+    378          * @retval Status
+    379          */
+    380          ErrorStatus LCD_LOG_ScrollBack (void)
+    381          {
+    382              
+    383            if(LCD_ScrollActive == DISABLE)
+    384            {
+    385              
+    386              LCD_CacheBuffer_yptr_bottom_bak = LCD_CacheBuffer_yptr_bottom;
+    387              LCD_CacheBuffer_yptr_top_bak    = LCD_CacheBuffer_yptr_top;
+    388              
+    389              
+    390              if(LCD_CacheBuffer_yptr_bottom > LCD_CacheBuffer_yptr_top) 
+    391              {
+    392                
+    393                if ((LCD_CacheBuffer_yptr_bottom - LCD_CacheBuffer_yptr_top) <=  YWINDOW_SIZE)
+    394                {
+    395                  LCD_Lock = DISABLE;
+    396                  return ERROR;
+    397                }
+    398              }
+    399              LCD_ScrollActive = ENABLE;
+    400              
+    401              if((LCD_CacheBuffer_yptr_bottom  > LCD_CacheBuffer_yptr_top)&&
+    402                 (LCD_Scrolled == DISABLE ))
+    403              {
+    404                LCD_CacheBuffer_yptr_bottom--;
+    405                LCD_Scrolled = ENABLE;
+    406              }
+    407              
+    408            }
+    409            
+    410            if(LCD_ScrollActive == ENABLE)
+    411            {
+    412              LCD_Lock = ENABLE;
+    413              
+    414              if(LCD_CacheBuffer_yptr_bottom > LCD_CacheBuffer_yptr_top) 
+    415              {
+    416                
+    417                if((LCD_CacheBuffer_yptr_bottom  - LCD_CacheBuffer_yptr_top) <  YWINDOW_SIZE )
+    418                {
+    419                  LCD_Lock = DISABLE;
+    420                  return ERROR;
+    421                }
+    422                
+    423                LCD_CacheBuffer_yptr_bottom --;
+    424              }
+    425              else if(LCD_CacheBuffer_yptr_bottom <= LCD_CacheBuffer_yptr_top)
+    426              {
+    427                
+    428                if((LCD_CACHE_DEPTH  - LCD_CacheBuffer_yptr_top + LCD_CacheBuffer_yptr_bottom) < YWINDOW_SIZE)
+    429                {
+    430                  LCD_Lock = DISABLE;
+    431                  return ERROR;
+    432                }
+    433                LCD_CacheBuffer_yptr_bottom --;
+    434                
+    435                if(LCD_CacheBuffer_yptr_bottom == 0xFFFF)
+    436                {
+    437                  LCD_CacheBuffer_yptr_bottom = LCD_CACHE_DEPTH - 2;
+    438                }
+    439              }
+    440              LCD_ScrollBackStep++;
+    441              LCD_LOG_UpdateDisplay();
+    442              LCD_Lock = DISABLE;
+    443            }
+    444            return SUCCESS;
+    445          }
+    446          
+    447          /**
+    448          * @brief  Display next text frame
+    449          * @param  None
+    450          * @retval Status
+    451          */
+    452          ErrorStatus LCD_LOG_ScrollForward (void)
+    453          {
+    454            
+    455            if(LCD_ScrollBackStep != 0)
+    456            {
+    457              if(LCD_ScrollActive == DISABLE)
+    458              {
+    459                
+    460                LCD_CacheBuffer_yptr_bottom_bak = LCD_CacheBuffer_yptr_bottom;
+    461                LCD_CacheBuffer_yptr_top_bak    = LCD_CacheBuffer_yptr_top;
+    462                
+    463                if(LCD_CacheBuffer_yptr_bottom > LCD_CacheBuffer_yptr_top) 
+    464                {
+    465                  
+    466                  if ((LCD_CacheBuffer_yptr_bottom - LCD_CacheBuffer_yptr_top) <=  YWINDOW_SIZE)
+    467                  {
+    468                    LCD_Lock = DISABLE;
+    469                    return ERROR;
+    470                  }
+    471                }
+    472                LCD_ScrollActive = ENABLE;
+    473                
+    474                if((LCD_CacheBuffer_yptr_bottom  > LCD_CacheBuffer_yptr_top)&&
+    475                   (LCD_Scrolled == DISABLE ))
+    476                {
+    477                  LCD_CacheBuffer_yptr_bottom--;
+    478                  LCD_Scrolled = ENABLE;
+    479                }
+    480                
+    481              }
+    482              
+    483              if(LCD_ScrollActive == ENABLE)
+    484              {
+    485                LCD_Lock = ENABLE;
+    486                LCD_ScrollBackStep--;
+    487                
+    488                if(++LCD_CacheBuffer_yptr_bottom == LCD_CACHE_DEPTH)
+    489                {
+    490                  LCD_CacheBuffer_yptr_bottom = 0;
+    491                }
+    492                
+    493                LCD_LOG_UpdateDisplay();
+    494                LCD_Lock = DISABLE;
+    495                
+    496              }  
+    497              return SUCCESS;
+    498            }
+    499            else // LCD_ScrollBackStep == 0 
+    500            {
+    501              LCD_Lock = DISABLE;
+    502              return ERROR;
+    503            }  
+    504          }
+    505          #endif /* LCD_SCROLL_ENABLED */
+    506          
+    507          /**
+    508            * @}
+    509            */
+    510            
+    511          /**
+    512            * @}
+    513            */ 
+    514          
+    515          /**
+    516            * @}
+    517            */
+    518          
+    519          /**
+    520            * @}
+    521            */
+    522          
+    523          /**
+    524            * @}
+    525            */
+    526          
+    527          
+    528          /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       16  LCD_LOG_ClearTextZone
+             16 -> LCD_ClearLine
+             16 -> LCD_GetFont
+              0 -> LCD_LOG_DeInit
+        0  LCD_LOG_DeInit
+        8  LCD_LOG_Init
+              0 -> LCD_Clear
+              8 -> LCD_LOG_DeInit
+       56  LCD_LOG_SetFooter
+             56 -> LCD_DisplayStringLine
+             56 -> LCD_GetFont
+             56 -> LCD_SetBackColor
+       40  LCD_LOG_SetHeader
+             40 -> LCD_Clear
+             40 -> LCD_ClearLine
+             40 -> LCD_DisplayStringLine
+             40 -> LCD_GetFont
+             40 -> LCD_SetBackColor
+             40 -> LCD_SetFont
+             40 -> LCD_SetTextColor
+             40 -> __aeabi_memset4
+       32  LCD_LOG_UpdateDisplay
+              0 -> LCD_DisplayStringLine
+             32 -> LCD_DisplayStringLine
+             32 -> LCD_GetFont
+             32 -> LCD_SetTextColor
+       24  fputc
+             24 -> LCD_GetFont
+             24 -> LCD_LOG_UpdateDisplay
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable3
+       4  ??DataTable3_1
+       4  ??DataTable3_2
+       4  ??DataTable3_3
+     468  LCD_CacheBuffer
+      18  LCD_CacheBuffer_yptr_invert
+          LCD_ScrollActive
+          LCD_Lock
+          LCD_Scrolled
+          LCD_LineColor
+          LCD_CacheBuffer_xptr
+          LCD_CacheBuffer_yptr_top
+          LCD_CacheBuffer_yptr_bottom
+          LCD_CacheBuffer_yptr_top_bak
+          LCD_CacheBuffer_yptr_bottom_bak
+          LCD_ScrollBackStep
+      36  LCD_LOG_ClearTextZone
+      36  LCD_LOG_DeInit
+      16  LCD_LOG_Init
+      96  LCD_LOG_SetFooter
+     132  LCD_LOG_SetHeader
+     132  LCD_LOG_UpdateDisplay
+     198  fputc
+
+ 
+ 486 bytes in section .bss
+ 662 bytes in section .text
+ 
+ 662 bytes of CODE memory
+ 486 bytes of DATA memory
+
+Errors: none
+Warnings: none
