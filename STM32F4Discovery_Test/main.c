@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "main.h"
+//#include "main.h"
 //#include "usbd_hid_core.h"
 //#include "usbd_usr.h"
 //#include "usbd_desc.h"
@@ -34,6 +34,8 @@
 //#include "selftest.h"
 
 int main(void) {
+
+
 	return 0;
 }
 
