@@ -114,9 +114,7 @@ home_libraries/CapacitiveSense \
 home_libraries/CameraC328R \
 home_libraries/BMP085 \
 home_libraries/BMP085/ATmega328 \
-home_libraries/Adafruit_PN532 \
 home_libraries/Adafruit_PCD8544_Nokia_LCD \
-home_libraries/Adafruit_NFCShield_I2C \
 home_libraries/Adafruit_LED_Backpack \
 home_libraries/Adafruit_GFX \
 home_libraries/AP_GPS \

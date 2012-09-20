@@ -93,9 +93,7 @@ RM := rm -rf
 -include home_libraries/CameraC328R/subdir.mk
 -include home_libraries/BMP085/ATmega328/subdir.mk
 -include home_libraries/BMP085/subdir.mk
--include home_libraries/Adafruit_PN532/subdir.mk
 -include home_libraries/Adafruit_PCD8544_Nokia_LCD/subdir.mk
--include home_libraries/Adafruit_NFCShield_I2C/subdir.mk
 -include home_libraries/Adafruit_LED_Backpack/subdir.mk
 -include home_libraries/Adafruit_GFX/subdir.mk
 -include home_libraries/AP_GPS/subdir.mk
