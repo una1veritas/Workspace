@@ -3,8 +3,8 @@
 ################################################################################
 
 O_SRCS := 
-C_UPPER_SRCS := 
 CPP_SRCS := 
+C_UPPER_SRCS := 
 C_SRCS := 
 S_UPPER_SRCS := 
 OBJ_SRCS := 
@@ -23,7 +23,6 @@ C_UPPER_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-discovery_demo \
-STM32_USB_Driver \
+SysTick \
 STM32F4-Discovery \
 

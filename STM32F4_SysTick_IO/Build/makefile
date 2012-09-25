@@ -8,8 +8,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include discovery_demo/subdir.mk
--include STM32_USB_Driver/subdir.mk
+-include SysTick/subdir.mk
 -include STM32F4-Discovery/subdir.mk
 -include subdir.mk
 -include objects.mk
@@ -40,28 +39,22 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: build.elf
+all: STM32F4_SysTick_IO.elf
 
 # Tool invocations
-build.elf: $(OBJS) $(USER_OBJS)
+STM32F4_SysTick_IO.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	arm-none-eabi-g++ -nostartfiles -nostdlib -L"/Users/sin/Documents/Eclipse/Workspace/STM32F4_library/stm32f4/STM32F4xx_StdPeriph_Driver" -Wl,-T,/Users/sin/Documents/Eclipse/Workspace/STM32F4Discovery_Demo/discovery_demo/stm32_flash.ld -o "build.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-g++ -nostdlib -L"/Users/sin/Documents/Eclipse/Workspace/STM32F4_library/stm32f4/STM32F4xx_StdPeriph_Driver" -Wl,-T,/Users/sin/Documents/Eclipse/Workspace/STM32F4_SysTick_IO/SysTick/stm32_flash.ld -o "STM32F4_SysTick_IO.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
-	$(MAKE) --no-print-directory post-build
 
 # Other Targets
 clean:
-	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) build.elf
-	-@echo ' '
-
-post-build:
-	-@echo 'Making binary image.'
-	-arm-none-eabi-objcopy -O binary build.elf build.bin; arm-none-eabi-objcopy -O ihex build.elf build.hex
+	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) STM32F4_SysTick_IO.elf
 	-@echo ' '
 
 .PHONY: all clean dependents
-.SECONDARY: post-build
+.SECONDARY:
 
 -include ../makefile.targets
