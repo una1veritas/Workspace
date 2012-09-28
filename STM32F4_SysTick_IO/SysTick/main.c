@@ -25,22 +25,11 @@
 
 #include <stdio.h>
 #include <stdint.h>
-//#include <stddef.h>
+#include <stddef.h>
+#include "stm32f4_discovery.h"
 
-#include "main.h"
+void TimingDelay_Decrement(void);
 
-/** @addtogroup STM32F4_Discovery_Peripheral_Examples
-  * @{
-  */
-
-/** @addtogroup SysTick_Example
-  * @{
-  */ 
-
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
 GPIO_InitTypeDef GPIO_InitStructure;
 static __IO uint32_t TimingDelay;
 

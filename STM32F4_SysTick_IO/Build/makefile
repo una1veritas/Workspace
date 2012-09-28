@@ -39,19 +39,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: STM32F4_SysTick_IO.elf
+all: flash.elf
 
 # Tool invocations
-STM32F4_SysTick_IO.elf: $(OBJS) $(USER_OBJS)
+flash.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	arm-none-eabi-g++ -nostdlib -L"/Users/sin/Documents/Eclipse/Workspace/STM32F4_library/stm32f4/STM32F4xx_StdPeriph_Driver" -Wl,-T,/Users/sin/Documents/Eclipse/Workspace/STM32F4_SysTick_IO/SysTick/stm32_flash.ld -o "STM32F4_SysTick_IO.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-g++ -nostdlib -L"/Users/sin/Documents/Eclipse/Workspace/STM32F4_library/stm32f4/STM32F4xx_StdPeriph_Driver" -Wl,-T,/Users/sin/Documents/Eclipse/Workspace/STM32F4_SysTick_IO/SysTick/stm32_flash.ld -o "flash.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) STM32F4_SysTick_IO.elf
+	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) flash.elf
 	-@echo ' '
 
 .PHONY: all clean dependents

@@ -1,0 +1,48 @@
+// cstring standard header
+// Copyright 2009-2010 IAR Systems AB.
+#ifndef _CSTRING_
+#define _CSTRING_
+
+#ifndef _SYSTEM_BUILD
+  #pragma system_include
+#endif
+
+#include <ycheck.h>
+#include <yvals.h>
+
+#ifdef _STD_USING
+  #undef _STD_USING
+  #include <string.h>
+  #define _STD_USING
+#else /* _STD_USING */
+  #include <string.h>
+#endif /* _STD_USING */
+
+#ifdef _GLOBAL_USING
+  _STD_BEGIN
+  using _CSTD memchr; using _CSTD memcmp;
+  using _CSTD memcpy; using _CSTD memmove; using _CSTD memset;
+  using _CSTD strcat; using _CSTD strchr; using _CSTD strcmp;
+  using _CSTD strcoll; using _CSTD strcpy; using _CSTD strcspn;
+  using _CSTD strerror; using _CSTD strlen; using _CSTD strncat;
+  using _CSTD strncmp; using _CSTD strncpy; using _CSTD strpbrk;
+  using _CSTD strrchr; using _CSTD strspn; using _CSTD strstr;
+  using _CSTD strtok; using _CSTD strxfrm;
+  #if _DLIB_ADD_EXTRA_SYMBOLS
+    using _CSTD strdup; using _CSTD strcasecmp; using _CSTD strncasecmp; 
+    using _CSTD strtok_r; using _CSTD strnlen;
+  #endif /* _DLIB_ADD_EXTRA_SYMBOLS */
+
+  #if !__AEABI_PORTABILITY_INTERNAL_LEVEL
+    using _CSTD __iar_Memchr; using _CSTD __iar_Strchr; 
+    using _CSTD __iar_Strerror; using _CSTD __iar_Strpbrk;
+    using _CSTD __iar_Strrchr; using _CSTD __iar_Strstr;
+  #endif
+  _STD_END
+#endif /* _GLOBAL_USING */
+#endif /* _CSTRING_ */
+
+/*
+ * Copyright (c) 1992-2009 by P.J. Plauger.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+V5.04:0576 */

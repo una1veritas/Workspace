@@ -3,7 +3,8 @@ ELF=lcd.elf
 CC=arm-none-eabi-gcc
 
 CFLAGS=-O2 -mlittle-endian -mthumb
-CFLAGS+=-mcpu=cortex-m3 -ffreestanding -nostdlib -nostdinc
+#CFLAGS+=-mcpu=cortex-m3 -ffreestanding -nostdlib -nostdinc
+CFLAGS+=-mcpu=cortex-m3 -ffreestanding -nostdlib 
 
 CFLAGS+=-I.
 

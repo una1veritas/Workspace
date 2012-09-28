@@ -1,9 +1,9 @@
 build/obj/icu_lld.o: ../../os/hal/platforms/STM32/icu_lld.c \
  ../../os/kernel/include/ch.h chconf.h \
  ../../os/ports/GCC/ARMCMx/chtypes.h \
- /usr/local/cross/lib/gcc/arm-none-eabi/4.7.1/include/stddef.h \
- /usr/local/cross/lib/gcc/arm-none-eabi/4.7.1/include/stdint.h \
- /usr/local/cross/lib/gcc/arm-none-eabi/4.7.1/../../../../arm-none-eabi/include/stdint.h \
+ /usr/local/cross/lib/gcc/arm-none-eabi/4.7.2/include/stddef.h \
+ /usr/local/cross/lib/gcc/arm-none-eabi/4.7.2/include/stdint.h \
+ /usr/local/cross/lib/gcc/arm-none-eabi/4.7.2/../../../../arm-none-eabi/include/stdint.h \
  ../../os/kernel/include/chlists.h ../../os/ports/GCC/ARMCMx/chcore.h \
  ../../os/ports/GCC/ARMCMx/STM32F4xx/cmparams.h \
  ../../os/ports/GCC/ARMCMx/chcore_v7m.h \
@@ -46,11 +46,11 @@ chconf.h:
 
 ../../os/ports/GCC/ARMCMx/chtypes.h:
 
-/usr/local/cross/lib/gcc/arm-none-eabi/4.7.1/include/stddef.h:
+/usr/local/cross/lib/gcc/arm-none-eabi/4.7.2/include/stddef.h:
 
-/usr/local/cross/lib/gcc/arm-none-eabi/4.7.1/include/stdint.h:
+/usr/local/cross/lib/gcc/arm-none-eabi/4.7.2/include/stdint.h:
 
-/usr/local/cross/lib/gcc/arm-none-eabi/4.7.1/../../../../arm-none-eabi/include/stdint.h:
+/usr/local/cross/lib/gcc/arm-none-eabi/4.7.2/../../../../arm-none-eabi/include/stdint.h:
 
 ../../os/kernel/include/chlists.h:
 

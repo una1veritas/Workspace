@@ -1,4 +1,4 @@
-SysTick/main.d: ../SysTick/main.c ../SysTick/main.h \
+SysTick/main.d: ../SysTick/main.c \
  /Users/sin/Documents/Eclipse/Workspace/STM32F4_library/stm32f4/Utilities/STM32F4-Discovery/stm32f4_discovery.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32F4_library/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32F4_library/CMSIS/Include/core_cm4.h \
@@ -33,8 +33,6 @@ SysTick/main.d: ../SysTick/main.c ../SysTick/main.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32F4_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32F4_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_wwdg.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32F4_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/misc.h
-
-../SysTick/main.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32F4_library/stm32f4/Utilities/STM32F4-Discovery/stm32f4_discovery.h:
 
