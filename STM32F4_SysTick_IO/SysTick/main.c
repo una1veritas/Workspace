@@ -28,15 +28,10 @@
 #include <stddef.h>
 #include "stm32f4_discovery.h"
 
-void TimingDelay_Decrement(void);
+#include "delay.h"
 
 GPIO_InitTypeDef GPIO_InitStructure;
-static __IO uint32_t TimingDelay;
 
-/* Private function prototypes -----------------------------------------------*/
-void Delay(__IO uint32_t nTime);
-
-/* Private functions ---------------------------------------------------------*/
 
 /**
   * @brief   Main program
@@ -112,30 +107,7 @@ int main(void)
   }
 }
 
-/**
-  * @brief  Inserts a delay time.
-  * @param  nTime: specifies the delay time length, in milliseconds.
-  * @retval None
-  */
-void Delay(__IO uint32_t nTime)
-{ 
-  TimingDelay = nTime;
 
-  while(TimingDelay != 0);
-}
-
-/**
-  * @brief  Decrements the TimingDelay variable.
-  * @param  None
-  * @retval None
-  */
-void TimingDelay_Decrement(void)
-{
-  if (TimingDelay != 0x00)
-  { 
-    TimingDelay--;
-  }
-}
 
 #ifdef  USE_FULL_ASSERT
 

@@ -47,6 +47,7 @@ static msg_t Thread1(void *arg) {
     palSetPad(GPIOF, GPIOF_STAT1);
     chThdSleepMilliseconds(500);
   }
+  return 0;
 }
 
 /*
