@@ -21,16 +21,27 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <limits.h>
+//#include <intrinsics.h>
+#include <assert.h>
+#include <math.h>
+#include <stdint.h>
+
+#include "mytypes.h"
+#include "olimex_stm32-e407.h"
 
 #include "stm32f4xx.h"
+#include "stm32f4xx_conf.h"
 
 #include "gpio_digital.h"
-#include "stm32f4xx_it.h"
 #include "delay.h"
 
-#include "Olimex_stm32f217ze_sk.h"
+#include "main.h"
 
-//#include <yfuns.h>
+#include <yfuns.h>
 //#include "includes.h"
 
 #define DLY_100US  1000
@@ -82,7 +93,7 @@ RTC_TimeTypeDef time = {
 };
 
   /*SysTick to times per second*/
-  SysTickStart(1);
+  SysTick_start(1);
 
   /* Enable LSE */
   RCC_APB1PeriphClockCmd(  RCC_APB1Periph_PWR, ENABLE);
@@ -369,5 +380,16 @@ unsigned int status = EVAL_COM1->SR;
   }
   return -1;
 }
+
+void DelayResolution100us(uint32 Dly)
+{
+  for(; Dly; Dly--)
+  {
+    for(volatile uint32 j = DLY_100US; j; j--)
+    {
+    }
+  }
+}
+
 
 /******************* (C) COPYRIGHT 2010 STMicroelectronics *****END OF FILE****/

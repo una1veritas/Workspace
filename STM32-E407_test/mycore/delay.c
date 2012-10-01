@@ -1,12 +1,9 @@
 /*
- * delay.cpp
+ * delay.c
  *
  *  Created on: 2012/09/29
  *      Author: sin
  */
-
-//#include <stdint.h>
-#include <stm32f4xx.h>
 
 #include "delay.h"
 

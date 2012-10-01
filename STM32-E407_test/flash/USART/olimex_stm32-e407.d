@@ -1,4 +1,6 @@
-GPIO/system_stm32f4xx.d: ../GPIO/system_stm32f4xx.c \
+USART/olimex_stm32-e407.d: ../USART/olimex_stm32-e407.c \
+ ../USART/olimex_stm32-e407.h ../USART/stm32f4xx_conf.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_adc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Include/core_cm4.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Include/core_cmInstr.h \
@@ -6,7 +8,6 @@ GPIO/system_stm32f4xx.d: ../GPIO/system_stm32f4xx.c \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Include/core_cm4_simd.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/GPIO/stm32f4xx_conf.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_adc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_can.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_crc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_cryp.h \
@@ -33,6 +34,12 @@ GPIO/system_stm32f4xx.d: ../GPIO/system_stm32f4xx.c \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_wwdg.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/misc.h
 
+../USART/olimex_stm32-e407.h:
+
+../USART/stm32f4xx_conf.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_adc.h:
+
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Include/core_cm4.h:
@@ -46,8 +53,6 @@ GPIO/system_stm32f4xx.d: ../GPIO/system_stm32f4xx.c \
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/GPIO/stm32f4xx_conf.h:
-
-/Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_adc.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_can.h:
 

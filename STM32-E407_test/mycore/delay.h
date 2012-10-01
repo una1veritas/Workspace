@@ -8,7 +8,15 @@
 #ifndef DELAY_H_
 #define DELAY_H_
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
+#include "stm32f4xx.h"
+//#include "system_stm32f4xx.h"
+#include <stm32f4xx_rcc.h>
 
 #define __delay()						\
 do {							\
@@ -25,5 +33,8 @@ uint8_t SysTick_init(uint32_t coreClockPerTick);
 void SysTick_start(uint32_t Tick);
 void SysTick_stop();
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* DELAY_H_ */

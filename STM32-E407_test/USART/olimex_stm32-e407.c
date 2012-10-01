@@ -1,6 +1,6 @@
 /**/
 /* Includes ------------------------------------------------------------------*/
-#include "Olimex_stm32f217ze_sk.h"
+#include "olimex_stm32-e407.h"
 
 
 /** @defgroup STM3220F_EVAL_LOW_LEVEL_Private_Variables

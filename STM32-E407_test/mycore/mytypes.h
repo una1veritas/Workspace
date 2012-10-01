@@ -42,10 +42,18 @@ typedef unsigned short uint16;
 typedef unsigned int uint32;
 typedef unsigned long long uint64;
 
+typedef uint32 qword;
+
 typedef signed char int8;
 typedef short int16;
 typedef int int32;
 typedef long long int64;
+
+typedef double                float64;    // Double precision floating point
+typedef float                 float32;    // Single precision floating point
+typedef unsigned long long    uint64;   // Unsigned 64 bit quantity
+//typedef unsigned int          boolean;  // Boolean
+
 
 /*
 typedef void (*voidFuncPtr)(void);
