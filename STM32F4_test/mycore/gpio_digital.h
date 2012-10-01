@@ -8,10 +8,11 @@
 #ifndef _GPIO_DIGITAL_H_
 #define _GPIO_DIGITAL_H_
 
+/*
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+*/
 //#include <stdio.h>
 //#include <stdint.h>
 //#include <stddef.h>
@@ -50,11 +51,17 @@ enum DigitalPin {
 };
 
 void pinMode(uint8_t pin, uint8_t mode);
+void GPIOMode(GPIO_TypeDef * port, uint16_t pin, GPIOMode_TypeDef mode);
 void digitalWrite(uint8_t pin, uint8_t val);
+void digitalWrite(GPIO_TypeDef * port, uint8_t pin, uint8_t val);
 int digitalRead(uint8_t pin);
 
+DigitalPin digitalPin(const GPIO_TypeDef * port, uint16_t pin);
+
+/*
 #ifdef __cplusplus
 } // extern "C"
 #endif
+*/
 
 #endif /* _GPIO_DIGITAL_H_ */

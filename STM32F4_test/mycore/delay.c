@@ -16,9 +16,9 @@
  * @retval None
  */
 void SysTick_delay(__IO uint32_t nTime) {
-	SysTick_counter = nTime;
+	TimingDelay = nTime;
 
-	while (SysTick_counter != 0)
+	while (TimingDelay != 0)
 		;
 }
 
@@ -28,14 +28,33 @@ void SysTick_delay(__IO uint32_t nTime) {
  * @retval None
  */
 void SysTick_decrement(void) {
-	if (SysTick_counter != 0x00) {
-		SysTick_counter--;
+	if (TimingDelay != 0x00) {
+		TimingDelay--;
 	}
 }
 
 uint8_t SysTick_init(uint32_t coreClockPerTick) {
 	return (SysTick_Config(SystemCoreClock / coreClockPerTick));
 }
+
+void SysTick_start(uint32_t Tick)
+{
+RCC_ClocksTypeDef Clocks;
+volatile uint32_t dummy;
+
+  RCC_GetClocksFreq(&Clocks);
+
+  dummy = SysTick->CTRL;
+  SysTick->LOAD = (Clocks.HCLK_Frequency/8)/Tick;
+
+  SysTick->CTRL = 1;
+}
+
+void SysTick_stop(void)
+{
+    SysTick->CTRL = 0;
+}
+
 
 void SysTick_Handler(void) {
 	SysTick_decrement();

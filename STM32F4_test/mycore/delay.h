@@ -17,11 +17,13 @@ do {							\
     __asm__ __volatile__ ("nop\n\t":::"memory");	\
 } while (0)
 
-static __IO uint32_t SysTick_counter;
+static __IO uint32_t TimingDelay;
 
 void SysTick_decrement(void);
 void SysTick_delay(__IO uint32_t nTime);
 uint8_t SysTick_init(uint32_t coreClockPerTick);
+void SysTick_start(uint32_t Tick);
+void SysTick_stop();
 
 
 #endif /* DELAY_H_ */

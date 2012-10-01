@@ -32,7 +32,7 @@ mycore/gpio_digital.d: ../mycore/gpio_digital.cpp \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_wwdg.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/misc.h \
- ../mycore/Arduino.h ../mycore/gpio_digital.h ../mycore/gpio_constants.h
+ ../mycore/Arduino.h ../mycore/gpio_digital.h
 
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_gpio.h:
 
@@ -103,5 +103,3 @@ mycore/gpio_digital.d: ../mycore/gpio_digital.cpp \
 ../mycore/Arduino.h:
 
 ../mycore/gpio_digital.h:
-
-../mycore/gpio_constants.h:
