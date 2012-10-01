@@ -5,7 +5,7 @@
  *      Author: sin
  */
 
-#include <stdint.h>
+//#include <stdint.h>
 #include <stm32f4xx.h>
 
 #include "delay.h"
@@ -37,26 +37,23 @@ uint8_t SysTick_init(uint32_t coreClockPerTick) {
 	return (SysTick_Config(SystemCoreClock / coreClockPerTick));
 }
 
-void SysTick_start(uint32_t Tick)
-{
-RCC_ClocksTypeDef Clocks;
-volatile uint32_t dummy;
+void SysTick_start(uint32_t Tick) {
+	RCC_ClocksTypeDef Clocks;
+	volatile uint32_t dummy;
 
-  RCC_GetClocksFreq(&Clocks);
+	RCC_GetClocksFreq(&Clocks);
 
-  dummy = SysTick->CTRL;
-  SysTick->LOAD = (Clocks.HCLK_Frequency/8)/Tick;
+	dummy = SysTick ->CTRL;
+	SysTick ->LOAD = (Clocks.HCLK_Frequency / 8) / Tick;
 
-  SysTick->CTRL = 1;
+	SysTick ->CTRL = 1;
 }
 
-void SysTick_stop(void)
-{
-    SysTick->CTRL = 0;
+void SysTick_stop(void) {
+	SysTick ->CTRL = 0;
 }
-
-
+/*
 void SysTick_Handler(void) {
 	SysTick_decrement();
 }
-
+*/

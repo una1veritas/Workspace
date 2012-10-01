@@ -1,12 +1,11 @@
-mycore/gpio_digital.d: ../mycore/gpio_digital.cpp \
- /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_gpio.h \
+GPIO/main.d: ../GPIO/main.c \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Include/core_cm4.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Include/core_cmInstr.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Include/core_cmFunc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Include/core_cm4_simd.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32F4_test/GPIO/stm32f4xx_conf.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/GPIO/stm32f4xx_conf.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_adc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_can.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_crc.h \
@@ -19,6 +18,7 @@ mycore/gpio_digital.d: ../mycore/gpio_digital.cpp \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_flash.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_fsmc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_hash.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_gpio.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_i2c.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_iwdg.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_pwr.h \
@@ -32,9 +32,10 @@ mycore/gpio_digital.d: ../mycore/gpio_digital.cpp \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_wwdg.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/misc.h \
- ../mycore/Arduino.h ../mycore/gpio_digital.h
-
-/Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_gpio.h:
+ /Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/mycore/gpio_digital.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/mycore/Arduino.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/mycore/stm32f4xx_it.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/mycore/delay.h
 
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 
@@ -48,7 +49,7 @@ mycore/gpio_digital.d: ../mycore/gpio_digital.cpp \
 
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h:
 
-/Users/sin/Documents/Eclipse/Workspace/STM32F4_test/GPIO/stm32f4xx_conf.h:
+/Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/GPIO/stm32f4xx_conf.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_adc.h:
 
@@ -73,6 +74,8 @@ mycore/gpio_digital.d: ../mycore/gpio_digital.cpp \
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_fsmc.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_hash.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_gpio.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_i2c.h:
 
@@ -100,6 +103,10 @@ mycore/gpio_digital.d: ../mycore/gpio_digital.cpp \
 
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/misc.h:
 
-../mycore/Arduino.h:
+/Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/mycore/gpio_digital.h:
 
-../mycore/gpio_digital.h:
+/Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/mycore/Arduino.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/mycore/stm32f4xx_it.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/mycore/delay.h:

@@ -1,11 +1,11 @@
-mycore/delay.d: ../mycore/delay.c \
+mycore/stm32f4xx_it.d: ../mycore/stm32f4xx_it.c ../mycore/stm32f4xx_it.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Include/core_cm4.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Include/core_cmInstr.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Include/core_cmFunc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Include/core_cm4_simd.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32F4_test/GPIO/stm32f4xx_conf.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/GPIO/stm32f4xx_conf.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_adc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_can.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_crc.h \
@@ -34,6 +34,8 @@ mycore/delay.d: ../mycore/delay.c \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/misc.h \
  ../mycore/delay.h
 
+../mycore/stm32f4xx_it.h:
+
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Include/core_cm4.h:
@@ -46,7 +48,7 @@ mycore/delay.d: ../mycore/delay.c \
 
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h:
 
-/Users/sin/Documents/Eclipse/Workspace/STM32F4_test/GPIO/stm32f4xx_conf.h:
+/Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/GPIO/stm32f4xx_conf.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_adc.h:
 

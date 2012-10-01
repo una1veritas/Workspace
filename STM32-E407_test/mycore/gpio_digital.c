@@ -158,7 +158,7 @@ void digitalWrite(uint8_t pin, uint8_t val) {
 			(val ? Bit_SET : Bit_RESET ));
 }
 
-void digitalWrite(GPIO_TypeDef * port, uint16_t pin, uint8_t val) {
+void GPIOWrite(GPIO_TypeDef * port, uint16_t pin, uint8_t val) {
 	GPIO_WriteBit(port, pin, (val ? Bit_SET : Bit_RESET ));
 }
 
@@ -173,13 +173,13 @@ int digitalRead(uint8_t pin) {
 			HIGH : LOW );
 }
 
-DigitalPin digitalPin(const GPIO_TypeDef * port, uint16_t pin) {
+uint8_t digitalPin(const GPIO_TypeDef * port, uint16_t pin) {
 	uint8_t portNo;
 	for(portNo = 0; portNo < 7; portNo++) {
 		if ( GPIOPort[portNo] == port )
 			break;
 	}
-	return (DigitalPin)((portNo<<5) + pin);
+	return ((portNo<<5) + pin);
 
 }
 
