@@ -8,7 +8,7 @@
 #include "stm32f4xx_gpio.h"
 #include "stm32f4xx_rcc.h"
 
-#include "Arduino.h"
+#include "Armulet.h"
 #include "gpio_digital.h"
 //#include "gpio_constants.h"
 
@@ -162,7 +162,7 @@ void GPIOWrite(GPIO_TypeDef * port, uint16_t pin, uint8_t val) {
 	GPIO_WriteBit(port, pin, (val ? Bit_SET : Bit_RESET ));
 }
 
-int digitalRead(uint8_t pin) {
+uint16_t digitalRead(uint8_t pin) {
 	uint8_t mode = (digitalPinToGPIOPort(pin)->MODER) >> ((uint16_t)digitalPinToGPIOPin(pin) * 2);
 	if ( mode == GPIO_Mode_OUT )
 		return (GPIO_ReadOutputDataBit((GPIO_TypeDef*)digitalPinToGPIOPort(pin),

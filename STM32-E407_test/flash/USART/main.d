@@ -1,7 +1,4 @@
-USART/main.d: ../USART/main.cpp \
- /Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/mycore/mytypes.h \
- ../USART/olimex_stm32-e407.h ../USART/stm32f4xx_conf.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_adc.h \
+USART/main.d: ../USART/main.c \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Include/core_cm4.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Include/core_cmInstr.h \
@@ -9,6 +6,7 @@ USART/main.d: ../USART/main.cpp \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Include/core_cm4_simd.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/GPIO/stm32f4xx_conf.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_adc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_can.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_crc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_cryp.h \
@@ -34,19 +32,7 @@ USART/main.d: ../USART/main.cpp \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_wwdg.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/misc.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/mycore/gpio_digital.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/mycore/Arduino.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/mycore/delay.h \
- ../USART/main.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/USART/yfuns.h
-
-/Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/mycore/mytypes.h:
-
-../USART/olimex_stm32-e407.h:
-
-../USART/stm32f4xx_conf.h:
-
-/Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_adc.h:
+ ../USART/stm32f4xx_conf.h
 
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 
@@ -61,6 +47,8 @@ USART/main.d: ../USART/main.cpp \
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/GPIO/stm32f4xx_conf.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_adc.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_can.h:
 
@@ -112,12 +100,4 @@ USART/main.d: ../USART/main.cpp \
 
 /Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4/STM32F4xx_StdPeriph_Driver/inc/misc.h:
 
-/Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/mycore/gpio_digital.h:
-
-/Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/mycore/Arduino.h:
-
-/Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/mycore/delay.h:
-
-../USART/main.h:
-
-/Users/sin/Documents/Eclipse/Workspace/STM32-E407_test/USART/yfuns.h:
+../USART/stm32f4xx_conf.h:

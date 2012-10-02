@@ -21,7 +21,7 @@ extern "C" {
 //#include "stm32f4xx_rcc.h"
 //#include "stm32f4xx.h"
 
-#include "Arduino.h"
+#include "Armulet.h"
 //#include "mytypes.h"
 
 enum {
@@ -47,11 +47,11 @@ enum {
 	PD15,
 	PE0 = 5 << 5,
 	PF0 = 6 << 5,
-	PG0 = 7 << 5,
+	PG0 = 7 << 5, PG1, PG2, PG3, PG4, PG5, PG6, PG7, PG8, PG9, PG10, PG11, PG12, PG13, PG14, PG15,
 };
 
 void pinMode(uint8_t pin, uint8_t mode);
-int digitalRead(uint8_t pin);
+uint16_t digitalRead(uint8_t pin);
 void digitalWrite(uint8_t pin, uint8_t val);
 
 uint8_t digitalPin(const GPIO_TypeDef * port, uint16_t pin);

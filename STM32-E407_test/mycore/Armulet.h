@@ -1,5 +1,5 @@
-#ifndef Arduino_h
-#define Arduino_h
+#ifndef Armduino_h
+#define Armduino_h
 
 /*
 #include <stdlib.h>
@@ -15,6 +15,8 @@
 #ifdef __cplusplus
 extern "C"{
 #endif
+
+#include "mytypes.h"
 
 #define HIGH 0x1
 #define LOW  0x0

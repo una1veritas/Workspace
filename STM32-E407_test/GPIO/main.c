@@ -6,6 +6,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include "Armulet.h"
+
+#include <math.h>
+
 // USE_STDPERIPH_DRIVER is defined in both C and C++ at makefile(?)
 #include "stm32f4xx.h"
 
@@ -15,69 +19,40 @@
 
 int main(void) {
 
-	uint8_t c = 0;
+	uint8 c = 0;
 
-	pinMode(PD9, OUTPUT);
-	pinMode(PD10, OUTPUT);
-	pinMode(PD11, OUTPUT);
-	pinMode(PD12, OUTPUT);
-	pinMode(PD13, OUTPUT);
-	pinMode(PD14, OUTPUT);
-	pinMode(PD15, OUTPUT);
+	pinMode(PC13, OUTPUT);
+	pinMode(PG8, OUTPUT);
 
 	pinMode(PA0, INPUT);
 
 	SysTick_init(1000);
 
 	while (1) {
-		if (digitalRead(PA0) == HIGH) {
+		if (digitalRead(PA0)) {
 			c++;
 		} else {
-			c += 4;
+			c--;
 		}
-		switch ((c) % 5) {
+		switch ((c) % 4) {
 		case 0:
-			digitalWrite(PD11, LOW);
-			digitalWrite(PD12, HIGH);
-			digitalWrite(PD13, HIGH);
-			digitalWrite(PD14, HIGH);
-			digitalWrite(PD15, HIGH);
+			digitalWrite(PC13, HIGH);
+			digitalWrite(PG8, HIGH);
 			break;
 		case 1:
-			digitalWrite(PD11, HIGH);
-			digitalWrite(PD12, LOW);
-			digitalWrite(PD13, HIGH);
-			digitalWrite(PD14, HIGH);
-			digitalWrite(PD15, HIGH);
+			digitalWrite(PC13, LOW);
+			digitalWrite(PG8, HIGH);
 			break;
 		case 2:
-			digitalWrite(PD11, HIGH);
-			digitalWrite(PD12, HIGH);
-			digitalWrite(PD13, LOW);
-			digitalWrite(PD14, HIGH);
-			digitalWrite(PD15, HIGH);
+			digitalWrite(PC13, LOW);
+			digitalWrite(PG8,  LOW);
 			break;
 		case 3:
-			digitalWrite(PD11, HIGH);
-			digitalWrite(PD12, HIGH);
-			digitalWrite(PD13, HIGH);
-			digitalWrite(PD14, LOW);
-			digitalWrite(PD15, HIGH);
-			break;
-		case 4:
-			digitalWrite(PD11, HIGH);
-			digitalWrite(PD12, HIGH);
-			digitalWrite(PD13, HIGH);
-			digitalWrite(PD14, HIGH);
-			digitalWrite(PD15, LOW);
+			digitalWrite(PC13, HIGH);
+			digitalWrite(PG8,  LOW);
 			break;
 		}
-		digitalWrite(PD9, HIGH);
-		digitalWrite(PD10, LOW);
-		SysTick_delay(500);
-		digitalWrite(PD9, LOW);
-		digitalWrite(PD10, HIGH);
-		SysTick_delay(500);
+		SysTick_delay(50 + c);
 	}
 
 	return 0;
