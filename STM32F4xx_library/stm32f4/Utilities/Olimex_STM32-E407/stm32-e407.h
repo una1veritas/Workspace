@@ -28,7 +28,7 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f2xx_conf.h"
+#include "stm32f4xx_conf.h"
    
 typedef enum 
 {

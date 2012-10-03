@@ -1,6 +1,6 @@
 /**/
 /* Includes ------------------------------------------------------------------*/
-#include "iar_stm32f217ze_sk.h"
+#include "stm32-e407.h"
 
 
 /** @defgroup STM3220F_EVAL_LOW_LEVEL_Private_Variables
