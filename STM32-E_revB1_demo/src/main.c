@@ -21,8 +21,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdio.h>
 #include <string.h>
-#include <yfuns.h>
-#include "includes.h"
+//#include <yfuns.h>
+//#include "includes.h"
+#include "stm32f4xx.h"
+#include "stm32f4xx_conf.h"
 
 #define DLY_100US  1000
 
