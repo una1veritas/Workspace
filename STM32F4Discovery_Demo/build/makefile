@@ -10,7 +10,6 @@ RM := rm -rf
 -include sources.mk
 -include discovery_demo/subdir.mk
 -include STM32_USB_Driver/subdir.mk
--include STM32F4-Discovery/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -46,7 +45,7 @@ all: build.elf
 build.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	arm-none-eabi-g++ -nostartfiles -nostdlib -L"/Users/sin/Documents/Eclipse/Workspace/STM32F4_library/stm32f4/STM32F4xx_StdPeriph_Driver" -Wl,-T,/Users/sin/Documents/Eclipse/Workspace/STM32F4Discovery_Demo/discovery_demo/stm32_flash.ld -o "build.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-g++ -nostartfiles -nostdlib -Wl,-T,/Users/sin/Documents/Eclipse/Workspace/STM32F4Discovery_Demo/discovery_demo/stm32_flash.ld -o "build.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build

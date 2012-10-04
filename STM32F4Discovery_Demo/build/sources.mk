@@ -25,5 +25,4 @@ C_UPPER_DEPS :=
 SUBDIRS := \
 discovery_demo \
 STM32_USB_Driver \
-STM32F4-Discovery \
 

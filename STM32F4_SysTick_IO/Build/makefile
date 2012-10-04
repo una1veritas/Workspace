@@ -45,7 +45,7 @@ all: flash.elf
 flash.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	arm-none-eabi-g++ -nostdlib -L"/Users/sin/Documents/Eclipse/Workspace/STM32_library/stm32f4" -Wl,-T,/Users/sin/Documents/Eclipse/Workspace/STM32F4_SysTick_IO/SysTick/stm32_flash.ld -o "flash.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-g++ -nostdlib -Wl,-T,/Users/sin/Documents/Eclipse/Workspace/STM32F4_SysTick_IO/SysTick/stm32_flash.ld -o "flash.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
