@@ -19,6 +19,9 @@ void SysTick_delay(__IO uint32_t nTime) {
 		;
 }
 
+uint32_t millis() {
+	return TimingDelay;
+}
 /**
  * @brief  Decrements the TimingDelay variable.
  * @param  None

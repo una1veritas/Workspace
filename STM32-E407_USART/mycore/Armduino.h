@@ -1,21 +1,22 @@
 #ifndef Armduino_h
 #define Armduino_h
 
-/*
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-
-#include <avr/pgmspace.h>
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include "binary.h"
-*/
 
 #ifdef __cplusplus
 extern "C"{
 #endif
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+/*
+#include <avr/pgmspace.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include "binary.h"
+*/
 #include "mytypes.h"
 
 #define HIGH 0x1
@@ -96,6 +97,8 @@ typedef uint16_t word;
 
 typedef uint8_t boolean;
 typedef uint8_t byte;
+
+#define PROGMEM
 
 /*
 void init(void);

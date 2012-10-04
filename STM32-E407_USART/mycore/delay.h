@@ -32,6 +32,7 @@ void SysTick_delay(__IO uint32_t nTime);
 uint8_t SysTick_init(uint32_t coreClockPerTick);
 void SysTick_start(uint32_t Tick);
 void SysTick_stop();
+uint32_t millis();
 
 #ifdef __cplusplus
 }

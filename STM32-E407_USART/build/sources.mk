@@ -25,4 +25,5 @@ C_UPPER_DEPS :=
 SUBDIRS := \
 mycore \
 USART \
+Olimex_USART \
 

@@ -41,7 +41,7 @@
 
 #include "main.h"
 
-#include <yfuns.h>
+//#include <yfuns.h>
 //#include "includes.h"
 
 #define DLY_100US  1000
@@ -217,9 +217,8 @@ void Blink (int x)
   * @param  None
   * @retval None
   */
-void main(void)
-{
-  char c, Flag=0;
+void main(void) {
+  char c, Flag = 0;
   /*!< At this stage the microcontroller clock setting is already configured,
        this is done through SystemInit() function which is called from startup
        file (startup_stm32f2xx.s) before to branch to application main.

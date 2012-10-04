@@ -1,4 +1,6 @@
-mycore/delay.d: ../mycore/delay.c ../mycore/delay.h \
+mycore/Stream.d: ../mycore/Stream.cpp ../mycore/Armduino.h \
+ ../mycore/mytypes.h ../mycore/Stream.h ../mycore/Print.h \
+ ../mycore/delay.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32F4xxLibrary/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32F4xxLibrary/CMSIS/Include/core_cm4.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32F4xxLibrary/CMSIS/Include/core_cmInstr.h \
@@ -10,6 +12,14 @@ mycore/delay.d: ../mycore/delay.c ../mycore/delay.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32F4xxLibrary/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32F4xxLibrary/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32F4xxLibrary/STM32F4xx_StdPeriph_Driver/inc/misc.h
+
+../mycore/Armduino.h:
+
+../mycore/mytypes.h:
+
+../mycore/Stream.h:
+
+../mycore/Print.h:
 
 ../mycore/delay.h:
 

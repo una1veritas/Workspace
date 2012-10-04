@@ -10,6 +10,7 @@ RM := rm -rf
 -include sources.mk
 -include mycore/subdir.mk
 -include USART/subdir.mk
+-include Olimex_USART/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -45,7 +46,7 @@ all: flash.elf
 flash.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	arm-none-eabi-g++ -nostartfiles -L"/Users/sin/Documents/Eclipse/Workspace/STM32F4xx_library/stm32f4" -Wl,-T,/Users/sin/Documents/Eclipse/Workspace/STM32-E407_USART/stm32f4xx_flash.ld -o "flash.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-g++ -nostartfiles -L"/Users/sin/Documents/Eclipse/Workspace/STM32F4xxLibrary" -Wl,-T,/Users/sin/Documents/Eclipse/Workspace/STM32-E407_USART/stm32f4xx_flash.ld -o "flash.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build

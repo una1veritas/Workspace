@@ -1,5 +1,7 @@
 //#define HSE_VALUE 50000000
 #include <stdio.h>
+#include "Armduino.h"
+
 #include "stm32f4xx.h"
 #include "stm32f4xx_conf.h"
 //#include <misc.h>			 // I recommend you have a look at these in the ST firmware folder
@@ -114,9 +116,16 @@ void USART_puts(USART_TypeDef* USARTx, volatile char *s){
 	}
 }
 
+void USART_putch(USART_TypeDef* USARTx, int ch) {
+	USART_SendData(USARTx, (uint8_t) ch);
+	/* Loop until the end of transmission */
+	while (USART_GetFlagStatus(USARTx, USART_FLAG_TC) == RESET) {}
+}
+
+
 int main(void) {
   
-	  SystemInit();
+//	init();
 
   init_USART1(19200); // initialize USART1 @ 9600 baud
 
