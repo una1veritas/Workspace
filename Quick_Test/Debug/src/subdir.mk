@@ -4,13 +4,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../src/QuickTest.cpp 
+../src/JulianDayNumber.cpp 
 
 OBJS += \
-./src/QuickTest.o 
+./src/JulianDayNumber.o 
 
 CPP_DEPS += \
-./src/QuickTest.d 
+./src/JulianDayNumber.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
