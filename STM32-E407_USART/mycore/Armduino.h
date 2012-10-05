@@ -101,7 +101,7 @@ typedef uint8_t byte;
 #define PROGMEM
 
 /*
-void init(void);
+//void init(void);
 
 void pinMode(uint8_t, uint8_t);
 void digitalWrite(uint8_t, uint8_t);
