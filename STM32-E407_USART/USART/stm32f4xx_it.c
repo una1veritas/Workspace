@@ -23,7 +23,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
-#include "delay.h"
+#include "systick.h"
 
 /** @addtogroup STM32F4_Discovery_Peripheral_Examples
   * @{
@@ -140,7 +140,7 @@ void PendSV_Handler(void)
 
 void SysTick_Handler(void)
 {
-  SysTick_decrement();
+  SysTick_increment();
 }
 
 /******************************************************************************/

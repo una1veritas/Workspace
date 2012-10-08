@@ -1,0 +1,19 @@
+system_stm32f4xx.d: ../system_stm32f4xx.c \
+ /Users/sin/Documents/Eclipse/Workspace/STM32F4xxLib/CMSIS/STM32F4xx/stm32f4xx.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32F4xxLib/CMSIS/Include/core_cm4.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32F4xxLib/CMSIS/Include/core_cmInstr.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32F4xxLib/CMSIS/Include/core_cmFunc.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32F4xxLib/CMSIS/Include/core_cm4_simd.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32F4xxLib/CMSIS/STM32F4xx/system_stm32f4xx.h
+
+/Users/sin/Documents/Eclipse/Workspace/STM32F4xxLib/CMSIS/STM32F4xx/stm32f4xx.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32F4xxLib/CMSIS/Include/core_cm4.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32F4xxLib/CMSIS/Include/core_cmInstr.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32F4xxLib/CMSIS/Include/core_cmFunc.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32F4xxLib/CMSIS/Include/core_cm4_simd.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32F4xxLib/CMSIS/STM32F4xx/system_stm32f4xx.h:

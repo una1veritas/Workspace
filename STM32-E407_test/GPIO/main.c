@@ -6,8 +6,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "Armulet.h"
-
 #include <math.h>
 
 // USE_STDPERIPH_DRIVER is defined in both C and C++ at makefile(?)
