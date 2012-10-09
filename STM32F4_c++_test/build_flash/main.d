@@ -35,7 +35,9 @@ main.d: ../main.cpp \
  /Users/sin/Documents/Eclipse/Workspace/STM32F4xxLib/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32F4xxLib/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_wwdg.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32F4xxLib/STM32F4xx_StdPeriph_Driver/inc/misc.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32F4_c++_test/core/delay.h
+ /Users/sin/Documents/Eclipse/Workspace/STM32F4_c++_test/core/systick.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32F4_c++_test/core/init.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32F4_c++_test/core/systick.h
 
 /Users/sin/Documents/Eclipse/Workspace/STM32F4_c++_test/core/favorites.h:
 
@@ -109,4 +111,8 @@ main.d: ../main.cpp \
 
 /Users/sin/Documents/Eclipse/Workspace/STM32F4xxLib/STM32F4xx_StdPeriph_Driver/inc/misc.h:
 
-/Users/sin/Documents/Eclipse/Workspace/STM32F4_c++_test/core/delay.h:
+/Users/sin/Documents/Eclipse/Workspace/STM32F4_c++_test/core/systick.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32F4_c++_test/core/init.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32F4_c++_test/core/systick.h:

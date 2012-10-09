@@ -93,6 +93,8 @@ void GPIOMode(GPIO_TypeDef * port, uint16_t pin, GPIOMode_TypeDef mode) {
 void pinMode(uint8_t pin, uint8_t mode) {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	GPIOMode_TypeDef gpio_mode;
+	GPIOPuPd_TypeDef gpio_pupd;
+
 	// enum GPIOMode_TypeDef =
 	//	  GPIO_Mode_IN   = 0x00, /*!< GPIO Input Mode */
 	//	  GPIO_Mode_OUT  = 0x01, /*!< GPIO Output Mode */
@@ -114,7 +116,7 @@ void pinMode(uint8_t pin, uint8_t mode) {
 	//  GPIO_PuPd_UP     = 0x01,
 	//  GPIO_PuPd_DOWN   = 0x02
 	// }GPIOPuPd_TypeDef;
-	GPIOPuPd_TypeDef gpio_pupd;
+
 	if ( mode == INPUT_PULLUP )
 		gpio_pupd = GPIO_PuPd_UP;
 	else // if ( mode == OUTPUT )
