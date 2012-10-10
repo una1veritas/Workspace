@@ -5,6 +5,8 @@
  *      Author: sin
  */
 
+#include <stm32f4xx.h>
+#include <stm32f4xx_conf.h>
 #include "favorites.h"
 #include "gpio_digital.h"
 #include "systick.h"

@@ -2,26 +2,20 @@
   ******************************************************************************
   * @file    usbd_req.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-March-2012 
+  * @version V1.0.0
+  * @date    22-July-2011  
   * @brief   This file provides the standard USB requests following chapter 9.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
+  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
+  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
+  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
+  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
+  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
   *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
-  *
-  *        http://www.st.com/software_license_agreement_liberty_v2
-  *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  *
+  * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */ 
 
@@ -69,7 +63,6 @@
 /** @defgroup USBD_REQ_Private_Variables
   * @{
   */ 
-extern __IO USB_OTG_DCTL_TypeDef SET_TEST_MODE;
 
 #ifdef USB_OTG_HS_INTERNAL_DMA_ENABLED
   #if defined ( __ICCARM__ ) /*!< IAR Compiler */
@@ -369,7 +362,6 @@ static void USBD_GetDescriptor(USB_OTG_CORE_HANDLE  *pdev,
   uint16_t len;
   uint8_t *pbuf;
   
-    
   switch (req->wValue >> 8)
   {
   case USB_DESC_TYPE_DEVICE:
@@ -654,26 +646,23 @@ static void USBD_GetStatus(USB_OTG_CORE_HANDLE  *pdev,
                            USB_SETUP_REQ *req)
 {
   
-    
   switch (pdev->dev.device_status) 
   {
   case USB_OTG_ADDRESSED:
   case USB_OTG_CONFIGURED:
     
-#ifdef USBD_SELF_POWERED
-    USBD_cfg_status = USB_CONFIG_SELF_POWERED;                                    
-#else
-    USBD_cfg_status = 0x00;                                    
-#endif
-                      
     if (pdev->dev.DevRemoteWakeup) 
     {
-      USBD_cfg_status |= USB_CONFIG_REMOTE_WAKEUP;                                
+      USBD_cfg_status = USB_CONFIG_SELF_POWERED | USB_CONFIG_REMOTE_WAKEUP;                                
+    }
+    else
+    {
+      USBD_cfg_status = USB_CONFIG_SELF_POWERED;   
     }
     
     USBD_CtlSendData (pdev, 
                       (uint8_t *)&USBD_cfg_status,
-                      2);
+                      1);
     break;
     
   default :
@@ -732,8 +721,7 @@ static void USBD_SetFeature(USB_OTG_CORE_HANDLE  *pdev,
       dctl.b.tstctl = 5;
       break;
     }
-    SET_TEST_MODE = dctl;
-    pdev->dev.test_mode = 1;
+    USB_OTG_WRITE_REG32(&pdev->regs.DREGS->DCTL, dctl.d32);
     USBD_CtlSendStatus(pdev);
   }
 
@@ -800,9 +788,21 @@ void USBD_ParseSetupRequest( USB_OTG_CORE_HANDLE  *pdev,
 void USBD_CtlError( USB_OTG_CORE_HANDLE  *pdev,
                             USB_SETUP_REQ *req)
 {
-  
-  DCD_EP_Stall(pdev , 0x80);
-  DCD_EP_Stall(pdev , 0);
+  if((req->bmRequest & 0x80) == 0x80)
+  {
+    DCD_EP_Stall(pdev , 0x80);
+  }
+  else 
+  {
+    if(req->wLength == 0)
+    {
+       DCD_EP_Stall(pdev , 0x80);
+    }
+    else
+    {
+      DCD_EP_Stall(pdev , 0);
+    }
+  }
   USB_OTG_EP0_OutStart(pdev);  
 }
 
@@ -865,4 +865,4 @@ static uint8_t USBD_GetLen(uint8_t *buf)
   * @}
   */ 
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lSTM32F4xx_StdPeriph_Driver
+LIBS := -lstm32f4xx_stdperiph_driver
 

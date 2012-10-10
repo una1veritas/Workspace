@@ -2,26 +2,20 @@
   ******************************************************************************
   * @file    usbh_core.h
   * @author  MCD Application Team
-  * @version V2.1.0
-  * @date    19-March-2012
+  * @version V2.0.0
+  * @date    22-July-2011
   * @brief   Header file for usbh_core.c
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
+  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
+  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
+  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
+  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
+  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
   *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
-  *
-  *        http://www.st.com/software_license_agreement_liberty_v2
-  *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  *
+  * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */ 
 
@@ -85,8 +79,10 @@ typedef enum {
 /* Following states are used for gState */
 typedef enum {
   HOST_IDLE =0,
+  HOST_ISSUE_CORE_RESET,
   HOST_DEV_ATTACHED,
   HOST_DEV_DISCONNECTED,  
+  HOST_ISSUE_RESET,
   HOST_DETECT_DEVICE_SPEED,
   HOST_ENUMERATION,
   HOST_CLASS_REQUEST,  
@@ -126,9 +122,7 @@ typedef enum {
   CTRL_STATUS_IN_WAIT,
   CTRL_STATUS_OUT,
   CTRL_STATUS_OUT_WAIT,
-  CTRL_ERROR,
-  CTRL_STALLED,
-  CTRL_COMPLETE    
+  CTRL_ERROR
 }
 CTRL_State;  
 
@@ -211,8 +205,8 @@ typedef struct _USBH_USR_PROP
   void (*SerialNumString)(void *);        /* SerialNubString*/
   void (*EnumerationDone)(void);           /* Enumeration finished */
   USBH_USR_Status (*UserInput)(void);
-  int  (*UserApplication) (void);
-  void (*DeviceNotSupported)(void); /* Device is not supported*/
+  int (*USBH_USR_MSC_Application) (void);
+  void (*USBH_USR_DeviceNotSupported)(void); /* Device is not supported*/
   void (*UnrecoveredError)(void);
 
 }
@@ -289,7 +283,7 @@ void USBH_ErrorHandle(USBH_HOST *phost,
 * @}
 */ 
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
 
 
 
