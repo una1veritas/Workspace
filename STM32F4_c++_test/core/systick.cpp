@@ -27,7 +27,7 @@ void SysTick_Start() {
 	}
 }
 
-uint32 millis() {
+inline uint32 millis() {
 	return msTicks;
 }
 

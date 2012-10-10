@@ -45,8 +45,9 @@ const uint16_t GPIOPin[] = { GPIO_Pin_0, GPIO_Pin_1, GPIO_Pin_2, GPIO_Pin_3,
  static const uint8_t LED_BUILTIN = 14;
  */
 
-void GPIOMode(GPIO_TypeDef * port, uint16_t pin, GPIOMode_TypeDef mode) {
+void GPIOMode(GPIO_TypeDef * port, uint16 pin, GPIOMode_TypeDef mode) {
 	GPIO_InitTypeDef GPIO_InitStructure;
+
 	// enum GPIOMode_TypeDef =
 	//	  GPIO_Mode_IN   = 0x00, /*!< GPIO Input Mode */
 	//	  GPIO_Mode_OUT  = 0x01, /*!< GPIO Output Mode */
@@ -63,6 +64,7 @@ void GPIOMode(GPIO_TypeDef * port, uint16_t pin, GPIOMode_TypeDef mode) {
 	//  GPIO_PuPd_UP     = 0x01,
 	//  GPIO_PuPd_DOWN   = 0x02
 	// }GPIOPuPd_TypeDef;
+
 	GPIOPuPd_TypeDef pupd = GPIO_PuPd_NOPULL;   // Z state?
 	if ( mode == GPIO_Mode_IN )
 		pupd = GPIO_PuPd_UP;
@@ -90,7 +92,8 @@ void GPIOMode(GPIO_TypeDef * port, uint16_t pin, GPIOMode_TypeDef mode) {
 	}
 }
 
-void pinMode(uint8_t pin, uint8_t mode) {
+
+void pinMode(uint8 pin, uint8 mode) {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	GPIOMode_TypeDef gpio_mode;
 	GPIOPuPd_TypeDef gpio_pupd;
@@ -100,6 +103,7 @@ void pinMode(uint8_t pin, uint8_t mode) {
 	//	  GPIO_Mode_OUT  = 0x01, /*!< GPIO Output Mode */
 	//	  GPIO_Mode_AF   = 0x02, /*!< GPIO Alternate function Mode */
 	//	  GPIO_Mode_AN   = 0x03  /*!< GPIO Analog Mode */
+
 	if ( mode == INPUT || mode == INPUT_PULLUP )
 		gpio_mode = GPIO_Mode_IN;
 	else //if ( mode == OUTPUT ) {
@@ -123,23 +127,23 @@ void pinMode(uint8_t pin, uint8_t mode) {
 		gpio_pupd = GPIO_PuPd_NOPULL;  // Z state?
 
 //	typedef enum	{
-	//  GPIO_Speed_2MHz   = 0x00, /*!< Low speed */
+//  GPIO_Speed_2MHz   = 0x00, /*!< Low speed */
 //	  GPIO_Speed_25MHz  = 0x01, /*!< Medium speed */
 //	  GPIO_Speed_50MHz  = 0x02, /*!< Fast speed */
 //	  GPIO_Speed_100MHz = 0x03  /*!< High speed on 30 pF (80 MHz Output max speed on 15 pF) */
-//	}GPIOSpeed_TypeDef;
+//	} GPIOSpeed_TypeDef;
 
 	if (pin >= NUM_DIGITAL_PINS) {
 		// wake up the port
 		RCC_AHB1PeriphClockCmd(digitalPinToGPIOPeriph(pin), ENABLE);
 		//
-		GPIO_InitStructure.GPIO_Pin = digitalPinToGPIOPin(pin);
-		GPIO_InitStructure.GPIO_Mode = gpio_mode;
+		GPIO_InitStructure.GPIO_Pin   = digitalPinToGPIOPin(pin);
+		GPIO_InitStructure.GPIO_Mode  = gpio_mode;
 		GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		GPIO_InitStructure.GPIO_PuPd = gpio_pupd;
+		GPIO_InitStructure.GPIO_PuPd  = gpio_pupd;
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		//
-		GPIO_Init((GPIO_TypeDef*)digitalPinToGPIOPort(pin), &GPIO_InitStructure);
+		GPIO_Init((GPIO_TypeDef*) digitalPinToGPIOPort(pin), &GPIO_InitStructure);
 	} else {
 		// mapping from arduino pins to original pins must be implemented.
 	}
@@ -149,18 +153,21 @@ void pinMode(uint8_t pin, uint8_t mode) {
  static void turnOffPWM(uint8_t timer) {
  }
  */
-void digitalWrite(uint8_t pin, uint8_t val) {
-	GPIO_WriteBit((GPIO_TypeDef*)digitalPinToGPIOPort(pin),
-			digitalPinToGPIOPin(pin),
-			(val ? Bit_SET : Bit_RESET ));
+void digitalWrite(uint8 pin, uint8 val) {
+	if ( val ) {
+		//? Bit_SET : Bit_RESET ));
+		GPIO_SetBits((GPIO_TypeDef*) digitalPinToGPIOPort(pin), digitalPinToGPIOPin(pin));
+	} else {
+		GPIO_ResetBits((GPIO_TypeDef*) digitalPinToGPIOPort(pin), digitalPinToGPIOPin(pin));
+	}
 }
 
-void GPIOWrite(GPIO_TypeDef * port, uint16_t pin, uint8_t val) {
-	GPIO_WriteBit(port, pin, (val ? Bit_SET : Bit_RESET ));
+void GPIOWrite(GPIO_TypeDef * port, uint16 portValue) {
+	GPIO_Write(port, portValue);
 }
 
-uint16_t digitalRead(uint8_t pin) {
-	uint8_t mode = (digitalPinToGPIOPort(pin)->MODER) >> ((uint16_t)digitalPinToGPIOPin(pin) * 2);
+uint16_t digitalRead(uint8 pin) {
+	uint8 mode = (digitalPinToGPIOPort(pin)->MODER) >> ((uint16_t)digitalPinToGPIOPin(pin) * 2);
 	if ( mode == GPIO_Mode_OUT )
 		return (GPIO_ReadOutputDataBit((GPIO_TypeDef*)digitalPinToGPIOPort(pin),
 				(uint16_t) digitalPinToGPIOPin(pin)) ?
@@ -170,7 +177,7 @@ uint16_t digitalRead(uint8_t pin) {
 			HIGH : LOW );
 }
 
-uint8_t digitalPin(const GPIO_TypeDef * port, uint16_t pin) {
+uint8_t digitalPin(const GPIO_TypeDef * port, uint16 pin) {
 	uint8_t portNo;
 	for(portNo = 0; portNo < 7; portNo++) {
 		if ( GPIOPort[portNo] == port )
@@ -194,9 +201,9 @@ uint8_t digitalPin(const GPIO_TypeDef * port, uint16_t pin) {
  void ConfigPin(GPIO_TypeDef *myGPIO, uint32_t PIN, uint32_t MODE, uint32_t SPEED, uint32_t PUPD) {
 
 //         myGPIO: The GPIOx port for the selected pin
-//                 MODE: 0 = INPUT .... 1 = OUTPUT .... 2 = ALTERNATE FUNCTION .... 3 = ANALOG
-//                 SPEED: 0 = 2MHz (Low Speed) .... 1 = 25MHz (Med. Speed) .... 2 = 50MHz (Fast Speed) .... 3 = 100MHz/80MHz (High Speed)(100MHz(30pf) - 80MHz(15pf))
-//                 PUPD: 0 = No Pull-Up / No Pull-Down .... 1 = Pull-Up Enabled .... 2 = Pull-Down Enabled .... 3 = Reserved
+//         MODE: 0 = INPUT .... 1 = OUTPUT .... 2 = ALTERNATE FUNCTION .... 3 = ANALOG
+//         SPEED: 0 = 2MHz (Low Speed) .... 1 = 25MHz (Med. Speed) .... 2 = 50MHz (Fast Speed) .... 3 = 100MHz/80MHz (High Speed)(100MHz(30pf) - 80MHz(15pf))
+//         PUPD: 0 = No Pull-Up / No Pull-Down .... 1 = Pull-Up Enabled .... 2 = Pull-Down Enabled .... 3 = Reserved
 
 myGPIO->MODER |= (MODE << (PIN * 2));//OUTPUT
 myGPIO->OSPEEDR |= (SPEED << (PIN * 2));//50MHz

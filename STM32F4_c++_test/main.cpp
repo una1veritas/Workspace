@@ -23,25 +23,39 @@ int main(void) {
 
 	uint32 ticks = 0;
 
-	for(;;) {
+	for (;;) {
 		ticks++;
 		digitalWrite(PD12, LOW);
 		digitalWrite(PD13, LOW);
 		digitalWrite(PD14, LOW);
 		digitalWrite(PD15, LOW);
-		if ( (ticks % 8 == 0) || (ticks % 8 == 7) ) {
+		switch (ticks % 16) {
+		case 0:
+		case 4:
+		case 11:
+		case 15:
 			digitalWrite(PD12, HIGH);
-		}
-		if ( (ticks % 8 == 1) || (ticks % 8 == 6) ) {
+			break;
+		case 1:
+		case 5:
+		case 10:
+		case 14:
 			digitalWrite(PD13, HIGH);
-		}
-		if ( (ticks % 8 == 2) || (ticks % 8 == 5) ) {
+			break;
+		case 2:
+		case 6:
+		case 9:
+		case 13:
 			digitalWrite(PD14, HIGH);
-		}
-		if ( (ticks % 8 == 3) || (ticks % 8 == 4) ) {
+			break;
+		case 3:
+		case 7:
+		case 8:
+		case 12:
 			digitalWrite(PD15, HIGH);
+			break;
 		}
-		delay(125);
+		delay(100);
 	}
 
 	return 0;

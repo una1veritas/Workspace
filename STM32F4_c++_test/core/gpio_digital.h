@@ -50,14 +50,14 @@ enum {
 	PG0 = 7 << 5, PG1, PG2, PG3, PG4, PG5, PG6, PG7, PG8, PG9, PG10, PG11, PG12, PG13, PG14, PG15,
 };
 
-void pinMode(uint8_t pin, uint8_t mode);
-uint16_t digitalRead(uint8_t pin);
-void digitalWrite(uint8_t pin, uint8_t val);
+void pinMode(uint8 pin, uint8 mode);
+uint16 digitalRead(uint8 pin);
+void digitalWrite(uint8 pin, uint8 val);
 
-uint8_t digitalPin(const GPIO_TypeDef * port, uint16_t pin);
+uint8 digitalPin(const GPIO_TypeDef * port, uint16 pin);
 
-void GPIOMode(GPIO_TypeDef * port, uint16_t pin, GPIOMode_TypeDef mode);
-void GPIOWrite(GPIO_TypeDef * port, uint16_t pin, uint8_t val);
+void GPIOMode(GPIO_TypeDef * port, uint16 pin, GPIOMode_TypeDef mode);
+void GPIOWrite(GPIO_TypeDef * port, uint16 value);
 
 
 
