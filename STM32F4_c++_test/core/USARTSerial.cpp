@@ -5,13 +5,7 @@
  *      Author: sin
  */
 
-
-#include <stm32f4xx.h>
-#include <misc.h>			 // I recommend you have a look at these in the ST firmware folder
-#include <stm32f4xx_usart.h> // under Libraries/STM32F4xx_StdPeriph_Driver/inc and src
-
-#define MAX_STRLEN 12 // this is the maximum string length of our string in characters
-volatile char received_string[MAX_STRLEN+1]; // this will hold the recieved string
+#include "USARTSerial.h"
 
 
 /* This funcion initializes the USART1 peripheral
@@ -19,7 +13,7 @@ volatile char received_string[MAX_STRLEN+1]; // this will hold the recieved stri
  * Arguments: baudrate --> the baudrate at which the USART is
  * 						   supposed to operate
  */
-void init_USART1(uint32_t baudrate){
+void USARTSerial::init(uint32 baudrate){
 
 	/* This is a concept that has to do with the libraries provided by ST
 	 * to make development easier the have made up something similar to
@@ -29,7 +23,7 @@ void init_USART1(uint32_t baudrate){
 	 * They make our life easier because we don't have to mess around with
 	 * the low level stuff of setting bits in the correct registers
 	 */
-	GPIO_InitTypeDef GPIO_InitStruct; // this is for the GPIO pins used as TX and RX
+//	GPIO_InitTypeDef GPIO_InitStruct; // this is for the GPIO pins used as TX and RX
 	USART_InitTypeDef USART_InitStruct; // this is for the USART1 initilization
 	NVIC_InitTypeDef NVIC_InitStructure; // this is used to configure the NVIC (nested vector interrupt controller)
 
@@ -47,13 +41,15 @@ void init_USART1(uint32_t baudrate){
 	/* This sequence sets up the TX and RX pins
 	 * so they work correctly with the USART1 peripheral
 	 */
+	/*
 	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7; // Pins 6 (TX) and 7 (RX) are used
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF; 			// the pins are configured as alternate function so the USART peripheral has access to them
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;		// this defines the IO speed and has nothing to do with the baudrate!
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;			// this defines the output type as push pull mode (as opposed to open drain)
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;			// this activates the pullup resistors on the IO pins
 	GPIO_Init(GPIOB, &GPIO_InitStruct);					// now all the values are passed to the GPIO_Init() function which sets the GPIO registers
-
+*/
+	GPIOMode(GPIOB, GPIO_Pin_6 | GPIO_Pin_7, GPIO_Mode_AF, GPIO_PuPd_UP);
 	/* The RX and TX pins are now connected to their AF
 	 * so that the USART1 can take over control of the
 	 * pins
@@ -103,17 +99,17 @@ void init_USART1(uint32_t baudrate){
  * Note 2: At the moment it takes a volatile char because the received_string variable
  * 		   declared as volatile char --> otherwise the compiler will spit out warnings
  * */
-void USART_puts(USART_TypeDef* USARTx, volatile char *s){
+void USARTSerial::puts(USART_TypeDef* USARTx, volatile char *s){
 
 	while(*s){
 		// wait until data register is empty
 		while( !(USARTx->SR & 0x00000040) );
 		USART_SendData(USARTx, *s);
-//		*s++;
+		*s++;
 	}
 }
 
-void USART_putch(USART_TypeDef* USARTx, int ch) {
+void USARTSerial::putch(USART_TypeDef* USARTx, int ch) {
 	USART_SendData(USARTx, (uint8_t) ch);
 	/* Loop until the end of transmission */
 	while (USART_GetFlagStatus(USARTx, USART_FLAG_TC ) == RESET) {
@@ -139,10 +135,10 @@ int main(void) {
   * @param  none
   * @retval char
   */
-int uartGetch() {
+int USARTSerial::getch() {
 	int ch;
-	while (USART_GetFlagStatus(EVAL_COM1, USART_FLAG_RXNE) == RESET) {}
-	ch=USART_ReceiveData(EVAL_COM1);
+	while (USART_GetFlagStatus(USART3, USART_FLAG_RXNE) == RESET) {}
+	ch=USART_ReceiveData(USART3);
 	//uartPutch(ch);
 	return ch;
 }
@@ -150,7 +146,7 @@ int uartGetch() {
 
 
 // this is the interrupt request handler (IRQ) for ALL USART1 interrupts
-void USART1_IRQHandler(void){
+void USARTSerial::USART1_IRQHandler(void){
 
 	// check if the USART1 receive interrupt flag was set
 	if( USART_GetITStatus(USART1, USART_IT_RXNE) ){

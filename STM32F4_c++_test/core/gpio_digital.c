@@ -45,7 +45,7 @@ const uint16_t GPIOPin[] = { GPIO_Pin_0, GPIO_Pin_1, GPIO_Pin_2, GPIO_Pin_3,
  static const uint8_t LED_BUILTIN = 14;
  */
 
-void GPIOMode(GPIO_TypeDef * port, uint16 pin, GPIOMode_TypeDef mode) {
+void GPIOMode(GPIO_TypeDef * port, uint16 pin, GPIOMode_TypeDef mode, GPIOPuPd_TypeDef pupd) {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	// enum GPIOMode_TypeDef =
@@ -65,7 +65,6 @@ void GPIOMode(GPIO_TypeDef * port, uint16 pin, GPIOMode_TypeDef mode) {
 	//  GPIO_PuPd_DOWN   = 0x02
 	// }GPIOPuPd_TypeDef;
 
-	GPIOPuPd_TypeDef pupd = GPIO_PuPd_NOPULL;   // Z state?
 	if ( mode == GPIO_Mode_IN )
 		pupd = GPIO_PuPd_UP;
 

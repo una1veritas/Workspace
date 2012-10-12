@@ -10,12 +10,10 @@ int main(int argc, char * argv[]) {
   double jd;
   int wday;
 
-  cout << "Hello." << endl;
-
+  cout << "Julian Day Number calcurator." << endl;
   cin >> y;
   cin >> m;
   cin >> d;
-
   cout << y << "/" << m << "/" << d << endl;
 
   if ( m <= 2 ) {
@@ -25,9 +23,10 @@ int main(int argc, char * argv[]) {
   a = int(y/100);  b = 2 - a + (a/4);
   jd = int(365.25 * y) + int(30.6001 * (m+1)) + d + 1720994.5 + b;
 
+  cout << "jd = " << setprecision (1) << fixed << jd << endl;
+
   wday = int(jd + 1.5) % 7;
 
-  cout << "jd = " << setprecision (1) << fixed << jd << endl;
   cout << "Day of Week = " << wday << endl;
 
   return 0;

@@ -1,5 +1,4 @@
 #include <iostream>
-#include "Print.h"
 
 
 int main (int argc, char * const argv[]) { 
@@ -8,16 +7,13 @@ int main (int argc, char * const argv[]) {
 	char * inputs, * p;
 	int length;
 	if ( argv[1] == NULL ) {
-		println("No input chars.");
+		cout << "No input chars." << std::endl;
 		//return 0;
 	} else {
 		inputs = argv[1];
 		length = 0;
 		for (p = inputs; *p != 0 ; p++, length++ );
-		print("Input: ");
-		println(inputs);
-		print("Length: ");
-		println(length);
+		cout << "Input: " << inputs << "Length: " << length << std::endl;
 	}
 	
 	//

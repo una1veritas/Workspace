@@ -28,12 +28,12 @@ typedef uint64 octword;
 
 //typedef unsigned int          boolean;  // Boolean
 
-typedef signed char int8;
-typedef short int16;
-typedef int int32;
-typedef long long int64;
-typedef double                float64;    // Double precision floating point
-typedef float                 float32;    // Single precision floating point
+typedef signed char 	int8;
+typedef short 			int16;
+typedef int 			int32;
+typedef long long 		int64;
+typedef double          float64;    // Double precision floating point
+typedef float           float32;    // Single precision floating point
 
 //
 #ifndef NULL
