@@ -5,7 +5,7 @@ AR = arm-none-eabi-ar
 RANLIB = arm-none-eabi-ranlib
 
 CFLAGS = -Wall -g -Os -mlittle-endian -mthumb
-CFLAGS += -mcpu=cortex-m4 -ffreestanding -nostdlib
+CFLAGS += -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -ffreestanding -nostdlib -nostartfiles
 CFLAGS += -DUSE_STDPERIPH_DRIVER
 CFLAGS += -I./inc -I./template
 

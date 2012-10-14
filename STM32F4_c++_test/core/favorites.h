@@ -16,11 +16,14 @@ extern "C"{
 #include <stdint.h>
 #include <stddef.h>
 
+#include "stm32f4xx_gpio.h"
+
 typedef unsigned char uint8;
 typedef unsigned short uint16;
 typedef unsigned int uint32;
 typedef unsigned long long    uint64;   // Unsigned 64 bit quantity
 
+typedef uint8 boolean;
 typedef uint8 byte;
 typedef uint16 word;
 typedef uint32 quadword;
@@ -42,10 +45,6 @@ typedef float           float32;    // Single precision floating point
 
 #define HIGH 0x1
 #define LOW  0x0
-
-#define INPUT 0x0
-#define OUTPUT 0x1
-#define INPUT_PULLUP 0x2
 
 
 #ifdef __cplusplus

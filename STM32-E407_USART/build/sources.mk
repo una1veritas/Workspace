@@ -25,4 +25,5 @@ C_UPPER_DEPS :=
 SUBDIRS := \
 armcore \
 USART \
+EWARM/Debug/Obj \
 

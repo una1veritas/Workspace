@@ -5,7 +5,8 @@ core/systick.d: ../core/systick.cpp ../core/systick.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cmFunc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cm4_simd.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/system_stm32f4xx.h \
- ../core/favorites.h
+ ../core/favorites.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_gpio.h
 
 ../core/systick.h:
 
@@ -22,3 +23,5 @@ core/systick.d: ../core/systick.cpp ../core/systick.h \
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/system_stm32f4xx.h:
 
 ../core/favorites.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_gpio.h:

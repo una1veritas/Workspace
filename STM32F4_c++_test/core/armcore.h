@@ -11,6 +11,5 @@
 #include "favorites.h"
 #include "gpio_digital.h"
 #include "systick.h"
-#include "init.h"
 
 #endif /* CORE_H_ */

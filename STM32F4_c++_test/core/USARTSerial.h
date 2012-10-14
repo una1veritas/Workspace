@@ -16,36 +16,51 @@
 
 #include "armcore.h"
 #include "gpio_digital.h"
+#include "Stream.h"
 
-class USARTSerial {
+class USARTSerial : public Stream {
 
 //	static const int RXBUFF_LEN = 12; // this is the maximum string length of our string in characters
 //	static volatile char rx_buffer[RXBUFF_LEN + 1]; // this will hold the recieved string
 
 private:
-	void init(uint32 baudrate);
-	void puts(USART_TypeDef* USARTx, volatile char *s);
-	void putch(USART_TypeDef* USARTx, int ch);
-	int getch(void);
+	uint16 channel;
+	USART_TypeDef * USARTx;
 
 public:
+	USARTSerial(uint16 ch) {
+		channel = ch;
+	}
+
+	void puts(volatile char *s);
+//	void putch(int ch);
+	int  getch(void);
+
+	const USART_TypeDef * port() {
+		return USARTx;
+	}
+
+public:
+
+	virtual int read() {
+		return USARTx->DR;
+	}
     /* Set up/tear down */
     void begin(uint32 baud);
-    void end(void);
+    void end(void) {}
 
     /* I/O */
-    uint32 available(void);
-    uint8 read(void);
-    void flush(void);
-    virtual void write(unsigned char);
-//    using Print::write;
-
+    virtual int available(void) { return 0; }
+    virtual int peek() { return 0; }
+    virtual void flush(void) { }
+    virtual size_t write(uint8 ch);
+    using Print::write;
     /* Pin accessors */
 //    int txPin(void) { return this->tx_pin; }
 //    int rxPin(void) { return this->rx_pin; }
 
 };
 
-void USART1_IRQHandler(void);
+//void USART3_IRQHandler(void);
 
 #endif /* USARTSERIAL_H_ */
