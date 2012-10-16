@@ -8,7 +8,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include core/subdir.mk
+-include armcore/subdir.mk
 -include STM32F4xx_StdPeriph_Driver/src/subdir.mk
 -include subdir.mk
 -include objects.mk
@@ -56,7 +56,7 @@ clean:
 	-@echo ' '
 
 post-build:
-	-/usr/local/summon/arm-none-eabi/bin/objcopy -Obinary stm32f4-float-math_test.elf flash.bin; /usr/local/summon/arm-none-eabi/bin/objdump -S stm32f4-float-math_test.elf > stm32f4-float-math_test.lst
+	-arm-none-eabi-objcopy -Obinary stm32f4-float-math_test.elf flash.bin; arm-none-eabi-objdump -S stm32f4-float-math_test.elf > stm32f4-float-math_test.lst
 	-@echo ' '
 
 .PHONY: all clean dependents

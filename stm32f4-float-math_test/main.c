@@ -32,7 +32,7 @@
 #include "systick.h"
 #include "usart.h"
 
-GPIO_InitTypeDef  GPIO_InitStructure;
+//GPIO_InitTypeDef  GPIO_InitStructure;
 
 
 #define nop()       __asm__ __volatile__("nop")
@@ -72,37 +72,37 @@ int main(void) {
     digitalWrite(PD12, HIGH);
     
     /* Insert delay */
-    delay(12); //(0x1FFFFF);
+    delay(20); //(0x1FFFFF);
     
     /* PD13 to be toggled */
 //    GPIO_SetBits(GPIOD, GPIO_Pin_13);
     digitalWrite(PD13, HIGH);
 
     /* Insert delay */
-    delay(12); //(0x1FFFFF);
+    delay(20); //(0x1FFFFF);
   
     /* PD14 to be toggled */
 //    GPIO_SetBits(GPIOD, GPIO_Pin_14);
     digitalWrite(PD14, HIGH);
     
     /* Insert delay */
-    delay(12); //(0x1FFFFF);
+    delay(20); //(0x1FFFFF);
     
     /* PD15 to be toggled */
 //    GPIO_SetBits(GPIOD, GPIO_Pin_15);
     digitalWrite(PD15, HIGH);
 
     /* Insert delay */
-    delay(23); //(0x3FFFFF);
+    delay(40); //(0x3FFFFF);
     
-    GPIO_ResetBits(GPIOD, GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14|GPIO_Pin_15);
+   // GPIO_ResetBits(GPIOD, GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14|GPIO_Pin_15);
     digitalWrite(PD12, LOW);
     digitalWrite(PD13, LOW);
     digitalWrite(PD14, LOW);
     digitalWrite(PD15, LOW);
     
     /* Insert delay */
-    delay(100); //(0xFFFFFF);
+    delay(200); //(0xFFFFFF);
 #endif
 	
 	ComputeMandelbrot(4000,50);

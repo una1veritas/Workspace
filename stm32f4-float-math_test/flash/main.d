@@ -11,10 +11,10 @@ main.d: ../main.c \
  /Users/sin/Documents/Eclipse/Workspace/STM32library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32library/STM32F4xx_StdPeriph_Driver/inc/misc.h \
  ../mandelbrot.h \
- /Users/sin/Documents/Eclipse/Workspace/stm32f4-float-math_test/core/gpio_digital.h \
- /Users/sin/Documents/Eclipse/Workspace/stm32f4-float-math_test/core/favorites.h \
- /Users/sin/Documents/Eclipse/Workspace/stm32f4-float-math_test/core/systick.h \
- /Users/sin/Documents/Eclipse/Workspace/stm32f4-float-math_test/core/usart.h
+ /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio_digital.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/favorites.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/systick.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/usart.h
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/Utilities/STM32F4-Discovery/stm32f4_discovery.h:
 
@@ -40,10 +40,10 @@ main.d: ../main.c \
 
 ../mandelbrot.h:
 
-/Users/sin/Documents/Eclipse/Workspace/stm32f4-float-math_test/core/gpio_digital.h:
+/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio_digital.h:
 
-/Users/sin/Documents/Eclipse/Workspace/stm32f4-float-math_test/core/favorites.h:
+/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/favorites.h:
 
-/Users/sin/Documents/Eclipse/Workspace/stm32f4-float-math_test/core/systick.h:
+/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/systick.h:
 
-/Users/sin/Documents/Eclipse/Workspace/stm32f4-float-math_test/core/usart.h:
+/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/usart.h:
