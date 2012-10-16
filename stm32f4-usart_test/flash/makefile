@@ -8,7 +8,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include armcore/subdir.mk
+-include armduino/subdir.mk
 -include STM32F4xx_StdPeriph_Driver/src/subdir.mk
 -include subdir.mk
 -include objects.mk
@@ -45,7 +45,7 @@ all: stm32f4-usart_test.elf
 stm32f4-usart_test.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant -nostartfiles -Wl,-T,/Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/stm32_flash.ld -o "stm32f4-usart_test.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -mlittle-endian  -mfloat-abi=soft -nostartfiles -Wl,-T,/Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/stm32_flash.ld -o "stm32f4-usart_test.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build

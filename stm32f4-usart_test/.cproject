@@ -33,15 +33,14 @@
 								<option id="gnu.c.compiler.option.include.paths.790193245" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32Library/CMSIS/STM32F4xx}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32Library/CMSIS/Include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32Library/Utilities/STM32F4-Discovery}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32f4-usart_test/armcore}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32f4-usart_test/STM32F4xx_StdPeriph_Driver/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32f4-usart_test}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32f4-usart_test/STM32F4xx_StdPeriph_Driver/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32f4-usart_test/armduino}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1006894909" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_STDPERIPH_DRIVER=1"/>
 								</option>
-								<option id="gnu.c.compiler.option.optimization.flags.648813990" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="-mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=hard -mfpu=fpv4-sp-d16" valueType="string"/>
+								<option id="gnu.c.compiler.option.optimization.flags.648813990" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="-mcpu=cortex-m4 -mthumb -mlittle-endian ${FPUOPT_SOFT}" valueType="string"/>
 								<option id="gnu.c.compiler.option.misc.other.1757402561" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fsingle-precision-constant" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.679403152" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -51,26 +50,26 @@
 								<option id="gnu.cpp.compiler.option.include.paths.108317723" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32Library/CMSIS/STM32F4xx}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32Library/CMSIS/Include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32Library/Utilities/STM32F4-Discovery}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32f4-usart_test/armcore}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32f4-usart_test/STM32F4xx_StdPeriph_Driver/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32f4-usart_test}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32f4-usart_test/STM32F4xx_StdPeriph_Driver/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32f4-usart_test/armduino}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.235340339" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_STDPERIPH_DRIVER=1"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.optimization.flags.1946087564" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="-mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=hard -mfpu=fpv4-sp-d16" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.optimization.flags.1946087564" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="-mcpu=cortex-m4 -mthumb -mlittle-endian  ${FPUOPT_SOFT}" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.other.other.1876108247" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -fno-exceptions -fsingle-precision-constant" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1767159297" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.linker.796610643" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker"/>
-							<tool command="gcc -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant" id="cdt.managedbuild.tool.gnu.cross.cpp.linker.217037434" name="Cross G++ Linker" superClass="cdt.managedbuild.tool.gnu.cross.cpp.linker">
+							<tool command="g++ -mcpu=cortex-m4 -mthumb -mlittle-endian  ${FPUOPT_SOFT}" id="cdt.managedbuild.tool.gnu.cross.cpp.linker.217037434" name="Cross G++ Linker" superClass="cdt.managedbuild.tool.gnu.cross.cpp.linker">
 								<option id="gnu.cpp.link.option.nostart.1979806445" name="Do not use standard start files (-nostartfiles)" superClass="gnu.cpp.link.option.nostart" value="true" valueType="boolean"/>
 								<option id="gnu.cpp.link.option.nostdlibs.177069101" name="No startup or default libs (-nostdlib)" superClass="gnu.cpp.link.option.nostdlibs" value="false" valueType="boolean"/>
 								<option id="gnu.cpp.link.option.flags.1371855165" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="-Wl,-T,${ProjDirPath}/stm32_flash.ld" valueType="string"/>
 								<option id="gnu.cpp.link.option.libs.1691148339" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="m"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="c"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="g"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.453679321" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -80,18 +79,17 @@
 							<tool id="cdt.managedbuild.tool.gnu.cross.archiver.1279496748" name="Cross GCC Archiver" superClass="cdt.managedbuild.tool.gnu.cross.archiver"/>
 							<tool id="cdt.managedbuild.tool.gnu.cross.assembler.571740264" name="Cross GCC Assembler" superClass="cdt.managedbuild.tool.gnu.cross.assembler">
 								<option id="gnu.both.asm.option.include.paths.119252141" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32f4-usart_test/armcore}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32f4-usart_test/STM32F4xx_StdPeriph_Driver/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32f4-usart_test}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32f4-usart_test/STM32F4xx_StdPeriph_Driver/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32f4-usart_test/armduino}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1188378186" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="armcore|STM32F4xx_StdPeriph_Driver" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="STM32F4xx_StdPeriph_Driver"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="armcore"/>
+						<entry excluding="STM32F4xx_StdPeriph_Driver/src" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="STM32F4xx_StdPeriph_Driver/src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -100,6 +98,12 @@
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="stm32f4-float-math_test.cdt.managedbuild.target.gnu.cross.exe.58605502" name="Executable" projectType="cdt.managedbuild.target.gnu.cross.exe"/>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="flash">
+			<resource resourceType="PROJECT" workspacePath="/stm32f4-float-math_test"/>
+		</configuration>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
@@ -129,11 +133,5 @@
 				</scannerInfoProvider>
 			</profile>
 		</scannerConfigBuildInfo>
-	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
-	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="flash">
-			<resource resourceType="PROJECT" workspacePath="/stm32f4-float-math_test"/>
-		</configuration>
 	</storageModule>
 </cproject>

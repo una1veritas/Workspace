@@ -8,15 +8,12 @@
 #ifndef MYFAVOURITES_H_
 #define MYFAVOURITES_H_
 
-#ifdef __cplusplus
-extern "C"{
-#endif
-
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
 
 #include "stm32f4xx_gpio.h"
+
 
 typedef unsigned char uint8;
 typedef unsigned short uint16;
@@ -56,8 +53,5 @@ typedef float           float32;    // Single precision floating point
 #define abs(x) 		((x) < 0? -(x) : (x))
 
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* MYFAVOURITES_H_ */

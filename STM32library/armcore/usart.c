@@ -5,10 +5,13 @@
  *      Author: sin
  */
 
+#include <stm32f4xx.h>
+#include <stm32f4xx_gpio.h>
+#include <stm32f4xx_rcc.h>
 #include <stm32f4xx_usart.h> // under Libraries/STM32F4xx_StdPeriph_Driver/inc and src
+
 #include "favorites.h"
 #include "gpio_digital.h"
-#include "systick.h"
 #include "usart.h"
 
 void usart_begin(uint32 baud) {
@@ -135,7 +138,8 @@ size_t usart_printFloat(float val, uint8 prec) {
  * @param  none
  * @retval char
  */
-int usart_getch() {
+/*
+int usart::usart_getch() {
 	int ch;
 	while (USART_GetFlagStatus(USART3, USART_FLAG_RXNE )
 			== RESET) {
@@ -144,4 +148,4 @@ int usart_getch() {
 	//uartPutch(ch);
 	return ch;
 }
-
+*/

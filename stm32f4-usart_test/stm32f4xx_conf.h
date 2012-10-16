@@ -62,7 +62,7 @@
 #include "stm32f4xx_usart.h"
 #include "stm32f4xx_wwdg.h"
 */
-#include "misc.h" /* High level functions for NVIC and SysTick (add-on to CMSIS functions) */
+//#include "misc.h" /* High level functions for NVIC and SysTick (add-on to CMSIS functions) */
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/

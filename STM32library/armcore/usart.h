@@ -10,7 +10,7 @@
 
 #include "favorites.h"
 
-void   usart_begin(uint32 baud) ;
+void usart_begin(uint32 baud);
 size_t usart_write(uint8 ch);
 size_t usart_print(const char * s);
 //size_t usart_printInt(uint32 val, uint8 base);

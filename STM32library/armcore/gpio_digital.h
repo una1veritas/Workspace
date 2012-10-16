@@ -9,16 +9,16 @@
 #define _GPIO_DIGITAL_H_
 
 
-
 #include "favorites.h"
 
 #ifndef USE_STDPERIPH_DRIVER
 #define USE_STDPERIPH_DRIVER 1
 #endif
 
+#include "stm32f4xx.h"
 #include "stm32f4xx_gpio.h"
 #include "stm32f4xx_rcc.h"
-//#include "stm32f4xx.h"
+
 
 typedef enum {
 	PA0 = 1 << 5,
@@ -49,7 +49,8 @@ typedef enum {
 #define FASTSPEED 	GPIO_Speed_50MHz
 #define HIGHSPEED 	GPIO_Speed_100MHz
 
-void pinMode(uint8 pin,	GPIOMode_TypeDef mode, GPIOSpeed_TypeDef clk, GPIOPuPd_TypeDef pupd);
+void pinMode(uint8 pin,	GPIOMode_TypeDef mode,
+		GPIOSpeed_TypeDef clk, GPIOPuPd_TypeDef pupd);
 //		GPIOSpeed_TypeDef clk = GPIO_Speed_50MHz,
 //		GPIOPuPd_TypeDef pupd = GPIO_PuPd_NOPULL );
 uint16 digitalRead(uint8 pin);
@@ -63,7 +64,6 @@ void GPIOMode(GPIO_TypeDef * port, uint16 pins, GPIOMode_TypeDef mode,
 //		GPIOOType_TypeDef otype = GPIO_OType_PP,
 //		GPIOPuPd_TypeDef pull = GPIO_PuPd_NOPULL);
 void GPIOWrite(GPIO_TypeDef * port, uint16 value);
-
 
 
 #endif /* _GPIO_DIGITAL_H_ */

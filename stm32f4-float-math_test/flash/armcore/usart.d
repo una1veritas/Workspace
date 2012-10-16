@@ -1,6 +1,5 @@
 armcore/usart.d: \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/usart.c \
- /Users/sin/Documents/Eclipse/Workspace/STM32library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cm4.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cmInstr.h \
@@ -11,12 +10,10 @@ armcore/usart.d: \
  /Users/sin/Documents/Eclipse/Workspace/STM32library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_gpio.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32library/STM32F4xx_StdPeriph_Driver/inc/misc.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/favorites.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio_digital.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/systick.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/usart.h
-
-/Users/sin/Documents/Eclipse/Workspace/STM32library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h:
 
@@ -38,10 +35,10 @@ armcore/usart.d: \
 
 /Users/sin/Documents/Eclipse/Workspace/STM32library/STM32F4xx_StdPeriph_Driver/inc/misc.h:
 
+/Users/sin/Documents/Eclipse/Workspace/STM32library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h:
+
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/favorites.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio_digital.h:
-
-/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/systick.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/usart.h:

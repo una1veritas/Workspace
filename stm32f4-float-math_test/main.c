@@ -106,7 +106,7 @@ int main(void) {
 #endif
 	
 	ComputeMandelbrot(4000,50);
-	usart_printFloat(millis()/1000.0f, 3);
+	usart_printFloat(systicks()/1000.0f, 3);
 	usart_print(".\n");
 
 	SqrtBenchmark();
