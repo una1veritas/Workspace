@@ -19,7 +19,11 @@ void delay(const uint32_t dlyTicks) {
 }
 
 void SysTick_Start() {
-	if (SysTick_Config(SystemCoreClock / 1000)) {
+	SysTick_Init(1000);
+}
+
+void SysTick_Init(uint32 ticks) {
+	if (SysTick_Config(SystemCoreClock / ticks)) {
 		/* Setup SysTick for 1 msec interrupts */
 		/* Handle Error */
 		while (1)

@@ -9,6 +9,7 @@ main.d: ../main.c \
  /Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/stm32f4xx_conf.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/misc.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/favorites.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio_digital.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/favorites.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/systick.h \
@@ -33,6 +34,8 @@ main.d: ../main.c \
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/misc.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/favorites.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio_digital.h:
 
