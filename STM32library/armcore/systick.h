@@ -15,7 +15,7 @@ extern "C" {
 #include "stm32f4xx.h"
 #include "favorites.h"
 
-static volatile uint32 msTicks;
+static volatile uint32 SysTick_counts;
 
 void SysTick_Handler(void);
 
@@ -24,7 +24,7 @@ void delay(const uint32_t dlyTicks);
 void SysTick_Start();
 void SysTick_Init(uint32 ticks);
 
-uint32 millis();
+uint32 systicks();
 
 #ifdef __cplusplus
 	}

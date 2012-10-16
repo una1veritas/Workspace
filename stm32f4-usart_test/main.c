@@ -32,9 +32,11 @@
 #include "systick.h"
 #include "usart.h"
 
+#include <math.h>
+
 int main(void) {
 
-	SysTick_Init(3360);
+	SysTick_Init(10000);
 
 	GPIOMode(GPIOD, GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15,
 			OUTPUT, FASTSPEED, PUSHPULL, NOPULL);
@@ -48,15 +50,22 @@ int main(void) {
 	SCB ->CPACR |= ((3UL << 10 * 2) | (3UL << 11 * 2)); /* set CP10 and CP11 Full Access */
 
 	uint8 ledstate = RESET;
-	uint32 ticks = 0;
+	uint32 ticks;
+	float theta, swave;
 
 	while (1) {
+		ticks = (16 *systicks()) % (2 * 314159);
+		theta = ticks / 100000.0f;
+		swave = sinf(theta);
+		//
 		digitalWrite(PD14, SET);
-		delay(1000);
+		delay(128 + swave * 128 );
 		digitalWrite(PD14, RESET);
-		delay(1000);
-		usart_printNumber(millis());
-		usart_print(".\n\n");
+		delay(128 - swave * 128);
+//		usart_printFloat(theta, 3);
+//		usart_print("\n");
+//		usart_printFloat(sinf(theta), 3);
+//		usart_print(".\n\n");
 	}
 }
 

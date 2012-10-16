@@ -8,13 +8,13 @@
 #include "systick.h"
 
 void SysTick_Handler(void) {
-	msTicks++; /* increment timeTicks counter */
+	SysTick_counts++; /* increment timeTicks counter */
 }
 
 void delay(const uint32_t dlyTicks) {
-	uint32_t currTicks = msTicks;
+	uint32_t currTicks = SysTick_counts;
 
-	while ((msTicks - currTicks) < dlyTicks)
+	while ((SysTick_counts - currTicks) < dlyTicks)
 		;
 }
 
@@ -23,15 +23,12 @@ void SysTick_Start() {
 }
 
 void SysTick_Init(uint32 ticks) {
-	if (SysTick_Config(SystemCoreClock / ticks)) {
-		/* Setup SysTick for 1 msec interrupts */
-		/* Handle Error */
-		while (1)
-			;
-	}
+	RCC_ClocksTypeDef RCC_Clocks;
+	RCC_GetClocksFreq(&RCC_Clocks);
+	SysTick_Config(RCC_Clocks.HCLK_Frequency / ticks);
 }
 
-uint32 millis() {
-	return msTicks;
+uint32 systicks() {
+	return SysTick_counts;
 }
 

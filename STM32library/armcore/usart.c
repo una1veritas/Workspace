@@ -16,12 +16,10 @@ void usart_begin(uint32 baud) {
 	USART_InitTypeDef USART_InitStruct; // this is for the USART1 initilization
 //	NVIC_InitTypeDef NVIC_InitStructure; // this is used to configure the NVIC (nested vector interrupt controller)
 
-	/* USART3 clock enable */
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, (FunctionalState) ENABLE);
+	GPIOMode(GPIOB, GPIO_Pin_10 | GPIO_Pin_11, ALTFUNC, FASTSPEED, PUSHPULL, PULLUP);
+	/* USART3 clock enable */
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, (FunctionalState) ENABLE);
-
-	GPIOMode(GPIOB, GPIO_Pin_10 | GPIO_Pin_11, GPIO_Mode_AF, GPIO_Speed_50MHz,
-			GPIO_OType_PP, GPIO_PuPd_UP);
 
 	digitalWrite(PD12, LOW);
 	digitalWrite(PD15, LOW);
