@@ -20,8 +20,11 @@
  */
 
 void pinMode(uint32_t portpin, GPIOMode_TypeDef mode) {
+
 	GPIO_InitTypeDef GPIO_InitStructure;
+
 	RCC_AHB1PeriphClockCmd(GPIOPeriph[portpin>>16 & 0xf], ENABLE);
+
 	GPIO_InitStructure.GPIO_Pin = portpin & 0xffff;
 	GPIO_InitStructure.GPIO_Mode = mode;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -37,7 +40,6 @@ void GPIOMode(uint32_t periph, GPIO_TypeDef * port, uint16_t pins,
 		GPIOPuPd_TypeDef pupd) {
 
 	GPIO_InitTypeDef GPIO_InitStructure;
-
 	// wake up the port
 	RCC_AHB1PeriphClockCmd(periph, ENABLE);
 	//
@@ -54,12 +56,12 @@ void GPIOMode(uint32_t periph, GPIO_TypeDef * port, uint16_t pins,
  static void turnOffPWM(uint8_t timer) {
  }
  */
-void digitalWrite(GPIO_TypeDef * port, uint16_t pins, uint8_t val) {
-	if (val) {
+void digitalWrite(uint32_t portpin, uint8_t bit) {
+	if (bit) {
 		//? Bit_SET : Bit_RESET ));
-		GPIO_SetBits(port, pins);
+		GPIO_SetBits(GPIOPort[portpin >>16 & 0x0f], portpin & 0xffff);
 	} else {
-		GPIO_ResetBits(port, pins);
+		GPIO_ResetBits(GPIOPort[portpin >>16 & 0x0f], portpin & 0xffff);
 	}
 }
 

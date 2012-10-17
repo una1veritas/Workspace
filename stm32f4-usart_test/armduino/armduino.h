@@ -13,6 +13,7 @@
 #include "stm32f4xx_rcc.h"
 
 #include "delay.h"
+#include "portpin.h"
 
 // declarations for C++
 
@@ -21,7 +22,7 @@ extern "C" {
 #endif
 
 void pinMode(uint32_t pin, GPIOMode_TypeDef mode);
-void digitalWrite(GPIO_TypeDef * port, uint16_t pins, uint8_t val);
+void digitalWrite(uint32_t portpin, uint8_t bit);
 void portWrite(GPIO_TypeDef * port, uint16_t bits);
 uint8_t digitalRead(GPIO_TypeDef * port, uint16_t pin);
 
