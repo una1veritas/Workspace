@@ -2,68 +2,73 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-//#include "uartprint.h"
 #include "Arduino.h"
 
-#define bitset(r,b) (r |= (1<<(b)))
-#define bitclear(r,b) (r &= ~(1<<(b)))
+int binary_search(float a[], float target, int aStart, int aEnd) {
+	int index, start = aStart, end = aEnd;
+	while ( start < end ) {
+		index = (start + end) / 2;
+		if ( a[index] == target ) {
+			return index;
+		} else if ( a[index] > target ) {
+			end = index - 1;
+		} else {
+			start = index + 1;
+		}
+	}
+	return aEnd;
+}
 
-/*
-typedef char boolean;
-#define true  1
-#define false 0
-typedef unsigned char byte;
-typedef unsigned int  word;
-*/
-
-struct IOPort {
-  volatile byte & reg;
-  byte bpos;
-
-  IOPort(volatile byte & regname, byte pos) : reg(regname), bpos(1<<pos) {}
-
-  void dwrite(boolean val) {
-    if ( val ) {
-      reg |= bpos;
-    } else {
-      reg &= ~bpos;
-    }
-  }
-};
+void bubble(float a[], int start, int end) {
+	float t;
+	for(int i = 0; i < end-1; i++) {
+		for(int j = 0; j < end-i-1; j++) {
+			if ( !(a[j] < a[j+1]) ) {
+				t = a[j+1];
+				a[j+1] = a[j];
+				a[j] = t;
+			}
+		}
+	}
+}
 
 int main(int argc, char * argv[]) {
 
-    init();
+	init();
 	// program body
-	boolean up = true;
-	long wt = 50;
-	long full = 160;
 
-  IOPort d13mode(DDRB, 5);
-  IOPort d13value(PORTB, 5);
-  // ports initialized
-  //  bitset(DDRB, D13);
-  d13mode.dwrite(true);
+	Serial.begin(9600);
+	Serial.println();
+	Serial.println("Hi friends!");
+//	_delay_ms(500);
 
-  //uart_init();
-  //printf("Hello, world.");
-  Serial.begin(9600);
-  Serial.println("Hi friends!");
-	_delay_ms(100);
-
-loop:
-	d13value.dwrite(true);
-	_delay_us(64*wt);
-	d13value.dwrite(false);
-	_delay_us(64*(full-wt));
-	if ( up ) wt++; else wt--;
-	if ( up && wt >= full ) {
-	  up = false;
-	} else if ( !up && wt <= 0 ) {
-	  up = true;
+	float a[10] = {
+			0.4,
+			0.33,
+			2.221,
+			3.141592,
+			2.7182818,
+			6.02,
+			1.4141356,
+			0.1,
+			0.991,
+			1.333
+	};
+	bubble(a, 0, 10);
+	Serial.println("Bubble sort:");
+	for(int i = 0; i < 10; i++) {
+		Serial.println(a[i]);
 	}
-	goto loop;
-	
+
+	Serial.println();
+//	_delay_ms(500);
+	Serial.println("searching...");
+
+	int place = binary_search(a, 0.221, 0, 9);
+
+	Serial.print("Result: ");
+	Serial.println(place);
+
 	return 0;
 }
 
