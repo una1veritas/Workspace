@@ -5,78 +5,76 @@ stm32f4-usart_test.elf:     file format elf32-littlearm
 Disassembly of section .text:
 
 08000188 <GPIOMode>:
+ */
+
 
 void GPIOMode(uint32_t periph, GPIO_TypeDef * port, uint16_t pins,
-		GPIOMode_TypeDef mode,
-		GPIOSpeed_TypeDef clk,
-		GPIOOType_TypeDef otype,
+		GPIOMode_TypeDef mode, GPIOSpeed_TypeDef clk, GPIOOType_TypeDef otype,
 		GPIOPuPd_TypeDef pupd) {
  8000188:	b573      	push	{r0, r1, r4, r5, r6, lr}
  800018a:	460c      	mov	r4, r1
-	//  GPIO_PuPd_UP     = 0x01,
-	//  GPIO_PuPd_DOWN   = 0x02
-	// }GPIOPuPd_TypeDef;
 
-		// wake up the port
-		RCC_AHB1PeriphClockCmd(periph, ENABLE);
+	GPIO_InitTypeDef GPIO_InitStructure;
+
+	// wake up the port
+	RCC_AHB1PeriphClockCmd(periph, ENABLE);
  800018c:	2101      	movs	r1, #1
+ */
+
 
 void GPIOMode(uint32_t periph, GPIO_TypeDef * port, uint16_t pins,
-		GPIOMode_TypeDef mode,
-		GPIOSpeed_TypeDef clk,
-		GPIOOType_TypeDef otype,
+		GPIOMode_TypeDef mode, GPIOSpeed_TypeDef clk, GPIOOType_TypeDef otype,
 		GPIOPuPd_TypeDef pupd) {
  800018e:	461e      	mov	r6, r3
  8000190:	4615      	mov	r5, r2
-	//  GPIO_PuPd_UP     = 0x01,
-	//  GPIO_PuPd_DOWN   = 0x02
-	// }GPIOPuPd_TypeDef;
 
-		// wake up the port
-		RCC_AHB1PeriphClockCmd(periph, ENABLE);
+	GPIO_InitTypeDef GPIO_InitStructure;
+
+	// wake up the port
+	RCC_AHB1PeriphClockCmd(periph, ENABLE);
  8000192:	f000 fa59 	bl	8000648 <RCC_AHB1PeriphClockCmd>
-		//
-		GPIO_InitStructure.GPIO_Pin   = pins;
-		GPIO_InitStructure.GPIO_Mode  = mode;
-		GPIO_InitStructure.GPIO_OType = otype;
+	//
+	GPIO_InitStructure.GPIO_Pin = pins;
+	GPIO_InitStructure.GPIO_Mode = mode;
+	GPIO_InitStructure.GPIO_OType = otype;
  8000196:	f89d 301c 	ldrb.w	r3, [sp, #28]
-	// }GPIOPuPd_TypeDef;
+	GPIO_InitTypeDef GPIO_InitStructure;
 
-		// wake up the port
-		RCC_AHB1PeriphClockCmd(periph, ENABLE);
-		//
-		GPIO_InitStructure.GPIO_Pin   = pins;
+	// wake up the port
+	RCC_AHB1PeriphClockCmd(periph, ENABLE);
+	//
+	GPIO_InitStructure.GPIO_Pin = pins;
  800019a:	9500      	str	r5, [sp, #0]
-		GPIO_InitStructure.GPIO_Mode  = mode;
-		GPIO_InitStructure.GPIO_OType = otype;
+	GPIO_InitStructure.GPIO_Mode = mode;
+	GPIO_InitStructure.GPIO_OType = otype;
  800019c:	f88d 3006 	strb.w	r3, [sp, #6]
-		GPIO_InitStructure.GPIO_PuPd  = pupd;
+	GPIO_InitStructure.GPIO_PuPd = pupd;
  80001a0:	f89d 3020 	ldrb.w	r3, [sp, #32]
 
-		// wake up the port
-		RCC_AHB1PeriphClockCmd(periph, ENABLE);
-		//
-		GPIO_InitStructure.GPIO_Pin   = pins;
-		GPIO_InitStructure.GPIO_Mode  = mode;
+	// wake up the port
+	RCC_AHB1PeriphClockCmd(periph, ENABLE);
+	//
+	GPIO_InitStructure.GPIO_Pin = pins;
+	GPIO_InitStructure.GPIO_Mode = mode;
  80001a4:	f88d 6004 	strb.w	r6, [sp, #4]
-		GPIO_InitStructure.GPIO_OType = otype;
-		GPIO_InitStructure.GPIO_PuPd  = pupd;
+	GPIO_InitStructure.GPIO_OType = otype;
+	GPIO_InitStructure.GPIO_PuPd = pupd;
  80001a8:	f88d 3007 	strb.w	r3, [sp, #7]
-		GPIO_InitStructure.GPIO_Speed = clk;
+	GPIO_InitStructure.GPIO_Speed = clk;
  80001ac:	f89d 3018 	ldrb.w	r3, [sp, #24]
-		//
-		GPIO_Init(port, &GPIO_InitStructure);
+	//
+	GPIO_Init(port, &GPIO_InitStructure);
  80001b0:	4620      	mov	r0, r4
  80001b2:	4669      	mov	r1, sp
-		//
-		GPIO_InitStructure.GPIO_Pin   = pins;
-		GPIO_InitStructure.GPIO_Mode  = mode;
-		GPIO_InitStructure.GPIO_OType = otype;
-		GPIO_InitStructure.GPIO_PuPd  = pupd;
-		GPIO_InitStructure.GPIO_Speed = clk;
+	//
+	GPIO_InitStructure.GPIO_Pin = pins;
+	GPIO_InitStructure.GPIO_Mode = mode;
+	GPIO_InitStructure.GPIO_OType = otype;
+	GPIO_InitStructure.GPIO_PuPd = pupd;
+	GPIO_InitStructure.GPIO_Speed = clk;
  80001b4:	f88d 3005 	strb.w	r3, [sp, #5]
-		//
-		GPIO_Init(port, &GPIO_InitStructure);
+	//
+	GPIO_Init(port, &GPIO_InitStructure);
  80001b8:	f000 f888 	bl	80002cc <GPIO_Init>
 }
  80001bc:	bd7c      	pop	{r2, r3, r4, r5, r6, pc}
@@ -87,7 +85,7 @@ void GPIOMode(uint32_t periph, GPIO_TypeDef * port, uint16_t pins,
  }
  */
 void digitalWrite(GPIO_TypeDef * port, uint16_t pins, uint8_t val) {
-	if ( val ) {
+	if (val) {
  80001be:	b10a      	cbz	r2, 80001c4 <digitalWrite+0x6>
 		//? Bit_SET : Bit_RESET ));
 		GPIO_SetBits(port, pins);
@@ -120,30 +118,21 @@ uint8_t digitalRead(GPIO_TypeDef * port, uint16_t pin) {
 	uint8_t mode = (port->MODER) >> (pin * 2);
  80001d0:	004b      	lsls	r3, r1, #1
  80001d2:	fa32 f303 	lsrs.w	r3, r2, r3
-	if ( mode == GPIO_Mode_OUT )
+	if (mode == GPIO_Mode_OUT)
  80001d6:	b2db      	uxtb	r3, r3
  80001d8:	2b01      	cmp	r3, #1
  80001da:	d105      	bne.n	80001e8 <digitalRead+0x1c>
-		return (GPIO_ReadOutputDataBit(port, pin) ?
+		return (GPIO_ReadOutputDataBit(port, pin) ? SET : RESET);
  80001dc:	f000 f8de 	bl	800039c <GPIO_ReadOutputDataBit>
-				SET : RESET );
  80001e0:	3000      	adds	r0, #0
  80001e2:	bf18      	it	ne
  80001e4:	2001      	movne	r0, #1
  80001e6:	bd08      	pop	{r3, pc}
-	return (GPIO_ReadInputDataBit(port, pin) ?
+	return (GPIO_ReadInputDataBit(port, pin) ? SET : RESET);
  80001e8:	f000 f8cf 	bl	800038a <GPIO_ReadInputDataBit>
-
-uint8_t digitalRead(GPIO_TypeDef * port, uint16_t pin) {
-	uint8_t mode = (port->MODER) >> (pin * 2);
-	if ( mode == GPIO_Mode_OUT )
-		return (GPIO_ReadOutputDataBit(port, pin) ?
-				SET : RESET );
  80001ec:	3000      	adds	r0, #0
  80001ee:	bf18      	it	ne
  80001f0:	2001      	movne	r0, #1
-	return (GPIO_ReadInputDataBit(port, pin) ?
-			SET : RESET );
 }
  80001f2:	bd08      	pop	{r3, pc}
 
@@ -3779,10 +3768,10 @@ inline void _delay_ms(uint32_t t) {
 	...
 
 08000dac <main>:
+ *      Author: sin
  */
 
-#include "delay.h"
-#include "gpio.h"
+#include "armduino.h"
 
 int main(void) {
  8000dac:	b51f      	push	{r0, r1, r2, r3, r4, lr}

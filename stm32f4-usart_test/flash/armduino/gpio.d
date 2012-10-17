@@ -1,4 +1,4 @@
-armduino/gpio.d: ../armduino/gpio.cpp ../armduino/gpio.h \
+armduino/gpio.d: ../armduino/gpio.c ../armduino/gpio.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cm4.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cmInstr.h \

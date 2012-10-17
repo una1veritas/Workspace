@@ -12,10 +12,7 @@
 #include "stm32f4xx_gpio.h"
 #include "stm32f4xx_rcc.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+/*
 typedef enum {
 	PA0 = (1 << 16) | (1<<0),
 	PB0 = (2 << 16) | (1<<0),
@@ -41,6 +38,7 @@ typedef enum {
 	PF0 = (6 <<16) | (1<<0),
 	PG0 = (7<<16) | (1<<0),
 } PortPin;
+*/
 
 //void pinMode(uint8_t pin,	GPIOMode_TypeDef mode,GPIOSpeed_TypeDef clk, GPIOPuPd_TypeDef pupd);
 void digitalWrite(GPIO_TypeDef * port, uint16_t pins, uint8_t val);
@@ -50,9 +48,5 @@ uint8_t digitalRead(GPIO_TypeDef * port, uint16_t pin);
 void GPIOMode(uint32_t periph, GPIO_TypeDef * port, uint16_t pins, GPIOMode_TypeDef mode,
 		GPIOSpeed_TypeDef speed, GPIOOType_TypeDef otype, GPIOPuPd_TypeDef pull);
 // void GPIOWrite(GPIO_TypeDef * port, uint16 value);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _GPIO_DIGITAL_H_ */

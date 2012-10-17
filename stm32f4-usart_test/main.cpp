@@ -5,8 +5,7 @@
  *      Author: sin
  */
 
-#include "delay.h"
-#include "gpio.h"
+#include "armduino.h"
 
 int main(void) {
 

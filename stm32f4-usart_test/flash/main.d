@@ -1,5 +1,5 @@
 main.d: ../main.cpp \
- /Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/armduino/delay.h \
+ /Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/armduino/armduino.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cm4.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cmInstr.h \
@@ -9,9 +9,9 @@ main.d: ../main.cpp \
  /Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/stm32f4xx_conf.h \
  /Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_gpio.h \
  /Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h \
- /Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/armduino/gpio.h
+ /Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/armduino/delay.h
 
-/Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/armduino/delay.h:
+/Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/armduino/armduino.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h:
 
@@ -31,4 +31,4 @@ main.d: ../main.cpp \
 
 /Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h:
 
-/Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/armduino/gpio.h:
+/Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/armduino/delay.h:
