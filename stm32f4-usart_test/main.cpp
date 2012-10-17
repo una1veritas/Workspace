@@ -4,6 +4,8 @@
  *  Created on: 2012/10/08
  *      Author: sin
  */
+#include <stm32f4xx.h>
+#include <stm32f4xx_conf.h>
 
 #include "armduino.h"
 

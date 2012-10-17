@@ -12,35 +12,51 @@
 #include "stm32f4xx_gpio.h"
 #include "stm32f4xx_rcc.h"
 
-/*
-typedef enum {
-	PA0 = (1 << 16) | (1<<0),
-	PB0 = (2 << 16) | (1<<0),
-	PC0 = (3 << 16) | (1<<0),
-	PC1 = (3 << 16) | (1<<1),
-	PD0 = (4<<16) | (1<<0),
-	PD1 = (4<<16) | (1<<1),
-	PD2 = (4<<16) | (1<<2),
-	PD3 = (4<<16) | (1<<3),
-	PD4 = (4<<16) | (1<<4),
-	PD5 = (4<<16) | (1<<5),
-	PD6 = (4<<16) | (1<<6),
-	PD7 = (4<<16) | (1<<7),
-	PD8 = (4<<16) | (1<<8),
-	PD9 = (4<<16) | (1<<9),
-	PD10 = (4<<16) | (1<<10),
-	PD11 = (4<<16) | (1<<11),
-	PD12 = (4<<16) | (1<<12),
-	PD13 = (4<<16) | (1<<13),
-	PD14 = (4<<16) | (1<<14),
-	PD15 = (4<<16) | (1<<15),
-	PE0 = (5<<16) | (1 <<0),
-	PF0 = (6 <<16) | (1<<0),
-	PG0 = (7<<16) | (1<<0),
-} PortPin;
-*/
+uint32_t GPIOPeriph[] = {
+		0, // Arduino Headers
+		RCC_AHB1Periph_GPIOA, RCC_AHB1Periph_GPIOB, RCC_AHB1Periph_GPIOC,
+		RCC_AHB1Periph_GPIOD, RCC_AHB1Periph_GPIOE, RCC_AHB1Periph_GPIOF,
+		RCC_AHB1Periph_GPIOG, RCC_AHB1Periph_GPIOH, RCC_AHB1Periph_GPIOI };
 
-//void pinMode(uint8_t pin,	GPIOMode_TypeDef mode,GPIOSpeed_TypeDef clk, GPIOPuPd_TypeDef pupd);
+GPIO_TypeDef * GPIOPort[] =
+		{ 0, GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG, GPIOH, GPIOI };
+
+enum PortDef {
+	NotAPort = 0,
+	PortA = 1,
+	PortB,
+	PortC,
+	PortD,
+	PortE,
+	PortF,
+	PortG,
+	PortH,
+	PortI
+};
+
+uint16_t GPIOPin[] = { GPIO_Pin_0, GPIO_Pin_1, GPIO_Pin_2, GPIO_Pin_3,
+		GPIO_Pin_4, GPIO_Pin_5, GPIO_Pin_6, GPIO_Pin_7, GPIO_Pin_8, GPIO_Pin_9,
+		GPIO_Pin_10, GPIO_Pin_11, GPIO_Pin_12, GPIO_Pin_13, GPIO_Pin_14,
+		GPIO_Pin_15, GPIO_Pin_All };
+
+#define PA(n) 	( (1<<16) | (1<<(n)) )
+#define PB(n) 	( (2<<16) | (1<<(n)) )
+#define PC(n) 	( (3<<16) | (1<<(n)) )
+#define PD(n) 	( (4<<16) | (1<<(n)) )
+#define PE(n) 	( (5<<16) | (1<<(n)) )
+#define PF(n) 	( (6<<16) | (1<<(n)) )
+#define PG(n) 	( (7<<16) | (1<<(n)) )
+#define PH(n) 	( (8<<16) | (1<<(n)) )
+#define PI(n) 	( (9<<16) | (1<<(n)) )
+
+
+//#define digitalPinHasPWM(p)         ((p) == 4 || (p) == 5 || (p) == 6 || (p) == 7 || (p) == 9 || (p) == 10)
+
+#define NUM_DIGITAL_PINS            32
+//#define NUM_ANALOG_INPUTS           8
+//#define analogInputToDigitalPin(p)  ((p < 8) ? (p) + 24 : -1)
+
+void pinMode(uint32_t pin, GPIOMode_TypeDef mode);
 void digitalWrite(GPIO_TypeDef * port, uint16_t pins, uint8_t val);
 void portWrite(GPIO_TypeDef * port, uint16_t bits);
 uint8_t digitalRead(GPIO_TypeDef * port, uint16_t pin);

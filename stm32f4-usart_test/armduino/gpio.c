@@ -19,6 +19,18 @@
  static const uint8_t LED_BUILTIN = 14;
  */
 
+void pinMode(uint32_t portpin, GPIOMode_TypeDef mode) {
+	GPIO_InitTypeDef GPIO_InitStructure;
+	RCC_AHB1PeriphClockCmd(GPIOPeriph[portpin>>16 & 0xf], ENABLE);
+	GPIO_InitStructure.GPIO_Pin = portpin & 0xffff;
+	GPIO_InitStructure.GPIO_Mode = mode;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	//
+	GPIO_Init(GPIOPort[portpin >>16 & 0x0f], &GPIO_InitStructure);
+}
+
 
 void GPIOMode(uint32_t periph, GPIO_TypeDef * port, uint16_t pins,
 		GPIOMode_TypeDef mode, GPIOSpeed_TypeDef clk, GPIOOType_TypeDef otype,

@@ -20,7 +20,7 @@
 extern "C" {
 #endif
 
-//void pinMode(uint8_t pin,	GPIOMode_TypeDef mode,GPIOSpeed_TypeDef clk, GPIOPuPd_TypeDef pupd);
+void pinMode(uint32_t pin, GPIOMode_TypeDef mode);
 void digitalWrite(GPIO_TypeDef * port, uint16_t pins, uint8_t val);
 void portWrite(GPIO_TypeDef * port, uint16_t bits);
 uint8_t digitalRead(GPIO_TypeDef * port, uint16_t pin);
