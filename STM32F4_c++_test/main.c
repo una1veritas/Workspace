@@ -68,7 +68,7 @@ int main(void) {
 	uint32 ticks = 0;
 
 	for (;;) {
-		uint32 count = millis();
+		uint32 count = systicks();
 		digitalWrite(PD15, HIGH);
 		delay(count);
 		digitalWrite(PD15, LOW);

@@ -1,5 +1,5 @@
 /*
- * gpio_digital.cpp
+ * gpio_digital.c
  *
  *  Created on: 2012/09/30
  *      Author: sin
