@@ -68,6 +68,7 @@ int main(int argc, char * argv[]) {
 
 	Serial.print("Result: ");
 	Serial.println(place);
+Serial.flush();
 
 	return 0;
 }
