@@ -5,6 +5,8 @@
  *      Author: sin
  */
 
+//#include <stdlib.h>
+
 #include <stm32f4xx.h>
 #include <stm32f4xx_conf.h>
 
@@ -13,8 +15,10 @@
 
 int main(void) {
 
-	usart_begin(19200);
-	usart_print("Hi.\n");
+	USARTSerial usart3;
+	usart3.begin(19200);
+	usart3.println("Hi.");
+	usart3.println();
 
 	pinMode(PD12 | PD13 | PD14 | PD15, GPIO_Mode_OUT);
 		//GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL);
@@ -24,22 +28,17 @@ int main(void) {
 	while (1) {
 		digitalWrite(PD12, SET);
 		digitalWrite(PD13 | PD14 | PD15, RESET);
-		_delay_ms(125);
+		_delay_ms(50);
 		digitalWrite(PD13, SET);
 		digitalWrite(PD12 | PD14 | PD15, RESET);
-		_delay_ms(125);
-		digitalWrite(PD12, RESET);
-		digitalWrite(PD13, RESET);
+		_delay_ms(50);
 		digitalWrite(PD14, SET);
-		digitalWrite(PD15, RESET);
-		_delay_ms(125);
-		digitalWrite(PD12, RESET);
-		digitalWrite(PD13, RESET);
-		digitalWrite(PD14, RESET);
+		digitalWrite(PD12 | PD13 | PD15, RESET);
+		_delay_ms(50);
 		digitalWrite(PD15, SET);
-		_delay_ms(125);
-		usart_printNumber(count++);
-		usart_print("\n");
+		digitalWrite(PD12 | PD13 | PD14, RESET);
+		_delay_ms(50);
+		usart3.println((uint32_t) count++ / 100.0f, 3);
 	}
 
 	return 0;

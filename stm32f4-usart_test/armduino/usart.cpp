@@ -10,15 +10,14 @@
 #include <stm32f4xx_rcc.h>
 #include <stm32f4xx_usart.h> // under Libraries/STM32F4xx_StdPeriph_Driver/inc and src
 
-#include "armduino.h"
 #include "usart.h"
 
-void usart_begin(uint32_t baud) {
+void USARTSerial::begin(uint32_t baud) {
 //	GPIO_InitTypeDef GPIO_InitStruct; // this is for the GPIO pins used as TX and RX
 	USART_InitTypeDef USART_InitStruct; // this is for the USART1 initilization
 //	NVIC_InitTypeDef NVIC_InitStructure; // this is used to configure the NVIC (nested vector interrupt controller)
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, (FunctionalState) ENABLE);
+//	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, (FunctionalState) ENABLE);
 	GPIOMode(RCC_AHB1Periph_GPIOB, GPIOB, GPIO_Pin_10 | GPIO_Pin_11,
 			GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_UP);
 	/* USART3 clock enable */
@@ -35,8 +34,25 @@ void usart_begin(uint32_t baud) {
 	USART_InitStruct.USART_Mode = USART_Mode_Tx | USART_Mode_Rx; // we want to enable the transmitter and the receiver
 
 	USART_Init(USART3, &USART_InitStruct); // again all the properties are passed to the USART_Init function which takes care of all the bit setting
+
 	/*
 	 USART_ITConfig(USART3, USART_IT_RXNE, ENABLE); // enable the USART1 receive interrupt
+USART_IT	説明
+USART_IT_PE	Parity Error interrupt
+USART_IT_TXE	Transmit Data Register empty interrupt
+USART_IT_TC	Transmission complete interrupt
+USART_IT_RXNE	Receive Data register not empty interrupt
+USART_IT_IDLE	Idle line detection interrupt
+USART_IT_LBD	LIN break detection interrupt
+USART_IT_CTS	CTS change interrupt (not available for UART4 and UART5)
+USART_IT_ERR	Error interrupt (Frame error, noise error, overrun error)
+
+NewState
+
+
+NewState	説明
+ENABLE	有効にします
+DISABLE	無効にします
 
 	 NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
 	 // we want to configure the USART1 interrupts
@@ -65,7 +81,7 @@ void usart_begin(uint32_t baud) {
  * 		   declared as volatile char --> otherwise the compiler will spit out warnings
  * */
 
-uint16_t usart_write(uint8_t ch) {
+uint16_t USARTSerial::write(uint8_t ch) {
 	while (!(USART3->SR & 0x00000040))
 	;
 	USART_SendData(USART3, (uint16_t) ch);
@@ -76,11 +92,18 @@ uint16_t usart_write(uint8_t ch) {
 	return 1;
 }
 
+uint16_t USARTSerial::write(uint8_t * p, uint16_t length) {
+	uint16_t n = 0;
+	while (n++ < length)
+		write(*p++);
+	return n;
+}
 
-uint16_t usart_print(const char * s) {
+
+uint16_t USARTSerial::print(const char * s) {
 	uint16_t n = 0;
 	while ( *s ) {
-		usart_write(*s);
+		write(*s);
 		s++;
 		n++;
 	}
@@ -88,17 +111,18 @@ uint16_t usart_print(const char * s) {
 }
 
 
-uint16_t usart_printNumber(uint32_t val) {
+uint16_t USARTSerial::printNumber(uint32_t val, const uint8_t base) {
 	uint16_t n = 0;
-	uint8_t base = 10;
-	uint32_t divider = 1000000000;
-	uint8_t msd = 0;
+	bool msd = false;
+	uint32_t divider = ( base == 2 ? 1<<31 :
+		( base == 16 ? 0x10000000L : 1000000000L ) );
+
 	uint8_t digit;
 	while ( divider > 0 ) {
-		digit = val / divider % base;
-		if ( digit || msd ) {
-			usart_write('0'+(digit>10 ? digit+7 : digit));
-			msd = 1;
+		digit = (val / divider) % base;
+		if ( digit || msd || (!msd && (divider%base)) ) {
+			write('0' + ( digit > 9 ? digit + 7 : digit));
+			msd = true;
 			n++;
 		}
 		divider /= base;
@@ -106,23 +130,23 @@ uint16_t usart_printNumber(uint32_t val) {
 	return n;
 }
 
-uint16_t usart_printFloat(float val, uint8_t prec) {
+uint16_t USARTSerial::printFloat(float val, uint8_t prec) {
 	uint16_t n = 0;
 	if ( val < 0 ) {
-		usart_write('-');
+		write('-');
 		val = -val;
 		n++;
 	}
 	uint32_t intpart = (uint32_t) val;
 	val -= intpart;
-	n += usart_printNumber(intpart);
+	n += printNumber(intpart, DEC);
 	int i;
 	if ( val > 0 ) {
-		usart_write('.');
+		write('.');
 		n++;
 		for(i = 0; i < prec; i++) {
 			val *= 10;
-			usart_printNumber((uint32_t)val);
+			printNumber((uint32_t)val, DEC);
 			val -= (uint32_t)val;
 			n++;
 		}

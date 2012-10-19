@@ -34,5 +34,10 @@ void GPIOMode(uint32_t periph, GPIO_TypeDef * port, uint16_t pins, GPIOMode_Type
 }
 #endif
 
+#define HEX 16
+#define DEC 10
+#define BIN 2
+
+#define abs(x)  ( (x) < 0 ? -(x) : (x))
 
 #endif /* ARMDUINO_H_ */

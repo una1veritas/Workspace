@@ -10,12 +10,49 @@
 
 #include <stdint.h>
 
-void usart_begin(uint32_t baud);
-uint16_t usart_write(uint8_t ch);
-uint16_t usart_print(const char * s);
-//size_t usart_printInt(uint32 val, uint8 base);
-uint16_t usart_printNumber(uint32_t val);
-uint16_t usart_printFloat(float val, uint8_t prec);
+#include "armduino.h"
 
+class USARTSerial {
+private:
+	static const char nl = '\n';
+	static const char cr = '\r';
+
+private:
+	uint16_t printNumber(const uint32_t val, const uint8_t base);
+	uint16_t printFloat(const float val, const uint8_t prec);
+
+public:
+	USARTSerial() { }
+
+	void begin(uint32_t baud);
+
+	uint16_t write(uint8_t ch);
+	uint16_t write(uint8_t * p, uint16_t length);
+
+	uint16_t print(const char c) { return write(c); }
+	uint16_t print(const char * s);
+	uint16_t print(const uint32_t val, const uint8_t base = DEC) {
+		return printNumber(val, base);
+	}
+	uint16_t print(const int32_t val, const uint8_t base = DEC) {
+		return ( val < 0 ? print('-') : 0) + printNumber(abs(val), base);
+	}
+	uint16_t print(const float val, uint8_t prec = 2) {
+		return printFloat(val, prec);
+	}
+
+	uint16_t println() { return print(nl); }
+	uint16_t println(const char * s) { return print(s) + println(); }
+	uint16_t println(const float val, uint8_t prec = 2) {
+		return print(val, prec) + println();
+	}
+	uint16_t println(const uint32_t val, const uint8_t base = DEC) {
+		return printNumber(val, base) + println();
+	}
+	uint16_t println(const int32_t val, const uint8_t base = DEC) {
+		return print(val, base) + println();
+	}
+
+};
 
 #endif /* USART_H_ */
