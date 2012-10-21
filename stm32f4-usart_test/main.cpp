@@ -11,7 +11,7 @@
 #include <stm32f4xx_conf.h>
 
 #include "armduino.h"
-#include "usart.h"
+#include "USARTSerial.h"
 
 int main(void) {
 
@@ -50,6 +50,7 @@ int main(void) {
 			}
 			usart3.println();
 		}
+
 	}
 
 	return 0;

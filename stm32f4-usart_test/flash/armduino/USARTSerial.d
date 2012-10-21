@@ -1,4 +1,4 @@
-armduino/usart.d: ../armduino/usart.cpp \
+armduino/USARTSerial.d: ../armduino/USARTSerial.cpp \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cm4.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cmInstr.h \
@@ -10,7 +10,7 @@ armduino/usart.d: ../armduino/usart.cpp \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/misc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h \
- ../armduino/usart.h ../armduino/armduino.h ../armduino/delay.h \
+ ../armduino/USARTSerial.h ../armduino/armduino.h ../armduino/delay.h \
  ../armduino/portpin.h
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h:
@@ -35,7 +35,7 @@ armduino/usart.d: ../armduino/usart.cpp \
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h:
 
-../armduino/usart.h:
+../armduino/USARTSerial.h:
 
 ../armduino/armduino.h:
 

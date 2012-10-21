@@ -11,65 +11,16 @@
 #include <stm32f4xx_rcc.h>
 #include <stm32f4xx_usart.h> // under Libraries/STM32F4xx_StdPeriph_Driver/inc and src
 
-#include "usart.h"
+#include "USARTSerial.h"
 
-
-struct ring {
-	static const int RINGBUFFER_SIZE = 128;
-
-	uint16 buffer[RINGBUFFER_SIZE];
-	uint16 head, tail;
-	uint16 count;
-
-	ring() {
-		head = 0;
-		tail = 0;
-		count = 0;
-	}
-
-	uint16 ringin(uint16 c) {
-		if ( is_full() ) {
-			head++;  head %= RINGBUFFER_SIZE;
-			// buffer over run occurred!
-		} else
-			count++;
-		buffer[tail++] = c;
-		tail %= RINGBUFFER_SIZE;
-		return c;
-	}
-
-	uint16 ringout() {
-		if ( is_empty() )
-			return 0;
-		uint16 c = buffer[head++];
-		head %= RINGBUFFER_SIZE;
-		count--;
-		return c;
-	}
-
-	uint16 peek() {
-		if ( is_empty() )
-			return 0;
-		return buffer[head];
-	}
-
-	bool is_full() {
-		return (count > 0) && head == tail;
-	}
-
-	bool is_empty() {
-		return (count == 0) && head == tail;
-	}
-
-} rx3, tx3;
-
-USARTSerial usart3(rx3, tx3);
+ring rx3, tx3;
+USARTSerial usart3(USART3, rx3, tx3);
 
 void USARTSerial::begin(uint32_t baud) {
 //	GPIO_InitTypeDef GPIO_InitStruct; // this is for the GPIO pins used as TX and RX
 	USART_InitTypeDef USART_InitStruct; // this is for the USART1 initilization
 	NVIC_InitTypeDef NVIC_InitStructure; // this is used to configure the NVIC (nested vector interrupt controller)
-
+if( USARTx == USART3 ) {
 //	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, (FunctionalState) ENABLE);
 	GPIOMode(RCC_AHB1Periph_GPIOB, GPIOB, GPIO_Pin_10 | GPIO_Pin_11,
 			GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_UP);
@@ -115,6 +66,9 @@ DISABLE	無効にします
 	// finally this enables the complete USART3 peripheral
 	USART_Cmd(USART3, (FunctionalState) ENABLE);
 }
+	rx.init();
+	tx.init();
+}
 
 /* This function is used to transmit a string of characters via
  * the USART specified in USARTx.
@@ -130,11 +84,21 @@ DISABLE	無効にします
  * 		   declared as volatile char --> otherwise the compiler will spit out warnings
  * */
 
-uint16_t USARTSerial::write(const uint16_t ch) {
+/*
+void write3(const uint16_t ch) {
 	while (USART_GetFlagStatus(USART3, USART_FLAG_TC )
 				== RESET);
 	tx3.ringin(ch);
 	USART_ITConfig(USART3, USART_IT_TXE, (FunctionalState) ENABLE);
+}
+*/
+
+uint16_t USARTSerial::write(const uint16_t ch) {
+	// write3(ch);
+	while (USART_GetFlagStatus(USARTx, USART_FLAG_TC )
+				== RESET);
+	tx.ringin(ch);
+	USART_ITConfig(USARTx, USART_IT_TXE, (FunctionalState) ENABLE);
 	return 1;
 }
 
@@ -224,15 +188,21 @@ uint16_t USARTSerial::printFloat(float val, uint8_t prec) {
  */
 
 uint16_t USARTSerial::available() {
-	return rx3.count;
+	return rx.count;
 	//if (USART_GetFlagStatus(USART3, USART_FLAG_RXNE) == SET)
 	//	return 1;
 	//return 0;
 }
 
-uint16_t USARTSerial::read() {
-	return rx3.ringout();
+/*
+uint16_t read3() {
 	//return USART_ReceiveData(USART3);
+	return rx3.ringout();
+}
+*/
+uint16_t USARTSerial::read() {
+//	return read3();
+	return rx.ringout();
 }
 
 // this is the interrupt request handler (IRQ) for ALL USART3 interrupts
