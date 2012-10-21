@@ -15,6 +15,7 @@
 #include "delay.h"
 #include "portpin.h"
 
+
 // declarations for C++
 
 #ifdef __cplusplus
@@ -39,5 +40,14 @@ void GPIOMode(uint32_t periph, GPIO_TypeDef * port, uint16_t pins, GPIOMode_Type
 #define BIN 2
 
 #define abs(x)  ( (x) < 0 ? -(x) : (x))
+
+typedef bool boolean;
+typedef uint8_t uint8;
+typedef uint8_t byte;
+typedef uint16_t uint16;
+typedef uint16_t word;
+typedef uint32_t uint32;
+typedef uint64_t uint64;
+
 
 #endif /* ARMDUINO_H_ */
