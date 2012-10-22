@@ -76,11 +76,13 @@ public:
 	}
 
 	void begin(uint32_t baud);
+	void end();
 
 	uint16_t write(const uint16_t ch);
 	uint16_t write(uint16_t * p, uint16_t length);
 	uint16_t read();
 	uint16_t available();
+	void flush();
 
 	uint16_t print(const char c) { return write((uint16_t)c); }
 	uint16_t print(const char * s);
@@ -114,6 +116,7 @@ private:
 };
 
 //extern ring rx3, tx3;
+extern USARTSerial usart1;
 extern USARTSerial usart3;
 
 #ifdef __cplusplus
