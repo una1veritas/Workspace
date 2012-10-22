@@ -45,7 +45,7 @@ all: stm32f4-usart_test.elf
 stm32f4-usart_test.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -mlittle-endian  -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant -nostartfiles -L/usr/local/cross/arm-none-eabi/lib/thumb/cortex-m4/float-abi-hard/fpuv4-sp-d16 -Wl,-T,/Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/stm32_flash.ld -o "stm32f4-usart_test.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -mlittle-endian  -mfloat-abi=soft -nostartfiles -L/usr/local/cross/arm-none-eabi/lib/thumb -Wl,-T,/Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/stm32_flash.ld -o "stm32f4-usart_test.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build
