@@ -1,4 +1,4 @@
-armduino/USARTSerial.d: ../armduino/USARTSerial.cpp \
+armcore/usart.d: ../armcore/usart.c \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cm4.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cmInstr.h \
@@ -10,8 +10,7 @@ armduino/USARTSerial.d: ../armduino/USARTSerial.cpp \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/misc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h \
- ../armduino/USARTSerial.h ../armduino/armduino.h ../armduino/delay.h \
- ../armduino/portpin.h
+ ../armcore/favorites.h ../armcore/gpio_digital.h ../armcore/usart.h
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h:
 
@@ -35,10 +34,8 @@ armduino/USARTSerial.d: ../armduino/USARTSerial.cpp \
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h:
 
-../armduino/USARTSerial.h:
+../armcore/favorites.h:
 
-../armduino/armduino.h:
+../armcore/gpio_digital.h:
 
-../armduino/delay.h:
-
-../armduino/portpin.h:
+../armcore/usart.h:

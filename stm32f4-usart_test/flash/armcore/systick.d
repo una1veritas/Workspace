@@ -1,4 +1,4 @@
-main.d: ../main.c \
+armcore/systick.d: ../armcore/systick.c ../armcore/systick.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cm4.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cmInstr.h \
@@ -9,7 +9,9 @@ main.d: ../main.c \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_gpio.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/misc.h \
- ../armcore/portpin.h ../armcore/delay.h ../armcore/favorites.h
+ ../armcore/favorites.h
+
+../armcore/systick.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h:
 
@@ -30,9 +32,5 @@ main.d: ../main.c \
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/misc.h:
-
-../armcore/portpin.h:
-
-../armcore/delay.h:
 
 ../armcore/favorites.h:

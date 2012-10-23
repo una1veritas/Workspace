@@ -10,38 +10,43 @@
 #include <stm32f4xx.h>
 #include <stm32f4xx_conf.h>
 
-#include "armduino.h"
-#include "USARTSerial.h"
+#include "armcore/portpin.h"
+//#include "usart.h"
+#include "armcore/delay.h"
 
 int main(void) {
-
-	usart3.begin(38400);
-	usart3.println("Hi.");
-	usart3.println();
-
+/*
+	begin(& usart3, 38400);
+	print(&usart3, "Hi!\n\n");
+*/
 	pinMode(PD12 | PD13 | PD14 | PD15, GPIO_Mode_OUT);
 		//GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL);
 
 	uint16_t count = 0;
-	uint32_t dval = 50;
+	uint32_t dval = 900;
+	uint32_t intval = 24;
 
 	while (1) {
-		digitalWrite(PD12, SET);
-		digitalWrite(PD13 | PD14 | PD15, RESET);
-		_delay_ms(dval);
-		digitalWrite(PD13, SET);
-		digitalWrite(PD12 | PD14 | PD15, RESET);
-		_delay_ms(dval);
-		digitalWrite(PD14, SET);
-		digitalWrite(PD12 | PD13 | PD15, RESET);
-		_delay_ms(dval);
 		digitalWrite(PD15, SET);
 		digitalWrite(PD12 | PD13 | PD14, RESET);
-		_delay_ms(dval);
-
+		_delay_ms(intval);
+		digitalWrite(PD12, SET);
+		digitalWrite(PD13 | PD14 | PD15, RESET);
+		_delay_ms(intval);
+		digitalWrite(PD13, SET);
+		digitalWrite(PD12 | PD14 | PD15, RESET);
+		_delay_ms(intval);
+		digitalWrite(PD14, SET);
+		digitalWrite(PD12 | PD13 | PD15, RESET);
+		_delay_ms(intval);
+		//
+		digitalWrite(PD15, SET);
+		digitalWrite(PD12 | PD13 | PD14, RESET);
+		_delay_ms(450);
+/*
 		usart3.print((float)(count++ / 32.0f), 3);
 		usart3.print(", ");
-		dval = (uint32) (92.0f + 36*sinf( (count % (uint32)(3.14159 * 2 * 32))/32.0f));
+		dval = (uint32) (100.0f + 64*sinf( (count % (uint32)(3.14159 * 2 * 32))/32.0f));
 		usart3.println(dval);
 		if ( usart3.available() > 0 ) {
 			while ( usart3.available() > 0 ) {
@@ -50,9 +55,8 @@ int main(void) {
 			}
 			usart3.println();
 		}
-
+*/
 	}
-
 	return 0;
 }
 
