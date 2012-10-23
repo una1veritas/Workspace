@@ -12,19 +12,18 @@
 extern "C" {
 #endif
 
-#include "stm32f4xx.h"
-#include "favorites.h"
+#include "misc.h"
+#include "stm32f4xx_it.h"
 
-static volatile uint32 SysTick_counts;
+static volatile uint32_t _systick_counter;
 
 void SysTick_Handler(void);
 
-void delay(const uint32_t dlyTicks);
+void SysTick_delay(const uint32_t dlyTicks);
 
-void SysTick_Start();
-void SysTick_Init(uint32 ticks);
+void SysTick_Start(const uint32_t ticks);
 
-uint32 systicks();
+uint32_t SysTick_count();
 
 #ifdef __cplusplus
 	}

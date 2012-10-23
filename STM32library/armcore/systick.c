@@ -1,34 +1,35 @@
 /*
- * systick.cpp
+ * systick.c
  *
  *  Created on: 2012/10/08
  *      Author: sin
  */
-//#include "stm32f4xx_it.h"
+
+#include "stm32f4xx.h"
 #include "systick.h"
 
+static volatile uint32_t _systick_counter;
+
 void SysTick_Handler(void) {
-	SysTick_counts++; /* increment timeTicks counter */
+	_systick_counter++; /* increment timeTicks counter */
 }
 
-void delay(const uint32_t dlyTicks) {
-	uint32_t currTicks = SysTick_counts;
+void SysTick_delay(const uint32_t dlyTicks) {
+	uint32_t currTicks = _systick_counter;
 
-	while ((SysTick_counts - currTicks) < dlyTicks)
+	while ((_systick_counter - currTicks) < dlyTicks)
 		;
 }
 
-void SysTick_Start() {
-	SysTick_Init(1000);
+void SysTick_Start(const uint32_t ticks) {
+	if ( SysTick_Config(SystemCoreClock / ticks) ) {
+		/* Setup SysTick for 1 msec interrupts */
+		/* Handle Error */
+		while (1)
+			;
+	}
 }
 
-void SysTick_Init(uint32 ticks) {
-	RCC_ClocksTypeDef RCC_Clocks;
-	RCC_GetClocksFreq(&RCC_Clocks);
-	SysTick_Config(RCC_Clocks.HCLK_Frequency / ticks);
+uint32_t SysTick_count() {
+	return _systick_counter;
 }
-
-uint32 systicks() {
-	return SysTick_counts;
-}
-
