@@ -19,10 +19,12 @@ extern "C" {
 
 #include "gpio.h"
 
-void usart_begin(USART_TypeDef * usart, uint32_t baud);
+void usart_begin(USART_TypeDef * usartx, uint32_t baud);
 void usart3_begin(uint32_t baud);
 void usart3_write(uint16_t w);
 void usart3_print(char * s);
+void usart_write(USART_TypeDef * usartx, uint16_t w);
+void usart_print(USART_TypeDef * usartx, char * s);
 uint16_t usart3_read();
 uint8_t usart3_available();
 

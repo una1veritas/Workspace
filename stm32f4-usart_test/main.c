@@ -21,8 +21,8 @@ int main(void) {
 
 	SysTick_Config(SystemCoreClock/1000);
 
-	usart3_begin(19200);
-	usart3_print("Hi!\n\n");
+	usart_begin(USART3, 19200);
+	usart_print(USART3, "Hi!\n\n");
 
 	pinMode(PD12 | PD13 | PD14 | PD15, GPIO_Mode_OUT);
 		//GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL);
@@ -55,7 +55,7 @@ int main(void) {
 		*/
 		count++;
 		sprintf(tmp, "%X,\n", count);
-		usart3_print(tmp);
+		usart_print(USART3, tmp);
 		/*
 		dval = (uint32) (100.0f + 64*sinf( (count % (uint32)(3.14159 * 2 * 32))/32.0f));
 		usart3.println(dval);
@@ -66,8 +66,8 @@ int main(void) {
 				tmp[i++] = (char) usart3_read();
 			}
 			tmp[i] = 0;
-			usart3_print(tmp);
-			usart3_print("\n");
+			usart_print(USART3, tmp);
+			usart_print(USART3, "\n");
 		}
 
 	}
