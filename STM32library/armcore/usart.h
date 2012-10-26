@@ -19,14 +19,25 @@ extern "C" {
 
 #include "gpio.h"
 
-void usart_begin(USART_TypeDef * usartx, uint32_t baud);
-void usart3_begin(uint32_t baud);
-void usart3_write(uint16_t w);
-void usart3_print(char * s);
-void usart_write(USART_TypeDef * usartx, uint16_t w);
-void usart_print(USART_TypeDef * usartx, char * s);
-uint16_t usart3_read();
-uint8_t usart3_available();
+#define USART_BUFFER_SIZE 128
+typedef struct {
+	USART_TypeDef * usartx;
+	uint16_t rx_buf[USART_BUFFER_SIZE], tx_buf[USART_BUFFER_SIZE];
+	int16_t rx_head, rx_tail, tx_head, tx_tail;
+	uint16_t rx_count, tx_count;
+} USARTBuffer;
+
+USARTBuffer usart3, usart2, usart1;
+
+void usart_begin(USART_TypeDef * USARTx, USARTBuffer * usartb, uint32_t baud);
+//void usart3_begin(uint32_t baud);
+//void usart3_write(uint16_t w);
+//void usart3_print(char * s);
+uint16_t usart_read(USARTBuffer * b);
+void usart_write(USARTBuffer * usartb, uint16_t w);
+void usart_print(USARTBuffer * usartb, char * s);
+//uint16_t usart3_read();
+uint8_t usart_available(USARTBuffer * usartb);
 
 void USART3_IRQHandler(void);
 uint16_t usart3_irq_read();
