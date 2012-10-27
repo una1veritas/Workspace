@@ -1,6 +1,5 @@
 armcore/systick.d: \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/systick.c \
- /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/systick.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cm4.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cmInstr.h \
@@ -34,9 +33,8 @@ armcore/systick.d: \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_wwdg.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/misc.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/favorites.h
-
-/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/systick.h:
+ /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/systick.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32F4_c++_test/stm32f4xx_it.h
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h:
 
@@ -104,4 +102,6 @@ armcore/systick.d: \
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/misc.h:
 
-/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/favorites.h:
+/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/systick.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32F4_c++_test/stm32f4xx_it.h:

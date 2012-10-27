@@ -33,11 +33,11 @@ main.d: ../main.c \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_wwdg.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/misc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/usart.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/delay.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/systick.h \
- /Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/stm32f4xx_it.h
+ /Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/stm32f4xx_it.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/usart3.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio.h
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h:
 
@@ -107,12 +107,12 @@ main.d: ../main.c \
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio.h:
 
-/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/usart.h:
-
-/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio.h:
-
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/delay.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/systick.h:
 
 /Users/sin/Documents/Eclipse/Workspace/stm32f4-usart_test/stm32f4xx_it.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/usart3.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio.h:
