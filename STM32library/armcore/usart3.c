@@ -12,38 +12,37 @@
 #include "usart3.h"
 
 #define USART_BUFFER_SIZE 128
-typedef struct {
+struct USARTBuffer {
 	uint16_t buf[USART_BUFFER_SIZE];
 	int16_t head, tail;
 	uint16_t count;
-} USARTBuffer;
-USARTBuffer rx3, tx3;
+} rx3, tx3;
 
-void buffer_clear(USARTBuffer * b) {
+void buffer_clear(struct USARTBuffer * b) {
 	b->head = 0;
 	b->tail = 0;
 	b->count = 0;
 }
 
-uint16_t buffer_remainder(USARTBuffer * b) {
+uint16_t buffer_remain(struct USARTBuffer * b) {
 	return b->count;
 }
 
-uint8_t buffer_is_full(USARTBuffer * b) {
+uint8_t buffer_is_full(struct USARTBuffer * b) {
 	if ( (b->head == b->tail) && (b->count > 0) ) {
 		return 1;
 	}
 	return 0;
 }
 
-uint8_t buffer_is_empty(USARTBuffer * b) {
+uint8_t buffer_is_empty(struct USARTBuffer * b) {
 	if ( (b->count == 0) /*&& (b->head == b->tail) */) {
 		return 1;
 	}
 	return 0;
 }
 
-uint16_t buffer_enq(USARTBuffer * b, volatile uint16_t w) {
+uint16_t buffer_enq(struct USARTBuffer * b, volatile uint16_t w) {
 	if ( buffer_is_full(b) )
 		return 0xffff;
 	b->buf[b->head++] = w;
@@ -52,17 +51,18 @@ uint16_t buffer_enq(USARTBuffer * b, volatile uint16_t w) {
 	return w;
 }
 
-uint16_t buffer_deq(USARTBuffer * b) {
+uint16_t buffer_deq(struct USARTBuffer * b) {
+	uint16_t w;
 	if ( buffer_is_empty(b) )
 		return 0xffff;
-	uint16_t w = b->buf[b->tail++];
+	w = b->buf[b->tail++];
 	b->count--;
 	b->tail %= USART_BUFFER_SIZE;
 	return w;
 }
 
 
-void usart3_begin(uint32_t baud) {
+void usart3_begin(const uint32_t baud) {
 	//	GPIO_InitTypeDef GPIO_InitStruct; // this is for the GPIO pins used as TX and RX
 	USART_InitTypeDef USART_InitStruct; // this is for the USART1 initilization
 	NVIC_InitTypeDef NVIC_InitStructure; // this is used to configure the NVIC (nested vector interrupt controller)
@@ -102,20 +102,20 @@ void usart3_begin(uint32_t baud) {
 	USART_Cmd(USART3, (FunctionalState) ENABLE);
 }
 
-void usart3_bare_write(uint16_t w) {
+void usart3_bare_write(const uint16_t w) {
 	while (USART_GetFlagStatus(USART3, USART_FLAG_TXE ) == RESET)
 		;
 	USART_SendData(USART3, w);
 //	while (USART_GetFlagStatus(USART3, USART_FLAG_TC ) == RESET);
 }
 
-void usart3_write(uint16_t w) {
+void usart3_write(const uint16_t w) {
 	USART_ITConfig(USART3, USART_IT_TXE, (FunctionalState) DISABLE);
 	buffer_enq(&tx3, w);
 	USART_ITConfig(USART3, USART_IT_TXE, (FunctionalState) ENABLE);
 }
 
-void usart3_print(char * s) {
+void usart3_print(const char * s) {
 	while (*s)
 		usart3_write((uint16_t) *s++);
 }
@@ -152,7 +152,7 @@ uint16_t usart3_peek() {
 }
 
 uint16_t usart3_available() {
-	return buffer_remainder(&rx3);
+	return buffer_remain(&rx3);
 }
 
 uint16_t tx_head() {

@@ -15,26 +15,33 @@
 
 #include "gpio.h"
 
+enum USARTPortNumber {
+	USART_1 = 1,
+	USART_2,
+	USART_3
+};
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void usart3_begin(uint32_t baud);
-void usart3_begin(uint32_t baud);
-void usart3_write(uint16_t w);
-void usart3_print(char * s);
-uint16_t usart3_read();
-uint16_t usart3_available();
-void usart3_flush();
-uint16_t usart3_peek();
+struct USARTBuffer;
+extern struct USARTBuffer rx3, tx3;
 
-uint16_t tx_head();
-uint16_t tx_tail();
+void usart3_begin(const uint32_t baud);
+void usart3_write(const uint16_t w);
+void usart3_print(const char * s);
+uint16_t usart3_read(void);
+uint16_t usart3_available(void);
+void usart3_flush(void);
+uint16_t usart3_peek(void);
+
+uint16_t tx_head(void);
+uint16_t tx_tail(void);
 
 void USART3_IRQHandler(void);
-uint16_t usart3_irq_read();
-uint8_t usart3_rxne();
+uint16_t usart3_irq_read(void);
+uint8_t usart3_rxne(void);
 
 #ifdef __cplusplus
 }

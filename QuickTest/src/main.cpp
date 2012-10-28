@@ -52,14 +52,9 @@ int main(int argc, char * argv[]) {
 	ring r;
 	char c;
 
-	for(;;) {
-		std::cin >> c;
-		r.ringin(c);
-		if ( r.isfull() ) {
-			while ( !r.isempty() )
-				std::cout << r.ringout();
-		}
-	}
 
+#if defined(TARGET_MACOSX)
+	std::cout << "Yha!!" MM std::endl;
+#endif
 	return 0;
 }

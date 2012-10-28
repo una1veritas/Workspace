@@ -8,7 +8,7 @@
 #include "stm32f4xx.h"
 #include "systick.h"
 
-static volatile uint32_t _systick_counter;
+volatile uint32_t _systick_counter;
 
 void SysTick_Handler(void) {
 	_systick_counter++; /* increment timeTicks counter */

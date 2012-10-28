@@ -1,0 +1,346 @@
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccQl087W.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 2
+  11              		.eabi_attribute 18, 4
+  12              		.thumb
+  13              		.file	"init.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.lwip_init,"ax",%progbits
+  18              		.align	2
+  19              		.p2align 4,,15
+  20              		.global	lwip_init
+  21              		.thumb
+  22              		.thumb_func
+  23              		.type	lwip_init, %function
+  24              	lwip_init:
+  25              	.LFB7:
+  26              		.file 1 "../../ext/lwip/src/core/init.c"
+  27              		.loc 1 261 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 08B5     		push	{r3, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 14, -4
+  35              		.cfi_offset 3, -8
+  36              		.loc 1 266 0
+  37 0002 FFF7FEFF 		bl	stats_init
+  38              		.loc 1 268 0
+  39 0006 FFF7FEFF 		bl	sys_init
+  40              		.loc 1 270 0
+  41 000a FFF7FEFF 		bl	mem_init
+  42              		.loc 1 271 0
+  43 000e FFF7FEFF 		bl	memp_init
+  44              		.loc 1 273 0
+  45 0012 FFF7FEFF 		bl	netif_init
+  46              		.loc 1 275 0
+  47 0016 FFF7FEFF 		bl	lwip_socket_init
+  48              		.loc 1 306 0
+  49 001a BDE80840 		pop	{r3, lr}
+  50              		.loc 1 304 0
+  51 001e FFF7FEBF 		b	sys_timeouts_init
+  52              		.cfi_endproc
+  53              	.LFE7:
+  54              		.size	lwip_init, .-lwip_init
+  55 0022 00BFAFF3 		.text
+  55      0080AFF3 
+  55      0080AFF3 
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccQl087W.s 			page 2
+
+
+  55      0080
+  56              	.Letext0:
+  57              		.section	.debug_info,"",%progbits
+  58              	.Ldebug_info0:
+  59 0000 89000000 		.4byte	0x89
+  60 0004 0200     		.2byte	0x2
+  61 0006 00000000 		.4byte	.Ldebug_abbrev0
+  62 000a 04       		.byte	0x4
+  63 000b 01       		.uleb128 0x1
+  64 000c E2000000 		.4byte	.LASF10
+  65 0010 01       		.byte	0x1
+  66 0011 75000000 		.4byte	.LASF11
+  67 0015 00000000 		.4byte	.LASF12
+  68 0019 00000000 		.4byte	0
+  69 001d 00000000 		.4byte	0
+  70 0021 00000000 		.4byte	.Ldebug_ranges0+0
+  71 0025 00000000 		.4byte	.Ldebug_line0
+  72 0029 02       		.uleb128 0x2
+  73 002a 04       		.byte	0x4
+  74 002b 05       		.byte	0x5
+  75 002c 696E7400 		.ascii	"int\000"
+  76 0030 03       		.uleb128 0x3
+  77 0031 04       		.byte	0x4
+  78 0032 07       		.byte	0x7
+  79 0033 56000000 		.4byte	.LASF0
+  80 0037 03       		.uleb128 0x3
+  81 0038 01       		.byte	0x1
+  82 0039 06       		.byte	0x6
+  83 003a A8000000 		.4byte	.LASF1
+  84 003e 03       		.uleb128 0x3
+  85 003f 01       		.byte	0x1
+  86 0040 08       		.byte	0x8
+  87 0041 CB000000 		.4byte	.LASF2
+  88 0045 03       		.uleb128 0x3
+  89 0046 02       		.byte	0x2
+  90 0047 05       		.byte	0x5
+  91 0048 9E000000 		.4byte	.LASF3
+  92 004c 03       		.uleb128 0x3
+  93 004d 02       		.byte	0x2
+  94 004e 07       		.byte	0x7
+  95 004f 09010000 		.4byte	.LASF4
+  96 0053 03       		.uleb128 0x3
+  97 0054 04       		.byte	0x4
+  98 0055 05       		.byte	0x5
+  99 0056 D9000000 		.4byte	.LASF5
+ 100 005a 03       		.uleb128 0x3
+ 101 005b 04       		.byte	0x4
+ 102 005c 07       		.byte	0x7
+ 103 005d 63000000 		.4byte	.LASF6
+ 104 0061 03       		.uleb128 0x3
+ 105 0062 08       		.byte	0x8
+ 106 0063 05       		.byte	0x5
+ 107 0064 1C010000 		.4byte	.LASF7
+ 108 0068 03       		.uleb128 0x3
+ 109 0069 08       		.byte	0x8
+ 110 006a 07       		.byte	0x7
+ 111 006b B4000000 		.4byte	.LASF8
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccQl087W.s 			page 3
+
+
+ 112 006f 03       		.uleb128 0x3
+ 113 0070 01       		.byte	0x1
+ 114 0071 08       		.byte	0x8
+ 115 0072 04010000 		.4byte	.LASF9
+ 116 0076 04       		.uleb128 0x4
+ 117 0077 01       		.byte	0x1
+ 118 0078 94000000 		.4byte	.LASF13
+ 119 007c 01       		.byte	0x1
+ 120 007d 0401     		.2byte	0x104
+ 121 007f 01       		.byte	0x1
+ 122 0080 00000000 		.4byte	.LFB7
+ 123 0084 22000000 		.4byte	.LFE7
+ 124 0088 00000000 		.4byte	.LLST0
+ 125 008c 00       		.byte	0
+ 126              		.section	.debug_abbrev,"",%progbits
+ 127              	.Ldebug_abbrev0:
+ 128 0000 01       		.uleb128 0x1
+ 129 0001 11       		.uleb128 0x11
+ 130 0002 01       		.byte	0x1
+ 131 0003 25       		.uleb128 0x25
+ 132 0004 0E       		.uleb128 0xe
+ 133 0005 13       		.uleb128 0x13
+ 134 0006 0B       		.uleb128 0xb
+ 135 0007 03       		.uleb128 0x3
+ 136 0008 0E       		.uleb128 0xe
+ 137 0009 1B       		.uleb128 0x1b
+ 138 000a 0E       		.uleb128 0xe
+ 139 000b 11       		.uleb128 0x11
+ 140 000c 01       		.uleb128 0x1
+ 141 000d 52       		.uleb128 0x52
+ 142 000e 01       		.uleb128 0x1
+ 143 000f 55       		.uleb128 0x55
+ 144 0010 06       		.uleb128 0x6
+ 145 0011 10       		.uleb128 0x10
+ 146 0012 06       		.uleb128 0x6
+ 147 0013 00       		.byte	0
+ 148 0014 00       		.byte	0
+ 149 0015 02       		.uleb128 0x2
+ 150 0016 24       		.uleb128 0x24
+ 151 0017 00       		.byte	0
+ 152 0018 0B       		.uleb128 0xb
+ 153 0019 0B       		.uleb128 0xb
+ 154 001a 3E       		.uleb128 0x3e
+ 155 001b 0B       		.uleb128 0xb
+ 156 001c 03       		.uleb128 0x3
+ 157 001d 08       		.uleb128 0x8
+ 158 001e 00       		.byte	0
+ 159 001f 00       		.byte	0
+ 160 0020 03       		.uleb128 0x3
+ 161 0021 24       		.uleb128 0x24
+ 162 0022 00       		.byte	0
+ 163 0023 0B       		.uleb128 0xb
+ 164 0024 0B       		.uleb128 0xb
+ 165 0025 3E       		.uleb128 0x3e
+ 166 0026 0B       		.uleb128 0xb
+ 167 0027 03       		.uleb128 0x3
+ 168 0028 0E       		.uleb128 0xe
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccQl087W.s 			page 4
+
+
+ 169 0029 00       		.byte	0
+ 170 002a 00       		.byte	0
+ 171 002b 04       		.uleb128 0x4
+ 172 002c 2E       		.uleb128 0x2e
+ 173 002d 00       		.byte	0
+ 174 002e 3F       		.uleb128 0x3f
+ 175 002f 0C       		.uleb128 0xc
+ 176 0030 03       		.uleb128 0x3
+ 177 0031 0E       		.uleb128 0xe
+ 178 0032 3A       		.uleb128 0x3a
+ 179 0033 0B       		.uleb128 0xb
+ 180 0034 3B       		.uleb128 0x3b
+ 181 0035 05       		.uleb128 0x5
+ 182 0036 27       		.uleb128 0x27
+ 183 0037 0C       		.uleb128 0xc
+ 184 0038 11       		.uleb128 0x11
+ 185 0039 01       		.uleb128 0x1
+ 186 003a 12       		.uleb128 0x12
+ 187 003b 01       		.uleb128 0x1
+ 188 003c 40       		.uleb128 0x40
+ 189 003d 06       		.uleb128 0x6
+ 190 003e 00       		.byte	0
+ 191 003f 00       		.byte	0
+ 192 0040 00       		.byte	0
+ 193              		.section	.debug_loc,"",%progbits
+ 194              	.Ldebug_loc0:
+ 195              	.LLST0:
+ 196 0000 00000000 		.4byte	.LFB7
+ 197 0004 02000000 		.4byte	.LCFI0
+ 198 0008 0200     		.2byte	0x2
+ 199 000a 7D       		.byte	0x7d
+ 200 000b 00       		.sleb128 0
+ 201 000c 02000000 		.4byte	.LCFI0
+ 202 0010 22000000 		.4byte	.LFE7
+ 203 0014 0200     		.2byte	0x2
+ 204 0016 7D       		.byte	0x7d
+ 205 0017 08       		.sleb128 8
+ 206 0018 00000000 		.4byte	0
+ 207 001c 00000000 		.4byte	0
+ 208              		.section	.debug_aranges,"",%progbits
+ 209 0000 1C000000 		.4byte	0x1c
+ 210 0004 0200     		.2byte	0x2
+ 211 0006 00000000 		.4byte	.Ldebug_info0
+ 212 000a 04       		.byte	0x4
+ 213 000b 00       		.byte	0
+ 214 000c 0000     		.2byte	0
+ 215 000e 0000     		.2byte	0
+ 216 0010 00000000 		.4byte	.LFB7
+ 217 0014 22000000 		.4byte	.LFE7-.LFB7
+ 218 0018 00000000 		.4byte	0
+ 219 001c 00000000 		.4byte	0
+ 220              		.section	.debug_ranges,"",%progbits
+ 221              	.Ldebug_ranges0:
+ 222 0000 00000000 		.4byte	.LFB7
+ 223 0004 22000000 		.4byte	.LFE7
+ 224 0008 00000000 		.4byte	0
+ 225 000c 00000000 		.4byte	0
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccQl087W.s 			page 5
+
+
+ 226              		.section	.debug_line,"",%progbits
+ 227              	.Ldebug_line0:
+ 228 0000 55000000 		.section	.debug_str,"MS",%progbits,1
+ 228      02003500 
+ 228      00000201 
+ 228      FB0E0D00 
+ 228      01010101 
+ 229              	.LASF12:
+ 230 0000 2F557365 		.ascii	"/Users/sin/Documents/Eclipse/Workspace/mabl-ChibiOS"
+ 230      72732F73 
+ 230      696E2F44 
+ 230      6F63756D 
+ 230      656E7473 
+ 231 0033 2D322E35 		.ascii	"-2.5.1/demos/ARMCM4-STM32F407-LWIP\000"
+ 231      2E312F64 
+ 231      656D6F73 
+ 231      2F41524D 
+ 231      434D342D 
+ 232              	.LASF0:
+ 233 0056 756E7369 		.ascii	"unsigned int\000"
+ 233      676E6564 
+ 233      20696E74 
+ 233      00
+ 234              	.LASF6:
+ 235 0063 6C6F6E67 		.ascii	"long unsigned int\000"
+ 235      20756E73 
+ 235      69676E65 
+ 235      6420696E 
+ 235      7400
+ 236              	.LASF11:
+ 237 0075 2E2E2F2E 		.ascii	"../../ext/lwip/src/core/init.c\000"
+ 237      2E2F6578 
+ 237      742F6C77 
+ 237      69702F73 
+ 237      72632F63 
+ 238              	.LASF13:
+ 239 0094 6C776970 		.ascii	"lwip_init\000"
+ 239      5F696E69 
+ 239      7400
+ 240              	.LASF3:
+ 241 009e 73686F72 		.ascii	"short int\000"
+ 241      7420696E 
+ 241      7400
+ 242              	.LASF1:
+ 243 00a8 7369676E 		.ascii	"signed char\000"
+ 243      65642063 
+ 243      68617200 
+ 244              	.LASF8:
+ 245 00b4 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 245      206C6F6E 
+ 245      6720756E 
+ 245      7369676E 
+ 245      65642069 
+ 246              	.LASF2:
+ 247 00cb 756E7369 		.ascii	"unsigned char\000"
+ 247      676E6564 
+ 247      20636861 
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccQl087W.s 			page 6
+
+
+ 247      7200
+ 248              	.LASF5:
+ 249 00d9 6C6F6E67 		.ascii	"long int\000"
+ 249      20696E74 
+ 249      00
+ 250              	.LASF10:
+ 251 00e2 474E5520 		.ascii	"GNU C 4.6.2 20111004 (prerelease)\000"
+ 251      4320342E 
+ 251      362E3220 
+ 251      32303131 
+ 251      31303034 
+ 252              	.LASF9:
+ 253 0104 63686172 		.ascii	"char\000"
+ 253      00
+ 254              	.LASF4:
+ 255 0109 73686F72 		.ascii	"short unsigned int\000"
+ 255      7420756E 
+ 255      7369676E 
+ 255      65642069 
+ 255      6E7400
+ 256              	.LASF7:
+ 257 011c 6C6F6E67 		.ascii	"long long int\000"
+ 257      206C6F6E 
+ 257      6720696E 
+ 257      7400
+ 258              		.ident	"GCC: (Linaro GCC 4.6-2011.10) 4.6.2 20111004 (prerelease)"
+ARM GAS  /var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccQl087W.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 init.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccQl087W.s:18     .text.lwip_init:0000000000000000 $t
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccQl087W.s:24     .text.lwip_init:0000000000000000 lwip_init
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+stats_init
+sys_init
+mem_init
+memp_init
+netif_init
+lwip_socket_init
+sys_timeouts_init

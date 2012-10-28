@@ -13,9 +13,9 @@ extern "C" {
 #endif
 
 #include "misc.h"
-#include "stm32f4xx_it.h"
+//#include "stm32f4xx_it.h"
 
-static volatile uint32_t _systick_counter;
+extern volatile uint32_t _systick_counter;
 
 void SysTick_Handler(void);
 
@@ -23,7 +23,7 @@ void SysTick_delay(const uint32_t dlyTicks);
 
 void SysTick_Start(const uint32_t ticks);
 
-uint32_t SysTick_count();
+uint32_t SysTick_count(void);
 
 #ifdef __cplusplus
 	}
