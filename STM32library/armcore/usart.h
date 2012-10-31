@@ -36,7 +36,6 @@ uint16_t usart_available(USART_TypeDef * uport);
 void usart_flush(USART_TypeDef * uport);
 uint16_t usart_peek(USART_TypeDef * uport);
 
-
 void USART1_IRQHandler(void);
 void USART2_IRQHandler(void);
 void USART3_IRQHandler(void);

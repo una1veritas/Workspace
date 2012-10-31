@@ -43,29 +43,23 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx.h"
+#include <stm32f4xx.h>
 #include <stm32f4xx_i2c.h>
 #include <stm32f4xx_rcc.h>
 //#include "platform_config.h"
 //#include "com_config.h"
 #include "usart.h"
 #include "delay.h"
-//#include "i2c.h"
+#include "i2c.h"
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define I2C_CLOCK                  100000
-#define ST7032I_ADDR               0b0111110
+//#define I2C_CLOCK                  100000
+//#define ST7032I_ADDR               0b0111110
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 const int8_t Welcome_Message[] =
-  "\r\nWelcomet to the Cortex-M3/STM32 World!\r\n"
-  "Expand your creativity and enjoy making things.\r\n\r\n"
-  "Initialize and put character on ST7032i LCD.\r\n\r\n";
+  "\r\nWelcomet to the Cortex-M3/STM32 World!\r\n";
 
-/* Private function prototypes -----------------------------------------------*/
-void I2C_Configuration(void);
-void ST7032i_Command_Write(uint8_t Data);
-void ST7032i_Data_Write(uint8_t Data);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -86,50 +80,50 @@ int main(void)
   //Send welcome messages
   usart_print(USART3, (char *) Welcome_Message);
 
-  delay_ms(40);
+  delay_ms(20);
 
   I2C_Configuration();
 
   //Function Set
-  ST7032i_Command_Write(0b00111000);
+  ST7032i_Command_Write( 0x38 ); //0b00111000 );
 
   delay_us(27);
 
   //Function Set
-  ST7032i_Command_Write(0b00111001);
+  ST7032i_Command_Write( 0x39 ); //0b00111001);
 
   delay_us(27);
 
   //Bias and OSC frequency
-  ST7032i_Command_Write(0b00010100);
+  ST7032i_Command_Write( 0x14 ); //0b00010100);
 
   delay_us(27);
 
   //Contrast set
-  ST7032i_Command_Write(0b01110000);
+  ST7032i_Command_Write( 0x70 ); //0b01110000);
 
   delay_us(27);
 
   //Power/Icon/Contrast control
-  ST7032i_Command_Write(0b01010110);
+  ST7032i_Command_Write( 0x56 ); //0b01010110);
 
   delay_us(27);
 
   //Follower control
-  ST7032i_Command_Write(0b01101100);
+  ST7032i_Command_Write( 0x6c ); //0b01101100);
 
   delay_ms(200);
 
   //Function Set
-  ST7032i_Command_Write(0b00111000);
+  ST7032i_Command_Write( 0x38 ); //0b00111000);
 
   //Display control : on
-  ST7032i_Command_Write(0b00001100);
+  ST7032i_Command_Write( 0x0c ); //0b00001100);
 
   delay_us(27);
 
   //Clear
-  ST7032i_Command_Write(0b00000001);
+  ST7032i_Command_Write( 0x01 );//0b00000001);
 
   delay_ms(2);
 
@@ -139,7 +133,7 @@ int main(void)
   ST7032i_Data_Write('l');
   ST7032i_Data_Write('o');
 
-  ST7032i_Command_Write(0b10000000 | 0x40);
+  ST7032i_Command_Write( /* 0b10000000 */ 0x80 | 0x40);
 
   ST7032i_Data_Write('W');
   ST7032i_Data_Write('o');
@@ -153,105 +147,3 @@ int main(void)
   while(1){}
 }
 
-/**
-  * @brief  I2C Configuration
-  * @param  None
-  * @retval None
-  */
-void I2C_Configuration(void)
-{
-  GPIO_InitTypeDef  GPIO_InitStructure;
-  I2C_InitTypeDef  I2C_InitStructure;
-
-  /* I2C Periph clock enable */
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C3, ENABLE);
-  //Reset the Peripheral
-  RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C3, ENABLE);
-  RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C3, DISABLE);
-
-  /* GPIO Periph clock enable */
-//  RCC_APB2PeriphClockCmd(I2C1_GPIO_RCC, ENABLE);
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-
-  /* Configure I2C pins: SCL A GPIO_Pin_8 and SDA C GPIO_Pin_9 */
-  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_8;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
-  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_9;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-  //Connect GPIO pins to peripheral
-  GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_I2C3);
-  GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_I2C3);
-
-  /* I2C configuration */
-  I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
-  I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
-  I2C_InitStructure.I2C_OwnAddress1 = 0x00; //We are the master. We don't need this
-  I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
-  I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-  I2C_InitStructure.I2C_ClockSpeed = 400000; //I2C_CLOCK;
-
-  /* Apply I2C configuration after enabling it */
-  I2C_Init(I2C3, &I2C_InitStructure);
-  /* I2C Peripheral Enable */
-  I2C_Cmd(I2C3, ENABLE);
-}
-
-/**
-  * @brief  Write Command to ST7032i
-  * @param  Data : Command Data
-  * @retval None
-  */
-void ST7032i_Command_Write(uint8_t Data)
-{
-
-  /* Send STRAT condition */
-  I2C_GenerateSTART(I2C1, ENABLE);
-  /* Test on EV5 and clear it */
-  while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
-  /* Send EEPROM address for write */
-  I2C_Send7bitAddress(I2C1, ST7032I_ADDR << 1, I2C_Direction_Transmitter);
-  /* Test on EV6 and clear it */
-  while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
-  /* Send the EEPROM's internal address to write to : MSB of the address first */
-  I2C_SendData(I2C1, 0b00000000);
-  /* Test on EV8 and clear it */
-  while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-  /* Send the EEPROM's internal address to write to : MSB of the address first */
-  I2C_SendData(I2C1, Data);
-  /* Test on EV8 and clear it */
-  while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-  /* Send STOP condition */
-  I2C_GenerateSTOP(I2C1, ENABLE);
-}
-
-/**
-  * @brief  Write Data to ST7032i
-  * @param  Data : "Data" Data
-  * @retval None
-  */
-void ST7032i_Data_Write(uint8_t Data)
-{
-
-  /* Send STRAT condition */
-  I2C_GenerateSTART(I2C1, ENABLE);
-  /* Test on EV5 and clear it */
-  while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
-  /* Send EEPROM address for write */
-  I2C_Send7bitAddress(I2C1, ST7032I_ADDR << 1, I2C_Direction_Transmitter);
-  /* Test on EV6 and clear it */
-  while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
-  /* Send the EEPROM's internal address to write to : MSB of the address first */
-  I2C_SendData(I2C1, 0b01000000);
-  /* Test on EV8 and clear it */
-  while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-  /* Send the EEPROM's internal address to write to : MSB of the address first */
-  I2C_SendData(I2C1, Data);
-  /* Test on EV8 and clear it */
-  while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-  /* Send STOP condition */
-  I2C_GenerateSTOP(I2C1, ENABLE);
-}

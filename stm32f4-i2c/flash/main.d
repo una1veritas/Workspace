@@ -34,7 +34,8 @@ main.d: ../main.c \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/misc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/usart.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/delay.h
+ /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/delay.h \
+ ../i2c.h
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h:
 
@@ -107,3 +108,5 @@ main.d: ../main.c \
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/delay.h:
+
+../i2c.h:

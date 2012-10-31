@@ -10,6 +10,7 @@ RM := rm -rf
 -include sources.mk
 -include armcore/subdir.mk
 -include STM32F4xx_StdPeriph_Driver/src/subdir.mk
+-include MDKARM/subdir.mk
 -include subdir.mk
 -include objects.mk
 

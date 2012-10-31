@@ -26,4 +26,5 @@ SUBDIRS := \
 . \
 armcore \
 STM32F4xx_StdPeriph_Driver/src \
+MDKARM \
 

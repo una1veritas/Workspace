@@ -4,6 +4,7 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../i2c.c \
 ../main.c \
 ../stm32f4xx_it.c \
 ../system_stm32f4xx.c 
@@ -12,12 +13,14 @@ S_UPPER_SRCS += \
 ../startup_stm32f4xx.S 
 
 OBJS += \
+./i2c.o \
 ./main.o \
 ./startup_stm32f4xx.o \
 ./stm32f4xx_it.o \
 ./system_stm32f4xx.o 
 
 C_DEPS += \
+./i2c.d \
 ./main.d \
 ./stm32f4xx_it.d \
 ./system_stm32f4xx.d 
