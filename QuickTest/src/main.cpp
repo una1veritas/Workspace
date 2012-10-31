@@ -6,55 +6,25 @@
  */
 
 #include <iostream>
+#include <cmath>
 
 typedef uint16_t uint16;
 typedef bool boolean;
 
-struct ring {
-	static const int size = 9;
-	char buffer[size];
-	uint16 head, tail;
-
-	void init() {
-		head = 0;
-		tail = 0;
-	}
-
-	char ringin(char c) {
-		if ( isfull() ) {
-			head++;  head %= size;
-			// buffer over run occurred!
-		}
-		buffer[tail++] = c;
-		tail %= size;
-		return c;
-	}
-
-	char ringout() {
-		if ( isempty() )
-			return 0;
-		char c = buffer[head++];
-		head %= size;
-		return c;
-	}
-
-	boolean isfull() {
-		return head == tail;
-	}
-
-	boolean isempty() {
-		return (head+1) % size == tail;
-	}
-
-};
-
 int main(int argc, char * argv[]) {
-	ring r;
-	char c;
+	int val;
+	float fval;
 
+	if ( argc < 2 )
+		return 1; // no arg error
 
-#if defined(TARGET_MACOSX)
-	std::cout << "Yha!!" MM std::endl;
-#endif
+	for (int i = 1; i < argc; i++) {
+		std::cout << "From an input " << argv[i];
+		fval = atof(argv[i]);
+		std::cout << " got fp value " << fval;
+		std::cout << ", and it's casted into " << static_cast<int>(fval) << ". " << std::endl;
+		std::cout << "On the otherhand, Ceiling = " << ceil(fval) << ", Floor = " << floor(fval) << "." << std::endl;
+	}
+	std::cout << std::endl;
 	return 0;
 }
