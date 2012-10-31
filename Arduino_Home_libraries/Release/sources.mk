@@ -62,6 +62,7 @@ home_libraries/SD_SPI \
 home_libraries/SCP1000D01 \
 home_libraries/Roomba500 \
 home_libraries/Roomba \
+home_libraries/RTC_M41T62 \
 home_libraries/RTC_DS3234 \
 home_libraries/RTC_DS1307 \
 home_libraries/RFID_StrongLink_UART \
@@ -97,8 +98,8 @@ home_libraries/GrLCD12864 \
 home_libraries/GPS \
 home_libraries/FeliCaPlug \
 home_libraries/Fat16 \
-home_libraries/Ethernet_w5100/utility \
-home_libraries/Ethernet_w5100 \
+home_libraries/Ethernet_W5100/utility \
+home_libraries/Ethernet_W5100 \
 home_libraries/Digital6DOF \
 home_libraries/DataFlash_SPI \
 home_libraries/DES_OUTE \

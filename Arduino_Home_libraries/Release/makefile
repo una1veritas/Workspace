@@ -41,6 +41,7 @@ RM := rm -rf
 -include home_libraries/SCP1000D01/subdir.mk
 -include home_libraries/Roomba500/subdir.mk
 -include home_libraries/Roomba/subdir.mk
+-include home_libraries/RTC_M41T62/subdir.mk
 -include home_libraries/RTC_DS3234/subdir.mk
 -include home_libraries/RTC_DS1307/subdir.mk
 -include home_libraries/RFID_StrongLink_UART/subdir.mk
@@ -76,8 +77,8 @@ RM := rm -rf
 -include home_libraries/GPS/subdir.mk
 -include home_libraries/FeliCaPlug/subdir.mk
 -include home_libraries/Fat16/subdir.mk
--include home_libraries/Ethernet_w5100/utility/subdir.mk
--include home_libraries/Ethernet_w5100/subdir.mk
+-include home_libraries/Ethernet_W5100/utility/subdir.mk
+-include home_libraries/Ethernet_W5100/subdir.mk
 -include home_libraries/Digital6DOF/subdir.mk
 -include home_libraries/DataFlash_SPI/subdir.mk
 -include home_libraries/DES_OUTE/subdir.mk
@@ -176,7 +177,7 @@ libArduino_Home_libraries.lss: libArduino_Home_libraries.a
 
 sizedummy: libArduino_Home_libraries.a
 	@echo 'Invoking: Print Size'
-	-avr-size --format=berkeley -t libArduino_Home_libraries.a
+	-avr-size --format=avr --mcu=atmega328p libArduino_Home_libraries.a
 	@echo 'Finished building: $@'
 	@echo ' '
 
