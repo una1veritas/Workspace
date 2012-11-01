@@ -1,116 +1,71 @@
 /*
  * i2c.c
  *
- *  Created on: 2012/10/30
+ *  Created on: 2012/11/01
  *      Author: sin
  */
 
-#include <stm32f4xx_gpio.h>
-#include <stm32f4xx_rcc.h>
-#include <stm32f4xx_i2c.h>
 #include "i2c.h"
 
 /**
-  * @brief  I2C Configuration
+  * @brief  Initializes the GPIO pins used by the IO expander.
   * @param  None
   * @retval None
   */
-void I2C_Configuration(void)
+static void IOE_GPIO_Config(void)
 {
-  GPIO_InitTypeDef  GPIO_InitStructure;
-  I2C_InitTypeDef  I2C_InitStructure;
+  GPIO_InitTypeDef GPIO_InitStructure;
 
-  /* I2C Periph clock enable */
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C3, ENABLE);
-  //Reset the Peripheral
-//  RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C3, ENABLE);
-//  RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C3, DISABLE);
+  /* Enable IOE_I2C and IOE_I2C_GPIO_PORT & Alternate Function clocks */
+  RCC_APB1PeriphClockCmd(IOE_I2C_CLK, ENABLE);
+  RCC_AHB1PeriphClockCmd(IOE_I2C_SCL_GPIO_CLK | IOE_I2C_SDA_GPIO_CLK |
+                         IOE_IT_GPIO_CLK, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 
-  /* GPIO Periph clock enable */
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+  /* Reset IOE_I2C IP */
+  RCC_APB1PeriphResetCmd(IOE_I2C_CLK, ENABLE);
+  /* Release reset signal of IOE_I2C IP */
+  RCC_APB1PeriphResetCmd(IOE_I2C_CLK, DISABLE);
 
-  /* Configure I2C pins: SCL PA8 GPIO_Pin_8 and SDA PC9 GPIO_Pin_9 */
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  /* Connect PXx to I2C_SCL*/
+  GPIO_PinAFConfig(IOE_I2C_SCL_GPIO_PORT, IOE_I2C_SCL_SOURCE, IOE_I2C_SCL_AF);
+  /* Connect PXx to I2C_SDA*/
+  GPIO_PinAFConfig(IOE_I2C_SDA_GPIO_PORT, IOE_I2C_SDA_SOURCE, IOE_I2C_SDA_AF);
+
+  /* IOE_I2C SCL and SDA pins configuration */
+  GPIO_InitStructure.GPIO_Pin = IOE_I2C_SCL_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_8;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
-  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_9;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+  GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+  GPIO_Init(IOE_I2C_SCL_GPIO_PORT, &GPIO_InitStructure);
 
-  //Connect GPIO pins to peripheral
-  GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_I2C3);
-  GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_I2C3);
+  GPIO_InitStructure.GPIO_Pin = IOE_I2C_SDA_PIN;
+  GPIO_Init(IOE_I2C_SDA_GPIO_PORT, &GPIO_InitStructure);
 
-  /* I2C configuration */
+  /* Set EXTI pin as Input PullUp - IO_Expander_INT */
+  GPIO_InitStructure.GPIO_Pin = IOE_IT_PIN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_Init(IOE_IT_GPIO_PORT, &GPIO_InitStructure);
+
+  /* Connect Button EXTI Line to Button GPIO Pin */
+  SYSCFG_EXTILineConfig(IOE_IT_EXTI_PORT_SOURCE, IOE_IT_EXTI_PIN_SOURCE);
+}
+
+static void IOE_I2C_Config(void)
+{
+  I2C_InitTypeDef I2C_InitStructure;
+
+  /* IOE_I2C configuration */
   I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
   I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
-  I2C_InitStructure.I2C_OwnAddress1 = 0x00; //We are the master. We don't need this
+  I2C_InitStructure.I2C_OwnAddress1 = 0x00;
   I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
   I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-  I2C_InitStructure.I2C_ClockSpeed = 100000; //I2C_CLOCK;
+  I2C_InitStructure.I2C_ClockSpeed = I2C_SPEED;
 
-  /* Apply I2C configuration after enabling it */
-  I2C_Init(I2C3, &I2C_InitStructure);
-  /* I2C Peripheral Enable */
-  I2C_Cmd(I2C3, ENABLE);
-}
-
-/**
-  * @brief  Write Command to ST7032i
-  * @param  Data : Command Data
-  * @retval None
-  */
-void ST7032i_Command_Write(uint8_t Data)
-{
-
-  /* Send STRAT condition */
-  I2C_GenerateSTART(I2C3, ENABLE);
-  /* Test on EV5 and clear it */
-  while(!I2C_CheckEvent(I2C3, I2C_EVENT_MASTER_MODE_SELECT));
-  /* Send EEPROM address for write */
-  I2C_Send7bitAddress(I2C3, ST7032I_ADDR << 1, I2C_Direction_Transmitter);
-  /* Test on EV6 and clear it */
-  while(!I2C_CheckEvent(I2C3, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
-  /* Send the EEPROM's internal address to write to : MSB of the address first */
-  I2C_SendData(I2C3, 0x00); /* 0b00000000); */
-  /* Test on EV8 and clear it */
-  while(!I2C_CheckEvent(I2C3, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-  /* Send the EEPROM's internal address to write to : MSB of the address first */
-  I2C_SendData(I2C3, Data);
-  /* Test on EV8 and clear it */
-  while(!I2C_CheckEvent(I2C3, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-  /* Send STOP condition */
-  I2C_GenerateSTOP(I2C3, ENABLE);
-}
-
-/**
-  * @brief  Write Data to ST7032i
-  * @param  Data : "Data" Data
-  * @retval None
-  */
-void ST7032i_Data_Write(uint8_t Data)
-{
-
-  /* Send STRAT condition */
-  I2C_GenerateSTART(I2C3, ENABLE);
-  /* Test on EV5 and clear it */
-  while(!I2C_CheckEvent(I2C3, I2C_EVENT_MASTER_MODE_SELECT));
-  /* Send EEPROM address for write */
-  I2C_Send7bitAddress(I2C3, (ST7032I_ADDR << 1), I2C_Direction_Transmitter);
-  /* Test on EV6 and clear it */
-  while(!I2C_CheckEvent(I2C3, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
-  /* Send the EEPROM's internal address to write to : MSB of the address first */
-  I2C_SendData(I2C3, 0x40); /*0b01000000 ); */
-  /* Test on EV8 and clear it */
-  while(!I2C_CheckEvent(I2C3, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-  /* Send the EEPROM's internal address to write to : MSB of the address first */
-  I2C_SendData(I2C3, Data);
-  /* Test on EV8 and clear it */
-  while(!I2C_CheckEvent(I2C3, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-  /* Send STOP condition */
-  I2C_GenerateSTOP(I2C3, ENABLE);
+  I2C_Init(IOE_I2C, &I2C_InitStructure);
 }
 
 

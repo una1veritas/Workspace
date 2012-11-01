@@ -1,16 +1,33 @@
 /**
- * derived from i2c IOE example
+  ******************************************************************************
+  * @file    I2C/IOE/main.c 
+  * @author  MCD Application Team
+  * @version V1.0.1
+  * @date    13-April-2012
+  * @brief   Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
   */
-
-#define USE_STDPERIPH_DRIVER
 
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
-#include <stm32f4xx.h>
-//#include "main.h"
-
-#include "i2c.h"
-
+#include "main.h"
 
 /** @addtogroup STM32F4xx_StdPeriph_Examples
   * @{
@@ -24,14 +41,10 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-
-/* Private functions ---------------------------------------------------------*/
-
-void TimingDelay_Decrement(void);
-void Delay(__IO uint32_t nTime);
-
 static __IO uint32_t TimingDelay;
 RCC_ClocksTypeDef RCC_Clocks;
+    
+/* Private functions ---------------------------------------------------------*/
 
 /**
   * @brief   Main program
@@ -51,16 +64,54 @@ int main(void)
   RCC_GetClocksFreq(&RCC_Clocks);
   SysTick_Config(RCC_Clocks.HCLK_Frequency / 100);
          
-  IOE_GPIO_Config();
+  /* Initialize LEDs and push-buttons mounted on STM324xG-EVAL board */
+  STM_EVAL_LEDInit(LED1);
+  STM_EVAL_LEDInit(LED2);
+  STM_EVAL_LEDInit(LED3);
+  STM_EVAL_LEDInit(LED4);
+
+  /* Select the Button test mode (polling or interrupt) BUTTON_MODE in main.h */
+  STM_EVAL_PBInit(BUTTON_WAKEUP, BUTTON_MODE);
+  STM_EVAL_PBInit(BUTTON_TAMPER, BUTTON_MODE);
+  STM_EVAL_PBInit(BUTTON_KEY, BUTTON_MODE);
+
+  /* Initialize the LCD */
+  STM324xG_LCD_Init();
+ 
+  /* Clear the LCD */ 
+  LCD_Clear(White);
+  /* Set the LCD Back Color */
+  LCD_SetBackColor(Blue);
+  /* Set the LCD Text Color */
+  LCD_SetTextColor(White);    
+ 
+  LCD_DisplayStringLine(Line0, (uint8_t *)"   STM324xG-EVAL    ");
+  LCD_DisplayStringLine(Line1, (uint8_t *)"  Example on how to ");
+  LCD_DisplayStringLine(Line2, (uint8_t *)" use the IO Expander");
+  
   /* Configure the IO Expander */
   if (IOE_Config() == IOE_OK)
   {
+    LCD_DisplayStringLine(Line4, (uint8_t *)"   IO Expander OK   ");
   }
   else
   {
+    LCD_DisplayStringLine(Line4, (uint8_t *)"IO Expander FAILED ");
+    LCD_DisplayStringLine(Line5, (uint8_t *)" Please Reset the  ");
+    LCD_DisplayStringLine(Line6, (uint8_t *)"   board and start ");
+    LCD_DisplayStringLine(Line7, (uint8_t *)"    again          ");
     while(1);
   }
 
+  /* Leds Control blocks */
+  LCD_SetTextColor(Blue);
+  LCD_DrawRect(180, 310, 40, 60);
+  LCD_SetTextColor(Red);
+  LCD_DrawRect(180, 230, 40, 60);
+  LCD_SetTextColor(Yellow);
+  LCD_DrawRect(180, 150, 40, 60);
+  LCD_SetTextColor(Green);
+  LCD_DrawRect(180, 70, 40, 60);
 
 #ifdef IOE_INTERRUPT_MODE
   /* Enable the Touch Screen and Joystick interrupts */

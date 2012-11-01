@@ -1,10 +1,11 @@
 /**
   ******************************************************************************
-  * @file    I2C/IOE/stm32f4xx_it.h 
+  * @file    stm324xg_eval_fsmc_sram.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    13-April-2012
-  * @brief   This file contains the headers of the interrupt handlers.
+  * @version V1.0.2
+  * @date    09-March-2012
+  * @brief   This file contains all the functions prototypes for the 
+  *          stm324xg_eval_fsmc_sram.c driver.
   ******************************************************************************
   * @attention
   *
@@ -23,41 +24,87 @@
   * limitations under the License.
   *
   ******************************************************************************
-  */
+  */ 
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32F4xx_IT_H
-#define __STM32F4xx_IT_H
+#ifndef __STM324xG_EVAL_FSMC_SRAM_H
+#define __STM324xG_EVAL_FSMC_SRAM_H
 
 #ifdef __cplusplus
  extern "C" {
-#endif 
+#endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx.h"
+#include "stm324xg_eval.h"
 
-/* Exported types ------------------------------------------------------------*/
-/* Exported constants --------------------------------------------------------*/
-/* Exported macro ------------------------------------------------------------*/
-/* Exported functions ------------------------------------------------------- */
+/** @addtogroup Utilities
+  * @{
+  */
+  
+/** @addtogroup STM32_EVAL
+  * @{
+  */ 
 
-void NMI_Handler(void);
-void HardFault_Handler(void);
-void MemManage_Handler(void);
-void BusFault_Handler(void);
-void UsageFault_Handler(void);
-void SVC_Handler(void);
-void DebugMon_Handler(void);
-void PendSV_Handler(void);
-void SysTick_Handler(void);
-void EXTI0_IRQHandler(void);
-void EXTI9_5_IRQHandler(void);
-void EXTI15_10_IRQHandler(void);
+/** @addtogroup STM324xG_EVAL
+  * @{
+  */
+  
+/** @addtogroup STM324xG_EVAL_FSMC_SRAM
+  * @{
+  */  
+
+/** @defgroup STM324xG_EVAL_FSMC_SRAM_Exported_Types
+  * @{
+  */
+/**
+  * @}
+  */
+  
+/** @defgroup STM324xG_EVAL_FSMC_SRAM_Exported_Constants
+  * @{
+  */ 
+/**
+  * @}
+  */ 
+  
+/** @defgroup STM324xG_EVAL_FSMC_SRAM_Exported_Macros
+  * @{
+  */ 
+/**
+  * @}
+  */ 
+
+/** @defgroup STM324xG_EVAL_FSMC_SRAM_Exported_Functions
+  * @{
+  */      
+
+void SRAM_Init(void);
+void SRAM_WriteBuffer(uint16_t* pBuffer, uint32_t WriteAddr, uint32_t NumHalfwordToWrite);
+void SRAM_ReadBuffer(uint16_t* pBuffer, uint32_t ReadAddr, uint32_t NumHalfwordToRead);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __STM32F4xx_IT_H */
+#endif /* __STM324xG_EVAL_FSMC_SRAM_H */
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */ 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
