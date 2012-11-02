@@ -7,7 +7,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
 #include <stm32f4xx.h>
-//#include "main.h"
+#include "main.h"
 
 #include "i2c.h"
 
@@ -26,9 +26,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* Private functions ---------------------------------------------------------*/
-
-void TimingDelay_Decrement(void);
-void Delay(__IO uint32_t nTime);
 
 static __IO uint32_t TimingDelay;
 RCC_ClocksTypeDef RCC_Clocks;
@@ -51,15 +48,67 @@ int main(void)
   RCC_GetClocksFreq(&RCC_Clocks);
   SysTick_Config(RCC_Clocks.HCLK_Frequency / 100);
          
-  IOE_GPIO_Config();
+  I2C1_GPIO_Config();
   /* Configure the IO Expander */
-  if (IOE_Config() == IOE_OK)
-  {
-  }
-  else
-  {
-    while(1);
-  }
+  I2C1_Config();
+
+#define IOE_1_ADDR                 0x82
+#define IOE_2_ADDR                 0x88
+#define STMPE811_ID                0x0811
+
+  /* Generate IOExpander Software reset */
+  IOE_Reset(IOE_1_ADDR);
+  IOE_Reset(IOE_2_ADDR);
+
+  /* ---------------------- IO Expander 1 configuration --------------------- */
+  /* Enable the GPIO, Touch Screen and ADC functionalities */
+  IOE_FnctCmd(IOE_1_ADDR, IOE_IO_FCT | IOE_TS_FCT | IOE_ADC_FCT, ENABLE);
+  /* Configure the VBAT pin in output mode pin*/
+  IOE_IOPinConfig(IOE_1_ADDR, VBAT_DIV_PIN , Direction_OUT);
+  /* ENABLE the alternate function for IN1 pin */
+  IOE_IOAFConfig(IOE_1_ADDR, VBAT_DIV_PIN, ENABLE);
+
+  /* Apply the default state for the out pins */
+  IOE_WriteIOPin(VBAT_DIV_PIN, BitReset);
+  /* Configure the MEMS interrupt pins in Input mode */
+  IOE_IOPinConfig(IOE_2_ADDR, (uint32_t)(MEMS_INT1_PIN | MEMS_INT2_PIN), Direction_IN);
+
+  /* ENABLE the alternate function for the Joystick pins */
+  IOE_IOAFConfig(IOE_2_ADDR, (uint32_t)(MEMS_INT1_PIN | MEMS_INT2_PIN), ENABLE);
+  /* Configure the IOs to detect Falling and Rising Edges */
+  IOE_IOEdgeConfig(IOE_2_ADDR, (uint32_t)(MEMS_INT1_PIN | MEMS_INT2_PIN), (uint32_t)(EDGE_FALLING | EDGE_RISING));
+  /* Touch Screen controller configuration */
+  IOE_TS_Config();
+
+  /* ------------------------------------------------------------------------ */
+
+  /* ---------------------- IO Expander 2 configuration --------------------- */
+  /* Enable the GPIO, Temperature Sensor and ADC functionalities */
+  IOE_FnctCmd(IOE_2_ADDR, IOE_IO_FCT | IOE_TEMPSENS_FCT | IOE_ADC_FCT, ENABLE);
+
+  /* Configure the Audio Codec Reset pin in output mode pin*/
+  IOE_IOPinConfig(IOE_2_ADDR, (uint32_t)(AUDIO_RESET_PIN), Direction_OUT);
+  IOE_IOPinConfig(IOE_2_ADDR, (uint32_t)(MII_INT_PIN), Direction_IN);
+
+  /* ENABLE the alternate function for IN1 pin */
+  IOE_IOAFConfig(IOE_2_ADDR, (uint32_t)(AUDIO_RESET_PIN | MII_INT_PIN), ENABLE);
+
+  /* Apply the default state for the out pins */
+  IOE_WriteIOPin(AUDIO_RESET_PIN, BitReset);
+  IOE_WriteIOPin(MII_INT_PIN, BitReset);
+  /* Configure the Joystick pins in Input mode */
+  IOE_IOPinConfig(IOE_2_ADDR, JOY_IO_PINS , Direction_IN);
+
+  /* ENABLE the alternate function for the Joystick pins */
+  IOE_IOAFConfig(IOE_2_ADDR, JOY_IO_PINS, ENABLE);
+  /* Configure the IOs to detect Falling and Rising Edges */
+  IOE_IOEdgeConfig(IOE_2_ADDR, JOY_IO_PINS, (uint8_t)(EDGE_FALLING | EDGE_RISING));
+
+  /* Temperature Sensor module configuration */
+  IOE_TempSens_Config();
+  /* ------------------------------------------------------------------------ */
+
+  /* Configuration is OK */
 
 
 #ifdef IOE_INTERRUPT_MODE

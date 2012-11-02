@@ -6,6 +6,8 @@
  */
 
 #include "stm32f4xx.h"
+#include "stm32f4xx_rcc.h"
+//#include "stm32f4xx_systick.h"
 #include "systick.h"
 
 volatile uint32_t _systick_counter;
@@ -21,13 +23,19 @@ void SysTick_delay(const uint32_t dlyTicks) {
 		;
 }
 
-void SysTick_Start(const uint32_t ticks) {
+void SysTick_Start(void) {
+	RCC_ClocksTypeDef RCC_Clocks;
+	  /* SysTick end of count event each 10ms */
+	  RCC_GetClocksFreq(&RCC_Clocks);
+	  SysTick_Config(RCC_Clocks.HCLK_Frequency / 1000);
+	  /*
 	if ( SysTick_Config(SystemCoreClock / ticks) ) {
-		/* Setup SysTick for 1 msec interrupts */
-		/* Handle Error */
+		// Setup SysTick for 1 msec interrupts
+		// Handle Error
 		while (1)
 			;
 	}
+*/
 }
 
 uint32_t SysTick_count() {

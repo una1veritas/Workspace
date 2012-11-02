@@ -18,11 +18,8 @@ extern "C" {
 extern volatile uint32_t _systick_counter;
 
 void SysTick_Handler(void);
-
 void SysTick_delay(const uint32_t dlyTicks);
-
-void SysTick_Start(const uint32_t ticks);
-
+void SysTick_Start(void);
 uint32_t SysTick_count(void);
 
 #ifdef __cplusplus

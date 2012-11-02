@@ -23,7 +23,7 @@ int main(void) {
 	uint32_t intval = 16;
 	char tmp[92];
 	
-	SysTick_Config(SystemCoreClock/1000);
+	SysTick_Start();
 
 	usart_begin(USART3, 19200);
 	usart_print(USART3, "Happy are those who know they are spiritually poor; \n");
