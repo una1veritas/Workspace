@@ -11,6 +11,7 @@
 #include <stm32f4xx.h>
 
 #include "gpio.h"
+#include "delay.h"
 #include "i2c.h"
 
 enum I2CPortNumber {
@@ -33,14 +34,13 @@ struct {
 	GPIO_TypeDef * gpio_sda;
 	GPIO_TypeDef * gpio_scl;
 	uint8_t sdasrc, sclsrc;
-	uint8_t afmapping;
-//	IRQn_Type irq_channel;
+	uint8_t af;
 } I2CPortInfo[] = {
-		{ PB9, PB6,
+		{ PB7, PB8,
 				((uint32_t) RCC_APB1Periph_I2C1 ),
 				GPIOB, GPIOB,
-				GPIO_PinSource9, GPIO_PinSource6,
-				GPIO_AF_I2C1 //, USART1_IRQn
+				GPIO_PinSource7, GPIO_PinSource8,
+				GPIO_AF_I2C1
 		},
 		{ PB11, PB10, ((uint32_t) RCC_APB1Periph_I2C2 ),
 				GPIOB, GPIOB,
@@ -63,9 +63,17 @@ void i2c_begin(I2C_TypeDef * I2Cx, uint32_t clkspeed) {
 
 	uint8_t portid = 0; //i2c_id(I2Cx);
 
-//	GPIOMode(I2CPortInfo[portid].scl | I2CPortInfo[portid].sda, ALTFUNC,
-	GPIOMode(PB8 | PB7, ALTFUNC,
-			GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_UP);
+	GPIO_InitTypeDef GPIO_InitStructure;
+	// waking up the port
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_8;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	//
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
 	/* I2C Periph clock enable */
 	// if ( I2CPortInfo[portid].periph == RCC_APB1Periph_I2C1 )
@@ -81,8 +89,8 @@ void i2c_begin(I2C_TypeDef * I2Cx, uint32_t clkspeed) {
 			I2CPortInfo[portid].sclsrc, //GPIO_PinSource8,
 			//pinsrc(I2CPortInfo[portid].scl),
 			I2CPortInfo[portid].afmapping);
-*/	GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_I2C1);
+*/	GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_I2C1);
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);
 
 	/* I2C configuration */
 	I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;

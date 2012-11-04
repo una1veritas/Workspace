@@ -86,28 +86,28 @@ uint8_t usart_id(USART_TypeDef * USARTx) {
 
 struct {
 //	USART_TypeDef * port;
-	GPIOPin_Type rxpin, txpin;
+	uint16_t rxpin, txpin;
 	uint32_t usart_periph;
 	GPIO_TypeDef * afgpio;
 	uint8_t rxsource, txsource;
 	uint8_t afmapping;
 	IRQn_Type  irq_channel;
 } uPortInfo[] = {
-		{ PA10, PA9,
+		{ GPIO_Pin_10, GPIO_Pin_9,
 				((uint32_t) RCC_APB2Periph_USART1), GPIOA, GPIO_PinSource10, GPIO_PinSource9, GPIO_AF_USART1,
 				USART1_IRQn
 		},
-		{ PA3, PA2,
+		{ GPIO_Pin_3, GPIO_Pin_2,
 	    	  ((uint32_t) RCC_APB1Periph_USART2), GPIOA, GPIO_PinSource3, GPIO_PinSource2, GPIO_AF_USART2,
 	    			  USART2_IRQn
 		},
-		{ PB11, PB10,
+		{ GPIO_Pin_11, GPIO_Pin_10,
 				((uint32_t) RCC_APB1Periph_USART3), GPIOB, GPIO_PinSource11, GPIO_PinSource10, GPIO_AF_USART3,
 				USART3_IRQn
 		},
-		{ PA1, PA0,
-				((uint32_t) RCC_APB1Periph_USART3), GPIOA, GPIO_PinSource1, GPIO_PinSource0, GPIO_AF_USART3,
-				USART3_IRQn
+		{ GPIO_Pin_1, GPIO_Pin_0,
+				((uint32_t) RCC_APB1Periph_UART4), GPIOA, GPIO_PinSource1, GPIO_PinSource0, GPIO_AF_USART3,
+				UART4_IRQn
 		}
 };
 
@@ -121,7 +121,7 @@ void usart_begin(USART_TypeDef * USARTx, const uint32_t baud) {
 		while(1);
 
 	//	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, (FunctionalState) ENABLE);
-	GPIOMode(uPortInfo[portid].rxpin | uPortInfo[portid].txpin, GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_PP,
+	GPIOMode(uPortInfo[portid].afgpio, uPortInfo[portid].rxpin | uPortInfo[portid].txpin, GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_PP,
 			GPIO_PuPd_UP);
 	/* USART3 clock enable */
 	RCC_APB1PeriphClockCmd(uPortInfo[portid].usart_periph, (FunctionalState) ENABLE);

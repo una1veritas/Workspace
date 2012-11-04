@@ -62,20 +62,23 @@ void pinMode(uint32_t portpin, GPIOMode_TypeDef mode) {
 }
 
 
-void GPIOMode(uint32_t portpin, GPIOMode_TypeDef mode,
-		GPIOSpeed_TypeDef clk, GPIOOType_TypeDef otype, GPIOPuPd_TypeDef pupd) {
+void GPIOMode(GPIO_TypeDef * port, uint16_t pinbits, GPIOMode_TypeDef mode,
+              GPIOSpeed_TypeDef clk, GPIOOType_TypeDef otype, GPIOPuPd_TypeDef pupd) {
 
 	GPIO_InitTypeDef GPIO_InitStructure;
-	// wake up the port
-	RCC_AHB1PeriphClockCmd(GPIOPeriph[portpin>>16 & 0xf], ENABLE);
-	//
-	GPIO_InitStructure.GPIO_Pin = portpin & 0xffff;;
+	// waking up the port
+    if ( port == GPIOB )
+    	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+    else if ( port == GPIOD )
+    	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+        
+	GPIO_InitStructure.GPIO_Pin = pinbits;
 	GPIO_InitStructure.GPIO_Mode = mode;
 	GPIO_InitStructure.GPIO_OType = otype;
 	GPIO_InitStructure.GPIO_PuPd = pupd;
 	GPIO_InitStructure.GPIO_Speed = clk;
 	//
-	GPIO_Init(GPIOPort[portpin >>16 & 0x0f], &GPIO_InitStructure);
+	GPIO_Init(port, &GPIO_InitStructure);
 }
 
 /*

@@ -8,9 +8,13 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include uVision/subdir.mk
 -include stdperiph_driver/subdir.mk
--include build/stdperiph_driver/subdir.mk
 -include armcore/subdir.mk
+-include Release/stdperiph_driver_src/subdir.mk
+-include Release/armcore/subdir.mk
+-include Release/subdir.mk
+-include EWARM/Debug/Obj/subdir.mk
 -include subdir.mk
 -include objects.mk
 

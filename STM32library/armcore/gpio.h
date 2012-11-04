@@ -29,7 +29,7 @@ enum PortNameDef {
 	PortI
 };
 
-#define PinBit(n)  (1<<(n))
+#define PinBit(n)  (((uint16_t)1)<<(n))
 typedef enum GPIOPin {
 	PA0 = (PortA <<16) | PinBit(0),
 	PA1 = (PortA <<16) | PinBit(1),
@@ -102,7 +102,7 @@ void digitalWrite(uint32_t portpin, uint8_t bit);
 void portWrite(GPIO_TypeDef * port, uint16_t bits);
 uint8_t digitalRead(GPIO_TypeDef * port, uint16_t pin);
 
-void GPIOMode(uint32_t portpins, GPIOMode_TypeDef mode,
+void GPIOMode(GPIO_TypeDef * port, uint16_t pinbits, GPIOMode_TypeDef mode,
 		GPIOSpeed_TypeDef speed, GPIOOType_TypeDef otype, GPIOPuPd_TypeDef pull);
 // void GPIOWrite(GPIO_TypeDef * port, uint16 value);
 
