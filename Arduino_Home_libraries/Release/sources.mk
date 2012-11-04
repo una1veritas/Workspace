@@ -94,12 +94,12 @@ home_libraries/MCP23009 \
 home_libraries/KeyMatrix \
 home_libraries/HMC5843 \
 home_libraries/HC595 \
-home_libraries/GrLCD12864 \
 home_libraries/GPS \
+home_libraries/GLCD12864 \
 home_libraries/FeliCaPlug \
 home_libraries/Fat16 \
-home_libraries/Ethernet_W5100/utility \
-home_libraries/Ethernet_W5100 \
+home_libraries/Ethernet_w5100/utility \
+home_libraries/Ethernet_w5100 \
 home_libraries/Digital6DOF \
 home_libraries/DataFlash_SPI \
 home_libraries/DES_OUTE \

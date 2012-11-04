@@ -8,6 +8,8 @@
 #ifndef ARMCORE_H_
 #define ARMCORE_H_
 
+#include <stdio.h>
+#include <stdint.h>
 
 #define HEX 16
 #define DEC 10
@@ -23,5 +25,12 @@ typedef uint16_t word;
 typedef uint32_t uint32;
 typedef uint64_t uint64;
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
+size_t strlen(const char * s);
+uint32_t millis(void);
+#ifdef __cplusplus
+}
+#endif
 #endif /* ARMCORE_H_ */

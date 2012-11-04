@@ -1,275 +1,207 @@
 /**
- * derived from i2c IOE example
-  */
-
-#define USE_STDPERIPH_DRIVER
+ ******************************************************************************
+ * @file    i2c_st7032i_test/main.c
+ * @author  Yasuo Kawachi
+ * @version V1.0.0
+ * @date    04/15/2009
+ * @brief   Main program body
+ ******************************************************************************
+ * @copy
+ *
+ * Copyright 2008-2009 Yasuo Kawachi All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *  1. Redistributions of source code must retain the above copyright notice,
+ *  this list of conditions and the following disclaimer.
+ *  2. Redistributions in binary form must reproduce the above copyright notice,
+ *  this list of conditions and the following disclaimer in the documentation
+ *  and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY YASUO KAWACHI "AS IS" AND ANY EXPRESS OR IMPLIE  D
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+ * EVENT SHALL YASUO KAWACHI OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * This software way contain the part of STMicroelectronics firmware.
+ * Below notice is applied to the part, but the above BSD license is not.
+ *
+ * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
+ * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
+ * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
+ * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
+ * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
+ * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+ *
+ * COPYRIGHT 2009 STMicroelectronics
+ */
 
 /* Includes ------------------------------------------------------------------*/
-#include <stdint.h>
-#include <stm32f4xx.h>
-#include "main.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include "stm32f4xx.h"
+#include "stm32f4xx_gpio.h"
+#include "stm32f4xx_rcc.h"
+#include "stm32f4xx_i2c.h"
+//#include "platform_config.h"
+//#include "com_config.h"
+#include "delay.h"
 
+#include "armcore.h"
+#include "gpio.h"
 #include "i2c.h"
-
-
-/** @addtogroup STM32F4xx_StdPeriph_Examples
-  * @{
-  */
-
-/** @addtogroup I2C_IOE
-  * @{
-  */ 
-
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+#define ST7032I_ADDR               0x3e
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+const int8_t Welcome_Message[] =
+//  "\r\nHellow Cortex-M3/STM32 World!\r\n"
+		// "Expand your creativity and enjoy making.\r\n\r\n"
+		"Initialize and put character on ST7032i LCD.\r\n\r\n";
 
+/* Private function prototypes -----------------------------------------------*/
+void ST7032i_command(uint8_t d);
+void ST7032i_data(uint8_t d);
+void ST7032i_print(char * str);
 /* Private functions ---------------------------------------------------------*/
 
-static __IO uint32_t TimingDelay;
-RCC_ClocksTypeDef RCC_Clocks;
-
 /**
-  * @brief   Main program
-  * @param  None
-  * @retval None
-  */
-int main(void)
-{
-  /*!< At this stage the microcontroller clock setting is already configured, 
-       this is done through SystemInit() function which is called from startup
-       file (startup_stm32f4xx.s) before to branch to application main.
-       To reconfigure the default setting of SystemInit() function, refer to
-       system_stm32f4xx.c file
-     */     
+ * @brief  Main program.
+ * @param  None
+ * @retval : None
+ */
+int main(void) {
+	GPIOPin_Type led = PD12;
+	char tmp[32];
+	int32_t i = 0;
 
-  /* SysTick end of count event each 10ms */
-  RCC_GetClocksFreq(&RCC_Clocks);
-  SysTick_Config(RCC_Clocks.HCLK_Frequency / 100);
-         
-  I2C1_GPIO_Config();
-  /* Configure the IO Expander */
-  I2C1_Config();
+	pinMode(led, OUTPUT);
+	digitalWrite(led, HIGH);
+	// Configure board specific setting
+	// BoardInit();
+	// Setting up COM port for Print function
+//  COM_Configuration();
 
-#define IOE_1_ADDR                 0x82
-#define IOE_2_ADDR                 0x88
-#define STMPE811_ID                0x0811
+	//Send welcome messages
+	// cprintf(Welcome_Message);
 
-  /* Generate IOExpander Software reset */
-  IOE_Reset(IOE_1_ADDR);
-  IOE_Reset(IOE_2_ADDR);
+	digitalWrite(led, LOW);
+	delay_ms(10);
+	digitalWrite(led, HIGH);
+	delay_ms(20);
+	digitalWrite(led, LOW);
+	delay_ms(40);
+	digitalWrite(led, HIGH);
+	/*
+	digitalWrite(PE2, HIGH);
+	delay_ms(5);
+	digitalWrite(PE2, LOW);
+*/
+	i2c_begin(I2C1, 100000);
 
-  /* ---------------------- IO Expander 1 configuration --------------------- */
-  /* Enable the GPIO, Touch Screen and ADC functionalities */
-  IOE_FnctCmd(IOE_1_ADDR, IOE_IO_FCT | IOE_TS_FCT | IOE_ADC_FCT, ENABLE);
-  /* Configure the VBAT pin in output mode pin*/
-  IOE_IOPinConfig(IOE_1_ADDR, VBAT_DIV_PIN , Direction_OUT);
-  /* ENABLE the alternate function for IN1 pin */
-  IOE_IOAFConfig(IOE_1_ADDR, VBAT_DIV_PIN, ENABLE);
+	//Function Set
+	ST7032i_command(0x38); //(0b00111000);
+	digitalWrite(led, LOW);
+	delay_us(27);
+	digitalWrite(led, HIGH);
 
-  /* Apply the default state for the out pins */
-  IOE_WriteIOPin(VBAT_DIV_PIN, BitReset);
-  /* Configure the MEMS interrupt pins in Input mode */
-  IOE_IOPinConfig(IOE_2_ADDR, (uint32_t)(MEMS_INT1_PIN | MEMS_INT2_PIN), Direction_IN);
+	//Function Set
+	ST7032i_command(0x39); //(0b00111001);
 
-  /* ENABLE the alternate function for the Joystick pins */
-  IOE_IOAFConfig(IOE_2_ADDR, (uint32_t)(MEMS_INT1_PIN | MEMS_INT2_PIN), ENABLE);
-  /* Configure the IOs to detect Falling and Rising Edges */
-  IOE_IOEdgeConfig(IOE_2_ADDR, (uint32_t)(MEMS_INT1_PIN | MEMS_INT2_PIN), (uint32_t)(EDGE_FALLING | EDGE_RISING));
-  /* Touch Screen controller configuration */
-  IOE_TS_Config();
+	delay_us(27);
 
-  /* ------------------------------------------------------------------------ */
+	//Bias and OSC frequency
+	ST7032i_command(0x14); //(0b00010100);
 
-  /* ---------------------- IO Expander 2 configuration --------------------- */
-  /* Enable the GPIO, Temperature Sensor and ADC functionalities */
-  IOE_FnctCmd(IOE_2_ADDR, IOE_IO_FCT | IOE_TEMPSENS_FCT | IOE_ADC_FCT, ENABLE);
+	delay_us(27);
 
-  /* Configure the Audio Codec Reset pin in output mode pin*/
-  IOE_IOPinConfig(IOE_2_ADDR, (uint32_t)(AUDIO_RESET_PIN), Direction_OUT);
-  IOE_IOPinConfig(IOE_2_ADDR, (uint32_t)(MII_INT_PIN), Direction_IN);
+	//Contrast set
+	ST7032i_command(0x70 | (40 & 0x0f));
 
-  /* ENABLE the alternate function for IN1 pin */
-  IOE_IOAFConfig(IOE_2_ADDR, (uint32_t)(AUDIO_RESET_PIN | MII_INT_PIN), ENABLE);
+	delay_us(27);
 
-  /* Apply the default state for the out pins */
-  IOE_WriteIOPin(AUDIO_RESET_PIN, BitReset);
-  IOE_WriteIOPin(MII_INT_PIN, BitReset);
-  /* Configure the Joystick pins in Input mode */
-  IOE_IOPinConfig(IOE_2_ADDR, JOY_IO_PINS , Direction_IN);
+	//Power/Icon/Contrast control
+	ST7032i_command(0x56 | (40 >> 4 & 0x03));
 
-  /* ENABLE the alternate function for the Joystick pins */
-  IOE_IOAFConfig(IOE_2_ADDR, JOY_IO_PINS, ENABLE);
-  /* Configure the IOs to detect Falling and Rising Edges */
-  IOE_IOEdgeConfig(IOE_2_ADDR, JOY_IO_PINS, (uint8_t)(EDGE_FALLING | EDGE_RISING));
+	delay_us(27);
 
-  /* Temperature Sensor module configuration */
-  IOE_TempSens_Config();
-  /* ------------------------------------------------------------------------ */
+	//Follower control
+	ST7032i_command(0x6c);
 
-  /* Configuration is OK */
+	delay_ms(200);
 
+	//Function Set
+	ST7032i_command(0x38);
 
-#ifdef IOE_INTERRUPT_MODE
-  /* Enable the Touch Screen and Joystick interrupts */
-  IOE_ITConfig(IOE_ITSRC_JOYSTICK | IOE_ITSRC_TSC); 
-#endif /* IOE_INTERRUPT_MODE */
-  
-  
-  while(1)
-  {
-#ifdef IOE_POLLING_MODE
-    static JOY_State_TypeDef JoyState = JOY_NONE;
-    static TS_STATE* TS_State;
-    
-    /* Get the Joystick State */
-    JoyState = IOE_JoyStickGetState();
-   
-    switch (JoyState)
-    {
-      case JOY_NONE:
-        LCD_DisplayStringLine(Line5, (uint8_t *)"JOY:     ----        ");
-        break;
-      case JOY_UP:
-        LCD_DisplayStringLine(Line5, (uint8_t *)"JOY:     UP         ");
-        break;     
-      case JOY_DOWN:
-        LCD_DisplayStringLine(Line5, (uint8_t *)"JOY:    DOWN        ");
-        break;          
-      case JOY_LEFT:
-        LCD_DisplayStringLine(Line5, (uint8_t *)"JOY:    LEFT        ");
-        break;         
-      case JOY_RIGHT:
-        LCD_DisplayStringLine(Line5, (uint8_t *)"JOY:    RIGHT        ");
-        break;                 
-      case JOY_CENTER:
-        LCD_DisplayStringLine(Line5, (uint8_t *)"JOY:   CENTER       ");
-        break; 
-      default:
-        LCD_DisplayStringLine(Line5, (uint8_t *)"JOY:   ERROR      ");
-        break;         
-    }
+	//Display control : on
+	ST7032i_command(0x0c);
 
-    /* Update the structure with the current position */
-    TS_State = IOE_TS_GetState();  
-    
-    if ((TS_State->TouchDetected) && (TS_State->Y < 220) && (TS_State->Y > 180))
-    {
-      if ((TS_State->X > 10) && (TS_State->X < 70))
-      {
-        LCD_DisplayStringLine(Line6, (uint8_t *)" LD4                ");
-        STM_EVAL_LEDOn(LED4);
-      }
-      else if ((TS_State->X > 90) && (TS_State->X < 150))
-      {
-        LCD_DisplayStringLine(Line6, (uint8_t *)"      LD3           ");
-        STM_EVAL_LEDOn(LED3);
-      }
-      else if ((TS_State->X > 170) && (TS_State->X < 230))
-      {
-        LCD_DisplayStringLine(Line6, (uint8_t *)"           LD2      ");
-        STM_EVAL_LEDOn(LED2);
-      }     
-      else if ((TS_State->X > 250) && (TS_State->X < 310))
-      {
-        LCD_DisplayStringLine(Line6, (uint8_t *)"                LD1 ");
-        STM_EVAL_LEDOn(LED1);
-      }
-    }
-    else
-    {
-      STM_EVAL_LEDOff(LED1);
-      STM_EVAL_LEDOff(LED2);
-      STM_EVAL_LEDOff(LED3);
-      STM_EVAL_LEDOff(LED4);
-    }
-#endif /* IOE_POLLING_MODE */  
-    
-#ifdef BUTTON_POLLING_MODE
-    /* Insert 10 ms delay */
-    Delay(1);
-    
-    if (STM_EVAL_PBGetState(BUTTON_KEY) == 0)
-    {
-      /* Toggle LD1 */
-      STM_EVAL_LEDToggle(LED1);
+	delay_us(27);
 
-      LCD_DisplayStringLine(Line4, (uint8_t *)"Pol:   KEY Pressed  ");
-    }
+	//Clear
+	ST7032i_command(0x01);
 
-    if (STM_EVAL_PBGetState(BUTTON_TAMPER) == 0)
-    {
-      /* Toggle LD2 */
-      STM_EVAL_LEDToggle(LED2);
+	delay_ms(2);
 
-      LCD_DisplayStringLine(Line4, (uint8_t *)"Pol: TAMPER Pressed ");
-    }
+	ST7032i_print("Hi friends!");
 
-    if (STM_EVAL_PBGetState(BUTTON_WAKEUP) != 0)
-    {
-      /* Toggle LD3 */
-      STM_EVAL_LEDToggle(LED3);
-      LCD_DisplayStringLine(Line4, (uint8_t *)"Pol: WAKEUP Pressed ");
-    }
-#endif
-  }
+	ST7032i_command(0x80 | 0x40);
+
+	ST7032i_print("My World!");
+
+//  cprintf("Done! Confirm a message is on LCD.");
+
+	while (1) {
+		//Clear
+		ST7032i_command(0x80 | 0x40);
+		ST7032i_print("        ");
+		ST7032i_command(0x80 | 0x40);
+		sprintf(tmp, (char *)"> %d", (int16_t)i);
+		ST7032i_print(tmp);
+		i++;
+		delay_ms(100);
+	}
 }
 
 /**
-  * @brief  Inserts a delay time.
-  * @param  nTime: specifies the delay time length, in 10 ms.
-  * @retval None
-  */
-void Delay(uint32_t nTime)
-{
-  TimingDelay = nTime;
+ * @brief  I2C Configuration
+ * @param  None
+ * @retval None
+ */
 
-  while(TimingDelay != 0);
+/**
+ * @brief  Write Command to ST7032i
+ * @param  Data : Command Data
+ * @retval None
+ */
+void ST7032i_command(uint8_t d) {
+	uint8_t data[2];
+	data[0] = 0;
+	data[1] = d;
+	i2c_transmit(I2C1, ST7032I_ADDR, data, 2);
 }
 
 /**
-  * @brief  Decrements the TimingDelay variable.
-  * @param  None
-  * @retval None
-  */
-void TimingDelay_Decrement(void)
-{
-  if (TimingDelay != 0x00)
-  { 
-    TimingDelay--;
-  }
+ * @brief  Write Data to ST7032i
+ * @param  Data : "Data" Data
+ * @retval None
+ */
+void ST7032i_data(uint8_t data) {
+	uint8_t t[2];
+	t[0] = 0x40 ; //0b01000000;
+	t[1] = data;
+	i2c_transmit(I2C1, ST7032I_ADDR, 
+	t, 2);
 }
 
-#ifdef  USE_FULL_ASSERT
-
-/**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
-void assert_failed(uint8_t* file, uint32_t line)
-{ 
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-
-  LCD_DisplayStringLine(Line0, "assert_param error!!");
-  
-  /* Infinite loop */
-  while (1)
-  {
-  }
+void ST7032i_print(char * str) {
+	while (*str)
+		ST7032i_data(*str++);
 }
-#endif
-
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-  */ 
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

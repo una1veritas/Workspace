@@ -32,19 +32,18 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include <stm32f4xx_tim.h>
+#include "stm32f4xx_rcc.h"
+#include "stm32f4xx_tim.h"
 #include "delay.h"
 //#include "platform_config.h"
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define TIM2_RCC RCC_APB1Periph_TIM2
-
 #define TIM_NUM  TIM2
-#define TIM_RCC  TIM2_RCC
+#define TIM_RCC  RCC_APB1Periph_TIM2 //TIM2_RCC
 /* Private variables ---------------------------------------------------------*/
 // TIM_TimeBaseInitTypeDef's order is {uint16_t TIM_Prescaler, uint16_t TIM_CounterMode, ,uint16_t TIM_Period, uint16_t TIM_ClockDivision, uint8_t TIM_RepetitionCounter}
-TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructureMicro = {36,TIM_CounterMode_Up,0,0,0};
-TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructureMili =  {36000,TIM_CounterMode_Up,0,0,0};
+TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructureMicro = {42,TIM_CounterMode_Up,0,0,0};
+TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructureMili =  {(uint16_t)42000,TIM_CounterMode_Up,0,0,0};
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 /**
@@ -58,7 +57,7 @@ void delay_us(uint16_t waittime)
   RCC_APB1PeriphClockCmd(TIM_RCC , ENABLE);
 
   /* Time base configuration */
-  TIM_TimeBaseStructureMicro.TIM_Period = ((waittime+1) * 2)-1;
+  TIM_TimeBaseStructureMicro.TIM_Period = ((waittime+1) * 1)-1;
   TIM_TimeBaseInit(TIM_NUM, &TIM_TimeBaseStructureMicro);
 
   TIM_SelectOnePulseMode(TIM_NUM, TIM_OPMode_Single);
@@ -86,7 +85,7 @@ void delay_ms(uint16_t waittime)
   RCC_APB1PeriphClockCmd(TIM_RCC , ENABLE);
 
   /* Time base configuration */
-  TIM_TimeBaseStructureMili.TIM_Period = ((waittime+1) * 2)-1;
+  TIM_TimeBaseStructureMili.TIM_Period = ((waittime+1) * 1)-1;
   TIM_TimeBaseInit(TIM_NUM, &TIM_TimeBaseStructureMili);
 
   TIM_SelectOnePulseMode(TIM_NUM, TIM_OPMode_Single);

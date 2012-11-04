@@ -33,6 +33,19 @@ uint16_t GPIOPin[] = { GPIO_Pin_0, GPIO_Pin_1, GPIO_Pin_2, GPIO_Pin_3,
  static const uint8_t LED_BUILTIN = 14;
  */
 
+uint8_t pinsrc(uint32_t pin) {
+	uint16_t pinbit = pin & 0xffff;
+	uint16_t bit = 1;
+	uint8_t i;
+	for(i = 0; i < 16; i++) {
+		if ( bit == pinbit )
+			return i;
+		bit <<= 1;
+	}
+	return 16;
+}
+
+
 void pinMode(uint32_t portpin, GPIOMode_TypeDef mode) {
 
 	GPIO_InitTypeDef GPIO_InitStructure;

@@ -1,6 +1,6 @@
 armcore/delay.d armcore/delay.o: \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/delay.c \
- /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_tim.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cm4.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cmInstr.h \
@@ -24,18 +24,18 @@ armcore/delay.d armcore/delay.o: \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_i2c.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_iwdg.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_pwr.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rng.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rtc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_sdio.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_spi.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_syscfg.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_tim.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_wwdg.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/misc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/delay.h
 
-/Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_tim.h:
+/Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h:
 
@@ -83,8 +83,6 @@ armcore/delay.d armcore/delay.o: \
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_pwr.h:
 
-/Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h:
-
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rng.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rtc.h:
@@ -94,6 +92,8 @@ armcore/delay.d armcore/delay.o: \
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_spi.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_syscfg.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_tim.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h:
 
