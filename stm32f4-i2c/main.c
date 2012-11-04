@@ -53,7 +53,7 @@
 //#include "com_config.h"
 #include "delay.h"
 
-#include "armcore.h"
+//#include "armcore.h"
 #include "gpio.h"
 #include "i2c.h"
 /* Private typedef -----------------------------------------------------------*/
@@ -83,7 +83,7 @@ int main(void) {
 	int32_t i = 0;
 
 	pinMode(led, OUTPUT);
-	digitalWrite(led, HIGH);
+	digitalWrite(led, LOW);
 	// Configure board specific setting
 	// BoardInit();
 	// Setting up COM port for Print function
@@ -92,25 +92,28 @@ int main(void) {
 	//Send welcome messages
 	// cprintf(Welcome_Message);
 
-	digitalWrite(led, LOW);
+	digitalWrite(led, HIGH);
 	delay_ms(10);
-	digitalWrite(led, HIGH);
-	delay_ms(20);
 	digitalWrite(led, LOW);
-	delay_ms(40);
+	delay_ms(20);
 	digitalWrite(led, HIGH);
+	delay_ms(40);
+	digitalWrite(led, LOW);
 	/*
 	digitalWrite(PE2, HIGH);
 	delay_ms(5);
 	digitalWrite(PE2, LOW);
 */
 	i2c_begin(I2C1, 100000);
+	digitalWrite(led, HIGH);
+	delay_us(27);
+	digitalWrite(led, LOW);
 
 	//Function Set
 	ST7032i_command(0x38); //(0b00111000);
-	digitalWrite(led, LOW);
-	delay_us(27);
 	digitalWrite(led, HIGH);
+	delay_us(27);
+	digitalWrite(led, LOW);
 
 	//Function Set
 	ST7032i_command(0x39); //(0b00111001);
@@ -197,8 +200,7 @@ void ST7032i_data(uint8_t data) {
 	uint8_t t[2];
 	t[0] = 0x40 ; //0b01000000;
 	t[1] = data;
-	i2c_transmit(I2C1, ST7032I_ADDR, 
-	t, 2);
+	i2c_transmit(I2C1, ST7032I_ADDR, t, 2);
 }
 
 void ST7032i_print(char * str) {

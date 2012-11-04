@@ -64,8 +64,8 @@ void i2c_begin(I2C_TypeDef * I2Cx, uint32_t clkspeed) {
 	uint8_t portid = 0; //i2c_id(I2Cx);
 
 //	GPIOMode(I2CPortInfo[portid].scl | I2CPortInfo[portid].sda, ALTFUNC,
-	GPIOMode(PB9 | PB6, ALTFUNC,
-			GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL);
+	GPIOMode(PB8 | PB7, ALTFUNC,
+			GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_UP);
 
 	/* I2C Periph clock enable */
 	// if ( I2CPortInfo[portid].periph == RCC_APB1Periph_I2C1 )
@@ -81,8 +81,8 @@ void i2c_begin(I2C_TypeDef * I2Cx, uint32_t clkspeed) {
 			I2CPortInfo[portid].sclsrc, //GPIO_PinSource8,
 			//pinsrc(I2CPortInfo[portid].scl),
 			I2CPortInfo[portid].afmapping);
-*/	GPIO_PinAFConfig(GPIOB, GPIO_PinSource9,GPIO_AF_I2C1);
-	GPIO_PinAFConfig(GPIOB,GPIO_PinSource6, GPIO_AF_I2C1);
+*/	GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_I2C1);
 
 	/* I2C configuration */
 	I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;

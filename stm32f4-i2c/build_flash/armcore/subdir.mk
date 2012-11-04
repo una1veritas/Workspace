@@ -8,24 +8,21 @@ C_SRCS += \
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio.c \
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/i2c.c \
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/systick.c \
-/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/usart.c \
-/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/util.c 
+/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/usart.c 
 
 OBJS += \
 ./armcore/delay.o \
 ./armcore/gpio.o \
 ./armcore/i2c.o \
 ./armcore/systick.o \
-./armcore/usart.o \
-./armcore/util.o 
+./armcore/usart.o 
 
 C_DEPS += \
 ./armcore/delay.d \
 ./armcore/gpio.d \
 ./armcore/i2c.d \
 ./armcore/systick.d \
-./armcore/usart.d \
-./armcore/util.d 
+./armcore/usart.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -58,13 +55,6 @@ armcore/systick.o: /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/s
 	@echo ' '
 
 armcore/usart.o: /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/usart.c
-	@echo 'Building file: $<'
-	@echo 'Invoking: Cross GCC Compiler'
-	arm-none-eabi-gcc -DUSE_STDPERIPH_DRIVER=1 -I"/Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include" -I"/Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx" -I"/Users/sin/Documents/Eclipse/Workspace/stm32f4-i2c" -I"/Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc" -I"/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore" -Os -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=soft -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
-
-armcore/util.o: /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/util.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
 	arm-none-eabi-gcc -DUSE_STDPERIPH_DRIVER=1 -I"/Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include" -I"/Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx" -I"/Users/sin/Documents/Eclipse/Workspace/stm32f4-i2c" -I"/Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc" -I"/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore" -Os -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=soft -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
