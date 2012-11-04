@@ -25,5 +25,6 @@ C_UPPER_DEPS :=
 SUBDIRS := \
 . \
 armcore \
+armcore/enhanced \
 STM32F4xx_StdPeriph_Driver/src \
 

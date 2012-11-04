@@ -73,12 +73,12 @@ RM := rm -rf
 -include home_libraries/KeyMatrix/subdir.mk
 -include home_libraries/HMC5843/subdir.mk
 -include home_libraries/HC595/subdir.mk
--include home_libraries/GrLCD12864/subdir.mk
 -include home_libraries/GPS/subdir.mk
+-include home_libraries/GLCD12864/subdir.mk
 -include home_libraries/FeliCaPlug/subdir.mk
 -include home_libraries/Fat16/subdir.mk
--include home_libraries/Ethernet_W5100/utility/subdir.mk
--include home_libraries/Ethernet_W5100/subdir.mk
+-include home_libraries/Ethernet_w5100/utility/subdir.mk
+-include home_libraries/Ethernet_w5100/subdir.mk
 -include home_libraries/Digital6DOF/subdir.mk
 -include home_libraries/DataFlash_SPI/subdir.mk
 -include home_libraries/DES_OUTE/subdir.mk
@@ -177,7 +177,7 @@ libArduino_Home_libraries.lss: libArduino_Home_libraries.a
 
 sizedummy: libArduino_Home_libraries.a
 	@echo 'Invoking: Print Size'
-	-avr-size --format=avr --mcu=atmega328p libArduino_Home_libraries.a
+	-avr-size --format=berkeley -t libArduino_Home_libraries.a
 	@echo 'Finished building: $@'
 	@echo ' '
 

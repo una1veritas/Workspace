@@ -25,7 +25,7 @@ void SysTick_delay(const uint32_t dlyTicks) {
 
 void SysTick_Start(void) {
 	RCC_ClocksTypeDef RCC_Clocks;
-	  /* SysTick end of count event each 10ms */
+	  /* SysTick end of count event each 1ms */
 	  RCC_GetClocksFreq(&RCC_Clocks);
 	  SysTick_Config(RCC_Clocks.HCLK_Frequency / 1000);
 	  /*

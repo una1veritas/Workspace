@@ -1,0 +1,17 @@
+misc.o: ..\..\STM32Library\STM32F4xx_StdPeriph_Driver\src\misc.c
+misc.o: ..\..\STM32Library\STM32F4xx_StdPeriph_Driver\inc\misc.h
+misc.o: ..\..\STM32Library\CMSIS\STM32F4xx\stm32f4xx.h
+misc.o: ..\..\STM32Library\CMSIS\Include\core_cm4.h
+misc.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
+misc.o: ..\..\STM32Library\CMSIS\Include\core_cmInstr.h
+misc.o: ..\..\STM32Library\CMSIS\Include\core_cmFunc.h
+misc.o: ..\..\STM32Library\CMSIS\Include\core_cm4_simd.h
+misc.o: ..\..\STM32Library\CMSIS\STM32F4xx\system_stm32f4xx.h
+misc.o: ..\..\stm32f4-i2c\stm32f4xx_conf.h
+misc.o: ..\..\STM32Library\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_gpio.h
+misc.o: ..\..\STM32Library\CMSIS\STM32F4xx\stm32f4xx.h
+misc.o: ..\..\STM32Library\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_i2c.h
+misc.o: ..\..\STM32Library\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_rcc.h
+misc.o: ..\..\STM32Library\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_tim.h
+misc.o: ..\..\STM32Library\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_usart.h
+misc.o: ..\..\STM32Library\STM32F4xx_StdPeriph_Driver\inc\misc.h

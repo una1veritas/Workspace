@@ -8,6 +8,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include armcore/enhanced/subdir.mk
 -include armcore/subdir.mk
 -include STM32F4xx_StdPeriph_Driver/src/subdir.mk
 -include subdir.mk
