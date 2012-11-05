@@ -82,7 +82,8 @@ int main(void) {
 	char tmp[32];
 	int32_t i = 0;
 
-	pinMode(led, OUTPUT);
+	portMode(GPIOD, GPIO_Pin_12,
+			GPIO_Mode_OUT, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_Speed_50MHz);
 	digitalWrite(led, LOW);
 	// Configure board specific setting
 	// BoardInit();
@@ -95,20 +96,21 @@ int main(void) {
 	digitalWrite(led, HIGH);
 	delay_ms(10);
 	digitalWrite(led, LOW);
-	delay_ms(20);
-	digitalWrite(led, HIGH);
-	delay_ms(40);
-	digitalWrite(led, LOW);
+	delay_ms(5);
 
+	digitalWrite(led, HIGH);
 	i2c_begin(I2C1, 100000);
 
 	//Function Set
 	ST7032i_command(0x38); //(0b00111000);
+	delay_us(27);
+	digitalWrite(led, LOW);
 
+	digitalWrite(led, HIGH);
 	//Function Set
 	ST7032i_command(0x39); //(0b00111001);
-
 	delay_us(27);
+	digitalWrite(led, LOW);
 
 	//Bias and OSC frequency
 	ST7032i_command(0x14); //(0b00010100);
