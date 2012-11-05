@@ -27,8 +27,4 @@ uVision \
 . \
 stdperiph_driver \
 armcore \
-Release \
-Release/stdperiph_driver_src \
-Release/armcore \
-EWARM/Debug/Obj \
 

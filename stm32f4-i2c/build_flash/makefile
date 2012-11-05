@@ -11,10 +11,6 @@ RM := rm -rf
 -include uVision/subdir.mk
 -include stdperiph_driver/subdir.mk
 -include armcore/subdir.mk
--include Release/stdperiph_driver_src/subdir.mk
--include Release/armcore/subdir.mk
--include Release/subdir.mk
--include EWARM/Debug/Obj/subdir.mk
 -include subdir.mk
 -include objects.mk
 

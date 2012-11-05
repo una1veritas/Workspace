@@ -99,21 +99,11 @@ int main(void) {
 	digitalWrite(led, HIGH);
 	delay_ms(40);
 	digitalWrite(led, LOW);
-	/*
-	digitalWrite(PE2, HIGH);
-	delay_ms(5);
-	digitalWrite(PE2, LOW);
-*/
+
 	i2c_begin(I2C1, 100000);
-	digitalWrite(led, HIGH);
-	delay_us(27);
-	digitalWrite(led, LOW);
 
 	//Function Set
 	ST7032i_command(0x38); //(0b00111000);
-	digitalWrite(led, HIGH);
-	delay_us(27);
-	digitalWrite(led, LOW);
 
 	//Function Set
 	ST7032i_command(0x39); //(0b00111001);

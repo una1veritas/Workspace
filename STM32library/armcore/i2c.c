@@ -14,6 +14,7 @@
 #include "delay.h"
 #include "i2c.h"
 
+/*
 enum I2CPortNumber {
 	I2C_1 = 0, I2C_2, I2C_3,
 };
@@ -51,6 +52,7 @@ struct {
 				GPIO_PinSource9, GPIO_PinSource8, GPIO_AF_I2C3 //, USART1_IRQn
 		},
 };
+*/
 
 /**
  * @brief  I2C Configuration
@@ -58,54 +60,43 @@ struct {
  * @retval None
  */
 void i2c_begin(I2C_TypeDef * I2Cx, uint32_t clkspeed) {
-//  GPIO_InitTypeDef  GPIO_InitStructure;
+  GPIO_InitTypeDef  GPIO_InitStructure;
 	I2C_InitTypeDef I2C_InitStructure;
 
-	uint8_t portid = 0; //i2c_id(I2Cx);
-
-	GPIO_InitTypeDef GPIO_InitStructure;
-	// waking up the port
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_8;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	//
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-	/* I2C Periph clock enable */
-	// if ( I2CPortInfo[portid].periph == RCC_APB1Periph_I2C1 )
-//	RCC_APB1PeriphClockCmd(I2CPortInfo[portid].periph, ENABLE);
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
-
-	/*
-	GPIO_PinAFConfig(I2CPortInfo[portid].gpio_sda,
-			I2CPortInfo[portid].sdasrc,//GPIO_PinSource9,
-			//pinsrc(I2CPortInfo[portid].sda),
-			I2CPortInfo[portid].afmapping);
-	GPIO_PinAFConfig(I2CPortInfo[portid].gpio_scl,
-			I2CPortInfo[portid].sclsrc, //GPIO_PinSource8,
-			//pinsrc(I2CPortInfo[portid].scl),
-			I2CPortInfo[portid].afmapping);
-*/	GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_I2C1);
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);
-
-	/* I2C configuration */
+	// Preset I2C configuration to the structure.
 	I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
 	I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
 //  I2C_InitStructure.I2C_OwnAddress1 = I2C_SLAVE_ADDRESS7;
 	I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
 	I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-	I2C_InitStructure.I2C_ClockSpeed = 100000; //clkspeed;
+	I2C_InitStructure.I2C_ClockSpeed = clkspeed;
 
-	/* I2C Peripheral Enable */
-//	I2C_Cmd(I2Cx, ENABLE);
-	I2C_Cmd(I2C1, ENABLE);
-	/* Apply I2C configuration after enabling it */
-//	I2C_Init(I2Cx, &I2C_InitStructure);
-	I2C_Init(I2C1, &I2C_InitStructure);
+	// startt he initialization sequence.
+	if ( I2Cx == I2C2 ) {
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
+	} else if ( I2Cx == I2C3 ) {
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C3, ENABLE);
+	} else {
+		// I2C1 as default
+		// I2C Periph Clock enable.
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
+		// SDA -- GPIOB 7, 9 / SCL -- GPIOB 6, 8
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_I2C1);
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);
+		// Set Pins as AF
+		portMode(GPIOB, GPIO_Pin_7 | GPIO_Pin_8,
+				GPIO_Mode_AF, GPIO_OType_OD, GPIO_PuPd_UP, GPIO_Speed_50MHz);
+		/* Apply I2C configuration after enabling it */
+		I2C_Init(I2C1, &I2C_InitStructure);
+		// I2C_ITConfig
+		// DMA_Init
+		// I2C_DMACmd
+		// I2C_DMALastTransferCmd
+		I2C_Cmd(I2C1, ENABLE);
+		// DMA_Cmd
+	}
+
 }
 
 /**

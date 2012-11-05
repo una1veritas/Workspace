@@ -102,8 +102,8 @@ void digitalWrite(uint32_t portpin, uint8_t bit);
 void portWrite(GPIO_TypeDef * port, uint16_t bits);
 uint8_t digitalRead(GPIO_TypeDef * port, uint16_t pin);
 
-void GPIOMode(GPIO_TypeDef * port, uint16_t pinbits, GPIOMode_TypeDef mode,
-		GPIOSpeed_TypeDef speed, GPIOOType_TypeDef otype, GPIOPuPd_TypeDef pull);
+void portMode(GPIO_TypeDef * port, uint32_t pinbit, GPIOMode_TypeDef mode,
+              GPIOSpeed_TypeDef clk, GPIOOType_TypeDef otype, GPIOPuPd_TypeDef pupd);
 // void GPIOWrite(GPIO_TypeDef * port, uint16 value);
 
 uint8_t pinsrc(uint32_t pin);

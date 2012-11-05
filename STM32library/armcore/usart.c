@@ -87,12 +87,12 @@ uint8_t usart_id(USART_TypeDef * USARTx) {
 struct {
 //	USART_TypeDef * port;
 	uint16_t rxpin, txpin;
-	uint32_t usart_periph;
-	GPIO_TypeDef * afgpio;
+	uint32_t periph;
+	GPIO_TypeDef * port;
 	uint8_t rxsource, txsource;
-	uint8_t afmapping;
+	uint8_t af;
 	IRQn_Type  irq_channel;
-} uPortInfo[] = {
+} usartInfo[] = {
 		{ GPIO_Pin_10, GPIO_Pin_9,
 				((uint32_t) RCC_APB2Periph_USART1), GPIOA, GPIO_PinSource10, GPIO_PinSource9, GPIO_AF_USART1,
 				USART1_IRQn
@@ -120,14 +120,14 @@ void usart_begin(USART_TypeDef * USARTx, const uint32_t baud) {
 	if ( portid == 6 )
 		while(1);
 
-	//	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, (FunctionalState) ENABLE);
-	GPIOMode(uPortInfo[portid].afgpio, uPortInfo[portid].rxpin | uPortInfo[portid].txpin, GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_PP,
-			GPIO_PuPd_UP);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, (FunctionalState) ENABLE);
+	portMode(usartInfo[portid].port, usartInfo[portid].rxpin | usartInfo[portid].txpin,
+			GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL);
 	/* USART3 clock enable */
-	RCC_APB1PeriphClockCmd(uPortInfo[portid].usart_periph, (FunctionalState) ENABLE);
+	RCC_APB1PeriphClockCmd(usartInfo[portid].periph, (FunctionalState) ENABLE);
 
-	GPIO_PinAFConfig(uPortInfo[portid].afgpio, uPortInfo[portid].txsource, uPortInfo[portid].afmapping ); // TX -- PB10
-	GPIO_PinAFConfig(uPortInfo[portid].afgpio, uPortInfo[portid].rxsource,  uPortInfo[portid].afmapping ); // RX -- PB11
+	GPIO_PinAFConfig(usartInfo[portid].port, usartInfo[portid].txsource, usartInfo[portid].af ); // TX -- PB10
+	GPIO_PinAFConfig(usartInfo[portid].port, usartInfo[portid].rxsource, usartInfo[portid].af ); // RX -- PB11
 
 	USART_InitStruct.USART_BaudRate = baud;	// the baudrate is set to the value we passed into this init function
 	USART_InitStruct.USART_WordLength = USART_WordLength_8b;// we want the data frame size to be 8 bits (standard)
@@ -141,7 +141,7 @@ void usart_begin(USART_TypeDef * USARTx, const uint32_t baud) {
 	USART_ITConfig(USARTx, USART_IT_RXNE, (FunctionalState) ENABLE); // enable the USART3 receive interrupt
 	USART_ITConfig(USARTx, USART_IT_TXE, (FunctionalState) DISABLE);
 
-	NVIC_InitStructure.NVIC_IRQChannel = uPortInfo[portid].irq_channel;
+	NVIC_InitStructure.NVIC_IRQChannel = usartInfo[portid].irq_channel;
 	// we want to configure the USART3 interrupts
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0; // this sets the priority group of the USART3 interrupts
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0; // this sets the subpriority inside the group
