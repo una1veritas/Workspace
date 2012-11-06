@@ -13,28 +13,53 @@
 
 #include <stm32f4xx_usart.h>
 
-#include "gpio.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define USART_BUFFER_SIZE 128
-typedef struct {
-	uint16_t buf[USART_BUFFER_SIZE];
-	int16_t head, tail;
-	uint16_t count;
-} USARTRing;
+#include "gpio.h"
 
-extern USARTRing rxring[3], txring[3];
+typedef enum _USARTPort {
+	USART1Serial = 0,
+	USART2Serial,
+	USART3Serial,
+	UART4Serial,
+	UART5Serial,
+	USART6Serial
+} USARTSerial;
 
-void usart_begin(USART_TypeDef * uport, const uint32_t baud);
-void usart_write(USART_TypeDef * uport, const uint16_t w);
-void usart_print(USART_TypeDef * uport, const char * s);
-uint16_t usart_read(USART_TypeDef * uport);
-uint16_t usart_available(USART_TypeDef * uport);
-void usart_flush(USART_TypeDef * uport);
-uint16_t usart_peek(USART_TypeDef * uport);
+/*
+PB6 			USART1_TX
+PB7			USART1_RX
+PA9 			USART1_TX
+PA10 		USART1_RX
+PD5 			USART2_TX
+PD6 			USART2_RX
+PA2			USART2_TX
+PA3			USART2_RX
+PB10 		USART3_TX
+PB11		USART3_RX
+PD8 			USART3_TX
+PD9 			USART3_RX
+PC10 		USART3_TX
+PC11		USART3_RX
+PA0-WKUP	USART4_TX
+PA1			USART4_RX
+PC12		UART5_TX
+PD2 			UART5_RX
+PG9			USART6_RX
+PG14 		USART6_TX
+PC6 			USART6_TX
+PC7 			USART6_RX
+*/
+
+void usart_begin(USARTSerial usx, GPIOPin rx, GPIOPin tx, const uint32_t baud);
+void usart_write(USARTSerial usx, const uint16_t w);
+void usart_print(USARTSerial usx, const char * s);
+uint16_t usart_read(USARTSerial usx);
+uint16_t usart_available(USARTSerial usx);
+void usart_flush(USARTSerial usx);
+uint16_t usart_peek(USARTSerial usx);
 
 void USART1_IRQHandler(void);
 void USART2_IRQHandler(void);

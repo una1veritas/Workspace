@@ -1,4 +1,4 @@
-main.d main.o: ../main.cpp \
+main.d main.o: ../main.c \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cm4.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cmInstr.h \

@@ -7,16 +7,16 @@
 
 #include "gpio.h"
 
-uint32_t GPIOPeriph[] = {
+uint32_t PortPeriph[] = {
 		0, // Arduino Headers
 		RCC_AHB1Periph_GPIOA, RCC_AHB1Periph_GPIOB, RCC_AHB1Periph_GPIOC,
 		RCC_AHB1Periph_GPIOD, RCC_AHB1Periph_GPIOE, RCC_AHB1Periph_GPIOF,
 		RCC_AHB1Periph_GPIOG, RCC_AHB1Periph_GPIOH, RCC_AHB1Periph_GPIOI };
 
-GPIO_TypeDef * GPIOPort[] =
+GPIO_TypeDef * Port[] =
 		{ 0, GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG, GPIOH, GPIOI };
 
-uint16_t GPIOPin[] = { GPIO_Pin_0, GPIO_Pin_1, GPIO_Pin_2, GPIO_Pin_3,
+uint16_t Pin[] = { GPIO_Pin_0, GPIO_Pin_1, GPIO_Pin_2, GPIO_Pin_3,
 		GPIO_Pin_4, GPIO_Pin_5, GPIO_Pin_6, GPIO_Pin_7, GPIO_Pin_8, GPIO_Pin_9,
 		GPIO_Pin_10, GPIO_Pin_11, GPIO_Pin_12, GPIO_Pin_13, GPIO_Pin_14,
 		GPIO_Pin_15, GPIO_Pin_All };
@@ -46,31 +46,76 @@ uint8_t pinsrc(uint32_t pin) {
 }
 */
 
-void pinMode(uint32_t portpin, GPIOMode_TypeDef mode) {
+void pinMode(GPIOPin portpin, GPIOMode_TypeDef mode) {
 
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	RCC_AHB1PeriphClockCmd(GPIOPeriph[portpin>>16 & 0xf], ENABLE);
+	RCC_AHB1PeriphClockCmd(PortPeriph[portpin>>8 & 0x0f], ENABLE);
 
-	GPIO_InitStructure.GPIO_Pin = portpin & 0xffff;
+	GPIO_InitStructure.GPIO_Pin = pinBit(portpin);
 	GPIO_InitStructure.GPIO_Mode = mode;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	//
-	GPIO_Init(GPIOPort[portpin >>16 & 0x0f], &GPIO_InitStructure);
+	GPIO_Init(Port[portpin>>8 & 0x0f], &GPIO_InitStructure);
 }
 
+void digitalWrite(GPIOPin portpin, uint8_t bit) {
+	if (bit) {
+		//? Bit_SET : Bit_RESET ));
+		GPIO_SetBits(Port[portpin >>8 & 0x0f], pinBit(portpin));
+	} else {
+		GPIO_ResetBits(Port[portpin >>8 & 0x0f], pinBit(portpin));
+	}
+}
 
-void portMode(GPIO_TypeDef * port, uint32_t pinbit, GPIOMode_TypeDef mode,
+uint8_t digitalRead(GPIOPin portpin) {
+	GPIO_TypeDef * port = Port[portpin>>8 & 0x0f];
+	uint8_t mode = (port->MODER) >> (pinBit(portpin) * 2);
+	if (mode == GPIO_Mode_OUT)
+		return (GPIO_ReadOutputDataBit(port, pinBit(portpin)) ? SET : RESET);
+	return (GPIO_ReadInputDataBit(port, pinBit(portpin)) ? SET : RESET);
+}
+
+GPIO_TypeDef * pinPort(GPIOPin portpin) {
+	return Port[portpin >> 8 & 0x0f];
+}
+
+uint16_t pinBit(GPIOPin portpin) {
+	return ((uint16_t)1)<<(portpin &0x0f);
+}
+
+uint8_t pinSource(GPIOPin portpin) {
+	return portpin & 0x0f;
+}
+
+void GPIOMode(GPIO_TypeDef * port, uint16_t pinbit, GPIOMode_TypeDef mode,
               GPIOSpeed_TypeDef clk, GPIOOType_TypeDef otype, GPIOPuPd_TypeDef pupd) {
-
-	// RCC_AHB1PeriphClockCmd(GPIOPeriph[portpins>>16 & 0xf], ENABLE);
+	if ( port == GPIOB ) {
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	} else if ( port == GPIOC ) {
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+	} else if ( port == GPIOD ) {
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+	} else if ( port == GPIOE ) {
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+	} else if ( port == GPIOF ) {
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
+	} else if ( port == GPIOG ) {
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
+	} else if ( port == GPIOH ) {
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
+	} else if ( port == GPIOI ) {
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOI, ENABLE);
+	} else if ( port == GPIOA ) {
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+	}
 	// assumes port is already waked up.
 
 	GPIO_InitTypeDef GPIO_InitStructure;
         
-	GPIO_InitStructure.GPIO_Pin = pinbit & 0xffff;
+	GPIO_InitStructure.GPIO_Pin = pinbit;
 	GPIO_InitStructure.GPIO_Mode = mode;
 	GPIO_InitStructure.GPIO_OType = otype;
 	GPIO_InitStructure.GPIO_PuPd = pupd;
@@ -79,29 +124,11 @@ void portMode(GPIO_TypeDef * port, uint32_t pinbit, GPIOMode_TypeDef mode,
 	GPIO_Init(port, &GPIO_InitStructure);
 }
 
-/*
- static void turnOffPWM(uint8_t timer) {
- }
- */
-void digitalWrite(uint32_t portpin, uint8_t bit) {
-	if (bit) {
-		//? Bit_SET : Bit_RESET ));
-		GPIO_SetBits(GPIOPort[portpin >>16 & 0x0f], portpin & 0xffff);
-	} else {
-		GPIO_ResetBits(GPIOPort[portpin >>16 & 0x0f], portpin & 0xffff);
-	}
-}
 
-void portWrite(GPIO_TypeDef * port, uint16_t bits) {
+void GPIOWrite(GPIO_TypeDef * port, uint16_t bits) {
 	GPIO_Write(port, bits);
 }
 
-uint8_t digitalRead(GPIO_TypeDef * port, uint16_t pin) {
-	uint8_t mode = (port->MODER) >> (pin * 2);
-	if (mode == GPIO_Mode_OUT)
-		return (GPIO_ReadOutputDataBit(port, pin) ? SET : RESET);
-	return (GPIO_ReadInputDataBit(port, pin) ? SET : RESET);
-}
 
 /*
  void togglePin(uint8 pin) {

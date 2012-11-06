@@ -29,58 +29,57 @@ enum PortNameDef {
 	PortI
 };
 
-#define PinBit(n)  (((uint16_t)1)<<(n))
-typedef enum GPIOPin {
-	PA0 = (PortA <<16) | PinBit(0),
-	PA1 = (PortA <<16) | PinBit(1),
-	PA2 = (PortA <<16) | PinBit(2),
-	PA3 = (PortA <<16) | PinBit(3),
+typedef enum _GPIOPin {
+	PA0 = (PortA <<8) | ((uint16_t)0),
+	PA1 = (PortA <<8) | ((uint16_t)1),
+	PA2 = (PortA <<8) | ((uint16_t)2),
+	PA3 = (PortA <<8) | ((uint16_t)3),
 
-	PA8 = (PortA <<16) | PinBit(8),
-	PA9 = (PortA <<16) | PinBit(9),
-	PA10 = (PortA <<16) | PinBit(10),
+	PA8 = (PortA <<8) | ((uint16_t)8),
+	PA9 = (PortA <<8) | ((uint16_t)9),
+	PA10 = (PortA <<8) | ((uint16_t)10),
 
-	PB0 = (PortB <<16) | PinBit(0),
-	PB6 = (PortB <<16) | PinBit(6),
-	PB7 = (PortB <<16) | PinBit(7),
-	PB8 = (PortB <<16) | PinBit(8),
-	PB9 = (PortB <<16) | PinBit(9),
+	PB0 = (PortB <<8) | ((uint16_t)0),
+	PB6 = (PortB <<8) | ((uint16_t)6),
+	PB7 = (PortB <<8) | ((uint16_t)7),
+	PB8 = (PortB <<8) | ((uint16_t)8),
+	PB9 = (PortB <<8) | ((uint16_t)9),
 
-	PB10 = (PortB <<16) | PinBit(10),
-	PB11 = (PortB <<16) | PinBit(11),
+	PB10 = (PortB <<8) | ((uint16_t)10),
+	PB11 = (PortB <<8) | ((uint16_t)11),
 
-	PC0 = (PortC <<16) | PinBit(0),
-	PC9 = (PortC <<16) | PinBit(9),
-	PC10 = (PortC <<16) | PinBit(10),
-	PC11 = (PortC <<16) | PinBit(11),
-	PC12 = (PortC <<16) | PinBit(12),
-	PC13 = (PortC <<16) | PinBit(13),
+	PC0 = (PortC <<8) | ((uint16_t)0),
+	PC9 = (PortC <<8) | ((uint16_t)9),
+	PC10 = (PortC <<8) | ((uint16_t)10),
+	PC11 = (PortC <<8) | ((uint16_t)11),
+	PC12 = (PortC <<8) | ((uint16_t)12),
+	PC13 = (PortC <<8) | ((uint16_t)13),
 
-	PD0 = (PortD <<16) | PinBit(0),
-	PD1 = (PortD <<16) | PinBit(1),
-	PD2 = (PortD <<16) | PinBit(2),
-	PD3 = (PortD <<16) | PinBit(3),
-	PD4 = (PortD <<16) | PinBit(4),
-	PD5 = (PortD <<16) | PinBit(5),
-	PD6 = (PortD <<16) | PinBit(6),
-	PD7 = (PortD <<16) | PinBit(7),
-	PD8 = (PortD <<16) | PinBit(8),
-	PD9 = (PortD <<16) | PinBit(9),
-	PD10 = (PortD <<16) | PinBit(10),
-	PD11 = (PortD <<16) | PinBit(11),
-	PD12 = (PortD <<16) | PinBit(12),
-	PD13 = (PortD <<16) | PinBit(13),
-	PD14 = (PortD <<16) | PinBit(14),
-	PD15 = (PortD <<16) | PinBit(15),
+	PD0 = (PortD <<8) | ((uint16_t)0),
+	PD1 = (PortD <<8) | ((uint16_t)1),
+	PD2 = (PortD <<8) | ((uint16_t)2),
+	PD3 = (PortD <<8) | ((uint16_t)3),
+	PD4 = (PortD <<8) | ((uint16_t)4),
+	PD5 = (PortD <<8) | ((uint16_t)5),
+	PD6 = (PortD <<8) | ((uint16_t)6),
+	PD7 = (PortD <<8) | ((uint16_t)7),
+	PD8 = (PortD <<8) | ((uint16_t)8),
+	PD9 = (PortD <<8) | ((uint16_t)9),
+	PD10 = (PortD <<8) | ((uint16_t)10),
+	PD11 = (PortD <<8) | ((uint16_t)11),
+	PD12 = (PortD <<8) | ((uint16_t)12),
+	PD13 = (PortD <<8) | ((uint16_t)13),
+	PD14 = (PortD <<8) | ((uint16_t)14),
+	PD15 = (PortD <<8) | ((uint16_t)15),
 
-	PE0 = (PortE <<16) | PinBit(0),
-	PE1 = (PortE <<16) | PinBit(1),
-	PE2 = (PortE <<16) | PinBit(2),
-	PF0 = (PortF <<16) | PinBit(0),
-	PG0 = (PortG <<16) | PinBit(0),
-	PH0 = (PortH <<16) | PinBit(0),
-	PI0 = (PortI <<16) | PinBit(0)
-} GPIOPin_Type;
+	PE0 = (PortE <<8) | ((uint16_t)0),
+	PE1 = (PortE <<8) | ((uint16_t)1),
+	PE2 = (PortE <<8) | ((uint16_t)2),
+	PF0 = (PortF <<8) | ((uint16_t)0),
+	PG0 = (PortG <<8) | ((uint16_t)0),
+	PH0 = (PortH <<8) | ((uint16_t)0),
+	PI0 = (PortI <<8) | ((uint16_t)0)
+} GPIOPin;
 
 //#define digitalPinHasPWM(p)         ((p) == 4 || (p) == 5 || (p) == 6 || (p) == 7 || (p) == 9 || (p) == 10)
 
@@ -97,16 +96,18 @@ typedef enum GPIOPin {
 #define HIGH		SET
 #define LOW			RESET
 
-void pinMode(uint32_t portpin, GPIOMode_TypeDef mode);
-void digitalWrite(uint32_t portpin, uint8_t bit);
-void portWrite(GPIO_TypeDef * port, uint16_t bits);
-uint8_t digitalRead(GPIO_TypeDef * port, uint16_t pin);
+void pinMode(GPIOPin portpin, GPIOMode_TypeDef mode);
+void digitalWrite(GPIOPin portpin, uint8_t bit);
+uint8_t digitalRead(GPIOPin portpin);
 
-void portMode(GPIO_TypeDef * port, uint32_t pinbit, GPIOMode_TypeDef mode,
+GPIO_TypeDef * pinPort(GPIOPin portpin);
+uint16_t pinBit(GPIOPin portpin);
+uint8_t pinSource(GPIOPin portpin);
+
+void GPIOWrite(GPIO_TypeDef * port, uint16_t pinbits);
+void GPIOMode(GPIO_TypeDef * port, uint16_t pinbits, GPIOMode_TypeDef mode,
               GPIOSpeed_TypeDef clk, GPIOOType_TypeDef otype, GPIOPuPd_TypeDef pupd);
 // void GPIOWrite(GPIO_TypeDef * port, uint16 value);
-
-uint8_t pinsrc(uint32_t pin);
 
 #ifdef __cplusplus
 }

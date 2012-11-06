@@ -60,7 +60,7 @@ struct {
  * @retval None
  */
 void i2c_begin(I2C_TypeDef * I2Cx, uint32_t clkspeed) {
-  GPIO_InitTypeDef  GPIO_InitStructure;
+//  GPIO_InitTypeDef  GPIO_InitStructure;
 	I2C_InitTypeDef I2C_InitStructure;
 
 	// Preset I2C configuration to the structure.
