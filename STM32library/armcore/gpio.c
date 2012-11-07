@@ -52,7 +52,7 @@ void pinMode(GPIOPin portpin, GPIOMode_TypeDef mode) {
 
 	RCC_AHB1PeriphClockCmd(PortPeriph[portpin>>8 & 0x0f], ENABLE);
 
-	GPIO_InitStructure.GPIO_Pin = pinBit(portpin);
+	GPIO_InitStructure.GPIO_Pin = PinBit(portpin);
 	GPIO_InitStructure.GPIO_Mode = mode;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
@@ -64,29 +64,29 @@ void pinMode(GPIOPin portpin, GPIOMode_TypeDef mode) {
 void digitalWrite(GPIOPin portpin, uint8_t bit) {
 	if (bit) {
 		//? Bit_SET : Bit_RESET ));
-		GPIO_SetBits(Port[portpin >>8 & 0x0f], pinBit(portpin));
+		GPIO_SetBits(Port[portpin >>8 & 0x0f], PinBit(portpin));
 	} else {
-		GPIO_ResetBits(Port[portpin >>8 & 0x0f], pinBit(portpin));
+		GPIO_ResetBits(Port[portpin >>8 & 0x0f], PinBit(portpin));
 	}
 }
 
 uint8_t digitalRead(GPIOPin portpin) {
 	GPIO_TypeDef * port = Port[portpin>>8 & 0x0f];
-	uint8_t mode = (port->MODER) >> (pinBit(portpin) * 2);
+	uint8_t mode = (port->MODER) >> (PinBit(portpin) * 2);
 	if (mode == GPIO_Mode_OUT)
-		return (GPIO_ReadOutputDataBit(port, pinBit(portpin)) ? SET : RESET);
-	return (GPIO_ReadInputDataBit(port, pinBit(portpin)) ? SET : RESET);
+		return (GPIO_ReadOutputDataBit(port, PinBit(portpin)) ? SET : RESET);
+	return (GPIO_ReadInputDataBit(port, PinBit(portpin)) ? SET : RESET);
 }
 
-GPIO_TypeDef * pinPort(GPIOPin portpin) {
+GPIO_TypeDef * PinPort(GPIOPin portpin) {
 	return Port[portpin >> 8 & 0x0f];
 }
 
-uint16_t pinBit(GPIOPin portpin) {
+uint16_t PinBit(GPIOPin portpin) {
 	return ((uint16_t)1)<<(portpin &0x0f);
 }
 
-uint8_t pinSource(GPIOPin portpin) {
+uint8_t PinSource(GPIOPin portpin) {
 	return portpin & 0x0f;
 }
 

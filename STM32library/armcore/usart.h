@@ -19,7 +19,7 @@ extern "C" {
 
 #include "gpio.h"
 
-typedef enum _USARTPort {
+typedef enum _USARTSerial {
 	USART1Serial = 0,
 	USART2Serial,
 	USART3Serial,
@@ -64,6 +64,9 @@ uint16_t usart_peek(USARTSerial usx);
 void USART1_IRQHandler(void);
 void USART2_IRQHandler(void);
 void USART3_IRQHandler(void);
+void UART4_IRQHandler(void);
+void UART5_IRQHandler(void);
+void USART6_IRQHandler(void);
 
 #ifdef __cplusplus
 }

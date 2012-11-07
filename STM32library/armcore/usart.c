@@ -12,6 +12,7 @@
 #include <stm32f4xx.h>
 
 #include "gpio.h"
+#include "delay.h"
 #include "usart.h"
 
 #define USART_BUFFER_SIZE 128
@@ -25,8 +26,7 @@ USART_TypeDef * usartx[] = {
 		USART1, USART2, USART3, UART4, UART5, USART6
 };
 
-//extern USARTRing rxring[3], txring[3];
-USARTRing rxring[3], txring[3];
+USARTRing rxring[6], txring[6];
 
 void buffer_clear(USARTRing * r) {
 	r->head = 0;
@@ -63,25 +63,8 @@ uint16_t buffer_deque(USARTRing * r) {
 	r->tail %= USART_BUFFER_SIZE;
 	return w;
 }
-/*
-uint8_t USART_id(USART_TypeDef * USARTx) {
-	if ( USARTx == USART1 )
-		return USART_1;
-	else if ( USARTx == USART2 )
-		return USART_2;
-	else if ( USARTx == USART3 )
-		return USART_3;
-	else if ( USARTx == UART4 )
-		return UART_4;
-	else if ( USARTx == UART5 )
-		return UART_5;
-	else if ( USARTx == USART6 )
-		return USART_6;
-	return USART_1;
-}
-*/
-void usart_begin(USARTSerial usx, GPIOPin rx, GPIOPin tx, const uint32_t baud) {
-	//	GPIO_InitTypeDef GPIO_InitStruct; // this is for the GPIO pins used as TX and RX
+
+void usart_begin(USARTSerial usx, GPIOPin rx, GPIOPin tx, uint32_t baud) {
 	USART_InitTypeDef USART_InitStruct; // this is for the USART1 initilization
 	NVIC_InitTypeDef NVIC_InitStructure; // this is used to configure the NVIC (nested vector interrupt controller)
 
@@ -122,11 +105,11 @@ void usart_begin(USARTSerial usx, GPIOPin rx, GPIOPin tx, const uint32_t baud) {
 		irq = USART6_IRQn;
 		break;
 	}
-	GPIOMode(pinPort(rx), pinBit(rx), GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL);
-	GPIOMode(pinPort(tx), pinBit(tx), GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL);
+	GPIOMode(PinPort(rx), PinBit(rx), GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL);
+	GPIOMode(PinPort(tx), PinBit(tx), GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL);
 
-	GPIO_PinAFConfig(pinPort(rx), pinSource(rx), af );
-	GPIO_PinAFConfig(pinPort(tx), pinSource(tx), af );
+	GPIO_PinAFConfig(PinPort(rx), PinSource(rx), af );
+	GPIO_PinAFConfig(PinPort(tx), PinSource(tx), af );
 
 	USART_InitStruct.USART_BaudRate = baud;	// the baudrate is set to the value we passed into this init function
 	USART_InitStruct.USART_WordLength = USART_WordLength_8b;// we want the data frame size to be 8 bits (standard)
@@ -137,8 +120,8 @@ void usart_begin(USARTSerial usx, GPIOPin rx, GPIOPin tx, const uint32_t baud) {
 
 	USART_Init(usartx[usx], &USART_InitStruct); // again all the properties are passed to the USART_Init function which takes care of all the bit setting
 
-	USART_ITConfig(usartx[usx], USART_IT_RXNE, (FunctionalState) ENABLE); // enable the USART3 receive interrupt
-	USART_ITConfig(usartx[usx], USART_IT_TXE, (FunctionalState) DISABLE);
+	USART_ITConfig(usartx[usx], USART_IT_RXNE, ENABLE); // enable the USART3 receive interrupt
+	USART_ITConfig(usartx[usx], USART_IT_TXE, DISABLE);
 
 	NVIC_InitStructure.NVIC_IRQChannel = irq;
 	// we want to configure the USART3 interrupts
@@ -146,95 +129,156 @@ void usart_begin(USARTSerial usx, GPIOPin rx, GPIOPin tx, const uint32_t baud) {
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0; // this sets the subpriority inside the group
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;	// the USART3 interrupts are globally enabled
 	NVIC_Init(&NVIC_InitStructure);	// the properties are passed to the NVIC_Init function which takes care of the low level stuff
-
+	//
 	buffer_clear(&rxring[usx]);
 	buffer_clear(&txring[usx]);
-
 	// finally this enables the complete USART3 peripheral
 	USART_Cmd(usartx[usx], ENABLE);
 }
 
-void usart_bare_write(USART_TypeDef * USARTx, const uint16_t w) {
-	while (USART_GetFlagStatus(USARTx, USART_FLAG_TXE ) == RESET)
-		;
-	USART_SendData(USARTx, w);
-//	while (USART_GetFlagStatus(USART3, USART_FLAG_TC ) == RESET);
+void usart_bare_write(USARTSerial usx, const uint16_t w) {
+	while (USART_GetFlagStatus(usartx[usx], USART_FLAG_TXE ) == RESET) ;
+	USART_SendData(usartx[usx], w) ;
+//	while (USART_GetFlagStatus(USART3, USART_FLAG_TC ) == RESET) ;
 }
 
-void usart_write(USART_TypeDef * USARTx, const uint16_t w) {
-	USART_ITConfig(USARTx, USART_IT_TXE, (FunctionalState) DISABLE);
-	buffer_enque(&txring[USART_id(USARTx)], w);
-	USART_ITConfig(USARTx, USART_IT_TXE, (FunctionalState) ENABLE);
+void usart_write(USARTSerial usx, const uint16_t w) {
+//	uint16_t waitcount = 1000;
+	if ( buffer_is_full(&txring[usx]) )
+		delay_us(833);
+	USART_ITConfig(usartx[usx], USART_IT_TXE, DISABLE);
+	buffer_enque(&txring[usx], w);
+	USART_ITConfig(usartx[usx], USART_IT_TXE, ENABLE);
 }
 
-void usart_print(USART_TypeDef * USARTx, const char * s) {
+void usart_print(USARTSerial usx, const char * s) {
 	while (*s)
-		usart_write(USARTx, (uint16_t) *s++);
+		usart_write(usx, (uint16_t) *s++);
 }
 
-uint16_t usart_bare_read(USART_TypeDef * USARTx) {
-	return USART_ReceiveData(USARTx );
+uint16_t usart_bare_read(USARTSerial usx) {
+	return USART_ReceiveData(usartx[usx]);
 }
 
-uint16_t usart_read(USART_TypeDef * USARTx) {
-	uint16_t w = buffer_deque(&rxring[USART_id(USARTx)]);
+uint16_t usart_read(USARTSerial usx) {
+	uint16_t w = buffer_deque(&rxring[usx]);
 	if ( w == 0xffff ) return 0; // buffer is empty
 	return w;
 }
 
-void usart_flush(USART_TypeDef * USARTx) {
-	USART_ITConfig(USARTx, USART_IT_RXNE, (FunctionalState) DISABLE); // enable the USART3 receive interrupt
-	buffer_clear(&rxring[USART_id(USARTx)]);
-	USART_ClearITPendingBit(USARTx, USART_IT_RXNE );
-	USART_ITConfig(USARTx, USART_IT_RXNE, (FunctionalState) ENABLE); // enable the USART3 receive interrupt
-	USART_ITConfig(USARTx, USART_IT_TXE, (FunctionalState) DISABLE);
-	while ( buffer_count(&txring[USART_id(USARTx)]) > 0 ) {
-		while (USART_GetFlagStatus(USARTx, USART_FLAG_TXE ) == RESET);
-		USART_SendData(USARTx, buffer_deque(&txring[USART_id(USARTx)]));
-		while (USART_GetFlagStatus(USARTx, USART_FLAG_TC ) == RESET);
+void usart_flush(USARTSerial usx) {
+	USART_ITConfig(usartx[usx], USART_IT_RXNE, DISABLE); // enable the USART3 receive interrupt
+	buffer_clear(&rxring[usx]);
+	USART_ClearITPendingBit(usartx[usx], USART_IT_RXNE );
+	USART_ITConfig(usartx[usx], USART_IT_RXNE, ENABLE); // enable the USART3 receive interrupt
+	USART_ITConfig(usartx[usx], USART_IT_TXE, DISABLE);
+	while ( buffer_count(&txring[usx]) > 0 ) {
+		while (USART_GetFlagStatus(usartx[usx], USART_FLAG_TXE ) == RESET);
+		USART_SendData(usartx[usx], buffer_deque(&txring[usx]));
+		while (USART_GetFlagStatus(usartx[usx], USART_FLAG_TC ) == RESET);
 	}
-	USART_ClearITPendingBit(USARTx, USART_IT_TXE );
-	buffer_clear(&txring[USART_id(USARTx)]);
+	USART_ClearITPendingBit(usartx[usx], USART_IT_TXE );
+	buffer_clear(&txring[usx]);
 }
 
-uint16_t usart_peek(USART_TypeDef * USARTx) {
-	if ( ! buffer_count(&rxring[USART_id(USARTx)]) == 0 )
-		return rxring[USART_id(USARTx)].buf[rxring[USART_id(USARTx)].tail];
+uint16_t usart_peek(USARTSerial usx) {
+	if ( ! buffer_count(&rxring[usx]) == 0 )
+		return rxring[usx].buf[rxring[usx].tail];
 	return 0xffff;
 }
 
-uint16_t usart_available(USART_TypeDef * USARTx) {
-	return buffer_count(&rxring[USART_id(USARTx)]);
+uint16_t usart_available(USARTSerial usx) {
+	return buffer_count(&rxring[usx]);
 }
+
 
 // this is the interrupt request handler (IRQ) for ALL USART3 interrupts
 
 void USART1_IRQHandler(void) {
 	if (USART_GetITStatus(USART1, USART_IT_RXNE )) {
-		buffer_enque(&rxring[USART_1], USART_ReceiveData(USART1) );
+		buffer_enque(&rxring[USART1Serial], USART_ReceiveData(USART1) );
 	}
 
 	if (USART_GetITStatus(USART1, USART_IT_TXE )) {
-		if (txring[USART_1].count == 0) {
+		if (txring[USART1Serial].count == 0) {
 			USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) DISABLE);
 			USART_ClearITPendingBit(USART1, USART_IT_TXE );
 		} else {
-			USART_SendData(USART1, buffer_deque(&txring[USART_1]));
+			USART_SendData(USART1, buffer_deque(&txring[USART1Serial]));
+		}
+	}
+}
+
+void USART2_IRQHandler(void) {
+	if (USART_GetITStatus(USART2, USART_IT_RXNE )) {
+		buffer_enque(&rxring[USART2Serial], USART_ReceiveData(USART2) );
+	}
+	if (USART_GetITStatus(USART2, USART_IT_TXE )) {
+		if (txring[USART2Serial].count == 0) {
+			USART_ITConfig(USART2, USART_IT_TXE, (FunctionalState) DISABLE);
+			USART_ClearITPendingBit(USART2, USART_IT_TXE );
+		} else {
+			USART_SendData(USART2, buffer_deque(&txring[USART2Serial]));
 		}
 	}
 }
 
 void USART3_IRQHandler(void) {
 	if (USART_GetITStatus(USART3, USART_IT_RXNE )) {
-		buffer_enque(&rxring[USART_3], USART_ReceiveData(USART3) );
+		buffer_enque(&rxring[USART3Serial], USART_ReceiveData(USART3) );
 	}
 
 	if (USART_GetITStatus(USART3, USART_IT_TXE )) {
-		if (txring[USART_3].count == 0) {
+		if (txring[USART3Serial].count == 0) {
 			USART_ITConfig(USART3, USART_IT_TXE, (FunctionalState) DISABLE);
 			USART_ClearITPendingBit(USART3, USART_IT_TXE );
 		} else {
-			USART_SendData(USART3, buffer_deque(&txring[USART_3]));
+			USART_SendData(USART3, buffer_deque(&txring[USART3Serial]));
+		}
+	}
+}
+
+void UART4_IRQHandler(void) {
+	if (USART_GetITStatus(UART4, USART_IT_RXNE )) {
+		buffer_enque(&rxring[UART4Serial], USART_ReceiveData(UART4) );
+	}
+
+	if (USART_GetITStatus(UART4, USART_IT_TXE )) {
+		if (txring[UART4Serial].count == 0) {
+			USART_ITConfig(UART4, USART_IT_TXE, (FunctionalState) DISABLE);
+			USART_ClearITPendingBit(UART4, USART_IT_TXE );
+		} else {
+			USART_SendData(UART4, buffer_deque(&txring[UART4Serial]));
+		}
+	}
+}
+
+void UART5_IRQHandler(void) {
+	if (USART_GetITStatus(UART5, USART_IT_RXNE )) {
+		buffer_enque(&rxring[UART5Serial], USART_ReceiveData(UART5) );
+	}
+
+	if (USART_GetITStatus(USART3, USART_IT_TXE )) {
+		if (txring[UART5Serial].count == 0) {
+			USART_ITConfig(UART5, USART_IT_TXE, (FunctionalState) DISABLE);
+			USART_ClearITPendingBit(UART5, USART_IT_TXE );
+		} else {
+			USART_SendData(UART5, buffer_deque(&txring[UART5Serial]));
+		}
+	}
+}
+
+void USART6_IRQHandler(void) {
+	if (USART_GetITStatus(USART6, USART_IT_RXNE )) {
+		buffer_enque(&rxring[USART6Serial], USART_ReceiveData(USART6) );
+	}
+
+	if (USART_GetITStatus(USART6, USART_IT_TXE )) {
+		if (txring[USART6Serial].count == 0) {
+			USART_ITConfig(USART6, USART_IT_TXE, (FunctionalState) DISABLE);
+			USART_ClearITPendingBit(USART6, USART_IT_TXE );
+		} else {
+			USART_SendData(USART6, buffer_deque(&txring[USART6Serial]));
 		}
 	}
 }

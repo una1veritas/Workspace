@@ -100,9 +100,9 @@ void pinMode(GPIOPin portpin, GPIOMode_TypeDef mode);
 void digitalWrite(GPIOPin portpin, uint8_t bit);
 uint8_t digitalRead(GPIOPin portpin);
 
-GPIO_TypeDef * pinPort(GPIOPin portpin);
-uint16_t pinBit(GPIOPin portpin);
-uint8_t pinSource(GPIOPin portpin);
+GPIO_TypeDef * PinPort(GPIOPin portpin);
+uint16_t PinBit(GPIOPin portpin);
+uint8_t PinSource(GPIOPin portpin);
 
 void GPIOWrite(GPIO_TypeDef * port, uint16_t pinbits);
 void GPIOMode(GPIO_TypeDef * port, uint16_t pinbits, GPIOMode_TypeDef mode,
