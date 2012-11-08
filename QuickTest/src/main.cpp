@@ -11,11 +11,13 @@
 typedef uint16_t uint16;
 typedef bool boolean;
 
+int a[1000000] = { 0, 1, 2, 3, 4 };
+
 int main(int argc, char * argv[]) {
 	int val;
 	float fval;
 
-	if ( argc < 2 )
+	if ( argc < a[2] )
 		return 1; // no arg error
 
 	for (int i = 1; i < argc; i++) {
