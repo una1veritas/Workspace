@@ -20,8 +20,10 @@ int main(int argc, char * argv[]) {
 	if ( argc > 1 )
 		sizen = argc - 1;
 
-	for(int i = 0; i < sizen; i++) {
-		fprintf(stdout, "%s, \r\n", argv[i]);
+	fprintf(stdout, "\n");
+	for(int i = 1; i < sizen; i++) {
+		fprintf(stdout, "%s, ", argv[i]);
+		fprintf(stdout, "%d\n", atol(argv[i]));
 	}
-	fprintf(stdout, "\r\n");
+	fprintf(stdout, "\n");
 }
