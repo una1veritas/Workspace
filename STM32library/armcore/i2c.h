@@ -12,8 +12,9 @@
 extern "C" {
 #endif
 
-void i2c_begin(I2C_TypeDef * I2Cx, uint32_t clk);
-void i2c_transmit(I2C_TypeDef * I2Cx, uint8_t addr, uint8_t * data, uint16_t n);
+void i2c_begin(uint32_t clkspeed); //I2C_TypeDef * I2Cx, uint32_t clk);
+void i2c_transmit(uint8_t addr, uint8_t * data, uint16_t length);
+//void i2c_transmit(I2C_TypeDef * I2Cx, uint8_t addr, uint8_t * data, uint16_t n);
 //void i2c_receive(I2C_TypeDef * I2Cx, uint8_t addr, uint8_t * data, uint16_t nlimit);
 
 #ifdef __cplusplus
