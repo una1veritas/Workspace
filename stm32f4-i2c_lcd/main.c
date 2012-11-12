@@ -89,7 +89,7 @@ int main(void) {
 	usart_print(USART3Serial, (char *) Welcome_Message);
 //  cprintf(Welcome_Message);
 
-	i2c_begin(400000);
+	i2c_begin(100000);
 	ST7032i_Init();
 
 	//Show message on first line
@@ -197,12 +197,9 @@ int main(void) {
 				}
 			}
 		} else {
-			//Clear
-			ST7032i_Command_Write(0x80 | 0x40);
-			ST7032i_print("        ");
-			ST7032i_Command_Write(0x80 | 0x40);
-			sprintf(tmp, "%lx", SysTick_count());
-			ST7032i_print(tmp);
+			delay_ms(10);
+			tmp[0] = 0;
+			i2c_requestFrom(0b1101000, (uint8_t *) tmp, 4);
 			delay_ms(100);
 		}
 	}

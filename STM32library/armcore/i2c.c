@@ -8,6 +8,34 @@
 #include "stm32f4xx_rcc.h"
 #include "i2c.h"
 
+typedef enum __I2C_Status {
+	NOT_READY = 0xff,
+	READY = 0,
+	START_ISSUED,
+	DST_ADDRESS_SENT,
+	SRC_ADDRESS_SENT,
+	TRANSMIT_BYTE_READY,
+	BYTE_TRANSMITTED,
+	TRANSMIT_COMPLETED,
+	RESTART_ISSUED,
+	RECEIVE_BYTE_READY,
+	BYTE_RECEIVED,
+	BEFORELAST_BYTE_RECEIVED,
+	LAST_BYTE_READY,
+	RECEIVE_BYTE_COMPLETED,
+	RECEIVE_COMPLETED,
+	//
+} I2C_Status;
+
+typedef enum __CommDirection {
+	NOT_DEFINED = 0,
+	TRANSMITTER,
+	RECEIVER,
+} CommDirection;
+
+I2C_Status i2c1_status;
+CommDirection i2c1_direction;
+
 void i2c_begin(uint32_t clkspeed) {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	I2C_InitTypeDef I2C_InitStructure;
@@ -51,28 +79,127 @@ void i2c_begin(uint32_t clkspeed) {
 	I2C_Init(I2C1, &I2C_InitStructure);
 	/* I2C Peripheral Enable */
 	I2C_Cmd(I2C1, ENABLE);
+
+	i2c1_status = NOT_READY;
+	i2c1_direction = NOT_DEFINED;
 }
 
 void i2c_transmit(uint8_t addr, uint8_t * data, uint16_t length) {
 	uint16_t i;
+
+	i2c1_direction = TRANSMITTER;
+	//
+	i2c1_status = NOT_READY;
+	while (I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY ))
+		;
+	i2c1_status = READY;
 
 	/* Send STRAT condition */
 	I2C_GenerateSTART(I2C1, ENABLE);
 	/* Test on EV5 and clear it */
 	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT ))
 		;
-	/* Send EEPROM address for write */
+	i2c1_status = START_ISSUED;
+
+	/* Send address for write */
 	I2C_Send7bitAddress(I2C1, addr << 1, I2C_Direction_Transmitter );
 	/* Test on EV6 and clear it */
 	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED ))
 		;
+	i2c1_status = DST_ADDRESS_SENT;
 
 	for (i = 0; i < length; i++) {
+		i2c1_status = TRANSMIT_BYTE_READY;
 		I2C_SendData(I2C1, data[i]);
 		/* Test on EV8 and clear it */
 		while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED ))
 			;
+		i2c1_status = BYTE_TRANSMITTED;
 	}
+	i2c1_status = TRANSMIT_COMPLETED;
+
 	I2C_GenerateSTOP(I2C1, ENABLE);
+	i2c1_status = NOT_READY;
+	i2c1_direction = NOT_DEFINED;
 }
 
+
+void i2c_requestFrom(uint8_t addr, uint8_t req, uint8_t * recv, uint16_t lim) {
+	uint16_t i;
+	i2c1_direction = RECEIVER;
+	//
+	i2c1_status = NOT_READY;
+	/* While the bus is busy */
+	while (I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY ))
+		;
+	i2c1_status = READY;
+
+	/* Send START condition */
+	I2C_GenerateSTART(I2C1, ENABLE);
+	/* Test on EV5 and clear it */
+	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT ))
+		;
+	i2c1_status = START_ISSUED;
+
+	/* Send EEPROM address for write */
+	I2C_Send7bitAddress(I2C1, addr << 1, I2C_Direction_Transmitter );
+	/* Test on EV6 and clear it */
+	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED )) {
+	}
+	i2c1_status = DST_ADDRESS_SENT;
+
+	i2c1_status = TRANSMIT_BYTE_READY;
+	/* Send the EEPROM's internal address to read from: MSB of the address first */
+	I2C_SendData(I2C1, req);
+	/* Test on EV8 and clear it */
+	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED ))
+		;
+	i2c1_status = TRANSMIT_COMPLETED;
+
+	//	  I2C_GenerateSTOP(I2C1, ENABLE);
+
+	/* Send STRAT condition a second time */
+	I2C_GenerateSTART(I2C1, ENABLE);
+	/* Test on EV5 and clear it */
+	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT ))
+		;
+	i2c1_status = RESTART_ISSUED;
+
+	/* Send EEPROM address for read */
+	I2C_Send7bitAddress(I2C1, addr << 1, I2C_Direction_Receiver );
+	/* Test on EV6 and clear it */
+	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED ))
+		;
+	i2c1_status = SRC_ADDRESS_SENT;
+
+	for (i = 1; i < lim; i++) {
+		i2c1_status = RECEIVE_BYTE_READY;
+		while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED )) {
+		}
+		/* Read a byte from the EEPROM */
+		*recv++ = I2C_ReceiveData(I2C1 );
+		i2c1_status = BYTE_RECEIVED;
+	}
+	i2c1_status = BEFORELAST_BYTE_RECEIVED;
+
+	/* Disable Acknowledgement */
+	I2C_AcknowledgeConfig(I2C1, DISABLE);
+	/* Send STOP Condition */
+	I2C_GenerateSTOP(I2C1, ENABLE);
+	i2c1_status = LAST_BYTE_READY;
+
+	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED )) {
+	}
+	/* Read a byte from the EEPROM */
+	*recv = I2C_ReceiveData(I2C1 );
+	i2c1_status = RECEIVE_BYTE_COMPLETED;
+
+	/* Enable Acknowledgement to be ready for another reception */
+	I2C_AcknowledgeConfig(I2C1, ENABLE);
+	i2c1_status = NOT_READY;
+	i2c1_direction = NOT_DEFINED;
+}
+
+void i2c_send(uint8_t addr, uint8_t * data, uint16_t length) {
+
+}
