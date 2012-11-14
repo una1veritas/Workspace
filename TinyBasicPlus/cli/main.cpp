@@ -8,7 +8,10 @@
 #include <sys/stat.h>
 #endif
 
+<<<<<<< HEAD
 #include "Arduino.h"
+=======
+>>>>>>> 8babfb835bae605f369ce7c0e4c96a5a371bb34c
 
 int cmd_Files( void )
 {
