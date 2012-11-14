@@ -30,26 +30,5 @@ SIZEDUMMY :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-libraries/Wire/utility \
-libraries/Wire \
-libraries/Stepper \
-libraries/SoftwareSerial \
-libraries/Servo \
-libraries/SPI \
-libraries/SD/utility \
-libraries/SD \
-libraries/LiquidCrystal \
-libraries/Firmata \
-libraries/Ethernet/utility \
-libraries/Ethernet \
-libraries/EEPROM \
-cores/arduino \
 cli \
-bootloaders/stk500v2 \
-bootloaders/optiboot \
-bootloaders/lilypad/src \
-bootloaders/caterina \
-bootloaders/bt \
-bootloaders/atmega8 \
-bootloaders/atmega \
 

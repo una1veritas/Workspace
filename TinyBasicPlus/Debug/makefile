@@ -8,28 +8,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include libraries/Wire/utility/subdir.mk
--include libraries/Wire/subdir.mk
--include libraries/Stepper/subdir.mk
--include libraries/SoftwareSerial/subdir.mk
--include libraries/Servo/subdir.mk
--include libraries/SPI/subdir.mk
--include libraries/SD/utility/subdir.mk
--include libraries/SD/subdir.mk
--include libraries/LiquidCrystal/subdir.mk
--include libraries/Firmata/subdir.mk
--include libraries/Ethernet/utility/subdir.mk
--include libraries/Ethernet/subdir.mk
--include libraries/EEPROM/subdir.mk
--include cores/arduino/subdir.mk
 -include cli/subdir.mk
--include bootloaders/stk500v2/subdir.mk
--include bootloaders/optiboot/subdir.mk
--include bootloaders/lilypad/src/subdir.mk
--include bootloaders/caterina/subdir.mk
--include bootloaders/bt/subdir.mk
--include bootloaders/atmega8/subdir.mk
--include bootloaders/atmega/subdir.mk
 -include subdir.mk
 -include objects.mk
 
