@@ -69,6 +69,9 @@ endif
 LSS += \
 TinyBasicPlus.lss \
 
+FLASH_IMAGE += \
+TinyBasicPlus.hex \
+
 SIZEDUMMY += \
 sizedummy \
 
@@ -90,6 +93,12 @@ TinyBasicPlus.lss: TinyBasicPlus.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
+TinyBasicPlus.hex: TinyBasicPlus.elf
+	@echo 'Create Flash image (ihex format)'
+	-avr-objcopy -R .eeprom -O ihex TinyBasicPlus.elf  "TinyBasicPlus.hex"
+	@echo 'Finished building: $@'
+	@echo ' '
+
 sizedummy: TinyBasicPlus.elf
 	@echo 'Invoking: Print Size'
 	-avr-size --format=berkeley -t TinyBasicPlus.elf
@@ -98,10 +107,10 @@ sizedummy: TinyBasicPlus.elf
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS)$(C_DEPS)$(ELFS)$(LSS)$(S_DEPS)$(CXX_DEPS)$(S_UPPER_DEPS)$(C++_DEPS)$(ASM_DEPS)$(CC_DEPS)$(CPP_DEPS)$(C_UPPER_DEPS)$(SIZEDUMMY) TinyBasicPlus.elf
+	-$(RM) $(OBJS)$(C_DEPS)$(ELFS)$(FLASH_IMAGE)$(LSS)$(S_DEPS)$(CXX_DEPS)$(S_UPPER_DEPS)$(C++_DEPS)$(ASM_DEPS)$(CC_DEPS)$(CPP_DEPS)$(C_UPPER_DEPS)$(SIZEDUMMY) TinyBasicPlus.elf
 	-@echo ' '
 
-secondary-outputs: $(LSS) $(SIZEDUMMY)
+secondary-outputs: $(LSS) $(FLASH_IMAGE) $(SIZEDUMMY)
 
 .PHONY: all clean dependents
 .SECONDARY:

@@ -65,7 +65,7 @@ FUSES      = -U hfuse:w:0xdb:m -U lfuse:w:0xff:m
 ARDUINOINCDIR  = ./arduino/cores/arduino
 ARDUINOVARIANT = ./arduino/variants/standard
 ARDUINOCORELIBDIR = ./arduino
-ARDUINOCORELIB = arduinocore
+ARDUINOCORELIB = Arduino_cores
 
 #AVRDUDE = avrdude $(PROG_DUE) -P$(COMPORT) -p $(DEVICE) 
 CCCOMPILE  = avr-gcc -Wall -Os -DF_CPU=$(CLOCK) -mmcu=$(DEVICE) -I$(ARDUINOINCDIR) -I$(ARDUINOVARIANT)
