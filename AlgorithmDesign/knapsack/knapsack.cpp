@@ -33,14 +33,14 @@ int list34[] = { 108, 78, 78, 58, 58, 68, 38, 39, 58, 128, 158, 108, 138, 78,
 		78, 58, 158, 68, 128, 98, 158, 118, 128, 328, 228, 238, 198, 298, 64,
 		178, 115, 138, 148, 88, 0 };
 
-int * plist = list34;
+int * plist = list30;
 const int B = 300;
 
 int best(int lastitem, int budget, boolean cart[]) {
 //	for(int i = 0; plist[i]; i++) {
 //		cout << (cart[i]? 'T' : 'F') << ", ";
 //	}
-	cout.flush();
+//	cout.flush();
 
 	if (lastitem < 0)
 		return 0;
