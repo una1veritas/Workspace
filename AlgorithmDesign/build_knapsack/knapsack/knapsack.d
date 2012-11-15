@@ -1,1 +1,1 @@
-knapsack/knapsack.d knapsack/knapsack.o: ../knapsack/knapsack.cpp
+knapsack/knapsack.d: ../knapsack/knapsack.cpp
