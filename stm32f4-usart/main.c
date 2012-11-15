@@ -14,6 +14,8 @@
 
 #include "gpio.h"
 #include "systick.h"
+#include "delay5.h"
+#include "delay.h"
 #include "usart.h"
 
 int main(void) {
@@ -21,7 +23,8 @@ int main(void) {
 	uint32_t dval = 900;
 	uint32_t intval = 24;
 	char tmp[92];
-	
+
+	delay5_start();
 	SysTick_Start();
 
 	usart_begin(USART2Serial, PA3, PA2, 19200);
@@ -77,7 +80,7 @@ int main(void) {
 //		uint16_t h, t;
 //		h = tx_head();
 //		t = tx_tail();
-		sprintf(tmp, /*"head =% 4d, tail =% 4d,*/ "%04X\n", SysTick_count());
+		sprintf(tmp, /*"head =% 4d, tail =% 4d,*/ "%04lX\n", TIM_GetCounter(TIM5));
 		usart_print(USART2Serial, tmp);
 		/*
 		dval = (uint32) (100.0f + 64*sinf( (count % (uint32)(3.14159 * 2 * 32))/32.0f));
