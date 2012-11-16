@@ -125,7 +125,7 @@ void GPIOMode(GPIO_TypeDef * port, uint16_t pinbit, GPIOMode_TypeDef mode,
 }
 
 
-void GPIOWrite(GPIO_TypeDef * port, uint16_t bits) {
+inline void GPIOWrite(GPIO_TypeDef * port, uint16_t bits) {
 	GPIO_Write(port, bits);
 }
 

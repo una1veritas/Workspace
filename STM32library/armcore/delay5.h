@@ -20,8 +20,12 @@ extern "C" {
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-uint32_t microsec(void);
+uint32_t micros(void);
+uint32_t millis(void);
+void delay(uint32_t);
 void delay5_start(void);
+
+void TIM5_IRQHandler(void);
 
 #ifdef __cplusplus
 }
