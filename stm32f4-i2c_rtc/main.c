@@ -83,9 +83,9 @@ int main(void) {
 	ST7032i_Init();
 
 	ST7032i_Print_String((const int8_t *)"Welcome to lcd.");
-	delay_ms(1000);
+	delay_millis(1000);
 	ST7032i_Command_Write(0x01);
-	delay_ms(10);
+	delay_millis(10);
 
 	//Receive character from COM and put it on LCD
 	while (1) {
@@ -123,7 +123,7 @@ int main(void) {
 				}
 			}
 		}
-		delay_ms(100);
+		delay_millis(100);
 	}
 }
 

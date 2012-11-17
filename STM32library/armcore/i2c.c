@@ -14,9 +14,9 @@ typedef enum __I2C_Status {
 	START_ISSUED,
 	DST_ADDRESS_SENT,
 	SRC_ADDRESS_SENT,
-	TRANSMIT_BYTE_READY,
+	BYTE_TRANSMITTING,
 	BYTE_TRANSMITTED,
-	TRANSMIT_COMPLETED,
+	TRANSMISSION_COMPLETED,
 	RESTART_ISSUED,
 	RECEIVE_BYTE_READY,
 	BYTE_RECEIVED,
@@ -109,14 +109,14 @@ void i2c_transmit(uint8_t addr, uint8_t * data, uint16_t length) {
 	i2c1_status = DST_ADDRESS_SENT;
 
 	for (i = 0; i < length; i++) {
-		i2c1_status = TRANSMIT_BYTE_READY;
 		I2C_SendData(I2C1, data[i]);
+		i2c1_status = BYTE_TRANSMITTING;
 		/* Test on EV8 and clear it */
 		while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED ))
 			;
 		i2c1_status = BYTE_TRANSMITTED;
 	}
-	i2c1_status = TRANSMIT_COMPLETED;
+	i2c1_status = TRANSMISSION_COMPLETED;
 
 	I2C_GenerateSTOP(I2C1, ENABLE);
 	i2c1_status = NOT_READY;
@@ -148,13 +148,13 @@ void i2c_requestFrom(uint8_t addr, uint8_t req, uint8_t * recv, uint16_t lim) {
 	}
 	i2c1_status = DST_ADDRESS_SENT;
 
-	i2c1_status = TRANSMIT_BYTE_READY;
 	/* Send the EEPROM's internal address to read from: MSB of the address first */
 	I2C_SendData(I2C1, req);
+	i2c1_status = BYTE_TRANSMITTING;
 	/* Test on EV8 and clear it */
 	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED ))
 		;
-	i2c1_status = TRANSMIT_COMPLETED;
+	i2c1_status = TRANSMISSION_COMPLETED;
 
 	//	  I2C_GenerateSTOP(I2C1, ENABLE);
 

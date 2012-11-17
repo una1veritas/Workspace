@@ -1,35 +1,9 @@
-/**
-  ******************************************************************************
-  * @file    lib_std/UTIL/src/wait.c
-  * @author  Yasuo Kawachi
-  * @version V1.0.0
-  * @date    04/15/2009
-  * @brief   Main program body
-  ******************************************************************************
-  * @copy
-  *
-  * Copyright 2008-2009 Yasuo Kawachi All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without
-  * modification, are permitted provided that the following conditions are met:
-  *  1. Redistributions of source code must retain the above copyright notice,
-  *  this list of conditions and the following disclaimer.
-  *  2. Redistributions in binary form must reproduce the above copyright notice,
-  *  this list of conditions and the following disclaimer in the documentation
-  *  and/or other materials provided with the distribution.
-  *
-  * THIS SOFTWARE IS PROVIDED BY YASUO KAWACHI "AS IS" AND ANY EXPRESS OR IMPLIE  D
-  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
-  * EVENT SHALL YASUO KAWACHI OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  */
+/*
+ * delay5.c
+ *
+ *  Created on: 2012/11/15
+ *      Author: sin
+ */
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_rcc.h"
@@ -38,65 +12,79 @@
 //#include "platform_config.h"
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define TIM_NUM  TIM2
-#define TIM_RCC  RCC_APB1Periph_TIM2 //TIM2_RCC
 /* Private variables ---------------------------------------------------------*/
-// TIM_TimeBaseInitTypeDef's order is {uint16_t TIM_Prescaler, uint16_t TIM_CounterMode, ,uint16_t TIM_Period, uint16_t TIM_ClockDivision, uint8_t TIM_RepetitionCounter}
-TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructureMicro = {42,TIM_CounterMode_Up,0,0,0};
-TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructureMili =  {(uint16_t)42000,TIM_CounterMode_Up,0,0,0};
+
+volatile uint32_t __counter_micros;
+volatile uint32_t __counter_millis;
+
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 /**
-  * @brief  wait micro second
-  * @param  wait_time : time to wait in micro second
-  * @retval None
-  */
-void delay_us(uint16_t waittime)
-{
-  //Supply APB1 Clock
-  RCC_APB1PeriphClockCmd(TIM_RCC , ENABLE);
+ * @brief  millisecond
+ * @param  none
+ * @retval None
+ */
+void TIM2_timer_start(void) {
+	// TIM_TimeBaseInitTypeDef's order is {uint16_t TIM_Prescaler, uint16_t TIM_CounterMode, uint16_t TIM_Period, uint16_t TIM_ClockDivision, uint8_t TIM_RepetitionCounter}
+	TIM_TimeBaseInitTypeDef TimeBaseStructure;
+//			= { 84, TIM_CounterMode_Up, 999, TIM_CKD_DIV1, 0 };
 
-  /* Time base configuration */
-  TIM_TimeBaseStructureMicro.TIM_Period = ((waittime+1) * 1)-1;
-  TIM_TimeBaseInit(TIM_NUM, &TIM_TimeBaseStructureMicro);
+	RCC_ClocksTypeDef RCC_Clocks;
+	RCC_GetClocksFreq(&RCC_Clocks);
+	TimeBaseStructure.TIM_Prescaler = (RCC_Clocks.SYSCLK_Frequency>>1)/1000000L ;
+	TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TimeBaseStructure.TIM_Period = 1000 - 1;
+	TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+	TimeBaseStructure.TIM_RepetitionCounter = 0;
 
-  TIM_SelectOnePulseMode(TIM_NUM, TIM_OPMode_Single);
+	//Supply APB1 Clock
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 
-  TIM_SetCounter(TIM_NUM,2);
+	/* Time base configuration */
+	TIM_TimeBaseInit(TIM2, &TimeBaseStructure);
+//  TIM_SelectOnePulseMode(TIM2, TIM_OPMode_Repetitive);
+	TIM_SetCounter(TIM2, 0);
+	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
 
-  /* TIM enable counter */
-  TIM_Cmd(TIM_NUM, ENABLE);
+	NVIC_InitTypeDef NVIC_InitStructure;
+	/* Enable the TIM2 gloabal Interrupt */
+	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
 
-  while (TIM_GetCounter(TIM_NUM)){};
+	/* TIM enable counter */
+	TIM_Cmd(TIM2, ENABLE);
 
-  /* TIM enable counter */
-  TIM_Cmd(TIM_NUM, DISABLE);
-
+	__counter_micros = 0;
+	__counter_millis = 0;
 }
 
-/**
-  * @brief  wait millisecond
-  * @param  wait_time : time to wait in millisecond
-  * @retval None
-  */
-void delay_ms(uint16_t waittime)
-{
-  //Supply APB1 Clock
-  RCC_APB1PeriphClockCmd(TIM_RCC , ENABLE);
+uint32_t micros(void) {
+	return __counter_micros + TIM_GetCounter(TIM2 );
+}
 
-  /* Time base configuration */
-  TIM_TimeBaseStructureMili.TIM_Period = ((waittime+1) * 1)-1;
-  TIM_TimeBaseInit(TIM_NUM, &TIM_TimeBaseStructureMili);
+uint32_t millis(void) {
+	return __counter_millis;
+}
 
-  TIM_SelectOnePulseMode(TIM_NUM, TIM_OPMode_Single);
+void delay_millis(uint32_t w) {
+	uint32_t wtill = millis() + w;
+	while (millis() < wtill)
+		;
+}
 
-  TIM_SetCounter(TIM_NUM,2);
+void delay_micros(uint32_t w) {
+	uint32_t wtill = micros() + w;
+	while (micros() < wtill)
+		;
+}
 
-  /* TIM enable counter */
-  TIM_Cmd(TIM_NUM, ENABLE);
-
-  while (TIM_GetCounter(TIM_NUM)){};
-
-  /* TIM enable counter */
-  TIM_Cmd(TIM_NUM, DISABLE);
+void TIM2_IRQHandler(void) {
+	if (TIM_GetITStatus(TIM2, TIM_IT_Update ) != RESET) {
+		TIM_ClearITPendingBit(TIM2, TIM_IT_Update );
+		__counter_micros += 1000;
+		__counter_millis += 1;
+	}
 }

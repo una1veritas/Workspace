@@ -14,11 +14,8 @@
 
 #include "gpio.h"
 //#include "systick.h"
-#include "delay5.h"
 #include "delay.h"
 #include "usart.h"
-
-void NVIC_Configuration();
 
 int main(void) {
 	uint16_t bits;
@@ -26,13 +23,7 @@ int main(void) {
 	uint32_t tnow;
 	char tmp[92];
 
-	  RCC_ClocksTypeDef RCC_Clocks;
-
-	  RCC_GetClocksFreq(&RCC_Clocks);
-
-	NVIC_Configuration();
-
-	TIM5_timer_start();
+	TIM2_timer_start();
 //	SysTick_Start();
 
 	usart_begin(USART2Serial, PA3, PA2, 19200);
@@ -42,6 +33,9 @@ int main(void) {
 	usart_print(USART2Serial, "Quick brown fox jumped over the lazy dog!\n");
 	usart_flush(USART2Serial);
 
+	RCC_ClocksTypeDef RCC_Clocks;
+	RCC_GetClocksFreq(&RCC_Clocks);
+
 	sprintf(tmp, "SYSCLK = %ld, ", RCC_Clocks.SYSCLK_Frequency);
 	usart_print(USART2Serial, tmp);
 	sprintf(tmp, "HCLK = %ld, ", RCC_Clocks.HCLK_Frequency);
@@ -50,10 +44,10 @@ int main(void) {
 	usart_print(USART2Serial, tmp);
 	sprintf(tmp, "PCLK2 = %ld\r\n", RCC_Clocks.PCLK2_Frequency);
 	usart_print(USART2Serial, tmp);
-	usart_flush(USART2Serial);
+//	usart_flush(USART2Serial);
 
 	GPIOMode(GPIOD, (GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15),
-			GPIO_Mode_OUT, GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL);
+			GPIO_Mode_OUT, LOWSPEED, GPIO_OType_PP, GPIO_PuPd_NOPULL);
 	/*
 	pinMode(PD12, OUTPUT);
 	pinMode(PD13, OUTPUT);
@@ -113,22 +107,5 @@ int main(void) {
 		}
 	}
 	return 0;
-}
-
-/**
-  * @brief  Configures the nested vectored interrupt controller.
-  * @param  None
-  * @retval None
-  */
-void NVIC_Configuration(void)
-{
-    NVIC_InitTypeDef NVIC_InitStructure;
-    /* Enable the TIM2 gloabal Interrupt */
-    NVIC_InitStructure.NVIC_IRQChannel = TIM5_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-
-    NVIC_Init(&NVIC_InitStructure);
 }
 

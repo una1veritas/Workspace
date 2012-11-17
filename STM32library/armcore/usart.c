@@ -145,7 +145,7 @@ void usart_bare_write(USARTSerial usx, const uint16_t w) {
 void usart_write(USARTSerial usx, const uint16_t w) {
 //	uint16_t waitcount = 1000;
 	if ( buffer_is_full(&txring[usx]) )
-		delay_us(833);
+		delay_micros(833);
 	USART_ITConfig(usartx[usx], USART_IT_TXE, DISABLE);
 	buffer_enque(&txring[usx], w);
 	USART_ITConfig(usartx[usx], USART_IT_TXE, ENABLE);

@@ -95,6 +95,11 @@ typedef enum _GPIOPin {
 #define PULLDOWN	GPIO_PuPd_DOWN
 #define HIGH		SET
 #define LOW			RESET
+#define LOWSPEED 	GPIO_Speed_2MHz
+#define MEDSPEED 	GPIO_Speed_25MHz
+#define FASTSPEED 	GPIO_Speed_50MHz
+#define HIGHSPEED 	GPIO_Speed_100MHz
+
 
 void pinMode(GPIOPin portpin, GPIOMode_TypeDef mode);
 void digitalWrite(GPIOPin portpin, uint8_t bit);
