@@ -13,7 +13,7 @@
 //#include "stm32f4xx_it.h"
 
 #include "gpio.h"
-#include "systick.h"
+//#include "systick.h"
 #include "delay5.h"
 #include "delay.h"
 #include "usart.h"
@@ -21,24 +21,35 @@
 void NVIC_Configuration();
 
 int main(void) {
-	uint16_t count = 0;
 	uint16_t bits;
-	uint32_t dval = 900;
 	uint32_t intval = 24;
+	uint32_t tnow;
 	char tmp[92];
+
+	  RCC_ClocksTypeDef RCC_Clocks;
+
+	  RCC_GetClocksFreq(&RCC_Clocks);
 
 	NVIC_Configuration();
 
-	delay5_start();
-	SysTick_Start();
+	TIM5_timer_start();
+//	SysTick_Start();
 
 	usart_begin(USART2Serial, PA3, PA2, 19200);
 	usart_print(USART2Serial, "Happy are those who know they are spiritually poor; \n");
 	usart_print(USART2Serial, "The kingdom of heaven belongs to them!\n");
-//	sprintf(tmp, "port = %d\n", Serial3.port());
-//	usart3_print(tmp);
 	usart_print(USART2Serial, "How many eyes does Mississipi river have?\n");
 	usart_print(USART2Serial, "Quick brown fox jumped over the lazy dog!\n");
+	usart_flush(USART2Serial);
+
+	sprintf(tmp, "SYSCLK = %ld, ", RCC_Clocks.SYSCLK_Frequency);
+	usart_print(USART2Serial, tmp);
+	sprintf(tmp, "HCLK = %ld, ", RCC_Clocks.HCLK_Frequency);
+	usart_print(USART2Serial, tmp);
+	sprintf(tmp, "PCLK1 = %ld, ", RCC_Clocks.PCLK1_Frequency);
+	usart_print(USART2Serial, tmp);
+	sprintf(tmp, "PCLK2 = %ld\r\n", RCC_Clocks.PCLK2_Frequency);
+	usart_print(USART2Serial, tmp);
 	usart_flush(USART2Serial);
 
 	GPIOMode(GPIOD, (GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15),
@@ -51,31 +62,36 @@ int main(void) {
 	| GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15),
 			GPIO_Mode_OUT, GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL);
 */
+	tnow = millis()/1000;
+	while (tnow == millis()/1000);
+	tnow = millis()/1000;
+
 	while (1) {
 		bits = GPIO_ReadOutputData(GPIOD);
 		bits = 1<<12 | (bits & 0x0fff);
 		GPIO_Write(GPIOD, bits);
-		SysTick_delay(intval);
+		delay_millis(intval);
 
 		bits = 1<<13 | (bits & 0x0fff);
 		GPIO_Write(GPIOD, bits);
-		SysTick_delay(intval);
+		delay_millis(intval);
 
 		bits = 1<<14 | (bits & 0x0fff);
 		GPIO_Write(GPIOD, bits);
-		SysTick_delay(intval);
+		delay_millis(intval);
 
 		bits = 1<<15 | (bits & 0x0fff);
 		GPIO_Write(GPIOD, bits);
-		SysTick_delay(intval);
+		delay_millis(intval);
 		//
 		bits = 1<<12 | (bits & 0x0fff);
 		GPIO_Write(GPIOD, bits);
-		SysTick_delay(dval);
+
+		while (tnow == millis()/1000);
+		tnow = millis()/1000;
 /*
 		usart3.print((float)(count++ / 32.0f), 3);
 		*/
-		count++;
 //		uint16_t h, t;
 //		h = tx_head();
 //		t = tx_tail();

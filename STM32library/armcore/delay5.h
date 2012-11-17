@@ -22,8 +22,9 @@ extern "C" {
 /* Exported functions ------------------------------------------------------- */
 uint32_t micros(void);
 uint32_t millis(void);
-void delay(uint32_t);
-void delay5_start(void);
+void delay_millis(uint32_t);
+void delay_micros(uint32_t);
+void TIM5_timer_start(void);
 
 void TIM5_IRQHandler(void);
 
