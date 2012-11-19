@@ -37,7 +37,6 @@ extern "C" {
 #define HIGHLOW(x, y)  (((uint16_t)(x))<< 8 | y)
 
 size_t strlen(const char * s);
-uint32_t millis(void);
 
 #ifdef __cplusplus
 }

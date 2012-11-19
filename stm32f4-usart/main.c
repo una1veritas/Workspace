@@ -1,10 +1,10 @@
 /*
- * main.cpp
+ * main.c
  *
  *  Created on: 2012/10/08
  *      Author: sin
  */
-
+#include <inttypes.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +19,7 @@
 
 int main(void) {
 	uint16_t bits;
-	uint32_t intval = 24;
+	uint32_t intval = 40;
 	uint32_t tnow;
 	char tmp[92];
 
@@ -46,7 +46,7 @@ int main(void) {
 //	usart_flush(USART2Serial);
 
 	GPIOMode(PinPort(PD12), (PinBit(PD12) | PinBit(PD13) | PinBit(PD14) | PinBit(PD15)),
-			OUTPUT, LOWSPEED, PUSHPULL, NOPULL);
+			OUTPUT, FASTSPEED, PUSHPULL, NOPULL);
 	/*
 	pinMode(PD12, OUTPUT);
 	pinMode(PD13, OUTPUT);
@@ -58,30 +58,42 @@ int main(void) {
 	spi_begin(SPI2, PB13, PB14, PB15, PB12);
 	digitalWrite(PB12, HIGH);
 
+	bits = GPIO_ReadOutputData(GPIOD);
+	GPIOWrite(GPIOD, PinBit(PD13) | (bits & 0x0fff));
+	delay_ms(intval);
 	tnow = millis()/1000;
 	while (tnow == millis()/1000);
 	tnow = millis()/1000;
 
 	while (1) {
 		bits = GPIO_ReadOutputData(GPIOD);
-		bits = 1<<12 | (bits & 0x0fff);
-		GPIO_Write(GPIOD, bits);
-		delay_millis(intval);
 
-		bits = 1<<13 | (bits & 0x0fff);
-		GPIO_Write(GPIOD, bits);
-		delay_millis(intval);
+		GPIOWrite(GPIOD, PinBit(PD13) | (bits & 0x0fff));
+		delay_ms(intval);
 
-		bits = 1<<14 | (bits & 0x0fff);
-		GPIO_Write(GPIOD, bits);
-		delay_millis(intval);
+		GPIOWrite(GPIOD, PinBit(PD14) | (bits & 0x0fff));
+		delay_ms(intval);
 
-		bits = 1<<15 | (bits & 0x0fff);
-		GPIO_Write(GPIOD, bits);
-		delay_millis(intval);
+		GPIOWrite(GPIOD, PinBit(PD15) | (bits & 0x0fff));
+		delay_ms(intval);
+
+		GPIOWrite(GPIOD, PinBit(PD12) | (bits & 0x0fff));
+		delay_ms(intval);
 		//
-		bits = 1<<12 | (bits & 0x0fff);
-		GPIO_Write(GPIOD, bits);
+		bits &= 0x0fff;
+		switch( (tnow % 60)/15 ) {
+		case 3:
+			bits |= PinBit(PD12);
+		case 2:
+			bits |= PinBit(PD15);
+		case 1:
+			bits |= PinBit(PD14);
+		case 0:
+		default:
+			bits |= PinBit(PD13);
+			break;
+		}
+		GPIOWrite(GPIOD, bits);
 
 		while (tnow == millis()/1000);
 		tnow = millis()/1000;

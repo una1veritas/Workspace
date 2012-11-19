@@ -49,13 +49,12 @@
 #include "stm32f4xx_gpio.h"
 #include "stm32f4xx_rcc.h"
 #include "stm32f4xx_i2c.h"
-//#include "platform_config.h"
-//#include "com_config.h"
-#include "delay.h"
 
-//#include "armcore.h"
+// armcore
+#include "delay.h"
 #include "gpio.h"
 #include "i2c.h"
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define ST7032I_ADDR               0x3e

@@ -99,7 +99,7 @@ typedef enum _GPIOPin {
 
 //#define digitalPinHasPWM(p)         ((p) == 4 || (p) == 5 || (p) == 6 || (p) == 7 || (p) == 9 || (p) == 10)
 
-#define NUM_DIGITAL_PINS            32
+//#define NUM_DIGITAL_PINS            32
 //#define NUM_ANALOG_INPUTS           8
 //#define analogInputToDigitalPin(p)  ((p < 8) ? (p) + 24 : -1)
 
