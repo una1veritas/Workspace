@@ -34,19 +34,35 @@ typedef enum _GPIOPin {
 	PA1 = (PortA <<8) | ((uint16_t)1),
 	PA2 = (PortA <<8) | ((uint16_t)2),
 	PA3 = (PortA <<8) | ((uint16_t)3),
-
+	PA4 = (PortA <<8) | ((uint16_t) 4),
+	PA5 = (PortA <<8) | ((uint16_t) 5),
+	PA6 = (PortA <<8) | ((uint16_t) 6),
+	PA7 = (PortA <<8) | ((uint16_t) 7),
 	PA8 = (PortA <<8) | ((uint16_t)8),
 	PA9 = (PortA <<8) | ((uint16_t)9),
 	PA10 = (PortA <<8) | ((uint16_t)10),
+	PA11 = (PortA <<8) | ((uint16_t) 11),
+	PA12 = (PortA <<8) | ((uint16_t)12),
+	PA13 = (PortA <<8) | ((uint16_t)13),
+	PA14 = (PortA <<8) | ((uint16_t)14),
+	PA15 = (PortA <<8) | ((uint16_t) 15),
 
 	PB0 = (PortB <<8) | ((uint16_t)0),
+	PB1 = (PortB <<8) | ((uint16_t)1),
+	PB2 = (PortB <<8) | ((uint16_t)2),
+	PB3 = (PortB <<8) | ((uint16_t)3),
+	PB4 = (PortB <<8) | ((uint16_t)4),
+	PB5 = (PortB <<8) | ((uint16_t)5),
 	PB6 = (PortB <<8) | ((uint16_t)6),
 	PB7 = (PortB <<8) | ((uint16_t)7),
 	PB8 = (PortB <<8) | ((uint16_t)8),
 	PB9 = (PortB <<8) | ((uint16_t)9),
-
 	PB10 = (PortB <<8) | ((uint16_t)10),
 	PB11 = (PortB <<8) | ((uint16_t)11),
+	PB12 = (PortB <<8) | ((uint16_t)12),
+	PB13 = (PortB <<8) | ((uint16_t)13),
+	PB14 = (PortB <<8) | ((uint16_t)14),
+	PB15 = (PortB <<8) | ((uint16_t)15),
 
 	PC0 = (PortC <<8) | ((uint16_t)0),
 	PC9 = (PortC <<8) | ((uint16_t)9),
@@ -90,15 +106,18 @@ typedef enum _GPIOPin {
 #define OUTPUT		GPIO_Mode_OUT
 #define INPUT		GPIO_Mode_IN
 #define ALTFUNC		GPIO_Mode_AF
+#define PUSHPULL 	GPIO_OType_PP
+#define ODRAIN 		GPIO_OType_OD
 #define NOPULL		GPIO_PuPd_NOPULL
 #define PULLUP		GPIO_PuPd_UP
 #define PULLDOWN	GPIO_PuPd_DOWN
-#define HIGH		SET
-#define LOW			RESET
 #define LOWSPEED 	GPIO_Speed_2MHz
 #define MEDSPEED 	GPIO_Speed_25MHz
 #define FASTSPEED 	GPIO_Speed_50MHz
 #define HIGHSPEED 	GPIO_Speed_100MHz
+
+#define HIGH		SET
+#define LOW			RESET
 
 
 void pinMode(GPIOPin portpin, GPIOMode_TypeDef mode);

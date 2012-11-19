@@ -108,142 +108,119 @@
 
 #include "gpio.h"
 #include "spi.h"
-//#include "MAX6966.h"
 
-//uint16_t spiConfigured = 0;
+//SPI_TypeDef * spix[] = { SPI1, SPI2, SPI3 };
 
-void spi_begin(uint8_t SPIx, GPIOPin clk, GPIOPin mosi, GPIOPin miso,
-		uint32_t clkspeed) {
+void spi_begin(SPI_TypeDef * SPIx,/*SPIBus spibus,*/ GPIOPin sck, GPIOPin miso, GPIOPin mosi,
+		GPIOPin nss) {
+//	SPI_TypeDef * SPIx;
 	uint8_t af; // = GPIO_AF_SPI1;
+	SPI_InitTypeDef SPI_InitStruct;
 //	IRQn_Type irq = USART1_IRQn;
+//	GPIOPin sck, miso, mosi, nss;
 
-	switch (SPIx) {
-	case 1:
+	/* PCLK2 = HCLK/2 */
+	//RCC_PCLK2Config(RCC_HCLK_Div2);
+//	SPIx = spix[spibus];
+	if (SPIx == SPI1) {
+//	case SPI1Bus:
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
-		 af = GPIO_AF_SPI1;
-		break;
-	case 2:
+		af = GPIO_AF_SPI1;
+//		 sck = PA5; // PB3
+//		 miso = PA6; // PB4
+//		 mosi = PA7; // PB5
+//		 nss = PA4; // PA15
+//		break;
+	} else if ( SPIx == SPI2 ) {
+//	case SPI2Bus:
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
-		 af = GPIO_AF_SPI2;
-		break;
-	case 3:
+		af = GPIO_AF_SPI2;
+		// PB12, 13, 14, 15
+//		break;
+	} else {
+//	case SPI3Bus:
+//	default:
 		RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI3, ENABLE);
-		 af = GPIO_AF_SPI3;
-		break;
+		af = GPIO_AF_SPI3;
+//		 sck = PB3;
+//		 miso = PB4;
+//		 mosi = PB5;
+//		 nss = PA15; // PA4;
+//		break;
 	}
 
-	GPIOMode(PinPort(clk), PinBit(clk), GPIO_Mode_AF, GPIO_Speed_50MHz,
+	GPIOMode(PinPort(sck), PinBit(sck), GPIO_Mode_AF, GPIO_Speed_25MHz,
 			GPIO_OType_PP, GPIO_PuPd_UP);
-	GPIOMode(PinPort(mosi), PinBit(mosi), GPIO_Mode_AF, GPIO_Speed_50MHz,
+	GPIOMode(PinPort(miso), PinBit(miso), GPIO_Mode_AF, GPIO_Speed_25MHz,
 			GPIO_OType_PP, GPIO_PuPd_UP);
-	GPIOMode(PinPort(miso), PinBit(miso), GPIO_Mode_AF, GPIO_Speed_50MHz,
+	GPIOMode(PinPort(mosi), PinBit(mosi), GPIO_Mode_AF, GPIO_Speed_25MHz,
 			GPIO_OType_PP, GPIO_PuPd_UP);
-	GPIO_PinAFConfig(PinPort(clk), PinSource(clk), af);
-	GPIO_PinAFConfig(PinPort(mosi), PinSource(mosi), af);
+	GPIO_PinAFConfig(PinPort(sck), PinSource(sck), af);
 	GPIO_PinAFConfig(PinPort(miso), PinSource(miso), af);
+	GPIO_PinAFConfig(PinPort(mosi), PinSource(mosi), af);
+	// nSS by software
+	GPIOMode(PinPort(nss), PinBit(nss), GPIO_Mode_OUT, GPIO_Speed_25MHz,
+			GPIO_OType_PP, GPIO_PuPd_UP);
+	digitalWrite(nss, HIGH);
+	//GPIO_PinAFConfig(PinPort(nss), PinSource(nss), af);
 
-	/*          2. Enable SCK, MOSI, MISO and NSS GPIO clocks using RCC_AHB1PeriphClockCmd()
-	 *             function.
-	 *             In I2S mode, if an external clock source is used then the I2S CKIN pin GPIO
-	 *             clock should also be enabled.
+	SPI_InitStruct.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
+	SPI_InitStruct.SPI_Mode = SPI_Mode_Master;
+	SPI_InitStruct.SPI_DataSize = SPI_DataSize_8b;
+	SPI_InitStruct.SPI_CPOL = SPI_CPOL_Low;
+	SPI_InitStruct.SPI_CPHA = SPI_CPHA_1Edge;
+	SPI_InitStruct.SPI_NSS = SPI_NSS_Soft;
+	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8;
+	SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB;
+	SPI_InitStruct.SPI_CRCPolynomial = SPI_CRC_Rx;
+
+	SPI_Init(SPIx, &SPI_InitStruct);
+
+	SPI_Cmd(SPIx, ENABLE);
+	/*          5. Enable the NVIC and the corresponding interrupt using the function
+	 *             SPI_ITConfig() if you need to use interrupt mode.
 	 *
-	 *          3. Peripherals alternate function:
-	 *                 - Connect the pin to the desired peripherals' Alternate
-	 *                   Function (AF) using GPIO_PinAFConfig() function
-	 *                 - Configure the desired pin in alternate function by:
-	 *                   GPIO_InitStruct->GPIO_Mode = GPIO_Mode_AF
-	 *                 - Select the type, pull-up/pull-down and output speed via
-	 *                   GPIO_PuPd, GPIO_OType and GPIO_Speed members
-	 *                 - Call GPIO_Init() function
-	 *              In I2S mode, if an external clock source is used then the I2S CKIN pin
-	 *              should be also configured in Alternate function Push-pull pull-up mode.
+	 *          6. When using the DMA mode
+	 *                   - Configure the DMA using DMA_Init() function
+	 *                   - Active the needed channel Request using SPI_I2S_DMACmd() function
 	 *
+	 *          7. Enable the SPI using the SPI_Cmd() function or enable the I2S using
+	 *             I2S_Cmd().
+	 *
+	 *          8. Enable the DMA using the DMA_Cmd() function when using DMA mode.
+	 *
+	 *          9. Optionally, you can enable/configure the following parameters without
+	 *             re-initialization (i.e there is no need to call again SPI_Init() function):
+	 *              - When bidirectional mode (SPI_Direction_1Line_Rx or SPI_Direction_1Line_Tx)
+	 *                is programmed as Data direction parameter using the SPI_Init() function
+	 *                it can be possible to switch between SPI_Direction_Tx or SPI_Direction_Rx
+	 *                using the SPI_BiDirectionalLineConfig() function.
+	 *              - When SPI_NSS_Soft is selected as Slave Select Management parameter
+	 *                using the SPI_Init() function it can be possible to manage the
+	 *                NSS internal signal using the SPI_NSSInternalSoftwareConfig() function.
+	 *              - Reconfigure the data size using the SPI_DataSizeConfig() function
+	 *              - Enable or disable the SS output using the SPI_SSOutputCmd() function
+	 *
+	 *          10. To use the CRC Hardware calculation feature refer to the Peripheral
+	 *              CRC hardware Calculation subsection.
 	 */
-
 }
 
-void HardwareSPI_init(void) {
-	SPI_InitTypeDef SPI_InitStructure;
-	GPIO_InitTypeDef GPIO_InitStructure;
-	// enable the SPI peripheral clock
-	SPI_PORT_CLOCK_INIT(SPI_PORT_CLOCK, ENABLE);
-	// enable the peripheral GPIO port clocks
-	RCC_AHB1PeriphClockCmd(SPI_SCK_GPIO_CLK | SPI_MOSI_GPIO_CLK, ENABLE);
-	// Connect SPI pins to AF5 - see section 3, Table 6 in the device datasheet
-	GPIO_PinAFConfig(SPI_SCK_GPIO_PORT, SPI_SCK_SOURCE, SPI_SCK_AF );
-	GPIO_PinAFConfig(SPI_MOSI_GPIO_PORT, SPI_MOSI_SOURCE, SPI_MOSI_AF );
-	// now configure the pins themselves
-	// they are all going to be fast push-pull outputs
-	// but the SPI pins use the alternate function
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIO_InitStructure.GPIO_Pin = SPI_SCK_PIN;
-	GPIO_Init(SPI_SCK_GPIO_PORT, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = SPI_MOSI_PIN;
-	GPIO_Init(SPI_MOSI_GPIO_PORT, &GPIO_InitStructure);
-	// now we can set up the SPI peripheral
-	// Assume the target is write only and we look after the chip select ourselves
-	// SPI clock rate will be system frequency/4/prescaler
-	// so here we will go for 72/4/8 = 2.25MHz
-	SPI_I2S_DeInit(SPI_PORT );
-	SPI_StructInit(&SPI_InitStructure);
-	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-	SPI_InitStructure.SPI_Direction = SPI_Direction_1Line_Tx;
-	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8;
-	SPI_Init(SPI_PORT, &SPI_InitStructure);
-	// Enable the SPI port==================================================
-	SPI_Cmd(SPI_PORT, ENABLE);
-//	spiConfigured = 1;
-}
+void spi_transfer(SPI_TypeDef * SPIx, /*SPIBus spibus,*/ uint8_t * data, uint16_t nbytes) {
+//	SPI_TypeDef * SPIx = spix[spibus];
+	uint8_t rcvdata;
 
-void spiPutByte(uint8_t data) {
-	// make sure the transmit buffer is free
-	while (SPI_I2S_GetFlagStatus(SPI_PORT, SPI_I2S_FLAG_TXE ) == RESET)
-		;
-	SPI_I2S_SendData(SPI_PORT, data);
-	// we are not reading data so be sure that the character goes to the shift register
-	while (SPI_I2S_GetFlagStatus(SPI_PORT, SPI_I2S_FLAG_TXE ) == RESET)
-		;
-	// and then be sure it has been sent over the wire
-	while (SPI_I2S_GetFlagStatus(SPI_PORT, SPI_I2S_FLAG_BSY ) == SET)
-		;
-}
-;
-
-void spiPutWord(uint16_t data) {
-	// make sure the transmit buffer is free
-	while (SPI_I2S_GetFlagStatus(SPI_PORT, SPI_I2S_FLAG_TXE ) == RESET)
-		;
-	SPI_I2S_SendData(SPI2, data / 256);
-	// we are not reading data so be sure that the character goes to the shift register
-	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE ) == RESET)
-		;
-	SPI_I2S_SendData(SPI2, data % 256);
-	// we are not reading data so be sure that the character goes to the shift register
-	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE ) == RESET)
-		;
-	// and then be sure it has been sent over the wire
-	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY ) == SET)
-		;
-}
-;
-
-void spiPutBufferPolled(uint8_t * buffer, uint16_t length) {
-	while (length) {
-		// make sure the transmit buffer is free
-		while (SPI_I2S_GetFlagStatus(SPI_PORT, SPI_I2S_FLAG_TXE ) == RESET)
+	for (; nbytes; nbytes--) {
+		/* Wait for SPIx Tx buffer empty */
+		while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE ) == RESET)
 			;
-		SPI_I2S_SendData(SPI_PORT, *buffer++);
-		length--;
+		SPI_I2S_SendData(SPIx, (uint16_t) *data);
+		/* Wait for SPIx data reception */
+		while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_RXNE ) == RESET)
+			;
+		/* Read SPIy received data */
+		rcvdata = SPI_I2S_ReceiveData(SPIx);
+		*data = rcvdata;
+		data++;
 	}
-	// be sure the last byte is sent to the shift register
-	while (SPI_I2S_GetFlagStatus(SPI_PORT, SPI_I2S_FLAG_TXE ) == RESET)
-		;
-	// and then wait until it goes over the wire
-	while (SPI_I2S_GetFlagStatus(SPI_PORT, SPI_I2S_FLAG_BSY ) == SET)
-		;
 }
-

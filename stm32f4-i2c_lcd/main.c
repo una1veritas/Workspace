@@ -44,11 +44,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
-//#include "platform_config.h"
-//#include "com_config.h"
 #include "st7032i.h"
 
-#include "systick.h"
+#include "delay.h"
 #include "usart.h"
 #include "i2c.h"
 /* Private typedef -----------------------------------------------------------*/
@@ -82,12 +80,12 @@ int main(void) {
 //  BoardInit();
 	// Setting up COM port for Print function
 //  COM_Configuration();
-	SysTick_Start();
-	usart_begin(USART3Serial, PD9, PD8, 19200);
+	usart_begin(USART3, PD9, PD8, 19200);
 
 	//Send welcome messages
-	usart_print(USART3Serial, (char *) Welcome_Message);
+	usart_print(USART3, (char *) Welcome_Message);
 //  cprintf(Welcome_Message);
+	delay_ms(100);
 
 	i2c_begin(100000);
 	ST7032i_Init();
@@ -97,14 +95,14 @@ int main(void) {
 
 	//Receive character from COM and put it on LCD
 	while (1) {
-		if (usart_available(USART3Serial) > 0) // RX_BUFFER_IS_NOT_EMPTY)
+		if (usart_available(USART3) > 0) // RX_BUFFER_IS_NOT_EMPTY)
 				{
-			RxData = usart_read(USART3Serial); //RECEIVE_DATA;
+			RxData = usart_read(USART3); //RECEIVE_DATA;
 			if ((RxData >= 0x20 && RxData <= 0x3F)
 					|| (RxData >= 0x60 && RxData <= 0x7F)) {
 //              cputchar(RxData);
 				sprintf(tmp, "%c", RxData);
-				usart_print(USART3Serial, tmp);
+				usart_print(USART3, tmp);
 				ST7032i_Putchar(RxData);
 			} else {
 				switch (RxData) {
@@ -159,13 +157,13 @@ int main(void) {
 				case 'W':
 					Contrast++;
 					sprintf(tmp, "Contrast is :%u\r\n", Contrast);
-					usart_print(USART3Serial, tmp);
+					usart_print(USART3, tmp);
 					ST7032i_Set_Contrast(Contrast);
 					break;
 				case 'E':
 					Contrast--;
 					sprintf(tmp, "Contrast is :%u\r\n", Contrast);
-					usart_print(USART3Serial, tmp);
+					usart_print(USART3, tmp);
 					ST7032i_Set_Contrast(Contrast);
 					break;
 				case 'O':
@@ -183,23 +181,23 @@ int main(void) {
 					ST7032i_Icon_Set(icon_num);
 					break;
 				case 'A':
-					usart_print(USART3Serial,
+					usart_print(USART3,
 							"\r\nData stored in DDRAM is :\r\n");
 					for (i = 0; i < 16; i++) {
-						usart_write(USART3Serial, (uint8_t) DDRAM_Data[0][i]);
+						usart_write(USART3, (uint8_t) DDRAM_Data[0][i]);
 					}
-					usart_print(USART3Serial, "\r\n");
+					usart_print(USART3, "\r\n");
 					for (i = 0; i < 16; i++) {
-						usart_write(USART3Serial, (uint8_t) DDRAM_Data[1][i]);
+						usart_write(USART3, (uint8_t) DDRAM_Data[1][i]);
 					}
-					usart_print(USART3Serial, "\r\n");
+					usart_print(USART3, "\r\n");
 					break;
 				}
 			}
 		} else {
 			delay_ms(10);
 			tmp[0] = 0;
-			i2c_requestFrom(0b1101000, (uint8_t *) tmp, 4);
+			i2c_requestFrom(0b1101000, 0, (uint8_t *) tmp, 4);
 			delay_ms(100);
 		}
 	}

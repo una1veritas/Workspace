@@ -69,13 +69,13 @@ uint32_t millis(void) {
 	return __counter_millis;
 }
 
-void delay_millis(uint32_t w) {
+void delay_ms(uint32_t w) {
 	uint32_t wtill = millis() + w;
 	while (millis() < wtill)
 		;
 }
 
-void delay_micros(uint32_t w) {
+void delay_us(uint32_t w) {
 	uint32_t wtill = micros() + w;
 	while (micros() < wtill)
 		;

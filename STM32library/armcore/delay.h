@@ -22,8 +22,8 @@ extern "C" {
 /* Exported functions ------------------------------------------------------- */
 uint32_t micros(void);
 uint32_t millis(void);
-void delay_millis(uint32_t);
-void delay_micros(uint32_t);
+void delay_ms(uint32_t);
+void delay_us(uint32_t);
 void TIM2_timer_start(void);
 
 void TIM2_IRQHandler(void);

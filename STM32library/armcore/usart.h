@@ -28,6 +28,7 @@ typedef enum _USARTSerial {
 	USART6Serial
 } USARTSerial;
 
+
 /*
 PB6 			USART1_TX
 PB7			USART1_RX
@@ -53,13 +54,13 @@ PC6 			USART6_TX
 PC7 			USART6_RX
 */
 
-void usart_begin(USARTSerial usx, GPIOPin rx, GPIOPin tx, const uint32_t baud);
-void usart_write(USARTSerial usx, const uint16_t w);
-void usart_print(USARTSerial usx, const char * s);
-uint16_t usart_read(USARTSerial usx);
-uint16_t usart_available(USARTSerial usx);
-void usart_flush(USARTSerial usx);
-uint16_t usart_peek(USARTSerial usx);
+void usart_begin(USART_TypeDef * /*USARTSerial*/ usx, GPIOPin rx, GPIOPin tx, const uint32_t baud);
+void usart_write(USART_TypeDef * /*USARTSerial*/ usx, const uint16_t w);
+void usart_print(USART_TypeDef * /*USARTSerial*/ usx, const char * s);
+uint16_t usart_read(USART_TypeDef * /*USARTSerial*/ usx);
+uint16_t usart_available(USART_TypeDef * /*USARTSerial*/ usx);
+void usart_flush(USART_TypeDef * /*USARTSerial*/ usx);
+uint16_t usart_peek(USART_TypeDef * /*USARTSerial*/ usx);
 
 void USART1_IRQHandler(void);
 void USART2_IRQHandler(void);

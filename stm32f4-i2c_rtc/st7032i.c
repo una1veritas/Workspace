@@ -48,7 +48,6 @@
 #include "stm32f4xx_i2c.h"
 #include "st7032i.h"
 
-#include "delay.h"
 #include "i2c.h"
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -94,7 +93,7 @@ void ST7032i_Clear(void)
       DDRAM_Data[0][i] =  ' ';
       DDRAM_Data[1][i] =  ' ';
     }
-  delay_millis(2);
+  delay_ms(2);
 }
 
 /**
@@ -106,7 +105,7 @@ void ST7032i_Return(void)
 {
   ST7032i_Command_Write(0b00000010);
   DDRAM_Address = 0;
-  delay_millis(2);
+  delay_ms(2);
 }
 
 /**
@@ -118,7 +117,7 @@ void ST7032i_Increment(void)
 {
   ST7032i_Command_Write(( Entry_Mode & 0b11111101) | 0b00000010);
   Increment = 1;
-  delay_micros(27);
+  delay_us(27);
 }
 
 /**
@@ -130,7 +129,7 @@ void ST7032i_Decrement(void)
 {
   ST7032i_Command_Write(( Entry_Mode & 0b11111101) | 0b00000000);
   Increment = -1;
-  delay_micros(27);
+  delay_us(27);
 }
 
 /**
@@ -142,7 +141,7 @@ void ST7032i_Shift_Enable(void)
 {
   ST7032i_Command_Write(( Entry_Mode & 0b11111110) | 0b00000001);
   Shift = 1;
-  delay_micros(27);
+  delay_us(27);
 }
 
 /**
@@ -154,7 +153,7 @@ void ST7032i_Shift_Disable(void)
 {
   ST7032i_Command_Write(( Entry_Mode & 0b11111110) | 0b00000000);
   Shift = 0;
-  delay_micros(27);
+  delay_us(27);
 }
 
 /**
@@ -165,7 +164,7 @@ void ST7032i_Shift_Disable(void)
 void ST7032i_Display_On(void)
 {
   ST7032i_Command_Write(( Display & 0b11111011) | 0b00000100);
-  delay_micros(27);
+  delay_us(27);
 }
 
 /**
@@ -176,7 +175,7 @@ void ST7032i_Display_On(void)
 void ST7032i_Display_Off(void)
 {
   ST7032i_Command_Write(( Display & 0b11111011) | 0b00000000);
-  delay_micros(27);
+  delay_us(27);
 }
 
 /**
@@ -187,7 +186,7 @@ void ST7032i_Display_Off(void)
 void ST7032i_Cursor_On(void)
 {
   ST7032i_Command_Write(( Display & 0b11111101) | 0b00000010);
-  delay_micros(27);
+  delay_us(27);
 }
 
 /**
@@ -198,7 +197,7 @@ void ST7032i_Cursor_On(void)
 void ST7032i_Cursor_Off(void)
 {
   ST7032i_Command_Write(( Display & 0b11111101) | 0b00000000);
-  delay_micros(27);
+  delay_us(27);
 }
 
 /**
@@ -209,7 +208,7 @@ void ST7032i_Cursor_Off(void)
 void ST7032i_Cursor_Blink_On(void)
 {
   ST7032i_Command_Write(( Display & 0b11111110) | 0b00000001);
-  delay_micros(27);
+  delay_us(27);
 }
 
 /**
@@ -220,7 +219,7 @@ void ST7032i_Cursor_Blink_On(void)
 void ST7032i_Cursor_Blink_Off(void)
 {
   ST7032i_Command_Write(( Display & 0b11111110) | 0b00000000);
-  delay_micros(27);
+  delay_us(27);
 }
 
 /**
@@ -232,7 +231,7 @@ void ST7032i_Set_DDRAM(uint8_t address)
 {
   ST7032i_Command_Write(0b10000000 | address);
   DDRAM_Address = address;
-  delay_micros(27);
+  delay_us(27);
 }
 
 /**
@@ -245,12 +244,12 @@ void ST7032i_Set_Contrast(uint8_t contrast)
   //Contrast set
   ST7032i_Command_Write(0b01110000 | (contrast & 0b00001111));
 
-  delay_micros(27);
+  delay_us(27);
 
   //Power/Icon/Contrast control
   ST7032i_Command_Write(Power_Icon_Contrast | ( (contrast >> 4) & 0b00000011 ) );
 
-  delay_micros(27);
+  delay_us(27);
 }
 
 /**
@@ -262,15 +261,15 @@ void ST7032i_Icon_Set(uint8_t number)
 {
   //icon address set
   ST7032i_Command_Write(0b01000000 | Icon_Table[number][0] );
-  delay_micros(27);
+  delay_us(27);
 
   //icon data set
   ST7032i_Data_Write(IconRAM[number] | Icon_Table[number][1]);
-  delay_micros(27);
+  delay_us(27);
 
   //restore DDRAM address to ac
   ST7032i_Command_Write(0b10000000 | DDRAM_Address);
-  delay_micros(27);
+  delay_us(27);
 }
 
 /**
@@ -282,15 +281,15 @@ void ST7032i_Icon_Clear(uint8_t number)
 {
   //icon address set
   ST7032i_Command_Write(0b01000000 | Icon_Table[number][0] );
-  delay_micros(27);
+  delay_us(27);
 
   //icon data reset
   ST7032i_Data_Write(IconRAM[number] & (~Icon_Table[number][1]));
-  delay_micros(27);
+  delay_us(27);
 
   //restore DDRAM address to ac
   ST7032i_Command_Write(0b10000000 | DDRAM_Address);
-  delay_micros(27);
+  delay_us(27);
 
 }
 
@@ -303,7 +302,7 @@ void ST7032i_Icon_On(void)
 {
   //Power/Icon/Contrast control
   ST7032i_Command_Write(Power_Icon_Contrast | ( (Contrast >> 4) & 0b00000011 ) | 0b00001000 );
-  delay_micros(27);
+  delay_us(27);
 }
 
 /**
@@ -315,7 +314,7 @@ void ST7032i_Icon_Off(void)
 {
   //Power/Icon/Contrast control
   ST7032i_Command_Write( (Power_Icon_Contrast | ( (Contrast >> 4) & 0b00000011 )) & 0b11110111);
-  delay_micros(27);
+  delay_us(27);
 }
 
 /**
@@ -348,27 +347,27 @@ void ST7032i_Init(void)
   //Function Set
   ST7032i_Command_Write(0b00111000);
 
-  delay_micros(27);
+  delay_us(27);
 
   //Function Set
   ST7032i_Command_Write(0b00111001);
 
-  delay_micros(27);
+  delay_us(27);
 
   //Bias and OSC frequency
   ST7032i_Command_Write(0b00010100);
 
-  delay_micros(27);
+  delay_us(27);
 
   //Contrast set
   ST7032i_Command_Write(0b01110000);
 
-  delay_micros(27);
+  delay_us(27);
 
   //Power/Icon/Contrast control
   ST7032i_Command_Write(Power_Icon_Contrast);
 
-  delay_micros(27);
+  delay_us(27);
 
   //Contrast set
   ST7032i_Set_Contrast(Contrast);
@@ -376,22 +375,22 @@ void ST7032i_Init(void)
   //Follower control
   ST7032i_Command_Write(0b01101100);
 
-  delay_millis(200);
+  delay_ms(200);
 
   //Function Set
   ST7032i_Command_Write(0b00111001);
 
-  delay_micros(27);
+  delay_us(27);
 
   //Entry mode
   ST7032i_Command_Write(Entry_Mode);
 
-  delay_micros(27);
+  delay_us(27);
 
   //Display control : on
   ST7032i_Command_Write(Display);
 
-  delay_micros(27);
+  delay_us(27);
 
   //Clear
   ST7032i_Clear();
@@ -407,7 +406,7 @@ void ST7032i_Putchar(int8_t chardata)
   uint32_t i;
 
   ST7032i_Data_Write((uint8_t)chardata);
-  delay_micros(27);
+  delay_us(27);
   if(DDRAM_Address < 0x10)
     {
       DDRAM_Data[0][DDRAM_Address] = chardata;
@@ -445,21 +444,21 @@ void ST7032i_Putchar(int8_t chardata)
     {
       DDRAM_Address = 0x40;
       ST7032i_Command_Write(0b10000000 | DDRAM_Address);
-      delay_micros(27);
+      delay_us(27);
     }
 
   if (DDRAM_Address == 0x3F)
     {
       DDRAM_Address = 0x0F;
       ST7032i_Command_Write(0b10000000 | DDRAM_Address);
-      delay_micros(27);
+      delay_us(27);
     }
 
   if (DDRAM_Address == 0xFF)
     {
       DDRAM_Address = 0x0;
       ST7032i_Command_Write(0b10000000 | DDRAM_Address);
-      delay_micros(27);
+      delay_us(27);
     }
 
   if (DDRAM_Address == 0x50)
@@ -479,7 +478,7 @@ void ST7032i_Putchar(int8_t chardata)
 
       DDRAM_Address = 0x40;
       ST7032i_Command_Write(0b10000000 | DDRAM_Address);
-      delay_micros(27);
+      delay_us(27);
     }
 }
 

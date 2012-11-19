@@ -46,12 +46,9 @@
 #include <ctype.h>
 
 #include "stm32f4xx.h"
-//#include "platform_config.h"
-//#include "com_config.h"
 #include "st7032i.h"
 
 #include "armcore.h"
-#include "systick.h"
 #include "delay.h"
 #include "usart.h"
 #include "i2c.h"
@@ -74,56 +71,39 @@ int main(void) {
 	char printbuf[64];
 	uint32_t tmp32, rtctime = 0;
 
-	SysTick_Start();
+	TIM2_timer_start();
 
-	usart_begin(USART3Serial, PD9, PD8, 19200);
-	usart_print(USART3Serial, "Welcome to my serial.\r\n");
+	usart_begin(USART3, PD9, PD8, 19200);
+	usart_print(USART3, "\r\nWelcome to USART3.\r\n\r\n");
 
 	i2c_begin(100000);
 	ST7032i_Init();
 
-	ST7032i_Print_String((const int8_t *)"Welcome to lcd.");
-	delay_millis(1000);
+	ST7032i_Print_String((const int8_t *) "Welcome to lcd.");
+	delay_ms(1000);
 	ST7032i_Command_Write(0x01);
-	delay_millis(10);
+	delay_ms(10);
 
 	//Receive character from COM and put it on LCD
 	while (1) {
-		if (usart_available(USART3Serial) > 0) {
-			i = 0;
-			while ( usart_available(USART3Serial) > 0 && i < rxbufsize )
-				rxbuf[i++] = (char) usart_read(USART3Serial);
-			rxbuf[i] = 0;
-			for (i = 0; rxbuf[i]; i++) {
-				if ( isprint(rxbuf[i]) ) {
-					usart_write(USART3Serial, rxbuf[i]);
-			//		ST7032i_Data_Write(rxbuf[i]);
-				} else {
-					sprintf(printbuf, "cmd %x\n", rxbuf[i]);
-					usart_print(USART3Serial, printbuf);
-			//		ST7032i_Command_Write(rxbuf[i]);
-				}
-			}
-		} else {
-			i2c_requestFrom(0b1101000, 0, (uint8_t *) &tmp32, 3);
-			if ( rtctime != (tmp32 & 0xffffff) ) {
-				rtctime = tmp32 & 0xffffff;
-				sprintf(printbuf, "%02x:%02x:%02x", UINT8(rtctime>>16), UINT8(rtctime>>8), UINT8(rtctime));
-				//usart_print(USART3Serial, printbuf);
-			  	ST7032i_Set_DDRAM( ((0 * 0x40) % 0x6c) + 0);
-				ST7032i_Print_String((int8_t *)printbuf);
-				if ( (rtctime & 0xff) == 0 ) {
+		i2c_requestFrom(0b1101000, 0, (uint8_t *) &tmp32, 3);
+		if (rtctime != (tmp32 & 0xffffff)) {
+			rtctime = tmp32 & 0xffffff;
+			sprintf(printbuf, "%02x:%02x:%02x\r\n", UINT8(rtctime>>16),
+					UINT8(rtctime>>8), UINT8(rtctime) );
+			usart_print(USART3, printbuf);
+			ST7032i_Set_DDRAM(((0 * 0x40) % 0x6c) + 0);
+			ST7032i_Print_String((int8_t *) printbuf);
+			if ((rtctime & 0xff) == 0) {
 				i2c_requestFrom(0b1101000, 3, (uint8_t *) &tmp32, 4);
-				sprintf(printbuf, "20%02x %02x/%02x (%x)", UINT8(tmp32>>24), UINT8(tmp32>>16), UINT8(tmp32>>8), UINT8(tmp32));
-				//sprintf(printbuf, "cal %lx.", tmp32);
-//				usart_print(USART3Serial, printbuf);
-//				usart_print(USART3Serial, "\r\n");
-			  	ST7032i_Set_DDRAM( ((1 * 0x40) % 0x6c) + 0);
-				ST7032i_Print_String((int8_t *)printbuf);
-				}
+				sprintf(printbuf, "20%02x %02x/%02x (%x)", UINT8(tmp32>>24),
+						UINT8(tmp32>>16), UINT8(tmp32>>8), UINT8(tmp32) );
+				usart_print(USART3, printbuf);
+				ST7032i_Set_DDRAM(((1 * 0x40) % 0x6c) + 0);
+				ST7032i_Print_String((int8_t *) printbuf);
 			}
 		}
-		delay_millis(100);
+		delay_ms(100);
 	}
 }
 

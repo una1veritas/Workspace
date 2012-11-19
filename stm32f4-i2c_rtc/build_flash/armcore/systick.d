@@ -6,7 +6,7 @@ armcore/systick.d: \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cmFunc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/Include/core_cm4_simd.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/system_stm32f4xx.h \
- /Users/sin/Documents/Eclipse/Workspace/stm32f4-i2c_lcd/stm32f4xx_conf.h \
+ /Users/sin/Documents/Eclipse/Workspace/stm32f4-i2c_rtc/stm32f4xx_conf.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_adc.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_can.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_crc.h \
@@ -47,7 +47,7 @@ armcore/systick.d: \
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/system_stm32f4xx.h:
 
-/Users/sin/Documents/Eclipse/Workspace/stm32f4-i2c_lcd/stm32f4xx_conf.h:
+/Users/sin/Documents/Eclipse/Workspace/stm32f4-i2c_rtc/stm32f4xx_conf.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_adc.h:
 

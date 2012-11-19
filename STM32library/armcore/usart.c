@@ -22,9 +22,11 @@ typedef struct {
 	uint16_t count;
 } USARTRing;
 
+/*
 USART_TypeDef * usartx[] = {
 		USART1, USART2, USART3, UART4, UART5, USART6
 };
+*/
 
 USARTRing rxring[6], txring[6];
 
@@ -64,46 +66,59 @@ uint16_t buffer_deque(USARTRing * r) {
 	return w;
 }
 
-void usart_begin(USARTSerial usx, GPIOPin rx, GPIOPin tx, uint32_t baud) {
+void usart_begin(USART_TypeDef * /*USARTSerial*/ USARTx, GPIOPin rx, GPIOPin tx, uint32_t baud) {
 	USART_InitTypeDef USART_InitStruct; // this is for the USART1 initilization
 	NVIC_InitTypeDef NVIC_InitStructure; // this is used to configure the NVIC (nested vector interrupt controller)
 
+	uint8_t usx;
 	uint8_t af = GPIO_AF_USART1;
 	IRQn_Type irq = USART1_IRQn;
 
-	switch(usx) {
-	case USART1Serial:
+//	switch(usx) {
+//	case USART1Serial:
+	if ( USARTx == USART1 ) {
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 		af = GPIO_AF_USART1;
 		irq = USART1_IRQn;
-	break;
-	case USART2Serial:
+		usx = 0;
+//	break;
+	} else if ( USARTx == USART2 ) {
+//	case USART2Serial:
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
 		af = GPIO_AF_USART2;
 		irq = USART2_IRQn;
-	break;
-	case USART3Serial:
+		usx = 1;
+//	break;
+	} else if ( USARTx == USART3 ) {
+//	case USART3Serial:
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
 		af = GPIO_AF_USART3;
 		irq = USART3_IRQn;
-	break;
-	case UART4Serial:
+		usx = 2;
+//	break;
+	} else if ( USARTx == UART4 ) {
+//	case UART4Serial:
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE);
 		af = GPIO_AF_UART4;
 		irq = UART4_IRQn;
-	break;
-	case UART5Serial:
+		usx = 3;
+//	break;
+	} else if ( USARTx == UART5 ) {
+//	case UART5Serial:
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, ENABLE);
 		af = GPIO_AF_UART5;
 		irq = UART5_IRQn;
-		break;
-	case USART6Serial:
-	default:
-		usx = USART6Serial;
+		usx = 4;
+//		break;
+	} else { //if ( USARTx == USART6 ) {
+//	case USART6Serial:
+//	default:
+//		usx = USART6Serial;
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, ENABLE);
 		af = GPIO_AF_USART6;
 		irq = USART6_IRQn;
-		break;
+		usx = 5;
+//		break;
 	}
 	GPIOMode(PinPort(rx), PinBit(rx), GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL);
 	GPIOMode(PinPort(tx), PinBit(tx), GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL);
@@ -118,10 +133,10 @@ void usart_begin(USARTSerial usx, GPIOPin rx, GPIOPin tx, uint32_t baud) {
 	USART_InitStruct.USART_HardwareFlowControl = USART_HardwareFlowControl_None; // we don't want flow control (standard)
 	USART_InitStruct.USART_Mode = USART_Mode_Tx | USART_Mode_Rx; // we want to enable the transmitter and the receiver
 
-	USART_Init(usartx[usx], &USART_InitStruct); // again all the properties are passed to the USART_Init function which takes care of all the bit setting
+	USART_Init(USARTx /*usartx[usx]*/, &USART_InitStruct); // again all the properties are passed to the USART_Init function which takes care of all the bit setting
 
-	USART_ITConfig(usartx[usx], USART_IT_RXNE, ENABLE); // enable the USART3 receive interrupt
-	USART_ITConfig(usartx[usx], USART_IT_TXE, DISABLE);
+	USART_ITConfig(USARTx /*usartx[usx]*/, USART_IT_RXNE, ENABLE); // enable the USART3 receive interrupt
+	USART_ITConfig(USARTx /*usartx[usx]*/, USART_IT_TXE, DISABLE);
 
 	NVIC_InitStructure.NVIC_IRQChannel = irq;
 	// we want to configure the USART3 interrupts
@@ -133,61 +148,131 @@ void usart_begin(USARTSerial usx, GPIOPin rx, GPIOPin tx, uint32_t baud) {
 	buffer_clear(&rxring[usx]);
 	buffer_clear(&txring[usx]);
 	// finally this enables the complete USART3 peripheral
-	USART_Cmd(usartx[usx], ENABLE);
+	USART_Cmd(USARTx /*usartx[usx]*/, ENABLE);
 }
 
-void usart_bare_write(USARTSerial usx, const uint16_t w) {
-	while (USART_GetFlagStatus(usartx[usx], USART_FLAG_TXE ) == RESET) ;
-	USART_SendData(usartx[usx], w) ;
+void usart_bare_write(USART_TypeDef * USARTx /*usartx[usx]*/, const uint16_t w) {
+	while (USART_GetFlagStatus(USARTx /*usartx[usx]*/, USART_FLAG_TXE ) == RESET) ;
+	USART_SendData(USARTx /*usartx[usx]*/, w) ;
 //	while (USART_GetFlagStatus(USART3, USART_FLAG_TC ) == RESET) ;
 }
 
-void usart_write(USARTSerial usx, const uint16_t w) {
-//	uint16_t waitcount = 1000;
+void usart_write(USART_TypeDef * USARTx /*usartx[usx]*/, const uint16_t w) {
+	uint8_t usx;
+	if ( USARTx == USART1 ) {
+		usx = 0;
+	} else if ( USARTx == USART2 ) {
+		usx = 1;
+	} else if ( USARTx == USART3 ) {
+		usx = 2;
+	} else if ( USARTx == UART4 ) {
+		usx = 3;
+	} else if ( USARTx == UART5 ) {
+		usx = 4;
+	} else { //if ( USARTx == USART6 ) {
+		usx = 5;
+	}
+	//	uint16_t waitcount = 1000;
 	if ( buffer_is_full(&txring[usx]) )
-		delay_micros(833);
-	USART_ITConfig(usartx[usx], USART_IT_TXE, DISABLE);
+		delay_us(833);
+	USART_ITConfig(USARTx /*usartx[usx]*/, USART_IT_TXE, DISABLE);
 	buffer_enque(&txring[usx], w);
-	USART_ITConfig(usartx[usx], USART_IT_TXE, ENABLE);
+	USART_ITConfig(USARTx /*usartx[usx]*/, USART_IT_TXE, ENABLE);
 }
 
-void usart_print(USARTSerial usx, const char * s) {
+void usart_print(USART_TypeDef * USARTx /*usartx[usx]*/, const char * s) {
 	while (*s)
-		usart_write(usx, (uint16_t) *s++);
+		usart_write(USARTx /*usartx[usx]*/, (uint16_t) *s++);
 }
 
-uint16_t usart_bare_read(USARTSerial usx) {
-	return USART_ReceiveData(usartx[usx]);
+uint16_t usart_bare_read(USART_TypeDef * USARTx /*usartx[usx]*/) {
+	return USART_ReceiveData(USARTx);
 }
 
-uint16_t usart_read(USARTSerial usx) {
+uint16_t usart_read(USART_TypeDef * USARTx /*usartx[usx]*/) {
+	uint8_t usx;
+	if ( USARTx == USART1 ) {
+		usx = 0;
+	} else if ( USARTx == USART2 ) {
+		usx = 1;
+	} else if ( USARTx == USART3 ) {
+		usx = 2;
+	} else if ( USARTx == UART4 ) {
+		usx = 3;
+	} else if ( USARTx == UART5 ) {
+		usx = 4;
+	} else { //if ( USARTx == USART6 ) {
+		usx = 5;
+	}
 	uint16_t w = buffer_deque(&rxring[usx]);
 	if ( w == 0xffff ) return 0; // buffer is empty
 	return w;
 }
 
-void usart_flush(USARTSerial usx) {
-	USART_ITConfig(usartx[usx], USART_IT_RXNE, DISABLE); // enable the USART3 receive interrupt
-	buffer_clear(&rxring[usx]);
-	USART_ClearITPendingBit(usartx[usx], USART_IT_RXNE );
-	USART_ITConfig(usartx[usx], USART_IT_RXNE, ENABLE); // enable the USART3 receive interrupt
-	USART_ITConfig(usartx[usx], USART_IT_TXE, DISABLE);
-	while ( buffer_count(&txring[usx]) > 0 ) {
-		while (USART_GetFlagStatus(usartx[usx], USART_FLAG_TXE ) == RESET);
-		USART_SendData(usartx[usx], buffer_deque(&txring[usx]));
-		while (USART_GetFlagStatus(usartx[usx], USART_FLAG_TC ) == RESET);
+void usart_flush(USART_TypeDef * USARTx /*usartx[usx]*/) {
+	uint8_t usx;
+	if ( USARTx == USART1 ) {
+		usx = 0;
+	} else if ( USARTx == USART2 ) {
+		usx = 1;
+	} else if ( USARTx == USART3 ) {
+		usx = 2;
+	} else if ( USARTx == UART4 ) {
+		usx = 3;
+	} else if ( USARTx == UART5 ) {
+		usx = 4;
+	} else { //if ( USARTx == USART6 ) {
+		usx = 5;
 	}
-	USART_ClearITPendingBit(usartx[usx], USART_IT_TXE );
+	USART_ITConfig(USARTx, USART_IT_RXNE, DISABLE); // enable the USART3 receive interrupt
+	buffer_clear(&rxring[usx]);
+	USART_ClearITPendingBit(USARTx, USART_IT_RXNE );
+	USART_ITConfig(USARTx, USART_IT_RXNE, ENABLE); // enable the USART3 receive interrupt
+	USART_ITConfig(USARTx, USART_IT_TXE, DISABLE);
+	while ( buffer_count(&txring[usx]) > 0 ) {
+		while (USART_GetFlagStatus(USARTx, USART_FLAG_TXE ) == RESET);
+		USART_SendData(USARTx, buffer_deque(&txring[usx]));
+		while (USART_GetFlagStatus(USARTx, USART_FLAG_TC ) == RESET);
+	}
+	USART_ClearITPendingBit(USARTx, USART_IT_TXE );
 	buffer_clear(&txring[usx]);
 }
 
-uint16_t usart_peek(USARTSerial usx) {
+uint16_t usart_peek(USART_TypeDef * USARTx /*usartx[usx]*/) {
+	uint8_t usx;
+	if ( USARTx == USART1 ) {
+		usx = 0;
+	} else if ( USARTx == USART2 ) {
+		usx = 1;
+	} else if ( USARTx == USART3 ) {
+		usx = 2;
+	} else if ( USARTx == UART4 ) {
+		usx = 3;
+	} else if ( USARTx == UART5 ) {
+		usx = 4;
+	} else { //if ( USARTx == USART6 ) {
+		usx = 5;
+	}
 	if ( ! buffer_count(&rxring[usx]) == 0 )
 		return rxring[usx].buf[rxring[usx].tail];
 	return 0xffff;
 }
 
-uint16_t usart_available(USARTSerial usx) {
+uint16_t usart_available(USART_TypeDef * USARTx /*usartx[usx]*/) {
+	uint8_t usx;
+	if ( USARTx == USART1 ) {
+		usx = 0;
+	} else if ( USARTx == USART2 ) {
+		usx = 1;
+	} else if ( USARTx == USART3 ) {
+		usx = 2;
+	} else if ( USARTx == UART4 ) {
+		usx = 3;
+	} else if ( USARTx == UART5 ) {
+		usx = 4;
+	} else { //if ( USARTx == USART6 ) {
+		usx = 5;
+	}
 	return buffer_count(&rxring[usx]);
 }
 
