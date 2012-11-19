@@ -97,13 +97,8 @@ int main(void) {
 
 		while (tnow == millis()/1000);
 		tnow = millis()/1000;
-/*
-		usart3.print((float)(count++ / 32.0f), 3);
-		*/
-//		uint16_t h, t;
-//		h = tx_head();
-//		t = tx_tail();
-		sprintf(tmp, /*"head =% 4d, tail =% 4d,*/ "%04ld\n", millis());
+
+		sprintf(tmp, "%04ld\n", millis());
 		usart_print(USART2, tmp);
 
 		digitalWrite(PB12, LOW);
