@@ -25318,12 +25318,8 @@ int main(void) {
 		tnow = millis()/1000;
  8008cfc:	f7f7 fa9e 	bl	800023c <millis>
  8008d00:	fba8 2500 	umull	r2, r5, r8, r0
-		usart3.print((float)(count++ / 32.0f), 3);
-		*/
-//		uint16_t h, t;
-//		h = tx_head();
-//		t = tx_tail();
-		sprintf(tmp, /*"head =% 4d, tail =% 4d,*/ "%04ld\n", millis());
+
+		sprintf(tmp, "%04ld\n", millis());
  8008d04:	f7f7 fa9a 	bl	800023c <millis>
  8008d08:	4942      	ldr	r1, [pc, #264]	; (8008e14 <main+0x3b0>)
  8008d0a:	4602      	mov	r2, r0
