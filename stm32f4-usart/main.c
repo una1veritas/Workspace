@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <stm32f4xx.h>
 
-//#include "stm32f4xx_it.h"
+#include "stm32f4xx_it.h"
 
 #include "gpio.h"
 #include "delay.h"
