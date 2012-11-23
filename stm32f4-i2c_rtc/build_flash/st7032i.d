@@ -34,7 +34,8 @@ st7032i.d: ../st7032i.c \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/misc.h \
  ../st7032i.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/delay.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/i2c.h
+ /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/i2c.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/armcore.h
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h:
 
@@ -107,3 +108,5 @@ st7032i.d: ../st7032i.c \
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/delay.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/i2c.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/armcore.h:

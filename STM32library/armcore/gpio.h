@@ -16,6 +16,12 @@ extern "C" {
 #include "stm32f4xx_gpio.h"
 #include "stm32f4xx_rcc.h"
 
+/*
+extern uint32_t PortPeriph[];
+extern GPIO_TypeDef * Port[];
+extern uint16_t Pin[];
+*/
+
 enum PortNameDef {
 	NotAPort = 0,
 	PortA = 1,

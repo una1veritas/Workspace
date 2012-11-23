@@ -37,7 +37,8 @@ main.d: ../main.c \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/armcore.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/usart.h \
  /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio.h \
- /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/i2c.h
+ /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/i2c.h \
+ /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/armcore.h
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/CMSIS/STM32F4xx/stm32f4xx.h:
 
@@ -116,3 +117,5 @@ main.d: ../main.c \
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/gpio.h:
 
 /Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/i2c.h:
+
+/Users/sin/Documents/Eclipse/Workspace/STM32Library/armcore/armcore.h:

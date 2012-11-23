@@ -21,30 +21,17 @@ uint16_t Pin[] = { GPIO_Pin_0, GPIO_Pin_1, GPIO_Pin_2, GPIO_Pin_3,
 		GPIO_Pin_10, GPIO_Pin_11, GPIO_Pin_12, GPIO_Pin_13, GPIO_Pin_14,
 		GPIO_Pin_15, GPIO_Pin_All };
 
-/*
- static const uint8_t SDA = 16; // PC1
- static const uint8_t SCL = 17; // PC0
-
- // Map SPI port
- static const uint8_t SS   = 10; // PB4
- static const uint8_t MOSI = 11;
- static const uint8_t MISO = 12;
- static const uint8_t SCK  = 13; // PB7
- static const uint8_t LED_BUILTIN = 14;
- */
-/*
-uint8_t pinsrc(uint32_t pin) {
-	uint16_t pinbit = pin & 0xffff;
-	uint16_t bit = 1;
-	uint8_t i;
-	for(i = 0; i < 16; i++) {
-		if ( bit == pinbit )
-			return i;
-		bit <<= 1;
-	}
-	return 16;
+GPIO_TypeDef * PinPort(GPIOPin portpin) {
+	return Port[portpin >> 8 & 0x0f];
 }
-*/
+
+uint16_t PinBit(GPIOPin portpin) {
+	return ((uint16_t)1)<<(portpin &0x0f);
+}
+
+uint8_t PinSource(GPIOPin portpin) {
+	return portpin & 0x0f;
+}
 
 void pinMode(GPIOPin portpin, GPIOMode_TypeDef mode) {
 
@@ -76,18 +63,6 @@ uint8_t digitalRead(GPIOPin portpin) {
 	if (mode == GPIO_Mode_OUT)
 		return (GPIO_ReadOutputDataBit(port, PinBit(portpin)) ? SET : RESET);
 	return (GPIO_ReadInputDataBit(port, PinBit(portpin)) ? SET : RESET);
-}
-
-GPIO_TypeDef * PinPort(GPIOPin portpin) {
-	return Port[portpin >> 8 & 0x0f];
-}
-
-uint16_t PinBit(GPIOPin portpin) {
-	return ((uint16_t)1)<<(portpin &0x0f);
-}
-
-uint8_t PinSource(GPIOPin portpin) {
-	return portpin & 0x0f;
 }
 
 void GPIOMode(GPIO_TypeDef * port, uint16_t pinbit, GPIOMode_TypeDef mode,
