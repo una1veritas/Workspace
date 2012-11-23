@@ -73,37 +73,39 @@ int main(void) {
 
 	TIM2_timer_start();
 
-	usart_begin(USART3, PD9, PD8, 19200);
-	usart_print(USART3, "\r\nWelcome to USART3.\r\n\r\n");
+	usart_begin(&Serial3, PD9, PD8, 19200);
+	usart_print(&Serial3, "\r\nWelcome to USART3.\r\n\r\n");
 
 	i2c_begin(100000);
 	ST7032i_Init();
 
+	ST7032i_Set_Contrast(44);
 	ST7032i_Print_String((const int8_t *) "Welcome to lcd.");
-	delay_ms(1000);
-	ST7032i_Command_Write(0x01);
-	delay_ms(10);
+	usart_print(&Serial3, "2");
+	delay_ms(500);
+//	ST7032i_Command_Write(0x01);
 
 	//Receive character from COM and put it on LCD
 	while (1) {
+
 		i2c_requestFrom(0b1101000, 0, (uint8_t *) &tmp32, 3);
 		if (rtctime != (tmp32 & 0xffffff)) {
 			rtctime = tmp32 & 0xffffff;
 			sprintf(printbuf, "%02x:%02x:%02x\r\n", UINT8(rtctime>>16),
 					UINT8(rtctime>>8), UINT8(rtctime) );
-			usart_print(USART3, printbuf);
+			usart_print(&Serial3, printbuf);
 			ST7032i_Set_DDRAM(((0 * 0x40) % 0x6c) + 0);
 			ST7032i_Print_String((int8_t *) printbuf);
 			if ((rtctime & 0xff) == 0) {
 				i2c_requestFrom(0b1101000, 3, (uint8_t *) &tmp32, 4);
 				sprintf(printbuf, "20%02x %02x/%02x (%x)", UINT8(tmp32>>24),
 						UINT8(tmp32>>16), UINT8(tmp32>>8), UINT8(tmp32) );
-				usart_print(USART3, printbuf);
+				usart_print(&Serial3, printbuf);
 				ST7032i_Set_DDRAM(((1 * 0x40) % 0x6c) + 0);
 				ST7032i_Print_String((int8_t *) printbuf);
 			}
 		}
-		delay_ms(100);
+		delay_ms(50);
 	}
 }
 

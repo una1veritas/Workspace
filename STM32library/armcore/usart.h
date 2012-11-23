@@ -28,6 +28,20 @@ typedef enum _USARTSerial {
 	USART6Serial
 } USARTSerial;
 
+#define USART_BUFFER_SIZE 128
+typedef struct {
+	uint16_t buf[USART_BUFFER_SIZE];
+	int16_t head, tail;
+	uint16_t count;
+} USARTRing;
+
+typedef struct _Serial {
+	USARTSerial usid;
+	USART_TypeDef * USARTx;
+//	USARTRing rxring, txring;
+} Serial;
+
+extern Serial Serial1, Serial2, Serial3, Serial4, Serial5, Serial6;
 
 /*
 PB6 			USART1_TX
@@ -54,13 +68,13 @@ PC6 			USART6_TX
 PC7 			USART6_RX
 */
 
-void usart_begin(USART_TypeDef * /*USARTSerial*/ usx, GPIOPin rx, GPIOPin tx, const uint32_t baud);
-void usart_write(USART_TypeDef * /*USARTSerial*/ usx, const uint16_t w);
-void usart_print(USART_TypeDef * /*USARTSerial*/ usx, const char * s);
-uint16_t usart_read(USART_TypeDef * /*USARTSerial*/ usx);
-uint16_t usart_available(USART_TypeDef * /*USARTSerial*/ usx);
-void usart_flush(USART_TypeDef * /*USARTSerial*/ usx);
-uint16_t usart_peek(USART_TypeDef * /*USARTSerial*/ usx);
+void usart_begin(Serial * usx, GPIOPin rx, GPIOPin tx, const uint32_t baud);
+void usart_write(Serial * usx, const uint16_t w);
+void usart_print(Serial * usx, const char * s);
+uint16_t usart_read(Serial * usx);
+uint16_t usart_available(Serial * usx);
+void usart_flush(Serial * usx);
+uint16_t usart_peek(Serial * usx);
 
 void USART1_IRQHandler(void);
 void USART2_IRQHandler(void);

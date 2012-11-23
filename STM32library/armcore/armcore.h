@@ -20,7 +20,6 @@
 #define abs(x)  ((x) < 0 ? -(x) : (x))
 #endif
 
-typedef uint8_t boolean;
 typedef uint8_t uint8;
 typedef uint8_t byte;
 typedef uint16_t uint16;
@@ -31,6 +30,10 @@ typedef uint64_t uint64;
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef uint8_t boolean;
+#define true 0xff
+#define false 0x00
 
 #define UINT8(x)  ((uint8_t)(x))
 #define UINT16(x)  ((uint16_t)(x))
