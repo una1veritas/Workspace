@@ -71,12 +71,19 @@ uint32_t millis(void) {
 
 void delay_ms(uint32_t w) {
 	uint32_t wtill = millis() + w;
+	if ( wtill < millis() ) {
+		while ( millis() >= wtill );
+	}
 	while (millis() < wtill)
 		;
 }
 
 void delay_us(uint32_t w) {
 	uint32_t wtill = micros() + w;
+	if ( wtill < micros() ) {
+		// overflow
+		while ( micros() >= wtill );
+	}
 	while (micros() < wtill)
 		;
 }

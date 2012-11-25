@@ -36,6 +36,7 @@ enum PortNameDef {
 };
 
 typedef enum _GPIOPin {
+	NOT_A_PIN = 0,
 	PA0 = (PortA <<8) | ((uint16_t)0),
 	PA1 = (PortA <<8) | ((uint16_t)1),
 	PA2 = (PortA <<8) | ((uint16_t)2),
@@ -100,7 +101,9 @@ typedef enum _GPIOPin {
 	PF0 = (PortF <<8) | ((uint16_t)0),
 	PG0 = (PortG <<8) | ((uint16_t)0),
 	PH0 = (PortH <<8) | ((uint16_t)0),
-	PI0 = (PortI <<8) | ((uint16_t)0)
+	PI0 = (PortI <<8) | ((uint16_t)0),
+
+	PIN_NOT_DEFINED = (uint16_t)0xff
 } GPIOPin;
 
 //#define digitalPinHasPWM(p)         ((p) == 4 || (p) == 5 || (p) == 6 || (p) == 7 || (p) == 9 || (p) == 10)

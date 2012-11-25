@@ -111,9 +111,8 @@
 
 //SPI_TypeDef * spix[] = { SPI1, SPI2, SPI3 };
 
-void spi_begin(SPI_TypeDef * SPIx,/*SPIBus spibus,*/ GPIOPin sck, GPIOPin miso, GPIOPin mosi,
+void spi_begin(SPI_TypeDef * SPIx, GPIOPin sck, GPIOPin miso, GPIOPin mosi,
 		GPIOPin nss) {
-//	SPI_TypeDef * SPIx;
 	uint8_t af; // = GPIO_AF_SPI1;
 	SPI_InitTypeDef SPI_InitStruct;
 //	IRQn_Type irq = USART1_IRQn;
