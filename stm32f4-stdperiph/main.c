@@ -20,6 +20,7 @@
 #include "i2c.h"
 #include "ST7032i.h"
 
+
 int main(void) {
 	uint16_t bits;
 	uint32_t intval = 40;

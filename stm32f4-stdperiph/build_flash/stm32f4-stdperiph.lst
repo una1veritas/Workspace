@@ -15843,13 +15843,13 @@ ITStatus USART_GetITStatus(USART_TypeDef* USARTx, uint16_t USART_IT)
 }
  8003406:	4770      	bx	lr
 
-08003408 <command>:
+08003408 <ST7032i_command>:
 // private functions
 //
-void command(ST7032i * lcd, byte value);
-size_t write(ST7032i * lcd, byte value);
+void ST7032i_command(ST7032i * lcd, byte value);
+size_t ST7032i_write(ST7032i * lcd, byte value);
 
-void command(ST7032i * lcd, uint8_t value) {
+void ST7032i_command(ST7032i * lcd, uint8_t value) {
  8003408:	b500      	push	{lr}
  800340a:	b083      	sub	sp, #12
 	uint8_t buf[2];
@@ -15861,10 +15861,10 @@ void command(ST7032i * lcd, uint8_t value) {
  8003412:	2202      	movs	r2, #2
  8003414:	a901      	add	r1, sp, #4
  8003416:	7a00      	ldrb	r0, [r0, #8]
-void command(ST7032i * lcd, byte value);
-size_t write(ST7032i * lcd, byte value);
+void ST7032i_command(ST7032i * lcd, byte value);
+size_t ST7032i_write(ST7032i * lcd, byte value);
 
-void command(ST7032i * lcd, uint8_t value) {
+void ST7032i_command(ST7032i * lcd, uint8_t value) {
 	uint8_t buf[2];
 	buf[0] = (byte) 0x00;
  8003418:	f88d 3004 	strb.w	r3, [sp, #4]
@@ -15879,10 +15879,10 @@ void command(ST7032i * lcd, uint8_t value) {
  8003428:	bd00      	pop	{pc}
  800342a:	bf00      	nop
 
-0800342c <write>:
+0800342c <ST7032i_write>:
 
 //
-size_t write(ST7032i * lcd, uint8_t value) {
+size_t ST7032i_write(ST7032i * lcd, uint8_t value) {
  800342c:	b500      	push	{lr}
  800342e:	b083      	sub	sp, #12
 	uint8_t buf[2];
@@ -15897,7 +15897,7 @@ size_t write(ST7032i * lcd, uint8_t value) {
 }
 
 //
-size_t write(ST7032i * lcd, uint8_t value) {
+size_t ST7032i_write(ST7032i * lcd, uint8_t value) {
 	uint8_t buf[2];
 	buf[0] = 0b01000000;
  800343c:	f88d 3004 	strb.w	r3, [sp, #4]
@@ -15915,7 +15915,7 @@ size_t write(ST7032i * lcd, uint8_t value) {
 
 08003450 <ST7032i_init>:
 	// set the entry mode
-	command(lcd, LCD_ENTRYMODESET | lcd->_displaymode);
+	ST7032i_command(lcd, LCD_ENTRYMODESET | lcd->_displaymode);
 }
 
 void ST7032i_init(ST7032i * lcd) {
@@ -15971,9 +15971,9 @@ size_t ST7032i_print(ST7032i * lcd, const char * str) {
  8003476:	2400      	movs	r4, #0
  8003478:	3401      	adds	r4, #1
  800347a:	b2a4      	uxth	r4, r4
-		write(lcd, str[i]);
+		ST7032i_write(lcd, str[i]);
  800347c:	4630      	mov	r0, r6
- 800347e:	f7ff ffd5 	bl	800342c <write>
+ 800347e:	f7ff ffd5 	bl	800342c <ST7032i_write>
  }
  */
 
@@ -15986,7 +15986,7 @@ size_t ST7032i_print(ST7032i * lcd, const char * str) {
  8003488:	d1f6      	bne.n	8003478 <ST7032i_print+0xc>
  800348a:	bd70      	pop	{r4, r5, r6, pc}
  800348c:	4608      	mov	r0, r1
-		write(lcd, str[i]);
+		ST7032i_write(lcd, str[i]);
 	return i; // assume success
 }
  800348e:	bd70      	pop	{r4, r5, r6, pc}
@@ -16009,44 +16009,44 @@ void ST7032i_setContrast(ST7032i * lcd, byte val) {
  8003496:	4604      	mov	r4, r0
 	lcd->contrast = 0x7f & val;
  8003498:	71c1      	strb	r1, [r0, #7]
-	command(lcd, 0b00111000); //function set
+	ST7032i_command(lcd, 0b00111000); //function set
  800349a:	2138      	movs	r1, #56	; 0x38
- 800349c:	f7ff ffb4 	bl	8003408 <command>
-	command(lcd, 0b00111001); // function set
+ 800349c:	f7ff ffb4 	bl	8003408 <ST7032i_command>
+	ST7032i_command(lcd, 0b00111001); // function set
  80034a0:	2139      	movs	r1, #57	; 0x39
  80034a2:	4620      	mov	r0, r4
- 80034a4:	f7ff ffb0 	bl	8003408 <command>
+ 80034a4:	f7ff ffb0 	bl	8003408 <ST7032i_command>
 	delay_ms(2);
  80034a8:	2002      	movs	r0, #2
  80034aa:	f7fc fecd 	bl	8000248 <delay_ms>
-	command(lcd, 0b01110000 | (lcd->contrast & 0xf)); // contrast Low 4 bits
+	ST7032i_command(lcd, 0b01110000 | (lcd->contrast & 0xf)); // contrast Low 4 bits
  80034ae:	79e1      	ldrb	r1, [r4, #7]
  80034b0:	f001 010f 	and.w	r1, r1, #15
  80034b4:	f041 0170 	orr.w	r1, r1, #112	; 0x70
  80034b8:	4620      	mov	r0, r4
- 80034ba:	f7ff ffa5 	bl	8003408 <command>
+ 80034ba:	f7ff ffa5 	bl	8003408 <ST7032i_command>
 	delay_ms(2);
  80034be:	2002      	movs	r0, #2
  80034c0:	f7fc fec2 	bl	8000248 <delay_ms>
-	command(lcd, 0b01011100 | ((lcd->contrast >> 4) & 0x3)); // contast High/icon/power
+	ST7032i_command(lcd, 0b01011100 | ((lcd->contrast >> 4) & 0x3)); // contast High/icon/power
  80034c4:	79e1      	ldrb	r1, [r4, #7]
  80034c6:	f3c1 1101 	ubfx	r1, r1, #4, #2
  80034ca:	4620      	mov	r0, r4
  80034cc:	f041 015c 	orr.w	r1, r1, #92	; 0x5c
- 80034d0:	f7ff ff9a 	bl	8003408 <command>
-	command(lcd, 0b00111000); // function set
+ 80034d0:	f7ff ff9a 	bl	8003408 <ST7032i_command>
+	ST7032i_command(lcd, 0b00111000); // function set
  80034d4:	4620      	mov	r0, r4
  80034d6:	2138      	movs	r1, #56	; 0x38
- 80034d8:	f7ff ff96 	bl	8003408 <command>
+ 80034d8:	f7ff ff96 	bl	8003408 <ST7032i_command>
 	delay_ms(2);
  80034dc:	2002      	movs	r0, #2
 }
  80034de:	e8bd 4010 	ldmia.w	sp!, {r4, lr}
 	delay_ms(2);
-	command(lcd, 0b01110000 | (lcd->contrast & 0xf)); // contrast Low 4 bits
+	ST7032i_command(lcd, 0b01110000 | (lcd->contrast & 0xf)); // contrast Low 4 bits
 	delay_ms(2);
-	command(lcd, 0b01011100 | ((lcd->contrast >> 4) & 0x3)); // contast High/icon/power
-	command(lcd, 0b00111000); // function set
+	ST7032i_command(lcd, 0b01011100 | ((lcd->contrast >> 4) & 0x3)); // contast High/icon/power
+	ST7032i_command(lcd, 0b00111000); // function set
 	delay_ms(2);
  80034e2:	f7fc beb1 	b.w	8000248 <delay_ms>
  80034e6:	bf00      	nop
@@ -16058,9 +16058,9 @@ void ST7032i_setContrast(ST7032i * lcd, byte val) {
 
 void ST7032i_clear(ST7032i * lcd) {
  80034e8:	b508      	push	{r3, lr}
-	command(lcd, LCD_CLEARDISPLAY); // clear display, set cursor position to zero
+	ST7032i_command(lcd, LCD_CLEARDISPLAY); // clear display, set cursor position to zero
  80034ea:	2101      	movs	r1, #1
- 80034ec:	f7ff ff8c 	bl	8003408 <command>
+ 80034ec:	f7ff ff8c 	bl	8003408 <ST7032i_command>
 	delay_ms(200);  // this command takes a long time!
  80034f0:	20c8      	movs	r0, #200	; 0xc8
 }
@@ -16069,7 +16069,7 @@ void ST7032i_clear(ST7032i * lcd) {
 /* ------------------ */
 
 void ST7032i_clear(ST7032i * lcd) {
-	command(lcd, LCD_CLEARDISPLAY); // clear display, set cursor position to zero
+	ST7032i_command(lcd, LCD_CLEARDISPLAY); // clear display, set cursor position to zero
 	delay_ms(200);  // this command takes a long time!
  80034f6:	f7fc bea7 	b.w	8000248 <delay_ms>
  80034fa:	bf00      	nop
@@ -16079,9 +16079,9 @@ void ST7032i_clear(ST7032i * lcd) {
 
 void ST7032i_home(ST7032i * lcd) {
  80034fc:	b508      	push	{r3, lr}
-	command(lcd, LCD_RETURNHOME);  // set cursor position to zero
+	ST7032i_command(lcd, LCD_RETURNHOME);  // set cursor position to zero
  80034fe:	2102      	movs	r1, #2
- 8003500:	f7ff ff82 	bl	8003408 <command>
+ 8003500:	f7ff ff82 	bl	8003408 <ST7032i_command>
 	delay_ms(200);  // this command takes a long time!
  8003504:	20c8      	movs	r0, #200	; 0xc8
 }
@@ -16090,7 +16090,7 @@ void ST7032i_home(ST7032i * lcd) {
 }
 
 void ST7032i_home(ST7032i * lcd) {
-	command(lcd, LCD_RETURNHOME);  // set cursor position to zero
+	ST7032i_command(lcd, LCD_RETURNHOME);  // set cursor position to zero
 	delay_ms(200);  // this command takes a long time!
  800350a:	f7fc be9d 	b.w	8000248 <delay_ms>
  800350e:	bf00      	nop
@@ -16103,7 +16103,7 @@ void ST7032i_setCursor(ST7032i * lcd, uint8_t c, uint8_t r) {
 	int row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
  8003512:	4b10      	ldr	r3, [pc, #64]	; (8003554 <ST7032i_setCursor+0x44>)
 void ST7032i_home(ST7032i * lcd) {
-	command(lcd, LCD_RETURNHOME);  // set cursor position to zero
+	ST7032i_command(lcd, LCD_RETURNHOME);  // set cursor position to zero
 	delay_ms(200);  // this command takes a long time!
 }
 
@@ -16116,7 +16116,7 @@ void ST7032i_setCursor(ST7032i * lcd, uint8_t c, uint8_t r) {
 	if (r >= lcd->_numlines) {
  800351c:	792e      	ldrb	r6, [r5, #4]
 void ST7032i_home(ST7032i * lcd) {
-	command(lcd, LCD_RETURNHOME);  // set cursor position to zero
+	ST7032i_command(lcd, LCD_RETURNHOME);  // set cursor position to zero
 	delay_ms(200);  // this command takes a long time!
 }
 
@@ -16125,7 +16125,7 @@ void ST7032i_setCursor(ST7032i * lcd, uint8_t c, uint8_t r) {
 	int row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
 	if (r >= lcd->_numlines) {
  8003520:	42a6      	cmp	r6, r4
-	command(lcd, LCD_RETURNHOME);  // set cursor position to zero
+	ST7032i_command(lcd, LCD_RETURNHOME);  // set cursor position to zero
 	delay_ms(200);  // this command takes a long time!
 }
 
@@ -16143,7 +16143,7 @@ void ST7032i_setCursor(ST7032i * lcd, uint8_t c, uint8_t r) {
 	lcd->_position = c + row_offsets[r];
  8003536:	ab04      	add	r3, sp, #16
  8003538:	eb03 0484 	add.w	r4, r3, r4, lsl #2
-	command(lcd, LCD_SETDDRAMADDR | lcd->_position);
+	ST7032i_command(lcd, LCD_SETDDRAMADDR | lcd->_position);
  800353c:	4628      	mov	r0, r5
 void ST7032i_setCursor(ST7032i * lcd, uint8_t c, uint8_t r) {
 	int row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
@@ -16155,7 +16155,7 @@ void ST7032i_setCursor(ST7032i * lcd, uint8_t c, uint8_t r) {
  8003542:	187f      	adds	r7, r7, r1
  8003544:	b2f9      	uxtb	r1, r7
  8003546:	71a9      	strb	r1, [r5, #6]
-	command(lcd, LCD_SETDDRAMADDR | lcd->_position);
+	ST7032i_command(lcd, LCD_SETDDRAMADDR | lcd->_position);
  8003548:	f041 0180 	orr.w	r1, r1, #128	; 0x80
 }
  800354c:	b004      	add	sp, #16
@@ -16165,8 +16165,8 @@ void ST7032i_setCursor(ST7032i * lcd, uint8_t c, uint8_t r) {
 		r %= lcd->_numlines;    // we count rows starting w/ 0
 	}
 	lcd->_position = c + row_offsets[r];
-	command(lcd, LCD_SETDDRAMADDR | lcd->_position);
- 8003550:	e75a      	b.n	8003408 <command>
+	ST7032i_command(lcd, LCD_SETDDRAMADDR | lcd->_position);
+ 8003550:	e75a      	b.n	8003408 <ST7032i_command>
  8003552:	bf00      	nop
  8003554:	08008ec4 	.word	0x08008ec4
 
@@ -16178,9 +16178,9 @@ void ST7032i_noDisplay(ST7032i * this) {
  8003558:	7841      	ldrb	r1, [r0, #1]
  800355a:	f001 01fb 	and.w	r1, r1, #251	; 0xfb
  800355e:	7041      	strb	r1, [r0, #1]
-	command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
+	ST7032i_command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
  8003560:	f041 0108 	orr.w	r1, r1, #8
- 8003564:	e750      	b.n	8003408 <command>
+ 8003564:	e750      	b.n	8003408 <ST7032i_command>
  8003566:	bf00      	nop
 
 08003568 <ST7032i_display>:
@@ -16191,9 +16191,9 @@ void ST7032i_display(ST7032i * this) {
  8003568:	7841      	ldrb	r1, [r0, #1]
  800356a:	f041 0104 	orr.w	r1, r1, #4
  800356e:	7041      	strb	r1, [r0, #1]
-	command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
+	ST7032i_command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
  8003570:	f041 0108 	orr.w	r1, r1, #8
- 8003574:	e748      	b.n	8003408 <command>
+ 8003574:	e748      	b.n	8003408 <ST7032i_command>
  8003576:	bf00      	nop
 
 08003578 <ST7032i_begin>:
@@ -16205,7 +16205,7 @@ void ST7032i_display(ST7032i * this) {
 void ST7032i_begin(ST7032i * lcd) {
  8003578:	b510      	push	{r4, lr}
 //	delay(40);
-	command(lcd, 0b00111000); //function set
+	ST7032i_command(lcd, 0b00111000); //function set
  800357a:	2138      	movs	r1, #56	; 0x38
 	i2c_transmit(lcd->i2c_address, buf, 2);
 	delay_us(CMDDELAY);
@@ -16215,77 +16215,77 @@ void ST7032i_begin(ST7032i * lcd) {
 void ST7032i_begin(ST7032i * lcd) {
  800357c:	4604      	mov	r4, r0
 //	delay(40);
-	command(lcd, 0b00111000); //function set
- 800357e:	f7ff ff43 	bl	8003408 <command>
-	command(lcd, 0b00111001); // function set
+	ST7032i_command(lcd, 0b00111000); //function set
+ 800357e:	f7ff ff43 	bl	8003408 <ST7032i_command>
+	ST7032i_command(lcd, 0b00111001); // function set
  8003582:	2139      	movs	r1, #57	; 0x39
  8003584:	4620      	mov	r0, r4
- 8003586:	f7ff ff3f 	bl	8003408 <command>
+ 8003586:	f7ff ff3f 	bl	8003408 <ST7032i_command>
 	delay_ms(2);
  800358a:	2002      	movs	r0, #2
  800358c:	f7fc fe5c 	bl	8000248 <delay_ms>
 
-	command(lcd, 0b00010100); // interval osc
+	ST7032i_command(lcd, 0b00010100); // interval osc
  8003590:	4620      	mov	r0, r4
  8003592:	2114      	movs	r1, #20
- 8003594:	f7ff ff38 	bl	8003408 <command>
-	command(lcd, 0b01110000 | (lcd->contrast & 0xf)); // contrast Low 4 bits
+ 8003594:	f7ff ff38 	bl	8003408 <ST7032i_command>
+	ST7032i_command(lcd, 0b01110000 | (lcd->contrast & 0xf)); // contrast Low 4 bits
  8003598:	79e1      	ldrb	r1, [r4, #7]
  800359a:	f001 010f 	and.w	r1, r1, #15
  800359e:	f041 0170 	orr.w	r1, r1, #112	; 0x70
  80035a2:	4620      	mov	r0, r4
- 80035a4:	f7ff ff30 	bl	8003408 <command>
+ 80035a4:	f7ff ff30 	bl	8003408 <ST7032i_command>
 	delay_ms(2);
  80035a8:	2002      	movs	r0, #2
  80035aa:	f7fc fe4d 	bl	8000248 <delay_ms>
 
-	command(lcd, 0b01011100 | ((lcd->contrast >> 4) & 0x3)); // contast High/icon/power
+	ST7032i_command(lcd, 0b01011100 | ((lcd->contrast >> 4) & 0x3)); // contast High/icon/power
  80035ae:	79e1      	ldrb	r1, [r4, #7]
  80035b0:	f3c1 1101 	ubfx	r1, r1, #4, #2
  80035b4:	4620      	mov	r0, r4
  80035b6:	f041 015c 	orr.w	r1, r1, #92	; 0x5c
- 80035ba:	f7ff ff25 	bl	8003408 <command>
-	command(lcd, 0b01101100); // follower control
+ 80035ba:	f7ff ff25 	bl	8003408 <ST7032i_command>
+	ST7032i_command(lcd, 0b01101100); // follower control
  80035be:	216c      	movs	r1, #108	; 0x6c
  80035c0:	4620      	mov	r0, r4
- 80035c2:	f7ff ff21 	bl	8003408 <command>
+ 80035c2:	f7ff ff21 	bl	8003408 <ST7032i_command>
 	delay_ms(300);
  80035c6:	f44f 7096 	mov.w	r0, #300	; 0x12c
  80035ca:	f7fc fe3d 	bl	8000248 <delay_ms>
 
-	command(lcd, 0b00111000); // function set
+	ST7032i_command(lcd, 0b00111000); // function set
  80035ce:	4620      	mov	r0, r4
  80035d0:	2138      	movs	r1, #56	; 0x38
- 80035d2:	f7ff ff19 	bl	8003408 <command>
-	command(lcd, 0b00001100); // Display On
+ 80035d2:	f7ff ff19 	bl	8003408 <ST7032i_command>
+	ST7032i_command(lcd, 0b00001100); // Display On
  80035d6:	210c      	movs	r1, #12
  80035d8:	4620      	mov	r0, r4
- 80035da:	f7ff ff15 	bl	8003408 <command>
+ 80035da:	f7ff ff15 	bl	8003408 <ST7032i_command>
 	delay_ms(2);
  80035de:	2002      	movs	r0, #2
  80035e0:	f7fc fe32 	bl	8000248 <delay_ms>
 
-	command(lcd, 0b00000001); // Clear Display
+	ST7032i_command(lcd, 0b00000001); // Clear Display
  80035e4:	2101      	movs	r1, #1
  80035e6:	4620      	mov	r0, r4
- 80035e8:	f7ff ff0e 	bl	8003408 <command>
+ 80035e8:	f7ff ff0e 	bl	8003408 <ST7032i_command>
 	delay_ms(2); // Clear Display needs additional wait
  80035ec:	2002      	movs	r0, #2
  80035ee:	f7fc fe2b 	bl	8000248 <delay_ms>
-	command(lcd, 0b00000010); // home, but does not work
+	ST7032i_command(lcd, 0b00000010); // home, but does not work
  80035f2:	2102      	movs	r1, #2
  80035f4:	4620      	mov	r0, r4
- 80035f6:	f7ff ff07 	bl	8003408 <command>
+ 80035f6:	f7ff ff07 	bl	8003408 <ST7032i_command>
 	delay_ms(2);
  80035fa:	2002      	movs	r0, #2
  80035fc:	f7fc fe24 	bl	8000248 <delay_ms>
 
 	// finally, set # lines, font size, etc.
-	command(lcd, LCD_FUNCTIONSET | lcd->_displayfunction);
+	ST7032i_command(lcd, LCD_FUNCTIONSET | lcd->_displayfunction);
  8003600:	7821      	ldrb	r1, [r4, #0]
  8003602:	4620      	mov	r0, r4
  8003604:	f041 0120 	orr.w	r1, r1, #32
- 8003608:	f7ff fefe 	bl	8003408 <command>
+ 8003608:	f7ff fefe 	bl	8003408 <ST7032i_command>
 
 	// turn the display on with no cursor or blinking default
 	lcd->_displaycontrol = LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF;
@@ -16307,7 +16307,7 @@ void ST7032i_begin(ST7032i * lcd) {
 	lcd->_displaymode = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
  8003622:	2302      	movs	r3, #2
 	// set the entry mode
-	command(lcd, LCD_ENTRYMODESET | lcd->_displaymode);
+	ST7032i_command(lcd, LCD_ENTRYMODESET | lcd->_displaymode);
  8003624:	4620      	mov	r0, r4
  8003626:	2106      	movs	r1, #6
 	// clear it off
@@ -16318,7 +16318,7 @@ void ST7032i_begin(ST7032i * lcd) {
 	lcd->_displaymode = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
  8003628:	70a3      	strb	r3, [r4, #2]
 	// set the entry mode
-	command(lcd, LCD_ENTRYMODESET | lcd->_displaymode);
+	ST7032i_command(lcd, LCD_ENTRYMODESET | lcd->_displaymode);
 }
  800362a:	e8bd 4010 	ldmia.w	sp!, {r4, lr}
 	ST7032i_home(lcd);
@@ -16326,12 +16326,12 @@ void ST7032i_begin(ST7032i * lcd) {
 	// Initialize to default text direction (for romance languages)
 	lcd->_displaymode = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
 	// set the entry mode
-	command(lcd, LCD_ENTRYMODESET | lcd->_displaymode);
- 800362e:	e6eb      	b.n	8003408 <command>
+	ST7032i_command(lcd, LCD_ENTRYMODESET | lcd->_displaymode);
+ 800362e:	e6eb      	b.n	8003408 <ST7032i_command>
 
 08003630 <noBlink>:
 	this->_displaycontrol |= LCD_DISPLAYON;
-	command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
+	ST7032i_command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
 }
 
 void noBlink(ST7032i * this) {
@@ -16339,9 +16339,9 @@ void noBlink(ST7032i * this) {
  8003630:	7841      	ldrb	r1, [r0, #1]
  8003632:	f001 01fe 	and.w	r1, r1, #254	; 0xfe
  8003636:	7041      	strb	r1, [r0, #1]
-	command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
+	ST7032i_command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
  8003638:	f041 0108 	orr.w	r1, r1, #8
- 800363c:	e6e4      	b.n	8003408 <command>
+ 800363c:	e6e4      	b.n	8003408 <ST7032i_command>
  800363e:	bf00      	nop
 
 08003640 <blink>:
@@ -16352,9 +16352,9 @@ void blink(ST7032i * this) {
  8003640:	7841      	ldrb	r1, [r0, #1]
  8003642:	f041 0101 	orr.w	r1, r1, #1
  8003646:	7041      	strb	r1, [r0, #1]
-	command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
+	ST7032i_command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
  8003648:	f041 0108 	orr.w	r1, r1, #8
- 800364c:	e6dc      	b.n	8003408 <command>
+ 800364c:	e6dc      	b.n	8003408 <ST7032i_command>
  800364e:	bf00      	nop
 
 08003650 <noCursor>:
@@ -16365,9 +16365,9 @@ void noCursor(ST7032i * this) {
  8003650:	7841      	ldrb	r1, [r0, #1]
  8003652:	f001 01fd 	and.w	r1, r1, #253	; 0xfd
  8003656:	7041      	strb	r1, [r0, #1]
-	command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
+	ST7032i_command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
  8003658:	f041 0108 	orr.w	r1, r1, #8
- 800365c:	e6d4      	b.n	8003408 <command>
+ 800365c:	e6d4      	b.n	8003408 <ST7032i_command>
  800365e:	bf00      	nop
 
 08003660 <showCursor>:
@@ -16378,26 +16378,26 @@ void showCursor(ST7032i * this) {
  8003660:	7841      	ldrb	r1, [r0, #1]
  8003662:	f041 0102 	orr.w	r1, r1, #2
  8003666:	7041      	strb	r1, [r0, #1]
-	command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
+	ST7032i_command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
  8003668:	f041 0108 	orr.w	r1, r1, #8
- 800366c:	e6cc      	b.n	8003408 <command>
+ 800366c:	e6cc      	b.n	8003408 <ST7032i_command>
  800366e:	bf00      	nop
 
 08003670 <scrollDisplayLeft>:
 }
 
 void scrollDisplayLeft(ST7032i * this) {
-	command(this, LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVELEFT);
+	ST7032i_command(this, LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVELEFT);
  8003670:	2118      	movs	r1, #24
- 8003672:	e6c9      	b.n	8003408 <command>
+ 8003672:	e6c9      	b.n	8003408 <ST7032i_command>
 
 08003674 <scrollDisplayRight>:
 }
 
 void scrollDisplayRight(ST7032i * this) {
-	command(this, LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVERIGHT);
+	ST7032i_command(this, LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVERIGHT);
  8003674:	211c      	movs	r1, #28
- 8003676:	e6c7      	b.n	8003408 <command>
+ 8003676:	e6c7      	b.n	8003408 <ST7032i_command>
 
 08003678 <leftToRight>:
 }
@@ -16407,9 +16407,9 @@ void leftToRight(ST7032i * this) {
  8003678:	7881      	ldrb	r1, [r0, #2]
  800367a:	f041 0102 	orr.w	r1, r1, #2
  800367e:	7081      	strb	r1, [r0, #2]
-	command(this, LCD_ENTRYMODESET | this->_displaymode);
+	ST7032i_command(this, LCD_ENTRYMODESET | this->_displaymode);
  8003680:	f041 0104 	orr.w	r1, r1, #4
- 8003684:	e6c0      	b.n	8003408 <command>
+ 8003684:	e6c0      	b.n	8003408 <ST7032i_command>
  8003686:	bf00      	nop
 
 08003688 <rightToLeft>:
@@ -16420,9 +16420,9 @@ void rightToLeft(ST7032i * this) {
  8003688:	7881      	ldrb	r1, [r0, #2]
  800368a:	f001 01fd 	and.w	r1, r1, #253	; 0xfd
  800368e:	7081      	strb	r1, [r0, #2]
-	command(this, LCD_ENTRYMODESET | this->_displaymode);
+	ST7032i_command(this, LCD_ENTRYMODESET | this->_displaymode);
  8003690:	f041 0104 	orr.w	r1, r1, #4
- 8003694:	e6b8      	b.n	8003408 <command>
+ 8003694:	e6b8      	b.n	8003408 <ST7032i_command>
  8003696:	bf00      	nop
 
 08003698 <autoscroll>:
@@ -16433,9 +16433,9 @@ void autoscroll(ST7032i * this) {
  8003698:	7881      	ldrb	r1, [r0, #2]
  800369a:	f041 0101 	orr.w	r1, r1, #1
  800369e:	7081      	strb	r1, [r0, #2]
-	command(this, LCD_ENTRYMODESET | this->_displaymode);
+	ST7032i_command(this, LCD_ENTRYMODESET | this->_displaymode);
  80036a0:	f041 0104 	orr.w	r1, r1, #4
- 80036a4:	e6b0      	b.n	8003408 <command>
+ 80036a4:	e6b0      	b.n	8003408 <ST7032i_command>
  80036a6:	bf00      	nop
 
 080036a8 <noAutoscroll>:
@@ -16446,9 +16446,9 @@ void noAutoscroll(ST7032i * this) {
  80036a8:	7881      	ldrb	r1, [r0, #2]
  80036aa:	f001 01fe 	and.w	r1, r1, #254	; 0xfe
  80036ae:	7081      	strb	r1, [r0, #2]
-	command(this, LCD_ENTRYMODESET | this->_displaymode);
+	ST7032i_command(this, LCD_ENTRYMODESET | this->_displaymode);
  80036b0:	f041 0104 	orr.w	r1, r1, #4
- 80036b4:	e6a8      	b.n	8003408 <command>
+ 80036b4:	e6a8      	b.n	8003408 <ST7032i_command>
  80036b6:	bf00      	nop
 
 080036b8 <createChar>:
@@ -16457,23 +16457,23 @@ void noAutoscroll(ST7032i * this) {
 void createChar(ST7032i * this, uint8_t location, uint8_t charmap[]) {
 	int i;
 	location &= 0x7; // we only have 8 locations 0-7
-	command(this, LCD_SETCGRAMADDR | (location << 3));
+	ST7032i_command(this, LCD_SETCGRAMADDR | (location << 3));
  80036b8:	f001 0107 	and.w	r1, r1, #7
  80036bc:	00c9      	lsls	r1, r1, #3
 void noAutoscroll(ST7032i * this) {
 	this->_displaymode &= ~LCD_ENTRYSHIFTINCREMENT;
-	command(this, LCD_ENTRYMODESET | this->_displaymode);
+	ST7032i_command(this, LCD_ENTRYMODESET | this->_displaymode);
 }
 
 void createChar(ST7032i * this, uint8_t location, uint8_t charmap[]) {
  80036be:	b570      	push	{r4, r5, r6, lr}
 	int i;
 	location &= 0x7; // we only have 8 locations 0-7
-	command(this, LCD_SETCGRAMADDR | (location << 3));
+	ST7032i_command(this, LCD_SETCGRAMADDR | (location << 3));
  80036c0:	f041 0140 	orr.w	r1, r1, #64	; 0x40
 void noAutoscroll(ST7032i * this) {
 	this->_displaymode &= ~LCD_ENTRYSHIFTINCREMENT;
-	command(this, LCD_ENTRYMODESET | this->_displaymode);
+	ST7032i_command(this, LCD_ENTRYMODESET | this->_displaymode);
 }
 
 void createChar(ST7032i * this, uint8_t location, uint8_t charmap[]) {
@@ -16481,31 +16481,31 @@ void createChar(ST7032i * this, uint8_t location, uint8_t charmap[]) {
  80036c6:	4616      	mov	r6, r2
 	int i;
 	location &= 0x7; // we only have 8 locations 0-7
-	command(this, LCD_SETCGRAMADDR | (location << 3));
- 80036c8:	f7ff fe9e 	bl	8003408 <command>
+	ST7032i_command(this, LCD_SETCGRAMADDR | (location << 3));
+ 80036c8:	f7ff fe9e 	bl	8003408 <ST7032i_command>
 	for (i = 0; i < 8; i++) {
  80036cc:	2500      	movs	r5, #0
-		write(this, charmap[i]);
+		ST7032i_write(this, charmap[i]);
  80036ce:	5d71      	ldrb	r1, [r6, r5]
  80036d0:	4620      	mov	r0, r4
 
 void createChar(ST7032i * this, uint8_t location, uint8_t charmap[]) {
 	int i;
 	location &= 0x7; // we only have 8 locations 0-7
-	command(this, LCD_SETCGRAMADDR | (location << 3));
+	ST7032i_command(this, LCD_SETCGRAMADDR | (location << 3));
 	for (i = 0; i < 8; i++) {
  80036d2:	3501      	adds	r5, #1
-		write(this, charmap[i]);
- 80036d4:	f7ff feaa 	bl	800342c <write>
+		ST7032i_write(this, charmap[i]);
+ 80036d4:	f7ff feaa 	bl	800342c <ST7032i_write>
 
 void createChar(ST7032i * this, uint8_t location, uint8_t charmap[]) {
 	int i;
 	location &= 0x7; // we only have 8 locations 0-7
-	command(this, LCD_SETCGRAMADDR | (location << 3));
+	ST7032i_command(this, LCD_SETCGRAMADDR | (location << 3));
 	for (i = 0; i < 8; i++) {
  80036d8:	2d08      	cmp	r5, #8
  80036da:	d1f8      	bne.n	80036ce <createChar+0x16>
-		write(this, charmap[i]);
+		ST7032i_write(this, charmap[i]);
 	}
 }
  80036dc:	bd70      	pop	{r4, r5, r6, pc}
@@ -25616,10 +25616,10 @@ void SystemCoreClockUpdate(void)
  8008afa:	bf00      	nop
 
 08008afc <main>:
-#include "spi.h"
 
 #include "i2c.h"
 #include "ST7032i.h"
+
 
 int main(void) {
  8008afc:	e92d 41f0 	stmdb	sp!, {r4, r5, r6, r7, r8, lr}
