@@ -33,9 +33,6 @@ typedef struct _ST7032i {
 
 	void ST7032i_init(ST7032i * lcd);
 	void ST7032i_begin(ST7032i * lcd);
-
-	void ST7032i_command(ST7032i * lcd, byte value);
-	size_t ST7032i_write(ST7032i * lcd, byte value);
 	
 	size_t ST7032i_print(ST7032i * lcd, const char * str);
 
