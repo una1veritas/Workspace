@@ -54,14 +54,6 @@ int main(void) {
 	GPIOMode(PinPort(PD12),
 			(PinBit(PD12) | PinBit(PD13) | PinBit(PD14) | PinBit(PD15)), OUTPUT,
 			FASTSPEED, PUSHPULL, NOPULL);
-	/*
-	 pinMode(PD12, OUTPUT);
-	 pinMode(PD13, OUTPUT);
-	 pinMode(PD14, OUTPUT);
-	 pinMode(PD15, OUTPUT);
-	 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15),
-	 GPIO_Mode_OUT, GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL);
-	 */
 	spi_begin(SPI2, PB13, PB14, PB15, PB12);
 	digitalWrite(PB12, HIGH);
 
@@ -84,13 +76,10 @@ int main(void) {
 
 		GPIOWrite(GPIOD, PinBit(PD13) | (bits & 0x0fff));
 		delay_ms(intval);
-
 		GPIOWrite(GPIOD, PinBit(PD14) | (bits & 0x0fff));
 		delay_ms(intval);
-
 		GPIOWrite(GPIOD, PinBit(PD15) | (bits & 0x0fff));
 		delay_ms(intval);
-
 		GPIOWrite(GPIOD, PinBit(PD12) | (bits & 0x0fff));
 		delay_ms(intval);
 		//
@@ -109,8 +98,7 @@ int main(void) {
 		}
 		GPIOWrite(GPIOD, bits);
 
-		while (tnow == millis() / 1000)
-			;
+		while (tnow == millis() / 1000);
 		tnow = millis() / 1000;
 
 		sprintf(tmp, "%04ld", millis());

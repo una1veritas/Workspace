@@ -36,18 +36,20 @@ typedef enum __I2C_Status {
 //
 } I2C_Status;
 
-typedef enum __CommDirection {
-	DIRECTION_NOT_DEFINED = 0,
-	TRANSMITTER,
-	RECEIVER,
-} CommDirection;
+typedef enum __I2C_CommMode {
+	I2C_MODE_NOTDEFINED = 0,
+	I2C_MODE_MASTERTRANSMITTER,
+	I2C_MODE_MASTERRECEIVER,
+	I2C_MODE_SLAVETRANSMITTER,
+	I2C_MODE_SLAVERECEIVER,
+} I2C_CommMode;
 
 typedef struct _I2CBus {
 	I2C_TypeDef * I2Cx;
 	GPIOPin sda, scl;
 	boolean master;
 	I2C_Status status;
-	CommDirection direction;
+	I2C_CommMode mode;
 } I2CBus;
 
 extern I2CBus Wire1, Wire2, Wire3;

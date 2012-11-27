@@ -134,44 +134,6 @@ void ST7032i_init(ST7032i * lcd) {
 		pinMode(lcd->pin_bklight, OUTPUT);
 	}
 }
-/*
- void ST7032i_send(byte value, byte dcswitch) {
- Wire.beginTransmission(i2c_address);
- switch (dcswitch) {
- case LOW: // write
- #if ARDUINO >= 100
- Wire.write((byte) 0x00);
- Wire.write(value);
- #else
- Wire.send(0x00);
- Wire.send(value);
- #endif
- Wire.endTransmission();
- delay_us(CMDDELAY);
- break;
- case HIGH: // data
- #if ARDUINO >= 100
- Wire.write(0b01000000);
- Wire.write(value & 0xff);
- #else
- Wire.send(0b01000000);
- Wire.send(value & 0xff);
- #endif
- Wire.endTransmission();
- delay_us(DATADELAY);
- break;
- }
- }
- */
-/*
- void LCD_ST7032i::wrap() {
- if (position < 0x40)
- position = 0x40;
- else
- position = 0;
- command(0b10000000 | position);
- }
- */
 
 size_t ST7032i_print(ST7032i * lcd, const char * str) {
 	uint16_t i;
@@ -179,21 +141,6 @@ size_t ST7032i_print(ST7032i * lcd, const char * str) {
 		ST7032i_write(lcd, str[i]);
 	return i; // assume success
 }
-
-/*
- //Turn the LCD ON
- void ST7032i_display(ST7032i * lcd) {
- command(lcd, 0b00111000); // function set
- command(lcd, LCD_DISPLAYCONTROL | LCD_DISPLAYON); // Display On
- }
-
- // Turn the LCD OFF
-
- void ST7032i_noDisplay(ST7032i * lcd) {
- command(lcd, 0xFE);
- command(lcd, 0x0B);
- }
- */
 
 void ST7032i_setContrast(ST7032i * lcd, byte val) {
 	lcd->contrast = 0x7f & val;
@@ -228,6 +175,7 @@ void ST7032i_setCursor(ST7032i * lcd, uint8_t c, uint8_t r) {
 	ST7032i_command(lcd, LCD_SETDDRAMADDR | lcd->_position);
 }
 
+// LCD_DISPLAYON, LCD_BLINKON, LCD_CURSORON
 void ST7032i_noDisplay(ST7032i * this) {
 	this->_displaycontrol &= ~LCD_DISPLAYON;
 	ST7032i_command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
@@ -238,55 +186,55 @@ void ST7032i_display(ST7032i * this) {
 	ST7032i_command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
 }
 
-void noBlink(ST7032i * this) {
+void ST7032i_noBlink(ST7032i * this) {
 	this->_displaycontrol &= ~LCD_BLINKON;
 	ST7032i_command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
 }
 
-void blink(ST7032i * this) {
+void ST7032i_blink(ST7032i * this) {
 	this->_displaycontrol |= LCD_BLINKON;
 	ST7032i_command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
 }
 
-void noCursor(ST7032i * this) {
+void ST7032i_noCursor(ST7032i * this) {
 	this->_displaycontrol &= ~LCD_CURSORON;
 	ST7032i_command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
 }
 
-void showCursor(ST7032i * this) {
+void ST7032i_showCursor(ST7032i * this) {
 	this->_displaycontrol |= LCD_CURSORON;
 	ST7032i_command(this, LCD_DISPLAYCONTROL | this->_displaycontrol);
 }
 
-void scrollDisplayLeft(ST7032i * this) {
+void ST7032i_scrollDisplayLeft(ST7032i * this) {
 	ST7032i_command(this, LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVELEFT);
 }
 
-void scrollDisplayRight(ST7032i * this) {
+void ST7032i_scrollDisplayRight(ST7032i * this) {
 	ST7032i_command(this, LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVERIGHT);
 }
 
-void leftToRight(ST7032i * this) {
+void ST7032i_leftToRight(ST7032i * this) {
 	this->_displaymode |= LCD_ENTRYLEFT;
 	ST7032i_command(this, LCD_ENTRYMODESET | this->_displaymode);
 }
 
-void rightToLeft(ST7032i * this) {
+void ST7032i_rightToLeft(ST7032i * this) {
 	this->_displaymode &= ~LCD_ENTRYLEFT;
 	ST7032i_command(this, LCD_ENTRYMODESET | this->_displaymode);
 }
 
-void autoscroll(ST7032i * this) {
+void ST7032i_autoscroll(ST7032i * this) {
 	this->_displaymode |= LCD_ENTRYSHIFTINCREMENT;
 	ST7032i_command(this, LCD_ENTRYMODESET | this->_displaymode);
 }
 
-void noAutoscroll(ST7032i * this) {
+void ST7032i_noAutoscroll(ST7032i * this) {
 	this->_displaymode &= ~LCD_ENTRYSHIFTINCREMENT;
 	ST7032i_command(this, LCD_ENTRYMODESET | this->_displaymode);
 }
 
-void createChar(ST7032i * this, uint8_t location, uint8_t charmap[]) {
+void ST7032i_createChar(ST7032i * this, uint8_t location, uint8_t charmap[]) {
 	int i;
 	location &= 0x7; // we only have 8 locations 0-7
 	ST7032i_command(this, LCD_SETCGRAMADDR | (location << 3));
