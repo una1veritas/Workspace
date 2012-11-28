@@ -21,12 +21,13 @@
 #include "ST7032i.h"
 
 
+ST7032i lcd;
+
 int main(void) {
 	uint16_t bits;
 	uint32_t intval = 40;
 	uint32_t tnow;
 	char tmp[92];
-	ST7032i lcd;
 
 	TIM2_timer_start();
 
@@ -57,7 +58,7 @@ int main(void) {
 	spi_begin(SPI2, PB13, PB14, PB15, PB12);
 	digitalWrite(PB12, HIGH);
 
-	i2c_begin(100000);
+	i2c_begin(&Wire1, 100000);
 	ST7032i_init(&lcd);
 	ST7032i_begin(&lcd);
 	ST7032i_setContrast(&lcd, 46);

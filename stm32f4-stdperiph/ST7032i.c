@@ -55,11 +55,33 @@
 void ST7032i_command(ST7032i * lcd, byte value);
 size_t ST7032i_write(ST7032i * lcd, byte value);
 
+//
+void ST7032i_init(ST7032i * lcd, I2CBus * wx) {
+	lcd->_numlines = 2;
+	lcd->_numcolumns = 16;
+	lcd->_position = 0;
+	lcd->i2c_address = DEFAULT_I2C_ADDRESS;
+	lcd->contrast = DEFAULTCONTRAST;
+	lcd->pin_bklight = PIN_NOT_DEFINED;
+
+	lcd->wirex = wx;
+	/*
+	 // for some 1 line displays you can select a 10 pixel high font
+	 if ((dotsize != 0) && (lines == 1)) {
+	 _displayfunction |= LCD_5x10DOTS;
+	 }
+	 */
+	if (lcd->pin_bklight != PIN_NOT_DEFINED) {
+		pinMode(lcd->pin_bklight, OUTPUT);
+	}
+}
+//
+
 void ST7032i_command(ST7032i * lcd, uint8_t value) {
 	uint8_t buf[2];
 	buf[0] = (byte) 0x00;
 	buf[1] = value;
-	i2c_transmit(lcd->i2c_address, buf, 2);
+	i2c_transmit(lcd->wirex, lcd->i2c_address, buf, 2);
 	delay_us(CMDDELAY);
 }
 
@@ -68,7 +90,7 @@ size_t ST7032i_write(ST7032i * lcd, uint8_t value) {
 	uint8_t buf[2];
 	buf[0] = 0b01000000;
 	buf[1] = value & 0xff;
-	i2c_transmit(lcd->i2c_address, buf, 2);
+	i2c_transmit(lcd->wirex,lcd->i2c_address, buf, 2);
 	delay_us(CMDDELAY);
 	return 1; // assume success
 }
@@ -111,28 +133,6 @@ void ST7032i_begin(ST7032i * lcd) {
 	lcd->_displaymode = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
 	// set the entry mode
 	ST7032i_command(lcd, LCD_ENTRYMODESET | lcd->_displaymode);
-}
-
-void ST7032i_init(ST7032i * lcd) {
-	lcd->_numlines = 2;
-	lcd->_numcolumns = 16;
-	lcd->_position = 0;
-	lcd->i2c_address = DEFAULT_I2C_ADDRESS;
-	lcd->contrast = DEFAULTCONTRAST;
-	lcd->pin_bklight = PIN_NOT_DEFINED;
-
-//	lcd->_numlines=lines;
-//	lcd->_numcolumns=cols;
-//	  lcd->_position = 0;
-	/*
-	 // for some 1 line displays you can select a 10 pixel high font
-	 if ((dotsize != 0) && (lines == 1)) {
-	 _displayfunction |= LCD_5x10DOTS;
-	 }
-	 */
-	if (lcd->pin_bklight != PIN_NOT_DEFINED) {
-		pinMode(lcd->pin_bklight, OUTPUT);
-	}
 }
 
 size_t ST7032i_print(ST7032i * lcd, const char * str) {

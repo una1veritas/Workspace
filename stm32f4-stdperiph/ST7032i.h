@@ -26,12 +26,13 @@ typedef struct _ST7032i {
 	  uint8_t _numlines, _numcolumns;
 	  uint8_t _position;
 //
+	  I2CBus * wirex;
 	byte contrast;
 	byte i2c_address;
 	GPIOPin pin_bklight;
 } ST7032i;
 
-	void ST7032i_init(ST7032i * lcd);
+	void ST7032i_init(ST7032i * lcd, I2CBus * wirex);
 	void ST7032i_begin(ST7032i * lcd);
 	
 	size_t ST7032i_print(ST7032i * lcd, const char * str);

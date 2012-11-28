@@ -16,26 +16,26 @@ I2CBus Wire1, Wire2, Wire3;
 //I2C_Status i2c1_status;
 //CommDirection i2c1_direction;
 
-boolean i2c_begin(uint32_t clkspeed) {
+boolean i2c_begin(I2CBus * wirex, uint32_t clkspeed) {
 //	GPIO_InitTypeDef GPIO_InitStructure;
 	I2C_InitTypeDef I2C_InitStructure;
 
-	Wire1.I2Cx = I2C1;
-	Wire1.sda = PB9;
-	Wire1.scl = PB8;
+	wirex->I2Cx = I2C1;
+	wirex->sda = PB9;
+	wirex->scl = PB8;
 
 	/* I2C Periph clock enable */
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE); //  RCC_APB1PeriphClockCmd(I2C1_RCC, ENABLE);
 	/* GPIO Periph clock enable */
 	//RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE); // PB5 (SMBA), PB6 (SCL), PB9 (SDA)  // RCC_APB2PeriphClockCmd(I2C1_GPIO_RCC, ENABLE);
-	GPIOMode(PinPort(Wire1.scl), PinBit(Wire1.scl), GPIO_Mode_AF, GPIO_Speed_50MHz,
+	GPIOMode(PinPort(wirex->scl), PinBit(wirex->scl), GPIO_Mode_AF, GPIO_Speed_50MHz,
 			GPIO_OType_OD, GPIO_PuPd_UP);
-	GPIOMode(PinPort(Wire1.sda), PinBit(Wire1.sda), GPIO_Mode_AF, GPIO_Speed_50MHz,
+	GPIOMode(PinPort(wirex->sda), PinBit(wirex->sda), GPIO_Mode_AF, GPIO_Speed_50MHz,
 			GPIO_OType_OD, GPIO_PuPd_UP);
 
 	/* Configure I2C pins: SCL and SDA */
-	GPIO_PinAFConfig(PinPort(Wire1.scl), PinSource(Wire1.scl), GPIO_AF_I2C1 );
-	GPIO_PinAFConfig(PinPort(Wire1.sda), PinSource(Wire1.sda), GPIO_AF_I2C1 );
+	GPIO_PinAFConfig(PinPort(wirex->scl), PinSource(wirex->scl), GPIO_AF_I2C1 );
+	GPIO_PinAFConfig(PinPort(wirex->sda), PinSource(wirex->sda), GPIO_AF_I2C1 );
 
 	//#if defined (REMAP_I2C1)
 //Remap_I2C1_Configuration();
@@ -56,169 +56,150 @@ boolean i2c_begin(uint32_t clkspeed) {
 	I2C_InitStructure.I2C_ClockSpeed = clkspeed;
 
 	/* Apply I2C configuration after enabling it */
-	I2C_Init(Wire1.I2Cx, &I2C_InitStructure);
+	I2C_Init(wirex->I2Cx, &I2C_InitStructure);
 	/* I2C Peripheral Enable */
-	I2C_Cmd(Wire1.I2Cx, ENABLE);
+	I2C_Cmd(wirex->I2Cx, ENABLE);
 
-	Wire1.status = NOT_READY;
-	Wire1.mode = I2C_MODE_NOTDEFINED;
+	wirex->status = NOT_READY;
+	wirex->mode = I2C_MODE_NOTDEFINED;
 
 	return true;
 }
 
-boolean i2c_transmit(uint8_t addr, uint8_t * data, uint16_t length) {
+boolean i2c_transmit(I2CBus * wirex, uint8_t addr, uint8_t * data, uint16_t length) {
 	uint16_t i;
-	uint32_t wcount;
+	uint16_t wc;
 
-	Wire1.mode = I2C_MODE_MASTERTRANSMITTER;
+	wirex->mode = I2C_MODE_MASTERTRANSMITTER;
 	//
-	if ( !i2c_start(addr) )
+	if ( !i2c_start(wirex, addr) )
 		return false;
 
 	for (i = 0; i < length; i++) {
-		wcount = 5;
-		I2C_SendData(Wire1.I2Cx, data[i]);
-		Wire1.status = BYTE_TRANSMITTING;
+		I2C_SendData(wirex->I2Cx, data[i]);
+		wirex->status = BYTE_TRANSMITTING;
 		// Test on EV8 and clear it
-		while (!I2C_CheckEvent(Wire1.I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED )) {
-			delay_us(667);
-			if (wcount == 0)
+		for(wc = 5; !I2C_CheckEvent(wirex->I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED); wc--) {
+			if (wc == 0)
 				return false;
-			wcount--;
+			delay_us(667);
 		}
-		Wire1.status = BYTE_TRANSMITTED;
+		wirex->status = BYTE_TRANSMITTED;
 	}
-	Wire1.status = TRANSMISSION_COMPLETED;
+	wirex->status = TRANSMISSION_COMPLETED;
 
 	// generate stop condition
-	I2C_GenerateSTOP(Wire1.I2Cx, ENABLE);
-	Wire1.status = NOT_READY;
-	Wire1.mode = I2C_MODE_NOTDEFINED;
+	I2C_GenerateSTOP(wirex->I2Cx, ENABLE);
+	wirex->status = NOT_READY;
+	wirex->mode = I2C_MODE_NOTDEFINED;
 
 	return true;
 }
 
-boolean i2c_receive(uint8_t addr, uint8_t req, uint8_t * recv, uint16_t lim) {
+boolean i2c_receive(I2CBus * wirex, uint8_t addr, uint8_t req, uint8_t * recv, uint16_t lim) {
 	uint16_t i;
-	uint32_t wcount;
+	uint16_t wc;
 
-	Wire1.mode = I2C_MODE_MASTERRECEIVER;
+	wirex->mode = I2C_MODE_MASTERRECEIVER;
 	//
-	if ( !i2c_start(addr) )
+	if ( !i2c_start(wirex, addr) )
 		return false;
 
 	/* Send the EEPROM's internal address to read from: MSB of the address first */
-	I2C_SendData(Wire1.I2Cx, req);
-	Wire1.status = BYTE_TRANSMITTING;
+	I2C_SendData(wirex->I2Cx, req);
+	wirex->status = BYTE_TRANSMITTING;
 	/* Test on EV8 and clear it */
-	wcount = 5;
-	while (!I2C_CheckEvent(Wire1.I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED )) {
-		delay_us(667);
-		if (wcount == 0)
+	for (wc = 5; !I2C_CheckEvent(wirex->I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED ); wc--) {
+		if (wc == 0)
 			return false;
-		wcount--;
+		delay_us(667);
 	}
-	Wire1.status = TRANSMISSION_COMPLETED;
+	wirex->status = TRANSMISSION_COMPLETED;
 
 	/* Send STRAT condition a second time */
-	I2C_GenerateSTART(Wire1.I2Cx, ENABLE);
+	I2C_GenerateSTART(wirex->I2Cx, ENABLE);
 	/* Test on EV5 and clear it */
-	wcount = 5;
-	while (!I2C_CheckEvent(Wire1.I2Cx, I2C_EVENT_MASTER_MODE_SELECT )) {
-		delay_us(667);
-		if (wcount == 0)
+	for (wc = 5; !I2C_CheckEvent(wirex->I2Cx, I2C_EVENT_MASTER_MODE_SELECT ); wc--) {
+		if (wc == 0)
 			return false;
-		wcount--;
+		delay_us(667);
 	}
-	Wire1.status = RESTART_ISSUED;
+	wirex->status = RESTART_ISSUED;
 
 	/* Send EEPROM address for read */
-	I2C_Send7bitAddress(Wire1.I2Cx, addr << 1, I2C_Direction_Receiver );
+	I2C_Send7bitAddress(wirex->I2Cx, addr << 1, I2C_Direction_Receiver );
 	/* Test on EV6 and clear it */
-	wcount = 5;
-	while (!I2C_CheckEvent(Wire1.I2Cx, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED )) {
-		delay_us(667);
-		if (wcount == 0)
+	for (wc = 5; !I2C_CheckEvent(wirex->I2Cx, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED ); wc--) {
+		if (wc == 0)
 			return false;
-		wcount--;
+		delay_us(667);
 	}
-	Wire1.status = SRC_ADDRESS_SENT;
-	wcount = 5;
+	wirex->status = SRC_ADDRESS_SENT;
 	for (i = 1; i < lim; i++) {
-		Wire1.status = RECEIVE_BYTE_READY;
-		while (!I2C_CheckEvent(Wire1.I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED )) {
-			delay_us(667);
-			if (wcount == 0)
+		wirex->status = RECEIVE_BYTE_READY;
+		for(wc = 5; !I2C_CheckEvent(wirex->I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED ); wc--) {
+			if (wc == 0)
 				return false;
-			wcount--;
+			delay_us(667);
 		}
 		/* Read a byte from the EEPROM */
-		*recv++ = I2C_ReceiveData(Wire1.I2Cx );
-		Wire1.status = BYTE_RECEIVED;
+		*recv++ = I2C_ReceiveData(wirex->I2Cx );
+		wirex->status = BYTE_RECEIVED;
 	}
-	Wire1.status = BEFORELAST_BYTE_RECEIVED;
+	wirex->status = BEFORELAST_BYTE_RECEIVED;
 
 	/* Disable Acknowledgement */
-	I2C_AcknowledgeConfig(Wire1.I2Cx, DISABLE);
+	I2C_AcknowledgeConfig(wirex->I2Cx, DISABLE);
 	/* Send STOP Condition */
-	I2C_GenerateSTOP(Wire1.I2Cx, ENABLE);
-	Wire1.status = LAST_BYTE_READY;
+	I2C_GenerateSTOP(wirex->I2Cx, ENABLE);
+	wirex->status = LAST_BYTE_READY;
 
-	wcount = 5;
-	while (!I2C_CheckEvent(Wire1.I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED )) {
-		delay_us(667);
-		if (wcount == 0)
+	for(wc = 5; !I2C_CheckEvent(wirex->I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED ); wc--) {
+		if (wc == 0)
 			return false;
-		wcount--;
+		delay_us(667);
 	}
 	/* Read a byte from the EEPROM */
-	*recv = I2C_ReceiveData(Wire1.I2Cx );
-	Wire1.status = RECEIVE_BYTE_COMPLETED;
+	*recv = I2C_ReceiveData(wirex->I2Cx );
+	wirex->status = RECEIVE_BYTE_COMPLETED;
 
 	/* Enable Acknowledgement to be ready for another reception */
-	I2C_AcknowledgeConfig(Wire1.I2Cx, ENABLE);
-	Wire1.status = NOT_READY;
-	Wire1.mode = I2C_MODE_NOTDEFINED;
+	I2C_AcknowledgeConfig(wirex->I2Cx, ENABLE);
+	wirex->status = NOT_READY;
+	wirex->mode = I2C_MODE_NOTDEFINED;
 
 	return true;
 }
 
-boolean i2c_start(uint8_t addr) {
-	uint32_t wcount;
+boolean i2c_start(I2CBus * wirex, uint8_t addr) {
+	uint16_t wc;
 	//
-	wcount = 5;
-	Wire1.status = NOT_READY;
-	while (I2C_GetFlagStatus(Wire1.I2Cx, I2C_FLAG_BUSY )) {
-		delay_us(667);
-		if (wcount == 0)
+	wirex->status = NOT_READY;
+	for(wc = 5; I2C_GetFlagStatus(wirex->I2Cx, I2C_FLAG_BUSY ); wc--) {
+		if (wc == 0)
 			return false;
-		wcount--;
+		delay_us(667);
 	}
-	Wire1.status = READY;
+	wirex->status = READY;
 
 	/* Send STRAT condition */
-	wcount = 5;
-	I2C_GenerateSTART(Wire1.I2Cx, ENABLE);
+	I2C_GenerateSTART(wirex->I2Cx, ENABLE);
 	/* Test on EV5 and clear it */
-	while (!I2C_CheckEvent(Wire1.I2Cx, I2C_EVENT_MASTER_MODE_SELECT )) {
-		delay_us(667);
-		if (wcount == 0)
+	for (wc = 5; !I2C_CheckEvent(wirex->I2Cx, I2C_EVENT_MASTER_MODE_SELECT ); wc--) {
+		if (wc == 0)
 			return false;
-		wcount--;
+		delay_us(667);
 	}
-	Wire1.status = START_ISSUED;
+	wirex->status = START_ISSUED;
 
 	/* Send address for write */
-	wcount = 5;
-	I2C_Send7bitAddress(Wire1.I2Cx, addr << 1, I2C_Direction_Transmitter);
+	I2C_Send7bitAddress(wirex->I2Cx, addr << 1, I2C_Direction_Transmitter);
 	/* Test on EV6 and clear it */
-	while (!I2C_CheckEvent(Wire1.I2Cx, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED )) {
-		delay_us(667);
-		if (wcount == 0)
+	for (wc = 5; !I2C_CheckEvent(wirex->I2Cx, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED ); wc--) {
+		if (wc == 0)
 			return false;
-		wcount--;
+		delay_us(667);
 	}
-	Wire1.status = DST_ADDRESS_SENT;
-
-return true;
+	wirex->status = DST_ADDRESS_SENT;
+	return true;
 }
