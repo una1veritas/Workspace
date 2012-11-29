@@ -38,7 +38,11 @@ typedef struct {
 typedef struct _Serial {
 	USARTSerial usid;
 	USART_TypeDef * USARTx;
+<<<<<<< HEAD
 	USARTRing * rxring, * txring;
+=======
+//	USARTRing rxring, txring;
+>>>>>>> jnosky
 } Serial;
 
 extern Serial Serial1, Serial2, Serial3, Serial4, Serial5, Serial6;
