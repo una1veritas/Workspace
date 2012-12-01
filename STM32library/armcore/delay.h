@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdint.h>
 #include "stm32f4xx.h"
 
 
