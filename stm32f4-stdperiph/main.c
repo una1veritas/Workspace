@@ -59,7 +59,7 @@ int main(void) {
 	digitalWrite(PB12, HIGH);
 
 	i2c_begin(&Wire1, 100000);
-	ST7032i_init(&lcd);
+	ST7032i_init(&lcd, &Wire1);
 	ST7032i_begin(&lcd);
 	ST7032i_setContrast(&lcd, 46);
 	ST7032i_print(&lcd, "Hi there!");       // Classic Hello World!

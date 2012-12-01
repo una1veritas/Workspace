@@ -15,10 +15,6 @@
 #include "delay.h"
 #include "usart.h"
 
-<<<<<<< HEAD
-=======
-
->>>>>>> jnosky
 Serial Serial1, Serial2, Serial3, Serial4, Serial5, Serial6;
 USARTRing rxring[6], txring[6];
 
@@ -59,19 +55,11 @@ uint16_t buffer_deque(USARTRing * r) {
 }
 
 uint16_t buffer_peek(USARTRing * r) {
-<<<<<<< HEAD
 	if (buffer_count(r) == 0)
-=======
-	if ( buffer_count(r) == 0 )
->>>>>>> jnosky
 		return 0xffff;
 	return r->buf[r->tail];
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> jnosky
 void usart_begin(Serial * usx, GPIOPin rx, GPIOPin tx, uint32_t baud) {
 	USART_InitTypeDef USART_InitStruct; // this is for the USART1 initilization
 	NVIC_InitTypeDef NVIC_InitStructure; // this is used to configure the NVIC (nested vector interrupt controller)
@@ -79,85 +67,55 @@ void usart_begin(Serial * usx, GPIOPin rx, GPIOPin tx, uint32_t baud) {
 	uint8_t af = GPIO_AF_USART1;
 	IRQn_Type irq = USART1_IRQn;
 
-<<<<<<< HEAD
 	if (usx == &Serial1) {
-=======
-	if ( usx == & Serial1 ) {
->>>>>>> jnosky
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 		af = GPIO_AF_USART1;
 		irq = USART1_IRQn;
 		usx->usid = USART1Serial;
 		usx->USARTx = USART1;
-<<<<<<< HEAD
 		usx->rxring = &rxring[USART1Serial];
 		usx->txring = &txring[USART1Serial];
 	} else if (usx == &Serial2) {
-=======
-	} else if ( usx == &Serial2 ) {
->>>>>>> jnosky
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
 		af = GPIO_AF_USART2;
 		irq = USART2_IRQn;
 		usx->usid = USART2Serial;
 		usx->USARTx = USART2;
-<<<<<<< HEAD
 		usx->rxring = &rxring[USART2Serial];
 		usx->txring = &txring[USART2Serial];
 	} else if (usx == &Serial3) {
-=======
-	} else if ( usx == &Serial3 ) {
->>>>>>> jnosky
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
 		af = GPIO_AF_USART3;
 		irq = USART3_IRQn;
 		usx->usid = USART3Serial;
 		usx->USARTx = USART3;
-<<<<<<< HEAD
 		usx->rxring = &rxring[USART3Serial];
 		usx->txring = &txring[USART3Serial];
 	} else if (usx == &Serial4) {
-=======
-	} else if ( usx == &Serial4 ) {
->>>>>>> jnosky
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE);
 		af = GPIO_AF_UART4;
 		irq = UART4_IRQn;
 		usx->usid = UART4Serial;
 		usx->USARTx = UART4;
-<<<<<<< HEAD
 		usx->rxring = &rxring[UART4Serial];
 		usx->txring = &txring[UART4Serial];
 	} else if (usx == &Serial5) {
-=======
-	} else if ( usx == &Serial5 ) {
->>>>>>> jnosky
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, ENABLE);
 		af = GPIO_AF_UART5;
 		irq = UART5_IRQn;
 		usx->usid = UART5Serial;
 		usx->USARTx = UART5;
-<<<<<<< HEAD
 		usx->rxring = &rxring[UART5Serial];
 		usx->txring = &txring[UART5Serial];
-=======
->>>>>>> jnosky
 	} else { // Serial6
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, ENABLE);
 		af = GPIO_AF_USART6;
 		irq = USART6_IRQn;
 		usx->usid = USART6Serial;
 		usx->USARTx = USART6;
-<<<<<<< HEAD
 		usx->rxring = &rxring[USART6Serial];
 		usx->txring = &txring[USART6Serial];
 	}
-=======
-	}
-
-	GPIOMode(PinPort(rx), PinBit(rx), GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL);
-	GPIOMode(PinPort(tx), PinBit(tx), GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL);
->>>>>>> jnosky
 
 	GPIOMode(PinPort(rx), PinBit(rx), GPIO_Mode_AF, GPIO_Speed_50MHz,
 			GPIO_OType_PP, GPIO_PuPd_NOPULL);
@@ -186,31 +144,20 @@ void usart_begin(Serial * usx, GPIOPin rx, GPIOPin tx, uint32_t baud) {
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;	// the USART3 interrupts are globally enabled
 	NVIC_Init(&NVIC_InitStructure);	// the properties are passed to the NVIC_Init function which takes care of the low level stuff
 	//
-<<<<<<< HEAD
 	buffer_clear(usx->rxring); //&rxring[usx->usid]);
 	buffer_clear(usx->txring); //&txring[usx->usid]);
-=======
-	buffer_clear(&rxring[usx->usid]);
-	buffer_clear(&txring[usx->usid]);
->>>>>>> jnosky
 	// finally this enables the complete USART3 peripheral
 	USART_Cmd(usx->USARTx, ENABLE);
 }
 
 void usart_bare_write(Serial * usx, const uint16_t w) {
-<<<<<<< HEAD
 	while (USART_GetFlagStatus(usx->USARTx, USART_FLAG_TXE ) == RESET)
 		;
 	USART_SendData(usx->USARTx, w);
-=======
-	while (USART_GetFlagStatus(usx->USARTx, USART_FLAG_TXE ) == RESET) ;
-	USART_SendData(usx->USARTx, w) ;
->>>>>>> jnosky
 //	while (USART_GetFlagStatus(USART3, USART_FLAG_TC ) == RESET) ;
 }
 
 void usart_write(Serial * usx, const uint16_t w) {
-<<<<<<< HEAD
 	uint16_t waitcount = 3;
 	while (buffer_is_full(usx->txring) && (waitcount > 0) ) {
 		delay_us(667);
@@ -218,13 +165,6 @@ void usart_write(Serial * usx, const uint16_t w) {
 	}
 	USART_ITConfig(usx->USARTx, USART_IT_TXE, DISABLE);
 	buffer_enque(usx->txring, w); //&txring[usx->usid], w);
-=======
-	//	uint16_t waitcount = 1000;
-	if ( buffer_is_full(&txring[usx->usid]) )
-		delay_us(833);
-	USART_ITConfig(usx->USARTx, USART_IT_TXE, DISABLE);
-	buffer_enque(&txring[usx->usid], w);
->>>>>>> jnosky
 	USART_ITConfig(usx->USARTx, USART_IT_TXE, ENABLE);
 }
 
@@ -238,19 +178,13 @@ uint16_t usart_bare_read(USART_TypeDef * USARTx /*usartx[usx]*/) {
 }
 
 uint16_t usart_read(Serial * usx) {
-<<<<<<< HEAD
 	uint16_t w = buffer_deque(usx->rxring); //&rxring[usx->usid]);
 	if (w == 0xffff)
 		return 0; // buffer is empty
-=======
-	uint16_t w = buffer_deque(&rxring[usx->usid]);
-	if ( w == 0xffff ) return 0; // buffer is empty
->>>>>>> jnosky
 	return w;
 }
 
 void usart_flush(Serial * usx) {
-<<<<<<< HEAD
 	uint32_t wtill = millis() + 100;
 	while (buffer_count(usx->txring) > 0) {
 		if (millis() > wtill)
@@ -282,30 +216,6 @@ uint16_t usart_peek(Serial * usx) {
 uint16_t usart_available(Serial * usx) {
 	return buffer_count(usx->rxring);
 	//return buffer_count(&rxring[usx->usid]);
-=======
-	USART_ITConfig(usx->USARTx, USART_IT_RXNE, DISABLE); // enable the USART3 receive interrupt
-	buffer_clear(&rxring[usx->usid]);
-	USART_ClearITPendingBit(usx->USARTx, USART_IT_RXNE );
-	USART_ITConfig(usx->USARTx, USART_IT_RXNE, ENABLE); // enable the USART3 receive interrupt
-	USART_ITConfig(usx->USARTx, USART_IT_TXE, DISABLE);
-	while ( buffer_count(&txring[usx->usid]) > 0 ) {
-		while (USART_GetFlagStatus(usx->USARTx, USART_FLAG_TXE ) == RESET);
-		USART_SendData(usx->USARTx, buffer_deque(&txring[usx->usid]));
-		while (USART_GetFlagStatus(usx->USARTx, USART_FLAG_TC ) == RESET);
-	}
-	USART_ClearITPendingBit(usx->USARTx, USART_IT_TXE );
-	buffer_clear(&txring[usx->usid]);
-}
-
-uint16_t usart_peek(Serial * usx) {
-	if ( ! buffer_count(&rxring[usx->usid]) == 0 )
-		return rxring[usx->usid].buf[rxring[usx->usid].tail];
-	return 0xffff;
-}
-
-uint16_t usart_available(Serial * usx) {
-	return buffer_count(&rxring[usx->usid]);
->>>>>>> jnosky
 }
 
 // this is the interrupt request handler (IRQ) for ALL USART3 interrupts

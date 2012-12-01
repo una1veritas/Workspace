@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 
-<<<<<<< HEAD
 #include <stm32f4xx_i2c.h>
 
 #include "armcore.h"
@@ -36,7 +35,6 @@ typedef enum __I2C_Status {
 	LAST_BYTE_READY,
 	RECEIVE_BYTE_COMPLETED,
 	RECEIVE_COMPLETED,
-//
 } I2C_Status;
 
 typedef enum __I2C_CommMode {
@@ -62,13 +60,6 @@ boolean i2c_start(I2CBus * wirex, uint8_t addr);
 boolean i2c_transmit(I2CBus * wirex, uint8_t addr, uint8_t * data, uint16_t length);
 //void i2c_receive(uint8_t addr, uint8_t * data, uint16_t nlimit);
 boolean i2c_receive(I2CBus * wirex, uint8_t addr, uint8_t req, uint8_t * recv, uint16_t lim);
-=======
-boolean i2c_begin(uint32_t clkspeed); //I2C_TypeDef * I2Cx, uint32_t clk);
-boolean i2c_transmit(uint8_t addr, uint8_t * data, uint16_t length);
-boolean i2c_send(uint8_t addr, uint8_t * data, uint16_t length);
-//void i2c_receive(uint8_t addr, uint8_t * data, uint16_t nlimit);
-boolean i2c_requestFrom(uint8_t addr, uint8_t req, uint8_t * recv, uint16_t lim);
->>>>>>> jnosky
 
 #ifdef __cplusplus
 }
