@@ -45,7 +45,7 @@ all: stm32f4-stdperiph.elf
 stm32f4-stdperiph.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	arm-none-eabi-g++  -o "stm32f4-stdperiph.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-gcc -mcpu=cortex-m3 -mthumb -mlittle-endian -mfloat-abi=soft -nostartfiles -Wl,-T,C:/Users/Sin/Documents/Eclipse/Workspace/stm32f4-stdperiph/stm32f4xx_flash.ld -o "stm32f4-stdperiph.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build

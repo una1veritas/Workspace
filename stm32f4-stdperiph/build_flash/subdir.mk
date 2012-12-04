@@ -10,8 +10,8 @@ C_SRCS += \
 ../stm32f4xx_it.c \
 ../system_stm32f4xx.c 
 
-ASM_SRCS += \
-../startup_stm32f4xx.asm 
+S_UPPER_SRCS += \
+../startup_stm32f4xx.S 
 
 OBJS += \
 ./ST7032i.o \
@@ -33,14 +33,14 @@ C_DEPS += \
 %.o: ../%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
-	arm-none-eabi-gcc -DUSE_STDPERIPH_DRIVER=1 -I"C:\Users\Sin\Documents\Eclipse\Workspace\stm32library\CMSIS\Include" -I"C:\Users\Sin\Documents\Eclipse\Workspace\stm32library\CMSIS\STM32F4xx" -I"C:\Users\Sin\Documents\Eclipse\Workspace\stm32library\STM32F4xx_StdPeriph_Driver\inc" -I"C:\Users\Sin\Documents\Eclipse\Workspace\stm32f4-stdperiph" -I"C:\Users\Sin\Documents\Eclipse\Workspace\STM32library\armcore" -O3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	arm-none-eabi-gcc -DUSE_STDPERIPH_DRIVER=1 -I"C:\Users\Sin\Documents\Eclipse\Workspace\stm32f4-stdperiph" -I"C:\Users\Sin\Documents\Eclipse\Workspace\STM32library\armcore" -I"C:\Users\Sin\Documents\Eclipse\Workspace\STM32library\CMSIS\Include" -I"C:\Users\Sin\Documents\Eclipse\Workspace\STM32library\STM32F4xx_StdPeriph_Driver\inc" -I"C:\Users\Sin\Documents\Eclipse\Workspace\STM32library\CMSIS\STM32F4xx" -Os -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=soft -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
-%.o: ../%.asm
+%.o: ../%.S
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Assembler'
-	arm-none-eabi-as -I"C:\Users\Sin\Documents\Eclipse\Workspace\stm32library\CMSIS\Include" -I"C:\Users\Sin\Documents\Eclipse\Workspace\stm32library\CMSIS\STM32F4xx" -I"C:\Users\Sin\Documents\Eclipse\Workspace\stm32library\STM32F4xx_StdPeriph_Driver\inc" -I"C:\Users\Sin\Documents\Eclipse\Workspace\stm32f4-stdperiph" -I"C:\Users\Sin\Documents\Eclipse\Workspace\STM32library\armcore" -o "$@" "$<"
+	arm-none-eabi-as -I"C:\Users\Sin\Documents\Eclipse\Workspace\stm32f4-stdperiph" -I"C:\Users\Sin\Documents\Eclipse\Workspace\STM32library\armcore" -I"C:\Users\Sin\Documents\Eclipse\Workspace\STM32library\CMSIS\Include" -I"C:\Users\Sin\Documents\Eclipse\Workspace\STM32library\STM32F4xx_StdPeriph_Driver\inc" -I"C:\Users\Sin\Documents\Eclipse\Workspace\STM32library\CMSIS\STM32F4xx" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
