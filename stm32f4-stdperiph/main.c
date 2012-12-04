@@ -4,7 +4,7 @@
  *  Created on: 2012/10/08
  *      Author: sin
  */
-#include <inttypes.h>
+#include <stdint.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +16,6 @@
 #include "delay.h"
 #include "usart.h"
 #include "spi.h"
-
 #include "i2c.h"
 #include "ST7032i.h"
 

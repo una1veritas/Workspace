@@ -3,7 +3,6 @@
 #define ST7032i_h
 
 /*
-#include <inttypes.h>
 #if ARDUINO >= 100
 #include <stdio.h>
 #include <Arduino.h>
