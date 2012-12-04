@@ -22543,30 +22543,30 @@ int main(void) {
 	TIM2_timer_start();
  800829a:	f7f9 ff53 	bl	8002144 <TIM2_timer_start>
 
-	usart_begin(&Serial2, PA3, PA2, 19200);
+	usart_begin(&Serial3, PB11, PB10, 19200);
  800829e:	f44f 4396 	mov.w	r3, #19200	; 0x4b00
- 80082a2:	f44f 7281 	mov.w	r2, #258	; 0x102
+ 80082a2:	f240 220a 	movw	r2, #522	; 0x20a
  80082a6:	48bc      	ldr	r0, [pc, #752]	; (8008598 <main+0x304>)
- 80082a8:	f240 1103 	movw	r1, #259	; 0x103
+ 80082a8:	f240 210b 	movw	r1, #523	; 0x20b
  80082ac:	f7fa fbd7 	bl	8002a5e <usart_begin>
-	usart_print(&Serial2,
+	usart_print(&Serial3,
  80082b0:	48b9      	ldr	r0, [pc, #740]	; (8008598 <main+0x304>)
  80082b2:	49ba      	ldr	r1, [pc, #744]	; (800859c <main+0x308>)
  80082b4:	f7fa fd18 	bl	8002ce8 <usart_print>
 			"Happy are those who know they are spiritually poor; \n");
-	usart_print(&Serial2, "The kingdom of heaven belongs to them!\n");
+	usart_print(&Serial3, "The kingdom of heaven belongs to them!\n");
  80082b8:	48b7      	ldr	r0, [pc, #732]	; (8008598 <main+0x304>)
  80082ba:	49b9      	ldr	r1, [pc, #740]	; (80085a0 <main+0x30c>)
  80082bc:	f7fa fd14 	bl	8002ce8 <usart_print>
-	usart_print(&Serial2, "How many eyes does Mississipi river have?\n");
+	usart_print(&Serial3, "How many eyes does Mississipi river have?\n");
  80082c0:	48b5      	ldr	r0, [pc, #724]	; (8008598 <main+0x304>)
  80082c2:	49b8      	ldr	r1, [pc, #736]	; (80085a4 <main+0x310>)
  80082c4:	f7fa fd10 	bl	8002ce8 <usart_print>
-	usart_print(&Serial2, "Quick brown fox jumped over the lazy dog!\n");
+	usart_print(&Serial3, "Quick brown fox jumped over the lazy dog!\n");
  80082c8:	49b7      	ldr	r1, [pc, #732]	; (80085a8 <main+0x314>)
  80082ca:	48b3      	ldr	r0, [pc, #716]	; (8008598 <main+0x304>)
  80082cc:	f7fa fd0c 	bl	8002ce8 <usart_print>
-	usart_flush(&Serial2);
+	usart_flush(&Serial3);
  80082d0:	48b1      	ldr	r0, [pc, #708]	; (8008598 <main+0x304>)
  80082d2:	f7fa fd21 	bl	8002d18 <usart_flush>
 
@@ -22580,7 +22580,7 @@ int main(void) {
  80082de:	49b3      	ldr	r1, [pc, #716]	; (80085ac <main+0x318>)
  80082e0:	a803      	add	r0, sp, #12
  80082e2:	f7fb f839 	bl	8003358 <sprintf>
-	usart_print(&Serial2, tmp);
+	usart_print(&Serial3, tmp);
  80082e6:	48ac      	ldr	r0, [pc, #688]	; (8008598 <main+0x304>)
  80082e8:	a903      	add	r1, sp, #12
  80082ea:	f7fa fcfd 	bl	8002ce8 <usart_print>
@@ -22589,7 +22589,7 @@ int main(void) {
  80082f0:	49af      	ldr	r1, [pc, #700]	; (80085b0 <main+0x31c>)
  80082f2:	a803      	add	r0, sp, #12
  80082f4:	f7fb f830 	bl	8003358 <sprintf>
-	usart_print(&Serial2, tmp);
+	usart_print(&Serial3, tmp);
  80082f8:	48a7      	ldr	r0, [pc, #668]	; (8008598 <main+0x304>)
  80082fa:	a903      	add	r1, sp, #12
  80082fc:	f7fa fcf4 	bl	8002ce8 <usart_print>
@@ -22598,7 +22598,7 @@ int main(void) {
  8008302:	49ac      	ldr	r1, [pc, #688]	; (80085b4 <main+0x320>)
  8008304:	a803      	add	r0, sp, #12
  8008306:	f7fb f827 	bl	8003358 <sprintf>
-	usart_print(&Serial2, tmp);
+	usart_print(&Serial3, tmp);
  800830a:	48a3      	ldr	r0, [pc, #652]	; (8008598 <main+0x304>)
  800830c:	a903      	add	r1, sp, #12
  800830e:	f7fa fceb 	bl	8002ce8 <usart_print>
@@ -22607,7 +22607,7 @@ int main(void) {
  8008314:	49a8      	ldr	r1, [pc, #672]	; (80085b8 <main+0x324>)
  8008316:	a803      	add	r0, sp, #12
  8008318:	f7fb f81e 	bl	8003358 <sprintf>
-	usart_print(&Serial2, tmp);
+	usart_print(&Serial3, tmp);
  800831c:	a903      	add	r1, sp, #12
  800831e:	489e      	ldr	r0, [pc, #632]	; (8008598 <main+0x304>)
  8008320:	f7fa fce2 	bl	8002ce8 <usart_print>
@@ -22623,9 +22623,9 @@ int main(void) {
  8008336:	4605      	mov	r5, r0
  8008338:	f240 400d 	movw	r0, #1037	; 0x40d
  800833c:	f7f9 ffa2 	bl	8002284 <PinBit>
-	usart_print(&Serial2, tmp);
+	usart_print(&Serial3, tmp);
 	sprintf(tmp, "PCLK2 = %ld\r\n", RCC_Clocks.PCLK2_Frequency);
-	usart_print(&Serial2, tmp);
+	usart_print(&Serial3, tmp);
 //	usart_flush(USART2Serial);
 
 	GPIOMode(PinPort(PD12),
@@ -22633,9 +22633,9 @@ int main(void) {
 			(PinBit(PD12) | PinBit(PD13) | PinBit(PD14) | PinBit(PD15)), OUTPUT,
  8008342:	f240 400e 	movw	r0, #1038	; 0x40e
  8008346:	f7f9 ff9d 	bl	8002284 <PinBit>
-	usart_print(&Serial2, tmp);
+	usart_print(&Serial3, tmp);
 	sprintf(tmp, "PCLK2 = %ld\r\n", RCC_Clocks.PCLK2_Frequency);
-	usart_print(&Serial2, tmp);
+	usart_print(&Serial3, tmp);
 //	usart_flush(USART2Serial);
 
 	GPIOMode(PinPort(PD12),
@@ -22644,9 +22644,9 @@ int main(void) {
 			(PinBit(PD12) | PinBit(PD13) | PinBit(PD14) | PinBit(PD15)), OUTPUT,
  800834e:	f240 400f 	movw	r0, #1039	; 0x40f
  8008352:	f7f9 ff97 	bl	8002284 <PinBit>
-	usart_print(&Serial2, tmp);
+	usart_print(&Serial3, tmp);
 	sprintf(tmp, "PCLK2 = %ld\r\n", RCC_Clocks.PCLK2_Frequency);
-	usart_print(&Serial2, tmp);
+	usart_print(&Serial3, tmp);
 //	usart_flush(USART2Serial);
 
 	GPIOMode(PinPort(PD12),
@@ -22857,11 +22857,11 @@ int main(void) {
  80084f6:	4602      	mov	r2, r0
  80084f8:	4620      	mov	r0, r4
  80084fa:	f7fa ff2d 	bl	8003358 <sprintf>
-		usart_print(&Serial2, tmp);
+		usart_print(&Serial3, tmp);
  80084fe:	4826      	ldr	r0, [pc, #152]	; (8008598 <main+0x304>)
  8008500:	4621      	mov	r1, r4
  8008502:	f7fa fbf1 	bl	8002ce8 <usart_print>
-		usart_print(&Serial2, "\n");
+		usart_print(&Serial3, "\n");
  8008506:	4824      	ldr	r0, [pc, #144]	; (8008598 <main+0x304>)
  8008508:	4933      	ldr	r1, [pc, #204]	; (80085d8 <main+0x344>)
  800850a:	f7fa fbed 	bl	8002ce8 <usart_print>
@@ -22894,13 +22894,13 @@ int main(void) {
 		 usart3.println(dval);
 		 */
 		uint16_t i = 0;
-		if (usart_available(&Serial2) > 0) {
+		if (usart_available(&Serial3) > 0) {
  800853e:	4816      	ldr	r0, [pc, #88]	; (8008598 <main+0x304>)
  8008540:	f7fa fc0f 	bl	8002d62 <usart_available>
  8008544:	b940      	cbnz	r0, 8008558 <main+0x2c4>
  8008546:	e75b      	b.n	8008400 <main+0x16c>
-			while (usart_available(&Serial2) > 0 && i < 92) {
-				tmp[i++] = (char) usart_read(&Serial2);
+			while (usart_available(&Serial3) > 0 && i < 92) {
+				tmp[i++] = (char) usart_read(&Serial3);
  8008548:	4813      	ldr	r0, [pc, #76]	; (8008598 <main+0x304>)
  800854a:	f7fa fbdb 	bl	8002d04 <usart_read>
  800854e:	f804 0008 	strb.w	r0, [r4, r8]
@@ -22911,45 +22911,45 @@ int main(void) {
 		 usart3.println(dval);
 		 */
 		uint16_t i = 0;
-		if (usart_available(&Serial2) > 0) {
+		if (usart_available(&Serial3) > 0) {
  8008558:	f04f 0800 	mov.w	r8, #0
-			while (usart_available(&Serial2) > 0 && i < 92) {
+			while (usart_available(&Serial3) > 0 && i < 92) {
  800855c:	480e      	ldr	r0, [pc, #56]	; (8008598 <main+0x304>)
-				tmp[i++] = (char) usart_read(&Serial2);
+				tmp[i++] = (char) usart_read(&Serial3);
  800855e:	fa1f f988 	uxth.w	r9, r8
 		 dval = (uint32) (100.0f + 64*sinf( (count % (uint32)(3.14159 * 2 * 32))/32.0f));
 		 usart3.println(dval);
 		 */
 		uint16_t i = 0;
-		if (usart_available(&Serial2) > 0) {
-			while (usart_available(&Serial2) > 0 && i < 92) {
+		if (usart_available(&Serial3) > 0) {
+			while (usart_available(&Serial3) > 0 && i < 92) {
  8008562:	f7fa fbfe 	bl	8002d62 <usart_available>
  8008566:	b118      	cbz	r0, 8008570 <main+0x2dc>
  8008568:	f1b8 0f5c 	cmp.w	r8, #92	; 0x5c
  800856c:	d1ec      	bne.n	8008548 <main+0x2b4>
  800856e:	46c1      	mov	r9, r8
-				tmp[i++] = (char) usart_read(&Serial2);
+				tmp[i++] = (char) usart_read(&Serial3);
 			}
 			tmp[i] = 0;
  8008570:	aa1e      	add	r2, sp, #120	; 0x78
  8008572:	eb02 0309 	add.w	r3, r2, r9
  8008576:	2200      	movs	r2, #0
  8008578:	f803 2c6c 	strb.w	r2, [r3, #-108]
-			usart_print(&Serial2, "> ");
+			usart_print(&Serial3, "> ");
  800857c:	4806      	ldr	r0, [pc, #24]	; (8008598 <main+0x304>)
  800857e:	4917      	ldr	r1, [pc, #92]	; (80085dc <main+0x348>)
  8008580:	f7fa fbb2 	bl	8002ce8 <usart_print>
-			usart_print(&Serial2, tmp);
+			usart_print(&Serial3, tmp);
  8008584:	4621      	mov	r1, r4
  8008586:	4804      	ldr	r0, [pc, #16]	; (8008598 <main+0x304>)
  8008588:	f7fa fbae 	bl	8002ce8 <usart_print>
-			usart_print(&Serial2, "\n");
+			usart_print(&Serial3, "\n");
  800858c:	4802      	ldr	r0, [pc, #8]	; (8008598 <main+0x304>)
  800858e:	4912      	ldr	r1, [pc, #72]	; (80085d8 <main+0x344>)
  8008590:	f7fa fbaa 	bl	8002ce8 <usart_print>
  8008594:	e734      	b.n	8008400 <main+0x16c>
  8008596:	bf00      	nop
- 8008598:	2000166c 	.word	0x2000166c
+ 8008598:	20001018 	.word	0x20001018
  800859c:	080087a8 	.word	0x080087a8
  80085a0:	080087de 	.word	0x080087de
  80085a4:	08008806 	.word	0x08008806

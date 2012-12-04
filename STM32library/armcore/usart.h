@@ -41,7 +41,7 @@ typedef struct _Serial {
 	USARTRing * rxring, * txring;
 } Serial;
 
-extern Serial Serial1, Serial2, Serial3, Serial4, Serial5, Serial6;
+extern Serial Serial1, Serial3, Serial3, Serial4, Serial5, Serial6;
 
 /*
 PB6 			USART1_TX

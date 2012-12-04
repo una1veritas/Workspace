@@ -30,25 +30,25 @@ int main(void) {
 
 	TIM2_timer_start();
 
-	usart_begin(&Serial2, PA3, PA2, 19200);
-	usart_print(&Serial2,
+	usart_begin(&Serial3, PB11, PB10, 19200);
+	usart_print(&Serial3,
 			"Happy are those who know they are spiritually poor; \n");
-	usart_print(&Serial2, "The kingdom of heaven belongs to them!\n");
-	usart_print(&Serial2, "How many eyes does Mississipi river have?\n");
-	usart_print(&Serial2, "Quick brown fox jumped over the lazy dog!\n");
-	usart_flush(&Serial2);
+	usart_print(&Serial3, "The kingdom of heaven belongs to them!\n");
+	usart_print(&Serial3, "How many eyes does Mississipi river have?\n");
+	usart_print(&Serial3, "Quick brown fox jumped over the lazy dog!\n");
+	usart_flush(&Serial3);
 
 	RCC_ClocksTypeDef RCC_Clocks;
 	RCC_GetClocksFreq(&RCC_Clocks);
 
 	sprintf(tmp, "SYSCLK = %ld, ", RCC_Clocks.SYSCLK_Frequency);
-	usart_print(&Serial2, tmp);
+	usart_print(&Serial3, tmp);
 	sprintf(tmp, "HCLK = %ld, ", RCC_Clocks.HCLK_Frequency);
-	usart_print(&Serial2, tmp);
+	usart_print(&Serial3, tmp);
 	sprintf(tmp, "PCLK1 = %ld, ", RCC_Clocks.PCLK1_Frequency);
-	usart_print(&Serial2, tmp);
+	usart_print(&Serial3, tmp);
 	sprintf(tmp, "PCLK2 = %ld\r\n", RCC_Clocks.PCLK2_Frequency);
-	usart_print(&Serial2, tmp);
+	usart_print(&Serial3, tmp);
 //	usart_flush(USART2Serial);
 
 	GPIOMode(PinPort(PD12),
@@ -102,8 +102,8 @@ int main(void) {
 		tnow = millis() / 1000;
 
 		sprintf(tmp, "%04ld", millis());
-		usart_print(&Serial2, tmp);
-		usart_print(&Serial2, "\n");
+		usart_print(&Serial3, tmp);
+		usart_print(&Serial3, "\n");
 
 		ST7032i_setCursor(&lcd, 0, 1);
 		ST7032i_print(&lcd, tmp);
@@ -117,14 +117,14 @@ int main(void) {
 		 usart3.println(dval);
 		 */
 		uint16_t i = 0;
-		if (usart_available(&Serial2) > 0) {
-			while (usart_available(&Serial2) > 0 && i < 92) {
-				tmp[i++] = (char) usart_read(&Serial2);
+		if (usart_available(&Serial3) > 0) {
+			while (usart_available(&Serial3) > 0 && i < 92) {
+				tmp[i++] = (char) usart_read(&Serial3);
 			}
 			tmp[i] = 0;
-			usart_print(&Serial2, "> ");
-			usart_print(&Serial2, tmp);
-			usart_print(&Serial2, "\n");
+			usart_print(&Serial3, "> ");
+			usart_print(&Serial3, tmp);
+			usart_print(&Serial3, "\n");
 		}
 	}
 	return 0;
