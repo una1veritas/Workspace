@@ -1,0 +1,3 @@
+1;create table t select a.task_id,count(*),b.required_processors_ub,count(*)-CAST(b.required_processors_ub AS SIGNED) as num from timetable a, task_properties b where a.task_id = b.task_id group by a.task_id,b.required_processors_lb having count(*)-CAST(b.required_processors_ub AS SIGNED) > 0;
+2;select sum(num)*10000 as penalties from t;
+1;drop table t;

@@ -1,0 +1,154 @@
+\documentclass{AIabst}
+
+\usepackage{graphicx}
+% 論文概要
+\input personal
+\begin{document}
+\makeAbstHeader
+%
+%
+%
+\section{はじめに}
+% 本研究の背景
+事務管理業務では，
+運用のための規則が定められている．
+業務の従事者は，これを運用し続けるため，
+規則を修正・維持する必要があり，
+それを利用者に対し理解を促す作業が重要となる．
+しかし現実には，規則法規は規模が大きく，
+複雑かつ難解であり，様々な新制度や技術に対応する
+変更も多いため，利用者の理解を促す業務は後回しとなる．
+その結果，運用が困難になり生じた問題を業務改善に
+生かすことが出来ず，業務効率の低下を引き起こす．\\
+% 本研究の目的
+　本研究では，従事者が規則や経験から事例を作成し，
+情報利得比基準\cite{quinlan}に基づく
+コンパクトな判別ダイヤグラムを作成する
+手法を提案する．これは利用者にとって難解な手続きの
+内容を理解しやすくするのがを目的である．
+
+%決定木と利得比基準の説明
+\section{決定木とC4.5の情報利得比基準}
+%決定木について
+本研究では，分類モデルを「決定木(Decision Tree)」
+とよばれる形式で表現する手法を用いる．
+構造として，親ノードはテスト，
+子ノードはテストに対する答え，
+葉は各々クラス名を持っている．
+構造を決める重要な点は，どのテストから選べば，
+木の深さが小さくなるのかということで，そのテストの
+選択に用いている考えが「情報利得比基準」である．
+%利得比基準について
+これは，各属性のテストを選んだときの情報量を計算し，
+テスト結果自体を伝えるメッセージの情報量について
+利得が最大になるような基準である\cite{quinlan}．
+ここでの情報量とは，メッセージの生起確率とする．
+%　メッセージの平均情報量を求めるために，事例集合Ｓ内での
+%頻度で重み付けしてクラス全体に対する平均を求める．
+%事例集合S内でクラスCに属する事例数をfreq(C,S)とすると，
+%\begin{displaymath}
+%-\sum^k_{i=1}\frac{freq(C_{i},S)}{|S|}\times\log_2(\frac{freq(C_{i},S)}{|S|})
+%\end{displaymath}
+%を得る．これはＳ内にある１つの事例が属するクラスを同定
+%するのに必要な情報量の平均値である．
+
+%抽象事例設定の手引き
+\section{抽象事例設定の手引き}
+\begin{enumerate}
+\item
+特に重視したい属性だけの値をいれたYes,No事例を作る．\\[-7mm]
+\item
+それに対し，YesとNo事例で違いが生じるよう重視したい
+属性の部分にだけ値を入れる．\\[-7mm]
+\item
+残りの部分には，すべて'*'を入れる．\\[-7mm]
+\end{enumerate}
+ただし，同じ属性値をとる事例が２つ以上存在し，かつ
+それらが異なるクラスを取るような規則の設定はしない．
+
+%抽象事例から具体事例へ
+\section{抽象事例から具体事例の作成方法}
+抽象事例とは，一部の属性値が任意である事例で，
+具体事例とは全属性値が定まっている事例である．
+各属性は，test0=(OK, NG), test1=(1,2,3)とし，
+クラスは，Class=(yes, no)をとる．
+表\ref{table:a}のような抽象事例を与えると，
+test1の値に関わらずtest0="OK"となる場合，
+クラスは"yes"になる．
+この抽象事例から具体事例を生成すると，
+表\ref{table:b}のような３つの事例が生成されることになる．\\[-7mm]
+\begin{table}[htbp]
+\begin{minipage}{0.45\hsize}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+test0&test1&Class\\ \hline
+OK&*&yes\\ \hline
+\end{tabular}
+\caption{抽象事例}
+\label{table:a}
+\end{center}
+\end{minipage}
+\begin{minipage}{0.45\hsize}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+test0 & test1 & Class \\ \hline
+OK&1&yes\\ \hline
+OK&2&yes\\ \hline
+OK&3&yes\\ \hline
+\end{tabular}
+\caption{具体事例}
+\label{table:b}
+\end{center}
+\end{minipage}
+\end{table}
+　\\[-10mm]
+%実験考察
+\section{実験と考察}
+授業料免除制度の申請を例を使い，抽象事例の特徴が
+表れているかを調べる．
+Yes事例を２つ，No事例をtest3,4について値を入れ，
+５つの抽象事例を作成したものを図1に示す．\\
+　出力結果より，抽象事例で与えたテストほど
+選ばれやすいと言える．
+よって，抽象事例を作成した人の意図を反映された
+決定木を作成できることがわかる．
+\begin{figure}[htbp]
+ \begin{center}
+  \includegraphics[width=80mm]{Tree.eps}
+ \end{center}
+ \label{fig:one}
+\end{figure}\\[-17mm]
+\begin{center}
+図1: 出力結果の決定木　
+\end{center}
+
+%まとめ
+\section{まとめ}
+本研究では，情報利得比基準を用いたテスト選択を行い，
+与えた抽象事例を反映させた図を作成するシステムの開発を行った．
+実験により，その有用性も確かめられたが，
+情報利得比基準では一歩先の利得のみで，
+その先で大損をする場合は考えていない．
+よりコンパクトな図にするには，
+数歩先も考慮したテスト選択が必要がある．
+
+%参考文献
+{\small
+\baselineskip 12pt
+\begin{thebibliography}{9}
+
+\bibitem{quinlan}
+{J.R.Quinlan 著, 
+\newblock 
+古川 康一 訳, 
+\newblock 
+AIによるデータ解析 (初版), 
+\newblock 
+株式会社トッパン, 1995.}
+
+\end{thebibliography}
+}
+\end{document}
+

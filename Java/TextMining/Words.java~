@@ -1,0 +1,68 @@
+import java.util.*;
+import java.io.*;
+import SuffixTree;
+import Occurrence;
+
+class Words {
+  
+  public static void main(String[] args) {
+    Vector tmptexts = new Vector();
+    String str, texts[];
+    SuffixTree stree;
+    long timeWatch;
+    BufferedReader reader = null;
+
+    if (args.length == 1) {
+      try {
+	System.out.println("Trying to read the file "+args[0]);
+	reader = new BufferedReader(new FileReader(args[0]));
+      } catch(IOException e) {
+	System.out.println("File does not found: "+ e.toString());
+      }
+    }
+    if (reader == null) {
+      reader = new BufferedReader(new InputStreamReader(System.in));
+    }    
+    
+    try {
+      System.out.print("Reading strings");
+      while ((str = reader.readLine()) != null) {
+	tmptexts.addElement(str);
+	System.out.print(".");
+      }
+      System.out.println();
+    } catch(IOException e) {
+      System.out.println("Error: \n"+ e.toString());
+      System.exit(0);
+    }
+    texts = new String[tmptexts.size()];
+    /*
+    for (int i = 0; i < tmptexts.size(); i++) {
+      texts[i] = (String) tmptexts.elementAt(i);
+    }*/
+    tmptexts.toArray( (Object[]) texts);
+
+    timeWatch = System.currentTimeMillis();
+    stree = new SuffixTree(texts, " ,.:;)(\"\'`-+=\\/!?\n\t\r");
+    System.out.println("Construction of SuffixTree completed in "+ ((System.currentTimeMillis() - timeWatch)/1000) + " secs.");
+
+    if(stree.findLocus("exchange ") != null) {
+      System.out.println("\""+stree.findLocus("exchange ").pathLabel()+"\"");
+    }
+
+    for (SuffixTreeEnumerator w1 = stree.enumeration(); w1.hasNext(); ) {
+      w1.nextElement();
+      if (w1.pathLabel().indexOf(" ") != -1) {
+	continue;
+      }
+
+      if (w1.hits().size() < 3) {
+	continue;
+      }
+
+      System.out.println("\""+w1.pathLabel()+"\"" + "\t" + w1.hits().size());
+    }
+
+    System.out.println("Completed in "+(System.currentTimeMillis() - timeWatch)+ " msec.\n");
+  }
+}

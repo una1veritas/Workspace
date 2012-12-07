@@ -1,0 +1,46 @@
+・フォルダの中身
+	javaのクラスファイル
+		ApmMain.class, Hashapm.class, HashDp.class, HashTrace.class, Point.class, PointList.class
+  	データファイル（数字がサイズ）
+		p40.txt, p50.txt, p60.txt, p100.txt(倉田先生かたいただいたデータの一部)
+	appletのjavaファイル
+		Draw.java
+ 
+・使用にあたって
+%>java ApmMain [パターンデータのファイル名] [テキストのグリット幅] [テキスト1辺の点数]
+1,2番目の引数は必ずつけてください. 
+3番目の引数は省略できます. 省略した場合はパターンサイズがテキスト1辺の点数となります.
+近似照合の結果は, パターンデータのファイル名の頭に"r_"がついたファイルに保存されます. 
+
+例）
+%>java ApmMain pattern.txt 60
+File name:pattern.txt
+Make instance
+    time:30[msec]
+
+Make rectangle list   -- Hashapm.makeList()
+    time:0[msec]
+
+Info       -- Hashapm.print()
+  pattarnPointSetSize = 4
+  prectangleList = 6
+  textPointSetSize = 16
+  trectangleList = 52
+
+Make DP      -- Hashapm.makeDP()
+    P_list(2) start
+    P_list(3) start
+    P_list(4) start
+    time:200[msec]
+
+Output       -- Hashapm.output()
+    Edit distance:117
+
+Total time:230[msec] 
+
+%>
+
+・予想
+テキストサイズをパターンサイズの二乗とすると, パターンサイズがおよそ50のとき 6GB必要であると予想しています. 
+
+お願いします. 

@@ -1,0 +1,54 @@
+class Soukoban {
+
+    int map[][] = new int[20][20];
+
+    Soukoban () {
+	String resource[] =
+	    {"WWWWWWWWWWWFFFFFFFFF",
+	     "WFFFFFFFFFWWWWWWWWWW",
+	     "WFFFFFFFFFFFFFFFFFFW",
+	     "WFFFFFFFFFFFFFFFFFFW",
+	     "WFFFFFFFFFFFFFFFFFFW",
+	     "WFFFFFFFFFFFFFFFFFFW",
+	     "WFFFFFFFFFFFFFFFFFFW",
+	     "WFFFFFFFFFFFFFFFFFFW",
+	     "WFFFFFFFFFFFFFFFFFFW",
+	     "WFFFFFFFFFFFFFFFFFFW",
+	     "WFFFFFFHFFFFFFFFFFFW",
+	     "WFFFFFFFBFFFFFFFFFFW",
+	     "WWWWWFFFFFFFFFFFFFFW",
+	     "WFFFWFFFFFFFFFFFFFFW",
+	     "WFFFWFFFFFFFFFFFFFFW",
+	     "WFFFFFFFFFFFFFFFFFFW",
+	     "WFFFFFFFFFFFFFFFFFFW",
+	     "WFFFFFFFFFFFFFFFFFFW",
+	     "WFFFFFFFFFFFFFFFFFFW",
+	     "WWWWWWWWWWWWWWWWWWWW" };
+
+	for (int r = 0; r < 20; r++) {
+	    for (int c = 0; c < 20; c++) {
+		map[c][r] = resource[r].charAt(c);
+	    }
+	}
+    }
+
+    void printMap() {
+	for (int r = 0; r < 20; r++) {
+	    for (int c = 0; c < 20; c++) {
+		if ((char)map[c][r] == 'F')
+		    System.out.print(' ');
+		else
+		    System.out.print((char)map[c][r]);
+	    }
+	    System.out.println();
+	}
+    }
+
+    public static void main(String args[]) {
+	Soukoban w;
+
+	w = new Soukoban();
+	w.printMap();
+    }
+}
+

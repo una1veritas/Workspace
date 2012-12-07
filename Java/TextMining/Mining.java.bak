@@ -1,0 +1,139 @@
+import java.util.*;
+import java.io.*;
+import SuffixTree;
+import SuffixTreeEnumerator;
+
+class MiningInfo {
+	String t1, t2;
+	int confidence, match, support;
+	
+	public MiningInfo(String tmp1, String tmp2, int a_to_b, int co, int sup) {
+		t1 = tmp1;
+		t2 = tmp2;
+		match = a_to_b;
+		confidence = co;
+		support = sup;
+	}
+}
+
+class Mining {
+	Vector answer = new Vector();  // list_of_MiningInfo
+	
+	public Mining(Vector strs, double confidence, double support) {
+		SuffixTree tree = new SuffixTree(strs);
+		System.out.println("Finish Making SuffixTree");
+		int strNo = 0;
+		for (int i = 0; i < strs.size(); i++) {
+			if ( ((String) strs.elementAt(i)).length() != 0) {
+				strNo++;
+			}
+		}
+		makeList(strs, strNo, tree, confidence, support);
+	}
+
+	public int compare(Vector strs, String t1, String t2) {
+		int counter = 0;
+		
+		for (int i = 0; i < strs.size(); i++) {
+			int tmpInt1 = ((String) strs.elementAt(i)).indexOf(t1);
+			int tmpInt2 = ((String) strs.elementAt(i)).lastIndexOf(t2);
+			if (tmpInt1 != -1){
+				if ((tmpInt2 != -1)&&(tmpInt2>tmpInt1 + t1.length()-1)) {
+					counter++;
+				}
+			}
+		}
+		return counter;
+	}
+
+	private void makeList(Vector strs, int strNo, SuffixTree tree, double confidence, double support) {
+		SuffixTreeEnumerator e1, e2;
+		SuffixTree node1, node2;
+		int match;  // A -> B
+		boolean e2Flag;
+		e1 = new SuffixTreeEnumerator(tree);
+
+		for ( ; e1.hasMoreNodes(); ) {
+			e2 = new SuffixTreeEnumerator(tree);
+			node1 = e1.nextNode();
+			for ( ; node1.count < strNo * support; ) {
+				node1 = e1.cutNextNode();
+			}
+			e2Flag = true;
+			for ( ; e2.hasMoreNodes();  ) {
+				node2 = e2.nextNode();
+				if (!(e2Flag)) {
+					node2 = e2.cutNextNode();
+					e2Flag = true;
+				}
+				if (node2.count < strNo * support) {
+					for ( ; node2.count < strNo * support; ) {
+						node2 = e2.cutNextNode();
+					}
+				}
+				if (node1.representingString().equals(node2.representingString())) {
+					node2 = e2.nextNode();
+				}
+				match = compare(strs, node1.representingString(), node2.representingString());
+				if ((match < node1.count * confidence)||(match < strNo * support)) {
+					e2Flag = false;
+				} else {
+					if ((node1.representingString().length() != 0)&&(node2.representingString().length() != 0)) {
+						answer.addElement(new MiningInfo(node1.representingString(), node2.representingString(), match , node1.count, strNo));
+						System.out.println("(" + node1.representingString() +","+ node2.representingString() + ")" +"  "+ match +"/" + node1.count + "  " + match + "/" + strNo);
+					}
+				}
+			}
+		}
+	}
+
+	public String toString() {
+		String tmp = new String("answer:\n");
+		MiningInfo info;
+		
+		for (int i = 0; i < answer.size(); i++) {
+			info = (MiningInfo)answer.elementAt(i);
+			tmp = tmp + "(" + info.t1 +"  "+ info.t2 + ")" +"  "+ info.match +"/" + info.confidence + "  " + info.match + "/" + info.support + "\n";
+		}
+		return tmp;
+	}
+
+	public static void main(String[] args) {
+		String str;
+		double confidence, support;
+		Vector strings = new Vector();
+		BufferedReader reader = null;
+		//DataInputStream inStream = new DataInputStream(System.in);
+
+		if (args.length == 3) {
+			try {
+				reader = new BufferedReader(new FileReader(args[2]));
+			} catch(IOException e) {
+				System.out.println("Regarded Error: "+ e.toString());
+			}
+		}
+		if (reader == null) {
+			reader = new BufferedReader(new InputStreamReader(System.in));
+		}    
+		
+		confidence = (double)Integer.parseInt(args[0]) / 100;
+		support = (double)Integer.parseInt(args[1]) / 100;
+	
+		try {
+			System.out.println("Input condidence = " + args[0] + " %");
+			System.out.println("Input support = " + args[1] + " %"); 
+			System.out.println("Input Some String:");
+			for (;;) {
+				str = reader.readLine();
+				if (str == null) {
+					break;
+				}
+				strings.addElement(str);
+			}
+		} catch(IOException e) {
+			System.out.println("Regarded Error: \n"+ e.toString());
+		}
+		Mining m = new Mining(strings, confidence, support);
+		System.out.println("Completed.\n");
+	}
+}

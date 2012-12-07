@@ -1,0 +1,59 @@
+//Šeu‹`‚Ì’S“–ut‚Ìl”‚ÌãŒÀ‚ğã‰ñ‚é‚©‚Ç‚¤‚©H(penalties:1000)
+1;create temporary table t select a.task_id,count(*),b.required_processors_ub,count(*)-CAST(b.required_processors_ub AS SIGNED) as num from timetable a, task_properties b where a.task_id = b.task_id group by a.task_id,b.required_processors_lb having count(*)-CAST(b.required_processors_ub AS SIGNED) > 0;
+2;select sum(num)*1000 as penalties from t;
+1;drop table t;
+
+//Šeu‹`‚Ì’S“–ut‚Ìl”‚Ì‰ºŒÀ‚ğ‰º‰ñ‚é‚©‚Ç‚¤‚©H(penalties:1000)
+1;create temporary table t select a.task_id,count(*),b.required_processors_lb,CAST(b.required_processors_lb AS SIGNED)-count(*) as num from timetable a, task_properties b where a.task_id = b.task_id group by a.task_id,b.required_processors_ub having CAST(b.required_processors_lb AS SIGNED)-count(*) > 0;
+2;select sum(num)*1000 as penalties from t;
+1;drop table t;
+
+//Šeut‚É‚Â‚¢‚ÄAu‹`‚ğ’S“–‚·‚é‰ñ”‚ª‰ºŒÀ‚ğ‰º‰ñ‚é‚©‚Ç‚¤‚©H(penalties:DB)
+1;create temporary table t select a.processor_id,b.employment,count(*),b.total_periods_lb,(CAST(b.total_periods_lb AS SIGNED) - count(*)) as num from timetable a, processor_properties b where a.processor_id = b.processor_id group by a.processor_id,b.total_periods_lb having (CAST(b.total_periods_lb AS SIGNED) - count(*)) > 0;
+2;select sum(num*weight) as penalties from t,penalties p where (t.employment = 1 and p.name='R_WEEKUNDER')or (t.employment = 2 and p.name='N_WEEKUNDER');
+1;drop table t;
+
+//Šeut‚É‚Â‚¢‚ÄAu‹`‚ğ’S“–‚·‚é‰ñ”‚ªãŒÀ‚ğã‰ñ‚é‚©‚Ç‚¤‚©H(penalties:DB)
+1;create temporary table t select a.processor_id,b.employment,count(*),b.total_periods_ub,(count(*) - CAST(b.total_periods_ub AS SIGNED)) as num from timetable a, processor_properties b where a.processor_id = b.processor_id group by a.processor_id,b.total_periods_ub having count(*) - CAST(b.total_periods_ub AS SIGNED) > 0;
+2;select sum(num*weight) as penalties from t,penalties p where (t.employment = 1 and p.name='R_WEEKOVER')or (t.employment = 2 and p.name='N_WEEKOVER');
+1;drop table t;
+
+//”ñí‹Îut‘Sˆõ‚Ìu‹`’S“–‰ñ”‚Ì‡Œv‚ÆãŒÀ’l‚Æ‚Ì·(ãŒÀ’l:38)(penalties:1000)
+2;select (count(*)-38)*1000 as penalties from timetable a,processor_properties b where b.employment = 2 and a.processor_id = b.processor_id having count(*) > 38;
+
+//Šeut‚É‚Â‚¢‚ÄAu‹`‚ğ’S“–‚·‚é“ú”‚ªãŒÀ‚ğã‰ñ‚é‚©H(penalties:DB)
+1;create temporary table t select a.processor_id ,c.employment,c.total_days_ub , b.day_id , count(*) from timetable a , period_properties b , processor_properties c where a.period_id = b.period_id and a.processor_id = c.processor_id group by a.processor_id ,c.employment, c.total_days_ub , b.day_id;
+1;create temporary table a select processor_id,employment,total_days_ub,count(*) as days , count(*) - CAST(total_days_ub AS SIGNED) as over from t group by processor_id,total_days_ub having count(*) - CAST(total_days_ub AS SIGNED) > 0;
+2;select sum(over*weight) as penalties from a,penalties p where (a.employment = 1 and p.name='R_DAYSOVER')or (a.employment = 2 and p.name='N_DAYSOVER');
+1;drop table t;
+1;drop table a;
+
+//‰pŒê‚Ås‚¤Šeu‹`‚É‚Â‚¢‚ÄA’S“–ut‚Ì‚¤‚¿‰pŒê‚ğ—¬’¨‚É˜b‚¹‚È‚¢•¨‚Ìl”
+//“ú–{Œê‚Ås‚¤Šeu‹`‚É‚Â‚¢‚ÄA’S“–ut‚Ì‚¤‚¿“ú–{Œê‚ğ—¬’¨‚É˜b‚¹‚È‚¢•¨‚Ìl”(penalties:750)
+3;select @m:=count(*) from timetable;
+2;select (@m-count(*))*75 as penalties from timetable a , processor_qualification b , task_properties c where c.qualification_id = b.qualification_id and a.processor_id = b.processor_id and a.task_id = c.task_id;
+
+//ŠeutAŠe—j“ú‚É‚Â‚¢‚ÄA’S“–‚·‚éu‹`‚ÌŠÔ‚É‚ ‚é‚ ‚é‹ó‚«ŠÔ‚Ì”(penalties:DB)
+1;create table t as select a.task_id,a.period_id,a.processor_id,c.employment,b.day_id from timetable a,period_properties b ,processor_properties c where a.period_id = b.period_id and a.processor_id = c.processor_id;
+
+//‹ó‚«ŠÔ1‚Ì
+1;create temporary table c select a.processor_id,a.employment from t a , t b where a.processor_id = b.processor_id and a.period_id != b.period_id -1 and a.period_id = b.period_id -2 and a.day_id = b.day_id;
+2;select sum(weight) as penalties from c , penalties p where (c.employment = 1 and p.name='R_HOLE') or (c.employment = 2 and p.name='N_HOLE');
+1;drop table c;
+
+//‹ó‚«ŠÔ2‚Ì(‹ó‚«ŠÔ‚P‚Ì‚Q”{)
+1;create temporary table c select a.processor_id,a.employment from t a , t b where a.processor_id = b.processor_id and a.period_id != b.period_id -1 and a.period_id != b.period_id -2 and a.period_id = b.period_id -3 and a.day_id = b.day_id;
+2;select sum(weight*2) as penalties from c , penalties p where (c.employment = 1 and p.name='R_HOLE') or (c.employment = 2 and p.name='N_HOLE');
+1;drop table c;
+
+//‹ó‚«ŠÔ3‚Ì(‹ó‚«ŠÔ‚P‚Ì‚R”{)
+1;create temporary table c select a.processor_id,a.employment from t a , t b where a.processor_id = b.processor_id and a.period_id != b.period_id -1 and a.period_id != b.period_id -2 and a.period_id != b.period_id -3 and a.period_id = b.period_id -4 and a.day_id = b.day_id;
+2;select sum(weight*3) as penalties from c , penalties p where (c.employment = 1 and p.name='R_HOLE') or (c.employment = 2 and p.name='N_HOLE');
+1;drop table c;
+1;drop table t;
+
+//Šeut‚É‚Â‚¢‚ÄAu‹`‚ğ’S“–‚·‚éu‹`ŠÔ‚É‚¨‚¯‚é’S“–•s–“x
+1;create temporary table t select a.processor_id,sum(b.preferred_level_proc) as num from timetable a,processor_schedules b where a.period_id = b.period_id and a.processor_id = b.processor_id group by a.processor_id;
+2;select sum(num) as penalties from t;
+1;drop table t;
+
