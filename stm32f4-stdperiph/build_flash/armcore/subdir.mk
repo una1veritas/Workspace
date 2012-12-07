@@ -4,12 +4,12 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/delay.c \
-/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/gpio.c \
-/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/i2c.c \
-/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/spi.c \
-/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/systick.c \
-/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/usart.c 
+C:/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/delay.c \
+C:/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/gpio.c \
+C:/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/i2c.c \
+C:/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/spi.c \
+C:/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/systick.c \
+C:/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/usart.c 
 
 OBJS += \
 ./armcore/delay.o \
@@ -29,45 +29,45 @@ C_DEPS += \
 
 
 # Each subdirectory must supply rules for building sources it contributes
-armcore/delay.o: /Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/delay.c
+armcore/delay.o: C:/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/delay.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
-	arm-none-eabi-gcc -DUSE_STDPERIPH_DRIVER=1 -DHSE_VALUE=25000000 -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore" -I"/Users/sin/Documents/Eclipse/Workspace/stm32f4-stdperiph" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/STM32F4xx_StdPeriph_Driver/inc" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/CMSIS/Include" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/CMSIS/STM32F4xx" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/armlib" -Os -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=soft -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	arm-none-eabi-gcc -DUSE_STDPERIPH_DRIVER=1 -DHSE_VALUE=25000000 -I"C:\Users\sin\Documents\Eclipse\Workspace\stm32library\armcore" -I"C:\Users\Sin\Documents\Eclipse\Workspace\stm32f4-stdperiph" -Os -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=soft -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
-armcore/gpio.o: /Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/gpio.c
+armcore/gpio.o: C:/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/gpio.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
-	arm-none-eabi-gcc -DUSE_STDPERIPH_DRIVER=1 -DHSE_VALUE=25000000 -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore" -I"/Users/sin/Documents/Eclipse/Workspace/stm32f4-stdperiph" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/STM32F4xx_StdPeriph_Driver/inc" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/CMSIS/Include" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/CMSIS/STM32F4xx" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/armlib" -Os -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=soft -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	arm-none-eabi-gcc -DUSE_STDPERIPH_DRIVER=1 -DHSE_VALUE=25000000 -I"C:\Users\sin\Documents\Eclipse\Workspace\stm32library\armcore" -I"C:\Users\Sin\Documents\Eclipse\Workspace\stm32f4-stdperiph" -Os -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=soft -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
-armcore/i2c.o: /Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/i2c.c
+armcore/i2c.o: C:/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/i2c.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
-	arm-none-eabi-gcc -DUSE_STDPERIPH_DRIVER=1 -DHSE_VALUE=25000000 -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore" -I"/Users/sin/Documents/Eclipse/Workspace/stm32f4-stdperiph" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/STM32F4xx_StdPeriph_Driver/inc" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/CMSIS/Include" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/CMSIS/STM32F4xx" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/armlib" -Os -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=soft -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	arm-none-eabi-gcc -DUSE_STDPERIPH_DRIVER=1 -DHSE_VALUE=25000000 -I"C:\Users\sin\Documents\Eclipse\Workspace\stm32library\armcore" -I"C:\Users\Sin\Documents\Eclipse\Workspace\stm32f4-stdperiph" -Os -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=soft -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
-armcore/spi.o: /Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/spi.c
+armcore/spi.o: C:/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/spi.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
-	arm-none-eabi-gcc -DUSE_STDPERIPH_DRIVER=1 -DHSE_VALUE=25000000 -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore" -I"/Users/sin/Documents/Eclipse/Workspace/stm32f4-stdperiph" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/STM32F4xx_StdPeriph_Driver/inc" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/CMSIS/Include" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/CMSIS/STM32F4xx" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/armlib" -Os -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=soft -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	arm-none-eabi-gcc -DUSE_STDPERIPH_DRIVER=1 -DHSE_VALUE=25000000 -I"C:\Users\sin\Documents\Eclipse\Workspace\stm32library\armcore" -I"C:\Users\Sin\Documents\Eclipse\Workspace\stm32f4-stdperiph" -Os -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=soft -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
-armcore/systick.o: /Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/systick.c
+armcore/systick.o: C:/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/systick.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
-	arm-none-eabi-gcc -DUSE_STDPERIPH_DRIVER=1 -DHSE_VALUE=25000000 -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore" -I"/Users/sin/Documents/Eclipse/Workspace/stm32f4-stdperiph" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/STM32F4xx_StdPeriph_Driver/inc" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/CMSIS/Include" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/CMSIS/STM32F4xx" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/armlib" -Os -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=soft -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	arm-none-eabi-gcc -DUSE_STDPERIPH_DRIVER=1 -DHSE_VALUE=25000000 -I"C:\Users\sin\Documents\Eclipse\Workspace\stm32library\armcore" -I"C:\Users\Sin\Documents\Eclipse\Workspace\stm32f4-stdperiph" -Os -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=soft -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
-armcore/usart.o: /Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/usart.c
+armcore/usart.o: C:/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore/usart.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
-	arm-none-eabi-gcc -DUSE_STDPERIPH_DRIVER=1 -DHSE_VALUE=25000000 -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/armcore" -I"/Users/sin/Documents/Eclipse/Workspace/stm32f4-stdperiph" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/STM32F4xx_StdPeriph_Driver/inc" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/CMSIS/Include" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/CMSIS/STM32F4xx" -I"/Users/sin/Documents/Eclipse/Workspace/stm32library/armlib" -Os -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=soft -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	arm-none-eabi-gcc -DUSE_STDPERIPH_DRIVER=1 -DHSE_VALUE=25000000 -I"C:\Users\sin\Documents\Eclipse\Workspace\stm32library\armcore" -I"C:\Users\Sin\Documents\Eclipse\Workspace\stm32f4-stdperiph" -Os -mcpu=cortex-m4 -mthumb -mlittle-endian -mfloat-abi=soft -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

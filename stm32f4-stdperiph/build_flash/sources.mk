@@ -24,7 +24,6 @@ C_UPPER_DEPS :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 . \
-stdperiph_driver_src \
-armlib \
 armcore \
+STM32F4xx_StdPeriph_Driver \
 
