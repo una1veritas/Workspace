@@ -1,0 +1,462 @@
+   1               		.file	"serial.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  15               	.Ltext0:
+  16               	.global	sdRequestDataI
+  18               	sdRequestDataI:
+  19               	.LFB22:
+  20               	.LM1:
+  21               	.LVL0:
+  22 0000 0F93      		push r16
+  23 0002 1F93      		push r17
+  24 0004 CF93      		push r28
+  25 0006 DF93      		push r29
+  26               	/* prologue: function */
+  27               	/* frame size = 0 */
+  28 0008 8C01      		movw r16,r24
+  29               	.LM2:
+  30 000a 4796      		adiw r24,23
+  31               	.LVL1:
+  32 000c 0E94 0000 		call chOQGetI
+  33 0010 EC01      		movw r28,r24
+  34               	.LVL2:
+  35               	.LM3:
+  36 0012 97FD      		sbrc r25,7
+  37 0014 00C0      		rjmp .L5
+  38               	.LVL3:
+  39               	.LM4:
+  40 0016 CE01      		movw r24,r28
+  41               	.LVL4:
+  42               	/* epilogue start */
+  43 0018 DF91      		pop r29
+  44 001a CF91      		pop r28
+  45 001c 1F91      		pop r17
+  46 001e 0F91      		pop r16
+  47               	.LVL5:
+  48 0020 0895      		ret
+  49               	.LVL6:
+  50               	.L5:
+  51               	.LM5:
+  52 0022 C801      		movw r24,r16
+  53               	.LVL7:
+  54 0024 0296      		adiw r24,2
+  55 0026 68E0      		ldi r22,lo8(8)
+  56 0028 0E94 0000 		call chEvtBroadcastFlagsI
+  57               	.LM6:
+  58 002c CE01      		movw r24,r28
+  59               	.LVL8:
+  60 002e DF91      		pop r29
+  61 0030 CF91      		pop r28
+  62 0032 1F91      		pop r17
+  63 0034 0F91      		pop r16
+  64               	.LVL9:
+  65 0036 0895      		ret
+  66               	.LFE22:
+  68               	.global	sdIncomingDataI
+  70               	sdIncomingDataI:
+  71               	.LFB21:
+  72               	.LM7:
+  73               	.LVL10:
+  74 0038 1F93      		push r17
+  75 003a CF93      		push r28
+  76 003c DF93      		push r29
+  77               	/* prologue: function */
+  78               	/* frame size = 0 */
+  79 003e EC01      		movw r28,r24
+  80 0040 162F      		mov r17,r22
+  81               	.LM8:
+  82 0042 8985      		ldd r24,Y+9
+  83 0044 9A85      		ldd r25,Y+10
+  84               	.LVL11:
+  85 0046 892B      		or r24,r25
+  86 0048 01F0      		breq .L10
+  87               	.LVL12:
+  88               	.LM9:
+  89 004a CE01      		movw r24,r28
+  90 004c 0596      		adiw r24,5
+  91 004e 612F      		mov r22,r17
+  92 0050 0E94 0000 		call chIQPutI
+  93 0054 97FD      		sbrc r25,7
+  94 0056 00C0      		rjmp .L11
+  95               	.L9:
+  96               	/* epilogue start */
+  97               	.LM10:
+  98 0058 DF91      		pop r29
+  99 005a CF91      		pop r28
+ 100               	.LVL13:
+ 101 005c 1F91      		pop r17
+ 102               	.LVL14:
+ 103 005e 0895      		ret
+ 104               	.LVL15:
+ 105               	.L10:
+ 106               	.LM11:
+ 107 0060 CE01      		movw r24,r28
+ 108 0062 0296      		adiw r24,2
+ 109 0064 64E0      		ldi r22,lo8(4)
+ 110 0066 0E94 0000 		call chEvtBroadcastFlagsI
+ 111               	.LM12:
+ 112 006a CE01      		movw r24,r28
+ 113 006c 0596      		adiw r24,5
+ 114 006e 612F      		mov r22,r17
+ 115 0070 0E94 0000 		call chIQPutI
+ 116 0074 97FF      		sbrs r25,7
+ 117 0076 00C0      		rjmp .L9
+ 118               	.L11:
+ 119               	.LM13:
+ 120 0078 CE01      		movw r24,r28
+ 121 007a 0296      		adiw r24,2
+ 122 007c 60E8      		ldi r22,lo8(-128)
+ 123 007e 0E94 0000 		call chEvtBroadcastFlagsI
+ 124               	.LM14:
+ 125 0082 DF91      		pop r29
+ 126 0084 CF91      		pop r28
+ 127               	.LVL16:
+ 128 0086 1F91      		pop r17
+ 129               	.LVL17:
+ 130 0088 0895      		ret
+ 131               	.LFE21:
+ 133               	.global	sdStop
+ 135               	sdStop:
+ 136               	.LFB20:
+ 137               	.LM15:
+ 138               	.LVL18:
+ 139 008a 0F93      		push r16
+ 140 008c 1F93      		push r17
+ 141               	/* prologue: function */
+ 142               	/* frame size = 0 */
+ 143 008e 8C01      		movw r16,r24
+ 144               	.LM16:
+ 145               	/* #APP */
+ 146               	 ;  178 "os/hal/src/serial.c" 1
+ 147 0090 F894      		cli
+ 148               	 ;  0 "" 2
+ 149               	.LM17:
+ 150               	/* #NOAPP */
+ 151 0092 0E94 0000 		call sd_lld_stop
+ 152               	.LVL19:
+ 153               	.LM18:
+ 154 0096 81E0      		ldi r24,lo8(1)
+ 155 0098 F801      		movw r30,r16
+ 156 009a 8483      		std Z+4,r24
+ 157               	.LM19:
+ 158 009c C801      		movw r24,r16
+ 159 009e 4796      		adiw r24,23
+ 160 00a0 0E94 0000 		call chOQResetI
+ 161               	.LM20:
+ 162 00a4 C801      		movw r24,r16
+ 163 00a6 0596      		adiw r24,5
+ 164 00a8 0E94 0000 		call chIQResetI
+ 165               	.LM21:
+ 166 00ac 0E94 0000 		call chSchRescheduleS
+ 167               	.LM22:
+ 168               	/* #APP */
+ 169               	 ;  187 "os/hal/src/serial.c" 1
+ 170 00b0 7894      		sei
+ 171               	 ;  0 "" 2
+ 172               	/* epilogue start */
+ 173               	.LM23:
+ 174               	/* #NOAPP */
+ 175 00b2 1F91      		pop r17
+ 176 00b4 0F91      		pop r16
+ 177               	.LVL20:
+ 178 00b6 0895      		ret
+ 179               	.LFE20:
+ 181               	.global	sdStart
+ 183               	sdStart:
+ 184               	.LFB19:
+ 185               	.LM24:
+ 186               	.LVL21:
+ 187 00b8 0F93      		push r16
+ 188 00ba 1F93      		push r17
+ 189               	/* prologue: function */
+ 190               	/* frame size = 0 */
+ 191 00bc 8C01      		movw r16,r24
+ 192               	.LM25:
+ 193               	/* #APP */
+ 194               	 ;  156 "os/hal/src/serial.c" 1
+ 195 00be F894      		cli
+ 196               	 ;  0 "" 2
+ 197               	.LM26:
+ 198               	/* #NOAPP */
+ 199 00c0 0E94 0000 		call sd_lld_start
+ 200               	.LVL22:
+ 201               	.LM27:
+ 202 00c4 82E0      		ldi r24,lo8(2)
+ 203 00c6 F801      		movw r30,r16
+ 204 00c8 8483      		std Z+4,r24
+ 205               	.LM28:
+ 206               	/* #APP */
+ 207               	 ;  162 "os/hal/src/serial.c" 1
+ 208 00ca 7894      		sei
+ 209               	 ;  0 "" 2
+ 210               	/* epilogue start */
+ 211               	.LM29:
+ 212               	/* #NOAPP */
+ 213 00cc 1F91      		pop r17
+ 214 00ce 0F91      		pop r16
+ 215               	.LVL23:
+ 216 00d0 0895      		ret
+ 217               	.LFE19:
+ 219               	.global	sdObjectInit
+ 221               	sdObjectInit:
+ 222               	.LFB18:
+ 223               	.LM30:
+ 224               	.LVL24:
+ 225 00d2 CF92      		push r12
+ 226 00d4 DF92      		push r13
+ 227 00d6 EF92      		push r14
+ 228 00d8 FF92      		push r15
+ 229 00da 0F93      		push r16
+ 230 00dc 1F93      		push r17
+ 231               	/* prologue: function */
+ 232               	/* frame size = 0 */
+ 233 00de 7C01      		movw r14,r24
+ 234 00e0 9B01      		movw r18,r22
+ 235 00e2 6A01      		movw r12,r20
+ 236               	.LM31:
+ 237 00e4 FC01      		movw r30,r24
+ 238 00e6 80E0      		ldi r24,lo8(vmt)
+ 239 00e8 90E0      		ldi r25,hi8(vmt)
+ 240               	.LVL25:
+ 241 00ea 8193      		st Z+,r24
+ 242 00ec 9193      		st Z+,r25
+ 243               	.LM32:
+ 244 00ee D701      		movw r26,r14
+ 245 00f0 1396      		adiw r26,2+1
+ 246 00f2 FC93      		st X,r31
+ 247 00f4 EE93      		st -X,r30
+ 248 00f6 1297      		sbiw r26,2
+ 249               	.LM33:
+ 250 00f8 81E0      		ldi r24,lo8(1)
+ 251 00fa 1496      		adiw r26,4
+ 252 00fc 8C93      		st X,r24
+ 253               	.LM34:
+ 254 00fe B701      		movw r22,r14
+ 255               	.LVL26:
+ 256 0100 675D      		subi r22,lo8(-(41))
+ 257 0102 7F4F      		sbci r23,hi8(-(41))
+ 258 0104 C701      		movw r24,r14
+ 259 0106 0596      		adiw r24,5
+ 260 0108 40E1      		ldi r20,lo8(16)
+ 261 010a 50E0      		ldi r21,hi8(16)
+ 262               	.LVL27:
+ 263 010c 8701      		movw r16,r14
+ 264 010e 0E94 0000 		call chIQInit
+ 265               	.LVL28:
+ 266               	.LM35:
+ 267 0112 B701      		movw r22,r14
+ 268 0114 675C      		subi r22,lo8(-(57))
+ 269 0116 7F4F      		sbci r23,hi8(-(57))
+ 270 0118 C701      		movw r24,r14
+ 271 011a 4796      		adiw r24,23
+ 272 011c 40E1      		ldi r20,lo8(16)
+ 273 011e 50E0      		ldi r21,hi8(16)
+ 274 0120 9601      		movw r18,r12
+ 275 0122 0E94 0000 		call chOQInit
+ 276               	/* epilogue start */
+ 277               	.LM36:
+ 278 0126 1F91      		pop r17
+ 279 0128 0F91      		pop r16
+ 280 012a FF90      		pop r15
+ 281 012c EF90      		pop r14
+ 282               	.LVL29:
+ 283 012e DF90      		pop r13
+ 284 0130 CF90      		pop r12
+ 285               	.LVL30:
+ 286 0132 0895      		ret
+ 287               	.LFE18:
+ 290               	readt:
+ 291               	.LFB16:
+ 292               	.LM37:
+ 293               	.LVL31:
+ 294               	/* prologue: function */
+ 295               	/* frame size = 0 */
+ 296               	.LM38:
+ 297 0134 0596      		adiw r24,5
+ 298               	.LVL32:
+ 299 0136 0E94 0000 		call chIQReadTimeout
+ 300               	.LVL33:
+ 301               	/* epilogue start */
+ 302               	.LM39:
+ 303 013a 0895      		ret
+ 304               	.LFE16:
+ 307               	read:
+ 308               	.LFB10:
+ 309               	.LM40:
+ 310               	.LVL34:
+ 311               	/* prologue: function */
+ 312               	/* frame size = 0 */
+ 313               	.LM41:
+ 314 013c 0596      		adiw r24,5
+ 315               	.LVL35:
+ 316 013e 2FEF      		ldi r18,lo8(-1)
+ 317 0140 3FEF      		ldi r19,hi8(-1)
+ 318 0142 0E94 0000 		call chIQReadTimeout
+ 319               	.LVL36:
+ 320               	/* epilogue start */
+ 321               	.LM42:
+ 322 0146 0895      		ret
+ 323               	.LFE10:
+ 326               	writet:
+ 327               	.LFB15:
+ 328               	.LM43:
+ 329               	.LVL37:
+ 330               	/* prologue: function */
+ 331               	/* frame size = 0 */
+ 332               	.LM44:
+ 333 0148 4796      		adiw r24,23
+ 334               	.LVL38:
+ 335 014a 0E94 0000 		call chOQWriteTimeout
+ 336               	.LVL39:
+ 337               	/* epilogue start */
+ 338               	.LM45:
+ 339 014e 0895      		ret
+ 340               	.LFE15:
+ 343               	write:
+ 344               	.LFB9:
+ 345               	.LM46:
+ 346               	.LVL40:
+ 347               	/* prologue: function */
+ 348               	/* frame size = 0 */
+ 349               	.LM47:
+ 350 0150 4796      		adiw r24,23
+ 351               	.LVL41:
+ 352 0152 2FEF      		ldi r18,lo8(-1)
+ 353 0154 3FEF      		ldi r19,hi8(-1)
+ 354 0156 0E94 0000 		call chOQWriteTimeout
+ 355               	.LVL42:
+ 356               	/* epilogue start */
+ 357               	.LM48:
+ 358 015a 0895      		ret
+ 359               	.LFE9:
+ 362               	gett:
+ 363               	.LFB14:
+ 364               	.LM49:
+ 365               	.LVL43:
+ 366               	/* prologue: function */
+ 367               	/* frame size = 0 */
+ 368               	.LM50:
+ 369 015c 0596      		adiw r24,5
+ 370               	.LVL44:
+ 371 015e 0E94 0000 		call chIQGetTimeout
+ 372               	.LVL45:
+ 373               	/* epilogue start */
+ 374               	.LM51:
+ 375 0162 0895      		ret
+ 376               	.LFE14:
+ 379               	get:
+ 380               	.LFB12:
+ 381               	.LM52:
+ 382               	.LVL46:
+ 383               	/* prologue: function */
+ 384               	/* frame size = 0 */
+ 385               	.LM53:
+ 386 0164 0596      		adiw r24,5
+ 387               	.LVL47:
+ 388 0166 6FEF      		ldi r22,lo8(-1)
+ 389 0168 7FEF      		ldi r23,hi8(-1)
+ 390 016a 0E94 0000 		call chIQGetTimeout
+ 391               	/* epilogue start */
+ 392               	.LM54:
+ 393 016e 0895      		ret
+ 394               	.LFE12:
+ 397               	putt:
+ 398               	.LFB13:
+ 399               	.LM55:
+ 400               	.LVL48:
+ 401               	/* prologue: function */
+ 402               	/* frame size = 0 */
+ 403               	.LM56:
+ 404 0170 4796      		adiw r24,23
+ 405               	.LVL49:
+ 406 0172 0E94 0000 		call chOQPutTimeout
+ 407               	.LVL50:
+ 408               	/* epilogue start */
+ 409               	.LM57:
+ 410 0176 0895      		ret
+ 411               	.LFE13:
+ 414               	put:
+ 415               	.LFB11:
+ 416               	.LM58:
+ 417               	.LVL51:
+ 418               	/* prologue: function */
+ 419               	/* frame size = 0 */
+ 420               	.LM59:
+ 421 0178 4796      		adiw r24,23
+ 422               	.LVL52:
+ 423 017a 4FEF      		ldi r20,lo8(-1)
+ 424 017c 5FEF      		ldi r21,hi8(-1)
+ 425 017e 0E94 0000 		call chOQPutTimeout
+ 426               	.LVL53:
+ 427               	/* epilogue start */
+ 428               	.LM60:
+ 429 0182 0895      		ret
+ 430               	.LFE11:
+ 432               	.global	sdInit
+ 434               	sdInit:
+ 435               	.LFB17:
+ 436               	.LM61:
+ 437               	/* prologue: function */
+ 438               	/* frame size = 0 */
+ 439               	.LM62:
+ 440 0184 0E94 0000 		call sd_lld_init
+ 441               	/* epilogue start */
+ 442               	.LM63:
+ 443 0188 0895      		ret
+ 444               	.LFE17:
+ 446               		.data
+ 449               	vmt:
+ 450 0000 0000      		.word	gs(write)
+ 451 0002 0000      		.word	gs(read)
+ 452 0004 0000      		.word	gs(put)
+ 453 0006 0000      		.word	gs(get)
+ 454 0008 0000      		.word	gs(putt)
+ 455 000a 0000      		.word	gs(gett)
+ 456 000c 0000      		.word	gs(writet)
+ 457 000e 0000      		.word	gs(readt)
+ 586               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 serial.c
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:2      *ABS*:0000003f __SREG__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:3      *ABS*:0000003e __SP_H__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:4      *ABS*:0000003d __SP_L__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:5      *ABS*:00000034 __CCP__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:6      *ABS*:00000000 __tmp_reg__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:7      *ABS*:00000001 __zero_reg__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:18     .text:00000000 sdRequestDataI
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:70     .text:00000038 sdIncomingDataI
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:135    .text:0000008a sdStop
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:183    .text:000000b8 sdStart
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:221    .text:000000d2 sdObjectInit
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:449    .data:00000000 vmt
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:290    .text:00000134 readt
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:307    .text:0000013c read
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:326    .text:00000148 writet
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:343    .text:00000150 write
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:362    .text:0000015c gett
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:379    .text:00000164 get
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:397    .text:00000170 putt
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:414    .text:00000178 put
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccmhzwAf.s:434    .text:00000184 sdInit
+
+UNDEFINED SYMBOLS
+chOQGetI
+chEvtBroadcastFlagsI
+chIQPutI
+sd_lld_stop
+chOQResetI
+chIQResetI
+chSchRescheduleS
+sd_lld_start
+chIQInit
+chOQInit
+chIQReadTimeout
+chOQWriteTimeout
+chIQGetTimeout
+chOQPutTimeout
+sd_lld_init
+__do_copy_data

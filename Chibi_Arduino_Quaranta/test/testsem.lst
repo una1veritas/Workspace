@@ -1,0 +1,1033 @@
+   1               		.file	"testsem.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  15               	.Ltext0:
+  17               	sem3_setup:
+  18               	.LFB15:
+  19               	.LM1:
+  20               	/* prologue: function */
+  21               	/* frame size = 0 */
+  22               	.LM2:
+  23 0000 80E0      		ldi r24,lo8(sem1)
+  24 0002 90E0      		ldi r25,hi8(sem1)
+  25 0004 60E0      		ldi r22,lo8(0)
+  26 0006 0E94 0000 		call chSemInit
+  27               	/* epilogue start */
+  28               	.LM3:
+  29 000a 0895      		ret
+  30               	.LFE15:
+  33               	sem2_setup:
+  34               	.LFB12:
+  35               	.LM4:
+  36               	/* prologue: function */
+  37               	/* frame size = 0 */
+  38               	.LM5:
+  39 000c 80E0      		ldi r24,lo8(sem1)
+  40 000e 90E0      		ldi r25,hi8(sem1)
+  41 0010 60E0      		ldi r22,lo8(0)
+  42 0012 0E94 0000 		call chSemInit
+  43               	/* epilogue start */
+  44               	.LM6:
+  45 0016 0895      		ret
+  46               	.LFE12:
+  49               	sem1_setup:
+  50               	.LFB9:
+  51               	.LM7:
+  52               	/* prologue: function */
+  53               	/* frame size = 0 */
+  54               	.LM8:
+  55 0018 80E0      		ldi r24,lo8(sem1)
+  56 001a 90E0      		ldi r25,hi8(sem1)
+  57 001c 60E0      		ldi r22,lo8(0)
+  58 001e 0E94 0000 		call chSemInit
+  59               	/* epilogue start */
+  60               	.LM9:
+  61 0022 0895      		ret
+  62               	.LFE9:
+  65               	sem4_execute:
+  66               	.LFB19:
+  67               	.LM10:
+  68 0024 EF92      		push r14
+  69 0026 FF92      		push r15
+  70 0028 0F93      		push r16
+  71 002a 1F93      		push r17
+  72 002c DF93      		push r29
+  73 002e CF93      		push r28
+  74 0030 00D0      		rcall .
+  75 0032 00D0      		rcall .
+  76 0034 0F92      		push __tmp_reg__
+  77 0036 CDB7      		in r28,__SP_L__
+  78 0038 DEB7      		in r29,__SP_H__
+  79               	/* prologue: function */
+  80               	/* frame size = 5 */
+  81               	.LM11:
+  82 003a 7E01      		movw r14,r28
+  83 003c 0894      		sec
+  84 003e E11C      		adc r14,__zero_reg__
+  85 0040 F11C      		adc r15,__zero_reg__
+  86 0042 C701      		movw r24,r14
+  87 0044 60E0      		ldi r22,lo8(0)
+  88 0046 0E94 0000 		call chSemInit
+  89               	.LM12:
+  90 004a C701      		movw r24,r14
+  91 004c 60E0      		ldi r22,lo8(0)
+  92 004e 0E94 0000 		call chSemReset
+  93               	.LM13:
+  94 0052 60E0      		ldi r22,lo8(0)
+  95 0054 8D81      		ldd r24,Y+5
+  96 0056 1816      		cp __zero_reg__,r24
+  97 0058 04F0      		brlt .+2
+  98 005a 00C0      		rjmp .L19
+  99               	.L8:
+ 100 005c 81E0      		ldi r24,lo8(1)
+ 101 005e 90E0      		ldi r25,hi8(1)
+ 102 0060 0E94 0000 		call _test_assert
+ 103 0064 8823      		tst r24
+ 104 0066 01F0      		breq .L20
+ 105               	.L17:
+ 106               	/* epilogue start */
+ 107               	.LM14:
+ 108 0068 0F90      		pop __tmp_reg__
+ 109 006a 0F90      		pop __tmp_reg__
+ 110 006c 0F90      		pop __tmp_reg__
+ 111 006e 0F90      		pop __tmp_reg__
+ 112 0070 0F90      		pop __tmp_reg__
+ 113 0072 CF91      		pop r28
+ 114 0074 DF91      		pop r29
+ 115 0076 1F91      		pop r17
+ 116 0078 0F91      		pop r16
+ 117 007a FF90      		pop r15
+ 118 007c EF90      		pop r14
+ 119 007e 0895      		ret
+ 120               	.L20:
+ 121               	.LM15:
+ 122 0080 E091 0000 		lds r30,rlist+11
+ 123 0084 F091 0000 		lds r31,(rlist+11)+1
+ 124 0088 4481      		ldd r20,Z+4
+ 125 008a 4150      		subi r20,lo8(-(-1))
+ 126 008c 8091 0000 		lds r24,wa
+ 127 0090 9091 0000 		lds r25,(wa)+1
+ 128 0094 65E9      		ldi r22,lo8(149)
+ 129 0096 70E0      		ldi r23,hi8(149)
+ 130 0098 20E0      		ldi r18,lo8(gs(thread4))
+ 131 009a 30E0      		ldi r19,hi8(gs(thread4))
+ 132 009c 8701      		movw r16,r14
+ 133 009e 0E94 0000 		call chThdCreateStatic
+ 134 00a2 9093 0000 		sts (threads)+1,r25
+ 135 00a6 8093 0000 		sts threads,r24
+ 136               	.LM16:
+ 137 00aa C701      		movw r24,r14
+ 138 00ac 0E94 0000 		call chSemWait
+ 139               	.LM17:
+ 140 00b0 60E0      		ldi r22,lo8(0)
+ 141 00b2 8D81      		ldd r24,Y+5
+ 142 00b4 1816      		cp __zero_reg__,r24
+ 143 00b6 04F0      		brlt .+2
+ 144 00b8 00C0      		rjmp .L21
+ 145               	.L10:
+ 146 00ba 82E0      		ldi r24,lo8(2)
+ 147 00bc 90E0      		ldi r25,hi8(2)
+ 148 00be 0E94 0000 		call _test_assert
+ 149 00c2 8823      		tst r24
+ 150 00c4 01F4      		brne .L17
+ 151               	.LM18:
+ 152               	/* #APP */
+ 153               	 ;  275 "test/testsem.c" 1
+ 154 00c6 F894      		cli
+ 155               	 ;  0 "" 2
+ 156               	/* #NOAPP */
+ 157 00c8 8D81      		ldd r24,Y+5
+ 158 00ca 1816      		cp __zero_reg__,r24
+ 159 00cc 04F0      		brlt .+2
+ 160 00ce 00C0      		rjmp .L22
+ 161               	.L11:
+ 162 00d0 0E94 0000 		call chSchRescheduleS
+ 163               	/* #APP */
+ 164               	 ;  275 "test/testsem.c" 1
+ 165 00d4 7894      		sei
+ 166               	 ;  0 "" 2
+ 167               	.LM19:
+ 168               	/* #NOAPP */
+ 169 00d6 60E0      		ldi r22,lo8(0)
+ 170 00d8 8D81      		ldd r24,Y+5
+ 171 00da 1816      		cp __zero_reg__,r24
+ 172 00dc 04F4      		brge .L12
+ 173 00de 61E0      		ldi r22,lo8(1)
+ 174               	.L12:
+ 175 00e0 83E0      		ldi r24,lo8(3)
+ 176 00e2 90E0      		ldi r25,hi8(3)
+ 177 00e4 0E94 0000 		call _test_assert
+ 178 00e8 8823      		tst r24
+ 179 00ea 01F0      		breq .+2
+ 180 00ec 00C0      		rjmp .L17
+ 181               	.LM20:
+ 182 00ee 60E0      		ldi r22,lo8(0)
+ 183 00f0 8D81      		ldd r24,Y+5
+ 184 00f2 8130      		cpi r24,lo8(1)
+ 185 00f4 01F0      		breq .L23
+ 186               	.L13:
+ 187 00f6 84E0      		ldi r24,lo8(4)
+ 188 00f8 90E0      		ldi r25,hi8(4)
+ 189 00fa 0E94 0000 		call _test_assert
+ 190 00fe 8823      		tst r24
+ 191 0100 01F0      		breq .+2
+ 192 0102 00C0      		rjmp .L17
+ 193               	.LM21:
+ 194               	/* #APP */
+ 195               	 ;  280 "test/testsem.c" 1
+ 196 0104 F894      		cli
+ 197               	 ;  0 "" 2
+ 198               	/* #NOAPP */
+ 199 0106 8D81      		ldd r24,Y+5
+ 200 0108 1816      		cp __zero_reg__,r24
+ 201 010a 04F4      		brge .L24
+ 202               	.L14:
+ 203 010c 0E94 0000 		call chSchRescheduleS
+ 204               	/* #APP */
+ 205               	 ;  280 "test/testsem.c" 1
+ 206 0110 7894      		sei
+ 207               	 ;  0 "" 2
+ 208               	.LM22:
+ 209               	/* #NOAPP */
+ 210 0112 60E0      		ldi r22,lo8(0)
+ 211 0114 8D81      		ldd r24,Y+5
+ 212 0116 1816      		cp __zero_reg__,r24
+ 213 0118 04F4      		brge .L15
+ 214 011a 61E0      		ldi r22,lo8(1)
+ 215               	.L15:
+ 216 011c 83E0      		ldi r24,lo8(3)
+ 217 011e 90E0      		ldi r25,hi8(3)
+ 218 0120 0E94 0000 		call _test_assert
+ 219 0124 8823      		tst r24
+ 220 0126 01F0      		breq .+2
+ 221 0128 00C0      		rjmp .L17
+ 222               	.LM23:
+ 223 012a 60E0      		ldi r22,lo8(0)
+ 224 012c 8D81      		ldd r24,Y+5
+ 225 012e 8130      		cpi r24,lo8(1)
+ 226 0130 01F0      		breq .L25
+ 227               	.L16:
+ 228 0132 85E0      		ldi r24,lo8(5)
+ 229 0134 90E0      		ldi r25,hi8(5)
+ 230 0136 0E94 0000 		call _test_assert
+ 231 013a 00C0      		rjmp .L17
+ 232               	.L19:
+ 233               	.LM24:
+ 234 013c 61E0      		ldi r22,lo8(1)
+ 235 013e 00C0      		rjmp .L8
+ 236               	.L21:
+ 237               	.LM25:
+ 238 0140 61E0      		ldi r22,lo8(1)
+ 239 0142 00C0      		rjmp .L10
+ 240               	.L23:
+ 241               	.LM26:
+ 242 0144 61E0      		ldi r22,lo8(1)
+ 243 0146 00C0      		rjmp .L13
+ 244               	.L22:
+ 245               	.LM27:
+ 246 0148 C701      		movw r24,r14
+ 247 014a 0E94 0000 		call chSemSignalI
+ 248 014e 00C0      		rjmp .L11
+ 249               	.L24:
+ 250               	.LM28:
+ 251 0150 C701      		movw r24,r14
+ 252 0152 0E94 0000 		call chSemSignalI
+ 253 0156 00C0      		rjmp .L14
+ 254               	.L25:
+ 255               	.LM29:
+ 256 0158 61E0      		ldi r22,lo8(1)
+ 257 015a 00C0      		rjmp .L16
+ 258               	.LFE19:
+ 261               	thread4:
+ 262               	.LFB18:
+ 263               	.LM30:
+ 264               	.LVL0:
+ 265               	/* prologue: function */
+ 266               	/* frame size = 0 */
+ 267               	.LM31:
+ 268               	/* #APP */
+ 269               	 ;  251 "test/testsem.c" 1
+ 270 015c F894      		cli
+ 271               	 ;  0 "" 2
+ 272               	/* #NOAPP */
+ 273 015e FC01      		movw r30,r24
+ 274               	.LVL1:
+ 275 0160 8481      		ldd r24,Z+4
+ 276 0162 1816      		cp __zero_reg__,r24
+ 277 0164 04F4      		brge .L29
+ 278 0166 0E94 0000 		call chSchRescheduleS
+ 279               	/* #APP */
+ 280               	 ;  251 "test/testsem.c" 1
+ 281 016a 7894      		sei
+ 282               	 ;  0 "" 2
+ 283               	.LM32:
+ 284               	/* #NOAPP */
+ 285 016c 80E0      		ldi r24,lo8(0)
+ 286 016e 90E0      		ldi r25,hi8(0)
+ 287               	/* epilogue start */
+ 288 0170 0895      		ret
+ 289               	.L29:
+ 290               	.LM33:
+ 291 0172 CF01      		movw r24,r30
+ 292 0174 0E94 0000 		call chSemSignalI
+ 293 0178 0E94 0000 		call chSchRescheduleS
+ 294               	/* #APP */
+ 295               	 ;  251 "test/testsem.c" 1
+ 296 017c 7894      		sei
+ 297               	 ;  0 "" 2
+ 298               	.LM34:
+ 299               	/* #NOAPP */
+ 300 017e 80E0      		ldi r24,lo8(0)
+ 301 0180 90E0      		ldi r25,hi8(0)
+ 302 0182 0895      		ret
+ 303               	.LFE18:
+ 306               	sem3_execute:
+ 307               	.LFB17:
+ 308               	.LM35:
+ 309 0184 0F93      		push r16
+ 310 0186 1F93      		push r17
+ 311               	/* prologue: function */
+ 312               	/* frame size = 0 */
+ 313               	.LM36:
+ 314 0188 E091 0000 		lds r30,rlist+11
+ 315 018c F091 0000 		lds r31,(rlist+11)+1
+ 316 0190 4481      		ldd r20,Z+4
+ 317 0192 4F5F      		subi r20,lo8(-(1))
+ 318 0194 8091 0000 		lds r24,wa
+ 319 0198 9091 0000 		lds r25,(wa)+1
+ 320 019c 65E9      		ldi r22,lo8(149)
+ 321 019e 70E0      		ldi r23,hi8(149)
+ 322 01a0 20E0      		ldi r18,lo8(gs(thread3))
+ 323 01a2 30E0      		ldi r19,hi8(gs(thread3))
+ 324 01a4 00E0      		ldi r16,lo8(0)
+ 325 01a6 10E0      		ldi r17,hi8(0)
+ 326 01a8 0E94 0000 		call chThdCreateStatic
+ 327 01ac 9093 0000 		sts (threads)+1,r25
+ 328 01b0 8093 0000 		sts threads,r24
+ 329               	.LM37:
+ 330 01b4 80E0      		ldi r24,lo8(sem1)
+ 331 01b6 90E0      		ldi r25,hi8(sem1)
+ 332 01b8 BC01      		movw r22,r24
+ 333 01ba 0E94 0000 		call chSemSignalWait
+ 334               	.LM38:
+ 335 01be 60E0      		ldi r22,lo8(0)
+ 336 01c0 8091 0000 		lds r24,sem1
+ 337 01c4 9091 0000 		lds r25,(sem1)+1
+ 338 01c8 8050      		subi r24,lo8(sem1)
+ 339 01ca 9040      		sbci r25,hi8(sem1)
+ 340 01cc 01F0      		breq .L37
+ 341               	.L31:
+ 342 01ce 81E0      		ldi r24,lo8(1)
+ 343 01d0 90E0      		ldi r25,hi8(1)
+ 344 01d2 0E94 0000 		call _test_assert
+ 345 01d6 8823      		tst r24
+ 346 01d8 01F0      		breq .L38
+ 347               	.L36:
+ 348               	/* epilogue start */
+ 349               	.LM39:
+ 350 01da 1F91      		pop r17
+ 351 01dc 0F91      		pop r16
+ 352 01de 0895      		ret
+ 353               	.L38:
+ 354               	.LM40:
+ 355 01e0 60E0      		ldi r22,lo8(0)
+ 356 01e2 8091 0000 		lds r24,sem1+4
+ 357 01e6 8823      		tst r24
+ 358 01e8 01F0      		breq .L39
+ 359 01ea 82E0      		ldi r24,lo8(2)
+ 360 01ec 90E0      		ldi r25,hi8(2)
+ 361 01ee 0E94 0000 		call _test_assert
+ 362 01f2 8823      		tst r24
+ 363 01f4 01F4      		brne .L36
+ 364               	.L41:
+ 365               	.LM41:
+ 366 01f6 80E0      		ldi r24,lo8(sem1)
+ 367 01f8 90E0      		ldi r25,hi8(sem1)
+ 368 01fa BC01      		movw r22,r24
+ 369 01fc 0E94 0000 		call chSemSignalWait
+ 370               	.LM42:
+ 371 0200 60E0      		ldi r22,lo8(0)
+ 372 0202 2091 0000 		lds r18,sem1
+ 373 0206 3091 0000 		lds r19,(sem1)+1
+ 374 020a 80E0      		ldi r24,lo8(sem1)
+ 375 020c 90E0      		ldi r25,hi8(sem1)
+ 376 020e 8217      		cp r24,r18
+ 377 0210 9307      		cpc r25,r19
+ 378 0212 01F0      		breq .L40
+ 379               	.L34:
+ 380 0214 83E0      		ldi r24,lo8(3)
+ 381 0216 90E0      		ldi r25,hi8(3)
+ 382 0218 0E94 0000 		call _test_assert
+ 383 021c 8823      		tst r24
+ 384 021e 01F4      		brne .L36
+ 385               	.LM43:
+ 386 0220 60E0      		ldi r22,lo8(0)
+ 387 0222 8091 0000 		lds r24,sem1+4
+ 388 0226 8823      		tst r24
+ 389 0228 01F4      		brne .L35
+ 390 022a 61E0      		ldi r22,lo8(1)
+ 391               	.L35:
+ 392 022c 84E0      		ldi r24,lo8(4)
+ 393 022e 90E0      		ldi r25,hi8(4)
+ 394 0230 0E94 0000 		call _test_assert
+ 395 0234 00C0      		rjmp .L36
+ 396               	.L39:
+ 397               	.LM44:
+ 398 0236 61E0      		ldi r22,lo8(1)
+ 399 0238 82E0      		ldi r24,lo8(2)
+ 400 023a 90E0      		ldi r25,hi8(2)
+ 401 023c 0E94 0000 		call _test_assert
+ 402 0240 8823      		tst r24
+ 403 0242 01F4      		brne .L36
+ 404 0244 00C0      		rjmp .L41
+ 405               	.L37:
+ 406               	.LM45:
+ 407 0246 61E0      		ldi r22,lo8(1)
+ 408 0248 00C0      		rjmp .L31
+ 409               	.L40:
+ 410               	.LM46:
+ 411 024a 61E0      		ldi r22,lo8(1)
+ 412 024c 00C0      		rjmp .L34
+ 413               	.LFE17:
+ 416               	thread3:
+ 417               	.LFB16:
+ 418               	.LM47:
+ 419               	.LVL2:
+ 420 024e 0F93      		push r16
+ 421 0250 1F93      		push r17
+ 422               	/* prologue: function */
+ 423               	/* frame size = 0 */
+ 424               	.LM48:
+ 425 0252 00E0      		ldi r16,lo8(sem1)
+ 426 0254 10E0      		ldi r17,hi8(sem1)
+ 427 0256 C801      		movw r24,r16
+ 428               	.LVL3:
+ 429 0258 0E94 0000 		call chSemWait
+ 430               	.LM49:
+ 431 025c C801      		movw r24,r16
+ 432 025e 0E94 0000 		call chSemSignal
+ 433               	.LM50:
+ 434 0262 80E0      		ldi r24,lo8(0)
+ 435 0264 90E0      		ldi r25,hi8(0)
+ 436               	/* epilogue start */
+ 437 0266 1F91      		pop r17
+ 438 0268 0F91      		pop r16
+ 439 026a 0895      		ret
+ 440               	.LFE16:
+ 443               	thread1:
+ 444               	.LFB10:
+ 445               	.LM51:
+ 446               	.LVL4:
+ 447 026c 0F93      		push r16
+ 448 026e 1F93      		push r17
+ 449               	/* prologue: function */
+ 450               	/* frame size = 0 */
+ 451 0270 8C01      		movw r16,r24
+ 452               	.LM52:
+ 453 0272 80E0      		ldi r24,lo8(sem1)
+ 454 0274 90E0      		ldi r25,hi8(sem1)
+ 455               	.LVL5:
+ 456 0276 0E94 0000 		call chSemWait
+ 457               	.LM53:
+ 458 027a F801      		movw r30,r16
+ 459 027c 8081      		ld r24,Z
+ 460 027e 0E94 0000 		call test_emit_token
+ 461               	.LM54:
+ 462 0282 80E0      		ldi r24,lo8(0)
+ 463 0284 90E0      		ldi r25,hi8(0)
+ 464               	/* epilogue start */
+ 465 0286 1F91      		pop r17
+ 466 0288 0F91      		pop r16
+ 467               	.LVL6:
+ 468 028a 0895      		ret
+ 469               	.LFE10:
+ 471               		.data
+ 472               	.LC0:
+ 473 0000 4142 4344 		.string	"ABCDE"
+ 473      4500 
+ 474               		.text
+ 476               	sem2_execute:
+ 477               	.LFB14:
+ 478               	.LM55:
+ 479 028c EF92      		push r14
+ 480 028e FF92      		push r15
+ 481 0290 0F93      		push r16
+ 482 0292 1F93      		push r17
+ 483 0294 CF93      		push r28
+ 484 0296 DF93      		push r29
+ 485               	/* prologue: function */
+ 486               	/* frame size = 0 */
+ 487               	.LM56:
+ 488 0298 80E0      		ldi r24,lo8(sem1)
+ 489 029a 90E0      		ldi r25,hi8(sem1)
+ 490 029c 60E0      		ldi r22,lo8(0)
+ 491 029e 70E0      		ldi r23,hi8(0)
+ 492 02a0 0E94 0000 		call chSemWaitTimeout
+ 493               	.LM57:
+ 494 02a4 60E0      		ldi r22,lo8(0)
+ 495 02a6 8F5F      		subi r24,lo8(-1)
+ 496 02a8 9F4F      		sbci r25,hi8(-1)
+ 497 02aa 01F4      		brne .+2
+ 498 02ac 00C0      		rjmp .L60
+ 499               	.L47:
+ 500 02ae 81E0      		ldi r24,lo8(1)
+ 501 02b0 90E0      		ldi r25,hi8(1)
+ 502 02b2 0E94 0000 		call _test_assert
+ 503 02b6 8823      		tst r24
+ 504 02b8 01F0      		breq .L61
+ 505               	.LVL7:
+ 506               	.L58:
+ 507               	/* epilogue start */
+ 508               	.LM58:
+ 509 02ba DF91      		pop r29
+ 510 02bc CF91      		pop r28
+ 511 02be 1F91      		pop r17
+ 512 02c0 0F91      		pop r16
+ 513               	.LVL8:
+ 514 02c2 FF90      		pop r15
+ 515 02c4 EF90      		pop r14
+ 516 02c6 0895      		ret
+ 517               	.L61:
+ 518               	.LM59:
+ 519 02c8 C0E0      		ldi r28,lo8(sem1)
+ 520 02ca D0E0      		ldi r29,hi8(sem1)
+ 521 02cc 60E0      		ldi r22,lo8(0)
+ 522 02ce 8091 0000 		lds r24,sem1
+ 523 02d2 9091 0000 		lds r25,(sem1)+1
+ 524 02d6 8C17      		cp r24,r28
+ 525 02d8 9D07      		cpc r25,r29
+ 526 02da 01F4      		brne .+2
+ 527 02dc 00C0      		rjmp .L62
+ 528               	.L49:
+ 529 02de 82E0      		ldi r24,lo8(2)
+ 530 02e0 90E0      		ldi r25,hi8(2)
+ 531 02e2 0E94 0000 		call _test_assert
+ 532 02e6 8823      		tst r24
+ 533 02e8 01F4      		brne .L58
+ 534               	.LM60:
+ 535 02ea 60E0      		ldi r22,lo8(0)
+ 536 02ec 8091 0000 		lds r24,sem1+4
+ 537 02f0 8823      		tst r24
+ 538 02f2 01F4      		brne .L50
+ 539 02f4 61E0      		ldi r22,lo8(1)
+ 540               	.L50:
+ 541 02f6 83E0      		ldi r24,lo8(3)
+ 542 02f8 90E0      		ldi r25,hi8(3)
+ 543 02fa 0E94 0000 		call _test_assert
+ 544 02fe 8823      		tst r24
+ 545 0300 01F4      		brne .L58
+ 546               	.LM61:
+ 547 0302 E091 0000 		lds r30,rlist+11
+ 548 0306 F091 0000 		lds r31,(rlist+11)+1
+ 549 030a 4481      		ldd r20,Z+4
+ 550 030c 4150      		subi r20,lo8(-(-1))
+ 551 030e 8091 0000 		lds r24,wa
+ 552 0312 9091 0000 		lds r25,(wa)+1
+ 553 0316 65E9      		ldi r22,lo8(149)
+ 554 0318 70E0      		ldi r23,hi8(149)
+ 555 031a 20E0      		ldi r18,lo8(gs(thread2))
+ 556 031c 30E0      		ldi r19,hi8(gs(thread2))
+ 557 031e 00E0      		ldi r16,lo8(0)
+ 558 0320 10E0      		ldi r17,hi8(0)
+ 559 0322 0E94 0000 		call chThdCreateStatic
+ 560 0326 9093 0000 		sts (threads)+1,r25
+ 561 032a 8093 0000 		sts threads,r24
+ 562               	.LM62:
+ 563 032e 80E0      		ldi r24,lo8(sem1)
+ 564 0330 90E0      		ldi r25,hi8(sem1)
+ 565 0332 64EF      		ldi r22,lo8(500)
+ 566 0334 71E0      		ldi r23,hi8(500)
+ 567 0336 0E94 0000 		call chSemWaitTimeout
+ 568 033a 8C01      		movw r16,r24
+ 569               	.LVL9:
+ 570               	.LM63:
+ 571 033c 0E94 0000 		call test_wait_threads
+ 572               	.LM64:
+ 573 0340 60E0      		ldi r22,lo8(0)
+ 574 0342 012B      		or r16,r17
+ 575 0344 01F4      		brne .L51
+ 576 0346 61E0      		ldi r22,lo8(1)
+ 577               	.L51:
+ 578 0348 84E0      		ldi r24,lo8(4)
+ 579 034a 90E0      		ldi r25,hi8(4)
+ 580 034c 0E94 0000 		call _test_assert
+ 581 0350 8823      		tst r24
+ 582 0352 01F0      		breq .+2
+ 583 0354 00C0      		rjmp .L58
+ 584               	.LM65:
+ 585 0356 60E0      		ldi r22,lo8(0)
+ 586 0358 8091 0000 		lds r24,sem1
+ 587 035c 9091 0000 		lds r25,(sem1)+1
+ 588 0360 C817      		cp r28,r24
+ 589 0362 D907      		cpc r29,r25
+ 590 0364 01F4      		brne .+2
+ 591 0366 00C0      		rjmp .L63
+ 592               	.L52:
+ 593 0368 85E0      		ldi r24,lo8(5)
+ 594 036a 90E0      		ldi r25,hi8(5)
+ 595 036c 0E94 0000 		call _test_assert
+ 596 0370 8823      		tst r24
+ 597 0372 01F0      		breq .+2
+ 598 0374 00C0      		rjmp .L58
+ 599               	.LM66:
+ 600 0376 60E0      		ldi r22,lo8(0)
+ 601 0378 8091 0000 		lds r24,sem1+4
+ 602 037c 8823      		tst r24
+ 603 037e 01F4      		brne .L53
+ 604 0380 61E0      		ldi r22,lo8(1)
+ 605               	.L53:
+ 606 0382 86E0      		ldi r24,lo8(6)
+ 607 0384 90E0      		ldi r25,hi8(6)
+ 608 0386 0E94 0000 		call _test_assert
+ 609 038a 8823      		tst r24
+ 610 038c 01F0      		breq .+2
+ 611 038e 00C0      		rjmp .L58
+ 612               	.LM67:
+ 613 0390 0E94 0000 		call test_wait_tick
+ 614               	.LM68:
+ 615 0394 E090 0000 		lds r14,vtlist+6
+ 616 0398 F090 0000 		lds r15,(vtlist+6)+1
+ 617 039c 11E4      		ldi r17,lo8(65)
+ 618               	.L57:
+ 619               	.LM69:
+ 620 039e 812F      		mov r24,r17
+ 621 03a0 0E94 0000 		call test_emit_token
+ 622               	.LM70:
+ 623 03a4 80E0      		ldi r24,lo8(sem1)
+ 624 03a6 90E0      		ldi r25,hi8(sem1)
+ 625 03a8 64EF      		ldi r22,lo8(500)
+ 626 03aa 71E0      		ldi r23,hi8(500)
+ 627 03ac 0E94 0000 		call chSemWaitTimeout
+ 628               	.LM71:
+ 629 03b0 60E0      		ldi r22,lo8(0)
+ 630 03b2 8F5F      		subi r24,lo8(-1)
+ 631 03b4 9F4F      		sbci r25,hi8(-1)
+ 632 03b6 01F4      		brne .+2
+ 633 03b8 00C0      		rjmp .L64
+ 634               	.L54:
+ 635 03ba 87E0      		ldi r24,lo8(7)
+ 636 03bc 90E0      		ldi r25,hi8(7)
+ 637 03be 0E94 0000 		call _test_assert
+ 638 03c2 8823      		tst r24
+ 639 03c4 01F0      		breq .+2
+ 640 03c6 00C0      		rjmp .L58
+ 641               	.LM72:
+ 642 03c8 60E0      		ldi r22,lo8(0)
+ 643 03ca 8091 0000 		lds r24,sem1
+ 644 03ce 9091 0000 		lds r25,(sem1)+1
+ 645 03d2 C817      		cp r28,r24
+ 646 03d4 D907      		cpc r29,r25
+ 647 03d6 01F0      		breq .L65
+ 648               	.L55:
+ 649 03d8 88E0      		ldi r24,lo8(8)
+ 650 03da 90E0      		ldi r25,hi8(8)
+ 651 03dc 0E94 0000 		call _test_assert
+ 652 03e0 8823      		tst r24
+ 653 03e2 01F0      		breq .+2
+ 654 03e4 00C0      		rjmp .L58
+ 655               	.LM73:
+ 656 03e6 60E0      		ldi r22,lo8(0)
+ 657 03e8 8091 0000 		lds r24,sem1+4
+ 658 03ec 8823      		tst r24
+ 659 03ee 01F4      		brne .L56
+ 660 03f0 61E0      		ldi r22,lo8(1)
+ 661               	.L56:
+ 662 03f2 89E0      		ldi r24,lo8(9)
+ 663 03f4 90E0      		ldi r25,hi8(9)
+ 664 03f6 0E94 0000 		call _test_assert
+ 665 03fa 8823      		tst r24
+ 666 03fc 01F0      		breq .+2
+ 667 03fe 00C0      		rjmp .L58
+ 668 0400 1F5F      		subi r17,lo8(-(1))
+ 669               	.LM74:
+ 670 0402 1634      		cpi r17,lo8(70)
+ 671 0404 01F4      		brne .L57
+ 672               	.LM75:
+ 673 0406 8AE0      		ldi r24,lo8(10)
+ 674 0408 90E0      		ldi r25,hi8(10)
+ 675 040a 60E0      		ldi r22,lo8(.LC0)
+ 676 040c 70E0      		ldi r23,hi8(.LC0)
+ 677 040e 0E94 0000 		call _test_assert_sequence
+ 678 0412 8823      		tst r24
+ 679 0414 01F0      		breq .+2
+ 680 0416 00C0      		rjmp .L58
+ 681               	.LM76:
+ 682 0418 A701      		movw r20,r14
+ 683               	.LVL10:
+ 684 041a 4C53      		subi r20,lo8(-(2500))
+ 685 041c 564F      		sbci r21,hi8(-(2500))
+ 686               	.LM77:
+ 687 041e 8BE0      		ldi r24,lo8(11)
+ 688 0420 90E0      		ldi r25,hi8(11)
+ 689 0422 BA01      		movw r22,r20
+ 690 0424 4B5F      		subi r20,lo8(-(5))
+ 691 0426 5F4F      		sbci r21,hi8(-(5))
+ 692 0428 0E94 0000 		call _test_assert_time_window
+ 693               	.LVL11:
+ 694 042c 00C0      		rjmp .L58
+ 695               	.LVL12:
+ 696               	.L60:
+ 697               	.LM78:
+ 698 042e 61E0      		ldi r22,lo8(1)
+ 699 0430 00C0      		rjmp .L47
+ 700               	.L62:
+ 701               	.LM79:
+ 702 0432 61E0      		ldi r22,lo8(1)
+ 703 0434 00C0      		rjmp .L49
+ 704               	.LVL13:
+ 705               	.L63:
+ 706               	.LM80:
+ 707 0436 61E0      		ldi r22,lo8(1)
+ 708 0438 00C0      		rjmp .L52
+ 709               	.L64:
+ 710               	.LM81:
+ 711 043a 61E0      		ldi r22,lo8(1)
+ 712 043c 00C0      		rjmp .L54
+ 713               	.L65:
+ 714               	.LM82:
+ 715 043e 61E0      		ldi r22,lo8(1)
+ 716 0440 00C0      		rjmp .L55
+ 717               	.LFE14:
+ 720               	thread2:
+ 721               	.LFB13:
+ 722               	.LM83:
+ 723               	.LVL14:
+ 724               	/* prologue: function */
+ 725               	/* frame size = 0 */
+ 726               	.LM84:
+ 727 0442 82E3      		ldi r24,lo8(50)
+ 728 0444 90E0      		ldi r25,hi8(50)
+ 729               	.LVL15:
+ 730 0446 0E94 0000 		call chThdSleep
+ 731               	.LM85:
+ 732               	/* #APP */
+ 733               	 ;  141 "test/testsem.c" 1
+ 734 044a F894      		cli
+ 735               	 ;  0 "" 2
+ 736               	.LM86:
+ 737               	/* #NOAPP */
+ 738 044c 80E0      		ldi r24,lo8(sem1)
+ 739 044e 90E0      		ldi r25,hi8(sem1)
+ 740 0450 0E94 0000 		call chSemSignalI
+ 741               	.LM87:
+ 742 0454 0E94 0000 		call chSchRescheduleS
+ 743               	.LM88:
+ 744               	/* #APP */
+ 745               	 ;  144 "test/testsem.c" 1
+ 746 0458 7894      		sei
+ 747               	 ;  0 "" 2
+ 748               	.LM89:
+ 749               	/* #NOAPP */
+ 750 045a 80E0      		ldi r24,lo8(0)
+ 751 045c 90E0      		ldi r25,hi8(0)
+ 752               	/* epilogue start */
+ 753 045e 0895      		ret
+ 754               	.LFE13:
+ 756               		.data
+ 757               	.LC1:
+ 758 0006 4100      		.string	"A"
+ 759               	.LC2:
+ 760 0008 4200      		.string	"B"
+ 761               	.LC3:
+ 762 000a 4300      		.string	"C"
+ 763               	.LC4:
+ 764 000c 4400      		.string	"D"
+ 765               	.LC5:
+ 766 000e 4500      		.string	"E"
+ 767               		.text
+ 769               	sem1_execute:
+ 770               	.LFB11:
+ 771               	.LM90:
+ 772 0460 0F93      		push r16
+ 773 0462 1F93      		push r17
+ 774 0464 CF93      		push r28
+ 775 0466 DF93      		push r29
+ 776               	/* prologue: function */
+ 777               	/* frame size = 0 */
+ 778               	.LM91:
+ 779 0468 C091 0000 		lds r28,wa
+ 780 046c D091 0000 		lds r29,(wa)+1
+ 781 0470 E091 0000 		lds r30,rlist+11
+ 782 0474 F091 0000 		lds r31,(rlist+11)+1
+ 783 0478 4481      		ldd r20,Z+4
+ 784 047a 4B5F      		subi r20,lo8(-(5))
+ 785 047c CE01      		movw r24,r28
+ 786 047e 65E9      		ldi r22,lo8(149)
+ 787 0480 70E0      		ldi r23,hi8(149)
+ 788 0482 20E0      		ldi r18,lo8(gs(thread1))
+ 789 0484 30E0      		ldi r19,hi8(gs(thread1))
+ 790 0486 00E0      		ldi r16,lo8(.LC1)
+ 791 0488 10E0      		ldi r17,hi8(.LC1)
+ 792 048a 0E94 0000 		call chThdCreateStatic
+ 793 048e 9093 0000 		sts (threads)+1,r25
+ 794 0492 8093 0000 		sts threads,r24
+ 795               	.LM92:
+ 796 0496 E091 0000 		lds r30,rlist+11
+ 797 049a F091 0000 		lds r31,(rlist+11)+1
+ 798 049e 4481      		ldd r20,Z+4
+ 799 04a0 4F5F      		subi r20,lo8(-(1))
+ 800 04a2 8091 0000 		lds r24,wa+2
+ 801 04a6 9091 0000 		lds r25,(wa+2)+1
+ 802 04aa 65E9      		ldi r22,lo8(149)
+ 803 04ac 70E0      		ldi r23,hi8(149)
+ 804 04ae 20E0      		ldi r18,lo8(gs(thread1))
+ 805 04b0 30E0      		ldi r19,hi8(gs(thread1))
+ 806 04b2 00E0      		ldi r16,lo8(.LC2)
+ 807 04b4 10E0      		ldi r17,hi8(.LC2)
+ 808 04b6 0E94 0000 		call chThdCreateStatic
+ 809 04ba 9093 0000 		sts (threads+2)+1,r25
+ 810 04be 8093 0000 		sts threads+2,r24
+ 811               	.LM93:
+ 812 04c2 E091 0000 		lds r30,rlist+11
+ 813 04c6 F091 0000 		lds r31,(rlist+11)+1
+ 814 04ca 4481      		ldd r20,Z+4
+ 815 04cc 4D5F      		subi r20,lo8(-(3))
+ 816 04ce 8091 0000 		lds r24,wa+4
+ 817 04d2 9091 0000 		lds r25,(wa+4)+1
+ 818 04d6 65E9      		ldi r22,lo8(149)
+ 819 04d8 70E0      		ldi r23,hi8(149)
+ 820 04da 20E0      		ldi r18,lo8(gs(thread1))
+ 821 04dc 30E0      		ldi r19,hi8(gs(thread1))
+ 822 04de 00E0      		ldi r16,lo8(.LC3)
+ 823 04e0 10E0      		ldi r17,hi8(.LC3)
+ 824 04e2 0E94 0000 		call chThdCreateStatic
+ 825 04e6 9093 0000 		sts (threads+4)+1,r25
+ 826 04ea 8093 0000 		sts threads+4,r24
+ 827               	.LM94:
+ 828 04ee E091 0000 		lds r30,rlist+11
+ 829 04f2 F091 0000 		lds r31,(rlist+11)+1
+ 830 04f6 4481      		ldd r20,Z+4
+ 831 04f8 4C5F      		subi r20,lo8(-(4))
+ 832 04fa 8091 0000 		lds r24,wa+6
+ 833 04fe 9091 0000 		lds r25,(wa+6)+1
+ 834 0502 65E9      		ldi r22,lo8(149)
+ 835 0504 70E0      		ldi r23,hi8(149)
+ 836 0506 20E0      		ldi r18,lo8(gs(thread1))
+ 837 0508 30E0      		ldi r19,hi8(gs(thread1))
+ 838 050a 00E0      		ldi r16,lo8(.LC4)
+ 839 050c 10E0      		ldi r17,hi8(.LC4)
+ 840 050e 0E94 0000 		call chThdCreateStatic
+ 841 0512 9093 0000 		sts (threads+6)+1,r25
+ 842 0516 8093 0000 		sts threads+6,r24
+ 843               	.LM95:
+ 844 051a E091 0000 		lds r30,rlist+11
+ 845 051e F091 0000 		lds r31,(rlist+11)+1
+ 846 0522 4481      		ldd r20,Z+4
+ 847 0524 4E5F      		subi r20,lo8(-(2))
+ 848 0526 8091 0000 		lds r24,wa+8
+ 849 052a 9091 0000 		lds r25,(wa+8)+1
+ 850 052e 65E9      		ldi r22,lo8(149)
+ 851 0530 70E0      		ldi r23,hi8(149)
+ 852 0532 20E0      		ldi r18,lo8(gs(thread1))
+ 853 0534 30E0      		ldi r19,hi8(gs(thread1))
+ 854 0536 00E0      		ldi r16,lo8(.LC5)
+ 855 0538 10E0      		ldi r17,hi8(.LC5)
+ 856 053a 0E94 0000 		call chThdCreateStatic
+ 857 053e 9093 0000 		sts (threads+8)+1,r25
+ 858 0542 8093 0000 		sts threads+8,r24
+ 859               	.LM96:
+ 860 0546 80E0      		ldi r24,lo8(sem1)
+ 861 0548 90E0      		ldi r25,hi8(sem1)
+ 862 054a 0E94 0000 		call chSemSignal
+ 863               	.LM97:
+ 864 054e 80E0      		ldi r24,lo8(sem1)
+ 865 0550 90E0      		ldi r25,hi8(sem1)
+ 866 0552 0E94 0000 		call chSemSignal
+ 867               	.LM98:
+ 868 0556 80E0      		ldi r24,lo8(sem1)
+ 869 0558 90E0      		ldi r25,hi8(sem1)
+ 870 055a 0E94 0000 		call chSemSignal
+ 871               	.LM99:
+ 872 055e 80E0      		ldi r24,lo8(sem1)
+ 873 0560 90E0      		ldi r25,hi8(sem1)
+ 874 0562 0E94 0000 		call chSemSignal
+ 875               	.LM100:
+ 876 0566 80E0      		ldi r24,lo8(sem1)
+ 877 0568 90E0      		ldi r25,hi8(sem1)
+ 878 056a 0E94 0000 		call chSemSignal
+ 879               	.LM101:
+ 880 056e 0E94 0000 		call test_wait_threads
+ 881               	.LM102:
+ 882 0572 81E0      		ldi r24,lo8(1)
+ 883 0574 90E0      		ldi r25,hi8(1)
+ 884 0576 60E0      		ldi r22,lo8(.LC0)
+ 885 0578 70E0      		ldi r23,hi8(.LC0)
+ 886 057a 0E94 0000 		call _test_assert_sequence
+ 887 057e 8823      		tst r24
+ 888 0580 01F0      		breq .L72
+ 889               	/* epilogue start */
+ 890               	.LM103:
+ 891 0582 DF91      		pop r29
+ 892 0584 CF91      		pop r28
+ 893 0586 1F91      		pop r17
+ 894 0588 0F91      		pop r16
+ 895 058a 0895      		ret
+ 896               	.L72:
+ 897               	.LM104:
+ 898 058c E091 0000 		lds r30,rlist+11
+ 899 0590 F091 0000 		lds r31,(rlist+11)+1
+ 900 0594 4481      		ldd r20,Z+4
+ 901 0596 4B5F      		subi r20,lo8(-(5))
+ 902 0598 CE01      		movw r24,r28
+ 903 059a 65E9      		ldi r22,lo8(149)
+ 904 059c 70E0      		ldi r23,hi8(149)
+ 905 059e 20E0      		ldi r18,lo8(gs(thread1))
+ 906 05a0 30E0      		ldi r19,hi8(gs(thread1))
+ 907 05a2 00E0      		ldi r16,lo8(.LC1)
+ 908 05a4 10E0      		ldi r17,hi8(.LC1)
+ 909 05a6 0E94 0000 		call chThdCreateStatic
+ 910 05aa 9093 0000 		sts (threads)+1,r25
+ 911 05ae 8093 0000 		sts threads,r24
+ 912               	.LM105:
+ 913               	/* #APP */
+ 914               	 ;  107 "test/testsem.c" 1
+ 915 05b2 F894      		cli
+ 916               	 ;  0 "" 2
+ 917               	.LM106:
+ 918               	/* #NOAPP */
+ 919 05b4 80E0      		ldi r24,lo8(sem1)
+ 920 05b6 90E0      		ldi r25,hi8(sem1)
+ 921 05b8 62E0      		ldi r22,lo8(2)
+ 922 05ba 0E94 0000 		call chSemAddCounterI
+ 923               	.LM107:
+ 924               	/* #APP */
+ 925               	 ;  109 "test/testsem.c" 1
+ 926 05be 7894      		sei
+ 927               	 ;  0 "" 2
+ 928               	.LM108:
+ 929               	/* #NOAPP */
+ 930 05c0 0E94 0000 		call test_wait_threads
+ 931               	.LM109:
+ 932 05c4 60E0      		ldi r22,lo8(0)
+ 933 05c6 8091 0000 		lds r24,sem1+4
+ 934 05ca 8130      		cpi r24,lo8(1)
+ 935 05cc 01F0      		breq .L73
+ 936               	.L70:
+ 937 05ce 82E0      		ldi r24,lo8(2)
+ 938 05d0 90E0      		ldi r25,hi8(2)
+ 939 05d2 0E94 0000 		call _test_assert
+ 940               	.LM110:
+ 941 05d6 DF91      		pop r29
+ 942 05d8 CF91      		pop r28
+ 943 05da 1F91      		pop r17
+ 944 05dc 0F91      		pop r16
+ 945 05de 0895      		ret
+ 946               	.L73:
+ 947               	.LM111:
+ 948 05e0 61E0      		ldi r22,lo8(1)
+ 949 05e2 00C0      		rjmp .L70
+ 950               	.LFE11:
+ 952               	.global	testsem1
+ 953               		.data
+ 954               	.LC6:
+ 955 0010 5365 6D61 		.string	"Semaphores, enqueuing"
+ 955      7068 6F72 
+ 955      6573 2C20 
+ 955      656E 7175 
+ 955      6575 696E 
+ 958               	testsem1:
+ 959 0026 0000      		.word	.LC6
+ 960 0028 0000      		.word	gs(sem1_setup)
+ 961 002a 0000      		.word	0
+ 962 002c 0000      		.word	gs(sem1_execute)
+ 963               	.global	testsem2
+ 964               	.LC7:
+ 965 002e 5365 6D61 		.string	"Semaphores, timeout"
+ 965      7068 6F72 
+ 965      6573 2C20 
+ 965      7469 6D65 
+ 965      6F75 7400 
+ 968               	testsem2:
+ 969 0042 0000      		.word	.LC7
+ 970 0044 0000      		.word	gs(sem2_setup)
+ 971 0046 0000      		.word	0
+ 972 0048 0000      		.word	gs(sem2_execute)
+ 973               	.global	testsem3
+ 974               	.LC8:
+ 975 004a 5365 6D61 		.string	"Semaphores, atomic signal-wait"
+ 975      7068 6F72 
+ 975      6573 2C20 
+ 975      6174 6F6D 
+ 975      6963 2073 
+ 978               	testsem3:
+ 979 0069 0000      		.word	.LC8
+ 980 006b 0000      		.word	gs(sem3_setup)
+ 981 006d 0000      		.word	0
+ 982 006f 0000      		.word	gs(sem3_execute)
+ 983               	.global	testsem4
+ 984               	.LC9:
+ 985 0071 4269 6E61 		.string	"Binary Semaphores, functionality"
+ 985      7279 2053 
+ 985      656D 6170 
+ 985      686F 7265 
+ 985      732C 2066 
+ 988               	testsem4:
+ 989 0092 0000      		.word	.LC9
+ 990 0094 0000      		.word	0
+ 991 0096 0000      		.word	0
+ 992 0098 0000      		.word	gs(sem4_execute)
+ 993               	.global	patternsem
+ 996               	patternsem:
+ 997 009a 0000      		.word	testsem1
+ 998 009c 0000      		.word	testsem2
+ 999 009e 0000      		.word	testsem3
+ 1000 00a0 0000      		.word	testsem4
+ 1001 00a2 0000      		.word	0
+ 1004               	sem1:
+ 1005 00a4 0000      		.word	sem1
+ 1006 00a6 0000      		.word	sem1
+ 1007 00a8 00        		.byte	0
+ 1112               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 testsem.c
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:2      *ABS*:0000003f __SREG__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:3      *ABS*:0000003e __SP_H__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:4      *ABS*:0000003d __SP_L__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:5      *ABS*:00000034 __CCP__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:6      *ABS*:00000000 __tmp_reg__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:7      *ABS*:00000001 __zero_reg__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:17     .text:00000000 sem3_setup
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:1004   .data:000000a4 sem1
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:33     .text:0000000c sem2_setup
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:49     .text:00000018 sem1_setup
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:65     .text:00000024 sem4_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:261    .text:0000015c thread4
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:306    .text:00000184 sem3_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:416    .text:0000024e thread3
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:443    .text:0000026c thread1
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:476    .text:0000028c sem2_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:720    .text:00000442 thread2
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:769    .text:00000460 sem1_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:958    .data:00000026 testsem1
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:968    .data:00000042 testsem2
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:978    .data:00000069 testsem3
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:988    .data:00000092 testsem4
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccjMnK2w.s:996    .data:0000009a patternsem
+
+UNDEFINED SYMBOLS
+chSemInit
+chSemReset
+_test_assert
+rlist
+wa
+chThdCreateStatic
+threads
+chSemWait
+chSchRescheduleS
+chSemSignalI
+chSemSignalWait
+chSemSignal
+test_emit_token
+chSemWaitTimeout
+test_wait_threads
+test_wait_tick
+vtlist
+_test_assert_sequence
+_test_assert_time_window
+chThdSleep
+chSemAddCounterI
+__do_copy_data

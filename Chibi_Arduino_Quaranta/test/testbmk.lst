@@ -1,0 +1,2050 @@
+   1               		.file	"testbmk.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  15               	.Ltext0:
+  17               	thread2:
+  18               	.LFB13:
+  19               	.LM1:
+  20               	.LVL0:
+  21               	/* prologue: function */
+  22               	/* frame size = 0 */
+  23               	.LVL1:
+  24               	/* epilogue start */
+  25               	.LM2:
+  26 0000 0895      		ret
+  27               	.LFE13:
+  30               	tmo:
+  31               	.LFB25:
+  32               	.LM3:
+  33               	.LVL2:
+  34               	/* prologue: function */
+  35               	/* frame size = 0 */
+  36               	/* epilogue start */
+  37               	.LM4:
+  38 0002 0895      		ret
+  39               	.LFE25:
+  41               		.data
+  42               	.LC0:
+  43 0000 2D2D 2D20 		.string	"--- System: "
+  43      5379 7374 
+  43      656D 3A20 
+  43      00
+  44               	.LC1:
+  45 000d 2062 7974 		.string	" bytes"
+  45      6573 00
+  46               	.LC2:
+  47 0014 2D2D 2D20 		.string	"--- Thread: "
+  47      5468 7265 
+  47      6164 3A20 
+  47      00
+  48               	.LC3:
+  49 0021 2D2D 2D20 		.string	"--- Timer : "
+  49      5469 6D65 
+  49      7220 3A20 
+  49      00
+  50               	.LC4:
+  51 002e 2D2D 2D20 		.string	"--- Semaph: "
+  51      5365 6D61 
+  51      7068 3A20 
+  51      00
+  52               	.LC5:
+  53 003b 2D2D 2D20 		.string	"--- EventS: "
+  53      4576 656E 
+  53      7453 3A20 
+  53      00
+  54               	.LC6:
+  55 0048 2D2D 2D20 		.string	"--- EventL: "
+  55      4576 656E 
+  55      744C 3A20 
+  55      00
+  56               	.LC7:
+  57 0055 2D2D 2D20 		.string	"--- Mutex : "
+  57      4D75 7465 
+  57      7820 3A20 
+  57      00
+  58               	.LC8:
+  59 0062 2D2D 2D20 		.string	"--- CondV.: "
+  59      436F 6E64 
+  59      562E 3A20 
+  59      00
+  60               	.LC9:
+  61 006f 2D2D 2D20 		.string	"--- Queue : "
+  61      5175 6575 
+  61      6520 3A20 
+  61      00
+  62               	.LC10:
+  63 007c 2D2D 2D20 		.string	"--- MailB.: "
+  63      4D61 696C 
+  63      422E 3A20 
+  63      00
+  64               		.text
+  66               	bmk13_execute:
+  67               	.LFB31:
+  68               	.LM5:
+  69 0004 0F93      		push r16
+  70 0006 1F93      		push r17
+  71               	/* prologue: function */
+  72               	/* frame size = 0 */
+  73               	.LM6:
+  74 0008 80E0      		ldi r24,lo8(.LC0)
+  75 000a 90E0      		ldi r25,hi8(.LC0)
+  76 000c 0E94 0000 		call test_print
+  77               	.LM7:
+  78 0010 6BEE      		ldi r22,lo8(235)
+  79 0012 70E0      		ldi r23,hi8(235)
+  80 0014 80E0      		ldi r24,hlo8(235)
+  81 0016 90E0      		ldi r25,hhi8(235)
+  82 0018 0E94 0000 		call test_printn
+  83               	.LM8:
+  84 001c 00E0      		ldi r16,lo8(.LC1)
+  85 001e 10E0      		ldi r17,hi8(.LC1)
+  86 0020 C801      		movw r24,r16
+  87 0022 0E94 0000 		call test_println
+  88               	.LM9:
+  89 0026 80E0      		ldi r24,lo8(.LC2)
+  90 0028 90E0      		ldi r25,hi8(.LC2)
+  91 002a 0E94 0000 		call test_print
+  92               	.LM10:
+  93 002e 60E2      		ldi r22,lo8(32)
+  94 0030 70E0      		ldi r23,hi8(32)
+  95 0032 80E0      		ldi r24,hlo8(32)
+  96 0034 90E0      		ldi r25,hhi8(32)
+  97 0036 0E94 0000 		call test_printn
+  98               	.LM11:
+  99 003a C801      		movw r24,r16
+ 100 003c 0E94 0000 		call test_println
+ 101               	.LM12:
+ 102 0040 80E0      		ldi r24,lo8(.LC3)
+ 103 0042 90E0      		ldi r25,hi8(.LC3)
+ 104 0044 0E94 0000 		call test_print
+ 105               	.LM13:
+ 106 0048 6AE0      		ldi r22,lo8(10)
+ 107 004a 70E0      		ldi r23,hi8(10)
+ 108 004c 80E0      		ldi r24,hlo8(10)
+ 109 004e 90E0      		ldi r25,hhi8(10)
+ 110 0050 0E94 0000 		call test_printn
+ 111               	.LM14:
+ 112 0054 C801      		movw r24,r16
+ 113 0056 0E94 0000 		call test_println
+ 114               	.LM15:
+ 115 005a 80E0      		ldi r24,lo8(.LC4)
+ 116 005c 90E0      		ldi r25,hi8(.LC4)
+ 117 005e 0E94 0000 		call test_print
+ 118               	.LM16:
+ 119 0062 65E0      		ldi r22,lo8(5)
+ 120 0064 70E0      		ldi r23,hi8(5)
+ 121 0066 80E0      		ldi r24,hlo8(5)
+ 122 0068 90E0      		ldi r25,hhi8(5)
+ 123 006a 0E94 0000 		call test_printn
+ 124               	.LM17:
+ 125 006e C801      		movw r24,r16
+ 126 0070 0E94 0000 		call test_println
+ 127               	.LM18:
+ 128 0074 80E0      		ldi r24,lo8(.LC5)
+ 129 0076 90E0      		ldi r25,hi8(.LC5)
+ 130 0078 0E94 0000 		call test_print
+ 131               	.LM19:
+ 132 007c 62E0      		ldi r22,lo8(2)
+ 133 007e 70E0      		ldi r23,hi8(2)
+ 134 0080 80E0      		ldi r24,hlo8(2)
+ 135 0082 90E0      		ldi r25,hhi8(2)
+ 136 0084 0E94 0000 		call test_printn
+ 137               	.LM20:
+ 138 0088 C801      		movw r24,r16
+ 139 008a 0E94 0000 		call test_println
+ 140               	.LM21:
+ 141 008e 80E0      		ldi r24,lo8(.LC6)
+ 142 0090 90E0      		ldi r25,hi8(.LC6)
+ 143 0092 0E94 0000 		call test_print
+ 144               	.LM22:
+ 145 0096 66E0      		ldi r22,lo8(6)
+ 146 0098 70E0      		ldi r23,hi8(6)
+ 147 009a 80E0      		ldi r24,hlo8(6)
+ 148 009c 90E0      		ldi r25,hhi8(6)
+ 149 009e 0E94 0000 		call test_printn
+ 150               	.LM23:
+ 151 00a2 C801      		movw r24,r16
+ 152 00a4 0E94 0000 		call test_println
+ 153               	.LM24:
+ 154 00a8 80E0      		ldi r24,lo8(.LC7)
+ 155 00aa 90E0      		ldi r25,hi8(.LC7)
+ 156 00ac 0E94 0000 		call test_print
+ 157               	.LM25:
+ 158 00b0 68E0      		ldi r22,lo8(8)
+ 159 00b2 70E0      		ldi r23,hi8(8)
+ 160 00b4 80E0      		ldi r24,hlo8(8)
+ 161 00b6 90E0      		ldi r25,hhi8(8)
+ 162 00b8 0E94 0000 		call test_printn
+ 163               	.LM26:
+ 164 00bc C801      		movw r24,r16
+ 165 00be 0E94 0000 		call test_println
+ 166               	.LM27:
+ 167 00c2 80E0      		ldi r24,lo8(.LC8)
+ 168 00c4 90E0      		ldi r25,hi8(.LC8)
+ 169 00c6 0E94 0000 		call test_print
+ 170               	.LM28:
+ 171 00ca 64E0      		ldi r22,lo8(4)
+ 172 00cc 70E0      		ldi r23,hi8(4)
+ 173 00ce 80E0      		ldi r24,hlo8(4)
+ 174 00d0 90E0      		ldi r25,hhi8(4)
+ 175 00d2 0E94 0000 		call test_printn
+ 176               	.LM29:
+ 177 00d6 C801      		movw r24,r16
+ 178 00d8 0E94 0000 		call test_println
+ 179               	.LM30:
+ 180 00dc 80E0      		ldi r24,lo8(.LC9)
+ 181 00de 90E0      		ldi r25,hi8(.LC9)
+ 182 00e0 0E94 0000 		call test_print
+ 183               	.LM31:
+ 184 00e4 62E1      		ldi r22,lo8(18)
+ 185 00e6 70E0      		ldi r23,hi8(18)
+ 186 00e8 80E0      		ldi r24,hlo8(18)
+ 187 00ea 90E0      		ldi r25,hhi8(18)
+ 188 00ec 0E94 0000 		call test_printn
+ 189               	.LM32:
+ 190 00f0 C801      		movw r24,r16
+ 191 00f2 0E94 0000 		call test_println
+ 192               	.LM33:
+ 193 00f6 80E0      		ldi r24,lo8(.LC10)
+ 194 00f8 90E0      		ldi r25,hi8(.LC10)
+ 195 00fa 0E94 0000 		call test_print
+ 196               	.LM34:
+ 197 00fe 62E1      		ldi r22,lo8(18)
+ 198 0100 70E0      		ldi r23,hi8(18)
+ 199 0102 80E0      		ldi r24,hlo8(18)
+ 200 0104 90E0      		ldi r25,hhi8(18)
+ 201 0106 0E94 0000 		call test_printn
+ 202               	.LM35:
+ 203 010a C801      		movw r24,r16
+ 204 010c 0E94 0000 		call test_println
+ 205               	/* epilogue start */
+ 206               	.LM36:
+ 207 0110 1F91      		pop r17
+ 208 0112 0F91      		pop r16
+ 209 0114 0895      		ret
+ 210               	.LFE31:
+ 212               		.data
+ 213               	.LC11:
+ 214 0089 2D2D 2D20 		.string	"--- Score : "
+ 214      5363 6F72 
+ 214      6520 3A20 
+ 214      00
+ 215               	.LC12:
+ 216 0096 206C 6F63 		.string	" lock+unlock/S"
+ 216      6B2B 756E 
+ 216      6C6F 636B 
+ 216      2F53 00
+ 217               		.text
+ 219               	bmk12_execute:
+ 220               	.LFB30:
+ 221               	.LM37:
+ 222 0116 EF92      		push r14
+ 223 0118 FF92      		push r15
+ 224 011a 0F93      		push r16
+ 225 011c 1F93      		push r17
+ 226               	/* prologue: function */
+ 227               	/* frame size = 0 */
+ 228               	.LM38:
+ 229 011e 0E94 0000 		call test_wait_tick
+ 230               	.LM39:
+ 231 0122 88EE      		ldi r24,lo8(1000)
+ 232 0124 93E0      		ldi r25,hi8(1000)
+ 233 0126 0E94 0000 		call test_start_timer
+ 234 012a EE24      		clr r14
+ 235 012c FF24      		clr r15
+ 236 012e 8701      		movw r16,r14
+ 237               	.LVL3:
+ 238               	.L8:
+ 239               	.LM40:
+ 240 0130 80E0      		ldi r24,lo8(mtx1)
+ 241 0132 90E0      		ldi r25,hi8(mtx1)
+ 242 0134 0E94 0000 		call chMtxLock
+ 243               	.LM41:
+ 244 0138 0E94 0000 		call chMtxUnlock
+ 245               	.LM42:
+ 246 013c 80E0      		ldi r24,lo8(mtx1)
+ 247 013e 90E0      		ldi r25,hi8(mtx1)
+ 248 0140 0E94 0000 		call chMtxLock
+ 249               	.LM43:
+ 250 0144 0E94 0000 		call chMtxUnlock
+ 251               	.LM44:
+ 252 0148 80E0      		ldi r24,lo8(mtx1)
+ 253 014a 90E0      		ldi r25,hi8(mtx1)
+ 254 014c 0E94 0000 		call chMtxLock
+ 255               	.LM45:
+ 256 0150 0E94 0000 		call chMtxUnlock
+ 257               	.LM46:
+ 258 0154 80E0      		ldi r24,lo8(mtx1)
+ 259 0156 90E0      		ldi r25,hi8(mtx1)
+ 260 0158 0E94 0000 		call chMtxLock
+ 261               	.LM47:
+ 262 015c 0E94 0000 		call chMtxUnlock
+ 263               	.LM48:
+ 264 0160 0894      		sec
+ 265 0162 E11C      		adc r14,__zero_reg__
+ 266 0164 F11C      		adc r15,__zero_reg__
+ 267 0166 011D      		adc r16,__zero_reg__
+ 268 0168 111D      		adc r17,__zero_reg__
+ 269               	.LM49:
+ 270 016a 8091 0000 		lds r24,test_timer_done
+ 271 016e 8823      		tst r24
+ 272 0170 01F0      		breq .L8
+ 273               	.LM50:
+ 274 0172 80E0      		ldi r24,lo8(.LC11)
+ 275 0174 90E0      		ldi r25,hi8(.LC11)
+ 276 0176 0E94 0000 		call test_print
+ 277               	.LM51:
+ 278 017a EE0C      		lsl r14
+ 279 017c FF1C      		rol r15
+ 280 017e 001F      		rol r16
+ 281 0180 111F      		rol r17
+ 282 0182 EE0C      		lsl r14
+ 283 0184 FF1C      		rol r15
+ 284 0186 001F      		rol r16
+ 285 0188 111F      		rol r17
+ 286 018a C801      		movw r24,r16
+ 287 018c B701      		movw r22,r14
+ 288 018e 0E94 0000 		call test_printn
+ 289               	.LM52:
+ 290 0192 80E0      		ldi r24,lo8(.LC12)
+ 291 0194 90E0      		ldi r25,hi8(.LC12)
+ 292 0196 0E94 0000 		call test_println
+ 293               	/* epilogue start */
+ 294               	.LM53:
+ 295 019a 1F91      		pop r17
+ 296 019c 0F91      		pop r16
+ 297 019e FF90      		pop r15
+ 298 01a0 EF90      		pop r14
+ 299               	.LVL4:
+ 300 01a2 0895      		ret
+ 301               	.LFE30:
+ 304               	bmk12_setup:
+ 305               	.LFB29:
+ 306               	.LM54:
+ 307               	/* prologue: function */
+ 308               	/* frame size = 0 */
+ 309               	.LM55:
+ 310 01a4 80E0      		ldi r24,lo8(mtx1)
+ 311 01a6 90E0      		ldi r25,hi8(mtx1)
+ 312 01a8 0E94 0000 		call chMtxInit
+ 313               	/* epilogue start */
+ 314               	.LM56:
+ 315 01ac 0895      		ret
+ 316               	.LFE29:
+ 319               	thread3:
+ 320               	.LFB19:
+ 321               	.LM57:
+ 322               	.LVL5:
+ 323 01ae 00C0      		rjmp .L20
+ 324               	/* prologue: function */
+ 325               	/* frame size = 0 */
+ 326               	.LVL6:
+ 327               	.L18:
+ 328               	.LM58:
+ 329 01b0 80E0      		ldi r24,lo8(sem1)
+ 330 01b2 90E0      		ldi r25,hi8(sem1)
+ 331 01b4 0E94 0000 		call chSemWait
+ 332               	.LVL7:
+ 333               	.L20:
+ 334               	.LM59:
+ 335 01b8 E091 0000 		lds r30,rlist+11
+ 336 01bc F091 0000 		lds r31,(rlist+11)+1
+ 337 01c0 8685      		ldd r24,Z+14
+ 338               	.LVL8:
+ 339 01c2 82FF      		sbrs r24,2
+ 340 01c4 00C0      		rjmp .L18
+ 341               	.LM60:
+ 342 01c6 80E0      		ldi r24,lo8(0)
+ 343 01c8 90E0      		ldi r25,hi8(0)
+ 344               	/* epilogue start */
+ 345 01ca 0895      		ret
+ 346               	.LFE19:
+ 348               		.data
+ 349               	.LC13:
+ 350 00a5 2077 6169 		.string	" wait+signal/S"
+ 350      742B 7369 
+ 350      676E 616C 
+ 350      2F53 00
+ 351               		.text
+ 353               	bmk11_execute:
+ 354               	.LFB28:
+ 355               	.LM61:
+ 356 01cc EF92      		push r14
+ 357 01ce FF92      		push r15
+ 358 01d0 0F93      		push r16
+ 359 01d2 1F93      		push r17
+ 360               	/* prologue: function */
+ 361               	/* frame size = 0 */
+ 362               	.LM62:
+ 363 01d4 0E94 0000 		call test_wait_tick
+ 364               	.LM63:
+ 365 01d8 88EE      		ldi r24,lo8(1000)
+ 366 01da 93E0      		ldi r25,hi8(1000)
+ 367 01dc 0E94 0000 		call test_start_timer
+ 368 01e0 EE24      		clr r14
+ 369 01e2 FF24      		clr r15
+ 370 01e4 8701      		movw r16,r14
+ 371               	.LVL9:
+ 372               	.L22:
+ 373               	.LM64:
+ 374 01e6 80E0      		ldi r24,lo8(sem1)
+ 375 01e8 90E0      		ldi r25,hi8(sem1)
+ 376 01ea 0E94 0000 		call chSemWait
+ 377               	.LM65:
+ 378 01ee 80E0      		ldi r24,lo8(sem1)
+ 379 01f0 90E0      		ldi r25,hi8(sem1)
+ 380 01f2 0E94 0000 		call chSemSignal
+ 381               	.LM66:
+ 382 01f6 80E0      		ldi r24,lo8(sem1)
+ 383 01f8 90E0      		ldi r25,hi8(sem1)
+ 384 01fa 0E94 0000 		call chSemWait
+ 385               	.LM67:
+ 386 01fe 80E0      		ldi r24,lo8(sem1)
+ 387 0200 90E0      		ldi r25,hi8(sem1)
+ 388 0202 0E94 0000 		call chSemSignal
+ 389               	.LM68:
+ 390 0206 80E0      		ldi r24,lo8(sem1)
+ 391 0208 90E0      		ldi r25,hi8(sem1)
+ 392 020a 0E94 0000 		call chSemWait
+ 393               	.LM69:
+ 394 020e 80E0      		ldi r24,lo8(sem1)
+ 395 0210 90E0      		ldi r25,hi8(sem1)
+ 396 0212 0E94 0000 		call chSemSignal
+ 397               	.LM70:
+ 398 0216 80E0      		ldi r24,lo8(sem1)
+ 399 0218 90E0      		ldi r25,hi8(sem1)
+ 400 021a 0E94 0000 		call chSemWait
+ 401               	.LM71:
+ 402 021e 80E0      		ldi r24,lo8(sem1)
+ 403 0220 90E0      		ldi r25,hi8(sem1)
+ 404 0222 0E94 0000 		call chSemSignal
+ 405               	.LM72:
+ 406 0226 0894      		sec
+ 407 0228 E11C      		adc r14,__zero_reg__
+ 408 022a F11C      		adc r15,__zero_reg__
+ 409 022c 011D      		adc r16,__zero_reg__
+ 410 022e 111D      		adc r17,__zero_reg__
+ 411               	.LM73:
+ 412 0230 8091 0000 		lds r24,test_timer_done
+ 413 0234 8823      		tst r24
+ 414 0236 01F0      		breq .L22
+ 415               	.LM74:
+ 416 0238 80E0      		ldi r24,lo8(.LC11)
+ 417 023a 90E0      		ldi r25,hi8(.LC11)
+ 418 023c 0E94 0000 		call test_print
+ 419               	.LM75:
+ 420 0240 EE0C      		lsl r14
+ 421 0242 FF1C      		rol r15
+ 422 0244 001F      		rol r16
+ 423 0246 111F      		rol r17
+ 424 0248 EE0C      		lsl r14
+ 425 024a FF1C      		rol r15
+ 426 024c 001F      		rol r16
+ 427 024e 111F      		rol r17
+ 428 0250 C801      		movw r24,r16
+ 429 0252 B701      		movw r22,r14
+ 430 0254 0E94 0000 		call test_printn
+ 431               	.LM76:
+ 432 0258 80E0      		ldi r24,lo8(.LC13)
+ 433 025a 90E0      		ldi r25,hi8(.LC13)
+ 434 025c 0E94 0000 		call test_println
+ 435               	/* epilogue start */
+ 436               	.LM77:
+ 437 0260 1F91      		pop r17
+ 438 0262 0F91      		pop r16
+ 439 0264 FF90      		pop r15
+ 440 0266 EF90      		pop r14
+ 441               	.LVL10:
+ 442 0268 0895      		ret
+ 443               	.LFE28:
+ 446               	bmk11_setup:
+ 447               	.LFB27:
+ 448               	.LM78:
+ 449               	/* prologue: function */
+ 450               	/* frame size = 0 */
+ 451               	.LM79:
+ 452 026a 80E0      		ldi r24,lo8(sem1)
+ 453 026c 90E0      		ldi r25,hi8(sem1)
+ 454 026e 61E0      		ldi r22,lo8(1)
+ 455 0270 0E94 0000 		call chSemInit
+ 456               	/* epilogue start */
+ 457               	.LM80:
+ 458 0274 0895      		ret
+ 459               	.LFE27:
+ 462               	bmk7_setup:
+ 463               	.LFB20:
+ 464               	.LM81:
+ 465               	/* prologue: function */
+ 466               	/* frame size = 0 */
+ 467               	.LM82:
+ 468 0276 80E0      		ldi r24,lo8(sem1)
+ 469 0278 90E0      		ldi r25,hi8(sem1)
+ 470 027a 60E0      		ldi r22,lo8(0)
+ 471 027c 0E94 0000 		call chSemInit
+ 472               	/* epilogue start */
+ 473               	.LM83:
+ 474 0280 0895      		ret
+ 475               	.LFE20:
+ 477               		.data
+ 478               	.LC14:
+ 479 00b4 2074 696D 		.string	" timers/S"
+ 479      6572 732F 
+ 479      5300 
+ 480               		.text
+ 482               	bmk10_execute:
+ 483               	.LFB26:
+ 484               	.LM84:
+ 485 0282 EF92      		push r14
+ 486 0284 FF92      		push r15
+ 487 0286 0F93      		push r16
+ 488 0288 1F93      		push r17
+ 489               	/* prologue: function */
+ 490               	/* frame size = 0 */
+ 491               	.LM85:
+ 492 028a 0E94 0000 		call test_wait_tick
+ 493               	.LM86:
+ 494 028e 88EE      		ldi r24,lo8(1000)
+ 495 0290 93E0      		ldi r25,hi8(1000)
+ 496 0292 0E94 0000 		call test_start_timer
+ 497 0296 EE24      		clr r14
+ 498 0298 FF24      		clr r15
+ 499 029a 8701      		movw r16,r14
+ 500               	.LVL11:
+ 501               	.L30:
+ 502               	.LM87:
+ 503               	/* #APP */
+ 504               	 ;  513 "test/testbmk.c" 1
+ 505 029c F894      		cli
+ 506               	 ;  0 "" 2
+ 507               	.LM88:
+ 508               	/* #NOAPP */
+ 509 029e 80E0      		ldi r24,lo8(vt1.2050)
+ 510 02a0 90E0      		ldi r25,hi8(vt1.2050)
+ 511 02a2 61E0      		ldi r22,lo8(1)
+ 512 02a4 70E0      		ldi r23,hi8(1)
+ 513 02a6 40E0      		ldi r20,lo8(gs(tmo))
+ 514 02a8 50E0      		ldi r21,hi8(gs(tmo))
+ 515 02aa 20E0      		ldi r18,lo8(0)
+ 516 02ac 30E0      		ldi r19,hi8(0)
+ 517 02ae 0E94 0000 		call chVTSetI
+ 518               	.LM89:
+ 519 02b2 80E0      		ldi r24,lo8(vt2.2051)
+ 520 02b4 90E0      		ldi r25,hi8(vt2.2051)
+ 521 02b6 60E1      		ldi r22,lo8(10000)
+ 522 02b8 77E2      		ldi r23,hi8(10000)
+ 523 02ba 40E0      		ldi r20,lo8(gs(tmo))
+ 524 02bc 50E0      		ldi r21,hi8(gs(tmo))
+ 525 02be 20E0      		ldi r18,lo8(0)
+ 526 02c0 30E0      		ldi r19,hi8(0)
+ 527 02c2 0E94 0000 		call chVTSetI
+ 528               	.LM90:
+ 529 02c6 80E0      		ldi r24,lo8(vt1.2050)
+ 530 02c8 90E0      		ldi r25,hi8(vt1.2050)
+ 531 02ca 0E94 0000 		call chVTResetI
+ 532               	.LM91:
+ 533 02ce 80E0      		ldi r24,lo8(vt2.2051)
+ 534 02d0 90E0      		ldi r25,hi8(vt2.2051)
+ 535 02d2 0E94 0000 		call chVTResetI
+ 536               	.LM92:
+ 537               	/* #APP */
+ 538               	 ;  518 "test/testbmk.c" 1
+ 539 02d6 7894      		sei
+ 540               	 ;  0 "" 2
+ 541               	.LM93:
+ 542               	/* #NOAPP */
+ 543 02d8 0894      		sec
+ 544 02da E11C      		adc r14,__zero_reg__
+ 545 02dc F11C      		adc r15,__zero_reg__
+ 546 02de 011D      		adc r16,__zero_reg__
+ 547 02e0 111D      		adc r17,__zero_reg__
+ 548               	.LM94:
+ 549 02e2 8091 0000 		lds r24,test_timer_done
+ 550 02e6 8823      		tst r24
+ 551 02e8 01F0      		breq .L30
+ 552               	.LM95:
+ 553 02ea 80E0      		ldi r24,lo8(.LC11)
+ 554 02ec 90E0      		ldi r25,hi8(.LC11)
+ 555 02ee 0E94 0000 		call test_print
+ 556               	.LM96:
+ 557 02f2 EE0C      		lsl r14
+ 558 02f4 FF1C      		rol r15
+ 559 02f6 001F      		rol r16
+ 560 02f8 111F      		rol r17
+ 561 02fa C801      		movw r24,r16
+ 562 02fc B701      		movw r22,r14
+ 563 02fe 0E94 0000 		call test_printn
+ 564               	.LM97:
+ 565 0302 80E0      		ldi r24,lo8(.LC14)
+ 566 0304 90E0      		ldi r25,hi8(.LC14)
+ 567 0306 0E94 0000 		call test_println
+ 568               	/* epilogue start */
+ 569               	.LM98:
+ 570 030a 1F91      		pop r17
+ 571 030c 0F91      		pop r16
+ 572 030e FF90      		pop r15
+ 573 0310 EF90      		pop r14
+ 574               	.LVL12:
+ 575 0312 0895      		ret
+ 576               	.LFE26:
+ 578               		.data
+ 579               	.LC15:
+ 580 00be 2062 7974 		.string	" bytes/S"
+ 580      6573 2F53 
+ 580      00
+ 581               		.text
+ 583               	bmk9_execute:
+ 584               	.LFB24:
+ 585               	.LM99:
+ 586 0314 EF92      		push r14
+ 587 0316 FF92      		push r15
+ 588 0318 0F93      		push r16
+ 589 031a 1F93      		push r17
+ 590               	/* prologue: function */
+ 591               	/* frame size = 0 */
+ 592               	.LM100:
+ 593 031c 80E0      		ldi r24,lo8(iq.2038)
+ 594 031e 90E0      		ldi r25,hi8(iq.2038)
+ 595 0320 60E0      		ldi r22,lo8(ib.2037)
+ 596 0322 70E0      		ldi r23,hi8(ib.2037)
+ 597 0324 40E1      		ldi r20,lo8(16)
+ 598 0326 50E0      		ldi r21,hi8(16)
+ 599 0328 20E0      		ldi r18,lo8(0)
+ 600 032a 30E0      		ldi r19,hi8(0)
+ 601 032c 00E0      		ldi r16,lo8(0)
+ 602 032e 10E0      		ldi r17,hi8(0)
+ 603 0330 0E94 0000 		call chIQInit
+ 604               	.LM101:
+ 605 0334 0E94 0000 		call test_wait_tick
+ 606               	.LM102:
+ 607 0338 88EE      		ldi r24,lo8(1000)
+ 608 033a 93E0      		ldi r25,hi8(1000)
+ 609 033c 0E94 0000 		call test_start_timer
+ 610 0340 EE24      		clr r14
+ 611 0342 FF24      		clr r15
+ 612 0344 8701      		movw r16,r14
+ 613               	.LVL13:
+ 614               	.L34:
+ 615               	.LM103:
+ 616               	/* #APP */
+ 617               	 ;  468 "test/testbmk.c" 1
+ 618 0346 F894      		cli
+ 619               	 ;  0 "" 2
+ 620               	.LM104:
+ 621               	/* #NOAPP */
+ 622 0348 80E0      		ldi r24,lo8(iq.2038)
+ 623 034a 90E0      		ldi r25,hi8(iq.2038)
+ 624 034c 60E0      		ldi r22,lo8(0)
+ 625 034e 0E94 0000 		call chIQPutI
+ 626               	.LM105:
+ 627 0352 80E0      		ldi r24,lo8(iq.2038)
+ 628 0354 90E0      		ldi r25,hi8(iq.2038)
+ 629 0356 61E0      		ldi r22,lo8(1)
+ 630 0358 0E94 0000 		call chIQPutI
+ 631               	.LM106:
+ 632 035c 80E0      		ldi r24,lo8(iq.2038)
+ 633 035e 90E0      		ldi r25,hi8(iq.2038)
+ 634 0360 62E0      		ldi r22,lo8(2)
+ 635 0362 0E94 0000 		call chIQPutI
+ 636               	.LM107:
+ 637 0366 80E0      		ldi r24,lo8(iq.2038)
+ 638 0368 90E0      		ldi r25,hi8(iq.2038)
+ 639 036a 63E0      		ldi r22,lo8(3)
+ 640 036c 0E94 0000 		call chIQPutI
+ 641               	.LM108:
+ 642               	/* #APP */
+ 643               	 ;  473 "test/testbmk.c" 1
+ 644 0370 7894      		sei
+ 645               	 ;  0 "" 2
+ 646               	.LM109:
+ 647               	/* #NOAPP */
+ 648 0372 80E0      		ldi r24,lo8(iq.2038)
+ 649 0374 90E0      		ldi r25,hi8(iq.2038)
+ 650 0376 6FEF      		ldi r22,lo8(-1)
+ 651 0378 7FEF      		ldi r23,hi8(-1)
+ 652 037a 0E94 0000 		call chIQGetTimeout
+ 653               	.LM110:
+ 654 037e 80E0      		ldi r24,lo8(iq.2038)
+ 655 0380 90E0      		ldi r25,hi8(iq.2038)
+ 656 0382 6FEF      		ldi r22,lo8(-1)
+ 657 0384 7FEF      		ldi r23,hi8(-1)
+ 658 0386 0E94 0000 		call chIQGetTimeout
+ 659               	.LM111:
+ 660 038a 80E0      		ldi r24,lo8(iq.2038)
+ 661 038c 90E0      		ldi r25,hi8(iq.2038)
+ 662 038e 6FEF      		ldi r22,lo8(-1)
+ 663 0390 7FEF      		ldi r23,hi8(-1)
+ 664 0392 0E94 0000 		call chIQGetTimeout
+ 665               	.LM112:
+ 666 0396 80E0      		ldi r24,lo8(iq.2038)
+ 667 0398 90E0      		ldi r25,hi8(iq.2038)
+ 668 039a 6FEF      		ldi r22,lo8(-1)
+ 669 039c 7FEF      		ldi r23,hi8(-1)
+ 670 039e 0E94 0000 		call chIQGetTimeout
+ 671               	.LM113:
+ 672 03a2 0894      		sec
+ 673 03a4 E11C      		adc r14,__zero_reg__
+ 674 03a6 F11C      		adc r15,__zero_reg__
+ 675 03a8 011D      		adc r16,__zero_reg__
+ 676 03aa 111D      		adc r17,__zero_reg__
+ 677               	.LM114:
+ 678 03ac 8091 0000 		lds r24,test_timer_done
+ 679 03b0 8823      		tst r24
+ 680 03b2 01F0      		breq .L34
+ 681               	.LM115:
+ 682 03b4 80E0      		ldi r24,lo8(.LC11)
+ 683 03b6 90E0      		ldi r25,hi8(.LC11)
+ 684 03b8 0E94 0000 		call test_print
+ 685               	.LM116:
+ 686 03bc EE0C      		lsl r14
+ 687 03be FF1C      		rol r15
+ 688 03c0 001F      		rol r16
+ 689 03c2 111F      		rol r17
+ 690 03c4 EE0C      		lsl r14
+ 691 03c6 FF1C      		rol r15
+ 692 03c8 001F      		rol r16
+ 693 03ca 111F      		rol r17
+ 694 03cc C801      		movw r24,r16
+ 695 03ce B701      		movw r22,r14
+ 696 03d0 0E94 0000 		call test_printn
+ 697               	.LM117:
+ 698 03d4 80E0      		ldi r24,lo8(.LC15)
+ 699 03d6 90E0      		ldi r25,hi8(.LC15)
+ 700 03d8 0E94 0000 		call test_println
+ 701               	/* epilogue start */
+ 702               	.LM118:
+ 703 03dc 1F91      		pop r17
+ 704 03de 0F91      		pop r16
+ 705 03e0 FF90      		pop r15
+ 706 03e2 EF90      		pop r14
+ 707               	.LVL14:
+ 708 03e4 0895      		ret
+ 709               	.LFE24:
+ 711               		.data
+ 712               	.LC16:
+ 713 00c7 2074 6872 		.string	" threads/S"
+ 713      6561 6473 
+ 713      2F53 00
+ 714               		.text
+ 716               	bmk6_execute:
+ 717               	.LFB18:
+ 718               	.LM119:
+ 719 03e6 BF92      		push r11
+ 720 03e8 CF92      		push r12
+ 721 03ea DF92      		push r13
+ 722 03ec EF92      		push r14
+ 723 03ee FF92      		push r15
+ 724 03f0 0F93      		push r16
+ 725 03f2 1F93      		push r17
+ 726 03f4 CF93      		push r28
+ 727 03f6 DF93      		push r29
+ 728               	/* prologue: function */
+ 729               	/* frame size = 0 */
+ 730               	.LM120:
+ 731 03f8 C091 0000 		lds r28,wa
+ 732 03fc D091 0000 		lds r29,(wa)+1
+ 733               	.LVL15:
+ 734               	.LM121:
+ 735 0400 E091 0000 		lds r30,rlist+11
+ 736 0404 F091 0000 		lds r31,(rlist+11)+1
+ 737 0408 B480      		ldd r11,Z+4
+ 738               	.LVL16:
+ 739 040a B394      		inc r11
+ 740               	.LM122:
+ 741 040c 0E94 0000 		call test_wait_tick
+ 742               	.LM123:
+ 743 0410 88EE      		ldi r24,lo8(1000)
+ 744 0412 93E0      		ldi r25,hi8(1000)
+ 745 0414 0E94 0000 		call test_start_timer
+ 746 0418 CC24      		clr r12
+ 747 041a DD24      		clr r13
+ 748 041c 7601      		movw r14,r12
+ 749               	.LVL17:
+ 750               	.L38:
+ 751               	.LM124:
+ 752 041e CE01      		movw r24,r28
+ 753 0420 65E9      		ldi r22,lo8(149)
+ 754 0422 70E0      		ldi r23,hi8(149)
+ 755 0424 4B2D      		mov r20,r11
+ 756 0426 20E0      		ldi r18,lo8(gs(thread2))
+ 757 0428 30E0      		ldi r19,hi8(gs(thread2))
+ 758 042a 00E0      		ldi r16,lo8(0)
+ 759 042c 10E0      		ldi r17,hi8(0)
+ 760 042e 0E94 0000 		call chThdCreateStatic
+ 761               	.LM125:
+ 762 0432 0894      		sec
+ 763 0434 C11C      		adc r12,__zero_reg__
+ 764 0436 D11C      		adc r13,__zero_reg__
+ 765 0438 E11C      		adc r14,__zero_reg__
+ 766 043a F11C      		adc r15,__zero_reg__
+ 767               	.LM126:
+ 768 043c 8091 0000 		lds r24,test_timer_done
+ 769 0440 8823      		tst r24
+ 770 0442 01F0      		breq .L38
+ 771               	.LM127:
+ 772 0444 80E0      		ldi r24,lo8(.LC11)
+ 773 0446 90E0      		ldi r25,hi8(.LC11)
+ 774 0448 0E94 0000 		call test_print
+ 775               	.LM128:
+ 776 044c C701      		movw r24,r14
+ 777 044e B601      		movw r22,r12
+ 778 0450 0E94 0000 		call test_printn
+ 779               	.LM129:
+ 780 0454 80E0      		ldi r24,lo8(.LC16)
+ 781 0456 90E0      		ldi r25,hi8(.LC16)
+ 782 0458 0E94 0000 		call test_println
+ 783               	/* epilogue start */
+ 784               	.LM130:
+ 785 045c DF91      		pop r29
+ 786 045e CF91      		pop r28
+ 787               	.LVL18:
+ 788 0460 1F91      		pop r17
+ 789 0462 0F91      		pop r16
+ 790 0464 FF90      		pop r15
+ 791 0466 EF90      		pop r14
+ 792 0468 DF90      		pop r13
+ 793 046a CF90      		pop r12
+ 794               	.LVL19:
+ 795 046c BF90      		pop r11
+ 796               	.LVL20:
+ 797 046e 0895      		ret
+ 798               	.LFE18:
+ 800               		.data
+ 801               	.LC17:
+ 802 00d2 2063 7478 		.string	" ctxswc/S"
+ 802      7377 632F 
+ 802      5300 
+ 803               		.text
+ 805               	bmk8_execute:
+ 806               	.LFB23:
+ 807               	.LM131:
+ 808 0470 CF92      		push r12
+ 809 0472 DF92      		push r13
+ 810 0474 EF92      		push r14
+ 811 0476 FF92      		push r15
+ 812 0478 0F93      		push r16
+ 813 047a 1F93      		push r17
+ 814 047c DF93      		push r29
+ 815 047e CF93      		push r28
+ 816 0480 00D0      		rcall .
+ 817 0482 00D0      		rcall .
+ 818 0484 CDB7      		in r28,__SP_L__
+ 819 0486 DEB7      		in r29,__SP_H__
+ 820               	/* prologue: function */
+ 821               	/* frame size = 4 */
+ 822               	.LM132:
+ 823 0488 1982      		std Y+1,__zero_reg__
+ 824 048a 1A82      		std Y+2,__zero_reg__
+ 825 048c 1B82      		std Y+3,__zero_reg__
+ 826 048e 1C82      		std Y+4,__zero_reg__
+ 827               	.LVL21:
+ 828               	.LM133:
+ 829 0490 0E94 0000 		call test_wait_tick
+ 830               	.LM134:
+ 831 0494 E091 0000 		lds r30,rlist+11
+ 832 0498 F091 0000 		lds r31,(rlist+11)+1
+ 833 049c 4481      		ldd r20,Z+4
+ 834 049e 4150      		subi r20,lo8(-(-1))
+ 835 04a0 50E0      		ldi r21,lo8(gs(thread8))
+ 836 04a2 C52E      		mov r12,r21
+ 837 04a4 50E0      		ldi r21,hi8(gs(thread8))
+ 838 04a6 D52E      		mov r13,r21
+ 839 04a8 8091 0000 		lds r24,wa
+ 840 04ac 9091 0000 		lds r25,(wa)+1
+ 841 04b0 65E9      		ldi r22,lo8(149)
+ 842 04b2 70E0      		ldi r23,hi8(149)
+ 843 04b4 9601      		movw r18,r12
+ 844 04b6 7E01      		movw r14,r28
+ 845 04b8 0894      		sec
+ 846 04ba E11C      		adc r14,__zero_reg__
+ 847 04bc F11C      		adc r15,__zero_reg__
+ 848 04be 8701      		movw r16,r14
+ 849 04c0 0E94 0000 		call chThdCreateStatic
+ 850 04c4 9093 0000 		sts (threads)+1,r25
+ 851 04c8 8093 0000 		sts threads,r24
+ 852               	.LM135:
+ 853 04cc E091 0000 		lds r30,rlist+11
+ 854 04d0 F091 0000 		lds r31,(rlist+11)+1
+ 855 04d4 4481      		ldd r20,Z+4
+ 856 04d6 4150      		subi r20,lo8(-(-1))
+ 857 04d8 8091 0000 		lds r24,wa+2
+ 858 04dc 9091 0000 		lds r25,(wa+2)+1
+ 859 04e0 65E9      		ldi r22,lo8(149)
+ 860 04e2 70E0      		ldi r23,hi8(149)
+ 861 04e4 9601      		movw r18,r12
+ 862 04e6 0E94 0000 		call chThdCreateStatic
+ 863 04ea 9093 0000 		sts (threads+2)+1,r25
+ 864 04ee 8093 0000 		sts threads+2,r24
+ 865               	.LM136:
+ 866 04f2 E091 0000 		lds r30,rlist+11
+ 867 04f6 F091 0000 		lds r31,(rlist+11)+1
+ 868 04fa 4481      		ldd r20,Z+4
+ 869 04fc 4150      		subi r20,lo8(-(-1))
+ 870 04fe 8091 0000 		lds r24,wa+4
+ 871 0502 9091 0000 		lds r25,(wa+4)+1
+ 872 0506 65E9      		ldi r22,lo8(149)
+ 873 0508 70E0      		ldi r23,hi8(149)
+ 874 050a 9601      		movw r18,r12
+ 875 050c 0E94 0000 		call chThdCreateStatic
+ 876 0510 9093 0000 		sts (threads+4)+1,r25
+ 877 0514 8093 0000 		sts threads+4,r24
+ 878               	.LM137:
+ 879 0518 E091 0000 		lds r30,rlist+11
+ 880 051c F091 0000 		lds r31,(rlist+11)+1
+ 881 0520 4481      		ldd r20,Z+4
+ 882 0522 4150      		subi r20,lo8(-(-1))
+ 883 0524 8091 0000 		lds r24,wa+6
+ 884 0528 9091 0000 		lds r25,(wa+6)+1
+ 885 052c 65E9      		ldi r22,lo8(149)
+ 886 052e 70E0      		ldi r23,hi8(149)
+ 887 0530 9601      		movw r18,r12
+ 888 0532 0E94 0000 		call chThdCreateStatic
+ 889 0536 9093 0000 		sts (threads+6)+1,r25
+ 890 053a 8093 0000 		sts threads+6,r24
+ 891               	.LM138:
+ 892 053e E091 0000 		lds r30,rlist+11
+ 893 0542 F091 0000 		lds r31,(rlist+11)+1
+ 894 0546 4481      		ldd r20,Z+4
+ 895 0548 4150      		subi r20,lo8(-(-1))
+ 896 054a 8091 0000 		lds r24,wa+8
+ 897 054e 9091 0000 		lds r25,(wa+8)+1
+ 898 0552 65E9      		ldi r22,lo8(149)
+ 899 0554 70E0      		ldi r23,hi8(149)
+ 900 0556 9601      		movw r18,r12
+ 901 0558 0E94 0000 		call chThdCreateStatic
+ 902 055c 9093 0000 		sts (threads+8)+1,r25
+ 903 0560 8093 0000 		sts threads+8,r24
+ 904               	.LM139:
+ 905 0564 88EE      		ldi r24,lo8(1000)
+ 906 0566 93E0      		ldi r25,hi8(1000)
+ 907 0568 0E94 0000 		call chThdSleep
+ 908               	.LM140:
+ 909 056c 0E94 0000 		call test_terminate_threads
+ 910               	.LM141:
+ 911 0570 0E94 0000 		call test_wait_threads
+ 912               	.LM142:
+ 913 0574 80E0      		ldi r24,lo8(.LC11)
+ 914 0576 90E0      		ldi r25,hi8(.LC11)
+ 915 0578 0E94 0000 		call test_print
+ 916               	.LM143:
+ 917 057c 6981      		ldd r22,Y+1
+ 918 057e 7A81      		ldd r23,Y+2
+ 919 0580 8B81      		ldd r24,Y+3
+ 920 0582 9C81      		ldd r25,Y+4
+ 921 0584 0E94 0000 		call test_printn
+ 922               	.LM144:
+ 923 0588 80E0      		ldi r24,lo8(.LC17)
+ 924 058a 90E0      		ldi r25,hi8(.LC17)
+ 925 058c 0E94 0000 		call test_println
+ 926               	/* epilogue start */
+ 927               	.LM145:
+ 928 0590 0F90      		pop __tmp_reg__
+ 929 0592 0F90      		pop __tmp_reg__
+ 930 0594 0F90      		pop __tmp_reg__
+ 931 0596 0F90      		pop __tmp_reg__
+ 932 0598 CF91      		pop r28
+ 933 059a DF91      		pop r29
+ 934 059c 1F91      		pop r17
+ 935 059e 0F91      		pop r16
+ 936 05a0 FF90      		pop r15
+ 937 05a2 EF90      		pop r14
+ 938 05a4 DF90      		pop r13
+ 939 05a6 CF90      		pop r12
+ 940 05a8 0895      		ret
+ 941               	.LFE23:
+ 944               	thread8:
+ 945               	.LFB22:
+ 946               	.LM146:
+ 947               	.LVL22:
+ 948 05aa CF93      		push r28
+ 949 05ac DF93      		push r29
+ 950               	/* prologue: function */
+ 951               	/* frame size = 0 */
+ 952               	.LM147:
+ 953 05ae EC01      		movw r28,r24
+ 954               	.LVL23:
+ 955               	.L44:
+ 956               	.LM148:
+ 957 05b0 0E94 0000 		call chThdYield
+ 958               	.LM149:
+ 959 05b4 0E94 0000 		call chThdYield
+ 960               	.LM150:
+ 961 05b8 0E94 0000 		call chThdYield
+ 962               	.LM151:
+ 963 05bc 0E94 0000 		call chThdYield
+ 964               	.LM152:
+ 965 05c0 8881      		ld r24,Y
+ 966 05c2 9981      		ldd r25,Y+1
+ 967 05c4 AA81      		ldd r26,Y+2
+ 968 05c6 BB81      		ldd r27,Y+3
+ 969 05c8 0496      		adiw r24,4
+ 970 05ca A11D      		adc r26,__zero_reg__
+ 971 05cc B11D      		adc r27,__zero_reg__
+ 972 05ce 8883      		st Y,r24
+ 973 05d0 9983      		std Y+1,r25
+ 974 05d2 AA83      		std Y+2,r26
+ 975 05d4 BB83      		std Y+3,r27
+ 976               	.LM153:
+ 977 05d6 E091 0000 		lds r30,rlist+11
+ 978 05da F091 0000 		lds r31,(rlist+11)+1
+ 979 05de 8685      		ldd r24,Z+14
+ 980 05e0 82FF      		sbrs r24,2
+ 981 05e2 00C0      		rjmp .L44
+ 982               	.LM154:
+ 983 05e4 80E0      		ldi r24,lo8(0)
+ 984 05e6 90E0      		ldi r25,hi8(0)
+ 985               	/* epilogue start */
+ 986 05e8 DF91      		pop r29
+ 987 05ea CF91      		pop r28
+ 988 05ec 0895      		ret
+ 989               	.LFE22:
+ 991               		.data
+ 992               	.LC18:
+ 993 00dc 2072 6573 		.string	" reschedules/S, "
+ 993      6368 6564 
+ 993      756C 6573 
+ 993      2F53 2C20 
+ 993      00
+ 994               		.text
+ 996               	bmk7_execute:
+ 997               	.LFB21:
+ 998               	.LM155:
+ 999 05ee EF92      		push r14
+ 1000 05f0 FF92      		push r15
+ 1001 05f2 0F93      		push r16
+ 1002 05f4 1F93      		push r17
+ 1003               	/* prologue: function */
+ 1004               	/* frame size = 0 */
+ 1005               	.LM156:
+ 1006 05f6 E091 0000 		lds r30,rlist+11
+ 1007 05fa F091 0000 		lds r31,(rlist+11)+1
+ 1008 05fe 4481      		ldd r20,Z+4
+ 1009 0600 4B5F      		subi r20,lo8(-(5))
+ 1010 0602 8091 0000 		lds r24,wa
+ 1011 0606 9091 0000 		lds r25,(wa)+1
+ 1012 060a 65E9      		ldi r22,lo8(149)
+ 1013 060c 70E0      		ldi r23,hi8(149)
+ 1014 060e 20E0      		ldi r18,lo8(gs(thread3))
+ 1015 0610 30E0      		ldi r19,hi8(gs(thread3))
+ 1016 0612 00E0      		ldi r16,lo8(0)
+ 1017 0614 10E0      		ldi r17,hi8(0)
+ 1018 0616 0E94 0000 		call chThdCreateStatic
+ 1019 061a 9093 0000 		sts (threads)+1,r25
+ 1020 061e 8093 0000 		sts threads,r24
+ 1021               	.LM157:
+ 1022 0622 E091 0000 		lds r30,rlist+11
+ 1023 0626 F091 0000 		lds r31,(rlist+11)+1
+ 1024 062a 4481      		ldd r20,Z+4
+ 1025 062c 4C5F      		subi r20,lo8(-(4))
+ 1026 062e 8091 0000 		lds r24,wa+2
+ 1027 0632 9091 0000 		lds r25,(wa+2)+1
+ 1028 0636 65E9      		ldi r22,lo8(149)
+ 1029 0638 70E0      		ldi r23,hi8(149)
+ 1030 063a 20E0      		ldi r18,lo8(gs(thread3))
+ 1031 063c 30E0      		ldi r19,hi8(gs(thread3))
+ 1032 063e 0E94 0000 		call chThdCreateStatic
+ 1033 0642 9093 0000 		sts (threads+2)+1,r25
+ 1034 0646 8093 0000 		sts threads+2,r24
+ 1035               	.LM158:
+ 1036 064a E091 0000 		lds r30,rlist+11
+ 1037 064e F091 0000 		lds r31,(rlist+11)+1
+ 1038 0652 4481      		ldd r20,Z+4
+ 1039 0654 4D5F      		subi r20,lo8(-(3))
+ 1040 0656 8091 0000 		lds r24,wa+4
+ 1041 065a 9091 0000 		lds r25,(wa+4)+1
+ 1042 065e 65E9      		ldi r22,lo8(149)
+ 1043 0660 70E0      		ldi r23,hi8(149)
+ 1044 0662 20E0      		ldi r18,lo8(gs(thread3))
+ 1045 0664 30E0      		ldi r19,hi8(gs(thread3))
+ 1046 0666 0E94 0000 		call chThdCreateStatic
+ 1047 066a 9093 0000 		sts (threads+4)+1,r25
+ 1048 066e 8093 0000 		sts threads+4,r24
+ 1049               	.LM159:
+ 1050 0672 E091 0000 		lds r30,rlist+11
+ 1051 0676 F091 0000 		lds r31,(rlist+11)+1
+ 1052 067a 4481      		ldd r20,Z+4
+ 1053 067c 4E5F      		subi r20,lo8(-(2))
+ 1054 067e 8091 0000 		lds r24,wa+6
+ 1055 0682 9091 0000 		lds r25,(wa+6)+1
+ 1056 0686 65E9      		ldi r22,lo8(149)
+ 1057 0688 70E0      		ldi r23,hi8(149)
+ 1058 068a 20E0      		ldi r18,lo8(gs(thread3))
+ 1059 068c 30E0      		ldi r19,hi8(gs(thread3))
+ 1060 068e 0E94 0000 		call chThdCreateStatic
+ 1061 0692 9093 0000 		sts (threads+6)+1,r25
+ 1062 0696 8093 0000 		sts threads+6,r24
+ 1063               	.LM160:
+ 1064 069a E091 0000 		lds r30,rlist+11
+ 1065 069e F091 0000 		lds r31,(rlist+11)+1
+ 1066 06a2 4481      		ldd r20,Z+4
+ 1067 06a4 4F5F      		subi r20,lo8(-(1))
+ 1068 06a6 8091 0000 		lds r24,wa+8
+ 1069 06aa 9091 0000 		lds r25,(wa+8)+1
+ 1070 06ae 65E9      		ldi r22,lo8(149)
+ 1071 06b0 70E0      		ldi r23,hi8(149)
+ 1072 06b2 20E0      		ldi r18,lo8(gs(thread3))
+ 1073 06b4 30E0      		ldi r19,hi8(gs(thread3))
+ 1074 06b6 0E94 0000 		call chThdCreateStatic
+ 1075 06ba 9093 0000 		sts (threads+8)+1,r25
+ 1076 06be 8093 0000 		sts threads+8,r24
+ 1077               	.LM161:
+ 1078 06c2 0E94 0000 		call test_wait_tick
+ 1079               	.LM162:
+ 1080 06c6 88EE      		ldi r24,lo8(1000)
+ 1081 06c8 93E0      		ldi r25,hi8(1000)
+ 1082 06ca 0E94 0000 		call test_start_timer
+ 1083 06ce EE24      		clr r14
+ 1084 06d0 FF24      		clr r15
+ 1085 06d2 8701      		movw r16,r14
+ 1086               	.LVL24:
+ 1087               	.L48:
+ 1088               	.LM163:
+ 1089 06d4 80E0      		ldi r24,lo8(sem1)
+ 1090 06d6 90E0      		ldi r25,hi8(sem1)
+ 1091 06d8 60E0      		ldi r22,lo8(0)
+ 1092 06da 0E94 0000 		call chSemReset
+ 1093               	.LM164:
+ 1094 06de 0894      		sec
+ 1095 06e0 E11C      		adc r14,__zero_reg__
+ 1096 06e2 F11C      		adc r15,__zero_reg__
+ 1097 06e4 011D      		adc r16,__zero_reg__
+ 1098 06e6 111D      		adc r17,__zero_reg__
+ 1099               	.LM165:
+ 1100 06e8 8091 0000 		lds r24,test_timer_done
+ 1101 06ec 8823      		tst r24
+ 1102 06ee 01F0      		breq .L48
+ 1103               	.LM166:
+ 1104 06f0 0E94 0000 		call test_terminate_threads
+ 1105               	.LM167:
+ 1106 06f4 80E0      		ldi r24,lo8(sem1)
+ 1107 06f6 90E0      		ldi r25,hi8(sem1)
+ 1108 06f8 60E0      		ldi r22,lo8(0)
+ 1109 06fa 0E94 0000 		call chSemReset
+ 1110               	.LM168:
+ 1111 06fe 0E94 0000 		call test_wait_threads
+ 1112               	.LM169:
+ 1113 0702 80E0      		ldi r24,lo8(.LC11)
+ 1114 0704 90E0      		ldi r25,hi8(.LC11)
+ 1115 0706 0E94 0000 		call test_print
+ 1116               	.LM170:
+ 1117 070a C801      		movw r24,r16
+ 1118 070c B701      		movw r22,r14
+ 1119 070e 0E94 0000 		call test_printn
+ 1120               	.LM171:
+ 1121 0712 80E0      		ldi r24,lo8(.LC18)
+ 1122 0714 90E0      		ldi r25,hi8(.LC18)
+ 1123 0716 0E94 0000 		call test_print
+ 1124               	.LM172:
+ 1125 071a C801      		movw r24,r16
+ 1126 071c B701      		movw r22,r14
+ 1127 071e 26E0      		ldi r18,lo8(6)
+ 1128 0720 30E0      		ldi r19,hi8(6)
+ 1129 0722 40E0      		ldi r20,hlo8(6)
+ 1130 0724 50E0      		ldi r21,hhi8(6)
+ 1131 0726 0E94 0000 		call __mulsi3
+ 1132 072a 0E94 0000 		call test_printn
+ 1133               	.LM173:
+ 1134 072e 80E0      		ldi r24,lo8(.LC17)
+ 1135 0730 90E0      		ldi r25,hi8(.LC17)
+ 1136 0732 0E94 0000 		call test_println
+ 1137               	/* epilogue start */
+ 1138               	.LM174:
+ 1139 0736 1F91      		pop r17
+ 1140 0738 0F91      		pop r16
+ 1141 073a FF90      		pop r15
+ 1142 073c EF90      		pop r14
+ 1143               	.LVL25:
+ 1144 073e 0895      		ret
+ 1145               	.LFE21:
+ 1148               	bmk5_execute:
+ 1149               	.LFB17:
+ 1150               	.LM175:
+ 1151 0740 BF92      		push r11
+ 1152 0742 CF92      		push r12
+ 1153 0744 DF92      		push r13
+ 1154 0746 EF92      		push r14
+ 1155 0748 FF92      		push r15
+ 1156 074a 0F93      		push r16
+ 1157 074c 1F93      		push r17
+ 1158 074e CF93      		push r28
+ 1159 0750 DF93      		push r29
+ 1160               	/* prologue: function */
+ 1161               	/* frame size = 0 */
+ 1162               	.LM176:
+ 1163 0752 C091 0000 		lds r28,wa
+ 1164 0756 D091 0000 		lds r29,(wa)+1
+ 1165               	.LVL26:
+ 1166               	.LM177:
+ 1167 075a E091 0000 		lds r30,rlist+11
+ 1168 075e F091 0000 		lds r31,(rlist+11)+1
+ 1169 0762 B480      		ldd r11,Z+4
+ 1170               	.LVL27:
+ 1171 0764 BA94      		dec r11
+ 1172               	.LM178:
+ 1173 0766 0E94 0000 		call test_wait_tick
+ 1174               	.LM179:
+ 1175 076a 88EE      		ldi r24,lo8(1000)
+ 1176 076c 93E0      		ldi r25,hi8(1000)
+ 1177 076e 0E94 0000 		call test_start_timer
+ 1178 0772 CC24      		clr r12
+ 1179 0774 DD24      		clr r13
+ 1180 0776 7601      		movw r14,r12
+ 1181               	.LVL28:
+ 1182               	.L52:
+ 1183               	.LM180:
+ 1184 0778 CE01      		movw r24,r28
+ 1185 077a 65E9      		ldi r22,lo8(149)
+ 1186 077c 70E0      		ldi r23,hi8(149)
+ 1187 077e 4B2D      		mov r20,r11
+ 1188 0780 20E0      		ldi r18,lo8(gs(thread2))
+ 1189 0782 30E0      		ldi r19,hi8(gs(thread2))
+ 1190 0784 00E0      		ldi r16,lo8(0)
+ 1191 0786 10E0      		ldi r17,hi8(0)
+ 1192 0788 0E94 0000 		call chThdCreateStatic
+ 1193 078c 0E94 0000 		call chThdWait
+ 1194               	.LM181:
+ 1195 0790 0894      		sec
+ 1196 0792 C11C      		adc r12,__zero_reg__
+ 1197 0794 D11C      		adc r13,__zero_reg__
+ 1198 0796 E11C      		adc r14,__zero_reg__
+ 1199 0798 F11C      		adc r15,__zero_reg__
+ 1200               	.LM182:
+ 1201 079a 8091 0000 		lds r24,test_timer_done
+ 1202 079e 8823      		tst r24
+ 1203 07a0 01F0      		breq .L52
+ 1204               	.LM183:
+ 1205 07a2 80E0      		ldi r24,lo8(.LC11)
+ 1206 07a4 90E0      		ldi r25,hi8(.LC11)
+ 1207 07a6 0E94 0000 		call test_print
+ 1208               	.LM184:
+ 1209 07aa C701      		movw r24,r14
+ 1210 07ac B601      		movw r22,r12
+ 1211 07ae 0E94 0000 		call test_printn
+ 1212               	.LM185:
+ 1213 07b2 80E0      		ldi r24,lo8(.LC16)
+ 1214 07b4 90E0      		ldi r25,hi8(.LC16)
+ 1215 07b6 0E94 0000 		call test_println
+ 1216               	/* epilogue start */
+ 1217               	.LM186:
+ 1218 07ba DF91      		pop r29
+ 1219 07bc CF91      		pop r28
+ 1220               	.LVL29:
+ 1221 07be 1F91      		pop r17
+ 1222 07c0 0F91      		pop r16
+ 1223 07c2 FF90      		pop r15
+ 1224 07c4 EF90      		pop r14
+ 1225 07c6 DF90      		pop r13
+ 1226 07c8 CF90      		pop r12
+ 1227               	.LVL30:
+ 1228 07ca BF90      		pop r11
+ 1229               	.LVL31:
+ 1230 07cc 0895      		ret
+ 1231               	.LFE17:
+ 1234               	bmk4_execute:
+ 1235               	.LFB16:
+ 1236               	.LM187:
+ 1237 07ce CF92      		push r12
+ 1238 07d0 DF92      		push r13
+ 1239 07d2 EF92      		push r14
+ 1240 07d4 FF92      		push r15
+ 1241 07d6 0F93      		push r16
+ 1242 07d8 1F93      		push r17
+ 1243               	/* prologue: function */
+ 1244               	/* frame size = 0 */
+ 1245               	.LM188:
+ 1246 07da E091 0000 		lds r30,rlist+11
+ 1247 07de F091 0000 		lds r31,(rlist+11)+1
+ 1248 07e2 4481      		ldd r20,Z+4
+ 1249 07e4 4F5F      		subi r20,lo8(-(1))
+ 1250 07e6 8091 0000 		lds r24,wa
+ 1251 07ea 9091 0000 		lds r25,(wa)+1
+ 1252 07ee 65E9      		ldi r22,lo8(149)
+ 1253 07f0 70E0      		ldi r23,hi8(149)
+ 1254 07f2 20E0      		ldi r18,lo8(gs(thread4))
+ 1255 07f4 30E0      		ldi r19,hi8(gs(thread4))
+ 1256 07f6 00E0      		ldi r16,lo8(0)
+ 1257 07f8 10E0      		ldi r17,hi8(0)
+ 1258 07fa 0E94 0000 		call chThdCreateStatic
+ 1259 07fe 8C01      		movw r16,r24
+ 1260 0800 9093 0000 		sts (threads)+1,r25
+ 1261 0804 8093 0000 		sts threads,r24
+ 1262               	.LM189:
+ 1263 0808 0E94 0000 		call test_wait_tick
+ 1264               	.LM190:
+ 1265 080c 88EE      		ldi r24,lo8(1000)
+ 1266 080e 93E0      		ldi r25,hi8(1000)
+ 1267 0810 0E94 0000 		call test_start_timer
+ 1268 0814 CC24      		clr r12
+ 1269 0816 DD24      		clr r13
+ 1270 0818 7601      		movw r14,r12
+ 1271               	.LVL32:
+ 1272               	.L56:
+ 1273               	.LM191:
+ 1274               	/* #APP */
+ 1275               	 ;  230 "test/testbmk.c" 1
+ 1276 081a F894      		cli
+ 1277               	 ;  0 "" 2
+ 1278               	.LM192:
+ 1279               	/* #NOAPP */
+ 1280 081c C801      		movw r24,r16
+ 1281 081e 60E0      		ldi r22,lo8(0)
+ 1282 0820 70E0      		ldi r23,hi8(0)
+ 1283 0822 0E94 0000 		call chSchWakeupS
+ 1284               	.LM193:
+ 1285 0826 C801      		movw r24,r16
+ 1286 0828 60E0      		ldi r22,lo8(0)
+ 1287 082a 70E0      		ldi r23,hi8(0)
+ 1288 082c 0E94 0000 		call chSchWakeupS
+ 1289               	.LM194:
+ 1290 0830 C801      		movw r24,r16
+ 1291 0832 60E0      		ldi r22,lo8(0)
+ 1292 0834 70E0      		ldi r23,hi8(0)
+ 1293 0836 0E94 0000 		call chSchWakeupS
+ 1294               	.LM195:
+ 1295 083a C801      		movw r24,r16
+ 1296 083c 60E0      		ldi r22,lo8(0)
+ 1297 083e 70E0      		ldi r23,hi8(0)
+ 1298 0840 0E94 0000 		call chSchWakeupS
+ 1299               	.LM196:
+ 1300               	/* #APP */
+ 1301               	 ;  235 "test/testbmk.c" 1
+ 1302 0844 7894      		sei
+ 1303               	 ;  0 "" 2
+ 1304               	.LM197:
+ 1305               	/* #NOAPP */
+ 1306 0846 84E0      		ldi r24,lo8(4)
+ 1307 0848 90E0      		ldi r25,hi8(4)
+ 1308 084a A0E0      		ldi r26,hlo8(4)
+ 1309 084c B0E0      		ldi r27,hhi8(4)
+ 1310 084e C80E      		add r12,r24
+ 1311 0850 D91E      		adc r13,r25
+ 1312 0852 EA1E      		adc r14,r26
+ 1313 0854 FB1E      		adc r15,r27
+ 1314               	.LM198:
+ 1315 0856 8091 0000 		lds r24,test_timer_done
+ 1316 085a 8823      		tst r24
+ 1317 085c 01F0      		breq .L56
+ 1318               	.LM199:
+ 1319               	/* #APP */
+ 1320               	 ;  241 "test/testbmk.c" 1
+ 1321 085e F894      		cli
+ 1322               	 ;  0 "" 2
+ 1323               	.LM200:
+ 1324               	/* #NOAPP */
+ 1325 0860 C801      		movw r24,r16
+ 1326 0862 6FEF      		ldi r22,lo8(-1)
+ 1327 0864 7FEF      		ldi r23,hi8(-1)
+ 1328 0866 0E94 0000 		call chSchWakeupS
+ 1329               	.LM201:
+ 1330               	/* #APP */
+ 1331               	 ;  243 "test/testbmk.c" 1
+ 1332 086a 7894      		sei
+ 1333               	 ;  0 "" 2
+ 1334               	.LM202:
+ 1335               	/* #NOAPP */
+ 1336 086c 0E94 0000 		call test_wait_threads
+ 1337               	.LM203:
+ 1338 0870 80E0      		ldi r24,lo8(.LC11)
+ 1339 0872 90E0      		ldi r25,hi8(.LC11)
+ 1340 0874 0E94 0000 		call test_print
+ 1341               	.LM204:
+ 1342 0878 CC0C      		lsl r12
+ 1343 087a DD1C      		rol r13
+ 1344 087c EE1C      		rol r14
+ 1345 087e FF1C      		rol r15
+ 1346 0880 C701      		movw r24,r14
+ 1347 0882 B601      		movw r22,r12
+ 1348 0884 0E94 0000 		call test_printn
+ 1349               	.LM205:
+ 1350 0888 80E0      		ldi r24,lo8(.LC17)
+ 1351 088a 90E0      		ldi r25,hi8(.LC17)
+ 1352 088c 0E94 0000 		call test_println
+ 1353               	/* epilogue start */
+ 1354               	.LM206:
+ 1355 0890 1F91      		pop r17
+ 1356 0892 0F91      		pop r16
+ 1357 0894 FF90      		pop r15
+ 1358 0896 EF90      		pop r14
+ 1359 0898 DF90      		pop r13
+ 1360 089a CF90      		pop r12
+ 1361               	.LVL33:
+ 1362 089c 0895      		ret
+ 1363               	.LFE16:
+ 1366               	msg_loop_test:
+ 1367               	.LFB10:
+ 1368               	.LM207:
+ 1369               	.LVL34:
+ 1370 089e EF92      		push r14
+ 1371 08a0 FF92      		push r15
+ 1372 08a2 0F93      		push r16
+ 1373 08a4 1F93      		push r17
+ 1374 08a6 CF93      		push r28
+ 1375 08a8 DF93      		push r29
+ 1376               	/* prologue: function */
+ 1377               	/* frame size = 0 */
+ 1378 08aa EC01      		movw r28,r24
+ 1379               	.LM208:
+ 1380 08ac 0E94 0000 		call test_wait_tick
+ 1381               	.LVL35:
+ 1382               	.LM209:
+ 1383 08b0 88EE      		ldi r24,lo8(1000)
+ 1384 08b2 93E0      		ldi r25,hi8(1000)
+ 1385 08b4 0E94 0000 		call test_start_timer
+ 1386 08b8 EE24      		clr r14
+ 1387 08ba FF24      		clr r15
+ 1388 08bc 8701      		movw r16,r14
+ 1389               	.LVL36:
+ 1390               	.L60:
+ 1391               	.LM210:
+ 1392 08be CE01      		movw r24,r28
+ 1393 08c0 61E0      		ldi r22,lo8(1)
+ 1394 08c2 70E0      		ldi r23,hi8(1)
+ 1395 08c4 0E94 0000 		call chMsgSend
+ 1396               	.LM211:
+ 1397 08c8 0894      		sec
+ 1398 08ca E11C      		adc r14,__zero_reg__
+ 1399 08cc F11C      		adc r15,__zero_reg__
+ 1400 08ce 011D      		adc r16,__zero_reg__
+ 1401 08d0 111D      		adc r17,__zero_reg__
+ 1402               	.LM212:
+ 1403 08d2 8091 0000 		lds r24,test_timer_done
+ 1404 08d6 8823      		tst r24
+ 1405 08d8 01F0      		breq .L60
+ 1406               	.LM213:
+ 1407 08da CE01      		movw r24,r28
+ 1408 08dc 60E0      		ldi r22,lo8(0)
+ 1409 08de 70E0      		ldi r23,hi8(0)
+ 1410 08e0 0E94 0000 		call chMsgSend
+ 1411               	.LM214:
+ 1412 08e4 C701      		movw r24,r14
+ 1413               	.LVL37:
+ 1414               	/* epilogue start */
+ 1415 08e6 DF91      		pop r29
+ 1416 08e8 CF91      		pop r28
+ 1417               	.LVL38:
+ 1418 08ea 1F91      		pop r17
+ 1419 08ec 0F91      		pop r16
+ 1420 08ee FF90      		pop r15
+ 1421 08f0 EF90      		pop r14
+ 1422 08f2 0895      		ret
+ 1423               	.LFE10:
+ 1425               		.data
+ 1426               	.LC19:
+ 1427 00ed 206D 7367 		.string	" msgs/S, "
+ 1427      732F 532C 
+ 1427      2000 
+ 1428               		.text
+ 1430               	bmk3_execute:
+ 1431               	.LFB14:
+ 1432               	.LM215:
+ 1433 08f4 EF92      		push r14
+ 1434 08f6 FF92      		push r15
+ 1435 08f8 0F93      		push r16
+ 1436 08fa 1F93      		push r17
+ 1437               	/* prologue: function */
+ 1438               	/* frame size = 0 */
+ 1439               	.LM216:
+ 1440 08fc E091 0000 		lds r30,rlist+11
+ 1441 0900 F091 0000 		lds r31,(rlist+11)+1
+ 1442 0904 4481      		ldd r20,Z+4
+ 1443 0906 4F5F      		subi r20,lo8(-(1))
+ 1444 0908 8091 0000 		lds r24,wa
+ 1445 090c 9091 0000 		lds r25,(wa)+1
+ 1446 0910 65E9      		ldi r22,lo8(149)
+ 1447 0912 70E0      		ldi r23,hi8(149)
+ 1448 0914 20E0      		ldi r18,lo8(gs(thread1))
+ 1449 0916 30E0      		ldi r19,hi8(gs(thread1))
+ 1450 0918 00E0      		ldi r16,lo8(0)
+ 1451 091a 10E0      		ldi r17,hi8(0)
+ 1452 091c 0E94 0000 		call chThdCreateStatic
+ 1453 0920 9093 0000 		sts (threads)+1,r25
+ 1454 0924 8093 0000 		sts threads,r24
+ 1455               	.LM217:
+ 1456 0928 E091 0000 		lds r30,rlist+11
+ 1457 092c F091 0000 		lds r31,(rlist+11)+1
+ 1458 0930 4481      		ldd r20,Z+4
+ 1459 0932 4250      		subi r20,lo8(-(-2))
+ 1460 0934 E0E0      		ldi r30,lo8(gs(thread2))
+ 1461 0936 EE2E      		mov r14,r30
+ 1462 0938 E0E0      		ldi r30,hi8(gs(thread2))
+ 1463 093a FE2E      		mov r15,r30
+ 1464 093c 8091 0000 		lds r24,wa+2
+ 1465 0940 9091 0000 		lds r25,(wa+2)+1
+ 1466 0944 65E9      		ldi r22,lo8(149)
+ 1467 0946 70E0      		ldi r23,hi8(149)
+ 1468 0948 9701      		movw r18,r14
+ 1469 094a 0E94 0000 		call chThdCreateStatic
+ 1470 094e 9093 0000 		sts (threads+2)+1,r25
+ 1471 0952 8093 0000 		sts threads+2,r24
+ 1472               	.LM218:
+ 1473 0956 E091 0000 		lds r30,rlist+11
+ 1474 095a F091 0000 		lds r31,(rlist+11)+1
+ 1475 095e 4481      		ldd r20,Z+4
+ 1476 0960 4350      		subi r20,lo8(-(-3))
+ 1477 0962 8091 0000 		lds r24,wa+4
+ 1478 0966 9091 0000 		lds r25,(wa+4)+1
+ 1479 096a 65E9      		ldi r22,lo8(149)
+ 1480 096c 70E0      		ldi r23,hi8(149)
+ 1481 096e 9701      		movw r18,r14
+ 1482 0970 0E94 0000 		call chThdCreateStatic
+ 1483 0974 9093 0000 		sts (threads+4)+1,r25
+ 1484 0978 8093 0000 		sts threads+4,r24
+ 1485               	.LM219:
+ 1486 097c E091 0000 		lds r30,rlist+11
+ 1487 0980 F091 0000 		lds r31,(rlist+11)+1
+ 1488 0984 4481      		ldd r20,Z+4
+ 1489 0986 4450      		subi r20,lo8(-(-4))
+ 1490 0988 8091 0000 		lds r24,wa+6
+ 1491 098c 9091 0000 		lds r25,(wa+6)+1
+ 1492 0990 65E9      		ldi r22,lo8(149)
+ 1493 0992 70E0      		ldi r23,hi8(149)
+ 1494 0994 9701      		movw r18,r14
+ 1495 0996 0E94 0000 		call chThdCreateStatic
+ 1496 099a 9093 0000 		sts (threads+6)+1,r25
+ 1497 099e 8093 0000 		sts threads+6,r24
+ 1498               	.LM220:
+ 1499 09a2 E091 0000 		lds r30,rlist+11
+ 1500 09a6 F091 0000 		lds r31,(rlist+11)+1
+ 1501 09aa 4481      		ldd r20,Z+4
+ 1502 09ac 4550      		subi r20,lo8(-(-5))
+ 1503 09ae 8091 0000 		lds r24,wa+8
+ 1504 09b2 9091 0000 		lds r25,(wa+8)+1
+ 1505 09b6 65E9      		ldi r22,lo8(149)
+ 1506 09b8 70E0      		ldi r23,hi8(149)
+ 1507 09ba 9701      		movw r18,r14
+ 1508 09bc 0E94 0000 		call chThdCreateStatic
+ 1509 09c0 9093 0000 		sts (threads+8)+1,r25
+ 1510 09c4 8093 0000 		sts threads+8,r24
+ 1511               	.LM221:
+ 1512 09c8 8091 0000 		lds r24,threads
+ 1513 09cc 9091 0000 		lds r25,(threads)+1
+ 1514 09d0 0E94 0000 		call msg_loop_test
+ 1515 09d4 7C01      		movw r14,r24
+ 1516               	.LVL39:
+ 1517 09d6 00E0      		ldi r16,lo8(0)
+ 1518 09d8 10E0      		ldi r17,hi8(0)
+ 1519               	.LVL40:
+ 1520               	.LM222:
+ 1521 09da 0E94 0000 		call test_wait_threads
+ 1522               	.LM223:
+ 1523 09de 80E0      		ldi r24,lo8(.LC11)
+ 1524 09e0 90E0      		ldi r25,hi8(.LC11)
+ 1525 09e2 0E94 0000 		call test_print
+ 1526               	.LM224:
+ 1527 09e6 C801      		movw r24,r16
+ 1528 09e8 B701      		movw r22,r14
+ 1529 09ea 0E94 0000 		call test_printn
+ 1530               	.LM225:
+ 1531 09ee 80E0      		ldi r24,lo8(.LC19)
+ 1532 09f0 90E0      		ldi r25,hi8(.LC19)
+ 1533 09f2 0E94 0000 		call test_print
+ 1534               	.LM226:
+ 1535 09f6 EE0C      		lsl r14
+ 1536 09f8 FF1C      		rol r15
+ 1537 09fa 001F      		rol r16
+ 1538 09fc 111F      		rol r17
+ 1539               	.LVL41:
+ 1540 09fe C801      		movw r24,r16
+ 1541 0a00 B701      		movw r22,r14
+ 1542 0a02 0E94 0000 		call test_printn
+ 1543               	.LM227:
+ 1544 0a06 80E0      		ldi r24,lo8(.LC17)
+ 1545 0a08 90E0      		ldi r25,hi8(.LC17)
+ 1546 0a0a 0E94 0000 		call test_println
+ 1547               	/* epilogue start */
+ 1548               	.LM228:
+ 1549 0a0e 1F91      		pop r17
+ 1550 0a10 0F91      		pop r16
+ 1551               	.LVL42:
+ 1552 0a12 FF90      		pop r15
+ 1553 0a14 EF90      		pop r14
+ 1554               	.LVL43:
+ 1555 0a16 0895      		ret
+ 1556               	.LFE14:
+ 1559               	bmk2_execute:
+ 1560               	.LFB12:
+ 1561               	.LM229:
+ 1562 0a18 EF92      		push r14
+ 1563 0a1a FF92      		push r15
+ 1564 0a1c 0F93      		push r16
+ 1565 0a1e 1F93      		push r17
+ 1566               	/* prologue: function */
+ 1567               	/* frame size = 0 */
+ 1568               	.LM230:
+ 1569 0a20 E091 0000 		lds r30,rlist+11
+ 1570 0a24 F091 0000 		lds r31,(rlist+11)+1
+ 1571 0a28 4481      		ldd r20,Z+4
+ 1572 0a2a 4F5F      		subi r20,lo8(-(1))
+ 1573 0a2c 8091 0000 		lds r24,wa
+ 1574 0a30 9091 0000 		lds r25,(wa)+1
+ 1575 0a34 65E9      		ldi r22,lo8(149)
+ 1576 0a36 70E0      		ldi r23,hi8(149)
+ 1577 0a38 20E0      		ldi r18,lo8(gs(thread1))
+ 1578 0a3a 30E0      		ldi r19,hi8(gs(thread1))
+ 1579 0a3c 00E0      		ldi r16,lo8(0)
+ 1580 0a3e 10E0      		ldi r17,hi8(0)
+ 1581 0a40 0E94 0000 		call chThdCreateStatic
+ 1582 0a44 9093 0000 		sts (threads)+1,r25
+ 1583 0a48 8093 0000 		sts threads,r24
+ 1584               	.LM231:
+ 1585 0a4c 0E94 0000 		call msg_loop_test
+ 1586 0a50 7C01      		movw r14,r24
+ 1587               	.LVL44:
+ 1588 0a52 00E0      		ldi r16,lo8(0)
+ 1589 0a54 10E0      		ldi r17,hi8(0)
+ 1590               	.LVL45:
+ 1591               	.LM232:
+ 1592 0a56 0E94 0000 		call test_wait_threads
+ 1593               	.LM233:
+ 1594 0a5a 80E0      		ldi r24,lo8(.LC11)
+ 1595 0a5c 90E0      		ldi r25,hi8(.LC11)
+ 1596 0a5e 0E94 0000 		call test_print
+ 1597               	.LM234:
+ 1598 0a62 C801      		movw r24,r16
+ 1599 0a64 B701      		movw r22,r14
+ 1600 0a66 0E94 0000 		call test_printn
+ 1601               	.LM235:
+ 1602 0a6a 80E0      		ldi r24,lo8(.LC19)
+ 1603 0a6c 90E0      		ldi r25,hi8(.LC19)
+ 1604 0a6e 0E94 0000 		call test_print
+ 1605               	.LM236:
+ 1606 0a72 EE0C      		lsl r14
+ 1607 0a74 FF1C      		rol r15
+ 1608 0a76 001F      		rol r16
+ 1609 0a78 111F      		rol r17
+ 1610               	.LVL46:
+ 1611 0a7a C801      		movw r24,r16
+ 1612 0a7c B701      		movw r22,r14
+ 1613 0a7e 0E94 0000 		call test_printn
+ 1614               	.LM237:
+ 1615 0a82 80E0      		ldi r24,lo8(.LC17)
+ 1616 0a84 90E0      		ldi r25,hi8(.LC17)
+ 1617 0a86 0E94 0000 		call test_println
+ 1618               	/* epilogue start */
+ 1619               	.LM238:
+ 1620 0a8a 1F91      		pop r17
+ 1621 0a8c 0F91      		pop r16
+ 1622               	.LVL47:
+ 1623 0a8e FF90      		pop r15
+ 1624 0a90 EF90      		pop r14
+ 1625               	.LVL48:
+ 1626 0a92 0895      		ret
+ 1627               	.LFE12:
+ 1630               	bmk1_execute:
+ 1631               	.LFB11:
+ 1632               	.LM239:
+ 1633 0a94 EF92      		push r14
+ 1634 0a96 FF92      		push r15
+ 1635 0a98 0F93      		push r16
+ 1636 0a9a 1F93      		push r17
+ 1637               	/* prologue: function */
+ 1638               	/* frame size = 0 */
+ 1639               	.LM240:
+ 1640 0a9c E091 0000 		lds r30,rlist+11
+ 1641 0aa0 F091 0000 		lds r31,(rlist+11)+1
+ 1642 0aa4 4481      		ldd r20,Z+4
+ 1643 0aa6 4150      		subi r20,lo8(-(-1))
+ 1644 0aa8 8091 0000 		lds r24,wa
+ 1645 0aac 9091 0000 		lds r25,(wa)+1
+ 1646 0ab0 65E9      		ldi r22,lo8(149)
+ 1647 0ab2 70E0      		ldi r23,hi8(149)
+ 1648 0ab4 20E0      		ldi r18,lo8(gs(thread1))
+ 1649 0ab6 30E0      		ldi r19,hi8(gs(thread1))
+ 1650 0ab8 00E0      		ldi r16,lo8(0)
+ 1651 0aba 10E0      		ldi r17,hi8(0)
+ 1652 0abc 0E94 0000 		call chThdCreateStatic
+ 1653 0ac0 9093 0000 		sts (threads)+1,r25
+ 1654 0ac4 8093 0000 		sts threads,r24
+ 1655               	.LM241:
+ 1656 0ac8 0E94 0000 		call msg_loop_test
+ 1657 0acc 7C01      		movw r14,r24
+ 1658               	.LVL49:
+ 1659 0ace 00E0      		ldi r16,lo8(0)
+ 1660 0ad0 10E0      		ldi r17,hi8(0)
+ 1661               	.LVL50:
+ 1662               	.LM242:
+ 1663 0ad2 0E94 0000 		call test_wait_threads
+ 1664               	.LM243:
+ 1665 0ad6 80E0      		ldi r24,lo8(.LC11)
+ 1666 0ad8 90E0      		ldi r25,hi8(.LC11)
+ 1667 0ada 0E94 0000 		call test_print
+ 1668               	.LM244:
+ 1669 0ade C801      		movw r24,r16
+ 1670 0ae0 B701      		movw r22,r14
+ 1671 0ae2 0E94 0000 		call test_printn
+ 1672               	.LM245:
+ 1673 0ae6 80E0      		ldi r24,lo8(.LC19)
+ 1674 0ae8 90E0      		ldi r25,hi8(.LC19)
+ 1675 0aea 0E94 0000 		call test_print
+ 1676               	.LM246:
+ 1677 0aee EE0C      		lsl r14
+ 1678 0af0 FF1C      		rol r15
+ 1679 0af2 001F      		rol r16
+ 1680 0af4 111F      		rol r17
+ 1681               	.LVL51:
+ 1682 0af6 C801      		movw r24,r16
+ 1683 0af8 B701      		movw r22,r14
+ 1684 0afa 0E94 0000 		call test_printn
+ 1685               	.LM247:
+ 1686 0afe 80E0      		ldi r24,lo8(.LC17)
+ 1687 0b00 90E0      		ldi r25,hi8(.LC17)
+ 1688 0b02 0E94 0000 		call test_println
+ 1689               	/* epilogue start */
+ 1690               	.LM248:
+ 1691 0b06 1F91      		pop r17
+ 1692 0b08 0F91      		pop r16
+ 1693               	.LVL52:
+ 1694 0b0a FF90      		pop r15
+ 1695 0b0c EF90      		pop r14
+ 1696               	.LVL53:
+ 1697 0b0e 0895      		ret
+ 1698               	.LFE11:
+ 1701               	thread1:
+ 1702               	.LFB9:
+ 1703               	.LM249:
+ 1704               	.LVL54:
+ 1705 0b10 0F93      		push r16
+ 1706 0b12 1F93      		push r17
+ 1707               	/* prologue: function */
+ 1708               	/* frame size = 0 */
+ 1709               	.L70:
+ 1710               	.LM250:
+ 1711 0b14 0E94 0000 		call chMsgWait
+ 1712               	.LVL55:
+ 1713 0b18 FC01      		movw r30,r24
+ 1714               	.LVL56:
+ 1715               	.LM251:
+ 1716 0b1a 028D      		ldd r16,Z+26
+ 1717 0b1c 138D      		ldd r17,Z+27
+ 1718               	.LVL57:
+ 1719               	.LM252:
+ 1720 0b1e B801      		movw r22,r16
+ 1721 0b20 0E94 0000 		call chMsgRelease
+ 1722               	.LVL58:
+ 1723               	.LM253:
+ 1724 0b24 012B      		or r16,r17
+ 1725 0b26 01F4      		brne .L70
+ 1726               	.LM254:
+ 1727 0b28 80E0      		ldi r24,lo8(0)
+ 1728 0b2a 90E0      		ldi r25,hi8(0)
+ 1729               	/* epilogue start */
+ 1730 0b2c 1F91      		pop r17
+ 1731 0b2e 0F91      		pop r16
+ 1732               	.LVL59:
+ 1733 0b30 0895      		ret
+ 1734               	.LFE9:
+ 1736               	.global	thread4
+ 1738               	thread4:
+ 1739               	.LFB15:
+ 1740               	.LM255:
+ 1741               	.LVL60:
+ 1742 0b32 CF93      		push r28
+ 1743 0b34 DF93      		push r29
+ 1744               	/* prologue: function */
+ 1745               	/* frame size = 0 */
+ 1746               	.LM256:
+ 1747 0b36 C091 0000 		lds r28,rlist+11
+ 1748 0b3a D091 0000 		lds r29,(rlist+11)+1
+ 1749               	.LVL61:
+ 1750               	.LM257:
+ 1751               	/* #APP */
+ 1752               	 ;  212 "test/testbmk.c" 1
+ 1753 0b3e F894      		cli
+ 1754               	 ;  0 "" 2
+ 1755               	/* #NOAPP */
+ 1756               	.L74:
+ 1757               	.LM258:
+ 1758 0b40 82E0      		ldi r24,lo8(2)
+ 1759               	.LVL62:
+ 1760 0b42 0E94 0000 		call chSchGoSleepS
+ 1761               	.LM259:
+ 1762 0b46 8A89      		ldd r24,Y+18
+ 1763 0b48 9B89      		ldd r25,Y+19
+ 1764 0b4a 892B      		or r24,r25
+ 1765 0b4c 01F0      		breq .L74
+ 1766               	.LM260:
+ 1767               	/* #APP */
+ 1768               	 ;  217 "test/testbmk.c" 1
+ 1769 0b4e 7894      		sei
+ 1770               	 ;  0 "" 2
+ 1771               	.LM261:
+ 1772               	/* #NOAPP */
+ 1773 0b50 80E0      		ldi r24,lo8(0)
+ 1774 0b52 90E0      		ldi r25,hi8(0)
+ 1775               	/* epilogue start */
+ 1776 0b54 DF91      		pop r29
+ 1777 0b56 CF91      		pop r28
+ 1778               	.LVL63:
+ 1779 0b58 0895      		ret
+ 1780               	.LFE15:
+ 1782               	.global	testbmk1
+ 1783               		.data
+ 1784               	.LC20:
+ 1785 00f7 4265 6E63 		.string	"Benchmark, messages #1"
+ 1785      686D 6172 
+ 1785      6B2C 206D 
+ 1785      6573 7361 
+ 1785      6765 7320 
+ 1788               	testbmk1:
+ 1789 010e 0000      		.word	.LC20
+ 1790 0110 0000      		.word	0
+ 1791 0112 0000      		.word	0
+ 1792 0114 0000      		.word	gs(bmk1_execute)
+ 1793               	.global	testbmk2
+ 1794               	.LC21:
+ 1795 0116 4265 6E63 		.string	"Benchmark, messages #2"
+ 1795      686D 6172 
+ 1795      6B2C 206D 
+ 1795      6573 7361 
+ 1795      6765 7320 
+ 1798               	testbmk2:
+ 1799 012d 0000      		.word	.LC21
+ 1800 012f 0000      		.word	0
+ 1801 0131 0000      		.word	0
+ 1802 0133 0000      		.word	gs(bmk2_execute)
+ 1803               	.global	testbmk3
+ 1804               	.LC22:
+ 1805 0135 4265 6E63 		.string	"Benchmark, messages #3"
+ 1805      686D 6172 
+ 1805      6B2C 206D 
+ 1805      6573 7361 
+ 1805      6765 7320 
+ 1808               	testbmk3:
+ 1809 014c 0000      		.word	.LC22
+ 1810 014e 0000      		.word	0
+ 1811 0150 0000      		.word	0
+ 1812 0152 0000      		.word	gs(bmk3_execute)
+ 1813               	.global	testbmk4
+ 1814               	.LC23:
+ 1815 0154 4265 6E63 		.string	"Benchmark, context switch"
+ 1815      686D 6172 
+ 1815      6B2C 2063 
+ 1815      6F6E 7465 
+ 1815      7874 2073 
+ 1818               	testbmk4:
+ 1819 016e 0000      		.word	.LC23
+ 1820 0170 0000      		.word	0
+ 1821 0172 0000      		.word	0
+ 1822 0174 0000      		.word	gs(bmk4_execute)
+ 1823               	.global	testbmk5
+ 1824               	.LC24:
+ 1825 0176 4265 6E63 		.string	"Benchmark, threads, full cycle"
+ 1825      686D 6172 
+ 1825      6B2C 2074 
+ 1825      6872 6561 
+ 1825      6473 2C20 
+ 1828               	testbmk5:
+ 1829 0195 0000      		.word	.LC24
+ 1830 0197 0000      		.word	0
+ 1831 0199 0000      		.word	0
+ 1832 019b 0000      		.word	gs(bmk5_execute)
+ 1833               	.global	testbmk6
+ 1834               	.LC25:
+ 1835 019d 4265 6E63 		.string	"Benchmark, threads, create only"
+ 1835      686D 6172 
+ 1835      6B2C 2074 
+ 1835      6872 6561 
+ 1835      6473 2C20 
+ 1838               	testbmk6:
+ 1839 01bd 0000      		.word	.LC25
+ 1840 01bf 0000      		.word	0
+ 1841 01c1 0000      		.word	0
+ 1842 01c3 0000      		.word	gs(bmk6_execute)
+ 1843               	.global	testbmk7
+ 1844               	.LC26:
+ 1845 01c5 4265 6E63 		.string	"Benchmark, mass reschedule, 5 threads"
+ 1845      686D 6172 
+ 1845      6B2C 206D 
+ 1845      6173 7320 
+ 1845      7265 7363 
+ 1848               	testbmk7:
+ 1849 01eb 0000      		.word	.LC26
+ 1850 01ed 0000      		.word	gs(bmk7_setup)
+ 1851 01ef 0000      		.word	0
+ 1852 01f1 0000      		.word	gs(bmk7_execute)
+ 1853               	.global	testbmk8
+ 1854               	.LC27:
+ 1855 01f3 4265 6E63 		.string	"Benchmark, round robin context switching"
+ 1855      686D 6172 
+ 1855      6B2C 2072 
+ 1855      6F75 6E64 
+ 1855      2072 6F62 
+ 1858               	testbmk8:
+ 1859 021c 0000      		.word	.LC27
+ 1860 021e 0000      		.word	0
+ 1861 0220 0000      		.word	0
+ 1862 0222 0000      		.word	gs(bmk8_execute)
+ 1863               	.global	testbmk9
+ 1864               	.LC28:
+ 1865 0224 4265 6E63 		.string	"Benchmark, I/O Queues throughput"
+ 1865      686D 6172 
+ 1865      6B2C 2049 
+ 1865      2F4F 2051 
+ 1865      7565 7565 
+ 1868               	testbmk9:
+ 1869 0245 0000      		.word	.LC28
+ 1870 0247 0000      		.word	0
+ 1871 0249 0000      		.word	0
+ 1872 024b 0000      		.word	gs(bmk9_execute)
+ 1873               	.global	testbmk10
+ 1874               	.LC29:
+ 1875 024d 4265 6E63 		.string	"Benchmark, virtual timers set/reset"
+ 1875      686D 6172 
+ 1875      6B2C 2076 
+ 1875      6972 7475 
+ 1875      616C 2074 
+ 1878               	testbmk10:
+ 1879 0271 0000      		.word	.LC29
+ 1880 0273 0000      		.word	0
+ 1881 0275 0000      		.word	0
+ 1882 0277 0000      		.word	gs(bmk10_execute)
+ 1883               	.global	testbmk11
+ 1884               	.LC30:
+ 1885 0279 4265 6E63 		.string	"Benchmark, semaphores wait/signal"
+ 1885      686D 6172 
+ 1885      6B2C 2073 
+ 1885      656D 6170 
+ 1885      686F 7265 
+ 1888               	testbmk11:
+ 1889 029b 0000      		.word	.LC30
+ 1890 029d 0000      		.word	gs(bmk11_setup)
+ 1891 029f 0000      		.word	0
+ 1892 02a1 0000      		.word	gs(bmk11_execute)
+ 1893               	.global	testbmk12
+ 1894               	.LC31:
+ 1895 02a3 4265 6E63 		.string	"Benchmark, mutexes lock/unlock"
+ 1895      686D 6172 
+ 1895      6B2C 206D 
+ 1895      7574 6578 
+ 1895      6573 206C 
+ 1898               	testbmk12:
+ 1899 02c2 0000      		.word	.LC31
+ 1900 02c4 0000      		.word	gs(bmk12_setup)
+ 1901 02c6 0000      		.word	0
+ 1902 02c8 0000      		.word	gs(bmk12_execute)
+ 1903               	.global	testbmk13
+ 1904               	.LC32:
+ 1905 02ca 4265 6E63 		.string	"Benchmark, RAM footprint"
+ 1905      686D 6172 
+ 1905      6B2C 2052 
+ 1905      414D 2066 
+ 1905      6F6F 7470 
+ 1908               	testbmk13:
+ 1909 02e3 0000      		.word	.LC32
+ 1910 02e5 0000      		.word	0
+ 1911 02e7 0000      		.word	0
+ 1912 02e9 0000      		.word	gs(bmk13_execute)
+ 1913               	.global	patternbmk
+ 1916               	patternbmk:
+ 1917 02eb 0000      		.word	testbmk1
+ 1918 02ed 0000      		.word	testbmk2
+ 1919 02ef 0000      		.word	testbmk3
+ 1920 02f1 0000      		.word	testbmk4
+ 1921 02f3 0000      		.word	testbmk5
+ 1922 02f5 0000      		.word	testbmk6
+ 1923 02f7 0000      		.word	testbmk7
+ 1924 02f9 0000      		.word	testbmk8
+ 1925 02fb 0000      		.word	testbmk9
+ 1926 02fd 0000      		.word	testbmk10
+ 1927 02ff 0000      		.word	testbmk11
+ 1928 0301 0000      		.word	testbmk12
+ 1929 0303 0000      		.word	testbmk13
+ 1930 0305 0000      		.word	0
+ 1931               		.lcomm vt2.2051,10
+ 1932               		.lcomm vt1.2050,10
+ 1933               		.lcomm iq.2038,18
+ 1934               		.lcomm ib.2037,16
+ 1935               		.lcomm sem1,5
+ 1936               		.lcomm mtx1,8
+ 2137               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 testbmk.c
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:2      *ABS*:0000003f __SREG__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:3      *ABS*:0000003e __SP_H__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:4      *ABS*:0000003d __SP_L__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:5      *ABS*:00000034 __CCP__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:6      *ABS*:00000000 __tmp_reg__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:7      *ABS*:00000001 __zero_reg__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:17     .text:00000000 thread2
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:30     .text:00000002 tmo
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:66     .text:00000004 bmk13_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:219    .text:00000116 bmk12_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1935   .bss:0000003b mtx1
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:304    .text:000001a4 bmk12_setup
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:319    .text:000001ae thread3
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1934   .bss:00000036 sem1
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:353    .text:000001cc bmk11_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:446    .text:0000026a bmk11_setup
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:462    .text:00000276 bmk7_setup
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:482    .text:00000282 bmk10_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1931   .bss:0000000a vt1.2050
+                             .bss:00000000 vt2.2051
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:583    .text:00000314 bmk9_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1932   .bss:00000014 iq.2038
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1933   .bss:00000026 ib.2037
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:716    .text:000003e6 bmk6_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:805    .text:00000470 bmk8_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:944    .text:000005aa thread8
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:996    .text:000005ee bmk7_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1148   .text:00000740 bmk5_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1234   .text:000007ce bmk4_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1738   .text:00000b32 thread4
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1366   .text:0000089e msg_loop_test
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1430   .text:000008f4 bmk3_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1701   .text:00000b10 thread1
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1559   .text:00000a18 bmk2_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1630   .text:00000a94 bmk1_execute
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1788   .data:0000010e testbmk1
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1798   .data:0000012d testbmk2
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1808   .data:0000014c testbmk3
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1818   .data:0000016e testbmk4
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1828   .data:00000195 testbmk5
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1838   .data:000001bd testbmk6
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1848   .data:000001eb testbmk7
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1858   .data:0000021c testbmk8
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1868   .data:00000245 testbmk9
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1878   .data:00000271 testbmk10
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1888   .data:0000029b testbmk11
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1898   .data:000002c2 testbmk12
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1908   .data:000002e3 testbmk13
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cct28vRu.s:1916   .data:000002eb patternbmk
+
+UNDEFINED SYMBOLS
+test_print
+test_printn
+test_println
+test_wait_tick
+test_start_timer
+chMtxLock
+chMtxUnlock
+test_timer_done
+chMtxInit
+chSemWait
+rlist
+chSemSignal
+chSemInit
+chVTSetI
+chVTResetI
+chIQInit
+chIQPutI
+chIQGetTimeout
+wa
+chThdCreateStatic
+threads
+chThdSleep
+test_terminate_threads
+test_wait_threads
+chThdYield
+chSemReset
+__mulsi3
+chThdWait
+chSchWakeupS
+chMsgSend
+chMsgWait
+chMsgRelease
+chSchGoSleepS
+__do_copy_data
+__do_clear_bss

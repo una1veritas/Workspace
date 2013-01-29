@@ -1,0 +1,48 @@
+http://forum.pjrc.com/threads/540-ChibiOS-RTand-FreeRTOS-for-Teensy-3-0
+--------------------------------------------------------------------------------------------------------
+Both ChibOS and FreeRTOS can be run in cooperative mode.
+
+With ChibiOS you edit chconf.h and set CH_TIME_QUANTUM to zero. Setting this value to zero disables the preemption for threads with equal priority and the round robin becomes cooperative. Note that higher priority threads can still preempt, the kernel is always preemptive.
+
+For FreeRTOS, the configUSE_PREEMPTION flag prevents the system tick from performing a task context switch. Therefore, Tasks have to explicitly yield. When you call any of the queue functionality, semaphores, or task delay or specifically taskYIELD(), then your task will yield and the scheduler can select the next task.
+
+These modes simplify things in terms of threadsafe/reentrancy issues.
+
+As far as a choice between ChibiOS and FreeRTOS, they are both first class systems so you need to look at the examples, read the documentation, and try them then decide. 
+---------------------------------------------------------------------------------------------------------
+The best way to use an SD card on Teensy 3.0 is to directly connect the card to these pins with very short wires.
+
+CS - pin 10 (short white wire)
+MOSI - pin 11 (violet wire)
+MISO - pin 12 (orange wire)
+SCK - pin 13 (long white wire)
+
+red and black are vcc and gnd.
+
+I use a breakouts like these:
+
+https://www.sparkfun.com/products/544
+
+https://www.sparkfun.com/products/11403
+
+Here is the actual setup with a cheap ebay breakout:
+Click image for larger version.  Name: SdSetup.jpg  Views: 0  Size: 139.9 KB  ID: 43
+Note: the light made some areas shine like solder, pins are not shorted.
+
+The version of SdFat included with the library is highly optimized for Teensy and uses a clock rate of 24 MHz at full speed.
+
+You can test this version of SdFat independently of the RTOS by running examples in the SdFat/examples folder.
+
+Try SdInfo.ino and QuickStart.ino. I don't think speed is the problem since SdFat slows the clock for initialization and your card fails on the first SD command.
+
+You could try changing the SPI mode slightly by editing Sd2Card.cpp at line 81 and select 8-bit SPI frames. This introduces a slight delay between bytes.
+Code:
+
+// use 16-bit frame if SPI_USE_8BIT_FRAME is zero
+#define SPI_USE_8BIT_FRAME 1
+
+
+You don't need a super card. I use mostly SanDisk class 4 or better cards for this test. The card should not cause a problem in initialization. I had an old class 2 card suffer one data overrun due to one long write latency. It just took too long on one write, more than 200 msec. The SD spec allows a card to take up to 250 msec and some older class 2 cards do massive erases of flash occasionally.
+
+For very high speed writes I use industrial SD cards like these http://www.newegg.com/Product/Product.aspx?Item=9SIA12K0CT6829. They use SLC flash which works better than consumer MLC/TLC flash for large fast writes. 
+---------------------------------------------------------------------------------------------------------

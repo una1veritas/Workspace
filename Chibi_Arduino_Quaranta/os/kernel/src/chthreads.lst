@@ -1,0 +1,596 @@
+   1               		.file	"chthreads.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  15               	.Ltext0:
+  16               	.global	_thread_init
+  18               	_thread_init:
+  19               	.LFB9:
+  20               	.LM1:
+  21               	.LVL0:
+  22               	/* prologue: function */
+  23               	/* frame size = 0 */
+  24 0000 FC01      		movw r30,r24
+  25               	.LM2:
+  26 0002 6483      		std Z+4,r22
+  27               	.LM3:
+  28 0004 82E0      		ldi r24,lo8(2)
+  29               	.LVL1:
+  30 0006 8587      		std Z+13,r24
+  31               	.LM4:
+  32 0008 1686      		std Z+14,__zero_reg__
+  33               	.LM5:
+  34 000a 84E1      		ldi r24,lo8(20)
+  35 000c 8787      		std Z+15,r24
+  36               	.LM6:
+  37 000e 678F      		std Z+31,r22
+  38               	.LM7:
+  39 0010 168E      		std Z+30,__zero_reg__
+  40 0012 158E      		std Z+29,__zero_reg__
+  41               	.LM8:
+  42 0014 148E      		std Z+28,__zero_reg__
+  43               	.LM9:
+  44 0016 118A      		std Z+17,__zero_reg__
+  45 0018 108A      		std Z+16,__zero_reg__
+  46               	.LM10:
+  47 001a 1486      		std Z+12,__zero_reg__
+  48 001c 1386      		std Z+11,__zero_reg__
+  49               	.LM11:
+  50 001e 80E0      		ldi r24,lo8(rlist)
+  51 0020 90E0      		ldi r25,hi8(rlist)
+  52 0022 9087      		std Z+8,r25
+  53 0024 8783      		std Z+7,r24
+  54 0026 A091 0000 		lds r26,rlist+9
+  55 002a B091 0000 		lds r27,(rlist+9)+1
+  56 002e B287      		std Z+10,r27
+  57 0030 A187      		std Z+9,r26
+  58 0032 F093 0000 		sts (rlist+9)+1,r31
+  59 0036 E093 0000 		sts rlist+9,r30
+  60 003a 1896      		adiw r26,7+1
+  61 003c FC93      		st X,r31
+  62 003e EE93      		st -X,r30
+  63 0040 1797      		sbiw r26,7
+  64               	.LM12:
+  65 0042 CF01      		movw r24,r30
+  66 0044 4496      		adiw r24,20
+  67 0046 958B      		std Z+21,r25
+  68 0048 848B      		std Z+20,r24
+  69               	.LM13:
+  70 004a CF01      		movw r24,r30
+  71 004c 4696      		adiw r24,22
+  72 004e 918F      		std Z+25,r25
+  73 0050 808F      		std Z+24,r24
+  74 0052 978B      		std Z+23,r25
+  75 0054 868B      		std Z+22,r24
+  76               	.LM14:
+  77 0056 CF01      		movw r24,r30
+  78               	.LVL2:
+  79               	/* epilogue start */
+  80 0058 0895      		ret
+  81               	.LFE9:
+  83               	.global	chThdCreateI
+  85               	chThdCreateI:
+  86               	.LFB10:
+  87               	.LM15:
+  88               	.LVL3:
+  89 005a 0F93      		push r16
+  90               	.LVL4:
+  91 005c 1F93      		push r17
+  92               	/* prologue: function */
+  93               	/* frame size = 0 */
+  94 005e DC01      		movw r26,r24
+  95 0060 FB01      		movw r30,r22
+  96               	.LM16:
+  97 0062 7597      		sbiw r30,21
+  98 0064 E80F      		add r30,r24
+  99 0066 F91F      		adc r31,r25
+ 100 0068 1696      		adiw r26,5+1
+ 101 006a FC93      		st X,r31
+ 102 006c EE93      		st -X,r30
+ 103 006e 1597      		sbiw r26,5
+ 104 0070 C901      		movw r24,r18
+ 105               	.LVL5:
+ 106 0072 228B      		std Z+18,r18
+ 107 0074 1596      		adiw r26,5
+ 108 0076 ED91      		ld r30,X+
+ 109 0078 FC91      		ld r31,X
+ 110 007a 1697      		sbiw r26,5+1
+ 111 007c 892F      		mov r24,r25
+ 112 007e 990F      		lsl r25
+ 113 0080 990B      		sbc r25,r25
+ 114 0082 818B      		std Z+17,r24
+ 115 0084 1596      		adiw r26,5
+ 116 0086 ED91      		ld r30,X+
+ 117 0088 FC91      		ld r31,X
+ 118 008a 1697      		sbiw r26,5+1
+ 119 008c 008B      		std Z+16,r16
+ 120 008e 1596      		adiw r26,5
+ 121 0090 ED91      		ld r30,X+
+ 122 0092 FC91      		ld r31,X
+ 123 0094 1697      		sbiw r26,5+1
+ 124 0096 812F      		mov r24,r17
+ 125 0098 9927      		clr r25
+ 126 009a 87FD      		sbrc r24,7
+ 127 009c 9A95      		dec r25
+ 128 009e 8787      		std Z+15,r24
+ 129 00a0 20E0      		ldi r18,lo8(gs(_port_thread_start))
+ 130 00a2 30E0      		ldi r19,hi8(gs(_port_thread_start))
+ 131 00a4 1596      		adiw r26,5
+ 132 00a6 ED91      		ld r30,X+
+ 133 00a8 FC91      		ld r31,X
+ 134 00aa 1697      		sbiw r26,5+1
+ 135 00ac 832F      		mov r24,r19
+ 136 00ae 9927      		clr r25
+ 137 00b0 87FD      		sbrc r24,7
+ 138 00b2 9A95      		dec r25
+ 139 00b4 838B      		std Z+19,r24
+ 140 00b6 1596      		adiw r26,5
+ 141 00b8 ED91      		ld r30,X+
+ 142 00ba FC91      		ld r31,X
+ 143 00bc 1697      		sbiw r26,5+1
+ 144 00be 248B      		std Z+20,r18
+ 145               	.LM17:
+ 146 00c0 CD01      		movw r24,r26
+ 147 00c2 642F      		mov r22,r20
+ 148               	.LVL6:
+ 149 00c4 0E94 0000 		call _thread_init
+ 150               	.LVL7:
+ 151               	/* epilogue start */
+ 152               	.LM18:
+ 153 00c8 1F91      		pop r17
+ 154 00ca 0F91      		pop r16
+ 155 00cc 0895      		ret
+ 156               	.LFE10:
+ 158               	.global	chThdTerminate
+ 160               	chThdTerminate:
+ 161               	.LFB14:
+ 162               	.LM19:
+ 163               	.LVL8:
+ 164               	/* prologue: function */
+ 165               	/* frame size = 0 */
+ 166 00ce FC01      		movw r30,r24
+ 167               	.LM20:
+ 168               	/* #APP */
+ 169               	 ;  268 "os/kernel/src/chthreads.c" 1
+ 170 00d0 F894      		cli
+ 171               	 ;  0 "" 2
+ 172               	.LM21:
+ 173               	/* #NOAPP */
+ 174 00d2 8685      		ldd r24,Z+14
+ 175               	.LVL9:
+ 176 00d4 8460      		ori r24,lo8(4)
+ 177 00d6 8687      		std Z+14,r24
+ 178               	.LM22:
+ 179               	/* #APP */
+ 180               	 ;  270 "os/kernel/src/chthreads.c" 1
+ 181 00d8 7894      		sei
+ 182               	 ;  0 "" 2
+ 183               	/* epilogue start */
+ 184               	.LM23:
+ 185               	/* #NOAPP */
+ 186 00da 0895      		ret
+ 187               	.LFE14:
+ 189               	.global	chThdWait
+ 191               	chThdWait:
+ 192               	.LFB20:
+ 193               	.LM24:
+ 194               	.LVL10:
+ 195 00dc CF93      		push r28
+ 196 00de DF93      		push r29
+ 197               	/* prologue: function */
+ 198               	/* frame size = 0 */
+ 199 00e0 EC01      		movw r28,r24
+ 200               	.LM25:
+ 201               	/* #APP */
+ 202               	 ;  418 "os/kernel/src/chthreads.c" 1
+ 203 00e2 F894      		cli
+ 204               	 ;  0 "" 2
+ 205               	.LM26:
+ 206               	/* #NOAPP */
+ 207 00e4 8D85      		ldd r24,Y+13
+ 208               	.LVL11:
+ 209 00e6 8E30      		cpi r24,lo8(14)
+ 210 00e8 01F0      		breq .L8
+ 211               	.LM27:
+ 212 00ea E091 0000 		lds r30,rlist+11
+ 213 00ee F091 0000 		lds r31,(rlist+11)+1
+ 214               	.LBB6:
+ 215               	.LBB7:
+ 216               	.LM28:
+ 217 00f2 8C89      		ldd r24,Y+20
+ 218 00f4 9D89      		ldd r25,Y+21
+ 219 00f6 9183      		std Z+1,r25
+ 220 00f8 8083      		st Z,r24
+ 221               	.LM29:
+ 222 00fa FD8B      		std Y+21,r31
+ 223 00fc EC8B      		std Y+20,r30
+ 224               	.LBE7:
+ 225               	.LBE6:
+ 226               	.LM30:
+ 227 00fe 87E0      		ldi r24,lo8(7)
+ 228 0100 0E94 0000 		call chSchGoSleepS
+ 229               	.L8:
+ 230               	.LM31:
+ 231 0104 8A89      		ldd r24,Y+18
+ 232               	.LVL12:
+ 233 0106 9B89      		ldd r25,Y+19
+ 234               	.LVL13:
+ 235               	.LM32:
+ 236               	/* #APP */
+ 237               	 ;  428 "os/kernel/src/chthreads.c" 1
+ 238 0108 7894      		sei
+ 239               	 ;  0 "" 2
+ 240               	.LVL14:
+ 241               	/* epilogue start */
+ 242               	.LM33:
+ 243               	/* #NOAPP */
+ 244 010a DF91      		pop r29
+ 245 010c CF91      		pop r28
+ 246               	.LVL15:
+ 247 010e 0895      		ret
+ 248               	.LFE20:
+ 250               	.global	chThdExitS
+ 252               	chThdExitS:
+ 253               	.LFB19:
+ 254               	.LM34:
+ 255               	.LVL16:
+ 256 0110 0F93      		push r16
+ 257 0112 1F93      		push r17
+ 258 0114 CF93      		push r28
+ 259 0116 DF93      		push r29
+ 260               	/* prologue: function */
+ 261               	/* frame size = 0 */
+ 262               	.LM35:
+ 263 0118 C091 0000 		lds r28,rlist+11
+ 264 011c D091 0000 		lds r29,(rlist+11)+1
+ 265               	.LVL17:
+ 266               	.LM36:
+ 267 0120 9B8B      		std Y+19,r25
+ 268 0122 8A8B      		std Y+18,r24
+ 269               	.LM37:
+ 270 0124 EC89      		ldd r30,Y+20
+ 271 0126 FD89      		ldd r31,Y+21
+ 272 0128 8E01      		movw r16,r28
+ 273 012a 0C5E      		subi r16,lo8(-(20))
+ 274 012c 1F4F      		sbci r17,hi8(-(20))
+ 275 012e E017      		cp r30,r16
+ 276 0130 F107      		cpc r31,r17
+ 277 0132 01F0      		breq .L12
+ 278               	.L16:
+ 279               	.LBB8:
+ 280               	.LBB9:
+ 281               	.LM38:
+ 282 0134 8081      		ld r24,Z
+ 283 0136 9181      		ldd r25,Z+1
+ 284               	.LVL18:
+ 285 0138 9D8B      		std Y+21,r25
+ 286 013a 8C8B      		std Y+20,r24
+ 287               	.LBE9:
+ 288               	.LBE8:
+ 289               	.LM39:
+ 290 013c CF01      		movw r24,r30
+ 291 013e 0E94 0000 		call chSchReadyI
+ 292               	.LM40:
+ 293 0142 EC89      		ldd r30,Y+20
+ 294 0144 FD89      		ldd r31,Y+21
+ 295 0146 E017      		cp r30,r16
+ 296 0148 F107      		cpc r31,r17
+ 297 014a 01F4      		brne .L16
+ 298               	.LVL19:
+ 299               	.L12:
+ 300               	.LM41:
+ 301 014c 8E85      		ldd r24,Y+14
+ 302               	.LVL20:
+ 303 014e 90E0      		ldi r25,lo8(0)
+ 304 0150 8370      		andi r24,lo8(3)
+ 305 0152 9070      		andi r25,hi8(3)
+ 306 0154 892B      		or r24,r25
+ 307 0156 01F4      		brne .L14
+ 308               	.LM42:
+ 309 0158 E985      		ldd r30,Y+9
+ 310 015a FA85      		ldd r31,Y+10
+ 311 015c 8F81      		ldd r24,Y+7
+ 312 015e 9885      		ldd r25,Y+8
+ 313 0160 9087      		std Z+8,r25
+ 314 0162 8783      		std Z+7,r24
+ 315 0164 AF81      		ldd r26,Y+7
+ 316 0166 B885      		ldd r27,Y+8
+ 317 0168 1A96      		adiw r26,9+1
+ 318 016a FC93      		st X,r31
+ 319 016c EE93      		st -X,r30
+ 320 016e 1997      		sbiw r26,9
+ 321               	.L14:
+ 322               	.LM43:
+ 323 0170 8EE0      		ldi r24,lo8(14)
+ 324 0172 0E94 0000 		call chSchGoSleepS
+ 325               	/* epilogue start */
+ 326               	.LM44:
+ 327 0176 DF91      		pop r29
+ 328 0178 CF91      		pop r28
+ 329               	.LVL21:
+ 330 017a 1F91      		pop r17
+ 331 017c 0F91      		pop r16
+ 332 017e 0895      		ret
+ 333               	.LFE19:
+ 335               	.global	chThdExit
+ 337               	chThdExit:
+ 338               	.LFB18:
+ 339               	.LM45:
+ 340               	.LVL22:
+ 341               	/* prologue: function */
+ 342               	/* frame size = 0 */
+ 343               	.LM46:
+ 344               	/* #APP */
+ 345               	 ;  340 "os/kernel/src/chthreads.c" 1
+ 346 0180 F894      		cli
+ 347               	 ;  0 "" 2
+ 348               	.LM47:
+ 349               	/* #NOAPP */
+ 350 0182 0E94 0000 		call chThdExitS
+ 351               	.LVL23:
+ 352               	/* epilogue start */
+ 353               	.LM48:
+ 354 0186 0895      		ret
+ 355               	.LFE18:
+ 357               	.global	chThdYield
+ 359               	chThdYield:
+ 360               	.LFB17:
+ 361               	.LM49:
+ 362               	/* prologue: function */
+ 363               	/* frame size = 0 */
+ 364               	.LM50:
+ 365               	/* #APP */
+ 366               	 ;  319 "os/kernel/src/chthreads.c" 1
+ 367 0188 F894      		cli
+ 368               	 ;  0 "" 2
+ 369               	.LM51:
+ 370               	/* #NOAPP */
+ 371 018a E091 0000 		lds r30,rlist
+ 372 018e F091 0000 		lds r31,(rlist)+1
+ 373 0192 A091 0000 		lds r26,rlist+11
+ 374 0196 B091 0000 		lds r27,(rlist+11)+1
+ 375 019a 9481      		ldd r25,Z+4
+ 376 019c 1496      		adiw r26,4
+ 377 019e 8C91      		ld r24,X
+ 378 01a0 9817      		cp r25,r24
+ 379 01a2 00F0      		brlo .L21
+ 380 01a4 0E94 0000 		call chSchDoRescheduleBehind
+ 381               	.L21:
+ 382               	.LM52:
+ 383               	/* #APP */
+ 384               	 ;  321 "os/kernel/src/chthreads.c" 1
+ 385 01a8 7894      		sei
+ 386               	 ;  0 "" 2
+ 387               	/* epilogue start */
+ 388               	.LM53:
+ 389               	/* #NOAPP */
+ 390 01aa 0895      		ret
+ 391               	.LFE17:
+ 393               	.global	chThdSleepUntil
+ 395               	chThdSleepUntil:
+ 396               	.LFB16:
+ 397               	.LM54:
+ 398               	.LVL24:
+ 399               	/* prologue: function */
+ 400               	/* frame size = 0 */
+ 401 01ac BC01      		movw r22,r24
+ 402               	.LM55:
+ 403               	/* #APP */
+ 404               	 ;  304 "os/kernel/src/chthreads.c" 1
+ 405 01ae F894      		cli
+ 406               	 ;  0 "" 2
+ 407               	.LM56:
+ 408               	/* #NOAPP */
+ 409 01b0 8091 0000 		lds r24,vtlist+6
+ 410 01b4 9091 0000 		lds r25,(vtlist+6)+1
+ 411               	.LVL25:
+ 412 01b8 681B      		sub r22,r24
+ 413 01ba 790B      		sbc r23,r25
+ 414 01bc 01F0      		breq .L24
+ 415               	.LM57:
+ 416 01be 86E0      		ldi r24,lo8(6)
+ 417 01c0 0E94 0000 		call chSchGoSleepTimeoutS
+ 418               	.LVL26:
+ 419               	.L24:
+ 420               	.LM58:
+ 421               	/* #APP */
+ 422               	 ;  307 "os/kernel/src/chthreads.c" 1
+ 423 01c4 7894      		sei
+ 424               	 ;  0 "" 2
+ 425               	/* epilogue start */
+ 426               	.LM59:
+ 427               	/* #NOAPP */
+ 428 01c6 0895      		ret
+ 429               	.LFE16:
+ 431               	.global	chThdSleep
+ 433               	chThdSleep:
+ 434               	.LFB15:
+ 435               	.LM60:
+ 436               	.LVL27:
+ 437               	/* prologue: function */
+ 438               	/* frame size = 0 */
+ 439 01c8 BC01      		movw r22,r24
+ 440               	.LM61:
+ 441               	/* #APP */
+ 442               	 ;  289 "os/kernel/src/chthreads.c" 1
+ 443 01ca F894      		cli
+ 444               	 ;  0 "" 2
+ 445               	.LM62:
+ 446               	/* #NOAPP */
+ 447 01cc 86E0      		ldi r24,lo8(6)
+ 448               	.LVL28:
+ 449 01ce 0E94 0000 		call chSchGoSleepTimeoutS
+ 450               	.LVL29:
+ 451               	.LM63:
+ 452               	/* #APP */
+ 453               	 ;  291 "os/kernel/src/chthreads.c" 1
+ 454 01d2 7894      		sei
+ 455               	 ;  0 "" 2
+ 456               	/* epilogue start */
+ 457               	.LM64:
+ 458               	/* #NOAPP */
+ 459 01d4 0895      		ret
+ 460               	.LFE15:
+ 462               	.global	chThdResume
+ 464               	chThdResume:
+ 465               	.LFB13:
+ 466               	.LM65:
+ 467               	.LVL30:
+ 468 01d6 0F93      		push r16
+ 469 01d8 1F93      		push r17
+ 470               	/* prologue: function */
+ 471               	/* frame size = 0 */
+ 472 01da 182F      		mov r17,r24
+ 473 01dc 092F      		mov r16,r25
+ 474               	.LVL31:
+ 475               	.LM66:
+ 476               	/* #APP */
+ 477               	 ;  245 "os/kernel/src/chthreads.c" 1
+ 478 01de F894      		cli
+ 479               	 ;  0 "" 2
+ 480               	.LM67:
+ 481               	/* #NOAPP */
+ 482 01e0 60E0      		ldi r22,lo8(0)
+ 483 01e2 70E0      		ldi r23,hi8(0)
+ 484 01e4 0E94 0000 		call chSchWakeupS
+ 485               	.LVL32:
+ 486               	.LM68:
+ 487               	/* #APP */
+ 488               	 ;  250 "os/kernel/src/chthreads.c" 1
+ 489 01e8 7894      		sei
+ 490               	 ;  0 "" 2
+ 491               	.LM69:
+ 492               	/* #NOAPP */
+ 493 01ea 812F      		mov r24,r17
+ 494 01ec 902F      		mov r25,r16
+ 495               	/* epilogue start */
+ 496 01ee 1F91      		pop r17
+ 497               	.LVL33:
+ 498 01f0 0F91      		pop r16
+ 499               	.LVL34:
+ 500 01f2 0895      		ret
+ 501               	.LFE13:
+ 503               	.global	chThdCreateStatic
+ 505               	chThdCreateStatic:
+ 506               	.LFB11:
+ 507               	.LM70:
+ 508               	.LVL35:
+ 509 01f4 0F93      		push r16
+ 510               	.LVL36:
+ 511 01f6 1F93      		push r17
+ 512               	/* prologue: function */
+ 513               	/* frame size = 0 */
+ 514               	.LM71:
+ 515               	/* #APP */
+ 516               	 ;  192 "os/kernel/src/chthreads.c" 1
+ 517 01f8 F894      		cli
+ 518               	 ;  0 "" 2
+ 519               	.LM72:
+ 520               	/* #NOAPP */
+ 521 01fa 0E94 0000 		call chThdCreateI
+ 522               	.LVL37:
+ 523 01fe 182F      		mov r17,r24
+ 524               	.LVL38:
+ 525 0200 092F      		mov r16,r25
+ 526               	.LVL39:
+ 527 0202 60E0      		ldi r22,lo8(0)
+ 528 0204 70E0      		ldi r23,hi8(0)
+ 529 0206 0E94 0000 		call chSchWakeupS
+ 530               	.LM73:
+ 531               	/* #APP */
+ 532               	 ;  194 "os/kernel/src/chthreads.c" 1
+ 533 020a 7894      		sei
+ 534               	 ;  0 "" 2
+ 535               	.LM74:
+ 536               	/* #NOAPP */
+ 537 020c 812F      		mov r24,r17
+ 538 020e 902F      		mov r25,r16
+ 539               	/* epilogue start */
+ 540 0210 1F91      		pop r17
+ 541               	.LVL40:
+ 542 0212 0F91      		pop r16
+ 543               	.LVL41:
+ 544 0214 0895      		ret
+ 545               	.LFE11:
+ 547               	.global	chThdSetPriority
+ 549               	chThdSetPriority:
+ 550               	.LFB12:
+ 551               	.LM75:
+ 552               	.LVL42:
+ 553 0216 1F93      		push r17
+ 554               	/* prologue: function */
+ 555               	/* frame size = 0 */
+ 556               	.LM76:
+ 557               	/* #APP */
+ 558               	 ;  215 "os/kernel/src/chthreads.c" 1
+ 559 0218 F894      		cli
+ 560               	 ;  0 "" 2
+ 561               	.LM77:
+ 562               	/* #NOAPP */
+ 563 021a E091 0000 		lds r30,rlist+11
+ 564 021e F091 0000 		lds r31,(rlist+11)+1
+ 565 0222 178D      		ldd r17,Z+31
+ 566               	.LVL43:
+ 567               	.LM78:
+ 568 0224 9481      		ldd r25,Z+4
+ 569 0226 1917      		cp r17,r25
+ 570 0228 01F0      		breq .L33
+ 571 022a 9817      		cp r25,r24
+ 572 022c 00F4      		brsh .L34
+ 573               	.L33:
+ 574               	.LM79:
+ 575 022e 8483      		std Z+4,r24
+ 576               	.L34:
+ 577               	.LM80:
+ 578 0230 878F      		std Z+31,r24
+ 579               	.LM81:
+ 580 0232 0E94 0000 		call chSchRescheduleS
+ 581               	.LVL44:
+ 582               	.LM82:
+ 583               	/* #APP */
+ 584               	 ;  226 "os/kernel/src/chthreads.c" 1
+ 585 0236 7894      		sei
+ 586               	 ;  0 "" 2
+ 587               	.LM83:
+ 588               	/* #NOAPP */
+ 589 0238 812F      		mov r24,r17
+ 590               	/* epilogue start */
+ 591 023a 1F91      		pop r17
+ 592               	.LVL45:
+ 593 023c 0895      		ret
+ 594               	.LFE12:
+ 708               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 chthreads.c
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:2      *ABS*:0000003f __SREG__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:3      *ABS*:0000003e __SP_H__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:4      *ABS*:0000003d __SP_L__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:5      *ABS*:00000034 __CCP__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:6      *ABS*:00000000 __tmp_reg__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:7      *ABS*:00000001 __zero_reg__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:18     .text:00000000 _thread_init
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:85     .text:0000005a chThdCreateI
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:160    .text:000000ce chThdTerminate
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:191    .text:000000dc chThdWait
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:252    .text:00000110 chThdExitS
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:337    .text:00000180 chThdExit
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:359    .text:00000188 chThdYield
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:395    .text:000001ac chThdSleepUntil
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:433    .text:000001c8 chThdSleep
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:464    .text:000001d6 chThdResume
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:505    .text:000001f4 chThdCreateStatic
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc8uMdZV.s:549    .text:00000216 chThdSetPriority
+
+UNDEFINED SYMBOLS
+rlist
+_port_thread_start
+chSchGoSleepS
+chSchReadyI
+chSchDoRescheduleBehind
+vtlist
+chSchGoSleepTimeoutS
+chSchWakeupS
+chSchRescheduleS

@@ -1,0 +1,978 @@
+   1               		.file	"chevents.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  15               	.Ltext0:
+  16               	.global	chEvtRegisterMask
+  18               	chEvtRegisterMask:
+  19               	.LFB9:
+  20               	.LM1:
+  21               	.LVL0:
+  22               	/* prologue: function */
+  23               	/* frame size = 0 */
+  24 0000 DC01      		movw r26,r24
+  25 0002 FB01      		movw r30,r22
+  26               	.LM2:
+  27               	/* #APP */
+  28               	 ;  82 "os/kernel/src/chevents.c" 1
+  29 0004 F894      		cli
+  30               	 ;  0 "" 2
+  31               	.LM3:
+  32               	/* #NOAPP */
+  33 0006 8D91      		ld r24,X+
+  34 0008 9C91      		ld r25,X
+  35 000a 1197      		sbiw r26,1
+  36               	.LVL1:
+  37 000c 9183      		std Z+1,r25
+  38 000e 8083      		st Z,r24
+  39               	.LM4:
+  40 0010 6D93      		st X+,r22
+  41 0012 7C93      		st X,r23
+  42               	.LM5:
+  43 0014 8091 0000 		lds r24,rlist+11
+  44 0018 9091 0000 		lds r25,(rlist+11)+1
+  45 001c 9383      		std Z+3,r25
+  46 001e 8283      		std Z+2,r24
+  47               	.LM6:
+  48 0020 4483      		std Z+4,r20
+  49               	.LM7:
+  50 0022 1582      		std Z+5,__zero_reg__
+  51               	.LM8:
+  52               	/* #APP */
+  53               	 ;  88 "os/kernel/src/chevents.c" 1
+  54 0024 7894      		sei
+  55               	 ;  0 "" 2
+  56               	/* epilogue start */
+  57               	.LM9:
+  58               	/* #NOAPP */
+  59 0026 0895      		ret
+  60               	.LFE9:
+  62               	.global	chEvtUnregister
+  64               	chEvtUnregister:
+  65               	.LFB10:
+  66               	.LM10:
+  67               	.LVL2:
+  68               	/* prologue: function */
+  69               	/* frame size = 0 */
+  70 0028 DB01      		movw r26,r22
+  71               	.LM11:
+  72 002a 9C01      		movw r18,r24
+  73               	.LVL3:
+  74               	.LM12:
+  75               	/* #APP */
+  76               	 ;  110 "os/kernel/src/chevents.c" 1
+  77 002c F894      		cli
+  78               	 ;  0 "" 2
+  79               	/* #NOAPP */
+  80 002e FC01      		movw r30,r24
+  81               	.LVL4:
+  82 0030 00C0      		rjmp .L4
+  83               	.LVL5:
+  84               	.L7:
+  85               	.LM13:
+  86 0032 A817      		cp r26,r24
+  87 0034 B907      		cpc r27,r25
+  88 0036 01F0      		breq .L10
+  89               	.LM14:
+  90 0038 FC01      		movw r30,r24
+  91               	.LVL6:
+  92               	.L4:
+  93               	.LM15:
+  94 003a 8081      		ld r24,Z
+  95 003c 9181      		ldd r25,Z+1
+  96               	.LVL7:
+  97 003e 2817      		cp r18,r24
+  98 0040 3907      		cpc r19,r25
+  99 0042 01F4      		brne .L7
+ 100               	.LM16:
+ 101               	/* #APP */
+ 102               	 ;  118 "os/kernel/src/chevents.c" 1
+ 103 0044 7894      		sei
+ 104               	 ;  0 "" 2
+ 105               	/* epilogue start */
+ 106               	.LM17:
+ 107               	/* #NOAPP */
+ 108 0046 0895      		ret
+ 109               	.L10:
+ 110               	.LM18:
+ 111 0048 8D91      		ld r24,X+
+ 112 004a 9C91      		ld r25,X
+ 113               	.LVL8:
+ 114 004c 9183      		std Z+1,r25
+ 115 004e 8083      		st Z,r24
+ 116               	.LM19:
+ 117               	/* #APP */
+ 118               	 ;  118 "os/kernel/src/chevents.c" 1
+ 119 0050 7894      		sei
+ 120               	 ;  0 "" 2
+ 121               	.LM20:
+ 122               	/* #NOAPP */
+ 123 0052 0895      		ret
+ 124               	.LFE10:
+ 126               	.global	chEvtGetAndClearEvents
+ 128               	chEvtGetAndClearEvents:
+ 129               	.LFB11:
+ 130               	.LM21:
+ 131               	.LVL9:
+ 132               	/* prologue: function */
+ 133               	/* frame size = 0 */
+ 134               	.LM22:
+ 135               	/* #APP */
+ 136               	 ;  132 "os/kernel/src/chevents.c" 1
+ 137 0054 F894      		cli
+ 138               	 ;  0 "" 2
+ 139               	.LM23:
+ 140               	/* #NOAPP */
+ 141 0056 E091 0000 		lds r30,rlist+11
+ 142 005a F091 0000 		lds r31,(rlist+11)+1
+ 143 005e 248D      		ldd r18,Z+28
+ 144               	.LM24:
+ 145 0060 982F      		mov r25,r24
+ 146 0062 9095      		com r25
+ 147 0064 9223      		and r25,r18
+ 148 0066 948F      		std Z+28,r25
+ 149               	.LM25:
+ 150               	/* #APP */
+ 151               	 ;  137 "os/kernel/src/chevents.c" 1
+ 152 0068 7894      		sei
+ 153               	 ;  0 "" 2
+ 154               	.LM26:
+ 155               	/* #NOAPP */
+ 156 006a 8223      		and r24,r18
+ 157               	.LVL10:
+ 158               	/* epilogue start */
+ 159 006c 0895      		ret
+ 160               	.LFE11:
+ 162               	.global	chEvtAddEvents
+ 164               	chEvtAddEvents:
+ 165               	.LFB12:
+ 166               	.LM27:
+ 167               	.LVL11:
+ 168               	/* prologue: function */
+ 169               	/* frame size = 0 */
+ 170               	.LM28:
+ 171               	/* #APP */
+ 172               	 ;  152 "os/kernel/src/chevents.c" 1
+ 173 006e F894      		cli
+ 174               	 ;  0 "" 2
+ 175               	.LM29:
+ 176               	/* #NOAPP */
+ 177 0070 E091 0000 		lds r30,rlist+11
+ 178 0074 F091 0000 		lds r31,(rlist+11)+1
+ 179 0078 948D      		ldd r25,Z+28
+ 180 007a 892B      		or r24,r25
+ 181               	.LVL12:
+ 182 007c 848F      		std Z+28,r24
+ 183               	.LM30:
+ 184               	/* #APP */
+ 185               	 ;  156 "os/kernel/src/chevents.c" 1
+ 186 007e 7894      		sei
+ 187               	 ;  0 "" 2
+ 188               	/* epilogue start */
+ 189               	.LM31:
+ 190               	/* #NOAPP */
+ 191 0080 0895      		ret
+ 192               	.LFE12:
+ 194               	.global	chEvtGetAndClearFlags
+ 196               	chEvtGetAndClearFlags:
+ 197               	.LFB14:
+ 198               	.LM32:
+ 199               	.LVL13:
+ 200               	/* prologue: function */
+ 201               	/* frame size = 0 */
+ 202 0082 FC01      		movw r30,r24
+ 203               	.LM33:
+ 204               	/* #APP */
+ 205               	 ;  205 "os/kernel/src/chevents.c" 1
+ 206 0084 F894      		cli
+ 207               	 ;  0 "" 2
+ 208               	.LM34:
+ 209               	/* #NOAPP */
+ 210 0086 8581      		ldd r24,Z+5
+ 211               	.LVL14:
+ 212               	.LM35:
+ 213 0088 1582      		std Z+5,__zero_reg__
+ 214               	.LM36:
+ 215               	/* #APP */
+ 216               	 ;  210 "os/kernel/src/chevents.c" 1
+ 217 008a 7894      		sei
+ 218               	 ;  0 "" 2
+ 219               	.LVL15:
+ 220               	/* epilogue start */
+ 221               	.LM37:
+ 222               	/* #NOAPP */
+ 223 008c 0895      		ret
+ 224               	.LFE14:
+ 226               	.global	chEvtGetAndClearFlagsI
+ 228               	chEvtGetAndClearFlagsI:
+ 229               	.LFB18:
+ 230               	.LM38:
+ 231               	.LVL16:
+ 232               	/* prologue: function */
+ 233               	/* frame size = 0 */
+ 234 008e FC01      		movw r30,r24
+ 235               	.LM39:
+ 236 0090 8581      		ldd r24,Z+5
+ 237               	.LVL17:
+ 238               	.LM40:
+ 239 0092 1582      		std Z+5,__zero_reg__
+ 240               	.LVL18:
+ 241               	/* epilogue start */
+ 242               	.LM41:
+ 243 0094 0895      		ret
+ 244               	.LFE18:
+ 246               	.global	chEvtDispatch
+ 248               	chEvtDispatch:
+ 249               	.LFB19:
+ 250               	.LM42:
+ 251               	.LVL19:
+ 252 0096 EF92      		push r14
+ 253 0098 FF92      		push r15
+ 254 009a 0F93      		push r16
+ 255 009c 1F93      		push r17
+ 256 009e CF93      		push r28
+ 257 00a0 DF93      		push r29
+ 258               	/* prologue: function */
+ 259               	/* frame size = 0 */
+ 260 00a2 7C01      		movw r14,r24
+ 261 00a4 062F      		mov r16,r22
+ 262               	.LM43:
+ 263 00a6 6623      		tst r22
+ 264 00a8 01F0      		breq .L23
+ 265               	.LVL20:
+ 266 00aa 10E0      		ldi r17,lo8(0)
+ 267               	.LVL21:
+ 268               	.LM44:
+ 269 00ac C1E0      		ldi r28,lo8(1)
+ 270 00ae D0E0      		ldi r29,hi8(1)
+ 271 00b0 00C0      		rjmp .L22
+ 272               	.LVL22:
+ 273               	.L21:
+ 274               	.LM45:
+ 275 00b2 0023      		tst r16
+ 276 00b4 01F0      		breq .L23
+ 277               	.L24:
+ 278               	.LM46:
+ 279 00b6 1F5F      		subi r17,lo8(-(1))
+ 280               	.LVL23:
+ 281               	.L22:
+ 282               	.LM47:
+ 283 00b8 9E01      		movw r18,r28
+ 284 00ba 012E      		mov r0,r17
+ 285 00bc 00C0      		rjmp 2f
+ 286 00be 220F      	1:	lsl r18
+ 287 00c0 331F      		rol r19
+ 288 00c2 0A94      	2:	dec r0
+ 289 00c4 02F4      		brpl 1b
+ 290 00c6 802F      		mov r24,r16
+ 291 00c8 8223      		and r24,r18
+ 292 00ca 01F0      		breq .L21
+ 293               	.LM48:
+ 294 00cc 822F      		mov r24,r18
+ 295 00ce 8095      		com r24
+ 296 00d0 0823      		and r16,r24
+ 297               	.LM49:
+ 298 00d2 E12F      		mov r30,r17
+ 299 00d4 F0E0      		ldi r31,lo8(0)
+ 300               	.LVL24:
+ 301 00d6 EE0F      		lsl r30
+ 302 00d8 FF1F      		rol r31
+ 303               	.LVL25:
+ 304 00da EE0D      		add r30,r14
+ 305 00dc FF1D      		adc r31,r15
+ 306               	.LVL26:
+ 307 00de 0190      		ld __tmp_reg__,Z+
+ 308 00e0 F081      		ld r31,Z
+ 309 00e2 E02D      		mov r30,__tmp_reg__
+ 310               	.LVL27:
+ 311 00e4 812F      		mov r24,r17
+ 312               	.LVL28:
+ 313 00e6 0995      		icall
+ 314               	.LVL29:
+ 315               	.LM50:
+ 316 00e8 0023      		tst r16
+ 317 00ea 01F4      		brne .L24
+ 318               	.LVL30:
+ 319               	.L23:
+ 320               	/* epilogue start */
+ 321               	.LM51:
+ 322 00ec DF91      		pop r29
+ 323 00ee CF91      		pop r28
+ 324 00f0 1F91      		pop r17
+ 325               	.LVL31:
+ 326 00f2 0F91      		pop r16
+ 327               	.LVL32:
+ 328 00f4 FF90      		pop r15
+ 329 00f6 EF90      		pop r14
+ 330               	.LVL33:
+ 331 00f8 0895      		ret
+ 332               	.LFE19:
+ 334               	.global	chEvtWaitAllTimeout
+ 336               	chEvtWaitAllTimeout:
+ 337               	.LFB25:
+ 338               	.LM52:
+ 339               	.LVL34:
+ 340 00fa 1F93      		push r17
+ 341 00fc CF93      		push r28
+ 342 00fe DF93      		push r29
+ 343               	/* prologue: function */
+ 344               	/* frame size = 0 */
+ 345 0100 182F      		mov r17,r24
+ 346               	.LM53:
+ 347 0102 C091 0000 		lds r28,rlist+11
+ 348 0106 D091 0000 		lds r29,(rlist+11)+1
+ 349               	.LVL35:
+ 350               	.LM54:
+ 351               	/* #APP */
+ 352               	 ;  526 "os/kernel/src/chevents.c" 1
+ 353 010a F894      		cli
+ 354               	 ;  0 "" 2
+ 355               	.LM55:
+ 356               	/* #NOAPP */
+ 357 010c 9C8D      		ldd r25,Y+28
+ 358 010e 8923      		and r24,r25
+ 359               	.LVL36:
+ 360 0110 8117      		cp r24,r17
+ 361 0112 01F0      		breq .L26
+ 362               	.LM56:
+ 363 0114 6115      		cp r22,__zero_reg__
+ 364 0116 7105      		cpc r23,__zero_reg__
+ 365 0118 01F4      		brne .L27
+ 366               	.LM57:
+ 367               	/* #APP */
+ 368               	 ;  530 "os/kernel/src/chevents.c" 1
+ 369 011a 7894      		sei
+ 370               	 ;  0 "" 2
+ 371               	/* #NOAPP */
+ 372 011c 10E0      		ldi r17,lo8(0)
+ 373               	.L28:
+ 374               	.LM58:
+ 375 011e 812F      		mov r24,r17
+ 376               	/* epilogue start */
+ 377 0120 DF91      		pop r29
+ 378 0122 CF91      		pop r28
+ 379               	.LVL37:
+ 380 0124 1F91      		pop r17
+ 381               	.LVL38:
+ 382 0126 0895      		ret
+ 383               	.LVL39:
+ 384               	.L27:
+ 385               	.LM59:
+ 386 0128 1A8B      		std Y+18,r17
+ 387               	.LM60:
+ 388 012a 89E0      		ldi r24,lo8(9)
+ 389 012c 0E94 0000 		call chSchGoSleepTimeoutS
+ 390               	.LVL40:
+ 391 0130 97FD      		sbrc r25,7
+ 392 0132 00C0      		rjmp .L29
+ 393 0134 9C8D      		ldd r25,Y+28
+ 394               	.LVL41:
+ 395               	.L26:
+ 396               	.LM61:
+ 397 0136 812F      		mov r24,r17
+ 398 0138 8095      		com r24
+ 399 013a 9823      		and r25,r24
+ 400 013c 9C8F      		std Y+28,r25
+ 401               	.LM62:
+ 402               	/* #APP */
+ 403               	 ;  541 "os/kernel/src/chevents.c" 1
+ 404 013e 7894      		sei
+ 405               	 ;  0 "" 2
+ 406               	.LM63:
+ 407               	/* #NOAPP */
+ 408 0140 812F      		mov r24,r17
+ 409 0142 DF91      		pop r29
+ 410 0144 CF91      		pop r28
+ 411               	.LVL42:
+ 412 0146 1F91      		pop r17
+ 413               	.LVL43:
+ 414 0148 0895      		ret
+ 415               	.LVL44:
+ 416               	.L29:
+ 417               	.LM64:
+ 418               	/* #APP */
+ 419               	 ;  535 "os/kernel/src/chevents.c" 1
+ 420 014a 7894      		sei
+ 421               	 ;  0 "" 2
+ 422               	/* #NOAPP */
+ 423 014c 10E0      		ldi r17,lo8(0)
+ 424 014e 00C0      		rjmp .L28
+ 425               	.LFE25:
+ 427               	.global	chEvtWaitAnyTimeout
+ 429               	chEvtWaitAnyTimeout:
+ 430               	.LFB24:
+ 431               	.LM65:
+ 432               	.LVL45:
+ 433 0150 0F93      		push r16
+ 434 0152 1F93      		push r17
+ 435 0154 CF93      		push r28
+ 436 0156 DF93      		push r29
+ 437               	/* prologue: function */
+ 438               	/* frame size = 0 */
+ 439 0158 082F      		mov r16,r24
+ 440               	.LM66:
+ 441 015a C091 0000 		lds r28,rlist+11
+ 442 015e D091 0000 		lds r29,(rlist+11)+1
+ 443               	.LVL46:
+ 444               	.LM67:
+ 445               	/* #APP */
+ 446               	 ;  486 "os/kernel/src/chevents.c" 1
+ 447 0162 F894      		cli
+ 448               	 ;  0 "" 2
+ 449               	.LM68:
+ 450               	/* #NOAPP */
+ 451 0164 9C8D      		ldd r25,Y+28
+ 452 0166 182F      		mov r17,r24
+ 453               	.LVL47:
+ 454 0168 1923      		and r17,r25
+ 455 016a 01F4      		brne .L32
+ 456               	.LM69:
+ 457 016c 6115      		cp r22,__zero_reg__
+ 458 016e 7105      		cpc r23,__zero_reg__
+ 459 0170 01F4      		brne .L33
+ 460               	.LM70:
+ 461               	/* #APP */
+ 462               	 ;  490 "os/kernel/src/chevents.c" 1
+ 463 0172 7894      		sei
+ 464               	 ;  0 "" 2
+ 465               	.LM71:
+ 466               	/* #NOAPP */
+ 467 0174 812F      		mov r24,r17
+ 468               	.LVL48:
+ 469 0176 DF91      		pop r29
+ 470 0178 CF91      		pop r28
+ 471               	.LVL49:
+ 472 017a 1F91      		pop r17
+ 473               	.LVL50:
+ 474 017c 0F91      		pop r16
+ 475               	.LVL51:
+ 476 017e 0895      		ret
+ 477               	.LVL52:
+ 478               	.L33:
+ 479               	.LM72:
+ 480 0180 8A8B      		std Y+18,r24
+ 481               	.LM73:
+ 482 0182 88E0      		ldi r24,lo8(8)
+ 483               	.LVL53:
+ 484 0184 0E94 0000 		call chSchGoSleepTimeoutS
+ 485               	.LVL54:
+ 486 0188 97FD      		sbrc r25,7
+ 487 018a 00C0      		rjmp .L37
+ 488               	.LM74:
+ 489 018c 9C8D      		ldd r25,Y+28
+ 490 018e 102F      		mov r17,r16
+ 491 0190 1923      		and r17,r25
+ 492               	.LVL55:
+ 493               	.L32:
+ 494               	.LM75:
+ 495 0192 812F      		mov r24,r17
+ 496 0194 8095      		com r24
+ 497 0196 8923      		and r24,r25
+ 498 0198 8C8F      		std Y+28,r24
+ 499               	.LM76:
+ 500               	/* #APP */
+ 501               	 ;  502 "os/kernel/src/chevents.c" 1
+ 502 019a 7894      		sei
+ 503               	 ;  0 "" 2
+ 504               	/* #NOAPP */
+ 505               	.L34:
+ 506               	.LM77:
+ 507 019c 812F      		mov r24,r17
+ 508               	/* epilogue start */
+ 509 019e DF91      		pop r29
+ 510 01a0 CF91      		pop r28
+ 511               	.LVL56:
+ 512 01a2 1F91      		pop r17
+ 513               	.LVL57:
+ 514 01a4 0F91      		pop r16
+ 515               	.LVL58:
+ 516 01a6 0895      		ret
+ 517               	.LVL59:
+ 518               	.L37:
+ 519               	.LM78:
+ 520               	/* #APP */
+ 521               	 ;  495 "os/kernel/src/chevents.c" 1
+ 522 01a8 7894      		sei
+ 523               	 ;  0 "" 2
+ 524               	/* #NOAPP */
+ 525 01aa 00C0      		rjmp .L34
+ 526               	.LFE24:
+ 528               	.global	chEvtWaitOneTimeout
+ 530               	chEvtWaitOneTimeout:
+ 531               	.LFB23:
+ 532               	.LM79:
+ 533               	.LVL60:
+ 534 01ac 0F93      		push r16
+ 535 01ae 1F93      		push r17
+ 536 01b0 CF93      		push r28
+ 537 01b2 DF93      		push r29
+ 538               	/* prologue: function */
+ 539               	/* frame size = 0 */
+ 540 01b4 082F      		mov r16,r24
+ 541               	.LM80:
+ 542 01b6 C091 0000 		lds r28,rlist+11
+ 543 01ba D091 0000 		lds r29,(rlist+11)+1
+ 544               	.LVL61:
+ 545               	.LM81:
+ 546               	/* #APP */
+ 547               	 ;  443 "os/kernel/src/chevents.c" 1
+ 548 01be F894      		cli
+ 549               	 ;  0 "" 2
+ 550               	.LM82:
+ 551               	/* #NOAPP */
+ 552 01c0 9C8D      		ldd r25,Y+28
+ 553 01c2 182F      		mov r17,r24
+ 554               	.LVL62:
+ 555 01c4 1923      		and r17,r25
+ 556 01c6 01F4      		brne .L39
+ 557               	.LM83:
+ 558 01c8 6115      		cp r22,__zero_reg__
+ 559 01ca 7105      		cpc r23,__zero_reg__
+ 560 01cc 01F4      		brne .L40
+ 561               	.LM84:
+ 562               	/* #APP */
+ 563               	 ;  447 "os/kernel/src/chevents.c" 1
+ 564 01ce 7894      		sei
+ 565               	 ;  0 "" 2
+ 566               	.LM85:
+ 567               	/* #NOAPP */
+ 568 01d0 812F      		mov r24,r17
+ 569               	.LVL63:
+ 570 01d2 DF91      		pop r29
+ 571 01d4 CF91      		pop r28
+ 572               	.LVL64:
+ 573 01d6 1F91      		pop r17
+ 574               	.LVL65:
+ 575 01d8 0F91      		pop r16
+ 576               	.LVL66:
+ 577 01da 0895      		ret
+ 578               	.LVL67:
+ 579               	.L40:
+ 580               	.LM86:
+ 581 01dc 8A8B      		std Y+18,r24
+ 582               	.LM87:
+ 583 01de 88E0      		ldi r24,lo8(8)
+ 584               	.LVL68:
+ 585 01e0 0E94 0000 		call chSchGoSleepTimeoutS
+ 586               	.LVL69:
+ 587 01e4 97FD      		sbrc r25,7
+ 588 01e6 00C0      		rjmp .L44
+ 589               	.LM88:
+ 590 01e8 9C8D      		ldd r25,Y+28
+ 591 01ea 102F      		mov r17,r16
+ 592 01ec 1923      		and r17,r25
+ 593               	.LVL70:
+ 594               	.L39:
+ 595               	.LM89:
+ 596 01ee 812F      		mov r24,r17
+ 597 01f0 8195      		neg r24
+ 598 01f2 1823      		and r17,r24
+ 599               	.LM90:
+ 600 01f4 812F      		mov r24,r17
+ 601 01f6 8095      		com r24
+ 602 01f8 8923      		and r24,r25
+ 603 01fa 8C8F      		std Y+28,r24
+ 604               	.LM91:
+ 605               	/* #APP */
+ 606               	 ;  460 "os/kernel/src/chevents.c" 1
+ 607 01fc 7894      		sei
+ 608               	 ;  0 "" 2
+ 609               	/* #NOAPP */
+ 610               	.L41:
+ 611               	.LM92:
+ 612 01fe 812F      		mov r24,r17
+ 613               	/* epilogue start */
+ 614 0200 DF91      		pop r29
+ 615 0202 CF91      		pop r28
+ 616               	.LVL71:
+ 617 0204 1F91      		pop r17
+ 618               	.LVL72:
+ 619 0206 0F91      		pop r16
+ 620               	.LVL73:
+ 621 0208 0895      		ret
+ 622               	.LVL74:
+ 623               	.L44:
+ 624               	.LM93:
+ 625               	/* #APP */
+ 626               	 ;  452 "os/kernel/src/chevents.c" 1
+ 627 020a 7894      		sei
+ 628               	 ;  0 "" 2
+ 629               	/* #NOAPP */
+ 630 020c 00C0      		rjmp .L41
+ 631               	.LFE23:
+ 633               	.global	chEvtWaitAll
+ 635               	chEvtWaitAll:
+ 636               	.LFB22:
+ 637               	.LM94:
+ 638               	.LVL75:
+ 639 020e 1F93      		push r17
+ 640 0210 CF93      		push r28
+ 641 0212 DF93      		push r29
+ 642               	/* prologue: function */
+ 643               	/* frame size = 0 */
+ 644 0214 182F      		mov r17,r24
+ 645               	.LM95:
+ 646 0216 C091 0000 		lds r28,rlist+11
+ 647 021a D091 0000 		lds r29,(rlist+11)+1
+ 648               	.LVL76:
+ 649               	.LM96:
+ 650               	/* #APP */
+ 651               	 ;  403 "os/kernel/src/chevents.c" 1
+ 652 021e F894      		cli
+ 653               	 ;  0 "" 2
+ 654               	.LM97:
+ 655               	/* #NOAPP */
+ 656 0220 9C8D      		ldd r25,Y+28
+ 657 0222 8923      		and r24,r25
+ 658               	.LVL77:
+ 659 0224 8117      		cp r24,r17
+ 660 0226 01F0      		breq .L46
+ 661               	.LM98:
+ 662 0228 1A8B      		std Y+18,r17
+ 663               	.LM99:
+ 664 022a 89E0      		ldi r24,lo8(9)
+ 665 022c 0E94 0000 		call chSchGoSleepS
+ 666 0230 9C8D      		ldd r25,Y+28
+ 667               	.L46:
+ 668               	.LM100:
+ 669 0232 812F      		mov r24,r17
+ 670 0234 8095      		com r24
+ 671 0236 9823      		and r25,r24
+ 672 0238 9C8F      		std Y+28,r25
+ 673               	.LM101:
+ 674               	/* #APP */
+ 675               	 ;  411 "os/kernel/src/chevents.c" 1
+ 676 023a 7894      		sei
+ 677               	 ;  0 "" 2
+ 678               	.LM102:
+ 679               	/* #NOAPP */
+ 680 023c 812F      		mov r24,r17
+ 681               	/* epilogue start */
+ 682 023e DF91      		pop r29
+ 683 0240 CF91      		pop r28
+ 684               	.LVL78:
+ 685 0242 1F91      		pop r17
+ 686               	.LVL79:
+ 687 0244 0895      		ret
+ 688               	.LFE22:
+ 690               	.global	chEvtWaitAny
+ 692               	chEvtWaitAny:
+ 693               	.LFB21:
+ 694               	.LM103:
+ 695               	.LVL80:
+ 696 0246 1F93      		push r17
+ 697 0248 CF93      		push r28
+ 698 024a DF93      		push r29
+ 699               	/* prologue: function */
+ 700               	/* frame size = 0 */
+ 701 024c 182F      		mov r17,r24
+ 702               	.LM104:
+ 703 024e C091 0000 		lds r28,rlist+11
+ 704 0252 D091 0000 		lds r29,(rlist+11)+1
+ 705               	.LVL81:
+ 706               	.LM105:
+ 707               	/* #APP */
+ 708               	 ;  376 "os/kernel/src/chevents.c" 1
+ 709 0256 F894      		cli
+ 710               	 ;  0 "" 2
+ 711               	.LM106:
+ 712               	/* #NOAPP */
+ 713 0258 2C8D      		ldd r18,Y+28
+ 714 025a 982F      		mov r25,r24
+ 715               	.LVL82:
+ 716 025c 9223      		and r25,r18
+ 717 025e 01F4      		brne .L49
+ 718               	.LM107:
+ 719 0260 8A8B      		std Y+18,r24
+ 720               	.LM108:
+ 721 0262 88E0      		ldi r24,lo8(8)
+ 722               	.LVL83:
+ 723 0264 0E94 0000 		call chSchGoSleepS
+ 724               	.LVL84:
+ 725               	.LM109:
+ 726 0268 2C8D      		ldd r18,Y+28
+ 727 026a 912F      		mov r25,r17
+ 728               	.LVL85:
+ 729 026c 9223      		and r25,r18
+ 730               	.LVL86:
+ 731               	.L49:
+ 732               	.LM110:
+ 733 026e 892F      		mov r24,r25
+ 734 0270 8095      		com r24
+ 735 0272 8223      		and r24,r18
+ 736 0274 8C8F      		std Y+28,r24
+ 737               	.LM111:
+ 738               	/* #APP */
+ 739               	 ;  385 "os/kernel/src/chevents.c" 1
+ 740 0276 7894      		sei
+ 741               	 ;  0 "" 2
+ 742               	.LM112:
+ 743               	/* #NOAPP */
+ 744 0278 892F      		mov r24,r25
+ 745               	/* epilogue start */
+ 746 027a DF91      		pop r29
+ 747 027c CF91      		pop r28
+ 748               	.LVL87:
+ 749 027e 1F91      		pop r17
+ 750               	.LVL88:
+ 751 0280 0895      		ret
+ 752               	.LFE21:
+ 754               	.global	chEvtWaitOne
+ 756               	chEvtWaitOne:
+ 757               	.LFB20:
+ 758               	.LM113:
+ 759               	.LVL89:
+ 760 0282 1F93      		push r17
+ 761 0284 CF93      		push r28
+ 762 0286 DF93      		push r29
+ 763               	/* prologue: function */
+ 764               	/* frame size = 0 */
+ 765 0288 182F      		mov r17,r24
+ 766               	.LM114:
+ 767 028a C091 0000 		lds r28,rlist+11
+ 768 028e D091 0000 		lds r29,(rlist+11)+1
+ 769               	.LVL90:
+ 770               	.LM115:
+ 771               	/* #APP */
+ 772               	 ;  347 "os/kernel/src/chevents.c" 1
+ 773 0292 F894      		cli
+ 774               	 ;  0 "" 2
+ 775               	.LM116:
+ 776               	/* #NOAPP */
+ 777 0294 2C8D      		ldd r18,Y+28
+ 778 0296 982F      		mov r25,r24
+ 779               	.LVL91:
+ 780 0298 9223      		and r25,r18
+ 781 029a 01F4      		brne .L52
+ 782               	.LM117:
+ 783 029c 8A8B      		std Y+18,r24
+ 784               	.LM118:
+ 785 029e 88E0      		ldi r24,lo8(8)
+ 786               	.LVL92:
+ 787 02a0 0E94 0000 		call chSchGoSleepS
+ 788               	.LVL93:
+ 789               	.LM119:
+ 790 02a4 2C8D      		ldd r18,Y+28
+ 791 02a6 912F      		mov r25,r17
+ 792               	.LVL94:
+ 793 02a8 9223      		and r25,r18
+ 794               	.LVL95:
+ 795               	.L52:
+ 796               	.LM120:
+ 797 02aa 892F      		mov r24,r25
+ 798 02ac 8195      		neg r24
+ 799 02ae 8923      		and r24,r25
+ 800               	.LM121:
+ 801 02b0 982F      		mov r25,r24
+ 802               	.LVL96:
+ 803 02b2 9095      		com r25
+ 804 02b4 9223      		and r25,r18
+ 805 02b6 9C8F      		std Y+28,r25
+ 806               	.LM122:
+ 807               	/* #APP */
+ 808               	 ;  357 "os/kernel/src/chevents.c" 1
+ 809 02b8 7894      		sei
+ 810               	 ;  0 "" 2
+ 811               	/* epilogue start */
+ 812               	.LM123:
+ 813               	/* #NOAPP */
+ 814 02ba DF91      		pop r29
+ 815 02bc CF91      		pop r28
+ 816               	.LVL97:
+ 817 02be 1F91      		pop r17
+ 818               	.LVL98:
+ 819 02c0 0895      		ret
+ 820               	.LFE20:
+ 822               	.global	chEvtSignalI
+ 824               	chEvtSignalI:
+ 825               	.LFB16:
+ 826               	.LM124:
+ 827               	.LVL99:
+ 828               	/* prologue: function */
+ 829               	/* frame size = 0 */
+ 830 02c2 FC01      		movw r30,r24
+ 831               	.LM125:
+ 832 02c4 848D      		ldd r24,Z+28
+ 833               	.LVL100:
+ 834 02c6 682B      		or r22,r24
+ 835               	.LVL101:
+ 836 02c8 648F      		std Z+28,r22
+ 837               	.LM126:
+ 838 02ca 8585      		ldd r24,Z+13
+ 839 02cc 8830      		cpi r24,lo8(8)
+ 840 02ce 01F0      		breq .L59
+ 841 02d0 8930      		cpi r24,lo8(9)
+ 842 02d2 01F0      		breq .L60
+ 843               	.L58:
+ 844 02d4 0895      		ret
+ 845               	.L60:
+ 846 02d6 8289      		ldd r24,Z+18
+ 847 02d8 6823      		and r22,r24
+ 848 02da 8617      		cp r24,r22
+ 849 02dc 01F4      		brne .L58
+ 850               	.L56:
+ 851               	.LM127:
+ 852 02de CF01      		movw r24,r30
+ 853 02e0 0E94 0000 		call chSchReadyI
+ 854               	.LVL102:
+ 855 02e4 FC01      		movw r30,r24
+ 856 02e6 138A      		std Z+19,__zero_reg__
+ 857 02e8 128A      		std Z+18,__zero_reg__
+ 858 02ea 0895      		ret
+ 859               	.LVL103:
+ 860               	.L59:
+ 861               	.LM128:
+ 862 02ec 8289      		ldd r24,Z+18
+ 863 02ee 6823      		and r22,r24
+ 864 02f0 01F4      		brne .L56
+ 865 02f2 0895      		ret
+ 866               	.LFE16:
+ 868               	.global	chEvtSignal
+ 870               	chEvtSignal:
+ 871               	.LFB15:
+ 872               	.LM129:
+ 873               	.LVL104:
+ 874               	/* prologue: function */
+ 875               	/* frame size = 0 */
+ 876               	.LM130:
+ 877               	/* #APP */
+ 878               	 ;  226 "os/kernel/src/chevents.c" 1
+ 879 02f4 F894      		cli
+ 880               	 ;  0 "" 2
+ 881               	.LM131:
+ 882               	/* #NOAPP */
+ 883 02f6 0E94 0000 		call chEvtSignalI
+ 884               	.LVL105:
+ 885               	.LM132:
+ 886 02fa 0E94 0000 		call chSchRescheduleS
+ 887               	.LM133:
+ 888               	/* #APP */
+ 889               	 ;  229 "os/kernel/src/chevents.c" 1
+ 890 02fe 7894      		sei
+ 891               	 ;  0 "" 2
+ 892               	/* epilogue start */
+ 893               	.LM134:
+ 894               	/* #NOAPP */
+ 895 0300 0895      		ret
+ 896               	.LFE15:
+ 898               	.global	chEvtBroadcastFlagsI
+ 900               	chEvtBroadcastFlagsI:
+ 901               	.LFB13:
+ 902               	.LM135:
+ 903               	.LVL106:
+ 904 0302 FF92      		push r15
+ 905 0304 0F93      		push r16
+ 906 0306 1F93      		push r17
+ 907 0308 CF93      		push r28
+ 908 030a DF93      		push r29
+ 909               	/* prologue: function */
+ 910               	/* frame size = 0 */
+ 911 030c 8C01      		movw r16,r24
+ 912 030e F62E      		mov r15,r22
+ 913               	.LM136:
+ 914 0310 FC01      		movw r30,r24
+ 915 0312 C081      		ld r28,Z
+ 916 0314 D181      		ldd r29,Z+1
+ 917               	.LVL107:
+ 918               	.LM137:
+ 919 0316 C817      		cp r28,r24
+ 920 0318 D907      		cpc r29,r25
+ 921 031a 01F0      		breq .L66
+ 922               	.LVL108:
+ 923               	.L67:
+ 924               	.LM138:
+ 925 031c 8D81      		ldd r24,Y+5
+ 926               	.LVL109:
+ 927 031e 8F29      		or r24,r15
+ 928 0320 8D83      		std Y+5,r24
+ 929               	.LM139:
+ 930 0322 8A81      		ldd r24,Y+2
+ 931 0324 9B81      		ldd r25,Y+3
+ 932 0326 6C81      		ldd r22,Y+4
+ 933 0328 0E94 0000 		call chEvtSignalI
+ 934               	.LM140:
+ 935 032c 0990      		ld __tmp_reg__,Y+
+ 936 032e D881      		ld r29,Y
+ 937 0330 C02D      		mov r28,__tmp_reg__
+ 938               	.LM141:
+ 939 0332 C017      		cp r28,r16
+ 940 0334 D107      		cpc r29,r17
+ 941 0336 01F4      		brne .L67
+ 942               	.LVL110:
+ 943               	.L66:
+ 944               	/* epilogue start */
+ 945               	.LM142:
+ 946 0338 DF91      		pop r29
+ 947 033a CF91      		pop r28
+ 948               	.LVL111:
+ 949 033c 1F91      		pop r17
+ 950 033e 0F91      		pop r16
+ 951               	.LVL112:
+ 952 0340 FF90      		pop r15
+ 953               	.LVL113:
+ 954 0342 0895      		ret
+ 955               	.LFE13:
+ 957               	.global	chEvtBroadcastFlags
+ 959               	chEvtBroadcastFlags:
+ 960               	.LFB17:
+ 961               	.LM143:
+ 962               	.LVL114:
+ 963               	/* prologue: function */
+ 964               	/* frame size = 0 */
+ 965               	.LM144:
+ 966               	/* #APP */
+ 967               	 ;  273 "os/kernel/src/chevents.c" 1
+ 968 0344 F894      		cli
+ 969               	 ;  0 "" 2
+ 970               	.LM145:
+ 971               	/* #NOAPP */
+ 972 0346 0E94 0000 		call chEvtBroadcastFlagsI
+ 973               	.LVL115:
+ 974               	.LM146:
+ 975 034a 0E94 0000 		call chSchRescheduleS
+ 976               	.LM147:
+ 977               	/* #APP */
+ 978               	 ;  276 "os/kernel/src/chevents.c" 1
+ 979 034e 7894      		sei
+ 980               	 ;  0 "" 2
+ 981               	/* epilogue start */
+ 982               	.LM148:
+ 983               	/* #NOAPP */
+ 984 0350 0895      		ret
+ 985               	.LFE17:
+ 1139               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 chevents.c
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:2      *ABS*:0000003f __SREG__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:3      *ABS*:0000003e __SP_H__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:4      *ABS*:0000003d __SP_L__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:5      *ABS*:00000034 __CCP__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:6      *ABS*:00000000 __tmp_reg__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:7      *ABS*:00000001 __zero_reg__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:18     .text:00000000 chEvtRegisterMask
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:64     .text:00000028 chEvtUnregister
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:128    .text:00000054 chEvtGetAndClearEvents
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:164    .text:0000006e chEvtAddEvents
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:196    .text:00000082 chEvtGetAndClearFlags
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:228    .text:0000008e chEvtGetAndClearFlagsI
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:248    .text:00000096 chEvtDispatch
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:336    .text:000000fa chEvtWaitAllTimeout
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:429    .text:00000150 chEvtWaitAnyTimeout
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:530    .text:000001ac chEvtWaitOneTimeout
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:635    .text:0000020e chEvtWaitAll
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:692    .text:00000246 chEvtWaitAny
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:756    .text:00000282 chEvtWaitOne
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:824    .text:000002c2 chEvtSignalI
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:870    .text:000002f4 chEvtSignal
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:900    .text:00000302 chEvtBroadcastFlagsI
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//cc6AbRmM.s:959    .text:00000344 chEvtBroadcastFlags
+
+UNDEFINED SYMBOLS
+rlist
+chSchGoSleepTimeoutS
+chSchGoSleepS
+chSchReadyI
+chSchRescheduleS

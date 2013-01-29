@@ -1,0 +1,364 @@
+   1               		.file	"serial_lld.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  15               	.Ltext0:
+  17               	notify2:
+  18               	.LFB10:
+  19               	.LM1:
+  20               	.LVL0:
+  21               	/* prologue: function */
+  22               	/* frame size = 0 */
+  23               	.LM2:
+  24 0000 E9EC      		ldi r30,lo8(201)
+  25 0002 F0E0      		ldi r31,hi8(201)
+  26 0004 8081      		ld r24,Z
+  27               	.LVL1:
+  28 0006 8062      		ori r24,lo8(32)
+  29 0008 8083      		st Z,r24
+  30               	/* epilogue start */
+  31               	.LM3:
+  32 000a 0895      		ret
+  33               	.LFE10:
+  35               	.global	sd_lld_start
+  37               	sd_lld_start:
+  38               	.LFB16:
+  39               	.LM4:
+  40               	.LVL2:
+  41               	/* prologue: function */
+  42               	/* frame size = 0 */
+  43 000c FB01      		movw r30,r22
+  44               	.LM5:
+  45 000e 6115      		cp r22,__zero_reg__
+  46 0010 7105      		cpc r23,__zero_reg__
+  47 0012 01F0      		breq .L14
+  48               	.LVL3:
+  49               	.L4:
+  50               	.LM6:
+  51 0014 8050      		subi r24,lo8(SD2)
+  52 0016 9040      		sbci r25,hi8(SD2)
+  53 0018 01F0      		breq .L15
+  54 001a 0895      		ret
+  55               	.L15:
+  56               	.LBB8:
+  57               	.LBB9:
+  58               	.LM7:
+  59 001c 8081      		ld r24,Z
+  60               	.LVL4:
+  61 001e 9181      		ldd r25,Z+1
+  62 0020 8093 CC00 		sts 204,r24
+  63               	.LM8:
+  64 0024 9093 CD00 		sts 205,r25
+  65               	.LM9:
+  66 0028 1092 C800 		sts 200,__zero_reg__
+  67               	.LM10:
+  68 002c 88E9      		ldi r24,lo8(-104)
+  69 002e 8093 C900 		sts 201,r24
+  70               	.LM11:
+  71 0032 6281      		ldd r22,Z+2
+  72 0034 6130      		cpi r22,lo8(1)
+  73 0036 01F0      		breq .L8
+  74 0038 6130      		cpi r22,lo8(1)
+  75 003a 00F4      		brsh .L16
+  76               	.LM12:
+  77 003c 1092 CA00 		sts 202,__zero_reg__
+  78 0040 0895      		ret
+  79               	.LVL5:
+  80               	.L14:
+  81               	.LBE9:
+  82               	.LBE8:
+  83               	.LM13:
+  84 0042 E0E0      		ldi r30,lo8(default_config)
+  85 0044 F0E0      		ldi r31,hi8(default_config)
+  86               	.LVL6:
+  87 0046 00C0      		rjmp .L4
+  88               	.LVL7:
+  89               	.L16:
+  90               	.LBB11:
+  91               	.LBB10:
+  92               	.LM14:
+  93 0048 6230      		cpi r22,lo8(2)
+  94 004a 01F0      		breq .L9
+  95 004c 6430      		cpi r22,lo8(4)
+  96 004e 01F0      		breq .L17
+  97               	.LM15:
+  98 0050 86E0      		ldi r24,lo8(6)
+  99 0052 8093 CA00 		sts 202,r24
+ 100 0056 0895      		ret
+ 101               	.L9:
+ 102               	.LM16:
+ 103 0058 84E0      		ldi r24,lo8(4)
+ 104 005a 8093 CA00 		sts 202,r24
+ 105 005e 0895      		ret
+ 106               	.L8:
+ 107               	.LM17:
+ 108 0060 82E0      		ldi r24,lo8(2)
+ 109 0062 8093 CA00 		sts 202,r24
+ 110 0066 0895      		ret
+ 111               	.L17:
+ 112               	.LM18:
+ 113 0068 8091 C900 		lds r24,201
+ 114 006c 8460      		ori r24,lo8(4)
+ 115 006e 8093 C900 		sts 201,r24
+ 116               	.LM19:
+ 117 0072 86E0      		ldi r24,lo8(6)
+ 118 0074 8093 CA00 		sts 202,r24
+ 119 0078 0895      		ret
+ 120               	.LBE10:
+ 121               	.LBE11:
+ 122               	.LFE16:
+ 124               	.global	sd_lld_stop
+ 126               	sd_lld_stop:
+ 127               	.LFB17:
+ 128               	.LM20:
+ 129               	.LVL8:
+ 130               	/* prologue: function */
+ 131               	/* frame size = 0 */
+ 132               	.LM21:
+ 133 007a 8050      		subi r24,lo8(SD2)
+ 134 007c 9040      		sbci r25,hi8(SD2)
+ 135 007e 01F0      		breq .L21
+ 136 0080 0895      		ret
+ 137               	.L21:
+ 138               	.LBB12:
+ 139               	.LBB13:
+ 140               	.LM22:
+ 141 0082 1092 C800 		sts 200,__zero_reg__
+ 142               	.LM23:
+ 143 0086 1092 C900 		sts 201,__zero_reg__
+ 144               	.LM24:
+ 145 008a 1092 CA00 		sts 202,__zero_reg__
+ 146 008e 0895      		ret
+ 147               	.LBE13:
+ 148               	.LBE12:
+ 149               	.LFE17:
+ 151               	.global	sd_lld_init
+ 153               	sd_lld_init:
+ 154               	.LFB15:
+ 155               	.LM25:
+ 156               	/* prologue: function */
+ 157               	/* frame size = 0 */
+ 158               	.LM26:
+ 159 0090 80E0      		ldi r24,lo8(SD2)
+ 160 0092 90E0      		ldi r25,hi8(SD2)
+ 161 0094 60E0      		ldi r22,lo8(0)
+ 162 0096 70E0      		ldi r23,hi8(0)
+ 163 0098 40E0      		ldi r20,lo8(gs(notify2))
+ 164 009a 50E0      		ldi r21,hi8(gs(notify2))
+ 165 009c 0E94 0000 		call sdObjectInit
+ 166               	/* epilogue start */
+ 167               	.LM27:
+ 168 00a0 0895      		ret
+ 169               	.LFE15:
+ 171               	.global	__vector_29
+ 173               	__vector_29:
+ 174               	.LFB14:
+ 175               	.LM28:
+ 176 00a2 1F92      		push __zero_reg__
+ 177 00a4 0F92      		push r0
+ 178 00a6 0FB6      		in r0,__SREG__
+ 179 00a8 0F92      		push r0
+ 180 00aa 0BB6      		in r0,91-32
+ 181 00ac 0F92      		push r0
+ 182 00ae 1124      		clr __zero_reg__
+ 183 00b0 2F93      		push r18
+ 184 00b2 3F93      		push r19
+ 185 00b4 4F93      		push r20
+ 186 00b6 5F93      		push r21
+ 187 00b8 6F93      		push r22
+ 188 00ba 7F93      		push r23
+ 189 00bc 8F93      		push r24
+ 190 00be 9F93      		push r25
+ 191 00c0 AF93      		push r26
+ 192 00c2 BF93      		push r27
+ 193 00c4 EF93      		push r30
+ 194 00c6 FF93      		push r31
+ 195               	/* prologue: Signal */
+ 196               	/* frame size = 0 */
+ 197               	.LM29:
+ 198               	.LM30:
+ 199 00c8 80E0      		ldi r24,lo8(SD2)
+ 200 00ca 90E0      		ldi r25,hi8(SD2)
+ 201 00cc 0E94 0000 		call sdRequestDataI
+ 202               	.LM31:
+ 203 00d0 97FD      		sbrc r25,7
+ 204 00d2 00C0      		rjmp .L29
+ 205               	.LVL9:
+ 206               	.LM32:
+ 207 00d4 8093 CE00 		sts 206,r24
+ 208               	.L26:
+ 209               	.LM33:
+ 210 00d8 0E94 0000 		call chSchIsPreemptionRequired
+ 211               	.LVL10:
+ 212 00dc 8823      		tst r24
+ 213 00de 01F0      		breq .L28
+ 214 00e0 0E94 0000 		call chSchDoReschedule
+ 215               	.L28:
+ 216               	/* epilogue start */
+ 217               	.LM34:
+ 218 00e4 FF91      		pop r31
+ 219 00e6 EF91      		pop r30
+ 220 00e8 BF91      		pop r27
+ 221 00ea AF91      		pop r26
+ 222 00ec 9F91      		pop r25
+ 223 00ee 8F91      		pop r24
+ 224 00f0 7F91      		pop r23
+ 225 00f2 6F91      		pop r22
+ 226 00f4 5F91      		pop r21
+ 227 00f6 4F91      		pop r20
+ 228 00f8 3F91      		pop r19
+ 229 00fa 2F91      		pop r18
+ 230 00fc 0F90      		pop r0
+ 231 00fe 0BBE      		out 91-32,r0
+ 232 0100 0F90      		pop r0
+ 233 0102 0FBE      		out __SREG__,r0
+ 234 0104 0F90      		pop r0
+ 235 0106 1F90      		pop __zero_reg__
+ 236 0108 1895      		reti
+ 237               	.LVL11:
+ 238               	.L29:
+ 239               	.LM35:
+ 240 010a 8091 C900 		lds r24,201
+ 241               	.LVL12:
+ 242 010e 8F7D      		andi r24,lo8(-33)
+ 243 0110 8093 C900 		sts 201,r24
+ 244 0114 00C0      		rjmp .L26
+ 245               	.LFE14:
+ 247               	.global	__vector_28
+ 249               	__vector_28:
+ 250               	.LFB13:
+ 251               	.LM36:
+ 252 0116 1F92      		push __zero_reg__
+ 253 0118 0F92      		push r0
+ 254 011a 0FB6      		in r0,__SREG__
+ 255 011c 0F92      		push r0
+ 256 011e 0BB6      		in r0,91-32
+ 257 0120 0F92      		push r0
+ 258 0122 1124      		clr __zero_reg__
+ 259 0124 2F93      		push r18
+ 260 0126 3F93      		push r19
+ 261 0128 4F93      		push r20
+ 262 012a 5F93      		push r21
+ 263 012c 6F93      		push r22
+ 264 012e 7F93      		push r23
+ 265 0130 8F93      		push r24
+ 266 0132 9F93      		push r25
+ 267 0134 AF93      		push r26
+ 268 0136 BF93      		push r27
+ 269 0138 EF93      		push r30
+ 270 013a FF93      		push r31
+ 271               	/* prologue: Signal */
+ 272               	/* frame size = 0 */
+ 273               	.LM37:
+ 274               	.LM38:
+ 275 013c 9091 C800 		lds r25,200
+ 276               	.LVL13:
+ 277               	.LM39:
+ 278 0140 892F      		mov r24,r25
+ 279 0142 8C71      		andi r24,lo8(28)
+ 280 0144 01F0      		breq .L31
+ 281               	.LBB14:
+ 282               	.LBB15:
+ 283               	.LM40:
+ 284 0146 93FD      		sbrc r25,3
+ 285 0148 00C0      		rjmp .L32
+ 286 014a 60E0      		ldi r22,lo8(0)
+ 287               	.LVL14:
+ 288               	.L33:
+ 289               	.LM41:
+ 290 014c 92FD      		sbrc r25,2
+ 291               	.LM42:
+ 292 014e 6062      		ori r22,lo8(32)
+ 293               	.L34:
+ 294               	.LM43:
+ 295 0150 94FD      		sbrc r25,4
+ 296               	.LM44:
+ 297 0152 6064      		ori r22,lo8(64)
+ 298               	.L35:
+ 299               	.LM45:
+ 300 0154 80E0      		ldi r24,lo8(SD2+2)
+ 301 0156 90E0      		ldi r25,hi8(SD2+2)
+ 302 0158 0E94 0000 		call chEvtBroadcastFlagsI
+ 303               	.LVL15:
+ 304               	.L31:
+ 305               	.LBE15:
+ 306               	.LBE14:
+ 307               	.LM46:
+ 308 015c 6091 CE00 		lds r22,206
+ 309 0160 80E0      		ldi r24,lo8(SD2)
+ 310 0162 90E0      		ldi r25,hi8(SD2)
+ 311 0164 0E94 0000 		call sdIncomingDataI
+ 312               	.LVL16:
+ 313               	.LM47:
+ 314 0168 0E94 0000 		call chSchIsPreemptionRequired
+ 315 016c 8823      		tst r24
+ 316 016e 01F0      		breq .L37
+ 317 0170 0E94 0000 		call chSchDoReschedule
+ 318               	.L37:
+ 319               	/* epilogue start */
+ 320               	.LM48:
+ 321 0174 FF91      		pop r31
+ 322 0176 EF91      		pop r30
+ 323 0178 BF91      		pop r27
+ 324 017a AF91      		pop r26
+ 325 017c 9F91      		pop r25
+ 326 017e 8F91      		pop r24
+ 327 0180 7F91      		pop r23
+ 328 0182 6F91      		pop r22
+ 329 0184 5F91      		pop r21
+ 330 0186 4F91      		pop r20
+ 331 0188 3F91      		pop r19
+ 332 018a 2F91      		pop r18
+ 333 018c 0F90      		pop r0
+ 334 018e 0BBE      		out 91-32,r0
+ 335 0190 0F90      		pop r0
+ 336 0192 0FBE      		out __SREG__,r0
+ 337 0194 0F90      		pop r0
+ 338 0196 1F90      		pop __zero_reg__
+ 339 0198 1895      		reti
+ 340               	.LVL17:
+ 341               	.L32:
+ 342               	.LBB17:
+ 343               	.LBB16:
+ 344               	.LM49:
+ 345 019a 60E8      		ldi r22,lo8(-128)
+ 346               	.LVL18:
+ 347 019c 00C0      		rjmp .L33
+ 348               	.LBE16:
+ 349               	.LBE17:
+ 350               	.LFE13:
+ 352               		.data
+ 355               	default_config:
+ 356 0000 1900      		.word	25
+ 357 0002 03        		.byte	3
+ 358               		.comm SD2,73,1
+ 423               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 serial_lld.c
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccnhsyzs.s:2      *ABS*:0000003f __SREG__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccnhsyzs.s:3      *ABS*:0000003e __SP_H__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccnhsyzs.s:4      *ABS*:0000003d __SP_L__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccnhsyzs.s:5      *ABS*:00000034 __CCP__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccnhsyzs.s:6      *ABS*:00000000 __tmp_reg__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccnhsyzs.s:7      *ABS*:00000001 __zero_reg__
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccnhsyzs.s:17     .text:00000000 notify2
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccnhsyzs.s:37     .text:0000000c sd_lld_start
+                            *COM*:00000049 SD2
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccnhsyzs.s:355    .data:00000000 default_config
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccnhsyzs.s:126    .text:0000007a sd_lld_stop
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccnhsyzs.s:153    .text:00000090 sd_lld_init
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccnhsyzs.s:173    .text:000000a2 __vector_29
+/var/folders/8w/bxlddk455k9cddvwz9khk6br0000gn/T//ccnhsyzs.s:249    .text:00000116 __vector_28
+
+UNDEFINED SYMBOLS
+sdObjectInit
+sdRequestDataI
+chSchIsPreemptionRequired
+chSchDoReschedule
+chEvtBroadcastFlagsI
+sdIncomingDataI
+__do_copy_data
+__do_clear_bss
