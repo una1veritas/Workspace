@@ -41,20 +41,25 @@ int main() {
 		for(int col = 0 ; col < fontwidth; col++) {
 			uint32_t colbits = 0;
 			for(int bpos = 0; bpos < bytespercolumn; bpos++) {
-				colbits = colbits<<8 | bitmap[fontdatapos + 1 + bytespercolumn*col + bpos];
+				colbits |= bitmap[fontdatapos + 1 + bytespercolumn*col + bpos]<<(bpos*8);
 			}
-//			cout << "0x" << setw(8) << setfill('0')
-//					 << hex << colbits[col];
+			uint8_t shift = 8 - (maxheight % 8);
+			shift = (shift>>1)<<1;
+			colbits >>= shift;
+			cout << "0x" << setw(8) << setfill('0')
+					 << hex << colbits;
 			if ( (col & 1) == 0 ) {
 				uint32_t shrinked = 0;
 				for(int bit = 0; bit < maxheight/2; bit++) {
-					shrinked |= (colbits>>(bit*2) & 1 ? 1<<bit : 0 );
+					shrinked |= (colbits>>(maxheight-bit*2) & 1 ? 1<<(maxheight/2-1-bit) : 0 );
 				}
 				fdata[i][col>>1] = shrinked;
+				cout << " 0x" << setw(4) << setfill('0')
+							 << hex << shrinked;
 			}
-//			cout << endl;
+			cout << endl;
 		}
-		// cout << endl;
+		cout << endl;
 	}
 	cout << "// sizes " << endl;
 	for(int i = 0; i < numchar; i++) {
@@ -65,14 +70,17 @@ int main() {
 	cout << endl;
 	cout << "	// font data" << endl;
 	for(int i = 0; i < numchar; i++) {
-		for(int bpos = 0; bpos < ceil((float)maxheight/16); bpos++) {
+		for(int bpos = 0 /*ceil((float)maxheight/16) - 1*/; bpos < ceil((float)maxheight/16) /*>= 0*/; bpos++) {
+			uint8_t shift = 15 - bpos*8;
+			if ( shift >= 8 )
+				shift = 0;
 			for(int col = 0 ; col < fwidth[i]; col++) {
 				cout << "0x" << setw(2) << setfill('0') << hex
-						<< (uint16_t)(fdata[i][col]>>((2-bpos-1)*8)&0xff) << ", ";
+						<< (((uint16_t)(fdata[i][col]>>(bpos*8))<<shift)&0xff) << ", ";
 			}
 			cout << endl;
 		}
-		cout << "// "<< i+basechar << endl;
+		cout << "// 0x"<< i+basechar << endl;
 	}
 	cout << endl;
 
