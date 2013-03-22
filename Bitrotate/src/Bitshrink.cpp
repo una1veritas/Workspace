@@ -68,7 +68,7 @@ int main() {
 		for(int bpos = 0; bpos < ceil((float)maxheight/16); bpos++) {
 			for(int col = 0 ; col < fwidth[i]; col++) {
 				cout << "0x" << setw(2) << setfill('0') << hex
-						<< (uint16_t)(fdata[i][col]>>(bpos*8)&0xff) << ", ";
+						<< (uint16_t)(fdata[i][col]>>((2-bpos-1)*8)&0xff) << ", ";
 			}
 			cout << endl;
 		}
