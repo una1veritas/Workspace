@@ -27,44 +27,52 @@ int main() {
 			<< bytesperchar << " bytes per letter." << endl;
 
 	int fontdatapos = 0;
-	int fontwidth;
-	uint32_t colbits[maxwidth];
-	uint8_t sizes[numchar+1];
+	uint32_t fdata[numchar+1][maxwidth];
+	uint8_t fwidth[numchar+1];
 
 	for(int i = 0; i < numchar; i++) {
-		cout << "// "<< hex << (basechar+i);
+//		cout << "// "<< hex << (basechar+i);
 		fontdatapos = i * (bytesperchar + 1);
-		fontwidth = bitmap[fontdatapos];
-		cout << " (width " << fontwidth << ")" << endl;
+		int fontwidth = bitmap[fontdatapos];
+//		cout << " (width " << fontwidth << ")" << endl;
 //		cout << "0x" << setw(2) << setfill('0')
 //							 << hex << (fontwidth>>1) << ", " << endl;
-		sizes[i] = fontwidth>>1;
+		fwidth[i] = fontwidth>>1;
 		for(int col = 0 ; col < fontwidth; col++) {
-			colbits[col] = 0;
+			uint32_t colbits = 0;
 			for(int bpos = 0; bpos < bytespercolumn; bpos++) {
-				colbits[col] = colbits[col]<<8 | bitmap[fontdatapos + 1 + bytespercolumn*col + bpos];
+				colbits = colbits<<8 | bitmap[fontdatapos + 1 + bytespercolumn*col + bpos];
 			}
 //			cout << "0x" << setw(8) << setfill('0')
 //					 << hex << colbits[col];
-			if ( col & 1 == 0 ) {
+			if ( (col & 1) == 0 ) {
 				uint32_t shrinked = 0;
 				for(int bit = 0; bit < maxheight/2; bit++) {
-					shrinked |= (colbits[col]>>(bit*2) & 1 ? 1<<bit : 0 );
+					shrinked |= (colbits>>(bit*2) & 1 ? 1<<bit : 0 );
 				}
-//				cout << " -> ";
-				for(int pos = 0; pos < bytespercolumn>>1; pos++) {
-					cout << "0x" << setw(2) << setfill('0')
-								 << hex << (shrinked>>(pos*8)&0xff)<< ", ";
-				}
-			} else {
-//				cout << endl;
+				fdata[i][col>>1] = shrinked;
 			}
+//			cout << endl;
 		}
-		cout << endl;
+		// cout << endl;
 	}
 	cout << "// sizes " << endl;
 	for(int i = 0; i < numchar; i++) {
-		cout << "0x" << setw(2) << setfill('0') << hex << (uint16_t)sizes[i] << ", ";
+		if ( i%16 == 0 )
+			cout << endl;
+		cout << "0x" << setw(2) << setfill('0') << hex << (uint16_t)fwidth[i] << ", ";
+	}
+	cout << endl;
+	cout << "	// font data" << endl;
+	for(int i = 0; i < numchar; i++) {
+		for(int bpos = 0; bpos < ceil((float)maxheight/16); bpos++) {
+			for(int col = 0 ; col < fwidth[i]; col++) {
+				cout << "0x" << setw(2) << setfill('0') << hex
+						<< (uint16_t)(fdata[i][col]>>(bpos*8)&0xff) << ", ";
+			}
+			cout << endl;
+		}
+		cout << "// "<< i+basechar << endl;
 	}
 	cout << endl;
 
