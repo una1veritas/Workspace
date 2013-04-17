@@ -16,7 +16,7 @@
 
 OBJECTS = main.o
 
-DEVICE     = atmega328p
+DEVICE     = atmega1284p
 CLOCK      = 16000000L
 PROG_UNO = -carduino -b115200
 PROG_DUE = -carduino -b57600
@@ -63,9 +63,10 @@ FUSES      = -U hfuse:w:0xdb:m -U lfuse:w:0xff:m
 # Tune the lines below only if you know what you are doing:
 
 ARDUINOINCDIR  = ./arduino/cores/arduino
-ARDUINOVARIANT = ./arduino/variants/standard
-ARDUINOCORELIBDIR = ./arduino
-ARDUINOCORELIB = Arduino_cores
+#ARDUINOVARIANT = ./arduino/variants/standard
+ARDUINOVARIANT = ./arduino/variants/quaranta
+ARDUINOCORELIBDIR = ../Arduino_core/Release
+ARDUINOCORELIB = Arduino_core
 
 #AVRDUDE = avrdude $(PROG_DUE) -P$(COMPORT) -p $(DEVICE) 
 CCCOMPILE  = avr-gcc -Wall -Os -DF_CPU=$(CLOCK) -mmcu=$(DEVICE) -I$(ARDUINOINCDIR) -I$(ARDUINOVARIANT)
