@@ -360,7 +360,7 @@ void LCDShield::setChar(char c, int x, int y, int fColor, int bColor)
 	y	=	(COL_HEIGHT - 1) - y; // make display "right" side up
 	x	=	(ROW_LENGTH - 2) - x;
 
-	int             i,j;
+	unsigned int             i,j;
 	unsigned int    nCols;
 	unsigned int    nRows;
 	unsigned int    nBytes;
@@ -368,11 +368,11 @@ void LCDShield::setChar(char c, int x, int y, int fColor, int bColor)
 	unsigned char   Mask;
 	unsigned int    Word0;
 	unsigned int    Word1;
-	prog_uchar   *pFont;
-	prog_uchar   *pChar;
+	/*prog_uchar*/ const uint8_t   *pFont;
+	/*prog_uchar*/ const uint8_t   *pChar;
 
 	// get pointer to the beginning of the selected font table
-	pFont = (prog_uchar *)FONT8x16;
+	pFont = (/*prog_uchar*/ const uint8_t *)FONT8x16;
 	// get the nColumns, nRows and nBytes
 	nCols = pgm_read_byte(pFont);
 	nRows = pgm_read_byte(pFont + 1);

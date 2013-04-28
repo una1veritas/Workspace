@@ -14,7 +14,7 @@
 //#define FELICADEBUG
 
 PN532::PN532(byte addr, byte irq, byte rst) :
-		i2c_addr(addr), pin_irq(irq), pin_rst(rst) {
+		pin_irq(irq), pin_rst(rst), i2c_addr(addr) {
 	if (pin_irq != 0xff) {
 		pinMode(pin_irq, INPUT);
 		digitalWrite(pin_irq, HIGH); // pull-up
@@ -121,7 +121,7 @@ byte PN532::receivepacket(int n) {
 	}
 	// preamble
 	if (memcmp(packet, "\x00\x00\xff", 3) != 0
-			|| ((packet[3] + packet[4]) & 0xff != 0)) {
+			|| (((packet[3] + packet[4]) & 0xff) != 0)) {
 #ifdef PN532DEBUG
 		Serial.println("received illigale preamble.");
 #endif
@@ -171,7 +171,7 @@ byte PN532::receivepacket() {
 	}
 	// preamble
 	if (memcmp(packet, "\x00\x00\xff", 3) != 0
-			|| ((packet[3] + packet[4]) & 0xff != 0)) {
+			|| (((packet[3] + packet[4]) & 0xff) != 0)) {
 #ifdef PN532DEBUG
 		Serial.println("received illigale preamble.");
 #endif
@@ -219,7 +219,7 @@ boolean PN532::IRQ_ready(void) {
 	return (digitalRead(pin_irq) == HIGH) && (pin_irq != 0xff);
 }
 
-boolean PN532::IRQ_wait(long timeout) {
+boolean PN532::IRQ_wait(unsigned long timeout) {
 //	Serial.println(timeout);
 	timeout += millis();
 	// Wait for chip to say its ready!
@@ -393,7 +393,7 @@ byte PN532::getCommandResponse(byte * resp, const long & wmillis) {
 }
 
 const byte PN532::getAutoPollResponse(byte * respo) {
-	byte cnt;
+//	byte cnt;
 	if (!getCommandResponse(respo))
 		return 0;
 	if (respo[0]) {
@@ -510,7 +510,7 @@ void PN532::targetClear() {
 }
 
 byte PN532::mifare_AuthenticateBlock(word blkn, const byte * keyData) {
-	uint8_t len;
+//	uint8_t len;
 	byte tmp[16];
 
 #ifdef MIFAREDEBUG
@@ -523,7 +523,7 @@ byte PN532::mifare_AuthenticateBlock(word blkn, const byte * keyData) {
 	memcpy(tmp + 6, target.UID, max(4, target.IDLength));
 
 	byte authcmd;
-	byte rescount;
+//	byte rescount;
 	switch (keyData[0]) {
 	case 0:
 	case 0xaa:
@@ -740,8 +740,8 @@ byte PN532::felica_ReadWithoutEncryption(byte * resp, const word servcode,
 		resp[pos++] = blklist[i] & 0xff;
 	}
 	// pos has been incremented after the last substitution
-	byte count = InCommunicateThru(resp, pos);
-	count = getCommunicateThruResponse(resp);
+	/* byte count = */ InCommunicateThru(resp, pos);
+	/*count = */ getCommunicateThruResponse(resp);
 	if (resp[9] == 0) {
 		byte blocks = resp[11];
 		memmove(resp, resp + 12, blocks * 16);
@@ -766,8 +766,8 @@ byte PN532::felica_ReadBlocksWithoutEncryption(byte * resp, const word servcode,
 		mess[14] = blklist[bno] & 0xff;
 
 		// pos has been incremented after the last substitution
-		byte count = InCommunicateThru(mess, 15);
-		count = getCommunicateThruResponse(mess);
+		/*byte count =*/ InCommunicateThru(mess, 15);
+		/*count =*/ getCommunicateThruResponse(mess);
 		if (mess[9] == 0) {
 			byte blocks = mess[11];
 			memcpy(resp + (16 * bno), mess + 12, blocks * 16);

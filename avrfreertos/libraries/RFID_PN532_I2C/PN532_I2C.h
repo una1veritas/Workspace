@@ -14,7 +14,7 @@
 #include "WProgram.h"
 #endif
 
-#include <Wire.h>
+#include <Wire/Wire.h>
 
 class PN532 {
 /*
@@ -96,7 +96,7 @@ class PN532 {
 	byte receivepacket(int n);
 	byte receivepacket();
 	boolean checkACKframe(long timeout = 1000);
-	boolean IRQ_wait(long timeout = 1000);
+	boolean IRQ_wait(unsigned long timeout = 1000);
 
 	void send_ack();
 	void send_nack();

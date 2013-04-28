@@ -8,10 +8,13 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include libraries/Wire/utility/subdir.mk
+-include libraries/Wire/subdir.mk
+-include libraries/RFID_PN532_I2C/subdir.mk
 -include libraries/FreeRTOS_AVR/utility/subdir.mk
 -include libraries/FreeRTOS_AVR/subdir.mk
 -include libraries/ColorLCDShield/subdir.mk
--include cores/arduino/subdir.mk
+-include arduino/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -51,6 +54,9 @@ endif
 LSS += \
 avrfreertos.lss \
 
+FLASH_IMAGE += \
+avrfreertos.hex \
+
 SIZEDUMMY += \
 sizedummy \
 
@@ -62,13 +68,19 @@ all: avrfreertos.elf secondary-outputs
 avrfreertos.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: AVR C++ Linker'
-	avr-g++ -Wl,-Map,avrfreertos.map,--cref -mmcu=atmega328p -o "avrfreertos.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	avr-g++ -Wl,-Map,avrfreertos.map,--gc-sections,--cref -s -mmcu=atmega328p -o "avrfreertos.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 avrfreertos.lss: avrfreertos.elf
 	@echo 'Invoking: AVR Create Extended Listing'
 	-avr-objdump -h -S avrfreertos.elf  >"avrfreertos.lss"
+	@echo 'Finished building: $@'
+	@echo ' '
+
+avrfreertos.hex: avrfreertos.elf
+	@echo 'Create Flash image (ihex format)'
+	-avr-objcopy -R .eeprom -O ihex avrfreertos.elf  "avrfreertos.hex"
 	@echo 'Finished building: $@'
 	@echo ' '
 
@@ -80,10 +92,10 @@ sizedummy: avrfreertos.elf
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS)$(C_DEPS)$(ELFS)$(LSS)$(S_DEPS)$(CXX_DEPS)$(S_UPPER_DEPS)$(C++_DEPS)$(ASM_DEPS)$(CC_DEPS)$(CPP_DEPS)$(C_UPPER_DEPS)$(SIZEDUMMY) avrfreertos.elf
+	-$(RM) $(OBJS)$(C_DEPS)$(ELFS)$(FLASH_IMAGE)$(LSS)$(S_DEPS)$(CXX_DEPS)$(S_UPPER_DEPS)$(C++_DEPS)$(ASM_DEPS)$(CC_DEPS)$(CPP_DEPS)$(C_UPPER_DEPS)$(SIZEDUMMY) avrfreertos.elf
 	-@echo ' '
 
-secondary-outputs: $(LSS) $(SIZEDUMMY)
+secondary-outputs: $(LSS) $(FLASH_IMAGE) $(SIZEDUMMY)
 
 .PHONY: all clean dependents
 .SECONDARY:
