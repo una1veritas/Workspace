@@ -1,0 +1,204 @@
+   1               		.file	"hal_lld.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	hal_lld_init
+  12               	hal_lld_init:
+  13               	.LFB8:
+  14               		.file 1 "../../os/hal/platforms/AVR/hal_lld.c"
+   1:../../os/hal/platforms/AVR/hal_lld.c **** /*
+   2:../../os/hal/platforms/AVR/hal_lld.c ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/hal/platforms/AVR/hal_lld.c ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/hal/platforms/AVR/hal_lld.c **** 
+   5:../../os/hal/platforms/AVR/hal_lld.c ****     This file is part of ChibiOS/RT.
+   6:../../os/hal/platforms/AVR/hal_lld.c **** 
+   7:../../os/hal/platforms/AVR/hal_lld.c ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/hal/platforms/AVR/hal_lld.c ****     it under the terms of the GNU General Public License as published by
+   9:../../os/hal/platforms/AVR/hal_lld.c ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/hal/platforms/AVR/hal_lld.c ****     (at your option) any later version.
+  11:../../os/hal/platforms/AVR/hal_lld.c **** 
+  12:../../os/hal/platforms/AVR/hal_lld.c ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/hal/platforms/AVR/hal_lld.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/hal/platforms/AVR/hal_lld.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/hal/platforms/AVR/hal_lld.c ****     GNU General Public License for more details.
+  16:../../os/hal/platforms/AVR/hal_lld.c **** 
+  17:../../os/hal/platforms/AVR/hal_lld.c ****     You should have received a copy of the GNU General Public License
+  18:../../os/hal/platforms/AVR/hal_lld.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/hal/platforms/AVR/hal_lld.c **** */
+  20:../../os/hal/platforms/AVR/hal_lld.c **** 
+  21:../../os/hal/platforms/AVR/hal_lld.c **** /**
+  22:../../os/hal/platforms/AVR/hal_lld.c ****  * @file    AVR/hal_lld.c
+  23:../../os/hal/platforms/AVR/hal_lld.c ****  * @brief   AVR HAL subsystem low level driver code.
+  24:../../os/hal/platforms/AVR/hal_lld.c ****  *
+  25:../../os/hal/platforms/AVR/hal_lld.c ****  * @addtogroup HAL
+  26:../../os/hal/platforms/AVR/hal_lld.c ****  * @{
+  27:../../os/hal/platforms/AVR/hal_lld.c ****  */
+  28:../../os/hal/platforms/AVR/hal_lld.c **** 
+  29:../../os/hal/platforms/AVR/hal_lld.c **** #include "ch.h"
+  30:../../os/hal/platforms/AVR/hal_lld.c **** #include "hal.h"
+  31:../../os/hal/platforms/AVR/hal_lld.c **** 
+  32:../../os/hal/platforms/AVR/hal_lld.c **** #include "atmega_timers.h"
+  33:../../os/hal/platforms/AVR/hal_lld.c **** /*===========================================================================*/
+  34:../../os/hal/platforms/AVR/hal_lld.c **** /* Driver exported variables.                                                */
+  35:../../os/hal/platforms/AVR/hal_lld.c **** /*===========================================================================*/
+  36:../../os/hal/platforms/AVR/hal_lld.c **** 
+  37:../../os/hal/platforms/AVR/hal_lld.c **** /*===========================================================================*/
+  38:../../os/hal/platforms/AVR/hal_lld.c **** /* Driver local variables.                                                   */
+  39:../../os/hal/platforms/AVR/hal_lld.c **** /*===========================================================================*/
+  40:../../os/hal/platforms/AVR/hal_lld.c **** 
+  41:../../os/hal/platforms/AVR/hal_lld.c **** /*===========================================================================*/
+  42:../../os/hal/platforms/AVR/hal_lld.c **** /* Driver local functions.                                                   */
+  43:../../os/hal/platforms/AVR/hal_lld.c **** /*===========================================================================*/
+  44:../../os/hal/platforms/AVR/hal_lld.c **** 
+  45:../../os/hal/platforms/AVR/hal_lld.c **** 
+  46:../../os/hal/platforms/AVR/hal_lld.c **** static void setClock()
+  47:../../os/hal/platforms/AVR/hal_lld.c **** {
+  48:../../os/hal/platforms/AVR/hal_lld.c ****   
+  49:../../os/hal/platforms/AVR/hal_lld.c ****   uint8_t prescaler_index = findBestPrescaler(CH_FREQUENCY,ratio_base,clock_source_base,PRESCALER_S
+  50:../../os/hal/platforms/AVR/hal_lld.c ****   
+  51:../../os/hal/platforms/AVR/hal_lld.c ****   TCCR0B &= ~((1 << CS02)  | (1 << CS01)  | (1 << CS00));
+  52:../../os/hal/platforms/AVR/hal_lld.c ****   TCCR0B |=((clock_source_base[prescaler_index] & 0x07)<<CS00);
+  53:../../os/hal/platforms/AVR/hal_lld.c ****   OCR0A   = F_CPU / ratio_base[prescaler_index] /CH_FREQUENCY - 1;
+  54:../../os/hal/platforms/AVR/hal_lld.c **** }
+  55:../../os/hal/platforms/AVR/hal_lld.c **** /*===========================================================================*/
+  56:../../os/hal/platforms/AVR/hal_lld.c **** /* Driver interrupt handlers.                                                */
+  57:../../os/hal/platforms/AVR/hal_lld.c **** /*===========================================================================*/
+  58:../../os/hal/platforms/AVR/hal_lld.c **** 
+  59:../../os/hal/platforms/AVR/hal_lld.c **** /*===========================================================================*/
+  60:../../os/hal/platforms/AVR/hal_lld.c **** /* Driver exported functions.                                                */
+  61:../../os/hal/platforms/AVR/hal_lld.c **** /*===========================================================================*/
+  62:../../os/hal/platforms/AVR/hal_lld.c **** 
+  63:../../os/hal/platforms/AVR/hal_lld.c **** /**
+  64:../../os/hal/platforms/AVR/hal_lld.c ****  * @brief   Low level HAL driver initialization.
+  65:../../os/hal/platforms/AVR/hal_lld.c ****  *
+  66:../../os/hal/platforms/AVR/hal_lld.c ****  * @notapi
+  67:../../os/hal/platforms/AVR/hal_lld.c ****  */
+  68:../../os/hal/platforms/AVR/hal_lld.c **** void hal_lld_init(void) {
+  15               		.loc 1 68 0
+  16               		.cfi_startproc
+  17 0000 CF93      		push r28
+  18               	.LCFI0:
+  19               		.cfi_def_cfa_offset 3
+  20               		.cfi_offset 28, -2
+  21               	/* prologue: function */
+  22               	/* frame size = 0 */
+  23               	/* stack size = 1 */
+  24               	.L__stack_usage = 1
+  69:../../os/hal/platforms/AVR/hal_lld.c ****      /*
+  70:../../os/hal/platforms/AVR/hal_lld.c ****    * External interrupts setup, all disabled initially.
+  71:../../os/hal/platforms/AVR/hal_lld.c ****    */
+  72:../../os/hal/platforms/AVR/hal_lld.c ****   EICRA  = 0x00;
+  25               		.loc 1 72 0
+  26 0002 1092 6900 		sts 105,__zero_reg__
+  73:../../os/hal/platforms/AVR/hal_lld.c **** #ifdef EICRB
+  74:../../os/hal/platforms/AVR/hal_lld.c ****   EICRB  = 0x00;
+  75:../../os/hal/platforms/AVR/hal_lld.c **** #endif
+  76:../../os/hal/platforms/AVR/hal_lld.c ****   EIMSK  = 0x00;
+  27               		.loc 1 76 0
+  28 0006 1DBA      		out 0x1d,__zero_reg__
+  77:../../os/hal/platforms/AVR/hal_lld.c **** 
+  78:../../os/hal/platforms/AVR/hal_lld.c ****   /*
+  79:../../os/hal/platforms/AVR/hal_lld.c ****    * Timer 0 setup.
+  80:../../os/hal/platforms/AVR/hal_lld.c ****    */
+  81:../../os/hal/platforms/AVR/hal_lld.c ****   TCCR0A  = (1 << WGM01) | (0 << WGM00) |                /* CTC mode.        */
+  29               		.loc 1 81 0
+  30 0008 C2E0      		ldi r28,lo8(2)
+  31 000a C4BD      		out 0x24,r28
+  82:../../os/hal/platforms/AVR/hal_lld.c ****             (0 << COM0A1) | (0 << COM0A0) |              /* OC0A disabled.   */
+  83:../../os/hal/platforms/AVR/hal_lld.c ****             (0 << COM0B1) | (0 << COM0B0);               /* OC0B disabled.   */
+  84:../../os/hal/platforms/AVR/hal_lld.c ****   TCCR0B  = (0 << WGM02) ;				 /* CTC mode.        */
+  32               		.loc 1 84 0
+  33 000c 15BC      		out 0x25,__zero_reg__
+  34               	.LBB4:
+  35               	.LBB5:
+  49:../../os/hal/platforms/AVR/hal_lld.c ****   uint8_t prescaler_index = findBestPrescaler(CH_FREQUENCY,ratio_base,clock_source_base,PRESCALER_S
+  36               		.loc 1 49 0
+  37 000e 25E0      		ldi r18,lo8(5)
+  38 0010 40E0      		ldi r20,lo8(clock_source_base)
+  39 0012 50E0      		ldi r21,hi8(clock_source_base)
+  40 0014 60E0      		ldi r22,lo8(ratio_base)
+  41 0016 70E0      		ldi r23,hi8(ratio_base)
+  42 0018 81E7      		ldi r24,lo8(113)
+  43 001a 92E0      		ldi r25,lo8(2)
+  44 001c 0E94 0000 		call findBestPrescaler
+  45               	.LVL0:
+  51:../../os/hal/platforms/AVR/hal_lld.c ****   TCCR0B &= ~((1 << CS02)  | (1 << CS01)  | (1 << CS00));
+  46               		.loc 1 51 0
+  47 0020 95B5      		in r25,0x25
+  48 0022 987F      		andi r25,lo8(-8)
+  49 0024 95BD      		out 0x25,r25
+  52:../../os/hal/platforms/AVR/hal_lld.c ****   TCCR0B |=((clock_source_base[prescaler_index] & 0x07)<<CS00);
+  50               		.loc 1 52 0
+  51 0026 95B5      		in r25,0x25
+  52 0028 E82F      		mov r30,r24
+  53 002a F0E0      		ldi r31,0
+  54 002c DF01      		movw r26,r30
+  55 002e A050      		subi r26,lo8(-(clock_source_base))
+  56 0030 B040      		sbci r27,hi8(-(clock_source_base))
+  57               	.LBE5:
+  58 0032 8C91      		ld r24,X
+  59               	.LVL1:
+  60 0034 8770      		andi r24,lo8(7)
+  61 0036 892B      		or r24,r25
+  62               	.LBB6:
+  63 0038 85BD      		out 0x25,r24
+  53:../../os/hal/platforms/AVR/hal_lld.c ****   OCR0A   = F_CPU / ratio_base[prescaler_index] /CH_FREQUENCY - 1;
+  64               		.loc 1 53 0
+  65 003a EE0F      		lsl r30
+  66 003c FF1F      		rol r31
+  67               	.LVL2:
+  68 003e E050      		subi r30,lo8(-(ratio_base))
+  69 0040 F040      		sbci r31,hi8(-(ratio_base))
+  70 0042 2081      		ld r18,Z
+  71 0044 3181      		ldd r19,Z+1
+  72 0046 40E0      		ldi r20,0
+  73 0048 50E0      		ldi r21,0
+  74 004a 60E0      		ldi r22,0
+  75 004c 74E6      		ldi r23,lo8(100)
+  76 004e 80E0      		ldi r24,0
+  77 0050 90E0      		ldi r25,0
+  78 0052 0E94 0000 		call __udivmodsi4
+  79 0056 2150      		subi r18,lo8(-(-1))
+  80 0058 27BD      		out 0x27,r18
+  81               	.LBE6:
+  82               	.LBE4:
+  85:../../os/hal/platforms/AVR/hal_lld.c ****              setClock();  			 
+  86:../../os/hal/platforms/AVR/hal_lld.c ****   
+  87:../../os/hal/platforms/AVR/hal_lld.c ****   TCNT0   = 0;                                           /* Reset counter.   */
+  83               		.loc 1 87 0
+  84 005a 16BC      		out 0x26,__zero_reg__
+  88:../../os/hal/platforms/AVR/hal_lld.c ****   TIFR0   = (1 << OCF0A);                                /* Reset pending.   */
+  85               		.loc 1 88 0
+  86 005c C5BB      		out 0x15,r28
+  89:../../os/hal/platforms/AVR/hal_lld.c ****   TIMSK0  = (1 << OCIE0A);  
+  87               		.loc 1 89 0
+  88 005e C093 6E00 		sts 110,r28
+  89               	/* epilogue start */
+  90:../../os/hal/platforms/AVR/hal_lld.c **** }
+  90               		.loc 1 90 0
+  91 0062 CF91      		pop r28
+  92 0064 0895      		ret
+  93               		.cfi_endproc
+  94               	.LFE8:
+  96               	.Letext0:
+  97               		.file 2 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+  98               		.file 3 "../../os/hal/platforms/AVR/atmega_timers.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 hal_lld.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccCdCC59.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccCdCC59.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccCdCC59.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccCdCC59.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccCdCC59.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccCdCC59.s:12     .text:0000000000000000 hal_lld_init
+
+UNDEFINED SYMBOLS
+clock_source_base
+ratio_base
+findBestPrescaler
+__udivmodsi4

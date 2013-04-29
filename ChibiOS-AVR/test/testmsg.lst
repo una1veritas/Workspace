@@ -1,0 +1,307 @@
+   1               		.file	"testmsg.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+   8               		.text
+   9               	.Ltext0:
+  10               		.cfi_sections	.debug_frame
+  11               		.section	.rodata.str1.1,"aMS",@progbits,1
+  12               	.LC0:
+  13 0000 4142 4300 		.string	"ABC"
+  14               		.text
+  16               	msg1_execute:
+  17               	.LFB8:
+  18               		.file 1 "../../test/testmsg.c"
+   1:../../test/testmsg.c **** /*
+   2:../../test/testmsg.c ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../test/testmsg.c ****                  2011,2012 Giovanni Di Sirio.
+   4:../../test/testmsg.c **** 
+   5:../../test/testmsg.c ****     This file is part of ChibiOS/RT.
+   6:../../test/testmsg.c **** 
+   7:../../test/testmsg.c ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../test/testmsg.c ****     it under the terms of the GNU General Public License as published by
+   9:../../test/testmsg.c ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../test/testmsg.c ****     (at your option) any later version.
+  11:../../test/testmsg.c **** 
+  12:../../test/testmsg.c ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../test/testmsg.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../test/testmsg.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../test/testmsg.c ****     GNU General Public License for more details.
+  16:../../test/testmsg.c **** 
+  17:../../test/testmsg.c ****     You should have received a copy of the GNU General Public License
+  18:../../test/testmsg.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../test/testmsg.c **** */
+  20:../../test/testmsg.c **** 
+  21:../../test/testmsg.c **** #include "ch.h"
+  22:../../test/testmsg.c **** #include "test.h"
+  23:../../test/testmsg.c **** 
+  24:../../test/testmsg.c **** /**
+  25:../../test/testmsg.c ****  * @page test_msg Messages test
+  26:../../test/testmsg.c ****  *
+  27:../../test/testmsg.c ****  * File: @ref testmsg.c
+  28:../../test/testmsg.c ****  *
+  29:../../test/testmsg.c ****  * <h2>Description</h2>
+  30:../../test/testmsg.c ****  * This module implements the test sequence for the @ref messages subsystem.
+  31:../../test/testmsg.c ****  *
+  32:../../test/testmsg.c ****  * <h2>Objective</h2>
+  33:../../test/testmsg.c ****  * Objective of the test module is to cover 100% of the @ref messages
+  34:../../test/testmsg.c ****  * subsystem code.
+  35:../../test/testmsg.c ****  *
+  36:../../test/testmsg.c ****  * <h2>Preconditions</h2>
+  37:../../test/testmsg.c ****  * The module requires the following kernel options:
+  38:../../test/testmsg.c ****  * - @p CH_USE_MESSAGES
+  39:../../test/testmsg.c ****  * .
+  40:../../test/testmsg.c ****  * In case some of the required options are not enabled then some or all tests
+  41:../../test/testmsg.c ****  * may be skipped.
+  42:../../test/testmsg.c ****  *
+  43:../../test/testmsg.c ****  * <h2>Test Cases</h2>
+  44:../../test/testmsg.c ****  * - @subpage test_msg_001
+  45:../../test/testmsg.c ****  * .
+  46:../../test/testmsg.c ****  * @file testmsg.c
+  47:../../test/testmsg.c ****  * @brief Messages test source file
+  48:../../test/testmsg.c ****  * @file testmsg.h
+  49:../../test/testmsg.c ****  * @brief Messages header file
+  50:../../test/testmsg.c ****  */
+  51:../../test/testmsg.c **** 
+  52:../../test/testmsg.c **** #if CH_USE_MESSAGES || defined(__DOXYGEN__)
+  53:../../test/testmsg.c **** 
+  54:../../test/testmsg.c **** /**
+  55:../../test/testmsg.c ****  * @page test_msg_001 Messages Server loop
+  56:../../test/testmsg.c ****  *
+  57:../../test/testmsg.c ****  * <h2>Description</h2>
+  58:../../test/testmsg.c ****  * A thread is spawned that sends four messages back to the tester thread.<br>
+  59:../../test/testmsg.c ****  * The test expect to receive the messages in the correct sequence and to
+  60:../../test/testmsg.c ****  * not find a fifth message waiting.
+  61:../../test/testmsg.c ****  */
+  62:../../test/testmsg.c **** 
+  63:../../test/testmsg.c **** static msg_t thread(void *p) {
+  64:../../test/testmsg.c **** 
+  65:../../test/testmsg.c ****   chMsgSend(p, 'A');
+  66:../../test/testmsg.c ****   chMsgSend(p, 'B');
+  67:../../test/testmsg.c ****   chMsgSend(p, 'C');
+  68:../../test/testmsg.c ****   return 0;
+  69:../../test/testmsg.c **** }
+  70:../../test/testmsg.c **** 
+  71:../../test/testmsg.c **** static void msg1_execute(void) {
+  19               		.loc 1 71 0
+  20               		.cfi_startproc
+  21 0000 0F93      		push r16
+  22               	.LCFI0:
+  23               		.cfi_def_cfa_offset 3
+  24               		.cfi_offset 16, -2
+  25 0002 1F93      		push r17
+  26               	.LCFI1:
+  27               		.cfi_def_cfa_offset 4
+  28               		.cfi_offset 17, -3
+  29               	/* prologue: function */
+  30               	/* frame size = 0 */
+  31               	/* stack size = 2 */
+  32               	.L__stack_usage = 2
+  72:../../test/testmsg.c ****   Thread *tp;
+  73:../../test/testmsg.c ****   msg_t msg;
+  74:../../test/testmsg.c **** 
+  75:../../test/testmsg.c ****   /*
+  76:../../test/testmsg.c ****    * Testing the whole messages loop.
+  77:../../test/testmsg.c ****    */
+  78:../../test/testmsg.c ****   threads[0] = chThdCreateStatic(wa[0], WA_SIZE, chThdGetPriority() + 1,
+  33               		.loc 1 78 0
+  34 0004 0091 0000 		lds r16,rlist+11
+  35 0008 1091 0000 		lds r17,rlist+11+1
+  36 000c F801      		movw r30,r16
+  37 000e 4481      		ldd r20,Z+4
+  38 0010 4F5F      		subi r20,lo8(-(1))
+  39 0012 20E0      		ldi r18,lo8(gs(thread))
+  40 0014 30E0      		ldi r19,hi8(gs(thread))
+  41 0016 67E9      		ldi r22,lo8(-105)
+  42 0018 70E0      		ldi r23,0
+  43 001a 8091 0000 		lds r24,wa
+  44 001e 9091 0000 		lds r25,wa+1
+  45 0022 0E94 0000 		call chThdCreateStatic
+  46               	.LVL0:
+  47 0026 9093 0000 		sts threads+1,r25
+  48 002a 8093 0000 		sts threads,r24
+  79:../../test/testmsg.c ****                                  thread, chThdSelf());
+  80:../../test/testmsg.c ****   tp = chMsgWait();
+  49               		.loc 1 80 0
+  50 002e 0E94 0000 		call chMsgWait
+  51               	.LVL1:
+  81:../../test/testmsg.c ****   msg = chMsgGet(tp);
+  52               		.loc 1 81 0
+  53 0032 FC01      		movw r30,r24
+  54 0034 128D      		ldd r17,Z+26
+  55 0036 738D      		ldd r23,Z+27
+  56               	.LVL2:
+  82:../../test/testmsg.c ****   chMsgRelease(tp, msg);
+  57               		.loc 1 82 0
+  58 0038 612F      		mov r22,r17
+  59 003a 0E94 0000 		call chMsgRelease
+  60               	.LVL3:
+  83:../../test/testmsg.c ****   test_emit_token(msg);
+  61               		.loc 1 83 0
+  62 003e 812F      		mov r24,r17
+  63 0040 0E94 0000 		call test_emit_token
+  64               	.LVL4:
+  84:../../test/testmsg.c ****   tp = chMsgWait();
+  65               		.loc 1 84 0
+  66 0044 0E94 0000 		call chMsgWait
+  67               	.LVL5:
+  85:../../test/testmsg.c ****   msg = chMsgGet(tp);
+  68               		.loc 1 85 0
+  69 0048 FC01      		movw r30,r24
+  70 004a 128D      		ldd r17,Z+26
+  71 004c 738D      		ldd r23,Z+27
+  72               	.LVL6:
+  86:../../test/testmsg.c ****   chMsgRelease(tp, msg);
+  73               		.loc 1 86 0
+  74 004e 612F      		mov r22,r17
+  75 0050 0E94 0000 		call chMsgRelease
+  76               	.LVL7:
+  87:../../test/testmsg.c ****   test_emit_token(msg);
+  77               		.loc 1 87 0
+  78 0054 812F      		mov r24,r17
+  79 0056 0E94 0000 		call test_emit_token
+  80               	.LVL8:
+  88:../../test/testmsg.c ****   tp = chMsgWait();
+  81               		.loc 1 88 0
+  82 005a 0E94 0000 		call chMsgWait
+  83               	.LVL9:
+  89:../../test/testmsg.c ****   msg = chMsgGet(tp);
+  84               		.loc 1 89 0
+  85 005e FC01      		movw r30,r24
+  86 0060 128D      		ldd r17,Z+26
+  87 0062 738D      		ldd r23,Z+27
+  88               	.LVL10:
+  90:../../test/testmsg.c ****   chMsgRelease(tp, msg);
+  89               		.loc 1 90 0
+  90 0064 612F      		mov r22,r17
+  91 0066 0E94 0000 		call chMsgRelease
+  92               	.LVL11:
+  91:../../test/testmsg.c ****   test_emit_token(msg);
+  93               		.loc 1 91 0
+  94 006a 812F      		mov r24,r17
+  95 006c 0E94 0000 		call test_emit_token
+  96               	.LVL12:
+  92:../../test/testmsg.c ****   test_assert_sequence(1, "ABC");
+  97               		.loc 1 92 0
+  98 0070 60E0      		ldi r22,lo8(.LC0)
+  99 0072 70E0      		ldi r23,hi8(.LC0)
+ 100 0074 81E0      		ldi r24,lo8(1)
+ 101 0076 90E0      		ldi r25,0
+ 102               	/* epilogue start */
+  93:../../test/testmsg.c **** }
+ 103               		.loc 1 93 0
+ 104 0078 1F91      		pop r17
+ 105 007a 0F91      		pop r16
+  92:../../test/testmsg.c ****   test_assert_sequence(1, "ABC");
+ 106               		.loc 1 92 0
+ 107 007c 0C94 0000 		jmp _test_assert_sequence
+ 108               	.LVL13:
+ 109               		.cfi_endproc
+ 110               	.LFE8:
+ 113               	thread:
+ 114               	.LFB7:
+  63:../../test/testmsg.c **** static msg_t thread(void *p) {
+ 115               		.loc 1 63 0
+ 116               		.cfi_startproc
+ 117               	.LVL14:
+ 118 0080 CF93      		push r28
+ 119               	.LCFI2:
+ 120               		.cfi_def_cfa_offset 3
+ 121               		.cfi_offset 28, -2
+ 122 0082 DF93      		push r29
+ 123               	.LCFI3:
+ 124               		.cfi_def_cfa_offset 4
+ 125               		.cfi_offset 29, -3
+ 126               	/* prologue: function */
+ 127               	/* frame size = 0 */
+ 128               	/* stack size = 2 */
+ 129               	.L__stack_usage = 2
+ 130 0084 EC01      		movw r28,r24
+  65:../../test/testmsg.c ****   chMsgSend(p, 'A');
+ 131               		.loc 1 65 0
+ 132 0086 61E4      		ldi r22,lo8(65)
+ 133 0088 70E0      		ldi r23,0
+ 134 008a 0E94 0000 		call chMsgSend
+ 135               	.LVL15:
+  66:../../test/testmsg.c ****   chMsgSend(p, 'B');
+ 136               		.loc 1 66 0
+ 137 008e 62E4      		ldi r22,lo8(66)
+ 138 0090 70E0      		ldi r23,0
+ 139 0092 CE01      		movw r24,r28
+ 140 0094 0E94 0000 		call chMsgSend
+ 141               	.LVL16:
+  67:../../test/testmsg.c ****   chMsgSend(p, 'C');
+ 142               		.loc 1 67 0
+ 143 0098 63E4      		ldi r22,lo8(67)
+ 144 009a 70E0      		ldi r23,0
+ 145 009c CE01      		movw r24,r28
+ 146 009e 0E94 0000 		call chMsgSend
+ 147               	.LVL17:
+  69:../../test/testmsg.c **** }
+ 148               		.loc 1 69 0
+ 149 00a2 80E0      		ldi r24,0
+ 150 00a4 90E0      		ldi r25,0
+ 151               	/* epilogue start */
+ 152 00a6 DF91      		pop r29
+ 153 00a8 CF91      		pop r28
+ 154               	.LVL18:
+ 155 00aa 0895      		ret
+ 156               		.cfi_endproc
+ 157               	.LFE7:
+ 159               	.global	patternmsg
+ 160               		.section	.rodata
+ 163               	patternmsg:
+ 164 0000 0000      		.word	testmsg1
+ 165 0002 0000      		.word	0
+ 166               	.global	testmsg1
+ 167               		.section	.rodata.str1.1
+ 168               	.LC1:
+ 169 0004 4D65 7373 		.string	"Messages, loop"
+ 169      6167 6573 
+ 169      2C20 6C6F 
+ 169      6F70 00
+ 170               		.section	.rodata
+ 173               	testmsg1:
+ 174 0004 0000      		.word	.LC1
+ 175 0006 0000      		.word	0
+ 176 0008 0000      		.word	0
+ 177 000a 0000      		.word	gs(msg1_execute)
+ 178               		.text
+ 179               	.Letext0:
+ 180               		.file 2 "/usr/local/cross/lib/gcc/avr/4.7.2/include/stddef.h"
+ 181               		.file 3 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+ 182               		.file 4 "../../os/ports/GCC/AVR/chtypes.h"
+ 183               		.file 5 "../../os/kernel/include/chlists.h"
+ 184               		.file 6 "../../os/kernel/include/chthreads.h"
+ 185               		.file 7 "../../os/ports/GCC/AVR/chcore.h"
+ 186               		.file 8 "../../os/kernel/include/chschd.h"
+ 187               		.file 9 "../../os/kernel/include/chmtx.h"
+ 188               		.file 10 "../../test/test.h"
+ 189               		.file 11 "../../os/kernel/include/chmsg.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 testmsg.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckPYZh7.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckPYZh7.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckPYZh7.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckPYZh7.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckPYZh7.s:6      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckPYZh7.s:7      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckPYZh7.s:16     .text:0000000000000000 msg1_execute
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckPYZh7.s:113    .text:0000000000000080 thread
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckPYZh7.s:163    .rodata:0000000000000000 patternmsg
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckPYZh7.s:173    .rodata:0000000000000004 testmsg1
+
+UNDEFINED SYMBOLS
+rlist
+wa
+chThdCreateStatic
+threads
+chMsgWait
+chMsgRelease
+test_emit_token
+_test_assert_sequence
+chMsgSend
+__do_copy_data

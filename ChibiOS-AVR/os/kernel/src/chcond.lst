@@ -1,0 +1,985 @@
+   1               		.file	"chcond.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	chCondInit
+  12               	chCondInit:
+  13               	.LFB7:
+  14               		.file 1 "../../os/kernel/src/chcond.c"
+   1:../../os/kernel/src/chcond.c **** /*
+   2:../../os/kernel/src/chcond.c ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/kernel/src/chcond.c ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/kernel/src/chcond.c **** 
+   5:../../os/kernel/src/chcond.c ****     This file is part of ChibiOS/RT.
+   6:../../os/kernel/src/chcond.c **** 
+   7:../../os/kernel/src/chcond.c ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/kernel/src/chcond.c ****     it under the terms of the GNU General Public License as published by
+   9:../../os/kernel/src/chcond.c ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/kernel/src/chcond.c ****     (at your option) any later version.
+  11:../../os/kernel/src/chcond.c **** 
+  12:../../os/kernel/src/chcond.c ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/kernel/src/chcond.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/kernel/src/chcond.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/kernel/src/chcond.c ****     GNU General Public License for more details.
+  16:../../os/kernel/src/chcond.c **** 
+  17:../../os/kernel/src/chcond.c ****     You should have received a copy of the GNU General Public License
+  18:../../os/kernel/src/chcond.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/kernel/src/chcond.c **** */
+  20:../../os/kernel/src/chcond.c **** /*
+  21:../../os/kernel/src/chcond.c ****    Concepts and parts of this file have been contributed by Leon Woestenberg.
+  22:../../os/kernel/src/chcond.c ****  */
+  23:../../os/kernel/src/chcond.c **** 
+  24:../../os/kernel/src/chcond.c **** /**
+  25:../../os/kernel/src/chcond.c ****  * @file    chcond.c
+  26:../../os/kernel/src/chcond.c ****  * @brief   Condition Variables code.
+  27:../../os/kernel/src/chcond.c ****  *
+  28:../../os/kernel/src/chcond.c ****  * @addtogroup condvars Condition Variables
+  29:../../os/kernel/src/chcond.c ****  * @details This module implements the Condition Variables mechanism. Condition
+  30:../../os/kernel/src/chcond.c ****  *          variables are an extensions to the Mutex subsystem and cannot
+  31:../../os/kernel/src/chcond.c ****  *          work alone.
+  32:../../os/kernel/src/chcond.c ****  *          <h2>Operation mode</h2>
+  33:../../os/kernel/src/chcond.c ****  *          The condition variable is a synchronization object meant to be
+  34:../../os/kernel/src/chcond.c ****  *          used inside a zone protected by a @p Mutex. Mutexes and CondVars
+  35:../../os/kernel/src/chcond.c ****  *          together can implement a Monitor construct.
+  36:../../os/kernel/src/chcond.c ****  * @pre     In order to use the condition variable APIs the @p CH_USE_CONDVARS
+  37:../../os/kernel/src/chcond.c ****  *          option must be enabled in @p chconf.h.
+  38:../../os/kernel/src/chcond.c ****  * @{
+  39:../../os/kernel/src/chcond.c ****  */
+  40:../../os/kernel/src/chcond.c **** 
+  41:../../os/kernel/src/chcond.c **** #include "ch.h"
+  42:../../os/kernel/src/chcond.c **** 
+  43:../../os/kernel/src/chcond.c **** #if (CH_USE_CONDVARS && CH_USE_MUTEXES) || defined(__DOXYGEN__)
+  44:../../os/kernel/src/chcond.c **** 
+  45:../../os/kernel/src/chcond.c **** /**
+  46:../../os/kernel/src/chcond.c ****  * @brief   Initializes s @p CondVar structure.
+  47:../../os/kernel/src/chcond.c ****  *
+  48:../../os/kernel/src/chcond.c ****  * @param[out] cp       pointer to a @p CondVar structure
+  49:../../os/kernel/src/chcond.c ****  *
+  50:../../os/kernel/src/chcond.c ****  * @init
+  51:../../os/kernel/src/chcond.c ****  */
+  52:../../os/kernel/src/chcond.c **** void chCondInit(CondVar *cp) {
+  15               		.loc 1 52 0
+  16               		.cfi_startproc
+  17               	.LVL0:
+  18               	/* prologue: function */
+  19               	/* frame size = 0 */
+  20               	/* stack size = 0 */
+  21               	.L__stack_usage = 0
+  22 0000 FC01      		movw r30,r24
+  53:../../os/kernel/src/chcond.c **** 
+  54:../../os/kernel/src/chcond.c ****   chDbgCheck(cp != NULL, "chCondInit");
+  55:../../os/kernel/src/chcond.c **** 
+  56:../../os/kernel/src/chcond.c ****   queue_init(&cp->c_queue);
+  23               		.loc 1 56 0
+  24 0002 8283      		std Z+2,r24
+  25 0004 F383      		std Z+3,r31
+  26 0006 8083      		st Z,r24
+  27 0008 F183      		std Z+1,r31
+  28 000a 0895      		ret
+  29               		.cfi_endproc
+  30               	.LFE7:
+  32               	.global	chCondSignal
+  34               	chCondSignal:
+  35               	.LFB8:
+  57:../../os/kernel/src/chcond.c **** }
+  58:../../os/kernel/src/chcond.c **** 
+  59:../../os/kernel/src/chcond.c **** /**
+  60:../../os/kernel/src/chcond.c ****  * @brief   Signals one thread that is waiting on the condition variable.
+  61:../../os/kernel/src/chcond.c ****  *
+  62:../../os/kernel/src/chcond.c ****  * @param[in] cp        pointer to the @p CondVar structure
+  63:../../os/kernel/src/chcond.c ****  *
+  64:../../os/kernel/src/chcond.c ****  * @api
+  65:../../os/kernel/src/chcond.c ****  */
+  66:../../os/kernel/src/chcond.c **** void chCondSignal(CondVar *cp) {
+  36               		.loc 1 66 0
+  37               		.cfi_startproc
+  38               	.LVL1:
+  39 000c CF93      		push r28
+  40               	.LCFI0:
+  41               		.cfi_def_cfa_offset 3
+  42               		.cfi_offset 28, -2
+  43 000e DF93      		push r29
+  44               	.LCFI1:
+  45               		.cfi_def_cfa_offset 4
+  46               		.cfi_offset 29, -3
+  47               	/* prologue: function */
+  48               	/* frame size = 0 */
+  49               	/* stack size = 2 */
+  50               	.L__stack_usage = 2
+  51 0010 FC01      		movw r30,r24
+  67:../../os/kernel/src/chcond.c **** 
+  68:../../os/kernel/src/chcond.c ****   chDbgCheck(cp != NULL, "chCondSignal");
+  69:../../os/kernel/src/chcond.c **** 
+  70:../../os/kernel/src/chcond.c ****   chSysLock();
+  52               		.loc 1 70 0
+  53               	/* #APP */
+  54               	 ;  70 "../../os/kernel/src/chcond.c" 1
+  55 0012 F894      		cli
+  56               	 ;  0 "" 2
+  71:../../os/kernel/src/chcond.c ****   if (notempty(&cp->c_queue))
+  57               		.loc 1 71 0
+  58               	/* #NOAPP */
+  59 0014 8081      		ld r24,Z
+  60 0016 9181      		ldd r25,Z+1
+  61               	.LVL2:
+  62 0018 8E17      		cp r24,r30
+  63 001a 9F07      		cpc r25,r31
+  64 001c 01F0      		breq .L3
+  65               	.LVL3:
+  66               	.LBB12:
+  67               	.LBB13:
+  68               		.file 2 "../../os/kernel/include/chinline.h"
+   1:../../os/kernel/include/chinline.h **** /*
+   2:../../os/kernel/include/chinline.h ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/kernel/include/chinline.h ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/kernel/include/chinline.h **** 
+   5:../../os/kernel/include/chinline.h ****     This file is part of ChibiOS/RT.
+   6:../../os/kernel/include/chinline.h **** 
+   7:../../os/kernel/include/chinline.h ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/kernel/include/chinline.h ****     it under the terms of the GNU General Public License as published by
+   9:../../os/kernel/include/chinline.h ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/kernel/include/chinline.h ****     (at your option) any later version.
+  11:../../os/kernel/include/chinline.h **** 
+  12:../../os/kernel/include/chinline.h ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/kernel/include/chinline.h ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/kernel/include/chinline.h ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/kernel/include/chinline.h ****     GNU General Public License for more details.
+  16:../../os/kernel/include/chinline.h **** 
+  17:../../os/kernel/include/chinline.h ****     You should have received a copy of the GNU General Public License
+  18:../../os/kernel/include/chinline.h ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/kernel/include/chinline.h **** */
+  20:../../os/kernel/include/chinline.h **** 
+  21:../../os/kernel/include/chinline.h **** /**
+  22:../../os/kernel/include/chinline.h ****  * @file    chinline.h
+  23:../../os/kernel/include/chinline.h ****  * @brief   Kernel inlined functions.
+  24:../../os/kernel/include/chinline.h ****  * @details In this file there are a set of inlined functions if the
+  25:../../os/kernel/include/chinline.h ****  *          @p CH_OPTIMIZE_SPEED is enabled.
+  26:../../os/kernel/include/chinline.h ****  */
+  27:../../os/kernel/include/chinline.h **** 
+  28:../../os/kernel/include/chinline.h **** #ifndef _CHINLINE_H_
+  29:../../os/kernel/include/chinline.h **** #define _CHINLINE_H_
+  30:../../os/kernel/include/chinline.h **** 
+  31:../../os/kernel/include/chinline.h **** /* If the performance code path has been chosen then all the following
+  32:../../os/kernel/include/chinline.h ****    functions are inlined into the various kernel modules.*/
+  33:../../os/kernel/include/chinline.h **** #if CH_OPTIMIZE_SPEED
+  34:../../os/kernel/include/chinline.h **** static INLINE void prio_insert(Thread *tp, ThreadsQueue *tqp) {
+  35:../../os/kernel/include/chinline.h **** 
+  36:../../os/kernel/include/chinline.h ****   Thread *cp = (Thread *)tqp;
+  37:../../os/kernel/include/chinline.h ****   do {
+  38:../../os/kernel/include/chinline.h ****     cp = cp->p_next;
+  39:../../os/kernel/include/chinline.h ****   } while ((cp != (Thread *)tqp) && (cp->p_prio >= tp->p_prio));
+  40:../../os/kernel/include/chinline.h ****   tp->p_next = cp;
+  41:../../os/kernel/include/chinline.h ****   tp->p_prev = cp->p_prev;
+  42:../../os/kernel/include/chinline.h ****   tp->p_prev->p_next = cp->p_prev = tp;
+  43:../../os/kernel/include/chinline.h **** }
+  44:../../os/kernel/include/chinline.h **** 
+  45:../../os/kernel/include/chinline.h **** static INLINE void queue_insert(Thread *tp, ThreadsQueue *tqp) {
+  46:../../os/kernel/include/chinline.h **** 
+  47:../../os/kernel/include/chinline.h ****   tp->p_next = (Thread *)tqp;
+  48:../../os/kernel/include/chinline.h ****   tp->p_prev = tqp->p_prev;
+  49:../../os/kernel/include/chinline.h ****   tp->p_prev->p_next = tqp->p_prev = tp;
+  50:../../os/kernel/include/chinline.h **** }
+  51:../../os/kernel/include/chinline.h **** 
+  52:../../os/kernel/include/chinline.h **** static INLINE Thread *fifo_remove(ThreadsQueue *tqp) {
+  53:../../os/kernel/include/chinline.h ****   Thread *tp = tqp->p_next;
+  54:../../os/kernel/include/chinline.h **** 
+  55:../../os/kernel/include/chinline.h ****   (tqp->p_next = tp->p_next)->p_prev = (Thread *)tqp;
+  69               		.loc 2 55 0
+  70 001e EC01      		movw r28,r24
+  71 0020 A881      		ld r26,Y
+  72 0022 B981      		ldd r27,Y+1
+  73 0024 B183      		std Z+1,r27
+  74 0026 A083      		st Z,r26
+  75 0028 1396      		adiw r26,2+1
+  76 002a FC93      		st X,r31
+  77 002c EE93      		st -X,r30
+  78 002e 1297      		sbiw r26,2
+  79               	.LBE13:
+  80               	.LBE12:
+  72:../../os/kernel/src/chcond.c ****     chSchWakeupS(fifo_remove(&cp->c_queue), RDY_OK);
+  81               		.loc 1 72 0
+  82 0030 60E0      		ldi r22,0
+  83 0032 70E0      		ldi r23,0
+  84 0034 0E94 0000 		call chSchWakeupS
+  85               	.LVL4:
+  86               	.L3:
+  73:../../os/kernel/src/chcond.c ****   chSysUnlock();
+  87               		.loc 1 73 0
+  88               	/* #APP */
+  89               	 ;  73 "../../os/kernel/src/chcond.c" 1
+  90 0038 7894      		sei
+  91               	 ;  0 "" 2
+  92               	/* epilogue start */
+  74:../../os/kernel/src/chcond.c **** }
+  93               		.loc 1 74 0
+  94               	/* #NOAPP */
+  95 003a DF91      		pop r29
+  96 003c CF91      		pop r28
+  97 003e 0895      		ret
+  98               		.cfi_endproc
+  99               	.LFE8:
+ 101               	.global	chCondSignalI
+ 103               	chCondSignalI:
+ 104               	.LFB9:
+  75:../../os/kernel/src/chcond.c **** 
+  76:../../os/kernel/src/chcond.c **** /**
+  77:../../os/kernel/src/chcond.c ****  * @brief   Signals one thread that is waiting on the condition variable.
+  78:../../os/kernel/src/chcond.c ****  * @post    This function does not reschedule so a call to a rescheduling
+  79:../../os/kernel/src/chcond.c ****  *          function must be performed before unlocking the kernel. Note that
+  80:../../os/kernel/src/chcond.c ****  *          interrupt handlers always reschedule on exit so an explicit
+  81:../../os/kernel/src/chcond.c ****  *          reschedule must not be performed in ISRs.
+  82:../../os/kernel/src/chcond.c ****  *
+  83:../../os/kernel/src/chcond.c ****  * @param[in] cp        pointer to the @p CondVar structure
+  84:../../os/kernel/src/chcond.c ****  *
+  85:../../os/kernel/src/chcond.c ****  * @iclass
+  86:../../os/kernel/src/chcond.c ****  */
+  87:../../os/kernel/src/chcond.c **** void chCondSignalI(CondVar *cp) {
+ 105               		.loc 1 87 0
+ 106               		.cfi_startproc
+ 107               	.LVL5:
+ 108 0040 CF93      		push r28
+ 109               	.LCFI2:
+ 110               		.cfi_def_cfa_offset 3
+ 111               		.cfi_offset 28, -2
+ 112 0042 DF93      		push r29
+ 113               	.LCFI3:
+ 114               		.cfi_def_cfa_offset 4
+ 115               		.cfi_offset 29, -3
+ 116               	/* prologue: function */
+ 117               	/* frame size = 0 */
+ 118               	/* stack size = 2 */
+ 119               	.L__stack_usage = 2
+ 120 0044 FC01      		movw r30,r24
+  88:../../os/kernel/src/chcond.c **** 
+  89:../../os/kernel/src/chcond.c ****   chDbgCheckClassI();
+  90:../../os/kernel/src/chcond.c ****   chDbgCheck(cp != NULL, "chCondSignalI");
+  91:../../os/kernel/src/chcond.c **** 
+  92:../../os/kernel/src/chcond.c ****   if (notempty(&cp->c_queue))
+ 121               		.loc 1 92 0
+ 122 0046 8081      		ld r24,Z
+ 123 0048 9181      		ldd r25,Z+1
+ 124               	.LVL6:
+ 125 004a 8E17      		cp r24,r30
+ 126 004c 9F07      		cpc r25,r31
+ 127 004e 01F0      		breq .L5
+ 128               	.LVL7:
+ 129               	.LBB14:
+ 130               	.LBB15:
+ 131               		.loc 2 55 0
+ 132 0050 EC01      		movw r28,r24
+ 133 0052 A881      		ld r26,Y
+ 134 0054 B981      		ldd r27,Y+1
+ 135 0056 B183      		std Z+1,r27
+ 136 0058 A083      		st Z,r26
+ 137 005a 1396      		adiw r26,2+1
+ 138 005c FC93      		st X,r31
+ 139 005e EE93      		st -X,r30
+ 140 0060 1297      		sbiw r26,2
+ 141               	.LBE15:
+ 142               	.LBE14:
+  93:../../os/kernel/src/chcond.c ****     chSchReadyI(fifo_remove(&cp->c_queue))->p_u.rdymsg = RDY_OK;
+ 143               		.loc 1 93 0
+ 144 0062 0E94 0000 		call chSchReadyI
+ 145               	.LVL8:
+ 146 0066 FC01      		movw r30,r24
+ 147 0068 138A      		std Z+19,__zero_reg__
+ 148 006a 128A      		std Z+18,__zero_reg__
+ 149               	.LVL9:
+ 150               	.L5:
+ 151               	/* epilogue start */
+  94:../../os/kernel/src/chcond.c **** }
+ 152               		.loc 1 94 0
+ 153 006c DF91      		pop r29
+ 154 006e CF91      		pop r28
+ 155 0070 0895      		ret
+ 156               		.cfi_endproc
+ 157               	.LFE9:
+ 159               	.global	chCondBroadcastI
+ 161               	chCondBroadcastI:
+ 162               	.LFB11:
+  95:../../os/kernel/src/chcond.c **** 
+  96:../../os/kernel/src/chcond.c **** /**
+  97:../../os/kernel/src/chcond.c ****  * @brief   Signals all threads that are waiting on the condition variable.
+  98:../../os/kernel/src/chcond.c ****  *
+  99:../../os/kernel/src/chcond.c ****  * @param[in] cp        pointer to the @p CondVar structure
+ 100:../../os/kernel/src/chcond.c ****  *
+ 101:../../os/kernel/src/chcond.c ****  * @api
+ 102:../../os/kernel/src/chcond.c ****  */
+ 103:../../os/kernel/src/chcond.c **** void chCondBroadcast(CondVar *cp) {
+ 104:../../os/kernel/src/chcond.c **** 
+ 105:../../os/kernel/src/chcond.c ****   chSysLock();
+ 106:../../os/kernel/src/chcond.c ****   chCondBroadcastI(cp);
+ 107:../../os/kernel/src/chcond.c ****   chSchRescheduleS();
+ 108:../../os/kernel/src/chcond.c ****   chSysUnlock();
+ 109:../../os/kernel/src/chcond.c **** }
+ 110:../../os/kernel/src/chcond.c **** 
+ 111:../../os/kernel/src/chcond.c **** /**
+ 112:../../os/kernel/src/chcond.c ****  * @brief   Signals all threads that are waiting on the condition variable.
+ 113:../../os/kernel/src/chcond.c ****  * @post    This function does not reschedule so a call to a rescheduling
+ 114:../../os/kernel/src/chcond.c ****  *          function must be performed before unlocking the kernel. Note that
+ 115:../../os/kernel/src/chcond.c ****  *          interrupt handlers always reschedule on exit so an explicit
+ 116:../../os/kernel/src/chcond.c ****  *          reschedule must not be performed in ISRs.
+ 117:../../os/kernel/src/chcond.c ****  *
+ 118:../../os/kernel/src/chcond.c ****  * @param[in] cp        pointer to the @p CondVar structure
+ 119:../../os/kernel/src/chcond.c ****  *
+ 120:../../os/kernel/src/chcond.c ****  * @iclass
+ 121:../../os/kernel/src/chcond.c ****  */
+ 122:../../os/kernel/src/chcond.c **** void chCondBroadcastI(CondVar *cp) {
+ 163               		.loc 1 122 0
+ 164               		.cfi_startproc
+ 165               	.LVL10:
+ 166 0072 0F93      		push r16
+ 167               	.LCFI4:
+ 168               		.cfi_def_cfa_offset 3
+ 169               		.cfi_offset 16, -2
+ 170 0074 1F93      		push r17
+ 171               	.LCFI5:
+ 172               		.cfi_def_cfa_offset 4
+ 173               		.cfi_offset 17, -3
+ 174 0076 CF93      		push r28
+ 175               	.LCFI6:
+ 176               		.cfi_def_cfa_offset 5
+ 177               		.cfi_offset 28, -4
+ 178 0078 DF93      		push r29
+ 179               	.LCFI7:
+ 180               		.cfi_def_cfa_offset 6
+ 181               		.cfi_offset 29, -5
+ 182               	/* prologue: function */
+ 183               	/* frame size = 0 */
+ 184               	/* stack size = 4 */
+ 185               	.L__stack_usage = 4
+ 186 007a EC01      		movw r28,r24
+ 123:../../os/kernel/src/chcond.c **** 
+ 124:../../os/kernel/src/chcond.c ****   chDbgCheckClassI();
+ 125:../../os/kernel/src/chcond.c ****   chDbgCheck(cp != NULL, "chCondBroadcastI");
+ 126:../../os/kernel/src/chcond.c **** 
+ 127:../../os/kernel/src/chcond.c ****   /* Empties the condition variable queue and inserts all the Threads into the
+ 128:../../os/kernel/src/chcond.c ****      ready list in FIFO order. The wakeup message is set to @p RDY_RESET in
+ 129:../../os/kernel/src/chcond.c ****      order to make a chCondBroadcast() detectable from a chCondSignal().*/
+ 130:../../os/kernel/src/chcond.c ****   while (cp->c_queue.p_next != (void *)&cp->c_queue)
+ 187               		.loc 1 130 0
+ 188 007c 8881      		ld r24,Y
+ 189 007e 9981      		ldd r25,Y+1
+ 190               	.LVL11:
+ 191 0080 8C17      		cp r24,r28
+ 192 0082 9D07      		cpc r25,r29
+ 193 0084 01F0      		breq .L7
+ 131:../../os/kernel/src/chcond.c ****     chSchReadyI(fifo_remove(&cp->c_queue))->p_u.rdymsg = RDY_RESET;
+ 194               		.loc 1 131 0
+ 195 0086 0EEF      		ldi r16,lo8(-2)
+ 196 0088 1FEF      		ldi r17,lo8(-1)
+ 197               	.L11:
+ 198               	.LVL12:
+ 199               	.LBB16:
+ 200               	.LBB17:
+ 201               		.loc 2 55 0
+ 202 008a DC01      		movw r26,r24
+ 203 008c ED91      		ld r30,X+
+ 204 008e FC91      		ld r31,X
+ 205 0090 F983      		std Y+1,r31
+ 206 0092 E883      		st Y,r30
+ 207 0094 D383      		std Z+3,r29
+ 208 0096 C283      		std Z+2,r28
+ 209               	.LBE17:
+ 210               	.LBE16:
+ 211               		.loc 1 131 0
+ 212 0098 0E94 0000 		call chSchReadyI
+ 213               	.LVL13:
+ 214 009c FC01      		movw r30,r24
+ 215 009e 138B      		std Z+19,r17
+ 216 00a0 028B      		std Z+18,r16
+ 130:../../os/kernel/src/chcond.c ****   while (cp->c_queue.p_next != (void *)&cp->c_queue)
+ 217               		.loc 1 130 0
+ 218 00a2 8881      		ld r24,Y
+ 219 00a4 9981      		ldd r25,Y+1
+ 220 00a6 8C17      		cp r24,r28
+ 221 00a8 9D07      		cpc r25,r29
+ 222 00aa 01F4      		brne .L11
+ 223               	.LVL14:
+ 224               	.L7:
+ 225               	/* epilogue start */
+ 132:../../os/kernel/src/chcond.c **** }
+ 226               		.loc 1 132 0
+ 227 00ac DF91      		pop r29
+ 228 00ae CF91      		pop r28
+ 229               	.LVL15:
+ 230 00b0 1F91      		pop r17
+ 231 00b2 0F91      		pop r16
+ 232 00b4 0895      		ret
+ 233               		.cfi_endproc
+ 234               	.LFE11:
+ 236               	.global	chCondBroadcast
+ 238               	chCondBroadcast:
+ 239               	.LFB10:
+ 103:../../os/kernel/src/chcond.c **** void chCondBroadcast(CondVar *cp) {
+ 240               		.loc 1 103 0
+ 241               		.cfi_startproc
+ 242               	.LVL16:
+ 243               	/* prologue: function */
+ 244               	/* frame size = 0 */
+ 245               	/* stack size = 0 */
+ 246               	.L__stack_usage = 0
+ 105:../../os/kernel/src/chcond.c ****   chSysLock();
+ 247               		.loc 1 105 0
+ 248               	/* #APP */
+ 249               	 ;  105 "../../os/kernel/src/chcond.c" 1
+ 250 00b6 F894      		cli
+ 251               	 ;  0 "" 2
+ 106:../../os/kernel/src/chcond.c ****   chCondBroadcastI(cp);
+ 252               		.loc 1 106 0
+ 253               	/* #NOAPP */
+ 254 00b8 0E94 0000 		call chCondBroadcastI
+ 255               	.LVL17:
+ 107:../../os/kernel/src/chcond.c ****   chSchRescheduleS();
+ 256               		.loc 1 107 0
+ 257 00bc 0E94 0000 		call chSchRescheduleS
+ 258               	.LVL18:
+ 108:../../os/kernel/src/chcond.c ****   chSysUnlock();
+ 259               		.loc 1 108 0
+ 260               	/* #APP */
+ 261               	 ;  108 "../../os/kernel/src/chcond.c" 1
+ 262 00c0 7894      		sei
+ 263               	 ;  0 "" 2
+ 264               	/* #NOAPP */
+ 265 00c2 0895      		ret
+ 266               		.cfi_endproc
+ 267               	.LFE10:
+ 269               	.global	chCondWaitS
+ 271               	chCondWaitS:
+ 272               	.LFB13:
+ 133:../../os/kernel/src/chcond.c **** 
+ 134:../../os/kernel/src/chcond.c **** /**
+ 135:../../os/kernel/src/chcond.c ****  * @brief   Waits on the condition variable releasing the mutex lock.
+ 136:../../os/kernel/src/chcond.c ****  * @details Releases the currently owned mutex, waits on the condition
+ 137:../../os/kernel/src/chcond.c ****  *          variable, and finally acquires the mutex again. All the sequence
+ 138:../../os/kernel/src/chcond.c ****  *          is performed atomically.
+ 139:../../os/kernel/src/chcond.c ****  * @pre     The invoking thread <b>must</b> have at least one owned mutex.
+ 140:../../os/kernel/src/chcond.c ****  *
+ 141:../../os/kernel/src/chcond.c ****  * @param[in] cp        pointer to the @p CondVar structure
+ 142:../../os/kernel/src/chcond.c ****  * @return              A message specifying how the invoking thread has been
+ 143:../../os/kernel/src/chcond.c ****  *                      released from the condition variable.
+ 144:../../os/kernel/src/chcond.c ****  * @retval RDY_OK       if the condvar has been signaled using
+ 145:../../os/kernel/src/chcond.c ****  *                      @p chCondSignal().
+ 146:../../os/kernel/src/chcond.c ****  * @retval RDY_RESET    if the condvar has been signaled using
+ 147:../../os/kernel/src/chcond.c ****  *                      @p chCondBroadcast().
+ 148:../../os/kernel/src/chcond.c ****  *
+ 149:../../os/kernel/src/chcond.c ****  * @api
+ 150:../../os/kernel/src/chcond.c ****  */
+ 151:../../os/kernel/src/chcond.c **** msg_t chCondWait(CondVar *cp) {
+ 152:../../os/kernel/src/chcond.c ****   msg_t msg;
+ 153:../../os/kernel/src/chcond.c **** 
+ 154:../../os/kernel/src/chcond.c ****   chSysLock();
+ 155:../../os/kernel/src/chcond.c ****   msg = chCondWaitS(cp);
+ 156:../../os/kernel/src/chcond.c ****   chSysUnlock();
+ 157:../../os/kernel/src/chcond.c ****   return msg;
+ 158:../../os/kernel/src/chcond.c **** }
+ 159:../../os/kernel/src/chcond.c **** 
+ 160:../../os/kernel/src/chcond.c **** /**
+ 161:../../os/kernel/src/chcond.c ****  * @brief   Waits on the condition variable releasing the mutex lock.
+ 162:../../os/kernel/src/chcond.c ****  * @details Releases the currently owned mutex, waits on the condition
+ 163:../../os/kernel/src/chcond.c ****  *          variable, and finally acquires the mutex again. All the sequence
+ 164:../../os/kernel/src/chcond.c ****  *          is performed atomically.
+ 165:../../os/kernel/src/chcond.c ****  * @pre     The invoking thread <b>must</b> have at least one owned mutex.
+ 166:../../os/kernel/src/chcond.c ****  *
+ 167:../../os/kernel/src/chcond.c ****  * @param[in] cp        pointer to the @p CondVar structure
+ 168:../../os/kernel/src/chcond.c ****  * @return              A message specifying how the invoking thread has been
+ 169:../../os/kernel/src/chcond.c ****  *                      released from the condition variable.
+ 170:../../os/kernel/src/chcond.c ****  * @retval RDY_OK       if the condvar has been signaled using
+ 171:../../os/kernel/src/chcond.c ****  *                      @p chCondSignal().
+ 172:../../os/kernel/src/chcond.c ****  * @retval RDY_RESET    if the condvar has been signaled using
+ 173:../../os/kernel/src/chcond.c ****  *                      @p chCondBroadcast().
+ 174:../../os/kernel/src/chcond.c ****  *
+ 175:../../os/kernel/src/chcond.c ****  * @sclass
+ 176:../../os/kernel/src/chcond.c ****  */
+ 177:../../os/kernel/src/chcond.c **** msg_t chCondWaitS(CondVar *cp) {
+ 273               		.loc 1 177 0
+ 274               		.cfi_startproc
+ 275               	.LVL19:
+ 276 00c4 EF92      		push r14
+ 277               	.LCFI8:
+ 278               		.cfi_def_cfa_offset 3
+ 279               		.cfi_offset 14, -2
+ 280 00c6 FF92      		push r15
+ 281               	.LCFI9:
+ 282               		.cfi_def_cfa_offset 4
+ 283               		.cfi_offset 15, -3
+ 284 00c8 0F93      		push r16
+ 285               	.LCFI10:
+ 286               		.cfi_def_cfa_offset 5
+ 287               		.cfi_offset 16, -4
+ 288 00ca 1F93      		push r17
+ 289               	.LCFI11:
+ 290               		.cfi_def_cfa_offset 6
+ 291               		.cfi_offset 17, -5
+ 292 00cc CF93      		push r28
+ 293               	.LCFI12:
+ 294               		.cfi_def_cfa_offset 7
+ 295               		.cfi_offset 28, -6
+ 296 00ce DF93      		push r29
+ 297               	.LCFI13:
+ 298               		.cfi_def_cfa_offset 8
+ 299               		.cfi_offset 29, -7
+ 300               	/* prologue: function */
+ 301               	/* frame size = 0 */
+ 302               	/* stack size = 6 */
+ 303               	.L__stack_usage = 6
+ 304 00d0 7C01      		movw r14,r24
+ 178:../../os/kernel/src/chcond.c ****   Thread *ctp = currp;
+ 305               		.loc 1 178 0
+ 306 00d2 C091 0000 		lds r28,rlist+11
+ 307 00d6 D091 0000 		lds r29,rlist+11+1
+ 308               	.LVL20:
+ 179:../../os/kernel/src/chcond.c ****   Mutex *mp;
+ 180:../../os/kernel/src/chcond.c ****   msg_t msg;
+ 181:../../os/kernel/src/chcond.c **** 
+ 182:../../os/kernel/src/chcond.c ****   chDbgCheckClassS();
+ 183:../../os/kernel/src/chcond.c ****   chDbgCheck(cp != NULL, "chCondWaitS");
+ 184:../../os/kernel/src/chcond.c ****   chDbgAssert(ctp->p_mtxlist != NULL,
+ 185:../../os/kernel/src/chcond.c ****               "chCondWaitS(), #1",
+ 186:../../os/kernel/src/chcond.c ****               "not owning a mutex");
+ 187:../../os/kernel/src/chcond.c **** 
+ 188:../../os/kernel/src/chcond.c ****   mp = chMtxUnlockS();
+ 309               		.loc 1 188 0
+ 310 00da 0E94 0000 		call chMtxUnlockS
+ 311               	.LVL21:
+ 312 00de 8C01      		movw r16,r24
+ 313               	.LVL22:
+ 189:../../os/kernel/src/chcond.c ****   ctp->p_u.wtobjp = cp;
+ 314               		.loc 1 189 0
+ 315 00e0 EA8A      		std Y+18,r14
+ 316 00e2 FB8A      		std Y+19,r15
+ 190:../../os/kernel/src/chcond.c ****   prio_insert(ctp, &cp->c_queue);
+ 317               		.loc 1 190 0
+ 318 00e4 D701      		movw r26,r14
+ 319               	.LVL23:
+  36:../../os/kernel/include/chinline.h ****   Thread *cp = (Thread *)tqp;
+ 320               		.loc 2 36 0
+ 321 00e6 F701      		movw r30,r14
+ 322 00e8 00C0      		rjmp .L16
+ 323               	.LVL24:
+ 324               	.L21:
+ 325               	.LBB18:
+ 326               	.LBB19:
+  39:../../os/kernel/include/chinline.h ****   } while ((cp != (Thread *)tqp) && (cp->p_prio >= tp->p_prio));
+ 327               		.loc 2 39 0
+ 328 00ea 9481      		ldd r25,Z+4
+ 329 00ec 8C81      		ldd r24,Y+4
+ 330 00ee 9817      		cp r25,r24
+ 331 00f0 00F0      		brlo .L20
+ 332               	.L16:
+  38:../../os/kernel/include/chinline.h ****     cp = cp->p_next;
+ 333               		.loc 2 38 0
+ 334 00f2 0190      		ld __tmp_reg__,Z+
+ 335 00f4 F081      		ld r31,Z
+ 336 00f6 E02D      		mov r30,__tmp_reg__
+ 337               	.LVL25:
+  39:../../os/kernel/include/chinline.h ****   } while ((cp != (Thread *)tqp) && (cp->p_prio >= tp->p_prio));
+ 338               		.loc 2 39 0
+ 339 00f8 AE17      		cp r26,r30
+ 340 00fa BF07      		cpc r27,r31
+ 341 00fc 01F4      		brne .L21
+ 342               	.L17:
+  40:../../os/kernel/include/chinline.h ****   tp->p_next = cp;
+ 343               		.loc 2 40 0
+ 344 00fe B983      		std Y+1,r27
+ 345 0100 A883      		st Y,r26
+  41:../../os/kernel/include/chinline.h ****   tp->p_prev = cp->p_prev;
+ 346               		.loc 2 41 0
+ 347 0102 1296      		adiw r26,2
+ 348 0104 ED91      		ld r30,X+
+ 349 0106 FC91      		ld r31,X
+ 350 0108 1397      		sbiw r26,2+1
+ 351               	.LVL26:
+ 352 010a FB83      		std Y+3,r31
+ 353 010c EA83      		std Y+2,r30
+  42:../../os/kernel/include/chinline.h ****   tp->p_prev->p_next = cp->p_prev = tp;
+ 354               		.loc 2 42 0
+ 355 010e 1396      		adiw r26,2+1
+ 356 0110 DC93      		st X,r29
+ 357 0112 CE93      		st -X,r28
+ 358 0114 1297      		sbiw r26,2
+ 359 0116 D183      		std Z+1,r29
+ 360 0118 C083      		st Z,r28
+ 361               	.LBE19:
+ 362               	.LBE18:
+ 191:../../os/kernel/src/chcond.c ****   chSchGoSleepS(THD_STATE_WTCOND);
+ 363               		.loc 1 191 0
+ 364 011a 85E0      		ldi r24,lo8(5)
+ 365 011c 0E94 0000 		call chSchGoSleepS
+ 366               	.LVL27:
+ 192:../../os/kernel/src/chcond.c ****   msg = ctp->p_u.rdymsg;
+ 367               		.loc 1 192 0
+ 368 0120 FA88      		ldd r15,Y+18
+ 369 0122 CB89      		ldd r28,Y+19
+ 370               	.LVL28:
+ 193:../../os/kernel/src/chcond.c ****   chMtxLockS(mp);
+ 371               		.loc 1 193 0
+ 372 0124 C801      		movw r24,r16
+ 373 0126 0E94 0000 		call chMtxLockS
+ 374               	.LVL29:
+ 194:../../os/kernel/src/chcond.c ****   return msg;
+ 195:../../os/kernel/src/chcond.c **** }
+ 375               		.loc 1 195 0
+ 376 012a 8F2D      		mov r24,r15
+ 377 012c 9C2F      		mov r25,r28
+ 378               	/* epilogue start */
+ 379 012e DF91      		pop r29
+ 380 0130 CF91      		pop r28
+ 381               	.LVL30:
+ 382 0132 1F91      		pop r17
+ 383 0134 0F91      		pop r16
+ 384               	.LVL31:
+ 385 0136 FF90      		pop r15
+ 386               	.LVL32:
+ 387 0138 EF90      		pop r14
+ 388               	.LVL33:
+ 389 013a 0895      		ret
+ 390               	.LVL34:
+ 391               	.L20:
+ 392               	.LBB21:
+ 393               	.LBB20:
+  39:../../os/kernel/include/chinline.h ****   } while ((cp != (Thread *)tqp) && (cp->p_prio >= tp->p_prio));
+ 394               		.loc 2 39 0
+ 395 013c DF01      		movw r26,r30
+ 396 013e 00C0      		rjmp .L17
+ 397               	.LBE20:
+ 398               	.LBE21:
+ 399               		.cfi_endproc
+ 400               	.LFE13:
+ 402               	.global	chCondWait
+ 404               	chCondWait:
+ 405               	.LFB12:
+ 151:../../os/kernel/src/chcond.c **** msg_t chCondWait(CondVar *cp) {
+ 406               		.loc 1 151 0
+ 407               		.cfi_startproc
+ 408               	.LVL35:
+ 409               	/* prologue: function */
+ 410               	/* frame size = 0 */
+ 411               	/* stack size = 0 */
+ 412               	.L__stack_usage = 0
+ 154:../../os/kernel/src/chcond.c ****   chSysLock();
+ 413               		.loc 1 154 0
+ 414               	/* #APP */
+ 415               	 ;  154 "../../os/kernel/src/chcond.c" 1
+ 416 0140 F894      		cli
+ 417               	 ;  0 "" 2
+ 155:../../os/kernel/src/chcond.c ****   msg = chCondWaitS(cp);
+ 418               		.loc 1 155 0
+ 419               	/* #NOAPP */
+ 420 0142 0E94 0000 		call chCondWaitS
+ 421               	.LVL36:
+ 156:../../os/kernel/src/chcond.c ****   chSysUnlock();
+ 422               		.loc 1 156 0
+ 423               	/* #APP */
+ 424               	 ;  156 "../../os/kernel/src/chcond.c" 1
+ 425 0146 7894      		sei
+ 426               	 ;  0 "" 2
+ 158:../../os/kernel/src/chcond.c **** }
+ 427               		.loc 1 158 0
+ 428               	/* #NOAPP */
+ 429 0148 0895      		ret
+ 430               		.cfi_endproc
+ 431               	.LFE12:
+ 433               	.global	chCondWaitTimeoutS
+ 435               	chCondWaitTimeoutS:
+ 436               	.LFB15:
+ 196:../../os/kernel/src/chcond.c **** 
+ 197:../../os/kernel/src/chcond.c **** #if CH_USE_CONDVARS_TIMEOUT || defined(__DOXYGEN__)
+ 198:../../os/kernel/src/chcond.c **** /**
+ 199:../../os/kernel/src/chcond.c ****  * @brief   Waits on the condition variable releasing the mutex lock.
+ 200:../../os/kernel/src/chcond.c ****  * @details Releases the currently owned mutex, waits on the condition
+ 201:../../os/kernel/src/chcond.c ****  *          variable, and finally acquires the mutex again. All the sequence
+ 202:../../os/kernel/src/chcond.c ****  *          is performed atomically.
+ 203:../../os/kernel/src/chcond.c ****  * @pre     The invoking thread <b>must</b> have at least one owned mutex.
+ 204:../../os/kernel/src/chcond.c ****  * @pre     The configuration option @p CH_USE_CONDVARS_TIMEOUT must be enabled
+ 205:../../os/kernel/src/chcond.c ****  *          in order to use this function.
+ 206:../../os/kernel/src/chcond.c ****  * @post    Exiting the function because a timeout does not re-acquire the
+ 207:../../os/kernel/src/chcond.c ****  *          mutex, the mutex ownership is lost.
+ 208:../../os/kernel/src/chcond.c ****  *
+ 209:../../os/kernel/src/chcond.c ****  * @param[in] cp        pointer to the @p CondVar structure
+ 210:../../os/kernel/src/chcond.c ****  * @param[in] time      the number of ticks before the operation timeouts, the
+ 211:../../os/kernel/src/chcond.c ****  *                      special values are handled as follow:
+ 212:../../os/kernel/src/chcond.c ****  *                      - @a TIME_INFINITE no timeout.
+ 213:../../os/kernel/src/chcond.c ****  *                      - @a TIME_IMMEDIATE this value is not allowed.
+ 214:../../os/kernel/src/chcond.c ****  *                      .
+ 215:../../os/kernel/src/chcond.c ****  * @return              A message specifying how the invoking thread has been
+ 216:../../os/kernel/src/chcond.c ****  *                      released from the condition variable.
+ 217:../../os/kernel/src/chcond.c ****  * @retval RDY_OK       if the condvar has been signaled using
+ 218:../../os/kernel/src/chcond.c ****  *                      @p chCondSignal().
+ 219:../../os/kernel/src/chcond.c ****  * @retval RDY_RESET    if the condvar has been signaled using
+ 220:../../os/kernel/src/chcond.c ****  *                      @p chCondBroadcast().
+ 221:../../os/kernel/src/chcond.c ****  * @retval RDY_TIMEOUT  if the condvar has not been signaled within the
+ 222:../../os/kernel/src/chcond.c ****  *                      specified timeout.
+ 223:../../os/kernel/src/chcond.c ****  *
+ 224:../../os/kernel/src/chcond.c ****  * @api
+ 225:../../os/kernel/src/chcond.c ****  */
+ 226:../../os/kernel/src/chcond.c **** msg_t chCondWaitTimeout(CondVar *cp, systime_t time) {
+ 227:../../os/kernel/src/chcond.c ****   msg_t msg;
+ 228:../../os/kernel/src/chcond.c **** 
+ 229:../../os/kernel/src/chcond.c ****   chSysLock();
+ 230:../../os/kernel/src/chcond.c ****   msg = chCondWaitTimeoutS(cp, time);
+ 231:../../os/kernel/src/chcond.c ****   chSysUnlock();
+ 232:../../os/kernel/src/chcond.c ****   return msg;
+ 233:../../os/kernel/src/chcond.c **** }
+ 234:../../os/kernel/src/chcond.c **** 
+ 235:../../os/kernel/src/chcond.c **** /**
+ 236:../../os/kernel/src/chcond.c ****  * @brief   Waits on the condition variable releasing the mutex lock.
+ 237:../../os/kernel/src/chcond.c ****  * @details Releases the currently owned mutex, waits on the condition
+ 238:../../os/kernel/src/chcond.c ****  *          variable, and finally acquires the mutex again. All the sequence
+ 239:../../os/kernel/src/chcond.c ****  *          is performed atomically.
+ 240:../../os/kernel/src/chcond.c ****  * @pre     The invoking thread <b>must</b> have at least one owned mutex.
+ 241:../../os/kernel/src/chcond.c ****  * @pre     The configuration option @p CH_USE_CONDVARS_TIMEOUT must be enabled
+ 242:../../os/kernel/src/chcond.c ****  *          in order to use this function.
+ 243:../../os/kernel/src/chcond.c ****  * @post    Exiting the function because a timeout does not re-acquire the
+ 244:../../os/kernel/src/chcond.c ****  *          mutex, the mutex ownership is lost.
+ 245:../../os/kernel/src/chcond.c ****  *
+ 246:../../os/kernel/src/chcond.c ****  * @param[in] cp        pointer to the @p CondVar structure
+ 247:../../os/kernel/src/chcond.c ****  * @param[in] time      the number of ticks before the operation timeouts, the
+ 248:../../os/kernel/src/chcond.c ****  *                      special values are handled as follow:
+ 249:../../os/kernel/src/chcond.c ****  *                      - @a TIME_INFINITE no timeout.
+ 250:../../os/kernel/src/chcond.c ****  *                      - @a TIME_IMMEDIATE this value is not allowed.
+ 251:../../os/kernel/src/chcond.c ****  *                      .
+ 252:../../os/kernel/src/chcond.c ****  * @return              A message specifying how the invoking thread has been
+ 253:../../os/kernel/src/chcond.c ****  *                      released from the condition variable.
+ 254:../../os/kernel/src/chcond.c ****  * @retval RDY_OK       if the condvar has been signaled using
+ 255:../../os/kernel/src/chcond.c ****  *                      @p chCondSignal().
+ 256:../../os/kernel/src/chcond.c ****  * @retval RDY_RESET    if the condvar has been signaled using
+ 257:../../os/kernel/src/chcond.c ****  *                      @p chCondBroadcast().
+ 258:../../os/kernel/src/chcond.c ****  * @retval RDY_TIMEOUT  if the condvar has not been signaled within the
+ 259:../../os/kernel/src/chcond.c ****  *                      specified timeout.
+ 260:../../os/kernel/src/chcond.c ****  *
+ 261:../../os/kernel/src/chcond.c ****  * @sclass
+ 262:../../os/kernel/src/chcond.c ****  */
+ 263:../../os/kernel/src/chcond.c **** msg_t chCondWaitTimeoutS(CondVar *cp, systime_t time) {
+ 437               		.loc 1 263 0
+ 438               		.cfi_startproc
+ 439               	.LVL37:
+ 440 014a EF92      		push r14
+ 441               	.LCFI14:
+ 442               		.cfi_def_cfa_offset 3
+ 443               		.cfi_offset 14, -2
+ 444 014c FF92      		push r15
+ 445               	.LCFI15:
+ 446               		.cfi_def_cfa_offset 4
+ 447               		.cfi_offset 15, -3
+ 448 014e 0F93      		push r16
+ 449               	.LCFI16:
+ 450               		.cfi_def_cfa_offset 5
+ 451               		.cfi_offset 16, -4
+ 452 0150 1F93      		push r17
+ 453               	.LCFI17:
+ 454               		.cfi_def_cfa_offset 6
+ 455               		.cfi_offset 17, -5
+ 456 0152 CF93      		push r28
+ 457               	.LCFI18:
+ 458               		.cfi_def_cfa_offset 7
+ 459               		.cfi_offset 28, -6
+ 460 0154 DF93      		push r29
+ 461               	.LCFI19:
+ 462               		.cfi_def_cfa_offset 8
+ 463               		.cfi_offset 29, -7
+ 464 0156 00D0      		rcall .
+ 465               	.LCFI20:
+ 466               		.cfi_def_cfa_offset 10
+ 467 0158 CDB7      		in r28,__SP_L__
+ 468 015a DEB7      		in r29,__SP_H__
+ 469               	.LCFI21:
+ 470               		.cfi_def_cfa_register 28
+ 471               	/* prologue: function */
+ 472               	/* frame size = 2 */
+ 473               	/* stack size = 8 */
+ 474               	.L__stack_usage = 8
+ 475 015c 7C01      		movw r14,r24
+ 264:../../os/kernel/src/chcond.c ****   Mutex *mp;
+ 265:../../os/kernel/src/chcond.c ****   msg_t msg;
+ 266:../../os/kernel/src/chcond.c **** 
+ 267:../../os/kernel/src/chcond.c ****   chDbgCheckClassS();
+ 268:../../os/kernel/src/chcond.c ****   chDbgCheck((cp != NULL) && (time != TIME_IMMEDIATE), "chCondWaitTimeoutS");
+ 269:../../os/kernel/src/chcond.c ****   chDbgAssert(currp->p_mtxlist != NULL,
+ 270:../../os/kernel/src/chcond.c ****               "chCondWaitTimeoutS(), #1",
+ 271:../../os/kernel/src/chcond.c ****               "not owning a mutex");
+ 272:../../os/kernel/src/chcond.c **** 
+ 273:../../os/kernel/src/chcond.c ****   mp = chMtxUnlockS();
+ 476               		.loc 1 273 0
+ 477 015e 6983      		std Y+1,r22
+ 478 0160 7A83      		std Y+2,r23
+ 479 0162 0E94 0000 		call chMtxUnlockS
+ 480               	.LVL38:
+ 481 0166 8C01      		movw r16,r24
+ 482               	.LVL39:
+ 274:../../os/kernel/src/chcond.c ****   currp->p_u.wtobjp = cp;
+ 483               		.loc 1 274 0
+ 484 0168 4091 0000 		lds r20,rlist+11
+ 485 016c 5091 0000 		lds r21,rlist+11+1
+ 486 0170 DA01      		movw r26,r20
+ 487 0172 5296      		adiw r26,18
+ 488 0174 EC92      		st X,r14
+ 489 0176 5297      		sbiw r26,18
+ 490 0178 5396      		adiw r26,19
+ 491 017a FC92      		st X,r15
+ 275:../../os/kernel/src/chcond.c ****   prio_insert(currp, &cp->c_queue);
+ 492               		.loc 1 275 0
+ 493 017c 9701      		movw r18,r14
+ 494               	.LVL40:
+  36:../../os/kernel/include/chinline.h ****   Thread *cp = (Thread *)tqp;
+ 495               		.loc 2 36 0
+ 496 017e F701      		movw r30,r14
+ 497 0180 7A81      		ldd r23,Y+2
+ 498 0182 6981      		ldd r22,Y+1
+ 499               	.LVL41:
+ 500               	.L27:
+ 501               	.LBB22:
+ 502               	.LBB23:
+  38:../../os/kernel/include/chinline.h ****     cp = cp->p_next;
+ 503               		.loc 2 38 0
+ 504 0184 0190      		ld __tmp_reg__,Z+
+ 505 0186 F081      		ld r31,Z
+ 506 0188 E02D      		mov r30,__tmp_reg__
+ 507               	.LVL42:
+  39:../../os/kernel/include/chinline.h ****   } while ((cp != (Thread *)tqp) && (cp->p_prio >= tp->p_prio));
+ 508               		.loc 2 39 0
+ 509 018a 2E17      		cp r18,r30
+ 510 018c 3F07      		cpc r19,r31
+ 511 018e 01F0      		breq .L28
+ 512 0190 9481      		ldd r25,Z+4
+ 513 0192 DA01      		movw r26,r20
+ 514 0194 1496      		adiw r26,4
+ 515 0196 8C91      		ld r24,X
+ 516 0198 9817      		cp r25,r24
+ 517 019a 00F4      		brsh .L27
+ 518               	.L28:
+  40:../../os/kernel/include/chinline.h ****   tp->p_next = cp;
+ 519               		.loc 2 40 0
+ 520 019c DA01      		movw r26,r20
+ 521 019e 1196      		adiw r26,1
+ 522 01a0 FC93      		st X,r31
+ 523 01a2 EE93      		st -X,r30
+  41:../../os/kernel/include/chinline.h ****   tp->p_prev = cp->p_prev;
+ 524               		.loc 2 41 0
+ 525 01a4 8281      		ldd r24,Z+2
+ 526 01a6 9381      		ldd r25,Z+3
+ 527 01a8 1396      		adiw r26,2+1
+ 528 01aa 9C93      		st X,r25
+ 529 01ac 8E93      		st -X,r24
+ 530 01ae 1297      		sbiw r26,2
+  42:../../os/kernel/include/chinline.h ****   tp->p_prev->p_next = cp->p_prev = tp;
+ 531               		.loc 2 42 0
+ 532 01b0 5383      		std Z+3,r21
+ 533 01b2 4283      		std Z+2,r20
+ 534 01b4 FC01      		movw r30,r24
+ 535               	.LVL43:
+ 536 01b6 5183      		std Z+1,r21
+ 537 01b8 4083      		st Z,r20
+ 538               	.LBE23:
+ 539               	.LBE22:
+ 276:../../os/kernel/src/chcond.c ****   msg = chSchGoSleepTimeoutS(THD_STATE_WTCOND, time);
+ 540               		.loc 1 276 0
+ 541 01ba 85E0      		ldi r24,lo8(5)
+ 542 01bc 0E94 0000 		call chSchGoSleepTimeoutS
+ 543               	.LVL44:
+ 544 01c0 7C01      		movw r14,r24
+ 545               	.LVL45:
+ 277:../../os/kernel/src/chcond.c ****   if (msg != RDY_TIMEOUT)
+ 546               		.loc 1 277 0
+ 547 01c2 8F3F      		cpi r24,-1
+ 548 01c4 FFEF      		ldi r31,-1
+ 549 01c6 9F07      		cpc r25,r31
+ 550 01c8 01F0      		breq .L26
+ 278:../../os/kernel/src/chcond.c ****     chMtxLockS(mp);
+ 551               		.loc 1 278 0
+ 552 01ca C801      		movw r24,r16
+ 553 01cc 0E94 0000 		call chMtxLockS
+ 554               	.LVL46:
+ 555               	.L26:
+ 279:../../os/kernel/src/chcond.c ****   return msg;
+ 280:../../os/kernel/src/chcond.c **** }
+ 556               		.loc 1 280 0
+ 557 01d0 C701      		movw r24,r14
+ 558               	/* epilogue start */
+ 559 01d2 0F90      		pop __tmp_reg__
+ 560 01d4 0F90      		pop __tmp_reg__
+ 561 01d6 DF91      		pop r29
+ 562 01d8 CF91      		pop r28
+ 563 01da 1F91      		pop r17
+ 564 01dc 0F91      		pop r16
+ 565               	.LVL47:
+ 566 01de FF90      		pop r15
+ 567 01e0 EF90      		pop r14
+ 568               	.LVL48:
+ 569 01e2 0895      		ret
+ 570               		.cfi_endproc
+ 571               	.LFE15:
+ 573               	.global	chCondWaitTimeout
+ 575               	chCondWaitTimeout:
+ 576               	.LFB14:
+ 226:../../os/kernel/src/chcond.c **** msg_t chCondWaitTimeout(CondVar *cp, systime_t time) {
+ 577               		.loc 1 226 0
+ 578               		.cfi_startproc
+ 579               	.LVL49:
+ 580               	/* prologue: function */
+ 581               	/* frame size = 0 */
+ 582               	/* stack size = 0 */
+ 583               	.L__stack_usage = 0
+ 229:../../os/kernel/src/chcond.c ****   chSysLock();
+ 584               		.loc 1 229 0
+ 585               	/* #APP */
+ 586               	 ;  229 "../../os/kernel/src/chcond.c" 1
+ 587 01e4 F894      		cli
+ 588               	 ;  0 "" 2
+ 230:../../os/kernel/src/chcond.c ****   msg = chCondWaitTimeoutS(cp, time);
+ 589               		.loc 1 230 0
+ 590               	/* #NOAPP */
+ 591 01e6 0E94 0000 		call chCondWaitTimeoutS
+ 592               	.LVL50:
+ 231:../../os/kernel/src/chcond.c ****   chSysUnlock();
+ 593               		.loc 1 231 0
+ 594               	/* #APP */
+ 595               	 ;  231 "../../os/kernel/src/chcond.c" 1
+ 596 01ea 7894      		sei
+ 597               	 ;  0 "" 2
+ 233:../../os/kernel/src/chcond.c **** }
+ 598               		.loc 1 233 0
+ 599               	/* #NOAPP */
+ 600 01ec 0895      		ret
+ 601               		.cfi_endproc
+ 602               	.LFE14:
+ 604               	.Letext0:
+ 605               		.file 3 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+ 606               		.file 4 "../../os/ports/GCC/AVR/chtypes.h"
+ 607               		.file 5 "../../os/kernel/include/chlists.h"
+ 608               		.file 6 "../../os/kernel/include/chthreads.h"
+ 609               		.file 7 "../../os/ports/GCC/AVR/chcore.h"
+ 610               		.file 8 "../../os/kernel/include/chschd.h"
+ 611               		.file 9 "../../os/kernel/include/chmtx.h"
+ 612               		.file 10 "../../os/kernel/include/chcond.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 chcond.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc8fFSOg.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc8fFSOg.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc8fFSOg.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc8fFSOg.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc8fFSOg.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc8fFSOg.s:12     .text:0000000000000000 chCondInit
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc8fFSOg.s:34     .text:000000000000000c chCondSignal
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc8fFSOg.s:103    .text:0000000000000040 chCondSignalI
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc8fFSOg.s:161    .text:0000000000000072 chCondBroadcastI
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc8fFSOg.s:238    .text:00000000000000b6 chCondBroadcast
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc8fFSOg.s:271    .text:00000000000000c4 chCondWaitS
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc8fFSOg.s:404    .text:0000000000000140 chCondWait
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc8fFSOg.s:435    .text:000000000000014a chCondWaitTimeoutS
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc8fFSOg.s:575    .text:00000000000001e4 chCondWaitTimeout
+
+UNDEFINED SYMBOLS
+chSchWakeupS
+chSchReadyI
+chSchRescheduleS
+rlist
+chMtxUnlockS
+chSchGoSleepS
+chMtxLockS
+chSchGoSleepTimeoutS

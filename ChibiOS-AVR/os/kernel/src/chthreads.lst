@@ -1,0 +1,1271 @@
+   1               		.file	"chthreads.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	_thread_init
+  12               	_thread_init:
+  13               	.LFB7:
+  14               		.file 1 "../../os/kernel/src/chthreads.c"
+   1:../../os/kernel/src/chthreads.c **** /*
+   2:../../os/kernel/src/chthreads.c ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/kernel/src/chthreads.c ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/kernel/src/chthreads.c **** 
+   5:../../os/kernel/src/chthreads.c ****     This file is part of ChibiOS/RT.
+   6:../../os/kernel/src/chthreads.c **** 
+   7:../../os/kernel/src/chthreads.c ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/kernel/src/chthreads.c ****     it under the terms of the GNU General Public License as published by
+   9:../../os/kernel/src/chthreads.c ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/kernel/src/chthreads.c ****     (at your option) any later version.
+  11:../../os/kernel/src/chthreads.c **** 
+  12:../../os/kernel/src/chthreads.c ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/kernel/src/chthreads.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/kernel/src/chthreads.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/kernel/src/chthreads.c ****     GNU General Public License for more details.
+  16:../../os/kernel/src/chthreads.c **** 
+  17:../../os/kernel/src/chthreads.c ****     You should have received a copy of the GNU General Public License
+  18:../../os/kernel/src/chthreads.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/kernel/src/chthreads.c **** */
+  20:../../os/kernel/src/chthreads.c **** 
+  21:../../os/kernel/src/chthreads.c **** /**
+  22:../../os/kernel/src/chthreads.c ****  * @file    chthreads.c
+  23:../../os/kernel/src/chthreads.c ****  * @brief   Threads code.
+  24:../../os/kernel/src/chthreads.c ****  *
+  25:../../os/kernel/src/chthreads.c ****  * @addtogroup threads
+  26:../../os/kernel/src/chthreads.c ****  * @details Threads related APIs and services.
+  27:../../os/kernel/src/chthreads.c ****  *
+  28:../../os/kernel/src/chthreads.c ****  *          <h2>Operation mode</h2>
+  29:../../os/kernel/src/chthreads.c ****  *          A thread is an abstraction of an independent instructions flow.
+  30:../../os/kernel/src/chthreads.c ****  *          In ChibiOS/RT a thread is represented by a "C" function owning
+  31:../../os/kernel/src/chthreads.c ****  *          a processor context, state informations and a dedicated stack
+  32:../../os/kernel/src/chthreads.c ****  *          area. In this scenario static variables are shared among all
+  33:../../os/kernel/src/chthreads.c ****  *          threads while automatic variables are local to the thread.<br>
+  34:../../os/kernel/src/chthreads.c ****  *          Operations defined for threads:
+  35:../../os/kernel/src/chthreads.c ****  *          - <b>Create</b>, a thread is started on the specified thread
+  36:../../os/kernel/src/chthreads.c ****  *            function. This operation is available in multiple variants,
+  37:../../os/kernel/src/chthreads.c ****  *            both static and dynamic.
+  38:../../os/kernel/src/chthreads.c ****  *          - <b>Exit</b>, a thread terminates by returning from its top
+  39:../../os/kernel/src/chthreads.c ****  *            level function or invoking a specific API, the thread can
+  40:../../os/kernel/src/chthreads.c ****  *            return a value that can be retrieved by other threads.
+  41:../../os/kernel/src/chthreads.c ****  *          - <b>Wait</b>, a thread waits for the termination of another
+  42:../../os/kernel/src/chthreads.c ****  *            thread and retrieves its return value.
+  43:../../os/kernel/src/chthreads.c ****  *          - <b>Resume</b>, a thread created in suspended state is started.
+  44:../../os/kernel/src/chthreads.c ****  *          - <b>Sleep</b>, the execution of a thread is suspended for the
+  45:../../os/kernel/src/chthreads.c ****  *            specified amount of time or the specified future absolute time
+  46:../../os/kernel/src/chthreads.c ****  *            is reached.
+  47:../../os/kernel/src/chthreads.c ****  *          - <b>SetPriority</b>, a thread changes its own priority level.
+  48:../../os/kernel/src/chthreads.c ****  *          - <b>Yield</b>, a thread voluntarily renounces to its time slot.
+  49:../../os/kernel/src/chthreads.c ****  *          .
+  50:../../os/kernel/src/chthreads.c ****  *          The threads subsystem is implicitly included in kernel however
+  51:../../os/kernel/src/chthreads.c ****  *          some of its part may be excluded by disabling them in @p chconf.h,
+  52:../../os/kernel/src/chthreads.c ****  *          see the @p CH_USE_WAITEXIT and @p CH_USE_DYNAMIC configuration
+  53:../../os/kernel/src/chthreads.c ****  *          options.
+  54:../../os/kernel/src/chthreads.c ****  * @{
+  55:../../os/kernel/src/chthreads.c ****  */
+  56:../../os/kernel/src/chthreads.c **** 
+  57:../../os/kernel/src/chthreads.c **** #include "ch.h"
+  58:../../os/kernel/src/chthreads.c **** 
+  59:../../os/kernel/src/chthreads.c **** /**
+  60:../../os/kernel/src/chthreads.c ****  * @brief   Initializes a thread structure.
+  61:../../os/kernel/src/chthreads.c ****  * @note    This is an internal functions, do not use it in application code.
+  62:../../os/kernel/src/chthreads.c ****  *
+  63:../../os/kernel/src/chthreads.c ****  * @param[in] tp        pointer to the thread
+  64:../../os/kernel/src/chthreads.c ****  * @param[in] prio      the priority level for the new thread
+  65:../../os/kernel/src/chthreads.c ****  * @return              The same thread pointer passed as parameter.
+  66:../../os/kernel/src/chthreads.c ****  *
+  67:../../os/kernel/src/chthreads.c ****  * @notapi
+  68:../../os/kernel/src/chthreads.c ****  */
+  69:../../os/kernel/src/chthreads.c **** Thread *_thread_init(Thread *tp, tprio_t prio) {
+  15               		.loc 1 69 0
+  16               		.cfi_startproc
+  17               	.LVL0:
+  18 0000 CF93      		push r28
+  19               	.LCFI0:
+  20               		.cfi_def_cfa_offset 3
+  21               		.cfi_offset 28, -2
+  22 0002 DF93      		push r29
+  23               	.LCFI1:
+  24               		.cfi_def_cfa_offset 4
+  25               		.cfi_offset 29, -3
+  26               	/* prologue: function */
+  27               	/* frame size = 0 */
+  28               	/* stack size = 2 */
+  29               	.L__stack_usage = 2
+  30 0004 FC01      		movw r30,r24
+  70:../../os/kernel/src/chthreads.c **** 
+  71:../../os/kernel/src/chthreads.c ****   tp->p_prio = prio;
+  31               		.loc 1 71 0
+  32 0006 6483      		std Z+4,r22
+  72:../../os/kernel/src/chthreads.c ****   tp->p_state = THD_STATE_SUSPENDED;
+  33               		.loc 1 72 0
+  34 0008 82E0      		ldi r24,lo8(2)
+  35               	.LVL1:
+  36 000a 8587      		std Z+13,r24
+  73:../../os/kernel/src/chthreads.c ****   tp->p_flags = THD_MEM_MODE_STATIC;
+  37               		.loc 1 73 0
+  38 000c 1686      		std Z+14,__zero_reg__
+  74:../../os/kernel/src/chthreads.c **** #if CH_TIME_QUANTUM > 0
+  75:../../os/kernel/src/chthreads.c ****   tp->p_preempt = CH_TIME_QUANTUM;
+  39               		.loc 1 75 0
+  40 000e 84E1      		ldi r24,lo8(20)
+  41 0010 8787      		std Z+15,r24
+  76:../../os/kernel/src/chthreads.c **** #endif
+  77:../../os/kernel/src/chthreads.c **** #if CH_USE_MUTEXES
+  78:../../os/kernel/src/chthreads.c ****   tp->p_realprio = prio;
+  42               		.loc 1 78 0
+  43 0012 678F      		std Z+31,r22
+  79:../../os/kernel/src/chthreads.c ****   tp->p_mtxlist = NULL;
+  44               		.loc 1 79 0
+  45 0014 168E      		std Z+30,__zero_reg__
+  46 0016 158E      		std Z+29,__zero_reg__
+  80:../../os/kernel/src/chthreads.c **** #endif
+  81:../../os/kernel/src/chthreads.c **** #if CH_USE_EVENTS
+  82:../../os/kernel/src/chthreads.c ****   tp->p_epending = 0;
+  47               		.loc 1 82 0
+  48 0018 148E      		std Z+28,__zero_reg__
+  83:../../os/kernel/src/chthreads.c **** #endif
+  84:../../os/kernel/src/chthreads.c **** #if CH_DBG_THREADS_PROFILING
+  85:../../os/kernel/src/chthreads.c ****   tp->p_time = 0;
+  49               		.loc 1 85 0
+  50 001a 118A      		std Z+17,__zero_reg__
+  51 001c 108A      		std Z+16,__zero_reg__
+  86:../../os/kernel/src/chthreads.c **** #endif
+  87:../../os/kernel/src/chthreads.c **** #if CH_USE_DYNAMIC
+  88:../../os/kernel/src/chthreads.c ****   tp->p_refs = 1;
+  89:../../os/kernel/src/chthreads.c **** #endif
+  90:../../os/kernel/src/chthreads.c **** #if CH_USE_REGISTRY
+  91:../../os/kernel/src/chthreads.c ****   tp->p_name = NULL;
+  52               		.loc 1 91 0
+  53 001e 1486      		std Z+12,__zero_reg__
+  54 0020 1386      		std Z+11,__zero_reg__
+  92:../../os/kernel/src/chthreads.c ****   REG_INSERT(tp);
+  55               		.loc 1 92 0
+  56 0022 80E0      		ldi r24,lo8(rlist)
+  57 0024 90E0      		ldi r25,hi8(rlist)
+  58 0026 9087      		std Z+8,r25
+  59 0028 8783      		std Z+7,r24
+  60 002a C0E0      		ldi r28,lo8(rlist+9)
+  61 002c D0E0      		ldi r29,hi8(rlist+9)
+  62 002e A881      		ld r26,Y
+  63 0030 B981      		ldd r27,Y+1
+  64 0032 B287      		std Z+10,r27
+  65 0034 A187      		std Z+9,r26
+  66 0036 F983      		std Y+1,r31
+  67 0038 E883      		st Y,r30
+  68 003a 1896      		adiw r26,7+1
+  69 003c FC93      		st X,r31
+  70 003e EE93      		st -X,r30
+  71 0040 1797      		sbiw r26,7
+  93:../../os/kernel/src/chthreads.c **** #endif
+  94:../../os/kernel/src/chthreads.c **** #if CH_USE_WAITEXIT
+  95:../../os/kernel/src/chthreads.c ****   list_init(&tp->p_waiting);
+  72               		.loc 1 95 0
+  73 0042 CF01      		movw r24,r30
+  74 0044 4496      		adiw r24,20
+  75 0046 958B      		std Z+21,r25
+  76 0048 848B      		std Z+20,r24
+  96:../../os/kernel/src/chthreads.c **** #endif
+  97:../../os/kernel/src/chthreads.c **** #if CH_USE_MESSAGES
+  98:../../os/kernel/src/chthreads.c ****   queue_init(&tp->p_msgqueue);
+  77               		.loc 1 98 0
+  78 004a CF01      		movw r24,r30
+  79 004c 4696      		adiw r24,22
+  80 004e 918F      		std Z+25,r25
+  81 0050 808F      		std Z+24,r24
+  82 0052 978B      		std Z+23,r25
+  83 0054 868B      		std Z+22,r24
+  99:../../os/kernel/src/chthreads.c **** #endif
+ 100:../../os/kernel/src/chthreads.c **** #if CH_DBG_ENABLE_STACK_CHECK
+ 101:../../os/kernel/src/chthreads.c ****   tp->p_stklimit = (stkalign_t *)(tp + 1);
+ 102:../../os/kernel/src/chthreads.c **** #endif
+ 103:../../os/kernel/src/chthreads.c **** #if defined(THREAD_EXT_INIT_HOOK)
+ 104:../../os/kernel/src/chthreads.c ****   THREAD_EXT_INIT_HOOK(tp);
+ 105:../../os/kernel/src/chthreads.c **** #endif
+ 106:../../os/kernel/src/chthreads.c ****   return tp;
+ 107:../../os/kernel/src/chthreads.c **** }
+  84               		.loc 1 107 0
+  85 0056 CF01      		movw r24,r30
+  86               	/* epilogue start */
+  87 0058 DF91      		pop r29
+  88 005a CF91      		pop r28
+  89 005c 0895      		ret
+  90               		.cfi_endproc
+  91               	.LFE7:
+  93               	.global	chThdCreateI
+  95               	chThdCreateI:
+  96               	.LFB8:
+ 108:../../os/kernel/src/chthreads.c **** 
+ 109:../../os/kernel/src/chthreads.c **** #if CH_DBG_FILL_THREADS || defined(__DOXYGEN__)
+ 110:../../os/kernel/src/chthreads.c **** /**
+ 111:../../os/kernel/src/chthreads.c ****  * @brief   Memory fill utility.
+ 112:../../os/kernel/src/chthreads.c ****  *
+ 113:../../os/kernel/src/chthreads.c ****  * @param[in] startp    first address to fill
+ 114:../../os/kernel/src/chthreads.c ****  * @param[in] endp      last address to fill +1
+ 115:../../os/kernel/src/chthreads.c ****  * @param[in] v         filler value
+ 116:../../os/kernel/src/chthreads.c ****  *
+ 117:../../os/kernel/src/chthreads.c ****  * @notapi
+ 118:../../os/kernel/src/chthreads.c ****  */
+ 119:../../os/kernel/src/chthreads.c **** void _thread_memfill(uint8_t *startp, uint8_t *endp, uint8_t v) {
+ 120:../../os/kernel/src/chthreads.c **** 
+ 121:../../os/kernel/src/chthreads.c ****   while (startp < endp)
+ 122:../../os/kernel/src/chthreads.c ****     *startp++ = v;
+ 123:../../os/kernel/src/chthreads.c **** }
+ 124:../../os/kernel/src/chthreads.c **** #endif /* CH_DBG_FILL_THREADS */
+ 125:../../os/kernel/src/chthreads.c **** 
+ 126:../../os/kernel/src/chthreads.c **** /**
+ 127:../../os/kernel/src/chthreads.c ****  * @brief   Creates a new thread into a static memory area.
+ 128:../../os/kernel/src/chthreads.c ****  * @details The new thread is initialized but not inserted in the ready list,
+ 129:../../os/kernel/src/chthreads.c ****  *          the initial state is @p THD_STATE_SUSPENDED.
+ 130:../../os/kernel/src/chthreads.c ****  * @post    The initialized thread can be subsequently started by invoking
+ 131:../../os/kernel/src/chthreads.c ****  *          @p chThdResume(), @p chThdResumeI() or @p chSchWakeupS()
+ 132:../../os/kernel/src/chthreads.c ****  *          depending on the execution context.
+ 133:../../os/kernel/src/chthreads.c ****  * @note    A thread can terminate by calling @p chThdExit() or by simply
+ 134:../../os/kernel/src/chthreads.c ****  *          returning from its main function.
+ 135:../../os/kernel/src/chthreads.c ****  * @note    Threads created using this function do not obey to the
+ 136:../../os/kernel/src/chthreads.c ****  *          @p CH_DBG_FILL_THREADS debug option because it would keep
+ 137:../../os/kernel/src/chthreads.c ****  *          the kernel locked for too much time.
+ 138:../../os/kernel/src/chthreads.c ****  *
+ 139:../../os/kernel/src/chthreads.c ****  * @param[out] wsp      pointer to a working area dedicated to the thread stack
+ 140:../../os/kernel/src/chthreads.c ****  * @param[in] size      size of the working area
+ 141:../../os/kernel/src/chthreads.c ****  * @param[in] prio      the priority level for the new thread
+ 142:../../os/kernel/src/chthreads.c ****  * @param[in] pf        the thread function
+ 143:../../os/kernel/src/chthreads.c ****  * @param[in] arg       an argument passed to the thread function. It can be
+ 144:../../os/kernel/src/chthreads.c ****  *                      @p NULL.
+ 145:../../os/kernel/src/chthreads.c ****  * @return              The pointer to the @p Thread structure allocated for
+ 146:../../os/kernel/src/chthreads.c ****  *                      the thread into the working space area.
+ 147:../../os/kernel/src/chthreads.c ****  *
+ 148:../../os/kernel/src/chthreads.c ****  * @iclass
+ 149:../../os/kernel/src/chthreads.c ****  */
+ 150:../../os/kernel/src/chthreads.c **** Thread *chThdCreateI(void *wsp, size_t size,
+ 151:../../os/kernel/src/chthreads.c ****                      tprio_t prio, tfunc_t pf, void *arg) {
+  97               		.loc 1 151 0
+  98               		.cfi_startproc
+  99               	.LVL2:
+ 100 005e 0F93      		push r16
+ 101               	.LCFI2:
+ 102               		.cfi_def_cfa_offset 3
+ 103               		.cfi_offset 16, -2
+ 104 0060 1F93      		push r17
+ 105               	.LCFI3:
+ 106               		.cfi_def_cfa_offset 4
+ 107               		.cfi_offset 17, -3
+ 108 0062 CF93      		push r28
+ 109               	.LCFI4:
+ 110               		.cfi_def_cfa_offset 5
+ 111               		.cfi_offset 28, -4
+ 112 0064 DF93      		push r29
+ 113               	.LCFI5:
+ 114               		.cfi_def_cfa_offset 6
+ 115               		.cfi_offset 29, -5
+ 116               	/* prologue: function */
+ 117               	/* frame size = 0 */
+ 118               	/* stack size = 4 */
+ 119               	.L__stack_usage = 4
+ 120 0066 FC01      		movw r30,r24
+ 121               	.LVL3:
+ 152:../../os/kernel/src/chthreads.c ****   /* Thread structure is layed out in the lower part of the thread workspace.*/
+ 153:../../os/kernel/src/chthreads.c ****   Thread *tp = wsp;
+ 154:../../os/kernel/src/chthreads.c **** 
+ 155:../../os/kernel/src/chthreads.c ****   chDbgCheckClassI();
+ 156:../../os/kernel/src/chthreads.c **** 
+ 157:../../os/kernel/src/chthreads.c ****   chDbgCheck((wsp != NULL) && (size >= THD_WA_SIZE(0)) &&
+ 158:../../os/kernel/src/chthreads.c ****              (prio <= HIGHPRIO) && (pf != NULL),
+ 159:../../os/kernel/src/chthreads.c ****              "chThdCreateI");
+ 160:../../os/kernel/src/chthreads.c ****   SETUP_CONTEXT(wsp, size, pf, arg);
+ 122               		.loc 1 160 0
+ 123 0068 6551      		subi r22,21
+ 124 006a 7109      		sbc r23,__zero_reg__
+ 125               	.LVL4:
+ 126 006c 680F      		add r22,r24
+ 127 006e 791F      		adc r23,r25
+ 128               	.LVL5:
+ 129 0070 7683      		std Z+6,r23
+ 130 0072 6583      		std Z+5,r22
+ 131 0074 DB01      		movw r26,r22
+ 132 0076 5296      		adiw r26,18
+ 133 0078 2C93      		st X,r18
+ 134 007a A581      		ldd r26,Z+5
+ 135 007c B681      		ldd r27,Z+6
+ 136 007e 5196      		adiw r26,17
+ 137 0080 3C93      		st X,r19
+ 138 0082 A581      		ldd r26,Z+5
+ 139 0084 B681      		ldd r27,Z+6
+ 140 0086 5096      		adiw r26,16
+ 141 0088 0C93      		st X,r16
+ 142 008a A581      		ldd r26,Z+5
+ 143 008c B681      		ldd r27,Z+6
+ 144 008e 1F96      		adiw r26,15
+ 145 0090 1C93      		st X,r17
+ 146 0092 A581      		ldd r26,Z+5
+ 147 0094 B681      		ldd r27,Z+6
+ 148 0096 80E0      		ldi r24,lo8(gs(_port_thread_start))
+ 149 0098 90E0      		ldi r25,hi8(gs(_port_thread_start))
+ 150               	.LVL6:
+ 151 009a 5396      		adiw r26,19
+ 152 009c 9C93      		st X,r25
+ 153 009e A581      		ldd r26,Z+5
+ 154 00a0 B681      		ldd r27,Z+6
+ 155 00a2 5496      		adiw r26,20
+ 156 00a4 8C93      		st X,r24
+ 157               	.LVL7:
+ 158               	.LBB8:
+ 159               	.LBB9:
+  71:../../os/kernel/src/chthreads.c ****   tp->p_prio = prio;
+ 160               		.loc 1 71 0
+ 161 00a6 4483      		std Z+4,r20
+  72:../../os/kernel/src/chthreads.c ****   tp->p_state = THD_STATE_SUSPENDED;
+ 162               		.loc 1 72 0
+ 163 00a8 82E0      		ldi r24,lo8(2)
+ 164 00aa 8587      		std Z+13,r24
+  73:../../os/kernel/src/chthreads.c ****   tp->p_flags = THD_MEM_MODE_STATIC;
+ 165               		.loc 1 73 0
+ 166 00ac 1686      		std Z+14,__zero_reg__
+  75:../../os/kernel/src/chthreads.c ****   tp->p_preempt = CH_TIME_QUANTUM;
+ 167               		.loc 1 75 0
+ 168 00ae 84E1      		ldi r24,lo8(20)
+ 169 00b0 8787      		std Z+15,r24
+  78:../../os/kernel/src/chthreads.c ****   tp->p_realprio = prio;
+ 170               		.loc 1 78 0
+ 171 00b2 478F      		std Z+31,r20
+  79:../../os/kernel/src/chthreads.c ****   tp->p_mtxlist = NULL;
+ 172               		.loc 1 79 0
+ 173 00b4 168E      		std Z+30,__zero_reg__
+ 174 00b6 158E      		std Z+29,__zero_reg__
+  82:../../os/kernel/src/chthreads.c ****   tp->p_epending = 0;
+ 175               		.loc 1 82 0
+ 176 00b8 148E      		std Z+28,__zero_reg__
+  85:../../os/kernel/src/chthreads.c ****   tp->p_time = 0;
+ 177               		.loc 1 85 0
+ 178 00ba 118A      		std Z+17,__zero_reg__
+ 179 00bc 108A      		std Z+16,__zero_reg__
+  91:../../os/kernel/src/chthreads.c ****   tp->p_name = NULL;
+ 180               		.loc 1 91 0
+ 181 00be 1486      		std Z+12,__zero_reg__
+ 182 00c0 1386      		std Z+11,__zero_reg__
+  92:../../os/kernel/src/chthreads.c ****   REG_INSERT(tp);
+ 183               		.loc 1 92 0
+ 184 00c2 80E0      		ldi r24,lo8(rlist)
+ 185 00c4 90E0      		ldi r25,hi8(rlist)
+ 186 00c6 9087      		std Z+8,r25
+ 187 00c8 8783      		std Z+7,r24
+ 188 00ca C0E0      		ldi r28,lo8(rlist+9)
+ 189 00cc D0E0      		ldi r29,hi8(rlist+9)
+ 190 00ce A881      		ld r26,Y
+ 191 00d0 B981      		ldd r27,Y+1
+ 192 00d2 B287      		std Z+10,r27
+ 193 00d4 A187      		std Z+9,r26
+ 194 00d6 F983      		std Y+1,r31
+ 195 00d8 E883      		st Y,r30
+ 196 00da 1896      		adiw r26,7+1
+ 197 00dc FC93      		st X,r31
+ 198 00de EE93      		st -X,r30
+ 199 00e0 1797      		sbiw r26,7
+  95:../../os/kernel/src/chthreads.c ****   list_init(&tp->p_waiting);
+ 200               		.loc 1 95 0
+ 201 00e2 CF01      		movw r24,r30
+ 202 00e4 4496      		adiw r24,20
+ 203 00e6 958B      		std Z+21,r25
+ 204 00e8 848B      		std Z+20,r24
+  98:../../os/kernel/src/chthreads.c ****   queue_init(&tp->p_msgqueue);
+ 205               		.loc 1 98 0
+ 206 00ea CF01      		movw r24,r30
+ 207 00ec 4696      		adiw r24,22
+ 208 00ee 918F      		std Z+25,r25
+ 209 00f0 808F      		std Z+24,r24
+ 210 00f2 978B      		std Z+23,r25
+ 211 00f4 868B      		std Z+22,r24
+ 212               	.LBE9:
+ 213               	.LBE8:
+ 161:../../os/kernel/src/chthreads.c ****   return _thread_init(tp, prio);
+ 162:../../os/kernel/src/chthreads.c **** }
+ 214               		.loc 1 162 0
+ 215 00f6 CF01      		movw r24,r30
+ 216               	/* epilogue start */
+ 217 00f8 DF91      		pop r29
+ 218 00fa CF91      		pop r28
+ 219 00fc 1F91      		pop r17
+ 220 00fe 0F91      		pop r16
+ 221               	.LVL8:
+ 222 0100 0895      		ret
+ 223               		.cfi_endproc
+ 224               	.LFE8:
+ 226               	.global	chThdCreateStatic
+ 228               	chThdCreateStatic:
+ 229               	.LFB9:
+ 163:../../os/kernel/src/chthreads.c **** 
+ 164:../../os/kernel/src/chthreads.c **** /**
+ 165:../../os/kernel/src/chthreads.c ****  * @brief   Creates a new thread into a static memory area.
+ 166:../../os/kernel/src/chthreads.c ****  * @note    A thread can terminate by calling @p chThdExit() or by simply
+ 167:../../os/kernel/src/chthreads.c ****  *          returning from its main function.
+ 168:../../os/kernel/src/chthreads.c ****  *
+ 169:../../os/kernel/src/chthreads.c ****  * @param[out] wsp      pointer to a working area dedicated to the thread stack
+ 170:../../os/kernel/src/chthreads.c ****  * @param[in] size      size of the working area
+ 171:../../os/kernel/src/chthreads.c ****  * @param[in] prio      the priority level for the new thread
+ 172:../../os/kernel/src/chthreads.c ****  * @param[in] pf        the thread function
+ 173:../../os/kernel/src/chthreads.c ****  * @param[in] arg       an argument passed to the thread function. It can be
+ 174:../../os/kernel/src/chthreads.c ****  *                      @p NULL.
+ 175:../../os/kernel/src/chthreads.c ****  * @return              The pointer to the @p Thread structure allocated for
+ 176:../../os/kernel/src/chthreads.c ****  *                      the thread into the working space area.
+ 177:../../os/kernel/src/chthreads.c ****  *
+ 178:../../os/kernel/src/chthreads.c ****  * @api
+ 179:../../os/kernel/src/chthreads.c ****  */
+ 180:../../os/kernel/src/chthreads.c **** Thread *chThdCreateStatic(void *wsp, size_t size,
+ 181:../../os/kernel/src/chthreads.c ****                           tprio_t prio, tfunc_t pf, void *arg) {
+ 230               		.loc 1 181 0
+ 231               		.cfi_startproc
+ 232               	.LVL9:
+ 233 0102 0F93      		push r16
+ 234               	.LCFI6:
+ 235               		.cfi_def_cfa_offset 3
+ 236               		.cfi_offset 16, -2
+ 237 0104 1F93      		push r17
+ 238               	.LCFI7:
+ 239               		.cfi_def_cfa_offset 4
+ 240               		.cfi_offset 17, -3
+ 241               	/* prologue: function */
+ 242               	/* frame size = 0 */
+ 243               	/* stack size = 2 */
+ 244               	.L__stack_usage = 2
+ 182:../../os/kernel/src/chthreads.c ****   Thread *tp;
+ 183:../../os/kernel/src/chthreads.c ****   
+ 184:../../os/kernel/src/chthreads.c **** #if CH_DBG_FILL_THREADS
+ 185:../../os/kernel/src/chthreads.c ****   _thread_memfill((uint8_t *)wsp,
+ 186:../../os/kernel/src/chthreads.c ****                   (uint8_t *)wsp + sizeof(Thread),
+ 187:../../os/kernel/src/chthreads.c ****                   CH_THREAD_FILL_VALUE);
+ 188:../../os/kernel/src/chthreads.c ****   _thread_memfill((uint8_t *)wsp + sizeof(Thread),
+ 189:../../os/kernel/src/chthreads.c ****                   (uint8_t *)wsp + size,
+ 190:../../os/kernel/src/chthreads.c ****                   CH_STACK_FILL_VALUE);
+ 191:../../os/kernel/src/chthreads.c **** #endif
+ 192:../../os/kernel/src/chthreads.c ****   chSysLock();
+ 245               		.loc 1 192 0
+ 246               	/* #APP */
+ 247               	 ;  192 "../../os/kernel/src/chthreads.c" 1
+ 248 0106 F894      		cli
+ 249               	 ;  0 "" 2
+ 193:../../os/kernel/src/chthreads.c ****   chSchWakeupS(tp = chThdCreateI(wsp, size, prio, pf, arg), RDY_OK);
+ 250               		.loc 1 193 0
+ 251               	/* #NOAPP */
+ 252 0108 0E94 0000 		call chThdCreateI
+ 253               	.LVL10:
+ 254 010c 8C01      		movw r16,r24
+ 255               	.LVL11:
+ 256 010e 60E0      		ldi r22,0
+ 257 0110 70E0      		ldi r23,0
+ 258 0112 0E94 0000 		call chSchWakeupS
+ 259               	.LVL12:
+ 194:../../os/kernel/src/chthreads.c ****   chSysUnlock();
+ 260               		.loc 1 194 0
+ 261               	/* #APP */
+ 262               	 ;  194 "../../os/kernel/src/chthreads.c" 1
+ 263 0116 7894      		sei
+ 264               	 ;  0 "" 2
+ 195:../../os/kernel/src/chthreads.c ****   return tp;
+ 196:../../os/kernel/src/chthreads.c **** }
+ 265               		.loc 1 196 0
+ 266               	/* #NOAPP */
+ 267 0118 C801      		movw r24,r16
+ 268               	/* epilogue start */
+ 269 011a 1F91      		pop r17
+ 270 011c 0F91      		pop r16
+ 271 011e 0895      		ret
+ 272               		.cfi_endproc
+ 273               	.LFE9:
+ 275               	.global	chThdSetPriority
+ 277               	chThdSetPriority:
+ 278               	.LFB10:
+ 197:../../os/kernel/src/chthreads.c **** 
+ 198:../../os/kernel/src/chthreads.c **** /**
+ 199:../../os/kernel/src/chthreads.c ****  * @brief   Changes the running thread priority level then reschedules if
+ 200:../../os/kernel/src/chthreads.c ****  *          necessary.
+ 201:../../os/kernel/src/chthreads.c ****  * @note    The function returns the real thread priority regardless of the
+ 202:../../os/kernel/src/chthreads.c ****  *          current priority that could be higher than the real priority
+ 203:../../os/kernel/src/chthreads.c ****  *          because the priority inheritance mechanism.
+ 204:../../os/kernel/src/chthreads.c ****  *
+ 205:../../os/kernel/src/chthreads.c ****  * @param[in] newprio   the new priority level of the running thread
+ 206:../../os/kernel/src/chthreads.c ****  * @return              The old priority level.
+ 207:../../os/kernel/src/chthreads.c ****  *
+ 208:../../os/kernel/src/chthreads.c ****  * @api
+ 209:../../os/kernel/src/chthreads.c ****  */
+ 210:../../os/kernel/src/chthreads.c **** tprio_t chThdSetPriority(tprio_t newprio) {
+ 279               		.loc 1 210 0
+ 280               		.cfi_startproc
+ 281               	.LVL13:
+ 282 0120 CF93      		push r28
+ 283               	.LCFI8:
+ 284               		.cfi_def_cfa_offset 3
+ 285               		.cfi_offset 28, -2
+ 286               	/* prologue: function */
+ 287               	/* frame size = 0 */
+ 288               	/* stack size = 1 */
+ 289               	.L__stack_usage = 1
+ 211:../../os/kernel/src/chthreads.c ****   tprio_t oldprio;
+ 212:../../os/kernel/src/chthreads.c **** 
+ 213:../../os/kernel/src/chthreads.c ****   chDbgCheck(newprio <= HIGHPRIO, "chThdSetPriority");
+ 214:../../os/kernel/src/chthreads.c **** 
+ 215:../../os/kernel/src/chthreads.c ****   chSysLock();
+ 290               		.loc 1 215 0
+ 291               	/* #APP */
+ 292               	 ;  215 "../../os/kernel/src/chthreads.c" 1
+ 293 0122 F894      		cli
+ 294               	 ;  0 "" 2
+ 216:../../os/kernel/src/chthreads.c **** #if CH_USE_MUTEXES
+ 217:../../os/kernel/src/chthreads.c ****   oldprio = currp->p_realprio;
+ 295               		.loc 1 217 0
+ 296               	/* #NOAPP */
+ 297 0124 E091 0000 		lds r30,rlist+11
+ 298 0128 F091 0000 		lds r31,rlist+11+1
+ 299 012c C78D      		ldd r28,Z+31
+ 300               	.LVL14:
+ 218:../../os/kernel/src/chthreads.c ****   if ((currp->p_prio == currp->p_realprio) || (newprio > currp->p_prio))
+ 301               		.loc 1 218 0
+ 302 012e 9481      		ldd r25,Z+4
+ 303 0130 C917      		cp r28,r25
+ 304 0132 01F0      		breq .L5
+ 305               		.loc 1 218 0 is_stmt 0 discriminator 1
+ 306 0134 9817      		cp r25,r24
+ 307 0136 00F4      		brsh .L6
+ 308               	.L5:
+ 219:../../os/kernel/src/chthreads.c ****     currp->p_prio = newprio;
+ 309               		.loc 1 219 0 is_stmt 1
+ 310 0138 8483      		std Z+4,r24
+ 311               	.L6:
+ 220:../../os/kernel/src/chthreads.c ****   currp->p_realprio = newprio;
+ 312               		.loc 1 220 0
+ 313 013a 878F      		std Z+31,r24
+ 221:../../os/kernel/src/chthreads.c **** #else
+ 222:../../os/kernel/src/chthreads.c ****   oldprio = currp->p_prio;
+ 223:../../os/kernel/src/chthreads.c ****   currp->p_prio = newprio;
+ 224:../../os/kernel/src/chthreads.c **** #endif
+ 225:../../os/kernel/src/chthreads.c ****   chSchRescheduleS();
+ 314               		.loc 1 225 0
+ 315 013c 0E94 0000 		call chSchRescheduleS
+ 316               	.LVL15:
+ 226:../../os/kernel/src/chthreads.c ****   chSysUnlock();
+ 317               		.loc 1 226 0
+ 318               	/* #APP */
+ 319               	 ;  226 "../../os/kernel/src/chthreads.c" 1
+ 320 0140 7894      		sei
+ 321               	 ;  0 "" 2
+ 227:../../os/kernel/src/chthreads.c ****   return oldprio;
+ 228:../../os/kernel/src/chthreads.c **** }
+ 322               		.loc 1 228 0
+ 323               	/* #NOAPP */
+ 324 0142 8C2F      		mov r24,r28
+ 325               	/* epilogue start */
+ 326 0144 CF91      		pop r28
+ 327               	.LVL16:
+ 328 0146 0895      		ret
+ 329               		.cfi_endproc
+ 330               	.LFE10:
+ 332               	.global	chThdResume
+ 334               	chThdResume:
+ 335               	.LFB11:
+ 229:../../os/kernel/src/chthreads.c **** 
+ 230:../../os/kernel/src/chthreads.c **** /**
+ 231:../../os/kernel/src/chthreads.c ****  * @brief   Resumes a suspended thread.
+ 232:../../os/kernel/src/chthreads.c ****  * @pre     The specified thread pointer must refer to an initialized thread
+ 233:../../os/kernel/src/chthreads.c ****  *          in the @p THD_STATE_SUSPENDED state.
+ 234:../../os/kernel/src/chthreads.c ****  * @post    The specified thread is immediately started or put in the ready
+ 235:../../os/kernel/src/chthreads.c ****  *          list depending on the relative priority levels.
+ 236:../../os/kernel/src/chthreads.c ****  * @note    Use this function to start threads created with @p chThdInit().
+ 237:../../os/kernel/src/chthreads.c ****  *
+ 238:../../os/kernel/src/chthreads.c ****  * @param[in] tp        pointer to the thread
+ 239:../../os/kernel/src/chthreads.c ****  * @return              The pointer to the thread.
+ 240:../../os/kernel/src/chthreads.c ****  *
+ 241:../../os/kernel/src/chthreads.c ****  * @api
+ 242:../../os/kernel/src/chthreads.c ****  */
+ 243:../../os/kernel/src/chthreads.c **** Thread *chThdResume(Thread *tp) {
+ 336               		.loc 1 243 0
+ 337               		.cfi_startproc
+ 338               	.LVL17:
+ 339 0148 CF93      		push r28
+ 340               	.LCFI9:
+ 341               		.cfi_def_cfa_offset 3
+ 342               		.cfi_offset 28, -2
+ 343 014a DF93      		push r29
+ 344               	.LCFI10:
+ 345               		.cfi_def_cfa_offset 4
+ 346               		.cfi_offset 29, -3
+ 347               	/* prologue: function */
+ 348               	/* frame size = 0 */
+ 349               	/* stack size = 2 */
+ 350               	.L__stack_usage = 2
+ 351 014c D82F      		mov r29,r24
+ 352 014e C92F      		mov r28,r25
+ 244:../../os/kernel/src/chthreads.c **** 
+ 245:../../os/kernel/src/chthreads.c ****   chSysLock();
+ 353               		.loc 1 245 0
+ 354               	/* #APP */
+ 355               	 ;  245 "../../os/kernel/src/chthreads.c" 1
+ 356 0150 F894      		cli
+ 357               	 ;  0 "" 2
+ 246:../../os/kernel/src/chthreads.c ****   chDbgAssert(tp->p_state == THD_STATE_SUSPENDED,
+ 247:../../os/kernel/src/chthreads.c ****               "chThdResume(), #1",
+ 248:../../os/kernel/src/chthreads.c ****               "thread not in THD_STATE_SUSPENDED state");
+ 249:../../os/kernel/src/chthreads.c ****   chSchWakeupS(tp, RDY_OK);
+ 358               		.loc 1 249 0
+ 359               	/* #NOAPP */
+ 360 0152 60E0      		ldi r22,0
+ 361 0154 70E0      		ldi r23,0
+ 362 0156 0E94 0000 		call chSchWakeupS
+ 363               	.LVL18:
+ 250:../../os/kernel/src/chthreads.c ****   chSysUnlock();
+ 364               		.loc 1 250 0
+ 365               	/* #APP */
+ 366               	 ;  250 "../../os/kernel/src/chthreads.c" 1
+ 367 015a 7894      		sei
+ 368               	 ;  0 "" 2
+ 251:../../os/kernel/src/chthreads.c ****   return tp;
+ 252:../../os/kernel/src/chthreads.c **** }
+ 369               		.loc 1 252 0
+ 370               	/* #NOAPP */
+ 371 015c 8D2F      		mov r24,r29
+ 372 015e 9C2F      		mov r25,r28
+ 373               	/* epilogue start */
+ 374 0160 DF91      		pop r29
+ 375 0162 CF91      		pop r28
+ 376 0164 0895      		ret
+ 377               		.cfi_endproc
+ 378               	.LFE11:
+ 380               	.global	chThdTerminate
+ 382               	chThdTerminate:
+ 383               	.LFB12:
+ 253:../../os/kernel/src/chthreads.c **** 
+ 254:../../os/kernel/src/chthreads.c **** /**
+ 255:../../os/kernel/src/chthreads.c ****  * @brief   Requests a thread termination.
+ 256:../../os/kernel/src/chthreads.c ****  * @pre     The target thread must be written to invoke periodically
+ 257:../../os/kernel/src/chthreads.c ****  *          @p chThdShouldTerminate() and terminate cleanly if it returns
+ 258:../../os/kernel/src/chthreads.c ****  *          @p TRUE.
+ 259:../../os/kernel/src/chthreads.c ****  * @post    The specified thread will terminate after detecting the termination
+ 260:../../os/kernel/src/chthreads.c ****  *          condition.
+ 261:../../os/kernel/src/chthreads.c ****  *
+ 262:../../os/kernel/src/chthreads.c ****  * @param[in] tp        pointer to the thread
+ 263:../../os/kernel/src/chthreads.c ****  *
+ 264:../../os/kernel/src/chthreads.c ****  * @api
+ 265:../../os/kernel/src/chthreads.c ****  */
+ 266:../../os/kernel/src/chthreads.c **** void chThdTerminate(Thread *tp) {
+ 384               		.loc 1 266 0
+ 385               		.cfi_startproc
+ 386               	.LVL19:
+ 387               	/* prologue: function */
+ 388               	/* frame size = 0 */
+ 389               	/* stack size = 0 */
+ 390               	.L__stack_usage = 0
+ 267:../../os/kernel/src/chthreads.c **** 
+ 268:../../os/kernel/src/chthreads.c ****   chSysLock();
+ 391               		.loc 1 268 0
+ 392               	/* #APP */
+ 393               	 ;  268 "../../os/kernel/src/chthreads.c" 1
+ 394 0166 F894      		cli
+ 395               	 ;  0 "" 2
+ 269:../../os/kernel/src/chthreads.c ****   tp->p_flags |= THD_TERMINATE;
+ 396               		.loc 1 269 0
+ 397               	/* #NOAPP */
+ 398 0168 FC01      		movw r30,r24
+ 399 016a 2685      		ldd r18,Z+14
+ 400 016c 2460      		ori r18,lo8(4)
+ 401 016e 2687      		std Z+14,r18
+ 270:../../os/kernel/src/chthreads.c ****   chSysUnlock();
+ 402               		.loc 1 270 0
+ 403               	/* #APP */
+ 404               	 ;  270 "../../os/kernel/src/chthreads.c" 1
+ 405 0170 7894      		sei
+ 406               	 ;  0 "" 2
+ 407               	/* #NOAPP */
+ 408 0172 0895      		ret
+ 409               		.cfi_endproc
+ 410               	.LFE12:
+ 412               	.global	chThdSleep
+ 414               	chThdSleep:
+ 415               	.LFB13:
+ 271:../../os/kernel/src/chthreads.c **** }
+ 272:../../os/kernel/src/chthreads.c **** 
+ 273:../../os/kernel/src/chthreads.c **** /**
+ 274:../../os/kernel/src/chthreads.c ****  * @brief   Suspends the invoking thread for the specified time.
+ 275:../../os/kernel/src/chthreads.c ****  *
+ 276:../../os/kernel/src/chthreads.c ****  * @param[in] time      the delay in system ticks, the special values are
+ 277:../../os/kernel/src/chthreads.c ****  *                      handled as follow:
+ 278:../../os/kernel/src/chthreads.c ****  *                      - @a TIME_INFINITE the thread enters an infinite sleep
+ 279:../../os/kernel/src/chthreads.c ****  *                        state.
+ 280:../../os/kernel/src/chthreads.c ****  *                      - @a TIME_IMMEDIATE this value is not allowed.
+ 281:../../os/kernel/src/chthreads.c ****  *                      .
+ 282:../../os/kernel/src/chthreads.c ****  *
+ 283:../../os/kernel/src/chthreads.c ****  * @api
+ 284:../../os/kernel/src/chthreads.c ****  */
+ 285:../../os/kernel/src/chthreads.c **** void chThdSleep(systime_t time) {
+ 416               		.loc 1 285 0
+ 417               		.cfi_startproc
+ 418               	.LVL20:
+ 419               	/* prologue: function */
+ 420               	/* frame size = 0 */
+ 421               	/* stack size = 0 */
+ 422               	.L__stack_usage = 0
+ 286:../../os/kernel/src/chthreads.c **** 
+ 287:../../os/kernel/src/chthreads.c ****   chDbgCheck(time != TIME_IMMEDIATE, "chThdSleep");
+ 288:../../os/kernel/src/chthreads.c **** 
+ 289:../../os/kernel/src/chthreads.c ****   chSysLock();
+ 423               		.loc 1 289 0
+ 424               	/* #APP */
+ 425               	 ;  289 "../../os/kernel/src/chthreads.c" 1
+ 426 0174 F894      		cli
+ 427               	 ;  0 "" 2
+ 290:../../os/kernel/src/chthreads.c ****   chThdSleepS(time);
+ 428               		.loc 1 290 0
+ 429               	/* #NOAPP */
+ 430 0176 BC01      		movw r22,r24
+ 431 0178 86E0      		ldi r24,lo8(6)
+ 432               	.LVL21:
+ 433 017a 0E94 0000 		call chSchGoSleepTimeoutS
+ 434               	.LVL22:
+ 291:../../os/kernel/src/chthreads.c ****   chSysUnlock();
+ 435               		.loc 1 291 0
+ 436               	/* #APP */
+ 437               	 ;  291 "../../os/kernel/src/chthreads.c" 1
+ 438 017e 7894      		sei
+ 439               	 ;  0 "" 2
+ 440               	/* #NOAPP */
+ 441 0180 0895      		ret
+ 442               		.cfi_endproc
+ 443               	.LFE13:
+ 445               	.global	chThdSleepUntil
+ 447               	chThdSleepUntil:
+ 448               	.LFB14:
+ 292:../../os/kernel/src/chthreads.c **** }
+ 293:../../os/kernel/src/chthreads.c **** 
+ 294:../../os/kernel/src/chthreads.c **** /**
+ 295:../../os/kernel/src/chthreads.c ****  * @brief   Suspends the invoking thread until the system time arrives to the
+ 296:../../os/kernel/src/chthreads.c ****  *          specified value.
+ 297:../../os/kernel/src/chthreads.c ****  *
+ 298:../../os/kernel/src/chthreads.c ****  * @param[in] time      absolute system time
+ 299:../../os/kernel/src/chthreads.c ****  *
+ 300:../../os/kernel/src/chthreads.c ****  * @api
+ 301:../../os/kernel/src/chthreads.c ****  */
+ 302:../../os/kernel/src/chthreads.c **** void chThdSleepUntil(systime_t time) {
+ 449               		.loc 1 302 0
+ 450               		.cfi_startproc
+ 451               	.LVL23:
+ 452               	/* prologue: function */
+ 453               	/* frame size = 0 */
+ 454               	/* stack size = 0 */
+ 455               	.L__stack_usage = 0
+ 303:../../os/kernel/src/chthreads.c **** 
+ 304:../../os/kernel/src/chthreads.c ****   chSysLock();
+ 456               		.loc 1 304 0
+ 457               	/* #APP */
+ 458               	 ;  304 "../../os/kernel/src/chthreads.c" 1
+ 459 0182 F894      		cli
+ 460               	 ;  0 "" 2
+ 305:../../os/kernel/src/chthreads.c ****   if ((time -= chTimeNow()) > 0)
+ 461               		.loc 1 305 0
+ 462               	/* #NOAPP */
+ 463 0184 2091 0000 		lds r18,vtlist+6
+ 464 0188 3091 0000 		lds r19,vtlist+6+1
+ 465 018c 821B      		sub r24,r18
+ 466 018e 930B      		sbc r25,r19
+ 467               	.LVL24:
+ 468 0190 01F0      		breq .L12
+ 306:../../os/kernel/src/chthreads.c ****     chThdSleepS(time);
+ 469               		.loc 1 306 0
+ 470 0192 BC01      		movw r22,r24
+ 471 0194 86E0      		ldi r24,lo8(6)
+ 472               	.LVL25:
+ 473 0196 0E94 0000 		call chSchGoSleepTimeoutS
+ 474               	.LVL26:
+ 475               	.L12:
+ 307:../../os/kernel/src/chthreads.c ****   chSysUnlock();
+ 476               		.loc 1 307 0
+ 477               	/* #APP */
+ 478               	 ;  307 "../../os/kernel/src/chthreads.c" 1
+ 479 019a 7894      		sei
+ 480               	 ;  0 "" 2
+ 481               	/* #NOAPP */
+ 482 019c 0895      		ret
+ 483               		.cfi_endproc
+ 484               	.LFE14:
+ 486               	.global	chThdYield
+ 488               	chThdYield:
+ 489               	.LFB15:
+ 308:../../os/kernel/src/chthreads.c **** }
+ 309:../../os/kernel/src/chthreads.c **** 
+ 310:../../os/kernel/src/chthreads.c **** /**
+ 311:../../os/kernel/src/chthreads.c ****  * @brief   Yields the time slot.
+ 312:../../os/kernel/src/chthreads.c ****  * @details Yields the CPU control to the next thread in the ready list with
+ 313:../../os/kernel/src/chthreads.c ****  *          equal priority, if any.
+ 314:../../os/kernel/src/chthreads.c ****  *
+ 315:../../os/kernel/src/chthreads.c ****  * @api
+ 316:../../os/kernel/src/chthreads.c ****  */
+ 317:../../os/kernel/src/chthreads.c **** void chThdYield(void) {
+ 490               		.loc 1 317 0
+ 491               		.cfi_startproc
+ 492               	/* prologue: function */
+ 493               	/* frame size = 0 */
+ 494               	/* stack size = 0 */
+ 495               	.L__stack_usage = 0
+ 318:../../os/kernel/src/chthreads.c **** 
+ 319:../../os/kernel/src/chthreads.c ****   chSysLock();
+ 496               		.loc 1 319 0
+ 497               	/* #APP */
+ 498               	 ;  319 "../../os/kernel/src/chthreads.c" 1
+ 499 019e F894      		cli
+ 500               	 ;  0 "" 2
+ 320:../../os/kernel/src/chthreads.c ****   chSchDoYieldS();
+ 501               		.loc 1 320 0
+ 502               	/* #NOAPP */
+ 503 01a0 A091 0000 		lds r26,rlist
+ 504 01a4 B091 0000 		lds r27,rlist+1
+ 505 01a8 E091 0000 		lds r30,rlist+11
+ 506 01ac F091 0000 		lds r31,rlist+11+1
+ 507 01b0 1496      		adiw r26,4
+ 508 01b2 9C91      		ld r25,X
+ 509 01b4 8481      		ldd r24,Z+4
+ 510 01b6 9817      		cp r25,r24
+ 511 01b8 00F0      		brlo .L17
+ 512               		.loc 1 320 0 is_stmt 0 discriminator 1
+ 513 01ba 0E94 0000 		call chSchDoRescheduleBehind
+ 514               	.LVL27:
+ 515               	.L17:
+ 321:../../os/kernel/src/chthreads.c ****   chSysUnlock();
+ 516               		.loc 1 321 0 is_stmt 1
+ 517               	/* #APP */
+ 518               	 ;  321 "../../os/kernel/src/chthreads.c" 1
+ 519 01be 7894      		sei
+ 520               	 ;  0 "" 2
+ 521               	/* #NOAPP */
+ 522 01c0 0895      		ret
+ 523               		.cfi_endproc
+ 524               	.LFE15:
+ 526               	.global	chThdExitS
+ 528               	chThdExitS:
+ 529               	.LFB17:
+ 322:../../os/kernel/src/chthreads.c **** }
+ 323:../../os/kernel/src/chthreads.c **** 
+ 324:../../os/kernel/src/chthreads.c **** /**
+ 325:../../os/kernel/src/chthreads.c ****  * @brief   Terminates the current thread.
+ 326:../../os/kernel/src/chthreads.c ****  * @details The thread goes in the @p THD_STATE_FINAL state holding the
+ 327:../../os/kernel/src/chthreads.c ****  *          specified exit status code, other threads can retrieve the
+ 328:../../os/kernel/src/chthreads.c ****  *          exit status code by invoking the function @p chThdWait().
+ 329:../../os/kernel/src/chthreads.c ****  * @post    Eventual code after this function will never be executed,
+ 330:../../os/kernel/src/chthreads.c ****  *          this function never returns. The compiler has no way to
+ 331:../../os/kernel/src/chthreads.c ****  *          know this so do not assume that the compiler would remove
+ 332:../../os/kernel/src/chthreads.c ****  *          the dead code.
+ 333:../../os/kernel/src/chthreads.c ****  *
+ 334:../../os/kernel/src/chthreads.c ****  * @param[in] msg       thread exit code
+ 335:../../os/kernel/src/chthreads.c ****  *
+ 336:../../os/kernel/src/chthreads.c ****  * @api
+ 337:../../os/kernel/src/chthreads.c ****  */
+ 338:../../os/kernel/src/chthreads.c **** void chThdExit(msg_t msg) {
+ 339:../../os/kernel/src/chthreads.c **** 
+ 340:../../os/kernel/src/chthreads.c ****   chSysLock();
+ 341:../../os/kernel/src/chthreads.c ****   chThdExitS(msg);
+ 342:../../os/kernel/src/chthreads.c ****   /* The thread never returns here.*/
+ 343:../../os/kernel/src/chthreads.c **** }
+ 344:../../os/kernel/src/chthreads.c **** 
+ 345:../../os/kernel/src/chthreads.c **** /**
+ 346:../../os/kernel/src/chthreads.c ****  * @brief   Terminates the current thread.
+ 347:../../os/kernel/src/chthreads.c ****  * @details The thread goes in the @p THD_STATE_FINAL state holding the
+ 348:../../os/kernel/src/chthreads.c ****  *          specified exit status code, other threads can retrieve the
+ 349:../../os/kernel/src/chthreads.c ****  *          exit status code by invoking the function @p chThdWait().
+ 350:../../os/kernel/src/chthreads.c ****  * @post    Eventual code after this function will never be executed,
+ 351:../../os/kernel/src/chthreads.c ****  *          this function never returns. The compiler has no way to
+ 352:../../os/kernel/src/chthreads.c ****  *          know this so do not assume that the compiler would remove
+ 353:../../os/kernel/src/chthreads.c ****  *          the dead code.
+ 354:../../os/kernel/src/chthreads.c ****  *
+ 355:../../os/kernel/src/chthreads.c ****  * @param[in] msg       thread exit code
+ 356:../../os/kernel/src/chthreads.c ****  *
+ 357:../../os/kernel/src/chthreads.c ****  * @sclass
+ 358:../../os/kernel/src/chthreads.c ****  */
+ 359:../../os/kernel/src/chthreads.c **** void chThdExitS(msg_t msg) {
+ 530               		.loc 1 359 0
+ 531               		.cfi_startproc
+ 532               	.LVL28:
+ 533 01c2 0F93      		push r16
+ 534               	.LCFI11:
+ 535               		.cfi_def_cfa_offset 3
+ 536               		.cfi_offset 16, -2
+ 537 01c4 1F93      		push r17
+ 538               	.LCFI12:
+ 539               		.cfi_def_cfa_offset 4
+ 540               		.cfi_offset 17, -3
+ 541 01c6 CF93      		push r28
+ 542               	.LCFI13:
+ 543               		.cfi_def_cfa_offset 5
+ 544               		.cfi_offset 28, -4
+ 545 01c8 DF93      		push r29
+ 546               	.LCFI14:
+ 547               		.cfi_def_cfa_offset 6
+ 548               		.cfi_offset 29, -5
+ 549               	/* prologue: function */
+ 550               	/* frame size = 0 */
+ 551               	/* stack size = 4 */
+ 552               	.L__stack_usage = 4
+ 360:../../os/kernel/src/chthreads.c ****   Thread *tp = currp;
+ 553               		.loc 1 360 0
+ 554 01ca C091 0000 		lds r28,rlist+11
+ 555 01ce D091 0000 		lds r29,rlist+11+1
+ 556               	.LVL29:
+ 361:../../os/kernel/src/chthreads.c **** 
+ 362:../../os/kernel/src/chthreads.c ****   tp->p_u.exitcode = msg;
+ 557               		.loc 1 362 0
+ 558 01d2 9B8B      		std Y+19,r25
+ 559 01d4 8A8B      		std Y+18,r24
+ 363:../../os/kernel/src/chthreads.c **** #if defined(THREAD_EXT_EXIT_HOOK)
+ 364:../../os/kernel/src/chthreads.c ****   THREAD_EXT_EXIT_HOOK(tp);
+ 365:../../os/kernel/src/chthreads.c **** #endif
+ 366:../../os/kernel/src/chthreads.c **** #if CH_USE_WAITEXIT
+ 367:../../os/kernel/src/chthreads.c ****   while (notempty(&tp->p_waiting))
+ 560               		.loc 1 367 0
+ 561 01d6 8C89      		ldd r24,Y+20
+ 562 01d8 9D89      		ldd r25,Y+21
+ 563               	.LVL30:
+ 564 01da 8E01      		movw r16,r28
+ 565 01dc 0C5E      		subi r16,-20
+ 566 01de 1F4F      		sbci r17,-1
+ 567 01e0 8017      		cp r24,r16
+ 568 01e2 9107      		cpc r25,r17
+ 569 01e4 01F0      		breq .L23
+ 570               	.LVL31:
+ 571               	.L24:
+ 572               	.LBB10:
+ 573               	.LBB11:
+ 574               		.file 2 "../../os/kernel/include/chinline.h"
+   1:../../os/kernel/include/chinline.h **** /*
+   2:../../os/kernel/include/chinline.h ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/kernel/include/chinline.h ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/kernel/include/chinline.h **** 
+   5:../../os/kernel/include/chinline.h ****     This file is part of ChibiOS/RT.
+   6:../../os/kernel/include/chinline.h **** 
+   7:../../os/kernel/include/chinline.h ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/kernel/include/chinline.h ****     it under the terms of the GNU General Public License as published by
+   9:../../os/kernel/include/chinline.h ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/kernel/include/chinline.h ****     (at your option) any later version.
+  11:../../os/kernel/include/chinline.h **** 
+  12:../../os/kernel/include/chinline.h ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/kernel/include/chinline.h ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/kernel/include/chinline.h ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/kernel/include/chinline.h ****     GNU General Public License for more details.
+  16:../../os/kernel/include/chinline.h **** 
+  17:../../os/kernel/include/chinline.h ****     You should have received a copy of the GNU General Public License
+  18:../../os/kernel/include/chinline.h ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/kernel/include/chinline.h **** */
+  20:../../os/kernel/include/chinline.h **** 
+  21:../../os/kernel/include/chinline.h **** /**
+  22:../../os/kernel/include/chinline.h ****  * @file    chinline.h
+  23:../../os/kernel/include/chinline.h ****  * @brief   Kernel inlined functions.
+  24:../../os/kernel/include/chinline.h ****  * @details In this file there are a set of inlined functions if the
+  25:../../os/kernel/include/chinline.h ****  *          @p CH_OPTIMIZE_SPEED is enabled.
+  26:../../os/kernel/include/chinline.h ****  */
+  27:../../os/kernel/include/chinline.h **** 
+  28:../../os/kernel/include/chinline.h **** #ifndef _CHINLINE_H_
+  29:../../os/kernel/include/chinline.h **** #define _CHINLINE_H_
+  30:../../os/kernel/include/chinline.h **** 
+  31:../../os/kernel/include/chinline.h **** /* If the performance code path has been chosen then all the following
+  32:../../os/kernel/include/chinline.h ****    functions are inlined into the various kernel modules.*/
+  33:../../os/kernel/include/chinline.h **** #if CH_OPTIMIZE_SPEED
+  34:../../os/kernel/include/chinline.h **** static INLINE void prio_insert(Thread *tp, ThreadsQueue *tqp) {
+  35:../../os/kernel/include/chinline.h **** 
+  36:../../os/kernel/include/chinline.h ****   Thread *cp = (Thread *)tqp;
+  37:../../os/kernel/include/chinline.h ****   do {
+  38:../../os/kernel/include/chinline.h ****     cp = cp->p_next;
+  39:../../os/kernel/include/chinline.h ****   } while ((cp != (Thread *)tqp) && (cp->p_prio >= tp->p_prio));
+  40:../../os/kernel/include/chinline.h ****   tp->p_next = cp;
+  41:../../os/kernel/include/chinline.h ****   tp->p_prev = cp->p_prev;
+  42:../../os/kernel/include/chinline.h ****   tp->p_prev->p_next = cp->p_prev = tp;
+  43:../../os/kernel/include/chinline.h **** }
+  44:../../os/kernel/include/chinline.h **** 
+  45:../../os/kernel/include/chinline.h **** static INLINE void queue_insert(Thread *tp, ThreadsQueue *tqp) {
+  46:../../os/kernel/include/chinline.h **** 
+  47:../../os/kernel/include/chinline.h ****   tp->p_next = (Thread *)tqp;
+  48:../../os/kernel/include/chinline.h ****   tp->p_prev = tqp->p_prev;
+  49:../../os/kernel/include/chinline.h ****   tp->p_prev->p_next = tqp->p_prev = tp;
+  50:../../os/kernel/include/chinline.h **** }
+  51:../../os/kernel/include/chinline.h **** 
+  52:../../os/kernel/include/chinline.h **** static INLINE Thread *fifo_remove(ThreadsQueue *tqp) {
+  53:../../os/kernel/include/chinline.h ****   Thread *tp = tqp->p_next;
+  54:../../os/kernel/include/chinline.h **** 
+  55:../../os/kernel/include/chinline.h ****   (tqp->p_next = tp->p_next)->p_prev = (Thread *)tqp;
+  56:../../os/kernel/include/chinline.h ****   return tp;
+  57:../../os/kernel/include/chinline.h **** }
+  58:../../os/kernel/include/chinline.h **** 
+  59:../../os/kernel/include/chinline.h **** static INLINE Thread *lifo_remove(ThreadsQueue *tqp) {
+  60:../../os/kernel/include/chinline.h ****   Thread *tp = tqp->p_prev;
+  61:../../os/kernel/include/chinline.h **** 
+  62:../../os/kernel/include/chinline.h ****   (tqp->p_prev = tp->p_prev)->p_next = (Thread *)tqp;
+  63:../../os/kernel/include/chinline.h ****   return tp;
+  64:../../os/kernel/include/chinline.h **** }
+  65:../../os/kernel/include/chinline.h **** 
+  66:../../os/kernel/include/chinline.h **** static INLINE Thread *dequeue(Thread *tp) {
+  67:../../os/kernel/include/chinline.h **** 
+  68:../../os/kernel/include/chinline.h ****   tp->p_prev->p_next = tp->p_next;
+  69:../../os/kernel/include/chinline.h ****   tp->p_next->p_prev = tp->p_prev;
+  70:../../os/kernel/include/chinline.h ****   return tp;
+  71:../../os/kernel/include/chinline.h **** }
+  72:../../os/kernel/include/chinline.h **** 
+  73:../../os/kernel/include/chinline.h **** static INLINE void list_insert(Thread *tp, ThreadsList *tlp) {
+  74:../../os/kernel/include/chinline.h **** 
+  75:../../os/kernel/include/chinline.h ****   tp->p_next = tlp->p_next;
+  76:../../os/kernel/include/chinline.h ****   tlp->p_next = tp;
+  77:../../os/kernel/include/chinline.h **** }
+  78:../../os/kernel/include/chinline.h **** 
+  79:../../os/kernel/include/chinline.h **** static INLINE Thread *list_remove(ThreadsList *tlp) {
+  80:../../os/kernel/include/chinline.h **** 
+  81:../../os/kernel/include/chinline.h ****   Thread *tp = tlp->p_next;
+  82:../../os/kernel/include/chinline.h ****   tlp->p_next = tp->p_next;
+ 575               		.loc 2 82 0
+ 576 01e6 FC01      		movw r30,r24
+ 577 01e8 2081      		ld r18,Z
+ 578 01ea 3181      		ldd r19,Z+1
+ 579 01ec 3D8B      		std Y+21,r19
+ 580 01ee 2C8B      		std Y+20,r18
+ 581               	.LBE11:
+ 582               	.LBE10:
+ 368:../../os/kernel/src/chthreads.c ****     chSchReadyI(list_remove(&tp->p_waiting));
+ 583               		.loc 1 368 0
+ 584 01f0 0E94 0000 		call chSchReadyI
+ 585               	.LVL32:
+ 367:../../os/kernel/src/chthreads.c ****   while (notempty(&tp->p_waiting))
+ 586               		.loc 1 367 0
+ 587 01f4 8C89      		ldd r24,Y+20
+ 588 01f6 9D89      		ldd r25,Y+21
+ 589 01f8 8017      		cp r24,r16
+ 590 01fa 9107      		cpc r25,r17
+ 591 01fc 01F4      		brne .L24
+ 592               	.LVL33:
+ 593               	.L23:
+ 369:../../os/kernel/src/chthreads.c **** #endif
+ 370:../../os/kernel/src/chthreads.c **** #if CH_USE_REGISTRY
+ 371:../../os/kernel/src/chthreads.c ****   /* Static threads are immediately removed from the registry because
+ 372:../../os/kernel/src/chthreads.c ****      there is no memory to recover.*/
+ 373:../../os/kernel/src/chthreads.c ****   if ((tp->p_flags & THD_MEM_MODE_MASK) == THD_MEM_MODE_STATIC)
+ 594               		.loc 1 373 0
+ 595 01fe 8E85      		ldd r24,Y+14
+ 596 0200 8370      		andi r24,lo8(3)
+ 597 0202 01F4      		brne .L21
+ 374:../../os/kernel/src/chthreads.c ****     REG_REMOVE(tp);
+ 598               		.loc 1 374 0
+ 599 0204 E985      		ldd r30,Y+9
+ 600 0206 FA85      		ldd r31,Y+10
+ 601 0208 8F81      		ldd r24,Y+7
+ 602 020a 9885      		ldd r25,Y+8
+ 603 020c 9087      		std Z+8,r25
+ 604 020e 8783      		std Z+7,r24
+ 605 0210 AF81      		ldd r26,Y+7
+ 606 0212 B885      		ldd r27,Y+8
+ 607 0214 1A96      		adiw r26,9+1
+ 608 0216 FC93      		st X,r31
+ 609 0218 EE93      		st -X,r30
+ 610 021a 1997      		sbiw r26,9
+ 611               	.L21:
+ 375:../../os/kernel/src/chthreads.c **** #endif
+ 376:../../os/kernel/src/chthreads.c ****   chSchGoSleepS(THD_STATE_FINAL);
+ 612               		.loc 1 376 0
+ 613 021c 8EE0      		ldi r24,lo8(14)
+ 614               	/* epilogue start */
+ 377:../../os/kernel/src/chthreads.c ****   /* The thread never returns here.*/
+ 378:../../os/kernel/src/chthreads.c ****   chDbgAssert(FALSE, "chThdExitS(), #1", "zombies apocalypse");
+ 379:../../os/kernel/src/chthreads.c **** }
+ 615               		.loc 1 379 0
+ 616 021e DF91      		pop r29
+ 617 0220 CF91      		pop r28
+ 618               	.LVL34:
+ 619 0222 1F91      		pop r17
+ 620 0224 0F91      		pop r16
+ 621               	.LVL35:
+ 376:../../os/kernel/src/chthreads.c ****   chSchGoSleepS(THD_STATE_FINAL);
+ 622               		.loc 1 376 0
+ 623 0226 0C94 0000 		jmp chSchGoSleepS
+ 624               	.LVL36:
+ 625               		.cfi_endproc
+ 626               	.LFE17:
+ 628               	.global	chThdExit
+ 630               	chThdExit:
+ 631               	.LFB16:
+ 338:../../os/kernel/src/chthreads.c **** void chThdExit(msg_t msg) {
+ 632               		.loc 1 338 0
+ 633               		.cfi_startproc
+ 634               	.LVL37:
+ 635               	/* prologue: function */
+ 636               	/* frame size = 0 */
+ 637               	/* stack size = 0 */
+ 638               	.L__stack_usage = 0
+ 340:../../os/kernel/src/chthreads.c ****   chSysLock();
+ 639               		.loc 1 340 0
+ 640               	/* #APP */
+ 641               	 ;  340 "../../os/kernel/src/chthreads.c" 1
+ 642 022a F894      		cli
+ 643               	 ;  0 "" 2
+ 341:../../os/kernel/src/chthreads.c ****   chThdExitS(msg);
+ 644               		.loc 1 341 0
+ 645               	/* #NOAPP */
+ 646 022c 0C94 0000 		jmp chThdExitS
+ 647               	.LVL38:
+ 648               		.cfi_endproc
+ 649               	.LFE16:
+ 651               	.global	chThdWait
+ 653               	chThdWait:
+ 654               	.LFB18:
+ 380:../../os/kernel/src/chthreads.c **** 
+ 381:../../os/kernel/src/chthreads.c **** #if CH_USE_WAITEXIT || defined(__DOXYGEN__)
+ 382:../../os/kernel/src/chthreads.c **** /**
+ 383:../../os/kernel/src/chthreads.c ****  * @brief   Blocks the execution of the invoking thread until the specified
+ 384:../../os/kernel/src/chthreads.c ****  *          thread terminates then the exit code is returned.
+ 385:../../os/kernel/src/chthreads.c ****  * @details This function waits for the specified thread to terminate then
+ 386:../../os/kernel/src/chthreads.c ****  *          decrements its reference counter, if the counter reaches zero then
+ 387:../../os/kernel/src/chthreads.c ****  *          the thread working area is returned to the proper allocator.<br>
+ 388:../../os/kernel/src/chthreads.c ****  *          The memory used by the exited thread is handled in different ways
+ 389:../../os/kernel/src/chthreads.c ****  *          depending on the API that spawned the thread:
+ 390:../../os/kernel/src/chthreads.c ****  *          - If the thread was spawned by @p chThdCreateStatic() or by
+ 391:../../os/kernel/src/chthreads.c ****  *            @p chThdInit() then nothing happens and the thread working area
+ 392:../../os/kernel/src/chthreads.c ****  *            is not released or modified in any way. This is the default,
+ 393:../../os/kernel/src/chthreads.c ****  *            totally static, behavior.
+ 394:../../os/kernel/src/chthreads.c ****  *          - If the thread was spawned by @p chThdCreateFromHeap() then
+ 395:../../os/kernel/src/chthreads.c ****  *            the working area is returned to the system heap.
+ 396:../../os/kernel/src/chthreads.c ****  *          - If the thread was spawned by @p chThdCreateFromMemoryPool()
+ 397:../../os/kernel/src/chthreads.c ****  *            then the working area is returned to the owning memory pool.
+ 398:../../os/kernel/src/chthreads.c ****  *          .
+ 399:../../os/kernel/src/chthreads.c ****  * @pre     The configuration option @p CH_USE_WAITEXIT must be enabled in
+ 400:../../os/kernel/src/chthreads.c ****  *          order to use this function.
+ 401:../../os/kernel/src/chthreads.c ****  * @post    Enabling @p chThdWait() requires 2-4 (depending on the
+ 402:../../os/kernel/src/chthreads.c ****  *          architecture) extra bytes in the @p Thread structure.
+ 403:../../os/kernel/src/chthreads.c ****  * @post    After invoking @p chThdWait() the thread pointer becomes invalid
+ 404:../../os/kernel/src/chthreads.c ****  *          and must not be used as parameter for further system calls.
+ 405:../../os/kernel/src/chthreads.c ****  * @note    If @p CH_USE_DYNAMIC is not specified this function just waits for
+ 406:../../os/kernel/src/chthreads.c ****  *          the thread termination, no memory allocators are involved.
+ 407:../../os/kernel/src/chthreads.c ****  *
+ 408:../../os/kernel/src/chthreads.c ****  * @param[in] tp        pointer to the thread
+ 409:../../os/kernel/src/chthreads.c ****  * @return              The exit code from the terminated thread.
+ 410:../../os/kernel/src/chthreads.c ****  *
+ 411:../../os/kernel/src/chthreads.c ****  * @api
+ 412:../../os/kernel/src/chthreads.c ****  */
+ 413:../../os/kernel/src/chthreads.c **** msg_t chThdWait(Thread *tp) {
+ 655               		.loc 1 413 0
+ 656               		.cfi_startproc
+ 657               	.LVL39:
+ 658 0230 CF93      		push r28
+ 659               	.LCFI15:
+ 660               		.cfi_def_cfa_offset 3
+ 661               		.cfi_offset 28, -2
+ 662 0232 DF93      		push r29
+ 663               	.LCFI16:
+ 664               		.cfi_def_cfa_offset 4
+ 665               		.cfi_offset 29, -3
+ 666               	/* prologue: function */
+ 667               	/* frame size = 0 */
+ 668               	/* stack size = 2 */
+ 669               	.L__stack_usage = 2
+ 670 0234 EC01      		movw r28,r24
+ 414:../../os/kernel/src/chthreads.c ****   msg_t msg;
+ 415:../../os/kernel/src/chthreads.c **** 
+ 416:../../os/kernel/src/chthreads.c ****   chDbgCheck(tp != NULL, "chThdWait");
+ 417:../../os/kernel/src/chthreads.c **** 
+ 418:../../os/kernel/src/chthreads.c ****   chSysLock();
+ 671               		.loc 1 418 0
+ 672               	/* #APP */
+ 673               	 ;  418 "../../os/kernel/src/chthreads.c" 1
+ 674 0236 F894      		cli
+ 675               	 ;  0 "" 2
+ 419:../../os/kernel/src/chthreads.c ****   chDbgAssert(tp != currp, "chThdWait(), #1", "waiting self");
+ 420:../../os/kernel/src/chthreads.c **** #if CH_USE_DYNAMIC
+ 421:../../os/kernel/src/chthreads.c ****   chDbgAssert(tp->p_refs > 0, "chThdWait(), #2", "not referenced");
+ 422:../../os/kernel/src/chthreads.c **** #endif
+ 423:../../os/kernel/src/chthreads.c ****   if (tp->p_state != THD_STATE_FINAL) {
+ 676               		.loc 1 423 0
+ 677               	/* #NOAPP */
+ 678 0238 8D85      		ldd r24,Y+13
+ 679               	.LVL40:
+ 680 023a 8E30      		cpi r24,lo8(14)
+ 681 023c 01F0      		breq .L28
+ 424:../../os/kernel/src/chthreads.c ****     list_insert(currp, &tp->p_waiting);
+ 682               		.loc 1 424 0
+ 683 023e E091 0000 		lds r30,rlist+11
+ 684 0242 F091 0000 		lds r31,rlist+11+1
+ 685               	.LVL41:
+ 686               	.LBB12:
+ 687               	.LBB13:
+  75:../../os/kernel/include/chinline.h ****   tp->p_next = tlp->p_next;
+ 688               		.loc 2 75 0
+ 689 0246 8C89      		ldd r24,Y+20
+ 690 0248 9D89      		ldd r25,Y+21
+ 691 024a 9183      		std Z+1,r25
+ 692 024c 8083      		st Z,r24
+  76:../../os/kernel/include/chinline.h ****   tlp->p_next = tp;
+ 693               		.loc 2 76 0
+ 694 024e FD8B      		std Y+21,r31
+ 695 0250 EC8B      		std Y+20,r30
+ 696               	.LBE13:
+ 697               	.LBE12:
+ 425:../../os/kernel/src/chthreads.c ****     chSchGoSleepS(THD_STATE_WTEXIT);
+ 698               		.loc 1 425 0
+ 699 0252 87E0      		ldi r24,lo8(7)
+ 700 0254 0E94 0000 		call chSchGoSleepS
+ 701               	.LVL42:
+ 702               	.L28:
+ 426:../../os/kernel/src/chthreads.c ****   }
+ 427:../../os/kernel/src/chthreads.c ****   msg = tp->p_u.exitcode;
+ 703               		.loc 1 427 0
+ 704 0258 8A89      		ldd r24,Y+18
+ 705 025a 9B89      		ldd r25,Y+19
+ 706               	.LVL43:
+ 428:../../os/kernel/src/chthreads.c ****   chSysUnlock();
+ 707               		.loc 1 428 0
+ 708               	/* #APP */
+ 709               	 ;  428 "../../os/kernel/src/chthreads.c" 1
+ 710 025c 7894      		sei
+ 711               	 ;  0 "" 2
+ 712               	/* epilogue start */
+ 429:../../os/kernel/src/chthreads.c **** #if CH_USE_DYNAMIC
+ 430:../../os/kernel/src/chthreads.c ****   chThdRelease(tp);
+ 431:../../os/kernel/src/chthreads.c **** #endif
+ 432:../../os/kernel/src/chthreads.c ****   return msg;
+ 433:../../os/kernel/src/chthreads.c **** }
+ 713               		.loc 1 433 0
+ 714               	/* #NOAPP */
+ 715 025e DF91      		pop r29
+ 716 0260 CF91      		pop r28
+ 717               	.LVL44:
+ 718 0262 0895      		ret
+ 719               		.cfi_endproc
+ 720               	.LFE18:
+ 722               	.Letext0:
+ 723               		.file 3 "/usr/local/cross/lib/gcc/avr/4.7.2/include/stddef.h"
+ 724               		.file 4 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+ 725               		.file 5 "../../os/ports/GCC/AVR/chtypes.h"
+ 726               		.file 6 "../../os/kernel/include/chlists.h"
+ 727               		.file 7 "../../os/kernel/include/chthreads.h"
+ 728               		.file 8 "../../os/ports/GCC/AVR/chcore.h"
+ 729               		.file 9 "../../os/kernel/include/chvt.h"
+ 730               		.file 10 "../../os/kernel/include/chschd.h"
+ 731               		.file 11 "../../os/kernel/include/chmtx.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 chthreads.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:12     .text:0000000000000000 _thread_init
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:95     .text:000000000000005e chThdCreateI
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:228    .text:0000000000000102 chThdCreateStatic
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:277    .text:0000000000000120 chThdSetPriority
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:334    .text:0000000000000148 chThdResume
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:382    .text:0000000000000166 chThdTerminate
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:414    .text:0000000000000174 chThdSleep
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:447    .text:0000000000000182 chThdSleepUntil
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:488    .text:000000000000019e chThdYield
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:528    .text:00000000000001c2 chThdExitS
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:630    .text:000000000000022a chThdExit
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmASTRk.s:653    .text:0000000000000230 chThdWait
+
+UNDEFINED SYMBOLS
+rlist
+_port_thread_start
+chSchWakeupS
+chSchRescheduleS
+chSchGoSleepTimeoutS
+vtlist
+chSchDoRescheduleBehind
+chSchReadyI
+chSchGoSleepS

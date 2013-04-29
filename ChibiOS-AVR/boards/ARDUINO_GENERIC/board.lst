@@ -1,0 +1,123 @@
+   1               		.file	"board.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	boardInit
+  12               	boardInit:
+  13               	.LFB7:
+  14               		.file 1 "../../boards/ARDUINO_GENERIC/board.c"
+   1:../../boards/ARDUINO_GENERIC/board.c **** /*
+   2:../../boards/ARDUINO_GENERIC/board.c ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../boards/ARDUINO_GENERIC/board.c ****                  2011,2012 Giovanni Di Sirio.
+   4:../../boards/ARDUINO_GENERIC/board.c **** 
+   5:../../boards/ARDUINO_GENERIC/board.c ****     This file is part of ChibiOS/RT.
+   6:../../boards/ARDUINO_GENERIC/board.c **** 
+   7:../../boards/ARDUINO_GENERIC/board.c ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../boards/ARDUINO_GENERIC/board.c ****     it under the terms of the GNU General Public License as published by
+   9:../../boards/ARDUINO_GENERIC/board.c ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../boards/ARDUINO_GENERIC/board.c ****     (at your option) any later version.
+  11:../../boards/ARDUINO_GENERIC/board.c **** 
+  12:../../boards/ARDUINO_GENERIC/board.c ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../boards/ARDUINO_GENERIC/board.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../boards/ARDUINO_GENERIC/board.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../boards/ARDUINO_GENERIC/board.c ****     GNU General Public License for more details.
+  16:../../boards/ARDUINO_GENERIC/board.c **** 
+  17:../../boards/ARDUINO_GENERIC/board.c ****     You should have received a copy of the GNU General Public License
+  18:../../boards/ARDUINO_GENERIC/board.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../boards/ARDUINO_GENERIC/board.c **** */
+  20:../../boards/ARDUINO_GENERIC/board.c **** 
+  21:../../boards/ARDUINO_GENERIC/board.c **** #include "ch.h"
+  22:../../boards/ARDUINO_GENERIC/board.c **** #include "hal.h"
+  23:../../boards/ARDUINO_GENERIC/board.c **** 
+  24:../../boards/ARDUINO_GENERIC/board.c **** /**
+  25:../../boards/ARDUINO_GENERIC/board.c ****  * @brief   PAL setup.
+  26:../../boards/ARDUINO_GENERIC/board.c ****  * @details Digital I/O ports static configuration as defined in @p board.h.
+  27:../../boards/ARDUINO_GENERIC/board.c ****  *          This variable is used by the HAL when initializing the PAL driver.
+  28:../../boards/ARDUINO_GENERIC/board.c ****  */
+  29:../../boards/ARDUINO_GENERIC/board.c **** #if HAL_USE_PAL || defined(__DOXYGEN__)
+  30:../../boards/ARDUINO_GENERIC/board.c **** const PALConfig pal_default_config =
+  31:../../boards/ARDUINO_GENERIC/board.c **** {
+  32:../../boards/ARDUINO_GENERIC/board.c **** #if defined(PORTA)
+  33:../../boards/ARDUINO_GENERIC/board.c ****   {VAL_PORTA, VAL_DDRA},
+  34:../../boards/ARDUINO_GENERIC/board.c **** #endif
+  35:../../boards/ARDUINO_GENERIC/board.c **** #if defined(PORTB)
+  36:../../boards/ARDUINO_GENERIC/board.c ****   {VAL_PORTB, VAL_DDRB},
+  37:../../boards/ARDUINO_GENERIC/board.c **** #endif
+  38:../../boards/ARDUINO_GENERIC/board.c **** #if defined(PORTC)
+  39:../../boards/ARDUINO_GENERIC/board.c ****   {VAL_PORTC, VAL_DDRC},
+  40:../../boards/ARDUINO_GENERIC/board.c **** #endif
+  41:../../boards/ARDUINO_GENERIC/board.c **** #if defined(PORTD)
+  42:../../boards/ARDUINO_GENERIC/board.c ****   {VAL_PORTD, VAL_DDRD},
+  43:../../boards/ARDUINO_GENERIC/board.c **** #endif
+  44:../../boards/ARDUINO_GENERIC/board.c **** #if defined(PORTE)
+  45:../../boards/ARDUINO_GENERIC/board.c ****   {VAL_PORTE, VAL_DDRE},
+  46:../../boards/ARDUINO_GENERIC/board.c **** #endif
+  47:../../boards/ARDUINO_GENERIC/board.c **** #if defined(PORTF)
+  48:../../boards/ARDUINO_GENERIC/board.c ****   {VAL_PORTF, VAL_DDRF},
+  49:../../boards/ARDUINO_GENERIC/board.c **** #endif
+  50:../../boards/ARDUINO_GENERIC/board.c **** #if defined(PORTG)
+  51:../../boards/ARDUINO_GENERIC/board.c ****   {VAL_PORTG, VAL_DDRG},
+  52:../../boards/ARDUINO_GENERIC/board.c **** #endif
+  53:../../boards/ARDUINO_GENERIC/board.c **** #if defined(PORTH)
+  54:../../boards/ARDUINO_GENERIC/board.c ****   {VAL_PORTH, VAL_DDRH},
+  55:../../boards/ARDUINO_GENERIC/board.c **** #endif
+  56:../../boards/ARDUINO_GENERIC/board.c **** #if defined(PORTJ)
+  57:../../boards/ARDUINO_GENERIC/board.c ****   {VAL_PORTJ, VAL_DDRJ},
+  58:../../boards/ARDUINO_GENERIC/board.c **** #endif
+  59:../../boards/ARDUINO_GENERIC/board.c **** #if defined(PORTK)
+  60:../../boards/ARDUINO_GENERIC/board.c ****   {VAL_PORTK, VAL_DDRK},
+  61:../../boards/ARDUINO_GENERIC/board.c **** #endif
+  62:../../boards/ARDUINO_GENERIC/board.c **** #if defined(PORTL)
+  63:../../boards/ARDUINO_GENERIC/board.c ****   {VAL_PORTL, VAL_DDRL},
+  64:../../boards/ARDUINO_GENERIC/board.c **** #endif
+  65:../../boards/ARDUINO_GENERIC/board.c **** };
+  66:../../boards/ARDUINO_GENERIC/board.c **** #endif /* HAL_USE_PAL */
+  67:../../boards/ARDUINO_GENERIC/board.c **** 
+  68:../../boards/ARDUINO_GENERIC/board.c **** 
+  69:../../boards/ARDUINO_GENERIC/board.c **** 
+  70:../../boards/ARDUINO_GENERIC/board.c **** /**
+  71:../../boards/ARDUINO_GENERIC/board.c ****  * Board-specific initialization code.
+  72:../../boards/ARDUINO_GENERIC/board.c ****  */
+  73:../../boards/ARDUINO_GENERIC/board.c **** 
+  74:../../boards/ARDUINO_GENERIC/board.c **** 
+  75:../../boards/ARDUINO_GENERIC/board.c **** 
+  76:../../boards/ARDUINO_GENERIC/board.c **** void boardInit(void) {
+  15               		.loc 1 76 0
+  16               		.cfi_startproc
+  17               	/* prologue: function */
+  18               	/* frame size = 0 */
+  19               	/* stack size = 0 */
+  20               	.L__stack_usage = 0
+  21 0000 0895      		ret
+  22               		.cfi_endproc
+  23               	.LFE7:
+  25               	.global	pal_default_config
+  26               		.section	.rodata
+  29               	pal_default_config:
+  30 0000 FF        		.byte	-1
+  31 0001 80        		.byte	-128
+  32 0002 FF        		.byte	-1
+  33 0003 00        		.byte	0
+  34 0004 FF        		.byte	-1
+  35 0005 00        		.byte	0
+  36               		.text
+  37               	.Letext0:
+  38               		.file 2 "../../os/hal/platforms/AVR/pal_lld.h"
+  39               		.file 3 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 board.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc2JNPpW.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc2JNPpW.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc2JNPpW.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc2JNPpW.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc2JNPpW.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc2JNPpW.s:12     .text:0000000000000000 boardInit
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc2JNPpW.s:29     .rodata:0000000000000000 pal_default_config
+
+UNDEFINED SYMBOLS
+__do_copy_data

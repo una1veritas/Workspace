@@ -1,0 +1,171 @@
+   1               		.file	"main.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               		.section	.rodata.str1.1,"aMS",@progbits,1
+  11               	.LC0:
+  12 0000 613A 2025 		.string	"a: %4.4x\n"
+  12      342E 3478 
+  12      0A00 
+  13               		.section	.text.startup,"ax",@progbits
+  14               	.global	main
+  16               	main:
+  17               	.LFB7:
+  18               		.file 1 "main.c"
+   1:main.c        **** /*
+   2:main.c        ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:main.c        ****                  2011,2012 Giovanni Di Sirio.
+   4:main.c        **** 
+   5:main.c        ****     This file is part of ChibiOS/RT.
+   6:main.c        **** 
+   7:main.c        ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:main.c        ****     it under the terms of the GNU General Public License as published by
+   9:main.c        ****     the Free Software Foundation; either version 3 of the License, or
+  10:main.c        ****     (at your option) any later version.
+  11:main.c        **** 
+  12:main.c        ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:main.c        ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:main.c        ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:main.c        ****     GNU General Public License for more details.
+  16:main.c        **** 
+  17:main.c        ****     You should have received a copy of the GNU General Public License
+  18:main.c        ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:main.c        **** */
+  20:main.c        **** 
+  21:main.c        **** #include "ch.h"
+  22:main.c        **** #include "hal.h"
+  23:main.c        **** 
+  24:main.c        **** #include "chprintf.h"
+  25:main.c        **** /*
+  26:main.c        ****  * Application entry point.
+  27:main.c        ****  */
+  28:main.c        **** int main(void) {
+  19               		.loc 1 28 0
+  20               		.cfi_startproc
+  21               	/* prologue: function */
+  22               	/* frame size = 0 */
+  23               	/* stack size = 0 */
+  24               	.L__stack_usage = 0
+  29:main.c        **** 
+  30:main.c        ****   /*
+  31:main.c        ****    * System initializations.
+  32:main.c        ****    * - HAL initialization, this also initializes the configured device drivers
+  33:main.c        ****    *   and performs the board-specific initializations.
+  34:main.c        ****    * - Kernel initialization, the main() function becomes a thread and the
+  35:main.c        ****    *   RTOS is active.
+  36:main.c        ****    */
+  37:main.c        **** 
+  38:main.c        **** 
+  39:main.c        ****   halInit();
+  25               		.loc 1 39 0
+  26 0000 0E94 0000 		call halInit
+  27               	.LVL0:
+  40:main.c        ****   chSysInit();
+  28               		.loc 1 40 0
+  29 0004 0E94 0000 		call chSysInit
+  30               	.LVL1:
+  41:main.c        ****   
+  42:main.c        **** 
+  43:main.c        ****   sdStart(&SD1, NULL);
+  31               		.loc 1 43 0
+  32 0008 60E0      		ldi r22,0
+  33 000a 70E0      		ldi r23,0
+  34 000c 80E0      		ldi r24,lo8(SD1)
+  35 000e 90E0      		ldi r25,hi8(SD1)
+  36 0010 0E94 0000 		call sdStart
+  37               	.LVL2:
+  44:main.c        ****   uint8_t a = 0;
+  38               		.loc 1 44 0
+  39 0014 F12C      		mov r15,__zero_reg__
+  45:main.c        ****   while(1){
+  46:main.c        ****       a++;
+  47:main.c        ****       chprintf(&SD1,"a: %4.4x\n",a);
+  40               		.loc 1 47 0
+  41 0016 00E0      		ldi r16,lo8(.LC0)
+  42 0018 10E0      		ldi r17,hi8(.LC0)
+  43 001a C0E0      		ldi r28,lo8(SD1)
+  44 001c D0E0      		ldi r29,hi8(SD1)
+  45               	.LVL3:
+  46               	.L2:
+  46:main.c        ****       a++;
+  47               		.loc 1 46 0 discriminator 1
+  48 001e F394      		inc r15
+  49               	.LVL4:
+  50               		.loc 1 47 0 discriminator 1
+  51 0020 1F92      		push __zero_reg__
+  52               	.LCFI0:
+  53               		.cfi_def_cfa_offset 3
+  54 0022 FF92      		push r15
+  55               	.LCFI1:
+  56               		.cfi_def_cfa_offset 4
+  57 0024 1F93      		push r17
+  58               	.LCFI2:
+  59               		.cfi_def_cfa_offset 5
+  60 0026 0F93      		push r16
+  61               	.LCFI3:
+  62               		.cfi_def_cfa_offset 6
+  63 0028 DF93      		push r29
+  64               	.LCFI4:
+  65               		.cfi_def_cfa_offset 7
+  66 002a CF93      		push r28
+  67               	.LCFI5:
+  68               		.cfi_def_cfa_offset 8
+  69 002c 0E94 0000 		call chprintf
+  70               	.LVL5:
+  48:main.c        ****       
+  49:main.c        ****       chThdSleepMilliseconds(20);
+  71               		.loc 1 49 0 discriminator 1
+  72 0030 8CE0      		ldi r24,lo8(12)
+  73 0032 90E0      		ldi r25,0
+  74 0034 0E94 0000 		call chThdSleep
+  75               	.LVL6:
+  76 0038 0F90      		pop __tmp_reg__
+  77 003a 0F90      		pop __tmp_reg__
+  78 003c 0F90      		pop __tmp_reg__
+  79 003e 0F90      		pop __tmp_reg__
+  80 0040 0F90      		pop __tmp_reg__
+  81 0042 0F90      		pop __tmp_reg__
+  82               	.LCFI6:
+  83               		.cfi_def_cfa_offset 2
+  84 0044 00C0      		rjmp .L2
+  85               		.cfi_endproc
+  86               	.LFE7:
+  88               		.text
+  89               	.Letext0:
+  90               		.file 2 "/usr/local/cross/lib/gcc/avr/4.7.2/include/stddef.h"
+  91               		.file 3 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+  92               		.file 4 "../../os/ports/GCC/AVR/chtypes.h"
+  93               		.file 5 "../../os/kernel/include/chlists.h"
+  94               		.file 6 "../../os/kernel/include/chthreads.h"
+  95               		.file 7 "../../os/ports/GCC/AVR/chcore.h"
+  96               		.file 8 "../../os/kernel/include/chmtx.h"
+  97               		.file 9 "../../os/kernel/include/chevents.h"
+  98               		.file 10 "../../os/kernel/include/chqueues.h"
+  99               		.file 11 "../../os/kernel/include/chstreams.h"
+ 100               		.file 12 "../../os/hal/include/serial.h"
+ 101               		.file 13 "../../os/hal/platforms/AVR/serial_lld.h"
+ 102               		.file 14 "../../os/hal/include/hal.h"
+ 103               		.file 15 "../../os/kernel/include/chsys.h"
+ 104               		.file 16 "../../os/various/chprintf.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cctfnMyf.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cctfnMyf.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cctfnMyf.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cctfnMyf.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cctfnMyf.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cctfnMyf.s:16     .text.startup:0000000000000000 main
+
+UNDEFINED SYMBOLS
+halInit
+chSysInit
+SD1
+sdStart
+chprintf
+chThdSleep
+__do_copy_data

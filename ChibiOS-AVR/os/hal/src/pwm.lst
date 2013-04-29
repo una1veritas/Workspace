@@ -1,0 +1,460 @@
+   1               		.file	"pwm.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	pwmInit
+  12               	pwmInit:
+  13               	.LFB7:
+  14               		.file 1 "../../os/hal/src/pwm.c"
+   1:../../os/hal/src/pwm.c **** /*
+   2:../../os/hal/src/pwm.c ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/hal/src/pwm.c ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/hal/src/pwm.c **** 
+   5:../../os/hal/src/pwm.c ****     This file is part of ChibiOS/RT.
+   6:../../os/hal/src/pwm.c **** 
+   7:../../os/hal/src/pwm.c ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/hal/src/pwm.c ****     it under the terms of the GNU General Public License as published by
+   9:../../os/hal/src/pwm.c ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/hal/src/pwm.c ****     (at your option) any later version.
+  11:../../os/hal/src/pwm.c **** 
+  12:../../os/hal/src/pwm.c ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/hal/src/pwm.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/hal/src/pwm.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/hal/src/pwm.c ****     GNU General Public License for more details.
+  16:../../os/hal/src/pwm.c **** 
+  17:../../os/hal/src/pwm.c ****     You should have received a copy of the GNU General Public License
+  18:../../os/hal/src/pwm.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/hal/src/pwm.c **** */
+  20:../../os/hal/src/pwm.c **** 
+  21:../../os/hal/src/pwm.c **** /**
+  22:../../os/hal/src/pwm.c ****  * @file    pwm.c
+  23:../../os/hal/src/pwm.c ****  * @brief   PWM Driver code.
+  24:../../os/hal/src/pwm.c ****  *
+  25:../../os/hal/src/pwm.c ****  * @addtogroup PWM
+  26:../../os/hal/src/pwm.c ****  * @{
+  27:../../os/hal/src/pwm.c ****  */
+  28:../../os/hal/src/pwm.c **** 
+  29:../../os/hal/src/pwm.c **** #include "ch.h"
+  30:../../os/hal/src/pwm.c **** #include "hal.h"
+  31:../../os/hal/src/pwm.c **** 
+  32:../../os/hal/src/pwm.c **** #if HAL_USE_PWM || defined(__DOXYGEN__)
+  33:../../os/hal/src/pwm.c **** 
+  34:../../os/hal/src/pwm.c **** /*===========================================================================*/
+  35:../../os/hal/src/pwm.c **** /* Driver local definitions.                                                 */
+  36:../../os/hal/src/pwm.c **** /*===========================================================================*/
+  37:../../os/hal/src/pwm.c **** 
+  38:../../os/hal/src/pwm.c **** /*===========================================================================*/
+  39:../../os/hal/src/pwm.c **** /* Driver exported variables.                                                */
+  40:../../os/hal/src/pwm.c **** /*===========================================================================*/
+  41:../../os/hal/src/pwm.c **** 
+  42:../../os/hal/src/pwm.c **** /*===========================================================================*/
+  43:../../os/hal/src/pwm.c **** /* Driver local variables.                                                   */
+  44:../../os/hal/src/pwm.c **** /*===========================================================================*/
+  45:../../os/hal/src/pwm.c **** 
+  46:../../os/hal/src/pwm.c **** /*===========================================================================*/
+  47:../../os/hal/src/pwm.c **** /* Driver local functions.                                                   */
+  48:../../os/hal/src/pwm.c **** /*===========================================================================*/
+  49:../../os/hal/src/pwm.c **** 
+  50:../../os/hal/src/pwm.c **** /*===========================================================================*/
+  51:../../os/hal/src/pwm.c **** /* Driver exported functions.                                                */
+  52:../../os/hal/src/pwm.c **** /*===========================================================================*/
+  53:../../os/hal/src/pwm.c **** 
+  54:../../os/hal/src/pwm.c **** /**
+  55:../../os/hal/src/pwm.c ****  * @brief   PWM Driver initialization.
+  56:../../os/hal/src/pwm.c ****  * @note    This function is implicitly invoked by @p halInit(), there is
+  57:../../os/hal/src/pwm.c ****  *          no need to explicitly initialize the driver.
+  58:../../os/hal/src/pwm.c ****  *
+  59:../../os/hal/src/pwm.c ****  * @init
+  60:../../os/hal/src/pwm.c ****  */
+  61:../../os/hal/src/pwm.c **** void pwmInit(void) {
+  15               		.loc 1 61 0
+  16               		.cfi_startproc
+  17               	/* prologue: function */
+  18               	/* frame size = 0 */
+  19               	/* stack size = 0 */
+  20               	.L__stack_usage = 0
+  62:../../os/hal/src/pwm.c **** 
+  63:../../os/hal/src/pwm.c ****   pwm_lld_init();
+  21               		.loc 1 63 0
+  22 0000 0C94 0000 		jmp pwm_lld_init
+  23               	.LVL0:
+  24               		.cfi_endproc
+  25               	.LFE7:
+  27               	.global	pwmObjectInit
+  29               	pwmObjectInit:
+  30               	.LFB8:
+  64:../../os/hal/src/pwm.c **** }
+  65:../../os/hal/src/pwm.c **** 
+  66:../../os/hal/src/pwm.c **** /**
+  67:../../os/hal/src/pwm.c ****  * @brief   Initializes the standard part of a @p PWMDriver structure.
+  68:../../os/hal/src/pwm.c ****  *
+  69:../../os/hal/src/pwm.c ****  * @param[out] pwmp     pointer to a @p PWMDriver object
+  70:../../os/hal/src/pwm.c ****  *
+  71:../../os/hal/src/pwm.c ****  * @init
+  72:../../os/hal/src/pwm.c ****  */
+  73:../../os/hal/src/pwm.c **** void pwmObjectInit(PWMDriver *pwmp) {
+  31               		.loc 1 73 0
+  32               		.cfi_startproc
+  33               	.LVL1:
+  34               	/* prologue: function */
+  35               	/* frame size = 0 */
+  36               	/* stack size = 0 */
+  37               	.L__stack_usage = 0
+  74:../../os/hal/src/pwm.c **** 
+  75:../../os/hal/src/pwm.c ****   pwmp->state    = PWM_STOP;
+  38               		.loc 1 75 0
+  39 0004 21E0      		ldi r18,lo8(1)
+  40 0006 FC01      		movw r30,r24
+  41 0008 2083      		st Z,r18
+  76:../../os/hal/src/pwm.c ****   pwmp->config   = NULL;
+  42               		.loc 1 76 0
+  43 000a 1282      		std Z+2,__zero_reg__
+  44 000c 1182      		std Z+1,__zero_reg__
+  45 000e 0895      		ret
+  46               		.cfi_endproc
+  47               	.LFE8:
+  49               	.global	pwmStart
+  51               	pwmStart:
+  52               	.LFB9:
+  77:../../os/hal/src/pwm.c **** #if defined(PWM_DRIVER_EXT_INIT_HOOK)
+  78:../../os/hal/src/pwm.c ****   PWM_DRIVER_EXT_INIT_HOOK(pwmp);
+  79:../../os/hal/src/pwm.c **** #endif
+  80:../../os/hal/src/pwm.c **** }
+  81:../../os/hal/src/pwm.c **** 
+  82:../../os/hal/src/pwm.c **** /**
+  83:../../os/hal/src/pwm.c ****  * @brief   Configures and activates the PWM peripheral.
+  84:../../os/hal/src/pwm.c ****  * @note    Starting a driver that is already in the @p PWM_READY state
+  85:../../os/hal/src/pwm.c ****  *          disables all the active channels.
+  86:../../os/hal/src/pwm.c ****  *
+  87:../../os/hal/src/pwm.c ****  * @param[in] pwmp      pointer to a @p PWMDriver object
+  88:../../os/hal/src/pwm.c ****  * @param[in] config    pointer to a @p PWMConfig object
+  89:../../os/hal/src/pwm.c ****  *
+  90:../../os/hal/src/pwm.c ****  * @api
+  91:../../os/hal/src/pwm.c ****  */
+  92:../../os/hal/src/pwm.c **** void pwmStart(PWMDriver *pwmp, const PWMConfig *config) {
+  53               		.loc 1 92 0
+  54               		.cfi_startproc
+  55               	.LVL2:
+  56 0010 CF93      		push r28
+  57               	.LCFI0:
+  58               		.cfi_def_cfa_offset 3
+  59               		.cfi_offset 28, -2
+  60 0012 DF93      		push r29
+  61               	.LCFI1:
+  62               		.cfi_def_cfa_offset 4
+  63               		.cfi_offset 29, -3
+  64               	/* prologue: function */
+  65               	/* frame size = 0 */
+  66               	/* stack size = 2 */
+  67               	.L__stack_usage = 2
+  68 0014 EC01      		movw r28,r24
+  93:../../os/hal/src/pwm.c **** 
+  94:../../os/hal/src/pwm.c ****   chDbgCheck((pwmp != NULL) && (config != NULL), "pwmStart");
+  95:../../os/hal/src/pwm.c **** 
+  96:../../os/hal/src/pwm.c ****   chSysLock();
+  69               		.loc 1 96 0
+  70               	/* #APP */
+  71               	 ;  96 "../../os/hal/src/pwm.c" 1
+  72 0016 F894      		cli
+  73               	 ;  0 "" 2
+  97:../../os/hal/src/pwm.c ****   chDbgAssert((pwmp->state == PWM_STOP) || (pwmp->state == PWM_READY),
+  98:../../os/hal/src/pwm.c ****               "pwmStart(), #1", "invalid state");
+  99:../../os/hal/src/pwm.c ****   pwmp->config = config;
+  74               		.loc 1 99 0
+  75               	/* #NOAPP */
+  76 0018 7A83      		std Y+2,r23
+  77 001a 6983      		std Y+1,r22
+ 100:../../os/hal/src/pwm.c ****   pwmp->period = config->period;
+  78               		.loc 1 100 0
+  79 001c FB01      		movw r30,r22
+  80 001e 8481      		ldd r24,Z+4
+  81 0020 9581      		ldd r25,Z+5
+  82               	.LVL3:
+  83 0022 9C83      		std Y+4,r25
+  84 0024 8B83      		std Y+3,r24
+ 101:../../os/hal/src/pwm.c ****   pwm_lld_start(pwmp);
+  85               		.loc 1 101 0
+  86 0026 CE01      		movw r24,r28
+  87 0028 0E94 0000 		call pwm_lld_start
+  88               	.LVL4:
+ 102:../../os/hal/src/pwm.c ****   pwmp->state = PWM_READY;
+  89               		.loc 1 102 0
+  90 002c 82E0      		ldi r24,lo8(2)
+  91 002e 8883      		st Y,r24
+ 103:../../os/hal/src/pwm.c ****   chSysUnlock();
+  92               		.loc 1 103 0
+  93               	/* #APP */
+  94               	 ;  103 "../../os/hal/src/pwm.c" 1
+  95 0030 7894      		sei
+  96               	 ;  0 "" 2
+  97               	/* epilogue start */
+ 104:../../os/hal/src/pwm.c **** }
+  98               		.loc 1 104 0
+  99               	/* #NOAPP */
+ 100 0032 DF91      		pop r29
+ 101 0034 CF91      		pop r28
+ 102               	.LVL5:
+ 103 0036 0895      		ret
+ 104               		.cfi_endproc
+ 105               	.LFE9:
+ 107               	.global	pwmStop
+ 109               	pwmStop:
+ 110               	.LFB10:
+ 105:../../os/hal/src/pwm.c **** 
+ 106:../../os/hal/src/pwm.c **** /**
+ 107:../../os/hal/src/pwm.c ****  * @brief   Deactivates the PWM peripheral.
+ 108:../../os/hal/src/pwm.c ****  *
+ 109:../../os/hal/src/pwm.c ****  * @param[in] pwmp      pointer to a @p PWMDriver object
+ 110:../../os/hal/src/pwm.c ****  *
+ 111:../../os/hal/src/pwm.c ****  * @api
+ 112:../../os/hal/src/pwm.c ****  */
+ 113:../../os/hal/src/pwm.c **** void pwmStop(PWMDriver *pwmp) {
+ 111               		.loc 1 113 0
+ 112               		.cfi_startproc
+ 113               	.LVL6:
+ 114 0038 CF93      		push r28
+ 115               	.LCFI2:
+ 116               		.cfi_def_cfa_offset 3
+ 117               		.cfi_offset 28, -2
+ 118 003a DF93      		push r29
+ 119               	.LCFI3:
+ 120               		.cfi_def_cfa_offset 4
+ 121               		.cfi_offset 29, -3
+ 122               	/* prologue: function */
+ 123               	/* frame size = 0 */
+ 124               	/* stack size = 2 */
+ 125               	.L__stack_usage = 2
+ 126 003c EC01      		movw r28,r24
+ 114:../../os/hal/src/pwm.c **** 
+ 115:../../os/hal/src/pwm.c ****   chDbgCheck(pwmp != NULL, "pwmStop");
+ 116:../../os/hal/src/pwm.c **** 
+ 117:../../os/hal/src/pwm.c ****   chSysLock();
+ 127               		.loc 1 117 0
+ 128               	/* #APP */
+ 129               	 ;  117 "../../os/hal/src/pwm.c" 1
+ 130 003e F894      		cli
+ 131               	 ;  0 "" 2
+ 118:../../os/hal/src/pwm.c ****   chDbgAssert((pwmp->state == PWM_STOP) || (pwmp->state == PWM_READY),
+ 119:../../os/hal/src/pwm.c ****               "pwmStop(), #1", "invalid state");
+ 120:../../os/hal/src/pwm.c ****   pwm_lld_stop(pwmp);
+ 132               		.loc 1 120 0
+ 133               	/* #NOAPP */
+ 134 0040 0E94 0000 		call pwm_lld_stop
+ 135               	.LVL7:
+ 121:../../os/hal/src/pwm.c ****   pwmp->state = PWM_STOP;
+ 136               		.loc 1 121 0
+ 137 0044 81E0      		ldi r24,lo8(1)
+ 138 0046 8883      		st Y,r24
+ 122:../../os/hal/src/pwm.c ****   chSysUnlock();
+ 139               		.loc 1 122 0
+ 140               	/* #APP */
+ 141               	 ;  122 "../../os/hal/src/pwm.c" 1
+ 142 0048 7894      		sei
+ 143               	 ;  0 "" 2
+ 144               	/* epilogue start */
+ 123:../../os/hal/src/pwm.c **** }
+ 145               		.loc 1 123 0
+ 146               	/* #NOAPP */
+ 147 004a DF91      		pop r29
+ 148 004c CF91      		pop r28
+ 149               	.LVL8:
+ 150 004e 0895      		ret
+ 151               		.cfi_endproc
+ 152               	.LFE10:
+ 154               	.global	pwmChangePeriod
+ 156               	pwmChangePeriod:
+ 157               	.LFB11:
+ 124:../../os/hal/src/pwm.c **** 
+ 125:../../os/hal/src/pwm.c **** /**
+ 126:../../os/hal/src/pwm.c ****  * @brief   Changes the period the PWM peripheral.
+ 127:../../os/hal/src/pwm.c ****  * @details This function changes the period of a PWM unit that has already
+ 128:../../os/hal/src/pwm.c ****  *          been activated using @p pwmStart().
+ 129:../../os/hal/src/pwm.c ****  * @pre     The PWM unit must have been activated using @p pwmStart().
+ 130:../../os/hal/src/pwm.c ****  * @post    The PWM unit period is changed to the new value.
+ 131:../../os/hal/src/pwm.c ****  * @note    If a period is specified that is shorter than the pulse width
+ 132:../../os/hal/src/pwm.c ****  *          programmed in one of the channels then the behavior is not
+ 133:../../os/hal/src/pwm.c ****  *          guaranteed.
+ 134:../../os/hal/src/pwm.c ****  *
+ 135:../../os/hal/src/pwm.c ****  * @param[in] pwmp      pointer to a @p PWMDriver object
+ 136:../../os/hal/src/pwm.c ****  * @param[in] period    new cycle time in ticks
+ 137:../../os/hal/src/pwm.c ****  *
+ 138:../../os/hal/src/pwm.c ****  * @api
+ 139:../../os/hal/src/pwm.c ****  */
+ 140:../../os/hal/src/pwm.c **** void pwmChangePeriod(PWMDriver *pwmp, pwmcnt_t period) {
+ 158               		.loc 1 140 0
+ 159               		.cfi_startproc
+ 160               	.LVL9:
+ 161               	/* prologue: function */
+ 162               	/* frame size = 0 */
+ 163               	/* stack size = 0 */
+ 164               	.L__stack_usage = 0
+ 141:../../os/hal/src/pwm.c **** 
+ 142:../../os/hal/src/pwm.c ****   chDbgCheck(pwmp != NULL, "pwmChangePeriod");
+ 143:../../os/hal/src/pwm.c **** 
+ 144:../../os/hal/src/pwm.c ****   chSysLock();
+ 165               		.loc 1 144 0
+ 166               	/* #APP */
+ 167               	 ;  144 "../../os/hal/src/pwm.c" 1
+ 168 0050 F894      		cli
+ 169               	 ;  0 "" 2
+ 145:../../os/hal/src/pwm.c ****   chDbgAssert(pwmp->state == PWM_READY,
+ 146:../../os/hal/src/pwm.c ****               "pwmChangePeriod(), #1", "invalid state");
+ 147:../../os/hal/src/pwm.c ****   pwmChangePeriodI(pwmp, period);
+ 170               		.loc 1 147 0
+ 171               	/* #NOAPP */
+ 172 0052 FC01      		movw r30,r24
+ 173 0054 7483      		std Z+4,r23
+ 174 0056 6383      		std Z+3,r22
+ 175 0058 0E94 0000 		call pwm_lld_change_period
+ 176               	.LVL10:
+ 148:../../os/hal/src/pwm.c ****   chSysUnlock();
+ 177               		.loc 1 148 0
+ 178               	/* #APP */
+ 179               	 ;  148 "../../os/hal/src/pwm.c" 1
+ 180 005c 7894      		sei
+ 181               	 ;  0 "" 2
+ 182               	/* #NOAPP */
+ 183 005e 0895      		ret
+ 184               		.cfi_endproc
+ 185               	.LFE11:
+ 187               	.global	pwmEnableChannel
+ 189               	pwmEnableChannel:
+ 190               	.LFB12:
+ 149:../../os/hal/src/pwm.c **** }
+ 150:../../os/hal/src/pwm.c **** 
+ 151:../../os/hal/src/pwm.c **** /**
+ 152:../../os/hal/src/pwm.c ****  * @brief   Enables a PWM channel.
+ 153:../../os/hal/src/pwm.c ****  * @pre     The PWM unit must have been activated using @p pwmStart().
+ 154:../../os/hal/src/pwm.c ****  * @post    The channel is active using the specified configuration.
+ 155:../../os/hal/src/pwm.c ****  * @note    Depending on the hardware implementation this function has
+ 156:../../os/hal/src/pwm.c ****  *          effect starting on the next cycle (recommended implementation)
+ 157:../../os/hal/src/pwm.c ****  *          or immediately (fallback implementation).
+ 158:../../os/hal/src/pwm.c ****  *
+ 159:../../os/hal/src/pwm.c ****  * @param[in] pwmp      pointer to a @p PWMDriver object
+ 160:../../os/hal/src/pwm.c ****  * @param[in] channel   PWM channel identifier (0...PWM_CHANNELS-1)
+ 161:../../os/hal/src/pwm.c ****  * @param[in] width     PWM pulse width as clock pulses number
+ 162:../../os/hal/src/pwm.c ****  *
+ 163:../../os/hal/src/pwm.c ****  * @api
+ 164:../../os/hal/src/pwm.c ****  */
+ 165:../../os/hal/src/pwm.c **** void pwmEnableChannel(PWMDriver *pwmp,
+ 166:../../os/hal/src/pwm.c ****                       pwmchannel_t channel,
+ 167:../../os/hal/src/pwm.c ****                       pwmcnt_t width) {
+ 191               		.loc 1 167 0
+ 192               		.cfi_startproc
+ 193               	.LVL11:
+ 194               	/* prologue: function */
+ 195               	/* frame size = 0 */
+ 196               	/* stack size = 0 */
+ 197               	.L__stack_usage = 0
+ 168:../../os/hal/src/pwm.c **** 
+ 169:../../os/hal/src/pwm.c ****   chDbgCheck((pwmp != NULL) && (channel < PWM_CHANNELS),
+ 170:../../os/hal/src/pwm.c ****              "pwmEnableChannel");
+ 171:../../os/hal/src/pwm.c **** 
+ 172:../../os/hal/src/pwm.c ****   chSysLock();
+ 198               		.loc 1 172 0
+ 199               	/* #APP */
+ 200               	 ;  172 "../../os/hal/src/pwm.c" 1
+ 201 0060 F894      		cli
+ 202               	 ;  0 "" 2
+ 173:../../os/hal/src/pwm.c ****   chDbgAssert(pwmp->state == PWM_READY,
+ 174:../../os/hal/src/pwm.c ****               "pwmEnableChannel(), #1", "not ready");
+ 175:../../os/hal/src/pwm.c ****   pwm_lld_enable_channel(pwmp, channel, width);
+ 203               		.loc 1 175 0
+ 204               	/* #NOAPP */
+ 205 0062 0E94 0000 		call pwm_lld_enable_channel
+ 206               	.LVL12:
+ 176:../../os/hal/src/pwm.c ****   chSysUnlock();
+ 207               		.loc 1 176 0
+ 208               	/* #APP */
+ 209               	 ;  176 "../../os/hal/src/pwm.c" 1
+ 210 0066 7894      		sei
+ 211               	 ;  0 "" 2
+ 212               	/* #NOAPP */
+ 213 0068 0895      		ret
+ 214               		.cfi_endproc
+ 215               	.LFE12:
+ 217               	.global	pwmDisableChannel
+ 219               	pwmDisableChannel:
+ 220               	.LFB13:
+ 177:../../os/hal/src/pwm.c **** }
+ 178:../../os/hal/src/pwm.c **** 
+ 179:../../os/hal/src/pwm.c **** /**
+ 180:../../os/hal/src/pwm.c ****  * @brief   Disables a PWM channel.
+ 181:../../os/hal/src/pwm.c ****  * @pre     The PWM unit must have been activated using @p pwmStart().
+ 182:../../os/hal/src/pwm.c ****  * @post    The channel is disabled and its output line returned to the
+ 183:../../os/hal/src/pwm.c ****  *          idle state.
+ 184:../../os/hal/src/pwm.c ****  * @note    Depending on the hardware implementation this function has
+ 185:../../os/hal/src/pwm.c ****  *          effect starting on the next cycle (recommended implementation)
+ 186:../../os/hal/src/pwm.c ****  *          or immediately (fallback implementation).
+ 187:../../os/hal/src/pwm.c ****  *
+ 188:../../os/hal/src/pwm.c ****  * @param[in] pwmp      pointer to a @p PWMDriver object
+ 189:../../os/hal/src/pwm.c ****  * @param[in] channel   PWM channel identifier (0...PWM_CHANNELS-1)
+ 190:../../os/hal/src/pwm.c ****  *
+ 191:../../os/hal/src/pwm.c ****  * @api
+ 192:../../os/hal/src/pwm.c ****  */
+ 193:../../os/hal/src/pwm.c **** void pwmDisableChannel(PWMDriver *pwmp, pwmchannel_t channel) {
+ 221               		.loc 1 193 0
+ 222               		.cfi_startproc
+ 223               	.LVL13:
+ 224               	/* prologue: function */
+ 225               	/* frame size = 0 */
+ 226               	/* stack size = 0 */
+ 227               	.L__stack_usage = 0
+ 194:../../os/hal/src/pwm.c **** 
+ 195:../../os/hal/src/pwm.c ****   chDbgCheck((pwmp != NULL) && (channel < PWM_CHANNELS),
+ 196:../../os/hal/src/pwm.c ****              "pwmEnableChannel");
+ 197:../../os/hal/src/pwm.c **** 
+ 198:../../os/hal/src/pwm.c ****   chSysLock();
+ 228               		.loc 1 198 0
+ 229               	/* #APP */
+ 230               	 ;  198 "../../os/hal/src/pwm.c" 1
+ 231 006a F894      		cli
+ 232               	 ;  0 "" 2
+ 199:../../os/hal/src/pwm.c ****   chDbgAssert(pwmp->state == PWM_READY,
+ 200:../../os/hal/src/pwm.c ****               "pwmDisableChannel(), #1", "not ready");
+ 201:../../os/hal/src/pwm.c ****   pwm_lld_disable_channel(pwmp, channel);
+ 233               		.loc 1 201 0
+ 234               	/* #NOAPP */
+ 235 006c 0E94 0000 		call pwm_lld_disable_channel
+ 236               	.LVL14:
+ 202:../../os/hal/src/pwm.c ****   chSysUnlock();
+ 237               		.loc 1 202 0
+ 238               	/* #APP */
+ 239               	 ;  202 "../../os/hal/src/pwm.c" 1
+ 240 0070 7894      		sei
+ 241               	 ;  0 "" 2
+ 242               	/* #NOAPP */
+ 243 0072 0895      		ret
+ 244               		.cfi_endproc
+ 245               	.LFE13:
+ 247               	.Letext0:
+ 248               		.file 2 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+ 249               		.file 3 "../../os/hal/include/pwm.h"
+ 250               		.file 4 "../../os/hal/platforms/AVR/pwm_lld.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 pwm.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccWtFpaq.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccWtFpaq.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccWtFpaq.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccWtFpaq.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccWtFpaq.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccWtFpaq.s:12     .text:0000000000000000 pwmInit
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccWtFpaq.s:29     .text:0000000000000004 pwmObjectInit
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccWtFpaq.s:51     .text:0000000000000010 pwmStart
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccWtFpaq.s:109    .text:0000000000000038 pwmStop
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccWtFpaq.s:156    .text:0000000000000050 pwmChangePeriod
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccWtFpaq.s:189    .text:0000000000000060 pwmEnableChannel
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccWtFpaq.s:219    .text:000000000000006a pwmDisableChannel
+
+UNDEFINED SYMBOLS
+pwm_lld_init
+pwm_lld_start
+pwm_lld_stop
+pwm_lld_change_period
+pwm_lld_enable_channel
+pwm_lld_disable_channel

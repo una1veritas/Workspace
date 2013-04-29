@@ -1,0 +1,400 @@
+   1               		.file	"chvt.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	_vt_init
+  12               	_vt_init:
+  13               	.LFB7:
+  14               		.file 1 "../../os/kernel/src/chvt.c"
+   1:../../os/kernel/src/chvt.c **** /*
+   2:../../os/kernel/src/chvt.c ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/kernel/src/chvt.c ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/kernel/src/chvt.c **** 
+   5:../../os/kernel/src/chvt.c ****     This file is part of ChibiOS/RT.
+   6:../../os/kernel/src/chvt.c **** 
+   7:../../os/kernel/src/chvt.c ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/kernel/src/chvt.c ****     it under the terms of the GNU General Public License as published by
+   9:../../os/kernel/src/chvt.c ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/kernel/src/chvt.c ****     (at your option) any later version.
+  11:../../os/kernel/src/chvt.c **** 
+  12:../../os/kernel/src/chvt.c ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/kernel/src/chvt.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/kernel/src/chvt.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/kernel/src/chvt.c ****     GNU General Public License for more details.
+  16:../../os/kernel/src/chvt.c **** 
+  17:../../os/kernel/src/chvt.c ****     You should have received a copy of the GNU General Public License
+  18:../../os/kernel/src/chvt.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/kernel/src/chvt.c **** */
+  20:../../os/kernel/src/chvt.c **** 
+  21:../../os/kernel/src/chvt.c **** /**
+  22:../../os/kernel/src/chvt.c ****  * @file    chvt.c
+  23:../../os/kernel/src/chvt.c ****  * @brief   Time and Virtual Timers related code.
+  24:../../os/kernel/src/chvt.c ****  *
+  25:../../os/kernel/src/chvt.c ****  * @addtogroup time
+  26:../../os/kernel/src/chvt.c ****  * @details Time and Virtual Timers related APIs and services.
+  27:../../os/kernel/src/chvt.c ****  * @{
+  28:../../os/kernel/src/chvt.c ****  */
+  29:../../os/kernel/src/chvt.c **** 
+  30:../../os/kernel/src/chvt.c **** #include "ch.h"
+  31:../../os/kernel/src/chvt.c **** 
+  32:../../os/kernel/src/chvt.c **** /**
+  33:../../os/kernel/src/chvt.c ****  * @brief   Virtual timers delta list header.
+  34:../../os/kernel/src/chvt.c ****  */
+  35:../../os/kernel/src/chvt.c **** VTList vtlist;
+  36:../../os/kernel/src/chvt.c **** 
+  37:../../os/kernel/src/chvt.c **** /**
+  38:../../os/kernel/src/chvt.c ****  * @brief   Virtual Timers initialization.
+  39:../../os/kernel/src/chvt.c ****  * @note    Internal use only.
+  40:../../os/kernel/src/chvt.c ****  *
+  41:../../os/kernel/src/chvt.c ****  * @notapi
+  42:../../os/kernel/src/chvt.c ****  */
+  43:../../os/kernel/src/chvt.c **** void _vt_init(void) {
+  15               		.loc 1 43 0
+  16               		.cfi_startproc
+  17               	/* prologue: function */
+  18               	/* frame size = 0 */
+  19               	/* stack size = 0 */
+  20               	.L__stack_usage = 0
+  44:../../os/kernel/src/chvt.c **** 
+  45:../../os/kernel/src/chvt.c ****   vtlist.vt_next = vtlist.vt_prev = (void *)&vtlist;
+  21               		.loc 1 45 0
+  22 0000 E0E0      		ldi r30,lo8(vtlist)
+  23 0002 F0E0      		ldi r31,hi8(vtlist)
+  24 0004 F093 0000 		sts vtlist+2+1,r31
+  25 0008 E093 0000 		sts vtlist+2,r30
+  26 000c F183      		std Z+1,r31
+  27 000e E083      		st Z,r30
+  46:../../os/kernel/src/chvt.c ****   vtlist.vt_time = (systime_t)-1;
+  28               		.loc 1 46 0
+  29 0010 8FEF      		ldi r24,lo8(-1)
+  30 0012 9FEF      		ldi r25,lo8(-1)
+  31 0014 9093 0000 		sts vtlist+4+1,r25
+  32 0018 8093 0000 		sts vtlist+4,r24
+  47:../../os/kernel/src/chvt.c ****   vtlist.vt_systime = 0;
+  33               		.loc 1 47 0
+  34 001c 1092 0000 		sts vtlist+6+1,__zero_reg__
+  35 0020 1092 0000 		sts vtlist+6,__zero_reg__
+  36 0024 0895      		ret
+  37               		.cfi_endproc
+  38               	.LFE7:
+  40               	.global	chVTSetI
+  42               	chVTSetI:
+  43               	.LFB8:
+  48:../../os/kernel/src/chvt.c **** }
+  49:../../os/kernel/src/chvt.c **** 
+  50:../../os/kernel/src/chvt.c **** /**
+  51:../../os/kernel/src/chvt.c ****  * @brief   Enables a virtual timer.
+  52:../../os/kernel/src/chvt.c ****  * @note    The associated function is invoked from interrupt context.
+  53:../../os/kernel/src/chvt.c ****  *
+  54:../../os/kernel/src/chvt.c ****  * @param[out] vtp      the @p VirtualTimer structure pointer
+  55:../../os/kernel/src/chvt.c ****  * @param[in] time      the number of ticks before the operation timeouts, the
+  56:../../os/kernel/src/chvt.c ****  *                      special values are handled as follow:
+  57:../../os/kernel/src/chvt.c ****  *                      - @a TIME_INFINITE is allowed but interpreted as a
+  58:../../os/kernel/src/chvt.c ****  *                        normal time specification.
+  59:../../os/kernel/src/chvt.c ****  *                      - @a TIME_IMMEDIATE this value is not allowed.
+  60:../../os/kernel/src/chvt.c ****  *                      .
+  61:../../os/kernel/src/chvt.c ****  * @param[in] vtfunc    the timer callback function. After invoking the
+  62:../../os/kernel/src/chvt.c ****  *                      callback the timer is disabled and the structure can
+  63:../../os/kernel/src/chvt.c ****  *                      be disposed or reused.
+  64:../../os/kernel/src/chvt.c ****  * @param[in] par       a parameter that will be passed to the callback
+  65:../../os/kernel/src/chvt.c ****  *                      function
+  66:../../os/kernel/src/chvt.c ****  *
+  67:../../os/kernel/src/chvt.c ****  * @iclass
+  68:../../os/kernel/src/chvt.c ****  */
+  69:../../os/kernel/src/chvt.c **** void chVTSetI(VirtualTimer *vtp, systime_t time, vtfunc_t vtfunc, void *par) {
+  44               		.loc 1 69 0
+  45               		.cfi_startproc
+  46               	.LVL0:
+  47 0026 CF93      		push r28
+  48               	.LCFI0:
+  49               		.cfi_def_cfa_offset 3
+  50               		.cfi_offset 28, -2
+  51 0028 DF93      		push r29
+  52               	.LCFI1:
+  53               		.cfi_def_cfa_offset 4
+  54               		.cfi_offset 29, -3
+  55               	/* prologue: function */
+  56               	/* frame size = 0 */
+  57               	/* stack size = 2 */
+  58               	.L__stack_usage = 2
+  59 002a DC01      		movw r26,r24
+  70:../../os/kernel/src/chvt.c ****   VirtualTimer *p;
+  71:../../os/kernel/src/chvt.c **** 
+  72:../../os/kernel/src/chvt.c ****   chDbgCheckClassI();
+  73:../../os/kernel/src/chvt.c ****   chDbgCheck((vtp != NULL) && (vtfunc != NULL) && (time != TIME_IMMEDIATE),
+  74:../../os/kernel/src/chvt.c ****              "chVTSetI");
+  75:../../os/kernel/src/chvt.c **** 
+  76:../../os/kernel/src/chvt.c ****   vtp->vt_par = par;
+  60               		.loc 1 76 0
+  61 002c 1996      		adiw r26,8+1
+  62 002e 3C93      		st X,r19
+  63 0030 2E93      		st -X,r18
+  64 0032 1897      		sbiw r26,8
+  77:../../os/kernel/src/chvt.c ****   vtp->vt_func = vtfunc;
+  65               		.loc 1 77 0
+  66 0034 1796      		adiw r26,6+1
+  67 0036 5C93      		st X,r21
+  68 0038 4E93      		st -X,r20
+  69 003a 1697      		sbiw r26,6
+  78:../../os/kernel/src/chvt.c ****   p = vtlist.vt_next;
+  70               		.loc 1 78 0
+  71 003c E091 0000 		lds r30,vtlist
+  72 0040 F091 0000 		lds r31,vtlist+1
+  73               	.LVL1:
+  79:../../os/kernel/src/chvt.c ****   while (p->vt_time < time) {
+  74               		.loc 1 79 0
+  75 0044 2481      		ldd r18,Z+4
+  76 0046 3581      		ldd r19,Z+5
+  77               	.LVL2:
+  78 0048 2617      		cp r18,r22
+  79 004a 3707      		cpc r19,r23
+  80 004c 00F4      		brsh .L3
+  81               	.L8:
+  80:../../os/kernel/src/chvt.c ****     time -= p->vt_time;
+  82               		.loc 1 80 0
+  83 004e 621B      		sub r22,r18
+  84 0050 730B      		sbc r23,r19
+  85               	.LVL3:
+  81:../../os/kernel/src/chvt.c ****     p = p->vt_next;
+  86               		.loc 1 81 0
+  87 0052 0190      		ld __tmp_reg__,Z+
+  88 0054 F081      		ld r31,Z
+  89 0056 E02D      		mov r30,__tmp_reg__
+  90               	.LVL4:
+  79:../../os/kernel/src/chvt.c ****   while (p->vt_time < time) {
+  91               		.loc 1 79 0
+  92 0058 2481      		ldd r18,Z+4
+  93 005a 3581      		ldd r19,Z+5
+  94 005c 2617      		cp r18,r22
+  95 005e 3707      		cpc r19,r23
+  96 0060 00F0      		brlo .L8
+  97               	.L3:
+  82:../../os/kernel/src/chvt.c ****   }
+  83:../../os/kernel/src/chvt.c **** 
+  84:../../os/kernel/src/chvt.c ****   vtp->vt_prev = (vtp->vt_next = p)->vt_prev;
+  98               		.loc 1 84 0
+  99 0062 1196      		adiw r26,1
+ 100 0064 FC93      		st X,r31
+ 101 0066 EE93      		st -X,r30
+ 102 0068 C281      		ldd r28,Z+2
+ 103 006a D381      		ldd r29,Z+3
+ 104 006c 1396      		adiw r26,2+1
+ 105 006e DC93      		st X,r29
+ 106 0070 CE93      		st -X,r28
+ 107 0072 1297      		sbiw r26,2
+  85:../../os/kernel/src/chvt.c ****   vtp->vt_prev->vt_next = p->vt_prev = vtp;
+ 108               		.loc 1 85 0
+ 109 0074 B383      		std Z+3,r27
+ 110 0076 A283      		std Z+2,r26
+ 111 0078 B983      		std Y+1,r27
+ 112 007a A883      		st Y,r26
+  86:../../os/kernel/src/chvt.c ****   vtp->vt_time = time;
+ 113               		.loc 1 86 0
+ 114 007c 1596      		adiw r26,4+1
+ 115 007e 7C93      		st X,r23
+ 116 0080 6E93      		st -X,r22
+ 117 0082 1497      		sbiw r26,4
+  87:../../os/kernel/src/chvt.c ****   if (p != (void *)&vtlist)
+ 118               		.loc 1 87 0
+ 119 0084 80E0      		ldi r24,hi8(vtlist)
+ 120 0086 E030      		cpi r30,lo8(vtlist)
+ 121 0088 F807      		cpc r31,r24
+ 122               	.LVL5:
+ 123 008a 01F0      		breq .L2
+  88:../../os/kernel/src/chvt.c ****     p->vt_time -= time;
+ 124               		.loc 1 88 0
+ 125 008c 8481      		ldd r24,Z+4
+ 126 008e 9581      		ldd r25,Z+5
+ 127 0090 861B      		sub r24,r22
+ 128 0092 970B      		sbc r25,r23
+ 129 0094 9583      		std Z+5,r25
+ 130 0096 8483      		std Z+4,r24
+ 131               	.L2:
+ 132               	/* epilogue start */
+  89:../../os/kernel/src/chvt.c **** }
+ 133               		.loc 1 89 0
+ 134 0098 DF91      		pop r29
+ 135 009a CF91      		pop r28
+ 136 009c 0895      		ret
+ 137               		.cfi_endproc
+ 138               	.LFE8:
+ 140               	.global	chVTResetI
+ 142               	chVTResetI:
+ 143               	.LFB9:
+  90:../../os/kernel/src/chvt.c **** 
+  91:../../os/kernel/src/chvt.c **** /**
+  92:../../os/kernel/src/chvt.c ****  * @brief   Disables a Virtual Timer.
+  93:../../os/kernel/src/chvt.c ****  * @note    The timer MUST be active when this function is invoked.
+  94:../../os/kernel/src/chvt.c ****  *
+  95:../../os/kernel/src/chvt.c ****  * @param[in] vtp       the @p VirtualTimer structure pointer
+  96:../../os/kernel/src/chvt.c ****  *
+  97:../../os/kernel/src/chvt.c ****  * @iclass
+  98:../../os/kernel/src/chvt.c ****  */
+  99:../../os/kernel/src/chvt.c **** void chVTResetI(VirtualTimer *vtp) {
+ 144               		.loc 1 99 0
+ 145               		.cfi_startproc
+ 146               	.LVL6:
+ 147 009e CF93      		push r28
+ 148               	.LCFI2:
+ 149               		.cfi_def_cfa_offset 3
+ 150               		.cfi_offset 28, -2
+ 151 00a0 DF93      		push r29
+ 152               	.LCFI3:
+ 153               		.cfi_def_cfa_offset 4
+ 154               		.cfi_offset 29, -3
+ 155               	/* prologue: function */
+ 156               	/* frame size = 0 */
+ 157               	/* stack size = 2 */
+ 158               	.L__stack_usage = 2
+ 159 00a2 FC01      		movw r30,r24
+ 100:../../os/kernel/src/chvt.c **** 
+ 101:../../os/kernel/src/chvt.c ****   chDbgCheckClassI();
+ 102:../../os/kernel/src/chvt.c ****   chDbgCheck(vtp != NULL, "chVTResetI");
+ 103:../../os/kernel/src/chvt.c ****   chDbgAssert(vtp->vt_func != NULL,
+ 104:../../os/kernel/src/chvt.c ****               "chVTResetI(), #1",
+ 105:../../os/kernel/src/chvt.c ****               "timer not set or already triggered");
+ 106:../../os/kernel/src/chvt.c **** 
+ 107:../../os/kernel/src/chvt.c ****   if (vtp->vt_next != (void *)&vtlist)
+ 160               		.loc 1 107 0
+ 161 00a4 A081      		ld r26,Z
+ 162 00a6 B181      		ldd r27,Z+1
+ 163 00a8 80E0      		ldi r24,hi8(vtlist)
+ 164 00aa A030      		cpi r26,lo8(vtlist)
+ 165 00ac B807      		cpc r27,r24
+ 166               	.LVL7:
+ 167 00ae 01F0      		breq .L13
+ 108:../../os/kernel/src/chvt.c ****     vtp->vt_next->vt_time += vtp->vt_time;
+ 168               		.loc 1 108 0
+ 169 00b0 1496      		adiw r26,4
+ 170 00b2 8D91      		ld r24,X+
+ 171 00b4 9C91      		ld r25,X
+ 172 00b6 1597      		sbiw r26,4+1
+ 173 00b8 2481      		ldd r18,Z+4
+ 174 00ba 3581      		ldd r19,Z+5
+ 175 00bc 820F      		add r24,r18
+ 176 00be 931F      		adc r25,r19
+ 177 00c0 1596      		adiw r26,4+1
+ 178 00c2 9C93      		st X,r25
+ 179 00c4 8E93      		st -X,r24
+ 180 00c6 1497      		sbiw r26,4
+ 181               	.L13:
+ 109:../../os/kernel/src/chvt.c ****   vtp->vt_prev->vt_next = vtp->vt_next;
+ 182               		.loc 1 109 0
+ 183 00c8 C281      		ldd r28,Z+2
+ 184 00ca D381      		ldd r29,Z+3
+ 185 00cc B983      		std Y+1,r27
+ 186 00ce A883      		st Y,r26
+ 110:../../os/kernel/src/chvt.c ****   vtp->vt_next->vt_prev = vtp->vt_prev;
+ 187               		.loc 1 110 0
+ 188 00d0 A081      		ld r26,Z
+ 189 00d2 B181      		ldd r27,Z+1
+ 190 00d4 1396      		adiw r26,2+1
+ 191 00d6 DC93      		st X,r29
+ 192 00d8 CE93      		st -X,r28
+ 193 00da 1297      		sbiw r26,2
+ 111:../../os/kernel/src/chvt.c ****   vtp->vt_func = (vtfunc_t)NULL;
+ 194               		.loc 1 111 0
+ 195 00dc 1782      		std Z+7,__zero_reg__
+ 196 00de 1682      		std Z+6,__zero_reg__
+ 197               	/* epilogue start */
+ 112:../../os/kernel/src/chvt.c **** }
+ 198               		.loc 1 112 0
+ 199 00e0 DF91      		pop r29
+ 200 00e2 CF91      		pop r28
+ 201 00e4 0895      		ret
+ 202               		.cfi_endproc
+ 203               	.LFE9:
+ 205               	.global	chTimeIsWithin
+ 207               	chTimeIsWithin:
+ 208               	.LFB10:
+ 113:../../os/kernel/src/chvt.c **** 
+ 114:../../os/kernel/src/chvt.c **** /**
+ 115:../../os/kernel/src/chvt.c ****  * @brief   Checks if the current system time is within the specified time
+ 116:../../os/kernel/src/chvt.c ****  *          window.
+ 117:../../os/kernel/src/chvt.c ****  * @note    When start==end then the function returns always true because the
+ 118:../../os/kernel/src/chvt.c ****  *          whole time range is specified.
+ 119:../../os/kernel/src/chvt.c ****  *
+ 120:../../os/kernel/src/chvt.c ****  * @param[in] start     the start of the time window (inclusive)
+ 121:../../os/kernel/src/chvt.c ****  * @param[in] end       the end of the time window (non inclusive)
+ 122:../../os/kernel/src/chvt.c ****  * @retval TRUE         current time within the specified time window.
+ 123:../../os/kernel/src/chvt.c ****  * @retval FALSE        current time not within the specified time window.
+ 124:../../os/kernel/src/chvt.c ****  *
+ 125:../../os/kernel/src/chvt.c ****  * @api
+ 126:../../os/kernel/src/chvt.c ****  */
+ 127:../../os/kernel/src/chvt.c **** bool_t chTimeIsWithin(systime_t start, systime_t end) {
+ 209               		.loc 1 127 0
+ 210               		.cfi_startproc
+ 211               	.LVL8:
+ 212               	/* prologue: function */
+ 213               	/* frame size = 0 */
+ 214               	/* stack size = 0 */
+ 215               	.L__stack_usage = 0
+ 128:../../os/kernel/src/chvt.c **** 
+ 129:../../os/kernel/src/chvt.c ****   systime_t time = chTimeNow();
+ 216               		.loc 1 129 0
+ 217 00e6 2091 0000 		lds r18,vtlist+6
+ 218 00ea 3091 0000 		lds r19,vtlist+6+1
+ 219               	.LVL9:
+ 130:../../os/kernel/src/chvt.c ****   return end > start ? (time >= start) && (time < end) :
+ 220               		.loc 1 130 0
+ 221 00ee 8617      		cp r24,r22
+ 222 00f0 9707      		cpc r25,r23
+ 223 00f2 00F4      		brsh .L18
+ 224               		.loc 1 130 0 is_stmt 0 discriminator 1
+ 225 00f4 2817      		cp r18,r24
+ 226 00f6 3907      		cpc r19,r25
+ 227 00f8 00F0      		brlo .L26
+ 228               	.L28:
+ 131:../../os/kernel/src/chvt.c ****                        (time >= start) || (time < end);
+ 229               		.loc 1 131 0 is_stmt 1 discriminator 2
+ 230 00fa 81E0      		ldi r24,lo8(1)
+ 231               	.LVL10:
+ 232 00fc 2617      		cp r18,r22
+ 233 00fe 3707      		cpc r19,r23
+ 234 0100 00F4      		brsh .L26
+ 132:../../os/kernel/src/chvt.c **** }
+ 235               		.loc 1 132 0 discriminator 2
+ 236 0102 0895      		ret
+ 237               	.L26:
+ 131:../../os/kernel/src/chvt.c ****                        (time >= start) || (time < end);
+ 238               		.loc 1 131 0 discriminator 2
+ 239 0104 80E0      		ldi r24,0
+ 240 0106 0895      		ret
+ 241               	.LVL11:
+ 242               	.L18:
+ 131:../../os/kernel/src/chvt.c ****                        (time >= start) || (time < end);
+ 243               		.loc 1 131 0 is_stmt 0
+ 244 0108 2817      		cp r18,r24
+ 245 010a 3907      		cpc r19,r25
+ 246 010c 00F0      		brlo .L28
+ 247 010e 81E0      		ldi r24,lo8(1)
+ 248               	.LVL12:
+ 249               		.loc 1 132 0 is_stmt 1
+ 250 0110 0895      		ret
+ 251               		.cfi_endproc
+ 252               	.LFE10:
+ 254               		.comm	vtlist,8,1
+ 255               	.Letext0:
+ 256               		.file 2 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+ 257               		.file 3 "../../os/ports/GCC/AVR/chtypes.h"
+ 258               		.file 4 "../../os/kernel/include/chvt.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 chvt.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmIgdzH.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmIgdzH.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmIgdzH.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmIgdzH.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmIgdzH.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmIgdzH.s:12     .text:0000000000000000 _vt_init
+                            *COM*:0000000000000008 vtlist
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmIgdzH.s:42     .text:0000000000000026 chVTSetI
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmIgdzH.s:142    .text:000000000000009e chVTResetI
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccmIgdzH.s:207    .text:00000000000000e6 chTimeIsWithin
+
+UNDEFINED SYMBOLS
+__do_clear_bss

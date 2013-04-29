@@ -1,0 +1,1364 @@
+   1               		.file	"chschd.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  11               	wakeup:
+  12               	.LFB10:
+  13               		.file 1 "../../os/kernel/src/chschd.c"
+   1:../../os/kernel/src/chschd.c **** /*
+   2:../../os/kernel/src/chschd.c ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/kernel/src/chschd.c ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/kernel/src/chschd.c **** 
+   5:../../os/kernel/src/chschd.c ****     This file is part of ChibiOS/RT.
+   6:../../os/kernel/src/chschd.c **** 
+   7:../../os/kernel/src/chschd.c ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/kernel/src/chschd.c ****     it under the terms of the GNU General Public License as published by
+   9:../../os/kernel/src/chschd.c ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/kernel/src/chschd.c ****     (at your option) any later version.
+  11:../../os/kernel/src/chschd.c **** 
+  12:../../os/kernel/src/chschd.c ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/kernel/src/chschd.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/kernel/src/chschd.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/kernel/src/chschd.c ****     GNU General Public License for more details.
+  16:../../os/kernel/src/chschd.c **** 
+  17:../../os/kernel/src/chschd.c ****     You should have received a copy of the GNU General Public License
+  18:../../os/kernel/src/chschd.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/kernel/src/chschd.c **** */
+  20:../../os/kernel/src/chschd.c **** 
+  21:../../os/kernel/src/chschd.c **** /**
+  22:../../os/kernel/src/chschd.c ****  * @file    chschd.c
+  23:../../os/kernel/src/chschd.c ****  * @brief   Scheduler code.
+  24:../../os/kernel/src/chschd.c ****  *
+  25:../../os/kernel/src/chschd.c ****  * @addtogroup scheduler
+  26:../../os/kernel/src/chschd.c ****  * @details This module provides the default portable scheduler code,
+  27:../../os/kernel/src/chschd.c ****  *          scheduler functions can be individually captured by the port
+  28:../../os/kernel/src/chschd.c ****  *          layer in order to provide architecture optimized equivalents.
+  29:../../os/kernel/src/chschd.c ****  *          When a function is captured its default code is not built into
+  30:../../os/kernel/src/chschd.c ****  *          the OS image, the optimized version is included instead.
+  31:../../os/kernel/src/chschd.c ****  * @{
+  32:../../os/kernel/src/chschd.c ****  */
+  33:../../os/kernel/src/chschd.c **** 
+  34:../../os/kernel/src/chschd.c **** #include "ch.h"
+  35:../../os/kernel/src/chschd.c **** 
+  36:../../os/kernel/src/chschd.c **** /**
+  37:../../os/kernel/src/chschd.c ****  * @brief   Ready list header.
+  38:../../os/kernel/src/chschd.c ****  */
+  39:../../os/kernel/src/chschd.c **** #if !defined(PORT_OPTIMIZED_RLIST_VAR) || defined(__DOXYGEN__)
+  40:../../os/kernel/src/chschd.c **** ReadyList rlist;
+  41:../../os/kernel/src/chschd.c **** #endif /* !defined(PORT_OPTIMIZED_RLIST_VAR) */
+  42:../../os/kernel/src/chschd.c **** 
+  43:../../os/kernel/src/chschd.c **** /**
+  44:../../os/kernel/src/chschd.c ****  * @brief   Scheduler initialization.
+  45:../../os/kernel/src/chschd.c ****  *
+  46:../../os/kernel/src/chschd.c ****  * @notapi
+  47:../../os/kernel/src/chschd.c ****  */
+  48:../../os/kernel/src/chschd.c **** void _scheduler_init(void) {
+  49:../../os/kernel/src/chschd.c **** 
+  50:../../os/kernel/src/chschd.c ****   queue_init(&rlist.r_queue);
+  51:../../os/kernel/src/chschd.c ****   rlist.r_prio = NOPRIO;
+  52:../../os/kernel/src/chschd.c **** #if CH_USE_REGISTRY
+  53:../../os/kernel/src/chschd.c ****   rlist.r_newer = rlist.r_older = (Thread *)&rlist;
+  54:../../os/kernel/src/chschd.c **** #endif
+  55:../../os/kernel/src/chschd.c **** }
+  56:../../os/kernel/src/chschd.c **** 
+  57:../../os/kernel/src/chschd.c **** /**
+  58:../../os/kernel/src/chschd.c ****  * @brief   Inserts a thread in the Ready List.
+  59:../../os/kernel/src/chschd.c ****  * @details The thread is positioned behind all threads with higher or equal
+  60:../../os/kernel/src/chschd.c ****  *          priority.
+  61:../../os/kernel/src/chschd.c ****  * @pre     The thread must not be already inserted in any list through its
+  62:../../os/kernel/src/chschd.c ****  *          @p p_next and @p p_prev or list corruption would occur.
+  63:../../os/kernel/src/chschd.c ****  * @post    This function does not reschedule so a call to a rescheduling
+  64:../../os/kernel/src/chschd.c ****  *          function must be performed before unlocking the kernel. Note that
+  65:../../os/kernel/src/chschd.c ****  *          interrupt handlers always reschedule on exit so an explicit
+  66:../../os/kernel/src/chschd.c ****  *          reschedule must not be performed in ISRs.
+  67:../../os/kernel/src/chschd.c ****  *
+  68:../../os/kernel/src/chschd.c ****  * @param[in] tp        the thread to be made ready
+  69:../../os/kernel/src/chschd.c ****  * @return              The thread pointer.
+  70:../../os/kernel/src/chschd.c ****  *
+  71:../../os/kernel/src/chschd.c ****  * @iclass
+  72:../../os/kernel/src/chschd.c ****  */
+  73:../../os/kernel/src/chschd.c **** #if !defined(PORT_OPTIMIZED_READYI) || defined(__DOXYGEN__)
+  74:../../os/kernel/src/chschd.c **** Thread *chSchReadyI(Thread *tp) {
+  75:../../os/kernel/src/chschd.c ****   Thread *cp;
+  76:../../os/kernel/src/chschd.c **** 
+  77:../../os/kernel/src/chschd.c ****   chDbgCheckClassI();
+  78:../../os/kernel/src/chschd.c **** 
+  79:../../os/kernel/src/chschd.c ****   /* Integrity checks.*/
+  80:../../os/kernel/src/chschd.c ****   chDbgAssert((tp->p_state != THD_STATE_READY) &&
+  81:../../os/kernel/src/chschd.c ****               (tp->p_state != THD_STATE_FINAL),
+  82:../../os/kernel/src/chschd.c ****               "chSchReadyI(), #1",
+  83:../../os/kernel/src/chschd.c ****               "invalid state");
+  84:../../os/kernel/src/chschd.c **** 
+  85:../../os/kernel/src/chschd.c ****   tp->p_state = THD_STATE_READY;
+  86:../../os/kernel/src/chschd.c ****   cp = (Thread *)&rlist.r_queue;
+  87:../../os/kernel/src/chschd.c ****   do {
+  88:../../os/kernel/src/chschd.c ****     cp = cp->p_next;
+  89:../../os/kernel/src/chschd.c ****   } while (cp->p_prio >= tp->p_prio);
+  90:../../os/kernel/src/chschd.c ****   /* Insertion on p_prev.*/
+  91:../../os/kernel/src/chschd.c ****   tp->p_next = cp;
+  92:../../os/kernel/src/chschd.c ****   tp->p_prev = cp->p_prev;
+  93:../../os/kernel/src/chschd.c ****   tp->p_prev->p_next = cp->p_prev = tp;
+  94:../../os/kernel/src/chschd.c ****   return tp;
+  95:../../os/kernel/src/chschd.c **** }
+  96:../../os/kernel/src/chschd.c **** #endif /* !defined(PORT_OPTIMIZED_READYI) */
+  97:../../os/kernel/src/chschd.c **** 
+  98:../../os/kernel/src/chschd.c **** /**
+  99:../../os/kernel/src/chschd.c ****  * @brief   Puts the current thread to sleep into the specified state.
+ 100:../../os/kernel/src/chschd.c ****  * @details The thread goes into a sleeping state. The possible
+ 101:../../os/kernel/src/chschd.c ****  *          @ref thread_states are defined into @p threads.h.
+ 102:../../os/kernel/src/chschd.c ****  *
+ 103:../../os/kernel/src/chschd.c ****  * @param[in] newstate  the new thread state
+ 104:../../os/kernel/src/chschd.c ****  *
+ 105:../../os/kernel/src/chschd.c ****  * @sclass
+ 106:../../os/kernel/src/chschd.c ****  */
+ 107:../../os/kernel/src/chschd.c **** #if !defined(PORT_OPTIMIZED_GOSLEEPS) || defined(__DOXYGEN__)
+ 108:../../os/kernel/src/chschd.c **** void chSchGoSleepS(tstate_t newstate) {
+ 109:../../os/kernel/src/chschd.c ****   Thread *otp;
+ 110:../../os/kernel/src/chschd.c **** 
+ 111:../../os/kernel/src/chschd.c ****   chDbgCheckClassS();
+ 112:../../os/kernel/src/chschd.c **** 
+ 113:../../os/kernel/src/chschd.c ****   (otp = currp)->p_state = newstate;
+ 114:../../os/kernel/src/chschd.c **** #if CH_TIME_QUANTUM > 0
+ 115:../../os/kernel/src/chschd.c ****   /* The thread is renouncing its remaining time slices so it will have a new
+ 116:../../os/kernel/src/chschd.c ****      time quantum when it will wakeup.*/
+ 117:../../os/kernel/src/chschd.c ****   otp->p_preempt = CH_TIME_QUANTUM;
+ 118:../../os/kernel/src/chschd.c **** #endif
+ 119:../../os/kernel/src/chschd.c ****   setcurrp(fifo_remove(&rlist.r_queue));
+ 120:../../os/kernel/src/chschd.c ****   currp->p_state = THD_STATE_CURRENT;
+ 121:../../os/kernel/src/chschd.c ****   chSysSwitch(currp, otp);
+ 122:../../os/kernel/src/chschd.c **** }
+ 123:../../os/kernel/src/chschd.c **** #endif /* !defined(PORT_OPTIMIZED_GOSLEEPS) */
+ 124:../../os/kernel/src/chschd.c **** 
+ 125:../../os/kernel/src/chschd.c **** #if !defined(PORT_OPTIMIZED_GOSLEEPTIMEOUTS) || defined(__DOXYGEN__)
+ 126:../../os/kernel/src/chschd.c **** /*
+ 127:../../os/kernel/src/chschd.c ****  * Timeout wakeup callback.
+ 128:../../os/kernel/src/chschd.c ****  */
+ 129:../../os/kernel/src/chschd.c **** static void wakeup(void *p) {
+  14               		.loc 1 129 0
+  15               		.cfi_startproc
+  16               	.LVL0:
+  17 0000 CF93      		push r28
+  18               	.LCFI0:
+  19               		.cfi_def_cfa_offset 3
+  20               		.cfi_offset 28, -2
+  21 0002 DF93      		push r29
+  22               	.LCFI1:
+  23               		.cfi_def_cfa_offset 4
+  24               		.cfi_offset 29, -3
+  25               	/* prologue: function */
+  26               	/* frame size = 0 */
+  27               	/* stack size = 2 */
+  28               	.L__stack_usage = 2
+  29 0004 DC01      		movw r26,r24
+  30               	.LVL1:
+ 130:../../os/kernel/src/chschd.c ****   Thread *tp = (Thread *)p;
+ 131:../../os/kernel/src/chschd.c **** 
+ 132:../../os/kernel/src/chschd.c ****   chSysLockFromIsr();
+ 133:../../os/kernel/src/chschd.c ****   switch (tp->p_state) {
+  31               		.loc 1 133 0
+  32 0006 1D96      		adiw r26,13
+  33 0008 8C91      		ld r24,X
+  34 000a 1D97      		sbiw r26,13
+  35               	.LVL2:
+  36 000c 8330      		cpi r24,lo8(3)
+  37 000e 01F0      		breq .L4
+  38 0010 00F0      		brlo .L20
+  39 0012 8530      		cpi r24,lo8(5)
+  40 0014 01F0      		breq .L5
+  41 0016 8D30      		cpi r24,lo8(13)
+  42 0018 01F0      		breq .L5
+  43               	.L2:
+ 134:../../os/kernel/src/chschd.c ****   case THD_STATE_READY:
+ 135:../../os/kernel/src/chschd.c ****     /* Handling the special case where the thread has been made ready by
+ 136:../../os/kernel/src/chschd.c ****        another thread with higher priority.*/
+ 137:../../os/kernel/src/chschd.c ****     chSysUnlockFromIsr();
+ 138:../../os/kernel/src/chschd.c ****     return;
+ 139:../../os/kernel/src/chschd.c **** #if CH_USE_SEMAPHORES || CH_USE_QUEUES ||                                   \
+ 140:../../os/kernel/src/chschd.c ****     (CH_USE_CONDVARS && CH_USE_CONDVARS_TIMEOUT)
+ 141:../../os/kernel/src/chschd.c **** #if CH_USE_SEMAPHORES
+ 142:../../os/kernel/src/chschd.c ****   case THD_STATE_WTSEM:
+ 143:../../os/kernel/src/chschd.c ****     chSemFastSignalI((Semaphore *)tp->p_u.wtobjp);
+ 144:../../os/kernel/src/chschd.c ****     /* Falls into, intentional. */
+ 145:../../os/kernel/src/chschd.c **** #endif
+ 146:../../os/kernel/src/chschd.c **** #if CH_USE_QUEUES
+ 147:../../os/kernel/src/chschd.c ****   case THD_STATE_WTQUEUE:
+ 148:../../os/kernel/src/chschd.c **** #endif
+ 149:../../os/kernel/src/chschd.c **** #if CH_USE_CONDVARS && CH_USE_CONDVARS_TIMEOUT
+ 150:../../os/kernel/src/chschd.c ****   case THD_STATE_WTCOND:
+ 151:../../os/kernel/src/chschd.c **** #endif
+ 152:../../os/kernel/src/chschd.c ****     /* States requiring dequeuing.*/
+ 153:../../os/kernel/src/chschd.c ****     dequeue(tp);
+ 154:../../os/kernel/src/chschd.c **** #endif
+ 155:../../os/kernel/src/chschd.c ****   }
+ 156:../../os/kernel/src/chschd.c ****   tp->p_u.rdymsg = RDY_TIMEOUT;
+  44               		.loc 1 156 0
+  45 001a 8FEF      		ldi r24,lo8(-1)
+  46 001c 9FEF      		ldi r25,lo8(-1)
+  47 001e 5396      		adiw r26,18+1
+  48 0020 9C93      		st X,r25
+  49 0022 8E93      		st -X,r24
+  50 0024 5297      		sbiw r26,18
+  51               	.LVL3:
+  52               	.LBB19:
+  53               	.LBB20:
+  85:../../os/kernel/src/chschd.c ****   tp->p_state = THD_STATE_READY;
+  54               		.loc 1 85 0
+  55 0026 1D96      		adiw r26,13
+  56 0028 1C92      		st X,__zero_reg__
+  57 002a 1D97      		sbiw r26,13
+  58               	.LVL4:
+  59 002c 1496      		adiw r26,4
+  60 002e 9C91      		ld r25,X
+  61 0030 1497      		sbiw r26,4
+  86:../../os/kernel/src/chschd.c ****   cp = (Thread *)&rlist.r_queue;
+  62               		.loc 1 86 0
+  63 0032 E0E0      		ldi r30,lo8(rlist)
+  64 0034 F0E0      		ldi r31,hi8(rlist)
+  65               	.LVL5:
+  66               	.L7:
+  88:../../os/kernel/src/chschd.c ****     cp = cp->p_next;
+  67               		.loc 1 88 0
+  68 0036 0190      		ld __tmp_reg__,Z+
+  69 0038 F081      		ld r31,Z
+  70 003a E02D      		mov r30,__tmp_reg__
+  71               	.LVL6:
+  89:../../os/kernel/src/chschd.c ****   } while (cp->p_prio >= tp->p_prio);
+  72               		.loc 1 89 0
+  73 003c 8481      		ldd r24,Z+4
+  74 003e 8917      		cp r24,r25
+  75 0040 00F4      		brsh .L7
+  91:../../os/kernel/src/chschd.c ****   tp->p_next = cp;
+  76               		.loc 1 91 0
+  77 0042 1196      		adiw r26,1
+  78 0044 FC93      		st X,r31
+  79 0046 EE93      		st -X,r30
+  92:../../os/kernel/src/chschd.c ****   tp->p_prev = cp->p_prev;
+  80               		.loc 1 92 0
+  81 0048 C281      		ldd r28,Z+2
+  82 004a D381      		ldd r29,Z+3
+  83 004c 1396      		adiw r26,2+1
+  84 004e DC93      		st X,r29
+  85 0050 CE93      		st -X,r28
+  86 0052 1297      		sbiw r26,2
+  93:../../os/kernel/src/chschd.c ****   tp->p_prev->p_next = cp->p_prev = tp;
+  87               		.loc 1 93 0
+  88 0054 B383      		std Z+3,r27
+  89 0056 A283      		std Z+2,r26
+  90 0058 B983      		std Y+1,r27
+  91 005a A883      		st Y,r26
+  92               	/* epilogue start */
+  93               	.LBE20:
+  94               	.LBE19:
+ 157:../../os/kernel/src/chschd.c ****   chSchReadyI(tp);
+ 158:../../os/kernel/src/chschd.c ****   chSysUnlockFromIsr();
+ 159:../../os/kernel/src/chschd.c **** }
+  95               		.loc 1 159 0
+  96 005c DF91      		pop r29
+  97 005e CF91      		pop r28
+  98 0060 0895      		ret
+  99               	.LVL7:
+ 100               	.L20:
+ 133:../../os/kernel/src/chschd.c ****   switch (tp->p_state) {
+ 101               		.loc 1 133 0
+ 102 0062 8111      		cpse r24,__zero_reg__
+ 103 0064 00C0      		rjmp .L2
+ 104               	/* epilogue start */
+ 105               		.loc 1 159 0
+ 106 0066 DF91      		pop r29
+ 107 0068 CF91      		pop r28
+ 108 006a 0895      		ret
+ 109               	.L4:
+ 143:../../os/kernel/src/chschd.c ****     chSemFastSignalI((Semaphore *)tp->p_u.wtobjp);
+ 110               		.loc 1 143 0
+ 111 006c 5296      		adiw r26,18
+ 112 006e ED91      		ld r30,X+
+ 113 0070 FC91      		ld r31,X
+ 114 0072 5397      		sbiw r26,18+1
+ 115 0074 8481      		ldd r24,Z+4
+ 116 0076 8F5F      		subi r24,lo8(-(1))
+ 117 0078 8483      		std Z+4,r24
+ 118               	.L5:
+ 119               	.LVL8:
+ 120               	.LBB21:
+ 121               	.LBB22:
+ 122               		.file 2 "../../os/kernel/include/chinline.h"
+   1:../../os/kernel/include/chinline.h **** /*
+   2:../../os/kernel/include/chinline.h ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/kernel/include/chinline.h ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/kernel/include/chinline.h **** 
+   5:../../os/kernel/include/chinline.h ****     This file is part of ChibiOS/RT.
+   6:../../os/kernel/include/chinline.h **** 
+   7:../../os/kernel/include/chinline.h ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/kernel/include/chinline.h ****     it under the terms of the GNU General Public License as published by
+   9:../../os/kernel/include/chinline.h ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/kernel/include/chinline.h ****     (at your option) any later version.
+  11:../../os/kernel/include/chinline.h **** 
+  12:../../os/kernel/include/chinline.h ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/kernel/include/chinline.h ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/kernel/include/chinline.h ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/kernel/include/chinline.h ****     GNU General Public License for more details.
+  16:../../os/kernel/include/chinline.h **** 
+  17:../../os/kernel/include/chinline.h ****     You should have received a copy of the GNU General Public License
+  18:../../os/kernel/include/chinline.h ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/kernel/include/chinline.h **** */
+  20:../../os/kernel/include/chinline.h **** 
+  21:../../os/kernel/include/chinline.h **** /**
+  22:../../os/kernel/include/chinline.h ****  * @file    chinline.h
+  23:../../os/kernel/include/chinline.h ****  * @brief   Kernel inlined functions.
+  24:../../os/kernel/include/chinline.h ****  * @details In this file there are a set of inlined functions if the
+  25:../../os/kernel/include/chinline.h ****  *          @p CH_OPTIMIZE_SPEED is enabled.
+  26:../../os/kernel/include/chinline.h ****  */
+  27:../../os/kernel/include/chinline.h **** 
+  28:../../os/kernel/include/chinline.h **** #ifndef _CHINLINE_H_
+  29:../../os/kernel/include/chinline.h **** #define _CHINLINE_H_
+  30:../../os/kernel/include/chinline.h **** 
+  31:../../os/kernel/include/chinline.h **** /* If the performance code path has been chosen then all the following
+  32:../../os/kernel/include/chinline.h ****    functions are inlined into the various kernel modules.*/
+  33:../../os/kernel/include/chinline.h **** #if CH_OPTIMIZE_SPEED
+  34:../../os/kernel/include/chinline.h **** static INLINE void prio_insert(Thread *tp, ThreadsQueue *tqp) {
+  35:../../os/kernel/include/chinline.h **** 
+  36:../../os/kernel/include/chinline.h ****   Thread *cp = (Thread *)tqp;
+  37:../../os/kernel/include/chinline.h ****   do {
+  38:../../os/kernel/include/chinline.h ****     cp = cp->p_next;
+  39:../../os/kernel/include/chinline.h ****   } while ((cp != (Thread *)tqp) && (cp->p_prio >= tp->p_prio));
+  40:../../os/kernel/include/chinline.h ****   tp->p_next = cp;
+  41:../../os/kernel/include/chinline.h ****   tp->p_prev = cp->p_prev;
+  42:../../os/kernel/include/chinline.h ****   tp->p_prev->p_next = cp->p_prev = tp;
+  43:../../os/kernel/include/chinline.h **** }
+  44:../../os/kernel/include/chinline.h **** 
+  45:../../os/kernel/include/chinline.h **** static INLINE void queue_insert(Thread *tp, ThreadsQueue *tqp) {
+  46:../../os/kernel/include/chinline.h **** 
+  47:../../os/kernel/include/chinline.h ****   tp->p_next = (Thread *)tqp;
+  48:../../os/kernel/include/chinline.h ****   tp->p_prev = tqp->p_prev;
+  49:../../os/kernel/include/chinline.h ****   tp->p_prev->p_next = tqp->p_prev = tp;
+  50:../../os/kernel/include/chinline.h **** }
+  51:../../os/kernel/include/chinline.h **** 
+  52:../../os/kernel/include/chinline.h **** static INLINE Thread *fifo_remove(ThreadsQueue *tqp) {
+  53:../../os/kernel/include/chinline.h ****   Thread *tp = tqp->p_next;
+  54:../../os/kernel/include/chinline.h **** 
+  55:../../os/kernel/include/chinline.h ****   (tqp->p_next = tp->p_next)->p_prev = (Thread *)tqp;
+  56:../../os/kernel/include/chinline.h ****   return tp;
+  57:../../os/kernel/include/chinline.h **** }
+  58:../../os/kernel/include/chinline.h **** 
+  59:../../os/kernel/include/chinline.h **** static INLINE Thread *lifo_remove(ThreadsQueue *tqp) {
+  60:../../os/kernel/include/chinline.h ****   Thread *tp = tqp->p_prev;
+  61:../../os/kernel/include/chinline.h **** 
+  62:../../os/kernel/include/chinline.h ****   (tqp->p_prev = tp->p_prev)->p_next = (Thread *)tqp;
+  63:../../os/kernel/include/chinline.h ****   return tp;
+  64:../../os/kernel/include/chinline.h **** }
+  65:../../os/kernel/include/chinline.h **** 
+  66:../../os/kernel/include/chinline.h **** static INLINE Thread *dequeue(Thread *tp) {
+  67:../../os/kernel/include/chinline.h **** 
+  68:../../os/kernel/include/chinline.h ****   tp->p_prev->p_next = tp->p_next;
+ 123               		.loc 2 68 0
+ 124 007a 1296      		adiw r26,2
+ 125 007c ED91      		ld r30,X+
+ 126 007e FC91      		ld r31,X
+ 127 0080 1397      		sbiw r26,2+1
+ 128 0082 8D91      		ld r24,X+
+ 129 0084 9C91      		ld r25,X
+ 130 0086 1197      		sbiw r26,1
+ 131 0088 9183      		std Z+1,r25
+ 132 008a 8083      		st Z,r24
+  69:../../os/kernel/include/chinline.h ****   tp->p_next->p_prev = tp->p_prev;
+ 133               		.loc 2 69 0
+ 134 008c CD91      		ld r28,X+
+ 135 008e DC91      		ld r29,X
+ 136 0090 1197      		sbiw r26,1
+ 137 0092 FB83      		std Y+3,r31
+ 138 0094 EA83      		std Y+2,r30
+ 139 0096 00C0      		rjmp .L2
+ 140               	.LBE22:
+ 141               	.LBE21:
+ 142               		.cfi_endproc
+ 143               	.LFE10:
+ 145               	.global	_scheduler_init
+ 147               	_scheduler_init:
+ 148               	.LFB7:
+  48:../../os/kernel/src/chschd.c **** void _scheduler_init(void) {
+ 149               		.loc 1 48 0
+ 150               		.cfi_startproc
+ 151               	/* prologue: function */
+ 152               	/* frame size = 0 */
+ 153               	/* stack size = 0 */
+ 154               	.L__stack_usage = 0
+  50:../../os/kernel/src/chschd.c ****   queue_init(&rlist.r_queue);
+ 155               		.loc 1 50 0
+ 156 0098 E0E0      		ldi r30,lo8(rlist)
+ 157 009a F0E0      		ldi r31,hi8(rlist)
+ 158 009c F093 0000 		sts rlist+2+1,r31
+ 159 00a0 E093 0000 		sts rlist+2,r30
+ 160 00a4 F183      		std Z+1,r31
+ 161 00a6 E083      		st Z,r30
+  51:../../os/kernel/src/chschd.c ****   rlist.r_prio = NOPRIO;
+ 162               		.loc 1 51 0
+ 163 00a8 1092 0000 		sts rlist+4,__zero_reg__
+  53:../../os/kernel/src/chschd.c ****   rlist.r_newer = rlist.r_older = (Thread *)&rlist;
+ 164               		.loc 1 53 0
+ 165 00ac F093 0000 		sts rlist+9+1,r31
+ 166 00b0 E093 0000 		sts rlist+9,r30
+ 167 00b4 F093 0000 		sts rlist+7+1,r31
+ 168 00b8 E093 0000 		sts rlist+7,r30
+ 169 00bc 0895      		ret
+ 170               		.cfi_endproc
+ 171               	.LFE7:
+ 173               	.global	chSchReadyI
+ 175               	chSchReadyI:
+ 176               	.LFB8:
+  74:../../os/kernel/src/chschd.c **** Thread *chSchReadyI(Thread *tp) {
+ 177               		.loc 1 74 0
+ 178               		.cfi_startproc
+ 179               	.LVL9:
+ 180 00be CF93      		push r28
+ 181               	.LCFI2:
+ 182               		.cfi_def_cfa_offset 3
+ 183               		.cfi_offset 28, -2
+ 184 00c0 DF93      		push r29
+ 185               	.LCFI3:
+ 186               		.cfi_def_cfa_offset 4
+ 187               		.cfi_offset 29, -3
+ 188               	/* prologue: function */
+ 189               	/* frame size = 0 */
+ 190               	/* stack size = 2 */
+ 191               	.L__stack_usage = 2
+ 192 00c2 DC01      		movw r26,r24
+  85:../../os/kernel/src/chschd.c ****   tp->p_state = THD_STATE_READY;
+ 193               		.loc 1 85 0
+ 194 00c4 1D96      		adiw r26,13
+ 195 00c6 1C92      		st X,__zero_reg__
+ 196 00c8 1D97      		sbiw r26,13
+ 197               	.LVL10:
+ 198 00ca 1496      		adiw r26,4
+ 199 00cc 9C91      		ld r25,X
+ 200 00ce 1497      		sbiw r26,4
+  86:../../os/kernel/src/chschd.c ****   cp = (Thread *)&rlist.r_queue;
+ 201               		.loc 1 86 0
+ 202 00d0 E0E0      		ldi r30,lo8(rlist)
+ 203 00d2 F0E0      		ldi r31,hi8(rlist)
+ 204               	.LVL11:
+ 205               	.L23:
+  88:../../os/kernel/src/chschd.c ****     cp = cp->p_next;
+ 206               		.loc 1 88 0 discriminator 1
+ 207 00d4 0190      		ld __tmp_reg__,Z+
+ 208 00d6 F081      		ld r31,Z
+ 209 00d8 E02D      		mov r30,__tmp_reg__
+ 210               	.LVL12:
+  89:../../os/kernel/src/chschd.c ****   } while (cp->p_prio >= tp->p_prio);
+ 211               		.loc 1 89 0 discriminator 1
+ 212 00da 8481      		ldd r24,Z+4
+ 213 00dc 8917      		cp r24,r25
+ 214 00de 00F4      		brsh .L23
+  91:../../os/kernel/src/chschd.c ****   tp->p_next = cp;
+ 215               		.loc 1 91 0
+ 216 00e0 1196      		adiw r26,1
+ 217 00e2 FC93      		st X,r31
+ 218 00e4 EE93      		st -X,r30
+  92:../../os/kernel/src/chschd.c ****   tp->p_prev = cp->p_prev;
+ 219               		.loc 1 92 0
+ 220 00e6 C281      		ldd r28,Z+2
+ 221 00e8 D381      		ldd r29,Z+3
+ 222 00ea 1396      		adiw r26,2+1
+ 223 00ec DC93      		st X,r29
+ 224 00ee CE93      		st -X,r28
+ 225 00f0 1297      		sbiw r26,2
+  93:../../os/kernel/src/chschd.c ****   tp->p_prev->p_next = cp->p_prev = tp;
+ 226               		.loc 1 93 0
+ 227 00f2 B383      		std Z+3,r27
+ 228 00f4 A283      		std Z+2,r26
+ 229 00f6 B983      		std Y+1,r27
+ 230 00f8 A883      		st Y,r26
+  95:../../os/kernel/src/chschd.c **** }
+ 231               		.loc 1 95 0
+ 232 00fa CD01      		movw r24,r26
+ 233               	/* epilogue start */
+ 234 00fc DF91      		pop r29
+ 235 00fe CF91      		pop r28
+ 236 0100 0895      		ret
+ 237               		.cfi_endproc
+ 238               	.LFE8:
+ 240               	.global	chSchGoSleepS
+ 242               	chSchGoSleepS:
+ 243               	.LFB9:
+ 108:../../os/kernel/src/chschd.c **** void chSchGoSleepS(tstate_t newstate) {
+ 244               		.loc 1 108 0
+ 245               		.cfi_startproc
+ 246               	.LVL13:
+ 247 0102 CF93      		push r28
+ 248               	.LCFI4:
+ 249               		.cfi_def_cfa_offset 3
+ 250               		.cfi_offset 28, -2
+ 251 0104 DF93      		push r29
+ 252               	.LCFI5:
+ 253               		.cfi_def_cfa_offset 4
+ 254               		.cfi_offset 29, -3
+ 255               	/* prologue: function */
+ 256               	/* frame size = 0 */
+ 257               	/* stack size = 2 */
+ 258               	.L__stack_usage = 2
+ 113:../../os/kernel/src/chschd.c ****   (otp = currp)->p_state = newstate;
+ 259               		.loc 1 113 0
+ 260 0106 20E0      		ldi r18,lo8(rlist+11)
+ 261 0108 30E0      		ldi r19,hi8(rlist+11)
+ 262 010a D901      		movw r26,r18
+ 263 010c 6D91      		ld r22,X+
+ 264 010e 7C91      		ld r23,X
+ 265               	.LVL14:
+ 266 0110 FB01      		movw r30,r22
+ 267 0112 8587      		std Z+13,r24
+ 117:../../os/kernel/src/chschd.c ****   otp->p_preempt = CH_TIME_QUANTUM;
+ 268               		.loc 1 117 0
+ 269 0114 84E1      		ldi r24,lo8(20)
+ 270               	.LVL15:
+ 271 0116 8787      		std Z+15,r24
+ 272               	.LVL16:
+ 273               	.LBB23:
+ 274               	.LBB24:
+  53:../../os/kernel/include/chinline.h ****   Thread *tp = tqp->p_next;
+ 275               		.loc 2 53 0
+ 276 0118 E0E0      		ldi r30,lo8(rlist)
+ 277 011a F0E0      		ldi r31,hi8(rlist)
+ 278 011c 8081      		ld r24,Z
+ 279 011e 9181      		ldd r25,Z+1
+ 280               	.LVL17:
+  55:../../os/kernel/include/chinline.h ****   (tqp->p_next = tp->p_next)->p_prev = (Thread *)tqp;
+ 281               		.loc 2 55 0
+ 282 0120 DC01      		movw r26,r24
+ 283 0122 CD91      		ld r28,X+
+ 284 0124 DC91      		ld r29,X
+ 285 0126 1197      		sbiw r26,1
+ 286 0128 D183      		std Z+1,r29
+ 287 012a C083      		st Z,r28
+ 288 012c FB83      		std Y+3,r31
+ 289 012e EA83      		std Y+2,r30
+ 290               	.LBE24:
+ 291               	.LBE23:
+ 119:../../os/kernel/src/chschd.c ****   setcurrp(fifo_remove(&rlist.r_queue));
+ 292               		.loc 1 119 0
+ 293 0130 F901      		movw r30,r18
+ 294 0132 9183      		std Z+1,r25
+ 295 0134 8083      		st Z,r24
+ 120:../../os/kernel/src/chschd.c ****   currp->p_state = THD_STATE_CURRENT;
+ 296               		.loc 1 120 0
+ 297 0136 21E0      		ldi r18,lo8(1)
+ 298 0138 1D96      		adiw r26,13
+ 299 013a 2C93      		st X,r18
+ 300               	/* epilogue start */
+ 122:../../os/kernel/src/chschd.c **** }
+ 301               		.loc 1 122 0
+ 302 013c DF91      		pop r29
+ 303 013e CF91      		pop r28
+ 121:../../os/kernel/src/chschd.c ****   chSysSwitch(currp, otp);
+ 304               		.loc 1 121 0
+ 305 0140 0C94 0000 		jmp port_switch
+ 306               	.LVL18:
+ 307               		.cfi_endproc
+ 308               	.LFE9:
+ 310               	.global	chSchGoSleepTimeoutS
+ 312               	chSchGoSleepTimeoutS:
+ 313               	.LFB11:
+ 160:../../os/kernel/src/chschd.c **** 
+ 161:../../os/kernel/src/chschd.c **** /**
+ 162:../../os/kernel/src/chschd.c ****  * @brief   Puts the current thread to sleep into the specified state with
+ 163:../../os/kernel/src/chschd.c ****  *          timeout specification.
+ 164:../../os/kernel/src/chschd.c ****  * @details The thread goes into a sleeping state, if it is not awakened
+ 165:../../os/kernel/src/chschd.c ****  *          explicitly within the specified timeout then it is forcibly
+ 166:../../os/kernel/src/chschd.c ****  *          awakened with a @p RDY_TIMEOUT low level message. The possible
+ 167:../../os/kernel/src/chschd.c ****  *          @ref thread_states are defined into @p threads.h.
+ 168:../../os/kernel/src/chschd.c ****  *
+ 169:../../os/kernel/src/chschd.c ****  * @param[in] newstate  the new thread state
+ 170:../../os/kernel/src/chschd.c ****  * @param[in] time      the number of ticks before the operation timeouts, the
+ 171:../../os/kernel/src/chschd.c ****  *                      special values are handled as follow:
+ 172:../../os/kernel/src/chschd.c ****  *                      - @a TIME_INFINITE the thread enters an infinite sleep
+ 173:../../os/kernel/src/chschd.c ****  *                        state, this is equivalent to invoking
+ 174:../../os/kernel/src/chschd.c ****  *                        @p chSchGoSleepS() but, of course, less efficient.
+ 175:../../os/kernel/src/chschd.c ****  *                      - @a TIME_IMMEDIATE this value is not allowed.
+ 176:../../os/kernel/src/chschd.c ****  *                      .
+ 177:../../os/kernel/src/chschd.c ****  * @return              The wakeup message.
+ 178:../../os/kernel/src/chschd.c ****  * @retval RDY_TIMEOUT if a timeout occurs.
+ 179:../../os/kernel/src/chschd.c ****  *
+ 180:../../os/kernel/src/chschd.c ****  * @sclass
+ 181:../../os/kernel/src/chschd.c ****  */
+ 182:../../os/kernel/src/chschd.c **** msg_t chSchGoSleepTimeoutS(tstate_t newstate, systime_t time) {
+ 314               		.loc 1 182 0
+ 315               		.cfi_startproc
+ 316               	.LVL19:
+ 317 0144 1F93      		push r17
+ 318               	.LCFI6:
+ 319               		.cfi_def_cfa_offset 3
+ 320               		.cfi_offset 17, -2
+ 321 0146 CF93      		push r28
+ 322               	.LCFI7:
+ 323               		.cfi_def_cfa_offset 4
+ 324               		.cfi_offset 28, -3
+ 325 0148 DF93      		push r29
+ 326               	.LCFI8:
+ 327               		.cfi_def_cfa_offset 5
+ 328               		.cfi_offset 29, -4
+ 329 014a CDB7      		in r28,__SP_L__
+ 330 014c DEB7      		in r29,__SP_H__
+ 331               	.LCFI9:
+ 332               		.cfi_def_cfa_register 28
+ 333 014e 2A97      		sbiw r28,10
+ 334               	.LCFI10:
+ 335               		.cfi_def_cfa_offset 15
+ 336 0150 0FB6      		in __tmp_reg__,__SREG__
+ 337 0152 F894      		cli
+ 338 0154 DEBF      		out __SP_H__,r29
+ 339 0156 0FBE      		out __SREG__,__tmp_reg__
+ 340 0158 CDBF      		out __SP_L__,r28
+ 341               	/* prologue: function */
+ 342               	/* frame size = 10 */
+ 343               	/* stack size = 13 */
+ 344               	.L__stack_usage = 13
+ 345 015a 182F      		mov r17,r24
+ 183:../../os/kernel/src/chschd.c **** 
+ 184:../../os/kernel/src/chschd.c ****   chDbgCheckClassS();
+ 185:../../os/kernel/src/chschd.c **** 
+ 186:../../os/kernel/src/chschd.c ****   if (TIME_INFINITE != time) {
+ 346               		.loc 1 186 0
+ 347 015c 6F3F      		cpi r22,-1
+ 348 015e 8FEF      		ldi r24,-1
+ 349 0160 7807      		cpc r23,r24
+ 350               	.LVL20:
+ 351 0162 01F0      		breq .L27
+ 352               	.LBB25:
+ 187:../../os/kernel/src/chschd.c ****     VirtualTimer vt;
+ 188:../../os/kernel/src/chschd.c **** 
+ 189:../../os/kernel/src/chschd.c ****     chVTSetI(&vt, time, wakeup, currp);
+ 353               		.loc 1 189 0
+ 354 0164 2091 0000 		lds r18,rlist+11
+ 355 0168 3091 0000 		lds r19,rlist+11+1
+ 356 016c 40E0      		ldi r20,lo8(gs(wakeup))
+ 357 016e 50E0      		ldi r21,hi8(gs(wakeup))
+ 358 0170 CE01      		movw r24,r28
+ 359 0172 0196      		adiw r24,1
+ 360 0174 0E94 0000 		call chVTSetI
+ 361               	.LVL21:
+ 190:../../os/kernel/src/chschd.c ****     chSchGoSleepS(newstate);
+ 362               		.loc 1 190 0
+ 363 0178 812F      		mov r24,r17
+ 364 017a 0E94 0000 		call chSchGoSleepS
+ 365               	.LVL22:
+ 191:../../os/kernel/src/chschd.c ****     if (chVTIsArmedI(&vt))
+ 366               		.loc 1 191 0
+ 367 017e 8F81      		ldd r24,Y+7
+ 368 0180 9885      		ldd r25,Y+8
+ 369 0182 892B      		or r24,r25
+ 370 0184 01F0      		breq .L29
+ 192:../../os/kernel/src/chschd.c ****       chVTResetI(&vt);
+ 371               		.loc 1 192 0
+ 372 0186 CE01      		movw r24,r28
+ 373 0188 0196      		adiw r24,1
+ 374 018a 0E94 0000 		call chVTResetI
+ 375               	.LVL23:
+ 376               	.L29:
+ 377               	.LBE25:
+ 193:../../os/kernel/src/chschd.c ****   }
+ 194:../../os/kernel/src/chschd.c ****   else
+ 195:../../os/kernel/src/chschd.c ****     chSchGoSleepS(newstate);
+ 196:../../os/kernel/src/chschd.c ****   return currp->p_u.rdymsg;
+ 378               		.loc 1 196 0
+ 379 018e E091 0000 		lds r30,rlist+11
+ 380 0192 F091 0000 		lds r31,rlist+11+1
+ 197:../../os/kernel/src/chschd.c **** }
+ 381               		.loc 1 197 0
+ 382 0196 8289      		ldd r24,Z+18
+ 383 0198 9389      		ldd r25,Z+19
+ 384               	/* epilogue start */
+ 385 019a 2A96      		adiw r28,10
+ 386 019c 0FB6      		in __tmp_reg__,__SREG__
+ 387 019e F894      		cli
+ 388 01a0 DEBF      		out __SP_H__,r29
+ 389 01a2 0FBE      		out __SREG__,__tmp_reg__
+ 390 01a4 CDBF      		out __SP_L__,r28
+ 391 01a6 DF91      		pop r29
+ 392 01a8 CF91      		pop r28
+ 393 01aa 1F91      		pop r17
+ 394               	.LVL24:
+ 395 01ac 0895      		ret
+ 396               	.LVL25:
+ 397               	.L27:
+ 195:../../os/kernel/src/chschd.c ****     chSchGoSleepS(newstate);
+ 398               		.loc 1 195 0
+ 399 01ae 812F      		mov r24,r17
+ 400 01b0 0E94 0000 		call chSchGoSleepS
+ 401               	.LVL26:
+ 402 01b4 00C0      		rjmp .L29
+ 403               		.cfi_endproc
+ 404               	.LFE11:
+ 406               	.global	chSchWakeupS
+ 408               	chSchWakeupS:
+ 409               	.LFB12:
+ 198:../../os/kernel/src/chschd.c **** #endif /* !defined(PORT_OPTIMIZED_GOSLEEPTIMEOUTS) */
+ 199:../../os/kernel/src/chschd.c **** 
+ 200:../../os/kernel/src/chschd.c **** /**
+ 201:../../os/kernel/src/chschd.c ****  * @brief   Wakes up a thread.
+ 202:../../os/kernel/src/chschd.c ****  * @details The thread is inserted into the ready list or immediately made
+ 203:../../os/kernel/src/chschd.c ****  *          running depending on its relative priority compared to the current
+ 204:../../os/kernel/src/chschd.c ****  *          thread.
+ 205:../../os/kernel/src/chschd.c ****  * @pre     The thread must not be already inserted in any list through its
+ 206:../../os/kernel/src/chschd.c ****  *          @p p_next and @p p_prev or list corruption would occur.
+ 207:../../os/kernel/src/chschd.c ****  * @note    It is equivalent to a @p chSchReadyI() followed by a
+ 208:../../os/kernel/src/chschd.c ****  *          @p chSchRescheduleS() but much more efficient.
+ 209:../../os/kernel/src/chschd.c ****  * @note    The function assumes that the current thread has the highest
+ 210:../../os/kernel/src/chschd.c ****  *          priority.
+ 211:../../os/kernel/src/chschd.c ****  *
+ 212:../../os/kernel/src/chschd.c ****  * @param[in] ntp       the Thread to be made ready
+ 213:../../os/kernel/src/chschd.c ****  * @param[in] msg       message to the awakened thread
+ 214:../../os/kernel/src/chschd.c ****  *
+ 215:../../os/kernel/src/chschd.c ****  * @sclass
+ 216:../../os/kernel/src/chschd.c ****  */
+ 217:../../os/kernel/src/chschd.c **** #if !defined(PORT_OPTIMIZED_WAKEUPS) || defined(__DOXYGEN__)
+ 218:../../os/kernel/src/chschd.c **** void chSchWakeupS(Thread *ntp, msg_t msg) {
+ 410               		.loc 1 218 0
+ 411               		.cfi_startproc
+ 412               	.LVL27:
+ 413 01b6 CF93      		push r28
+ 414               	.LCFI11:
+ 415               		.cfi_def_cfa_offset 3
+ 416               		.cfi_offset 28, -2
+ 417 01b8 DF93      		push r29
+ 418               	.LCFI12:
+ 419               		.cfi_def_cfa_offset 4
+ 420               		.cfi_offset 29, -3
+ 421               	/* prologue: function */
+ 422               	/* frame size = 0 */
+ 423               	/* stack size = 2 */
+ 424               	.L__stack_usage = 2
+ 425 01ba DC01      		movw r26,r24
+ 219:../../os/kernel/src/chschd.c **** 
+ 220:../../os/kernel/src/chschd.c ****   chDbgCheckClassS();
+ 221:../../os/kernel/src/chschd.c **** 
+ 222:../../os/kernel/src/chschd.c ****   ntp->p_u.rdymsg = msg;
+ 426               		.loc 1 222 0
+ 427 01bc 5396      		adiw r26,18+1
+ 428 01be 7C93      		st X,r23
+ 429 01c0 6E93      		st -X,r22
+ 430 01c2 5297      		sbiw r26,18
+ 223:../../os/kernel/src/chschd.c ****   /* If the waken thread has a not-greater priority than the current
+ 224:../../os/kernel/src/chschd.c ****      one then it is just inserted in the ready list else it made
+ 225:../../os/kernel/src/chschd.c ****      running immediately and the invoking thread goes in the ready
+ 226:../../os/kernel/src/chschd.c ****      list instead.*/
+ 227:../../os/kernel/src/chschd.c ****   if (ntp->p_prio <= currp->p_prio)
+ 431               		.loc 1 227 0
+ 432 01c4 1496      		adiw r26,4
+ 433 01c6 2C91      		ld r18,X
+ 434 01c8 1497      		sbiw r26,4
+ 435 01ca C091 0000 		lds r28,rlist+11
+ 436 01ce D091 0000 		lds r29,rlist+11+1
+ 437 01d2 9C81      		ldd r25,Y+4
+ 438 01d4 9217      		cp r25,r18
+ 439 01d6 00F0      		brlo .L34
+ 440               	.LVL28:
+ 441               	.LBB26:
+ 442               	.LBB27:
+  85:../../os/kernel/src/chschd.c ****   tp->p_state = THD_STATE_READY;
+ 443               		.loc 1 85 0
+ 444 01d8 1D96      		adiw r26,13
+ 445 01da 1C92      		st X,__zero_reg__
+ 446 01dc 1D97      		sbiw r26,13
+ 447               	.LVL29:
+  86:../../os/kernel/src/chschd.c ****   cp = (Thread *)&rlist.r_queue;
+ 448               		.loc 1 86 0
+ 449 01de E0E0      		ldi r30,lo8(rlist)
+ 450 01e0 F0E0      		ldi r31,hi8(rlist)
+ 451               	.LVL30:
+ 452               	.L35:
+  88:../../os/kernel/src/chschd.c ****     cp = cp->p_next;
+ 453               		.loc 1 88 0
+ 454 01e2 0190      		ld __tmp_reg__,Z+
+ 455 01e4 F081      		ld r31,Z
+ 456 01e6 E02D      		mov r30,__tmp_reg__
+ 457               	.LVL31:
+  89:../../os/kernel/src/chschd.c ****   } while (cp->p_prio >= tp->p_prio);
+ 458               		.loc 1 89 0
+ 459 01e8 8481      		ldd r24,Z+4
+ 460 01ea 8217      		cp r24,r18
+ 461 01ec 00F4      		brsh .L35
+  91:../../os/kernel/src/chschd.c ****   tp->p_next = cp;
+ 462               		.loc 1 91 0
+ 463 01ee 1196      		adiw r26,1
+ 464 01f0 FC93      		st X,r31
+ 465 01f2 EE93      		st -X,r30
+  92:../../os/kernel/src/chschd.c ****   tp->p_prev = cp->p_prev;
+ 466               		.loc 1 92 0
+ 467 01f4 C281      		ldd r28,Z+2
+ 468 01f6 D381      		ldd r29,Z+3
+ 469 01f8 1396      		adiw r26,2+1
+ 470 01fa DC93      		st X,r29
+ 471 01fc CE93      		st -X,r28
+ 472 01fe 1297      		sbiw r26,2
+  93:../../os/kernel/src/chschd.c ****   tp->p_prev->p_next = cp->p_prev = tp;
+ 473               		.loc 1 93 0
+ 474 0200 B383      		std Z+3,r27
+ 475 0202 A283      		std Z+2,r26
+ 476 0204 B983      		std Y+1,r27
+ 477 0206 A883      		st Y,r26
+ 478               	/* epilogue start */
+ 479               	.LBE27:
+ 480               	.LBE26:
+ 228:../../os/kernel/src/chschd.c ****     chSchReadyI(ntp);
+ 229:../../os/kernel/src/chschd.c ****   else {
+ 230:../../os/kernel/src/chschd.c ****     Thread *otp = chSchReadyI(currp);
+ 231:../../os/kernel/src/chschd.c ****     setcurrp(ntp);
+ 232:../../os/kernel/src/chschd.c ****     ntp->p_state = THD_STATE_CURRENT;
+ 233:../../os/kernel/src/chschd.c ****     chSysSwitch(ntp, otp);
+ 234:../../os/kernel/src/chschd.c ****   }
+ 235:../../os/kernel/src/chschd.c **** }
+ 481               		.loc 1 235 0
+ 482 0208 DF91      		pop r29
+ 483 020a CF91      		pop r28
+ 484 020c 0895      		ret
+ 485               	.LVL32:
+ 486               	.L34:
+ 487               	.LBB28:
+ 488               	.LBB29:
+ 489               	.LBB30:
+  85:../../os/kernel/src/chschd.c ****   tp->p_state = THD_STATE_READY;
+ 490               		.loc 1 85 0
+ 491 020e 1D86      		std Y+13,__zero_reg__
+ 492               	.LVL33:
+  86:../../os/kernel/src/chschd.c ****   cp = (Thread *)&rlist.r_queue;
+ 493               		.loc 1 86 0
+ 494 0210 E0E0      		ldi r30,lo8(rlist)
+ 495 0212 F0E0      		ldi r31,hi8(rlist)
+ 496               	.LVL34:
+ 497               	.L37:
+  88:../../os/kernel/src/chschd.c ****     cp = cp->p_next;
+ 498               		.loc 1 88 0
+ 499 0214 0190      		ld __tmp_reg__,Z+
+ 500 0216 F081      		ld r31,Z
+ 501 0218 E02D      		mov r30,__tmp_reg__
+ 502               	.LVL35:
+  89:../../os/kernel/src/chschd.c ****   } while (cp->p_prio >= tp->p_prio);
+ 503               		.loc 1 89 0
+ 504 021a 8481      		ldd r24,Z+4
+ 505 021c 8917      		cp r24,r25
+ 506 021e 00F4      		brsh .L37
+  91:../../os/kernel/src/chschd.c ****   tp->p_next = cp;
+ 507               		.loc 1 91 0
+ 508 0220 F983      		std Y+1,r31
+ 509 0222 E883      		st Y,r30
+  92:../../os/kernel/src/chschd.c ****   tp->p_prev = cp->p_prev;
+ 510               		.loc 1 92 0
+ 511 0224 8281      		ldd r24,Z+2
+ 512 0226 9381      		ldd r25,Z+3
+ 513 0228 9B83      		std Y+3,r25
+ 514 022a 8A83      		std Y+2,r24
+  93:../../os/kernel/src/chschd.c ****   tp->p_prev->p_next = cp->p_prev = tp;
+ 515               		.loc 1 93 0
+ 516 022c D383      		std Z+3,r29
+ 517 022e C283      		std Z+2,r28
+ 518 0230 FC01      		movw r30,r24
+ 519               	.LVL36:
+ 520 0232 D183      		std Z+1,r29
+ 521 0234 C083      		st Z,r28
+ 522               	.LBE30:
+ 523               	.LBE29:
+ 231:../../os/kernel/src/chschd.c ****     setcurrp(ntp);
+ 524               		.loc 1 231 0
+ 525 0236 B093 0000 		sts rlist+11+1,r27
+ 526 023a A093 0000 		sts rlist+11,r26
+ 232:../../os/kernel/src/chschd.c ****     ntp->p_state = THD_STATE_CURRENT;
+ 527               		.loc 1 232 0
+ 528 023e 81E0      		ldi r24,lo8(1)
+ 529 0240 1D96      		adiw r26,13
+ 530 0242 8C93      		st X,r24
+ 531 0244 1D97      		sbiw r26,13
+ 233:../../os/kernel/src/chschd.c ****     chSysSwitch(ntp, otp);
+ 532               		.loc 1 233 0
+ 533 0246 BE01      		movw r22,r28
+ 534               	.LVL37:
+ 535 0248 CD01      		movw r24,r26
+ 536               	/* epilogue start */
+ 537               	.LBE28:
+ 538               		.loc 1 235 0
+ 539 024a DF91      		pop r29
+ 540 024c CF91      		pop r28
+ 541               	.LVL38:
+ 542               	.LBB31:
+ 233:../../os/kernel/src/chschd.c ****     chSysSwitch(ntp, otp);
+ 543               		.loc 1 233 0
+ 544 024e 0C94 0000 		jmp port_switch
+ 545               	.LVL39:
+ 546               	.LBE31:
+ 547               		.cfi_endproc
+ 548               	.LFE12:
+ 550               	.global	chSchIsPreemptionRequired
+ 552               	chSchIsPreemptionRequired:
+ 553               	.LFB14:
+ 236:../../os/kernel/src/chschd.c **** #endif /* !defined(PORT_OPTIMIZED_WAKEUPS) */
+ 237:../../os/kernel/src/chschd.c **** 
+ 238:../../os/kernel/src/chschd.c **** /**
+ 239:../../os/kernel/src/chschd.c ****  * @brief   Performs a reschedule if a higher priority thread is runnable.
+ 240:../../os/kernel/src/chschd.c ****  * @details If a thread with a higher priority than the current thread is in
+ 241:../../os/kernel/src/chschd.c ****  *          the ready list then make the higher priority thread running.
+ 242:../../os/kernel/src/chschd.c ****  *
+ 243:../../os/kernel/src/chschd.c ****  * @sclass
+ 244:../../os/kernel/src/chschd.c ****  */
+ 245:../../os/kernel/src/chschd.c **** #if !defined(PORT_OPTIMIZED_RESCHEDULES) || defined(__DOXYGEN__)
+ 246:../../os/kernel/src/chschd.c **** void chSchRescheduleS(void) {
+ 247:../../os/kernel/src/chschd.c **** 
+ 248:../../os/kernel/src/chschd.c ****   chDbgCheckClassS();
+ 249:../../os/kernel/src/chschd.c **** 
+ 250:../../os/kernel/src/chschd.c ****   if (chSchIsRescRequiredI())
+ 251:../../os/kernel/src/chschd.c ****     chSchDoRescheduleAhead();
+ 252:../../os/kernel/src/chschd.c **** }
+ 253:../../os/kernel/src/chschd.c **** #endif /* !defined(PORT_OPTIMIZED_RESCHEDULES) */
+ 254:../../os/kernel/src/chschd.c **** 
+ 255:../../os/kernel/src/chschd.c **** /**
+ 256:../../os/kernel/src/chschd.c ****  * @brief   Evaluates if preemption is required.
+ 257:../../os/kernel/src/chschd.c ****  * @details The decision is taken by comparing the relative priorities and
+ 258:../../os/kernel/src/chschd.c ****  *          depending on the state of the round robin timeout counter.
+ 259:../../os/kernel/src/chschd.c ****  * @note    Not a user function, it is meant to be invoked by the scheduler
+ 260:../../os/kernel/src/chschd.c ****  *          itself or from within the port layer.
+ 261:../../os/kernel/src/chschd.c ****  *
+ 262:../../os/kernel/src/chschd.c ****  * @retval TRUE         if there is a thread that must go in running state
+ 263:../../os/kernel/src/chschd.c ****  *                      immediately.
+ 264:../../os/kernel/src/chschd.c ****  * @retval FALSE        if preemption is not required.
+ 265:../../os/kernel/src/chschd.c ****  *
+ 266:../../os/kernel/src/chschd.c ****  * @special
+ 267:../../os/kernel/src/chschd.c ****  */
+ 268:../../os/kernel/src/chschd.c **** #if !defined(PORT_OPTIMIZED_ISPREEMPTIONREQUIRED) || defined(__DOXYGEN__)
+ 269:../../os/kernel/src/chschd.c **** bool_t chSchIsPreemptionRequired(void) {
+ 554               		.loc 1 269 0
+ 555               		.cfi_startproc
+ 556               	/* prologue: function */
+ 557               	/* frame size = 0 */
+ 558               	/* stack size = 0 */
+ 559               	.L__stack_usage = 0
+ 270:../../os/kernel/src/chschd.c ****   tprio_t p1 = firstprio(&rlist.r_queue);
+ 560               		.loc 1 270 0
+ 561 0252 E091 0000 		lds r30,rlist
+ 562 0256 F091 0000 		lds r31,rlist+1
+ 563 025a 2481      		ldd r18,Z+4
+ 564               	.LVL40:
+ 271:../../os/kernel/src/chschd.c ****   tprio_t p2 = currp->p_prio;
+ 565               		.loc 1 271 0
+ 566 025c E091 0000 		lds r30,rlist+11
+ 567 0260 F091 0000 		lds r31,rlist+11+1
+ 568 0264 9481      		ldd r25,Z+4
+ 569               	.LVL41:
+ 272:../../os/kernel/src/chschd.c **** #if CH_TIME_QUANTUM > 0
+ 273:../../os/kernel/src/chschd.c ****   /* If the running thread has not reached its time quantum, reschedule only
+ 274:../../os/kernel/src/chschd.c ****      if the first thread on the ready queue has a higher priority.
+ 275:../../os/kernel/src/chschd.c ****      Otherwise, if the running thread has used up its time quantum, reschedule
+ 276:../../os/kernel/src/chschd.c ****      if the first thread on the ready queue has equal or higher priority.*/
+ 277:../../os/kernel/src/chschd.c ****   return currp->p_preempt ? p1 > p2 : p1 >= p2;
+ 570               		.loc 1 277 0
+ 571 0266 8785      		ldd r24,Z+15
+ 572 0268 8111      		cpse r24,__zero_reg__
+ 573 026a 00C0      		rjmp .L47
+ 574               		.loc 1 277 0 is_stmt 0 discriminator 2
+ 575 026c 81E0      		ldi r24,lo8(1)
+ 576 026e 2917      		cp r18,r25
+ 577 0270 00F0      		brlo .L46
+ 578               	.L44:
+ 278:../../os/kernel/src/chschd.c **** #else
+ 279:../../os/kernel/src/chschd.c ****   /* If the round robin preemption feature is not enabled then performs a
+ 280:../../os/kernel/src/chschd.c ****      simpler comparison.*/
+ 281:../../os/kernel/src/chschd.c ****   return p1 > p2;
+ 282:../../os/kernel/src/chschd.c **** #endif
+ 283:../../os/kernel/src/chschd.c **** }
+ 579               		.loc 1 283 0 is_stmt 1 discriminator 3
+ 580 0272 0895      		ret
+ 581               	.L47:
+ 277:../../os/kernel/src/chschd.c ****   return currp->p_preempt ? p1 > p2 : p1 >= p2;
+ 582               		.loc 1 277 0 discriminator 1
+ 583 0274 81E0      		ldi r24,lo8(1)
+ 584 0276 9217      		cp r25,r18
+ 585 0278 00F0      		brlo .L44
+ 586               	.L46:
+ 277:../../os/kernel/src/chschd.c ****   return currp->p_preempt ? p1 > p2 : p1 >= p2;
+ 587               		.loc 1 277 0 is_stmt 0 discriminator 2
+ 588 027a 80E0      		ldi r24,0
+ 589               		.loc 1 283 0 is_stmt 1 discriminator 2
+ 590 027c 0895      		ret
+ 591               		.cfi_endproc
+ 592               	.LFE14:
+ 594               	.global	chSchDoRescheduleBehind
+ 596               	chSchDoRescheduleBehind:
+ 597               	.LFB15:
+ 284:../../os/kernel/src/chschd.c **** #endif /* !defined(PORT_OPTIMIZED_ISPREEMPTIONREQUIRED) */
+ 285:../../os/kernel/src/chschd.c **** 
+ 286:../../os/kernel/src/chschd.c **** /**
+ 287:../../os/kernel/src/chschd.c ****  * @brief   Switches to the first thread on the runnable queue.
+ 288:../../os/kernel/src/chschd.c ****  * @details The current thread is positioned in the ready list behind all
+ 289:../../os/kernel/src/chschd.c ****  *          threads having the same priority. The thread regains its time
+ 290:../../os/kernel/src/chschd.c ****  *          quantum.
+ 291:../../os/kernel/src/chschd.c ****  * @note    Not a user function, it is meant to be invoked by the scheduler
+ 292:../../os/kernel/src/chschd.c ****  *          itself or from within the port layer.
+ 293:../../os/kernel/src/chschd.c ****  *
+ 294:../../os/kernel/src/chschd.c ****  * @special
+ 295:../../os/kernel/src/chschd.c ****  */
+ 296:../../os/kernel/src/chschd.c **** #if !defined(PORT_OPTIMIZED_DORESCHEDULEBEHIND) || defined(__DOXYGEN__)
+ 297:../../os/kernel/src/chschd.c **** void chSchDoRescheduleBehind(void) {
+ 598               		.loc 1 297 0
+ 599               		.cfi_startproc
+ 600 027e CF93      		push r28
+ 601               	.LCFI13:
+ 602               		.cfi_def_cfa_offset 3
+ 603               		.cfi_offset 28, -2
+ 604 0280 DF93      		push r29
+ 605               	.LCFI14:
+ 606               		.cfi_def_cfa_offset 4
+ 607               		.cfi_offset 29, -3
+ 608               	/* prologue: function */
+ 609               	/* frame size = 0 */
+ 610               	/* stack size = 2 */
+ 611               	.L__stack_usage = 2
+ 298:../../os/kernel/src/chschd.c ****   Thread *otp;
+ 299:../../os/kernel/src/chschd.c **** 
+ 300:../../os/kernel/src/chschd.c ****   otp = currp;
+ 612               		.loc 1 300 0
+ 613 0282 A091 0000 		lds r26,rlist+11
+ 614 0286 B091 0000 		lds r27,rlist+11+1
+ 615               	.LVL42:
+ 616               	.LBB32:
+ 617               	.LBB33:
+  53:../../os/kernel/include/chinline.h ****   Thread *tp = tqp->p_next;
+ 618               		.loc 2 53 0
+ 619 028a 8091 0000 		lds r24,rlist
+ 620 028e 9091 0000 		lds r25,rlist+1
+ 621               	.LVL43:
+  55:../../os/kernel/include/chinline.h ****   (tqp->p_next = tp->p_next)->p_prev = (Thread *)tqp;
+ 622               		.loc 2 55 0
+ 623 0292 EC01      		movw r28,r24
+ 624 0294 E881      		ld r30,Y
+ 625 0296 F981      		ldd r31,Y+1
+ 626 0298 F093 0000 		sts rlist+1,r31
+ 627 029c E093 0000 		sts rlist,r30
+ 628 02a0 20E0      		ldi r18,lo8(rlist)
+ 629 02a2 30E0      		ldi r19,hi8(rlist)
+ 630 02a4 3383      		std Z+3,r19
+ 631 02a6 2283      		std Z+2,r18
+ 632               	.LBE33:
+ 633               	.LBE32:
+ 301:../../os/kernel/src/chschd.c ****   /* Picks the first thread from the ready queue and makes it current.*/
+ 302:../../os/kernel/src/chschd.c ****   setcurrp(fifo_remove(&rlist.r_queue));
+ 634               		.loc 1 302 0
+ 635 02a8 9093 0000 		sts rlist+11+1,r25
+ 636 02ac 8093 0000 		sts rlist+11,r24
+ 303:../../os/kernel/src/chschd.c ****   currp->p_state = THD_STATE_CURRENT;
+ 637               		.loc 1 303 0
+ 638 02b0 21E0      		ldi r18,lo8(1)
+ 639 02b2 2D87      		std Y+13,r18
+ 304:../../os/kernel/src/chschd.c **** #if CH_TIME_QUANTUM > 0
+ 305:../../os/kernel/src/chschd.c ****   otp->p_preempt = CH_TIME_QUANTUM;
+ 640               		.loc 1 305 0
+ 641 02b4 24E1      		ldi r18,lo8(20)
+ 642 02b6 1F96      		adiw r26,15
+ 643 02b8 2C93      		st X,r18
+ 644 02ba 1F97      		sbiw r26,15
+ 645               	.LVL44:
+ 646               	.LBB34:
+ 647               	.LBB35:
+  85:../../os/kernel/src/chschd.c ****   tp->p_state = THD_STATE_READY;
+ 648               		.loc 1 85 0
+ 649 02bc 1D96      		adiw r26,13
+ 650 02be 1C92      		st X,__zero_reg__
+ 651 02c0 1D97      		sbiw r26,13
+ 652               	.LVL45:
+ 653 02c2 1496      		adiw r26,4
+ 654 02c4 3C91      		ld r19,X
+ 655 02c6 1497      		sbiw r26,4
+ 656 02c8 FC01      		movw r30,r24
+ 657 02ca 00C0      		rjmp .L50
+ 658               	.LVL46:
+ 659               	.L51:
+ 660 02cc 0190      		ld __tmp_reg__,Z+
+ 661 02ce F081      		ld r31,Z
+ 662 02d0 E02D      		mov r30,__tmp_reg__
+ 663               	.LVL47:
+ 664               	.L50:
+  89:../../os/kernel/src/chschd.c ****   } while (cp->p_prio >= tp->p_prio);
+ 665               		.loc 1 89 0
+ 666 02d2 2481      		ldd r18,Z+4
+ 667 02d4 2317      		cp r18,r19
+ 668 02d6 00F4      		brsh .L51
+  91:../../os/kernel/src/chschd.c ****   tp->p_next = cp;
+ 669               		.loc 1 91 0
+ 670 02d8 1196      		adiw r26,1
+ 671 02da FC93      		st X,r31
+ 672 02dc EE93      		st -X,r30
+  92:../../os/kernel/src/chschd.c ****   tp->p_prev = cp->p_prev;
+ 673               		.loc 1 92 0
+ 674 02de C281      		ldd r28,Z+2
+ 675 02e0 D381      		ldd r29,Z+3
+ 676 02e2 1396      		adiw r26,2+1
+ 677 02e4 DC93      		st X,r29
+ 678 02e6 CE93      		st -X,r28
+ 679 02e8 1297      		sbiw r26,2
+  93:../../os/kernel/src/chschd.c ****   tp->p_prev->p_next = cp->p_prev = tp;
+ 680               		.loc 1 93 0
+ 681 02ea B383      		std Z+3,r27
+ 682 02ec A283      		std Z+2,r26
+ 683 02ee B983      		std Y+1,r27
+ 684 02f0 A883      		st Y,r26
+ 685               	.LBE35:
+ 686               	.LBE34:
+ 306:../../os/kernel/src/chschd.c **** #endif
+ 307:../../os/kernel/src/chschd.c ****   chSchReadyI(otp);
+ 308:../../os/kernel/src/chschd.c ****   chSysSwitch(currp, otp);
+ 687               		.loc 1 308 0
+ 688 02f2 BD01      		movw r22,r26
+ 689               	/* epilogue start */
+ 309:../../os/kernel/src/chschd.c **** }
+ 690               		.loc 1 309 0
+ 691 02f4 DF91      		pop r29
+ 692 02f6 CF91      		pop r28
+ 308:../../os/kernel/src/chschd.c ****   chSysSwitch(currp, otp);
+ 693               		.loc 1 308 0
+ 694 02f8 0C94 0000 		jmp port_switch
+ 695               	.LVL48:
+ 696               		.cfi_endproc
+ 697               	.LFE15:
+ 699               	.global	chSchDoRescheduleAhead
+ 701               	chSchDoRescheduleAhead:
+ 702               	.LFB16:
+ 310:../../os/kernel/src/chschd.c **** #endif /* !defined(PORT_OPTIMIZED_DORESCHEDULEBEHIND) */
+ 311:../../os/kernel/src/chschd.c **** 
+ 312:../../os/kernel/src/chschd.c **** /**
+ 313:../../os/kernel/src/chschd.c ****  * @brief   Switches to the first thread on the runnable queue.
+ 314:../../os/kernel/src/chschd.c ****  * @details The current thread is positioned in the ready list ahead of all
+ 315:../../os/kernel/src/chschd.c ****  *          threads having the same priority.
+ 316:../../os/kernel/src/chschd.c ****  * @note    Not a user function, it is meant to be invoked by the scheduler
+ 317:../../os/kernel/src/chschd.c ****  *          itself or from within the port layer.
+ 318:../../os/kernel/src/chschd.c ****  *
+ 319:../../os/kernel/src/chschd.c ****  * @special
+ 320:../../os/kernel/src/chschd.c ****  */
+ 321:../../os/kernel/src/chschd.c **** #if !defined(PORT_OPTIMIZED_DORESCHEDULEAHEAD) || defined(__DOXYGEN__)
+ 322:../../os/kernel/src/chschd.c **** void chSchDoRescheduleAhead(void) {
+ 703               		.loc 1 322 0
+ 704               		.cfi_startproc
+ 705 02fc CF93      		push r28
+ 706               	.LCFI15:
+ 707               		.cfi_def_cfa_offset 3
+ 708               		.cfi_offset 28, -2
+ 709 02fe DF93      		push r29
+ 710               	.LCFI16:
+ 711               		.cfi_def_cfa_offset 4
+ 712               		.cfi_offset 29, -3
+ 713               	/* prologue: function */
+ 714               	/* frame size = 0 */
+ 715               	/* stack size = 2 */
+ 716               	.L__stack_usage = 2
+ 323:../../os/kernel/src/chschd.c ****   Thread *otp, *cp;
+ 324:../../os/kernel/src/chschd.c **** 
+ 325:../../os/kernel/src/chschd.c ****   otp = currp;
+ 717               		.loc 1 325 0
+ 718 0300 A091 0000 		lds r26,rlist+11
+ 719 0304 B091 0000 		lds r27,rlist+11+1
+ 720               	.LVL49:
+ 721               	.LBB36:
+ 722               	.LBB37:
+  53:../../os/kernel/include/chinline.h ****   Thread *tp = tqp->p_next;
+ 723               		.loc 2 53 0
+ 724 0308 8091 0000 		lds r24,rlist
+ 725 030c 9091 0000 		lds r25,rlist+1
+ 726               	.LVL50:
+  55:../../os/kernel/include/chinline.h ****   (tqp->p_next = tp->p_next)->p_prev = (Thread *)tqp;
+ 727               		.loc 2 55 0
+ 728 0310 EC01      		movw r28,r24
+ 729 0312 E881      		ld r30,Y
+ 730 0314 F981      		ldd r31,Y+1
+ 731 0316 F093 0000 		sts rlist+1,r31
+ 732 031a E093 0000 		sts rlist,r30
+ 733 031e 20E0      		ldi r18,lo8(rlist)
+ 734 0320 30E0      		ldi r19,hi8(rlist)
+ 735 0322 3383      		std Z+3,r19
+ 736 0324 2283      		std Z+2,r18
+ 737               	.LBE37:
+ 738               	.LBE36:
+ 326:../../os/kernel/src/chschd.c ****   /* Picks the first thread from the ready queue and makes it current.*/
+ 327:../../os/kernel/src/chschd.c ****   setcurrp(fifo_remove(&rlist.r_queue));
+ 739               		.loc 1 327 0
+ 740 0326 9093 0000 		sts rlist+11+1,r25
+ 741 032a 8093 0000 		sts rlist+11,r24
+ 328:../../os/kernel/src/chschd.c ****   currp->p_state = THD_STATE_CURRENT;
+ 742               		.loc 1 328 0
+ 743 032e 21E0      		ldi r18,lo8(1)
+ 744 0330 2D87      		std Y+13,r18
+ 329:../../os/kernel/src/chschd.c **** 
+ 330:../../os/kernel/src/chschd.c ****   otp->p_state = THD_STATE_READY;
+ 745               		.loc 1 330 0
+ 746 0332 1D96      		adiw r26,13
+ 747 0334 1C92      		st X,__zero_reg__
+ 748 0336 1D97      		sbiw r26,13
+ 749               	.LVL51:
+ 750 0338 1496      		adiw r26,4
+ 751 033a 3C91      		ld r19,X
+ 752 033c 1497      		sbiw r26,4
+ 753 033e FC01      		movw r30,r24
+ 754 0340 00C0      		rjmp .L54
+ 755               	.LVL52:
+ 756               	.L55:
+ 757 0342 0190      		ld __tmp_reg__,Z+
+ 758 0344 F081      		ld r31,Z
+ 759 0346 E02D      		mov r30,__tmp_reg__
+ 760               	.LVL53:
+ 761               	.L54:
+ 331:../../os/kernel/src/chschd.c ****   cp = (Thread *)&rlist.r_queue;
+ 332:../../os/kernel/src/chschd.c ****   do {
+ 333:../../os/kernel/src/chschd.c ****     cp = cp->p_next;
+ 334:../../os/kernel/src/chschd.c ****   } while (cp->p_prio > otp->p_prio);
+ 762               		.loc 1 334 0 discriminator 1
+ 763 0348 2481      		ldd r18,Z+4
+ 764 034a 3217      		cp r19,r18
+ 765 034c 00F0      		brlo .L55
+ 335:../../os/kernel/src/chschd.c ****   /* Insertion on p_prev.*/
+ 336:../../os/kernel/src/chschd.c ****   otp->p_next = cp;
+ 766               		.loc 1 336 0
+ 767 034e 1196      		adiw r26,1
+ 768 0350 FC93      		st X,r31
+ 769 0352 EE93      		st -X,r30
+ 337:../../os/kernel/src/chschd.c ****   otp->p_prev = cp->p_prev;
+ 770               		.loc 1 337 0
+ 771 0354 C281      		ldd r28,Z+2
+ 772 0356 D381      		ldd r29,Z+3
+ 773 0358 1396      		adiw r26,2+1
+ 774 035a DC93      		st X,r29
+ 775 035c CE93      		st -X,r28
+ 776 035e 1297      		sbiw r26,2
+ 338:../../os/kernel/src/chschd.c ****   otp->p_prev->p_next = cp->p_prev = otp;
+ 777               		.loc 1 338 0
+ 778 0360 B383      		std Z+3,r27
+ 779 0362 A283      		std Z+2,r26
+ 780 0364 B983      		std Y+1,r27
+ 781 0366 A883      		st Y,r26
+ 339:../../os/kernel/src/chschd.c **** 
+ 340:../../os/kernel/src/chschd.c ****   chSysSwitch(currp, otp);
+ 782               		.loc 1 340 0
+ 783 0368 BD01      		movw r22,r26
+ 784               	/* epilogue start */
+ 341:../../os/kernel/src/chschd.c **** }
+ 785               		.loc 1 341 0
+ 786 036a DF91      		pop r29
+ 787 036c CF91      		pop r28
+ 340:../../os/kernel/src/chschd.c ****   chSysSwitch(currp, otp);
+ 788               		.loc 1 340 0
+ 789 036e 0C94 0000 		jmp port_switch
+ 790               	.LVL54:
+ 791               		.cfi_endproc
+ 792               	.LFE16:
+ 794               	.global	chSchRescheduleS
+ 796               	chSchRescheduleS:
+ 797               	.LFB13:
+ 246:../../os/kernel/src/chschd.c **** void chSchRescheduleS(void) {
+ 798               		.loc 1 246 0
+ 799               		.cfi_startproc
+ 800               	/* prologue: function */
+ 801               	/* frame size = 0 */
+ 802               	/* stack size = 0 */
+ 803               	.L__stack_usage = 0
+ 250:../../os/kernel/src/chschd.c ****   if (chSchIsRescRequiredI())
+ 804               		.loc 1 250 0
+ 805 0372 A091 0000 		lds r26,rlist
+ 806 0376 B091 0000 		lds r27,rlist+1
+ 807 037a E091 0000 		lds r30,rlist+11
+ 808 037e F091 0000 		lds r31,rlist+11+1
+ 809 0382 1496      		adiw r26,4
+ 810 0384 9C91      		ld r25,X
+ 811 0386 8481      		ldd r24,Z+4
+ 812 0388 8917      		cp r24,r25
+ 813 038a 00F0      		brlo .L58
+ 814 038c 0895      		ret
+ 815               	.L58:
+ 251:../../os/kernel/src/chschd.c ****     chSchDoRescheduleAhead();
+ 816               		.loc 1 251 0
+ 817 038e 0C94 0000 		jmp chSchDoRescheduleAhead
+ 818               	.LVL55:
+ 819               		.cfi_endproc
+ 820               	.LFE13:
+ 822               	.global	chSchDoReschedule
+ 824               	chSchDoReschedule:
+ 825               	.LFB17:
+ 342:../../os/kernel/src/chschd.c **** #endif /* !defined(PORT_OPTIMIZED_DORESCHEDULEAHEAD) */
+ 343:../../os/kernel/src/chschd.c **** 
+ 344:../../os/kernel/src/chschd.c **** /**
+ 345:../../os/kernel/src/chschd.c ****  * @brief   Switches to the first thread on the runnable queue.
+ 346:../../os/kernel/src/chschd.c ****  * @details The current thread is positioned in the ready list behind or
+ 347:../../os/kernel/src/chschd.c ****  *          ahead of all threads having the same priority depending on
+ 348:../../os/kernel/src/chschd.c ****  *          if it used its whole time slice.
+ 349:../../os/kernel/src/chschd.c ****  * @note    Not a user function, it is meant to be invoked by the scheduler
+ 350:../../os/kernel/src/chschd.c ****  *          itself or from within the port layer.
+ 351:../../os/kernel/src/chschd.c ****  *
+ 352:../../os/kernel/src/chschd.c ****  * @special
+ 353:../../os/kernel/src/chschd.c ****  */
+ 354:../../os/kernel/src/chschd.c **** #if !defined(PORT_OPTIMIZED_DORESCHEDULE) || defined(__DOXYGEN__)
+ 355:../../os/kernel/src/chschd.c **** void chSchDoReschedule(void) {
+ 826               		.loc 1 355 0
+ 827               		.cfi_startproc
+ 828               	/* prologue: function */
+ 829               	/* frame size = 0 */
+ 830               	/* stack size = 0 */
+ 831               	.L__stack_usage = 0
+ 356:../../os/kernel/src/chschd.c **** 
+ 357:../../os/kernel/src/chschd.c **** #if CH_TIME_QUANTUM > 0
+ 358:../../os/kernel/src/chschd.c ****   /* If CH_TIME_QUANTUM is enabled then there are two different scenarios to
+ 359:../../os/kernel/src/chschd.c ****      handle on preemption: time quantum elapsed or not.*/
+ 360:../../os/kernel/src/chschd.c ****   if (currp->p_preempt == 0) {
+ 832               		.loc 1 360 0
+ 833 0392 E091 0000 		lds r30,rlist+11
+ 834 0396 F091 0000 		lds r31,rlist+11+1
+ 835 039a 8785      		ldd r24,Z+15
+ 836 039c 8111      		cpse r24,__zero_reg__
+ 361:../../os/kernel/src/chschd.c ****     /* The thread consumed its time quantum so it is enqueued behind threads
+ 362:../../os/kernel/src/chschd.c ****        with same priority level, however, it acquires a new time quantum.*/
+ 363:../../os/kernel/src/chschd.c ****     chSchDoRescheduleBehind();
+ 364:../../os/kernel/src/chschd.c ****   }
+ 365:../../os/kernel/src/chschd.c ****   else {
+ 366:../../os/kernel/src/chschd.c ****     /* The thread didn't consume all its time quantum so it is put ahead of
+ 367:../../os/kernel/src/chschd.c ****        threads with equal priority and does not acquire a new time quantum.*/
+ 368:../../os/kernel/src/chschd.c ****     chSchDoRescheduleAhead();
+ 837               		.loc 1 368 0
+ 838 039e 0C94 0000 		jmp chSchDoRescheduleAhead
+ 839               	.LVL56:
+ 840               	.L61:
+ 363:../../os/kernel/src/chschd.c ****     chSchDoRescheduleBehind();
+ 841               		.loc 1 363 0
+ 842 03a2 0C94 0000 		jmp chSchDoRescheduleBehind
+ 843               	.LVL57:
+ 844               		.cfi_endproc
+ 845               	.LFE17:
+ 847               		.comm	rlist,13,1
+ 848               	.Letext0:
+ 849               		.file 3 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+ 850               		.file 4 "../../os/ports/GCC/AVR/chtypes.h"
+ 851               		.file 5 "../../os/kernel/include/chlists.h"
+ 852               		.file 6 "../../os/kernel/include/chthreads.h"
+ 853               		.file 7 "../../os/ports/GCC/AVR/chcore.h"
+ 854               		.file 8 "../../os/kernel/include/chvt.h"
+ 855               		.file 9 "../../os/kernel/include/chschd.h"
+ 856               		.file 10 "../../os/kernel/include/chsem.h"
+ 857               		.file 11 "../../os/kernel/include/chmtx.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 chschd.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc3CsN4R.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc3CsN4R.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc3CsN4R.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc3CsN4R.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc3CsN4R.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc3CsN4R.s:11     .text:0000000000000000 wakeup
+                            *COM*:000000000000000d rlist
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc3CsN4R.s:147    .text:0000000000000098 _scheduler_init
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc3CsN4R.s:175    .text:00000000000000be chSchReadyI
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc3CsN4R.s:242    .text:0000000000000102 chSchGoSleepS
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc3CsN4R.s:312    .text:0000000000000144 chSchGoSleepTimeoutS
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc3CsN4R.s:408    .text:00000000000001b6 chSchWakeupS
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc3CsN4R.s:552    .text:0000000000000252 chSchIsPreemptionRequired
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc3CsN4R.s:596    .text:000000000000027e chSchDoRescheduleBehind
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc3CsN4R.s:701    .text:00000000000002fc chSchDoRescheduleAhead
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc3CsN4R.s:796    .text:0000000000000372 chSchRescheduleS
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc3CsN4R.s:824    .text:0000000000000392 chSchDoReschedule
+
+UNDEFINED SYMBOLS
+port_switch
+chVTSetI
+chVTResetI
+__do_clear_bss

@@ -1,0 +1,191 @@
+   1               		.file	"hal.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	halInit
+  12               	halInit:
+  13               	.LFB7:
+  14               		.file 1 "../../os/hal/src/hal.c"
+   1:../../os/hal/src/hal.c **** /*
+   2:../../os/hal/src/hal.c ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/hal/src/hal.c ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/hal/src/hal.c **** 
+   5:../../os/hal/src/hal.c ****     This file is part of ChibiOS/RT.
+   6:../../os/hal/src/hal.c **** 
+   7:../../os/hal/src/hal.c ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/hal/src/hal.c ****     it under the terms of the GNU General Public License as published by
+   9:../../os/hal/src/hal.c ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/hal/src/hal.c ****     (at your option) any later version.
+  11:../../os/hal/src/hal.c **** 
+  12:../../os/hal/src/hal.c ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/hal/src/hal.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/hal/src/hal.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/hal/src/hal.c ****     GNU General Public License for more details.
+  16:../../os/hal/src/hal.c **** 
+  17:../../os/hal/src/hal.c ****     You should have received a copy of the GNU General Public License
+  18:../../os/hal/src/hal.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/hal/src/hal.c **** */
+  20:../../os/hal/src/hal.c **** 
+  21:../../os/hal/src/hal.c **** /**
+  22:../../os/hal/src/hal.c ****  * @file    hal.c
+  23:../../os/hal/src/hal.c ****  * @brief   HAL subsystem code.
+  24:../../os/hal/src/hal.c ****  *
+  25:../../os/hal/src/hal.c ****  * @addtogroup HAL
+  26:../../os/hal/src/hal.c ****  * @{
+  27:../../os/hal/src/hal.c ****  */
+  28:../../os/hal/src/hal.c **** 
+  29:../../os/hal/src/hal.c **** #include "ch.h"
+  30:../../os/hal/src/hal.c **** #include "hal.h"
+  31:../../os/hal/src/hal.c **** 
+  32:../../os/hal/src/hal.c **** /*===========================================================================*/
+  33:../../os/hal/src/hal.c **** /* Driver local definitions.                                                 */
+  34:../../os/hal/src/hal.c **** /*===========================================================================*/
+  35:../../os/hal/src/hal.c **** 
+  36:../../os/hal/src/hal.c **** /*===========================================================================*/
+  37:../../os/hal/src/hal.c **** /* Driver exported variables.                                                */
+  38:../../os/hal/src/hal.c **** /*===========================================================================*/
+  39:../../os/hal/src/hal.c **** 
+  40:../../os/hal/src/hal.c **** /*===========================================================================*/
+  41:../../os/hal/src/hal.c **** /* Driver local variables.                                                   */
+  42:../../os/hal/src/hal.c **** /*===========================================================================*/
+  43:../../os/hal/src/hal.c **** 
+  44:../../os/hal/src/hal.c **** /*===========================================================================*/
+  45:../../os/hal/src/hal.c **** /* Driver local functions.                                                   */
+  46:../../os/hal/src/hal.c **** /*===========================================================================*/
+  47:../../os/hal/src/hal.c **** 
+  48:../../os/hal/src/hal.c **** /*===========================================================================*/
+  49:../../os/hal/src/hal.c **** /* Driver exported functions.                                                */
+  50:../../os/hal/src/hal.c **** /*===========================================================================*/
+  51:../../os/hal/src/hal.c **** 
+  52:../../os/hal/src/hal.c **** /**
+  53:../../os/hal/src/hal.c ****  * @brief   HAL initialization.
+  54:../../os/hal/src/hal.c ****  * @details This function invokes the low level initialization code then
+  55:../../os/hal/src/hal.c ****  *          initializes all the drivers enabled in the HAL. Finally the
+  56:../../os/hal/src/hal.c ****  *          board-specific initialization is performed by invoking
+  57:../../os/hal/src/hal.c ****  *          @p boardInit() (usually defined in @p board.c).
+  58:../../os/hal/src/hal.c ****  *
+  59:../../os/hal/src/hal.c ****  * @init
+  60:../../os/hal/src/hal.c ****  */
+  61:../../os/hal/src/hal.c **** void halInit(void) {
+  15               		.loc 1 61 0
+  16               		.cfi_startproc
+  17               	/* prologue: function */
+  18               	/* frame size = 0 */
+  19               	/* stack size = 0 */
+  20               	.L__stack_usage = 0
+  62:../../os/hal/src/hal.c **** 
+  63:../../os/hal/src/hal.c ****   hal_lld_init();
+  21               		.loc 1 63 0
+  22 0000 0E94 0000 		call hal_lld_init
+  23               	.LVL0:
+  64:../../os/hal/src/hal.c **** 
+  65:../../os/hal/src/hal.c **** #if HAL_USE_TM || defined(__DOXYGEN__)
+  66:../../os/hal/src/hal.c ****   tmInit();
+  67:../../os/hal/src/hal.c **** #endif
+  68:../../os/hal/src/hal.c **** #if HAL_USE_PAL || defined(__DOXYGEN__)
+  69:../../os/hal/src/hal.c ****   palInit(&pal_default_config);
+  24               		.loc 1 69 0
+  25 0004 80E0      		ldi r24,lo8(pal_default_config)
+  26 0006 90E0      		ldi r25,hi8(pal_default_config)
+  27 0008 0E94 0000 		call _pal_lld_init
+  28               	.LVL1:
+  70:../../os/hal/src/hal.c **** #endif
+  71:../../os/hal/src/hal.c **** #if HAL_USE_ADC || defined(__DOXYGEN__)
+  72:../../os/hal/src/hal.c ****   adcInit();
+  29               		.loc 1 72 0
+  30 000c 0E94 0000 		call adcInit
+  31               	.LVL2:
+  73:../../os/hal/src/hal.c **** #endif
+  74:../../os/hal/src/hal.c **** #if HAL_USE_CAN || defined(__DOXYGEN__)
+  75:../../os/hal/src/hal.c ****   canInit();
+  76:../../os/hal/src/hal.c **** #endif
+  77:../../os/hal/src/hal.c **** #if HAL_USE_EXT || defined(__DOXYGEN__)
+  78:../../os/hal/src/hal.c ****   extInit();
+  79:../../os/hal/src/hal.c **** #endif
+  80:../../os/hal/src/hal.c **** #if HAL_USE_GPT || defined(__DOXYGEN__)
+  81:../../os/hal/src/hal.c ****   gptInit();
+  82:../../os/hal/src/hal.c **** #endif
+  83:../../os/hal/src/hal.c **** #if HAL_USE_I2C || defined(__DOXYGEN__)
+  84:../../os/hal/src/hal.c ****   i2cInit();
+  85:../../os/hal/src/hal.c **** #endif
+  86:../../os/hal/src/hal.c **** #if HAL_USE_ICU || defined(__DOXYGEN__)
+  87:../../os/hal/src/hal.c ****   icuInit();
+  88:../../os/hal/src/hal.c **** #endif
+  89:../../os/hal/src/hal.c **** #if HAL_USE_MAC || defined(__DOXYGEN__)
+  90:../../os/hal/src/hal.c ****   macInit();
+  91:../../os/hal/src/hal.c **** #endif
+  92:../../os/hal/src/hal.c **** #if HAL_USE_PWM || defined(__DOXYGEN__)
+  93:../../os/hal/src/hal.c ****   pwmInit();
+  32               		.loc 1 93 0
+  33 0010 0E94 0000 		call pwmInit
+  34               	.LVL3:
+  94:../../os/hal/src/hal.c **** #endif
+  95:../../os/hal/src/hal.c **** #if HAL_USE_SERIAL || defined(__DOXYGEN__)
+  96:../../os/hal/src/hal.c ****   sdInit();
+  35               		.loc 1 96 0
+  36 0014 0E94 0000 		call sdInit
+  37               	.LVL4:
+  97:../../os/hal/src/hal.c **** #endif
+  98:../../os/hal/src/hal.c **** #if HAL_USE_SDC || defined(__DOXYGEN__)
+  99:../../os/hal/src/hal.c ****   sdcInit();
+ 100:../../os/hal/src/hal.c **** #endif
+ 101:../../os/hal/src/hal.c **** #if HAL_USE_SPI || defined(__DOXYGEN__)
+ 102:../../os/hal/src/hal.c ****   spiInit();
+  38               		.loc 1 102 0
+  39 0018 0E94 0000 		call spiInit
+  40               	.LVL5:
+ 103:../../os/hal/src/hal.c **** #endif
+ 104:../../os/hal/src/hal.c **** #if HAL_USE_UART || defined(__DOXYGEN__)
+ 105:../../os/hal/src/hal.c ****   uartInit();
+ 106:../../os/hal/src/hal.c **** #endif
+ 107:../../os/hal/src/hal.c **** #if HAL_USE_USB || defined(__DOXYGEN__)
+ 108:../../os/hal/src/hal.c ****   usbInit();
+ 109:../../os/hal/src/hal.c **** #endif
+ 110:../../os/hal/src/hal.c **** #if HAL_USE_MMC_SPI || defined(__DOXYGEN__)
+ 111:../../os/hal/src/hal.c ****   mmcInit();
+ 112:../../os/hal/src/hal.c **** #endif
+ 113:../../os/hal/src/hal.c **** #if HAL_USE_SERIAL_USB || defined(__DOXYGEN__)
+ 114:../../os/hal/src/hal.c ****   sduInit();
+ 115:../../os/hal/src/hal.c **** #endif
+ 116:../../os/hal/src/hal.c **** #if HAL_USE_RTC || defined(__DOXYGEN__)
+ 117:../../os/hal/src/hal.c ****   rtcInit();
+ 118:../../os/hal/src/hal.c **** #endif
+ 119:../../os/hal/src/hal.c ****   /* Board specific initialization.*/
+ 120:../../os/hal/src/hal.c ****   boardInit();
+  41               		.loc 1 120 0
+  42 001c 0C94 0000 		jmp boardInit
+  43               	.LVL6:
+  44               		.cfi_endproc
+  45               	.LFE7:
+  47               	.Letext0:
+  48               		.file 2 "../../os/hal/platforms/AVR/pal_lld.h"
+  49               		.file 3 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+  50               		.file 4 "../../os/hal/platforms/AVR/hal_lld.h"
+  51               		.file 5 "../../os/hal/include/adc.h"
+  52               		.file 6 "../../os/hal/include/pwm.h"
+  53               		.file 7 "../../os/hal/include/serial.h"
+  54               		.file 8 "../../os/hal/include/spi.h"
+  55               		.file 9 "../../boards/ARDUINO_GENERIC/board.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 hal.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccohwoq9.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccohwoq9.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccohwoq9.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccohwoq9.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccohwoq9.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccohwoq9.s:12     .text:0000000000000000 halInit
+
+UNDEFINED SYMBOLS
+hal_lld_init
+pal_default_config
+_pal_lld_init
+adcInit
+pwmInit
+sdInit
+spiInit
+boardInit

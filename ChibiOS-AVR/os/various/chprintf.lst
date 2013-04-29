@@ -1,0 +1,1443 @@
+   1               		.file	"chprintf.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  11               	long_to_string_with_divisor.constprop.0:
+  12               	.LFB10:
+  13               		.file 1 "../../os/various/chprintf.c"
+   1:../../os/various/chprintf.c **** /*
+   2:../../os/various/chprintf.c ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/various/chprintf.c ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/various/chprintf.c **** 
+   5:../../os/various/chprintf.c ****     This file is part of ChibiOS/RT.
+   6:../../os/various/chprintf.c **** 
+   7:../../os/various/chprintf.c ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/various/chprintf.c ****     it under the terms of the GNU General Public License as published by
+   9:../../os/various/chprintf.c ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/various/chprintf.c ****     (at your option) any later version.
+  11:../../os/various/chprintf.c **** 
+  12:../../os/various/chprintf.c ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/various/chprintf.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/various/chprintf.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/various/chprintf.c ****     GNU General Public License for more details.
+  16:../../os/various/chprintf.c **** 
+  17:../../os/various/chprintf.c ****     You should have received a copy of the GNU General Public License
+  18:../../os/various/chprintf.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/various/chprintf.c **** */
+  20:../../os/various/chprintf.c **** /*
+  21:../../os/various/chprintf.c ****    Concepts and parts of this file have been contributed by Fabio Utzig.
+  22:../../os/various/chprintf.c ****  */
+  23:../../os/various/chprintf.c **** 
+  24:../../os/various/chprintf.c **** /**
+  25:../../os/various/chprintf.c ****  * @file    chprintf.c
+  26:../../os/various/chprintf.c ****  * @brief   Mini printf-like functionality.
+  27:../../os/various/chprintf.c ****  *
+  28:../../os/various/chprintf.c ****  * @addtogroup chprintf
+  29:../../os/various/chprintf.c ****  * @{
+  30:../../os/various/chprintf.c ****  */
+  31:../../os/various/chprintf.c **** 
+  32:../../os/various/chprintf.c **** #include <stdarg.h>
+  33:../../os/various/chprintf.c **** 
+  34:../../os/various/chprintf.c **** #include "ch.h"
+  35:../../os/various/chprintf.c **** #include "chprintf.h"
+  36:../../os/various/chprintf.c **** 
+  37:../../os/various/chprintf.c **** #define MAX_FILLER 11
+  38:../../os/various/chprintf.c **** #define FLOAT_PRECISION 100000
+  39:../../os/various/chprintf.c **** 
+  40:../../os/various/chprintf.c **** static char *long_to_string_with_divisor(char *p,
+  14               		.loc 1 40 0
+  15               		.cfi_startproc
+  16               	.LVL0:
+  17 0000 3F92      		push r3
+  18               	.LCFI0:
+  19               		.cfi_def_cfa_offset 3
+  20               		.cfi_offset 3, -2
+  21 0002 4F92      		push r4
+  22               	.LCFI1:
+  23               		.cfi_def_cfa_offset 4
+  24               		.cfi_offset 4, -3
+  25 0004 5F92      		push r5
+  26               	.LCFI2:
+  27               		.cfi_def_cfa_offset 5
+  28               		.cfi_offset 5, -4
+  29 0006 6F92      		push r6
+  30               	.LCFI3:
+  31               		.cfi_def_cfa_offset 6
+  32               		.cfi_offset 6, -5
+  33 0008 7F92      		push r7
+  34               	.LCFI4:
+  35               		.cfi_def_cfa_offset 7
+  36               		.cfi_offset 7, -6
+  37 000a 8F92      		push r8
+  38               	.LCFI5:
+  39               		.cfi_def_cfa_offset 8
+  40               		.cfi_offset 8, -7
+  41 000c 9F92      		push r9
+  42               	.LCFI6:
+  43               		.cfi_def_cfa_offset 9
+  44               		.cfi_offset 9, -8
+  45 000e AF92      		push r10
+  46               	.LCFI7:
+  47               		.cfi_def_cfa_offset 10
+  48               		.cfi_offset 10, -9
+  49 0010 BF92      		push r11
+  50               	.LCFI8:
+  51               		.cfi_def_cfa_offset 11
+  52               		.cfi_offset 11, -10
+  53 0012 CF92      		push r12
+  54               	.LCFI9:
+  55               		.cfi_def_cfa_offset 12
+  56               		.cfi_offset 12, -11
+  57 0014 DF92      		push r13
+  58               	.LCFI10:
+  59               		.cfi_def_cfa_offset 13
+  60               		.cfi_offset 13, -12
+  61 0016 EF92      		push r14
+  62               	.LCFI11:
+  63               		.cfi_def_cfa_offset 14
+  64               		.cfi_offset 14, -13
+  65 0018 FF92      		push r15
+  66               	.LCFI12:
+  67               		.cfi_def_cfa_offset 15
+  68               		.cfi_offset 15, -14
+  69 001a 0F93      		push r16
+  70               	.LCFI13:
+  71               		.cfi_def_cfa_offset 16
+  72               		.cfi_offset 16, -15
+  73 001c 1F93      		push r17
+  74               	.LCFI14:
+  75               		.cfi_def_cfa_offset 17
+  76               		.cfi_offset 17, -16
+  77 001e CF93      		push r28
+  78               	.LCFI15:
+  79               		.cfi_def_cfa_offset 18
+  80               		.cfi_offset 28, -17
+  81 0020 DF93      		push r29
+  82               	.LCFI16:
+  83               		.cfi_def_cfa_offset 19
+  84               		.cfi_offset 29, -18
+  85 0022 00D0      		rcall .
+  86 0024 00D0      		rcall .
+  87               	.LCFI17:
+  88               		.cfi_def_cfa_offset 23
+  89 0026 CDB7      		in r28,__SP_L__
+  90 0028 DEB7      		in r29,__SP_H__
+  91               	.LCFI18:
+  92               		.cfi_def_cfa_register 28
+  93               	/* prologue: function */
+  94               	/* frame size = 4 */
+  95               	/* stack size = 21 */
+  96               	.L__stack_usage = 21
+  97 002a 9C83      		std Y+4,r25
+  98 002c 8B83      		std Y+3,r24
+  99 002e 2A01      		movw r4,r20
+ 100 0030 3B01      		movw r6,r22
+ 101               	.LVL1:
+  41:../../os/various/chprintf.c ****                                          long num,
+  42:../../os/various/chprintf.c ****                                          unsigned radix,
+  43:../../os/various/chprintf.c ****                                          long divisor) {
+  44:../../os/various/chprintf.c ****   int i;
+  45:../../os/various/chprintf.c ****   char *q;
+  46:../../os/various/chprintf.c ****   long l, ll;
+  47:../../os/various/chprintf.c **** 
+  48:../../os/various/chprintf.c ****   l = num;
+  49:../../os/various/chprintf.c ****   if (divisor == 0) {
+  50:../../os/various/chprintf.c ****     ll = num;
+  51:../../os/various/chprintf.c ****   } else {
+  52:../../os/various/chprintf.c ****     ll = divisor;
+  53:../../os/various/chprintf.c ****   }
+  54:../../os/various/chprintf.c **** 
+  55:../../os/various/chprintf.c ****   q = p + MAX_FILLER;
+ 102               		.loc 1 55 0
+ 103 0032 0B96      		adiw r24,11
+ 104               	.LVL2:
+ 105 0034 9A83      		std Y+2,r25
+ 106 0036 8983      		std Y+1,r24
+ 107               	.LVL3:
+ 108 0038 4901      		movw r8,r18
+ 109 003a A12C      		mov r10,__zero_reg__
+ 110 003c B12C      		mov r11,__zero_reg__
+ 111 003e 6A01      		movw r12,r20
+ 112 0040 7B01      		movw r14,r22
+ 113 0042 8C01      		movw r16,r24
+ 114               	.LVL4:
+ 115               	.L3:
+  56:../../os/various/chprintf.c ****   do {
+  57:../../os/various/chprintf.c ****     i = (int)(l % radix);
+ 116               		.loc 1 57 0
+ 117 0044 B201      		movw r22,r4
+ 118 0046 C301      		movw r24,r6
+ 119 0048 A501      		movw r20,r10
+ 120 004a 9401      		movw r18,r8
+ 121 004c 0E94 0000 		call __divmodsi4
+ 122               	.LVL5:
+  58:../../os/various/chprintf.c ****     i += '0';
+ 123               		.loc 1 58 0
+ 124 0050 CB01      		movw r24,r22
+ 125 0052 C096      		adiw r24,48
+ 126               	.LVL6:
+  59:../../os/various/chprintf.c ****     if (i > '9')
+ 127               		.loc 1 59 0
+ 128 0054 8A33      		cpi r24,58
+ 129 0056 9105      		cpc r25,__zero_reg__
+ 130 0058 04F0      		brlt .L2
+  60:../../os/various/chprintf.c ****       i += 'A' - '0' - 10;
+ 131               		.loc 1 60 0
+ 132 005a CB01      		movw r24,r22
+ 133               	.LVL7:
+ 134 005c C796      		adiw r24,55
+ 135               	.LVL8:
+ 136               	.L2:
+  61:../../os/various/chprintf.c ****     *--q = i;
+ 137               		.loc 1 61 0
+ 138 005e 382E      		mov r3,r24
+ 139 0060 D801      		movw r26,r16
+ 140 0062 8E93      		st -X,r24
+ 141 0064 8D01      		movw r16,r26
+ 142               	.LVL9:
+  62:../../os/various/chprintf.c ****     l /= radix;
+ 143               		.loc 1 62 0
+ 144 0066 B201      		movw r22,r4
+ 145 0068 C301      		movw r24,r6
+ 146 006a A501      		movw r20,r10
+ 147 006c 9401      		movw r18,r8
+ 148 006e 0E94 0000 		call __divmodsi4
+ 149 0072 2901      		movw r4,r18
+ 150               	.LVL10:
+ 151 0074 3A01      		movw r6,r20
+ 152               	.LVL11:
+  63:../../os/various/chprintf.c ****   } while ((ll /= radix) != 0);
+ 153               		.loc 1 63 0
+ 154 0076 C701      		movw r24,r14
+ 155 0078 B601      		movw r22,r12
+ 156 007a A501      		movw r20,r10
+ 157 007c 9401      		movw r18,r8
+ 158 007e 0E94 0000 		call __divmodsi4
+ 159 0082 6901      		movw r12,r18
+ 160 0084 7A01      		movw r14,r20
+ 161               	.LVL12:
+ 162 0086 2115      		cp r18,__zero_reg__
+ 163 0088 3105      		cpc r19,__zero_reg__
+ 164 008a 4105      		cpc r20,__zero_reg__
+ 165 008c 5105      		cpc r21,__zero_reg__
+ 166 008e 01F4      		brne .L3
+ 167               	.LVL13:
+  40:../../os/various/chprintf.c **** static char *long_to_string_with_divisor(char *p,
+ 168               		.loc 1 40 0
+ 169 0090 F801      		movw r30,r16
+ 170 0092 3196      		adiw r30,1
+  64:../../os/various/chprintf.c **** 
+  65:../../os/various/chprintf.c ****   i = (int)(p + MAX_FILLER - q);
+ 171               		.loc 1 65 0
+ 172 0094 8981      		ldd r24,Y+1
+ 173 0096 9A81      		ldd r25,Y+2
+ 174 0098 801B      		sub r24,r16
+ 175 009a 910B      		sbc r25,r17
+ 176               	.LVL14:
+  40:../../os/various/chprintf.c **** static char *long_to_string_with_divisor(char *p,
+ 177               		.loc 1 40 0
+ 178 009c 2B81      		ldd r18,Y+3
+ 179 009e 3C81      		ldd r19,Y+4
+ 180 00a0 820F      		add r24,r18
+ 181 00a2 931F      		adc r25,r19
+ 182               	.LVL15:
+ 183 00a4 00C0      		rjmp .L5
+ 184               	.LVL16:
+ 185               	.L8:
+ 186 00a6 3190      		ld r3,Z+
+ 187               	.LVL17:
+ 188               	.L5:
+  66:../../os/various/chprintf.c ****   do
+  67:../../os/various/chprintf.c ****     *p++ = *q++;
+ 189               		.loc 1 67 0
+ 190 00a8 AB81      		ldd r26,Y+3
+ 191 00aa BC81      		ldd r27,Y+4
+ 192 00ac 3D92      		st X+,r3
+ 193 00ae BC83      		std Y+4,r27
+ 194 00b0 AB83      		std Y+3,r26
+ 195               	.LVL18:
+  68:../../os/various/chprintf.c ****   while (--i);
+ 196               		.loc 1 68 0
+ 197 00b2 A817      		cp r26,r24
+ 198 00b4 B907      		cpc r27,r25
+ 199 00b6 01F4      		brne .L8
+  69:../../os/various/chprintf.c **** 
+  70:../../os/various/chprintf.c ****   return p;
+  71:../../os/various/chprintf.c **** }
+ 200               		.loc 1 71 0
+ 201 00b8 8B81      		ldd r24,Y+3
+ 202 00ba 9C81      		ldd r25,Y+4
+ 203               	/* epilogue start */
+ 204 00bc 0F90      		pop __tmp_reg__
+ 205 00be 0F90      		pop __tmp_reg__
+ 206 00c0 0F90      		pop __tmp_reg__
+ 207 00c2 0F90      		pop __tmp_reg__
+ 208 00c4 DF91      		pop r29
+ 209 00c6 CF91      		pop r28
+ 210 00c8 1F91      		pop r17
+ 211 00ca 0F91      		pop r16
+ 212 00cc FF90      		pop r15
+ 213 00ce EF90      		pop r14
+ 214 00d0 DF90      		pop r13
+ 215 00d2 CF90      		pop r12
+ 216               	.LVL19:
+ 217 00d4 BF90      		pop r11
+ 218 00d6 AF90      		pop r10
+ 219 00d8 9F90      		pop r9
+ 220 00da 8F90      		pop r8
+ 221               	.LVL20:
+ 222 00dc 7F90      		pop r7
+ 223               	.LVL21:
+ 224 00de 6F90      		pop r6
+ 225               	.LVL22:
+ 226 00e0 5F90      		pop r5
+ 227 00e2 4F90      		pop r4
+ 228 00e4 3F90      		pop r3
+ 229 00e6 0895      		ret
+ 230               		.cfi_endproc
+ 231               	.LFE10:
+ 233               		.section	.rodata.str1.1,"aMS",@progbits,1
+ 234               	.LC0:
+ 235 0000 286E 756C 		.string	"(null)"
+ 235      6C29 00
+ 236               		.text
+ 237               	.global	chprintf
+ 239               	chprintf:
+ 240               	.LFB9:
+  72:../../os/various/chprintf.c **** 
+  73:../../os/various/chprintf.c **** static char *ltoa(char *p, long num, unsigned radix) {
+  74:../../os/various/chprintf.c **** 
+  75:../../os/various/chprintf.c ****   return long_to_string_with_divisor(p, num, radix, 0);
+  76:../../os/various/chprintf.c **** }
+  77:../../os/various/chprintf.c **** 
+  78:../../os/various/chprintf.c **** #if CHPRINTF_USE_FLOAT
+  79:../../os/various/chprintf.c **** static char *ftoa(char *p, double num) {
+  80:../../os/various/chprintf.c ****   long l;
+  81:../../os/various/chprintf.c ****   unsigned long precision = FLOAT_PRECISION;
+  82:../../os/various/chprintf.c **** 
+  83:../../os/various/chprintf.c ****   l = num;
+  84:../../os/various/chprintf.c ****   p = long_to_string_with_divisor(p, l, 10, 0);
+  85:../../os/various/chprintf.c ****   *p++ = '.';
+  86:../../os/various/chprintf.c ****   l = (num - l) * precision;
+  87:../../os/various/chprintf.c ****   return long_to_string_with_divisor(p, l, 10, precision / 10);
+  88:../../os/various/chprintf.c **** }
+  89:../../os/various/chprintf.c **** #endif
+  90:../../os/various/chprintf.c **** 
+  91:../../os/various/chprintf.c **** /**
+  92:../../os/various/chprintf.c ****  * @brief   System formatted output function.
+  93:../../os/various/chprintf.c ****  * @details This function implements a minimal @p printf() like functionality
+  94:../../os/various/chprintf.c ****  *          with output on a @p BaseSequentialStream.
+  95:../../os/various/chprintf.c ****  *          The general parameters format is: %[-][width|*][.precision|*][l|L]p.
+  96:../../os/various/chprintf.c ****  *          The following parameter types (p) are supported:
+  97:../../os/various/chprintf.c ****  *          - <b>x</b> hexadecimal integer.
+  98:../../os/various/chprintf.c ****  *          - <b>X</b> hexadecimal long.
+  99:../../os/various/chprintf.c ****  *          - <b>o</b> octal integer.
+ 100:../../os/various/chprintf.c ****  *          - <b>O</b> octal long.
+ 101:../../os/various/chprintf.c ****  *          - <b>d</b> decimal signed integer.
+ 102:../../os/various/chprintf.c ****  *          - <b>D</b> decimal signed long.
+ 103:../../os/various/chprintf.c ****  *          - <b>u</b> decimal unsigned integer.
+ 104:../../os/various/chprintf.c ****  *          - <b>U</b> decimal unsigned long.
+ 105:../../os/various/chprintf.c ****  *          - <b>c</b> character.
+ 106:../../os/various/chprintf.c ****  *          - <b>s</b> string.
+ 107:../../os/various/chprintf.c ****  *          .
+ 108:../../os/various/chprintf.c ****  *
+ 109:../../os/various/chprintf.c ****  * @param[in] chp       pointer to a @p BaseSequentialStream implementing object
+ 110:../../os/various/chprintf.c ****  * @param[in] fmt       formatting string
+ 111:../../os/various/chprintf.c ****  */
+ 112:../../os/various/chprintf.c **** void chprintf(BaseSequentialStream *chp, const char *fmt, ...) {
+ 241               		.loc 1 112 0
+ 242               		.cfi_startproc
+ 243               	.LVL23:
+ 244 00e8 2F92      		push r2
+ 245               	.LCFI19:
+ 246               		.cfi_def_cfa_offset 3
+ 247               		.cfi_offset 2, -2
+ 248 00ea 3F92      		push r3
+ 249               	.LCFI20:
+ 250               		.cfi_def_cfa_offset 4
+ 251               		.cfi_offset 3, -3
+ 252 00ec 4F92      		push r4
+ 253               	.LCFI21:
+ 254               		.cfi_def_cfa_offset 5
+ 255               		.cfi_offset 4, -4
+ 256 00ee 5F92      		push r5
+ 257               	.LCFI22:
+ 258               		.cfi_def_cfa_offset 6
+ 259               		.cfi_offset 5, -5
+ 260 00f0 6F92      		push r6
+ 261               	.LCFI23:
+ 262               		.cfi_def_cfa_offset 7
+ 263               		.cfi_offset 6, -6
+ 264 00f2 7F92      		push r7
+ 265               	.LCFI24:
+ 266               		.cfi_def_cfa_offset 8
+ 267               		.cfi_offset 7, -7
+ 268 00f4 8F92      		push r8
+ 269               	.LCFI25:
+ 270               		.cfi_def_cfa_offset 9
+ 271               		.cfi_offset 8, -8
+ 272 00f6 9F92      		push r9
+ 273               	.LCFI26:
+ 274               		.cfi_def_cfa_offset 10
+ 275               		.cfi_offset 9, -9
+ 276 00f8 AF92      		push r10
+ 277               	.LCFI27:
+ 278               		.cfi_def_cfa_offset 11
+ 279               		.cfi_offset 10, -10
+ 280 00fa BF92      		push r11
+ 281               	.LCFI28:
+ 282               		.cfi_def_cfa_offset 12
+ 283               		.cfi_offset 11, -11
+ 284 00fc CF92      		push r12
+ 285               	.LCFI29:
+ 286               		.cfi_def_cfa_offset 13
+ 287               		.cfi_offset 12, -12
+ 288 00fe DF92      		push r13
+ 289               	.LCFI30:
+ 290               		.cfi_def_cfa_offset 14
+ 291               		.cfi_offset 13, -13
+ 292 0100 EF92      		push r14
+ 293               	.LCFI31:
+ 294               		.cfi_def_cfa_offset 15
+ 295               		.cfi_offset 14, -14
+ 296 0102 FF92      		push r15
+ 297               	.LCFI32:
+ 298               		.cfi_def_cfa_offset 16
+ 299               		.cfi_offset 15, -15
+ 300 0104 0F93      		push r16
+ 301               	.LCFI33:
+ 302               		.cfi_def_cfa_offset 17
+ 303               		.cfi_offset 16, -16
+ 304 0106 1F93      		push r17
+ 305               	.LCFI34:
+ 306               		.cfi_def_cfa_offset 18
+ 307               		.cfi_offset 17, -17
+ 308 0108 CF93      		push r28
+ 309               	.LCFI35:
+ 310               		.cfi_def_cfa_offset 19
+ 311               		.cfi_offset 28, -18
+ 312 010a DF93      		push r29
+ 313               	.LCFI36:
+ 314               		.cfi_def_cfa_offset 20
+ 315               		.cfi_offset 29, -19
+ 316 010c CDB7      		in r28,__SP_L__
+ 317 010e DEB7      		in r29,__SP_H__
+ 318               	.LCFI37:
+ 319               		.cfi_def_cfa_register 28
+ 320 0110 6097      		sbiw r28,16
+ 321               	.LCFI38:
+ 322               		.cfi_def_cfa_offset 36
+ 323 0112 0FB6      		in __tmp_reg__,__SREG__
+ 324 0114 F894      		cli
+ 325 0116 DEBF      		out __SP_H__,r29
+ 326 0118 0FBE      		out __SREG__,__tmp_reg__
+ 327 011a CDBF      		out __SP_L__,r28
+ 328               	/* prologue: function */
+ 329               	/* frame size = 16 */
+ 330               	/* stack size = 34 */
+ 331               	.L__stack_usage = 34
+ 332 011c CDA0      		ldd r12,Y+37
+ 333 011e DEA0      		ldd r13,Y+38
+ 334 0120 EFA0      		ldd r14,Y+39
+ 335 0122 F8A4      		ldd r15,Y+40
+ 113:../../os/various/chprintf.c ****   va_list ap;
+ 114:../../os/various/chprintf.c ****   char *p, *s, c, filler;
+ 115:../../os/various/chprintf.c ****   int i, precision, width;
+ 116:../../os/various/chprintf.c ****   bool_t is_long, left_align;
+ 117:../../os/various/chprintf.c ****   long l;
+ 118:../../os/various/chprintf.c **** #if CHPRINTF_USE_FLOAT
+ 119:../../os/various/chprintf.c ****   float f;
+ 120:../../os/various/chprintf.c ****   char tmpbuf[2*MAX_FILLER + 1];
+ 121:../../os/various/chprintf.c **** #else
+ 122:../../os/various/chprintf.c ****   char tmpbuf[MAX_FILLER + 1];
+ 123:../../os/various/chprintf.c **** #endif
+ 124:../../os/various/chprintf.c **** 
+ 125:../../os/various/chprintf.c ****   va_start(ap, fmt);
+ 336               		.loc 1 125 0
+ 337 0124 5E01      		movw r10,r28
+ 338 0126 29E2      		ldi r18,41
+ 339 0128 A20E      		add r10,r18
+ 340 012a B11C      		adc r11,__zero_reg__
+ 126:../../os/various/chprintf.c ****   while (TRUE) {
+ 127:../../os/various/chprintf.c ****     c = *fmt++;
+ 128:../../os/various/chprintf.c ****     if (c == 0) {
+ 129:../../os/various/chprintf.c ****       va_end(ap);
+ 130:../../os/various/chprintf.c ****       return;
+ 131:../../os/various/chprintf.c ****     }
+ 132:../../os/various/chprintf.c ****     if (c != '%') {
+ 133:../../os/various/chprintf.c ****       chSequentialStreamPut(chp, (uint8_t)c);
+ 134:../../os/various/chprintf.c ****       continue;
+ 135:../../os/various/chprintf.c ****     }
+ 136:../../os/various/chprintf.c ****     p = tmpbuf;
+ 137:../../os/various/chprintf.c ****     s = tmpbuf;
+ 138:../../os/various/chprintf.c ****     left_align = FALSE;
+ 139:../../os/various/chprintf.c ****     if (*fmt == '-') {
+ 140:../../os/various/chprintf.c ****       fmt++;
+ 141:../../os/various/chprintf.c ****       left_align = TRUE;
+ 142:../../os/various/chprintf.c ****     }
+ 143:../../os/various/chprintf.c ****     filler = ' ';
+ 144:../../os/various/chprintf.c ****     if (*fmt == '.') {
+ 145:../../os/various/chprintf.c ****       fmt++;
+ 146:../../os/various/chprintf.c ****       filler = '0';
+ 147:../../os/various/chprintf.c ****     }
+ 148:../../os/various/chprintf.c ****     width = 0;
+ 149:../../os/various/chprintf.c ****     while (TRUE) {
+ 150:../../os/various/chprintf.c ****       c = *fmt++;
+ 151:../../os/various/chprintf.c ****       if (c >= '0' && c <= '9')
+ 152:../../os/various/chprintf.c ****         c -= '0';
+ 153:../../os/various/chprintf.c ****       else if (c == '*')
+ 154:../../os/various/chprintf.c ****         c = va_arg(ap, int);
+ 155:../../os/various/chprintf.c ****       else
+ 156:../../os/various/chprintf.c ****         break;
+ 157:../../os/various/chprintf.c ****       width = width * 10 + c;
+ 158:../../os/various/chprintf.c ****     }
+ 159:../../os/various/chprintf.c ****     precision = 0;
+ 160:../../os/various/chprintf.c ****     if (c == '.') {
+ 161:../../os/various/chprintf.c ****       while (TRUE) {
+ 162:../../os/various/chprintf.c ****         c = *fmt++;
+ 163:../../os/various/chprintf.c ****         if (c >= '0' && c <= '9')
+ 164:../../os/various/chprintf.c ****           c -= '0';
+ 165:../../os/various/chprintf.c ****         else if (c == '*')
+ 166:../../os/various/chprintf.c ****           c = va_arg(ap, int);
+ 167:../../os/various/chprintf.c ****         else
+ 168:../../os/various/chprintf.c ****           break;
+ 169:../../os/various/chprintf.c ****         precision *= 10;
+ 170:../../os/various/chprintf.c ****         precision += c;
+ 171:../../os/various/chprintf.c ****       }
+ 172:../../os/various/chprintf.c ****     }
+ 173:../../os/various/chprintf.c ****     /* Long modifier.*/
+ 174:../../os/various/chprintf.c ****     if (c == 'l' || c == 'L') {
+ 175:../../os/various/chprintf.c ****       is_long = TRUE;
+ 176:../../os/various/chprintf.c ****       if (*fmt)
+ 177:../../os/various/chprintf.c ****         c = *fmt++;
+ 178:../../os/various/chprintf.c ****     }
+ 179:../../os/various/chprintf.c ****     else
+ 180:../../os/various/chprintf.c ****       is_long = (c >= 'A') && (c <= 'Z');
+ 181:../../os/various/chprintf.c **** 
+ 182:../../os/various/chprintf.c ****     /* Command decoding.*/
+ 183:../../os/various/chprintf.c ****     switch (c) {
+ 184:../../os/various/chprintf.c ****     case 'c':
+ 185:../../os/various/chprintf.c ****       filler = ' ';
+ 186:../../os/various/chprintf.c ****       *p++ = va_arg(ap, int);
+ 187:../../os/various/chprintf.c ****       break;
+ 188:../../os/various/chprintf.c ****     case 's':
+ 189:../../os/various/chprintf.c ****       filler = ' ';
+ 190:../../os/various/chprintf.c ****       if ((s = va_arg(ap, char *)) == 0)
+ 191:../../os/various/chprintf.c ****         s = "(null)";
+ 192:../../os/various/chprintf.c ****       if (precision == 0)
+ 193:../../os/various/chprintf.c ****         precision = 32767;
+ 194:../../os/various/chprintf.c ****       for (p = s; *p && (--precision >= 0); p++)
+ 195:../../os/various/chprintf.c ****         ;
+ 196:../../os/various/chprintf.c ****       break;
+ 197:../../os/various/chprintf.c ****     case 'D':
+ 198:../../os/various/chprintf.c ****     case 'd':
+ 199:../../os/various/chprintf.c ****       if (is_long)
+ 200:../../os/various/chprintf.c ****         l = va_arg(ap, long);
+ 201:../../os/various/chprintf.c ****       else
+ 202:../../os/various/chprintf.c ****         l = va_arg(ap, int);
+ 203:../../os/various/chprintf.c ****       if (l < 0) {
+ 204:../../os/various/chprintf.c ****         *p++ = '-';
+ 205:../../os/various/chprintf.c ****         l = -l;
+ 206:../../os/various/chprintf.c ****       }
+ 207:../../os/various/chprintf.c ****       p = ltoa(p, l, 10);
+ 208:../../os/various/chprintf.c ****       break;
+ 209:../../os/various/chprintf.c **** #if CHPRINTF_USE_FLOAT
+ 210:../../os/various/chprintf.c ****     case 'f':
+ 211:../../os/various/chprintf.c ****       f = (float) va_arg(ap, double);
+ 212:../../os/various/chprintf.c ****       if (f < 0) {
+ 213:../../os/various/chprintf.c ****         *p++ = '-';
+ 214:../../os/various/chprintf.c ****         f = -f;
+ 215:../../os/various/chprintf.c ****       }
+ 216:../../os/various/chprintf.c ****       p = ftoa(p, f);
+ 217:../../os/various/chprintf.c ****       break;
+ 218:../../os/various/chprintf.c **** #endif
+ 219:../../os/various/chprintf.c ****     case 'X':
+ 220:../../os/various/chprintf.c ****     case 'x':
+ 221:../../os/various/chprintf.c ****       c = 16;
+ 222:../../os/various/chprintf.c ****       goto unsigned_common;
+ 223:../../os/various/chprintf.c ****     case 'U':
+ 224:../../os/various/chprintf.c ****     case 'u':
+ 225:../../os/various/chprintf.c ****       c = 10;
+ 226:../../os/various/chprintf.c ****       goto unsigned_common;
+ 227:../../os/various/chprintf.c ****     case 'O':
+ 228:../../os/various/chprintf.c ****     case 'o':
+ 229:../../os/various/chprintf.c ****       c = 8;
+ 230:../../os/various/chprintf.c **** unsigned_common:
+ 231:../../os/various/chprintf.c ****       if (is_long)
+ 232:../../os/various/chprintf.c ****         l = va_arg(ap, long);
+ 233:../../os/various/chprintf.c ****       else
+ 234:../../os/various/chprintf.c ****         l = va_arg(ap, int);
+ 235:../../os/various/chprintf.c ****       p = ltoa(p, l, c);
+ 236:../../os/various/chprintf.c ****       break;
+ 237:../../os/various/chprintf.c ****     default:
+ 238:../../os/various/chprintf.c ****       *p++ = c;
+ 341               		.loc 1 238 0
+ 342 012c CE01      		movw r24,r28
+ 343 012e 0296      		adiw r24,2
+ 344 0130 9E87      		std Y+14,r25
+ 345 0132 8D87      		std Y+13,r24
+ 346 0134 2224      		clr r2
+ 347 0136 2394      		inc r2
+ 348 0138 312C      		mov r3,__zero_reg__
+ 349 013a 2C0E      		add r2,r28
+ 350 013c 3D1E      		adc r3,r29
+ 351 013e 8219      		sub r24,r2
+ 352 0140 9309      		sbc r25,r3
+ 353 0142 988B      		std Y+16,r25
+ 354 0144 8F87      		std Y+15,r24
+ 355               	.LVL24:
+ 356               	.L102:
+ 127:../../os/various/chprintf.c ****     c = *fmt++;
+ 357               		.loc 1 127 0
+ 358 0146 D701      		movw r26,r14
+ 359 0148 6D91      		ld r22,X+
+ 360 014a 8D01      		movw r16,r26
+ 361               	.LVL25:
+ 128:../../os/various/chprintf.c ****     if (c == 0) {
+ 362               		.loc 1 128 0
+ 363 014c 6623      		tst r22
+ 364 014e 01F0      		breq .L101
+ 365               	.L106:
+ 132:../../os/various/chprintf.c ****     if (c != '%') {
+ 366               		.loc 1 132 0
+ 367 0150 6532      		cpi r22,lo8(37)
+ 368 0152 01F0      		breq .L12
+ 133:../../os/various/chprintf.c ****       chSequentialStreamPut(chp, (uint8_t)c);
+ 369               		.loc 1 133 0
+ 370 0154 D601      		movw r26,r12
+ 371 0156 ED91      		ld r30,X+
+ 372 0158 FC91      		ld r31,X
+ 373 015a 0480      		ldd __tmp_reg__,Z+4
+ 374 015c F581      		ldd r31,Z+5
+ 375 015e E02D      		mov r30,__tmp_reg__
+ 376 0160 C601      		movw r24,r12
+ 377 0162 0995      		icall
+ 378               	.LVL26:
+ 127:../../os/various/chprintf.c ****     c = *fmt++;
+ 379               		.loc 1 127 0
+ 380 0164 7801      		movw r14,r16
+ 381               	.LVL27:
+ 382 0166 D701      		movw r26,r14
+ 383 0168 6D91      		ld r22,X+
+ 384 016a 8D01      		movw r16,r26
+ 385               	.LVL28:
+ 128:../../os/various/chprintf.c ****     if (c == 0) {
+ 386               		.loc 1 128 0
+ 387 016c 6111      		cpse r22,__zero_reg__
+ 388 016e 00C0      		rjmp .L106
+ 389               	.L101:
+ 390               	/* epilogue start */
+ 239:../../os/various/chprintf.c ****       break;
+ 240:../../os/various/chprintf.c ****     }
+ 241:../../os/various/chprintf.c ****     i = (int)(p - s);
+ 242:../../os/various/chprintf.c ****     if ((width -= i) < 0)
+ 243:../../os/various/chprintf.c ****       width = 0;
+ 244:../../os/various/chprintf.c ****     if (left_align == FALSE)
+ 245:../../os/various/chprintf.c ****       width = -width;
+ 246:../../os/various/chprintf.c ****     if (width < 0) {
+ 247:../../os/various/chprintf.c ****       if (*s == '-' && filler == '0') {
+ 248:../../os/various/chprintf.c ****         chSequentialStreamPut(chp, (uint8_t)*s++);
+ 249:../../os/various/chprintf.c ****         i--;
+ 250:../../os/various/chprintf.c ****       }
+ 251:../../os/various/chprintf.c ****       do
+ 252:../../os/various/chprintf.c ****         chSequentialStreamPut(chp, (uint8_t)filler);
+ 253:../../os/various/chprintf.c ****       while (++width != 0);
+ 254:../../os/various/chprintf.c ****     }
+ 255:../../os/various/chprintf.c ****     while (--i >= 0)
+ 256:../../os/various/chprintf.c ****       chSequentialStreamPut(chp, (uint8_t)*s++);
+ 257:../../os/various/chprintf.c **** 
+ 258:../../os/various/chprintf.c ****     while (width) {
+ 259:../../os/various/chprintf.c ****       chSequentialStreamPut(chp, (uint8_t)filler);
+ 260:../../os/various/chprintf.c ****       width--;
+ 261:../../os/various/chprintf.c ****     }
+ 262:../../os/various/chprintf.c ****   }
+ 263:../../os/various/chprintf.c **** }
+ 391               		.loc 1 263 0
+ 392 0170 6096      		adiw r28,16
+ 393 0172 0FB6      		in __tmp_reg__,__SREG__
+ 394 0174 F894      		cli
+ 395 0176 DEBF      		out __SP_H__,r29
+ 396 0178 0FBE      		out __SREG__,__tmp_reg__
+ 397 017a CDBF      		out __SP_L__,r28
+ 398 017c DF91      		pop r29
+ 399 017e CF91      		pop r28
+ 400 0180 1F91      		pop r17
+ 401 0182 0F91      		pop r16
+ 402               	.LVL29:
+ 403 0184 FF90      		pop r15
+ 404 0186 EF90      		pop r14
+ 405 0188 DF90      		pop r13
+ 406 018a CF90      		pop r12
+ 407 018c BF90      		pop r11
+ 408 018e AF90      		pop r10
+ 409               	.LVL30:
+ 410 0190 9F90      		pop r9
+ 411 0192 8F90      		pop r8
+ 412 0194 7F90      		pop r7
+ 413 0196 6F90      		pop r6
+ 414 0198 5F90      		pop r5
+ 415 019a 4F90      		pop r4
+ 416 019c 3F90      		pop r3
+ 417 019e 2F90      		pop r2
+ 418 01a0 0895      		ret
+ 419               	.LVL31:
+ 420               	.L12:
+ 139:../../os/various/chprintf.c ****     if (*fmt == '-') {
+ 421               		.loc 1 139 0
+ 422 01a2 F701      		movw r30,r14
+ 423 01a4 2181      		ldd r18,Z+1
+ 424 01a6 2D32      		cpi r18,lo8(45)
+ 425 01a8 01F4      		brne .+2
+ 426 01aa 00C0      		rjmp .L107
+ 138:../../os/various/chprintf.c ****     left_align = FALSE;
+ 427               		.loc 1 138 0
+ 428 01ac 412C      		mov r4,__zero_reg__
+ 429               	.LVL32:
+ 430               	.L14:
+ 144:../../os/various/chprintf.c ****     if (*fmt == '.') {
+ 431               		.loc 1 144 0
+ 432 01ae 2E32      		cpi r18,lo8(46)
+ 433 01b0 01F4      		brne .+2
+ 434 01b2 00C0      		rjmp .L108
+ 143:../../os/various/chprintf.c ****     filler = ' ';
+ 435               		.loc 1 143 0
+ 436 01b4 B0E2      		ldi r27,lo8(32)
+ 437 01b6 5B2E      		mov r5,r27
+ 438               	.LVL33:
+ 439               	.L15:
+ 112:../../os/various/chprintf.c **** void chprintf(BaseSequentialStream *chp, const char *fmt, ...) {
+ 440               		.loc 1 112 0
+ 441 01b8 F801      		movw r30,r16
+ 442 01ba 3196      		adiw r30,1
+ 443 01bc 7801      		movw r14,r16
+ 148:../../os/various/chprintf.c ****     width = 0;
+ 444               		.loc 1 148 0
+ 445 01be 00E0      		ldi r16,0
+ 446 01c0 10E0      		ldi r17,0
+ 447               	.LVL34:
+ 448 01c2 00C0      		rjmp .L18
+ 449               	.LVL35:
+ 450               	.L109:
+ 154:../../os/various/chprintf.c ****         c = va_arg(ap, int);
+ 451               		.loc 1 154 0
+ 452 01c4 D501      		movw r26,r10
+ 453 01c6 3C91      		ld r19,X
+ 454               	.LVL36:
+ 455 01c8 82E0      		ldi r24,2
+ 456 01ca A80E      		add r10,r24
+ 457 01cc B11C      		adc r11,__zero_reg__
+ 458               	.LVL37:
+ 459               	.L16:
+ 157:../../os/various/chprintf.c ****       width = width * 10 + c;
+ 460               		.loc 1 157 0
+ 461 01ce C801      		movw r24,r16
+ 462 01d0 880F      		lsl r24
+ 463 01d2 991F      		rol r25
+ 464 01d4 000F      		lsl r16
+ 465 01d6 111F      		rol r17
+ 466 01d8 000F      		lsl r16
+ 467 01da 111F      		rol r17
+ 468 01dc 000F      		lsl r16
+ 469 01de 111F      		rol r17
+ 470               	.LVL38:
+ 471 01e0 080F      		add r16,r24
+ 472 01e2 191F      		adc r17,r25
+ 473 01e4 030F      		add r16,r19
+ 474 01e6 111D      		adc r17,__zero_reg__
+ 475               	.LVL39:
+ 476 01e8 2191      		ld r18,Z+
+ 477               	.LVL40:
+ 478               	.L18:
+ 150:../../os/various/chprintf.c ****       c = *fmt++;
+ 479               		.loc 1 150 0
+ 480 01ea BFEF      		ldi r27,-1
+ 481 01ec EB1A      		sub r14,r27
+ 482 01ee FB0A      		sbc r15,r27
+ 483               	.LVL41:
+ 151:../../os/various/chprintf.c ****       if (c >= '0' && c <= '9')
+ 484               		.loc 1 151 0
+ 485 01f0 322F      		mov r19,r18
+ 486 01f2 3053      		subi r19,lo8(-(-48))
+ 487 01f4 3A30      		cpi r19,lo8(10)
+ 488 01f6 00F0      		brlo .L16
+ 153:../../os/various/chprintf.c ****       else if (c == '*')
+ 489               		.loc 1 153 0
+ 490 01f8 2A32      		cpi r18,lo8(42)
+ 491 01fa 01F0      		breq .L109
+ 492 01fc F501      		movw r30,r10
+ 493               	.LVL42:
+ 160:../../os/various/chprintf.c ****     if (c == '.') {
+ 494               		.loc 1 160 0
+ 495 01fe 2E32      		cpi r18,lo8(46)
+ 496 0200 01F4      		brne .+2
+ 497 0202 00C0      		rjmp .L110
+ 159:../../os/various/chprintf.c ****     precision = 0;
+ 498               		.loc 1 159 0
+ 499 0204 80E0      		ldi r24,0
+ 500 0206 90E0      		ldi r25,0
+ 501               	.LVL43:
+ 502               	.L19:
+ 174:../../os/various/chprintf.c ****     if (c == 'l' || c == 'L') {
+ 503               		.loc 1 174 0
+ 504 0208 2C36      		cpi r18,lo8(108)
+ 505 020a 01F4      		brne .+2
+ 506 020c 00C0      		rjmp .L23
+ 174:../../os/various/chprintf.c ****     if (c == 'l' || c == 'L') {
+ 507               		.loc 1 174 0 is_stmt 0 discriminator 1
+ 508 020e 2C34      		cpi r18,lo8(76)
+ 509 0210 01F4      		brne .+2
+ 510 0212 00C0      		rjmp .L23
+ 180:../../os/various/chprintf.c ****       is_long = (c >= 'A') && (c <= 'Z');
+ 511               		.loc 1 180 0 is_stmt 1
+ 512 0214 322F      		mov r19,r18
+ 513 0216 3154      		subi r19,lo8(-(-65))
+ 514 0218 41E0      		ldi r20,lo8(1)
+ 515 021a 3A31      		cpi r19,lo8(26)
+ 516 021c 00F0      		brlo .L25
+ 517 021e 40E0      		ldi r20,0
+ 518               	.LVL44:
+ 519               	.L25:
+ 183:../../os/various/chprintf.c ****     switch (c) {
+ 520               		.loc 1 183 0
+ 521 0220 2336      		cpi r18,lo8(99)
+ 522 0222 01F4      		brne .+2
+ 523 0224 00C0      		rjmp .L32
+ 524               	.L116:
+ 525 0226 2436      		cpi r18,lo8(100)
+ 526 0228 00F0      		brlo .+2
+ 527 022a 00C0      		rjmp .L34
+ 528 022c 2F34      		cpi r18,lo8(79)
+ 529 022e 01F4      		brne .+2
+ 530 0230 00C0      		rjmp .L29
+ 531 0232 00F0      		brlo .+2
+ 532 0234 00C0      		rjmp .L35
+ 533 0236 2434      		cpi r18,lo8(68)
+ 534 0238 01F4      		brne .+2
+ 535 023a 00C0      		rjmp .L28
+ 536               	.L27:
+ 238:../../os/various/chprintf.c ****       *p++ = c;
+ 537               		.loc 1 238 0
+ 538 023c 2983      		std Y+1,r18
+ 539 023e 6F84      		ldd r6,Y+15
+ 540 0240 7888      		ldd r7,Y+16
+ 137:../../os/various/chprintf.c ****     s = tmpbuf;
+ 541               		.loc 1 137 0
+ 542 0242 4101      		movw r8,r2
+ 543               	.LVL45:
+ 544               	.L37:
+ 242:../../os/various/chprintf.c ****     if ((width -= i) < 0)
+ 545               		.loc 1 242 0
+ 546 0244 0619      		sub r16,r6
+ 547 0246 1709      		sbc r17,r7
+ 548               	.LVL46:
+ 549 0248 17FD      		sbrc r17,7
+ 550 024a 00C0      		rjmp .L111
+ 551               	.L47:
+ 552               	.LVL47:
+ 244:../../os/various/chprintf.c ****     if (left_align == FALSE)
+ 553               		.loc 1 244 0
+ 554 024c 4110      		cpse r4,__zero_reg__
+ 555 024e 00C0      		rjmp .L48
+ 245:../../os/various/chprintf.c ****       width = -width;
+ 556               		.loc 1 245 0
+ 557 0250 1195      		neg r17
+ 558 0252 0195      		neg r16
+ 559 0254 1109      		sbc r17,__zero_reg__
+ 560               	.LVL48:
+ 246:../../os/various/chprintf.c ****     if (width < 0) {
+ 561               		.loc 1 246 0
+ 562 0256 01F0      		breq .L48
+ 247:../../os/various/chprintf.c ****       if (*s == '-' && filler == '0') {
+ 563               		.loc 1 247 0
+ 564 0258 D401      		movw r26,r8
+ 565 025a 8C91      		ld r24,X
+ 566 025c 8D32      		cpi r24,lo8(45)
+ 567 025e 01F4      		brne .+2
+ 568 0260 00C0      		rjmp .L112
+ 569               	.L86:
+ 252:../../os/various/chprintf.c ****         chSequentialStreamPut(chp, (uint8_t)filler);
+ 570               		.loc 1 252 0 discriminator 1
+ 571 0262 D601      		movw r26,r12
+ 572 0264 ED91      		ld r30,X+
+ 573 0266 FC91      		ld r31,X
+ 574 0268 0480      		ldd __tmp_reg__,Z+4
+ 575 026a F581      		ldd r31,Z+5
+ 576 026c E02D      		mov r30,__tmp_reg__
+ 577 026e 652D      		mov r22,r5
+ 578 0270 C601      		movw r24,r12
+ 579 0272 0995      		icall
+ 580               	.LVL49:
+ 253:../../os/various/chprintf.c ****       while (++width != 0);
+ 581               		.loc 1 253 0 discriminator 1
+ 582 0274 0F5F      		subi r16,-1
+ 583 0276 1F4F      		sbci r17,-1
+ 584               	.LVL50:
+ 585 0278 01F4      		brne .L86
+ 586               	.L48:
+ 587               	.LVL51:
+ 255:../../os/various/chprintf.c ****     while (--i >= 0)
+ 588               		.loc 1 255 0 discriminator 1
+ 589 027a 1614      		cp __zero_reg__,r6
+ 590 027c 1704      		cpc __zero_reg__,r7
+ 591 027e 04F4      		brge .L104
+ 112:../../os/various/chprintf.c **** void chprintf(BaseSequentialStream *chp, const char *fmt, ...) {
+ 592               		.loc 1 112 0
+ 593 0280 680C      		add r6,r8
+ 594 0282 791C      		adc r7,r9
+ 595               	.LVL52:
+ 596               	.L53:
+ 256:../../os/various/chprintf.c ****       chSequentialStreamPut(chp, (uint8_t)*s++);
+ 597               		.loc 1 256 0
+ 598 0284 F401      		movw r30,r8
+ 599 0286 6191      		ld r22,Z+
+ 600 0288 4F01      		movw r8,r30
+ 601               	.LVL53:
+ 602 028a D601      		movw r26,r12
+ 603 028c ED91      		ld r30,X+
+ 604 028e FC91      		ld r31,X
+ 605 0290 0480      		ldd __tmp_reg__,Z+4
+ 606 0292 F581      		ldd r31,Z+5
+ 607 0294 E02D      		mov r30,__tmp_reg__
+ 608 0296 C601      		movw r24,r12
+ 609 0298 0995      		icall
+ 610               	.LVL54:
+ 255:../../os/various/chprintf.c ****     while (--i >= 0)
+ 611               		.loc 1 255 0
+ 612 029a 8614      		cp r8,r6
+ 613 029c 9704      		cpc r9,r7
+ 614 029e 01F4      		brne .L53
+ 258:../../os/various/chprintf.c ****     while (width) {
+ 615               		.loc 1 258 0
+ 616 02a0 0115      		cp r16,__zero_reg__
+ 617 02a2 1105      		cpc r17,__zero_reg__
+ 618 02a4 01F4      		brne .+2
+ 619 02a6 00C0      		rjmp .L102
+ 620               	.L85:
+ 259:../../os/various/chprintf.c ****       chSequentialStreamPut(chp, (uint8_t)filler);
+ 621               		.loc 1 259 0
+ 622 02a8 D601      		movw r26,r12
+ 623 02aa ED91      		ld r30,X+
+ 624 02ac FC91      		ld r31,X
+ 625 02ae 0480      		ldd __tmp_reg__,Z+4
+ 626 02b0 F581      		ldd r31,Z+5
+ 627 02b2 E02D      		mov r30,__tmp_reg__
+ 628 02b4 652D      		mov r22,r5
+ 629 02b6 C601      		movw r24,r12
+ 630 02b8 0995      		icall
+ 631               	.LVL55:
+ 260:../../os/various/chprintf.c ****       width--;
+ 632               		.loc 1 260 0
+ 633 02ba 0150      		subi r16,1
+ 634 02bc 1109      		sbc r17,__zero_reg__
+ 635               	.LVL56:
+ 636               	.L104:
+ 258:../../os/various/chprintf.c ****     while (width) {
+ 637               		.loc 1 258 0
+ 638 02be 0115      		cp r16,__zero_reg__
+ 639 02c0 1105      		cpc r17,__zero_reg__
+ 640 02c2 01F4      		brne .L85
+ 641 02c4 00C0      		rjmp .L102
+ 642               	.LVL57:
+ 643               	.L34:
+ 183:../../os/various/chprintf.c ****     switch (c) {
+ 644               		.loc 1 183 0
+ 645 02c6 2337      		cpi r18,lo8(115)
+ 646 02c8 01F4      		brne .+2
+ 647 02ca 00C0      		rjmp .L33
+ 648 02cc 00F0      		brlo .+2
+ 649 02ce 00C0      		rjmp .L36
+ 650 02d0 2436      		cpi r18,lo8(100)
+ 651 02d2 01F0      		breq .+2
+ 652 02d4 00C0      		rjmp .L113
+ 653               	.L28:
+ 199:../../os/various/chprintf.c ****       if (is_long)
+ 654               		.loc 1 199 0
+ 655 02d6 4111      		cpse r20,__zero_reg__
+ 656 02d8 00C0      		rjmp .L114
+ 202:../../os/various/chprintf.c ****         l = va_arg(ap, int);
+ 657               		.loc 1 202 0
+ 658 02da 22E0      		ldi r18,2
+ 659 02dc A20E      		add r10,r18
+ 660 02de B11C      		adc r11,__zero_reg__
+ 661               	.LVL58:
+ 662 02e0 4081      		ld r20,Z
+ 663 02e2 5181      		ldd r21,Z+1
+ 664               	.LVL59:
+ 665 02e4 6627      		clr r22
+ 666 02e6 57FD      		sbrc r21,7
+ 667 02e8 6095      		com r22
+ 668 02ea 762F      		mov r23,r22
+ 669               	.LVL60:
+ 203:../../os/various/chprintf.c ****       if (l < 0) {
+ 670               		.loc 1 203 0
+ 671 02ec 77FD      		sbrc r23,7
+ 672 02ee 00C0      		rjmp .L115
+ 673               	.L64:
+ 136:../../os/various/chprintf.c ****     p = tmpbuf;
+ 674               		.loc 1 136 0
+ 675 02f0 C101      		movw r24,r2
+ 676               	.LVL61:
+ 677               	.L44:
+ 678               	.LBB6:
+ 679               	.LBB7:
+  75:../../os/various/chprintf.c ****   return long_to_string_with_divisor(p, num, radix, 0);
+ 680               		.loc 1 75 0
+ 681 02f2 2AE0      		ldi r18,lo8(10)
+ 682 02f4 30E0      		ldi r19,0
+ 683 02f6 0E94 0000 		call long_to_string_with_divisor.constprop.0
+ 684               	.LVL62:
+ 685 02fa 3C01      		movw r6,r24
+ 686 02fc 6218      		sub r6,r2
+ 687 02fe 7308      		sbc r7,r3
+ 688               	.LBE7:
+ 689               	.LBE6:
+ 137:../../os/various/chprintf.c ****     s = tmpbuf;
+ 690               		.loc 1 137 0
+ 691 0300 4101      		movw r8,r2
+ 692               	.LVL63:
+ 242:../../os/various/chprintf.c ****     if ((width -= i) < 0)
+ 693               		.loc 1 242 0
+ 694 0302 0619      		sub r16,r6
+ 695 0304 1709      		sbc r17,r7
+ 696               	.LVL64:
+ 697 0306 17FF      		sbrs r17,7
+ 698 0308 00C0      		rjmp .L47
+ 699               	.LVL65:
+ 700               	.L111:
+ 701 030a 00E0      		ldi r16,0
+ 702 030c 10E0      		ldi r17,0
+ 703 030e 00C0      		rjmp .L47
+ 704               	.LVL66:
+ 705               	.L23:
+ 176:../../os/various/chprintf.c ****       if (*fmt)
+ 706               		.loc 1 176 0
+ 707 0310 D701      		movw r26,r14
+ 708 0312 3C91      		ld r19,X
+ 709 0314 3323      		tst r19
+ 710 0316 01F4      		brne .+2
+ 711 0318 00C0      		rjmp .L59
+ 712               	.LVL67:
+ 177:../../os/various/chprintf.c ****         c = *fmt++;
+ 713               		.loc 1 177 0
+ 714 031a BFEF      		ldi r27,-1
+ 715 031c EB1A      		sub r14,r27
+ 716 031e FB0A      		sbc r15,r27
+ 717               	.LVL68:
+ 718 0320 232F      		mov r18,r19
+ 175:../../os/various/chprintf.c ****       is_long = TRUE;
+ 719               		.loc 1 175 0
+ 720 0322 41E0      		ldi r20,lo8(1)
+ 721               	.LVL69:
+ 183:../../os/various/chprintf.c ****     switch (c) {
+ 722               		.loc 1 183 0
+ 723 0324 2336      		cpi r18,lo8(99)
+ 724 0326 01F0      		breq .+2
+ 725 0328 00C0      		rjmp .L116
+ 726               	.LVL70:
+ 727               	.L32:
+ 186:../../os/various/chprintf.c ****       *p++ = va_arg(ap, int);
+ 728               		.loc 1 186 0
+ 729 032a 22E0      		ldi r18,2
+ 730 032c A20E      		add r10,r18
+ 731 032e B11C      		adc r11,__zero_reg__
+ 732               	.LVL71:
+ 733 0330 8081      		ld r24,Z
+ 734               	.LVL72:
+ 735 0332 8983      		std Y+1,r24
+ 736 0334 6F84      		ldd r6,Y+15
+ 737 0336 7888      		ldd r7,Y+16
+ 185:../../os/various/chprintf.c ****       filler = ' ';
+ 738               		.loc 1 185 0
+ 739 0338 30E2      		ldi r19,lo8(32)
+ 740 033a 532E      		mov r5,r19
+ 137:../../os/various/chprintf.c ****     s = tmpbuf;
+ 741               		.loc 1 137 0
+ 742 033c 4101      		movw r8,r2
+ 187:../../os/various/chprintf.c ****       break;
+ 743               		.loc 1 187 0
+ 744 033e 00C0      		rjmp .L37
+ 745               	.LVL73:
+ 746               	.L110:
+ 747 0340 F701      		movw r30,r14
+ 160:../../os/various/chprintf.c ****     if (c == '.') {
+ 748               		.loc 1 160 0
+ 749 0342 80E0      		ldi r24,0
+ 750 0344 90E0      		ldi r25,0
+ 751 0346 00C0      		rjmp .L22
+ 752               	.LVL74:
+ 753               	.L21:
+ 166:../../os/various/chprintf.c ****           c = va_arg(ap, int);
+ 754               		.loc 1 166 0
+ 755 0348 D501      		movw r26,r10
+ 756 034a 4C91      		ld r20,X
+ 757               	.LVL75:
+ 758 034c 22E0      		ldi r18,2
+ 759 034e A20E      		add r10,r18
+ 760 0350 B11C      		adc r11,__zero_reg__
+ 761               	.LVL76:
+ 762               	.L20:
+ 169:../../os/various/chprintf.c ****         precision *= 10;
+ 763               		.loc 1 169 0
+ 764 0352 9C01      		movw r18,r24
+ 765 0354 220F      		lsl r18
+ 766 0356 331F      		rol r19
+ 767 0358 880F      		lsl r24
+ 768 035a 991F      		rol r25
+ 769 035c 880F      		lsl r24
+ 770 035e 991F      		rol r25
+ 771 0360 880F      		lsl r24
+ 772 0362 991F      		rol r25
+ 773               	.LVL77:
+ 774 0364 820F      		add r24,r18
+ 775 0366 931F      		adc r25,r19
+ 776               	.LVL78:
+ 170:../../os/various/chprintf.c ****         precision += c;
+ 777               		.loc 1 170 0
+ 778 0368 840F      		add r24,r20
+ 779 036a 911D      		adc r25,__zero_reg__
+ 780               	.LVL79:
+ 781               	.L22:
+ 162:../../os/various/chprintf.c ****         c = *fmt++;
+ 782               		.loc 1 162 0
+ 783 036c 2191      		ld r18,Z+
+ 784               	.LVL80:
+ 785 036e 7F01      		movw r14,r30
+ 786               	.LVL81:
+ 163:../../os/various/chprintf.c ****         if (c >= '0' && c <= '9')
+ 787               		.loc 1 163 0
+ 788 0370 422F      		mov r20,r18
+ 789 0372 4053      		subi r20,lo8(-(-48))
+ 790 0374 4A30      		cpi r20,lo8(10)
+ 791 0376 00F0      		brlo .L20
+ 165:../../os/various/chprintf.c ****         else if (c == '*')
+ 792               		.loc 1 165 0
+ 793 0378 2A32      		cpi r18,lo8(42)
+ 794 037a 01F0      		breq .L21
+ 795 037c F501      		movw r30,r10
+ 796               	.LVL82:
+ 797 037e 00C0      		rjmp .L19
+ 798               	.LVL83:
+ 799               	.L108:
+ 800 0380 D801      		movw r26,r16
+ 801 0382 1196      		adiw r26,1
+ 802 0384 2C91      		ld r18,X
+ 145:../../os/various/chprintf.c ****       fmt++;
+ 803               		.loc 1 145 0
+ 804 0386 0F5F      		subi r16,-1
+ 805 0388 1F4F      		sbci r17,-1
+ 806               	.LVL84:
+ 146:../../os/various/chprintf.c ****       filler = '0';
+ 807               		.loc 1 146 0
+ 808 038a 80E3      		ldi r24,lo8(48)
+ 809 038c 582E      		mov r5,r24
+ 810 038e 00C0      		rjmp .L15
+ 811               	.LVL85:
+ 812               	.L107:
+ 140:../../os/various/chprintf.c ****       fmt++;
+ 813               		.loc 1 140 0
+ 814 0390 8701      		movw r16,r14
+ 815               	.LVL86:
+ 816 0392 0E5F      		subi r16,-2
+ 817 0394 1F4F      		sbci r17,-1
+ 818               	.LVL87:
+ 819 0396 2281      		ldd r18,Z+2
+ 141:../../os/various/chprintf.c ****       left_align = TRUE;
+ 820               		.loc 1 141 0
+ 821 0398 4424      		clr r4
+ 822 039a 4394      		inc r4
+ 823 039c 00C0      		rjmp .L14
+ 824               	.LVL88:
+ 825               	.L59:
+ 175:../../os/various/chprintf.c ****       is_long = TRUE;
+ 826               		.loc 1 175 0
+ 827 039e 41E0      		ldi r20,lo8(1)
+ 828 03a0 00C0      		rjmp .L25
+ 829               	.LVL89:
+ 830               	.L33:
+ 190:../../os/various/chprintf.c ****       if ((s = va_arg(ap, char *)) == 0)
+ 831               		.loc 1 190 0
+ 832 03a2 32E0      		ldi r19,2
+ 833 03a4 A30E      		add r10,r19
+ 834 03a6 B11C      		adc r11,__zero_reg__
+ 835               	.LVL90:
+ 836 03a8 8080      		ld r8,Z
+ 837 03aa 9180      		ldd r9,Z+1
+ 838               	.LVL91:
+ 839 03ac 8114      		cp r8,__zero_reg__
+ 840 03ae 9104      		cpc r9,__zero_reg__
+ 841 03b0 01F4      		brne .+2
+ 842 03b2 00C0      		rjmp .L117
+ 843               	.LVL92:
+ 844               	.L38:
+ 192:../../os/various/chprintf.c ****       if (precision == 0)
+ 845               		.loc 1 192 0
+ 846 03b4 0097      		sbiw r24,0
+ 847 03b6 01F4      		brne .+2
+ 848 03b8 00C0      		rjmp .L118
+ 849               	.LVL93:
+ 850               	.L39:
+ 194:../../os/various/chprintf.c ****       for (p = s; *p && (--precision >= 0); p++)
+ 851               		.loc 1 194 0 discriminator 1
+ 852 03ba D401      		movw r26,r8
+ 853 03bc 2C91      		ld r18,X
+ 854 03be 2223      		tst r18
+ 855 03c0 01F4      		brne .+2
+ 856 03c2 00C0      		rjmp .L63
+ 857               	.LVL94:
+ 112:../../os/various/chprintf.c **** void chprintf(BaseSequentialStream *chp, const char *fmt, ...) {
+ 858               		.loc 1 112 0
+ 859 03c4 9401      		movw r18,r8
+ 860 03c6 2F5F      		subi r18,-1
+ 861 03c8 3F4F      		sbci r19,-1
+ 862 03ca 820F      		add r24,r18
+ 863 03cc 931F      		adc r25,r19
+ 864               	.LVL95:
+ 865 03ce 00C0      		rjmp .L41
+ 866               	.LVL96:
+ 867               	.L40:
+ 194:../../os/various/chprintf.c ****       for (p = s; *p && (--precision >= 0); p++)
+ 868               		.loc 1 194 0 discriminator 2
+ 869 03d0 2817      		cp r18,r24
+ 870 03d2 3907      		cpc r19,r25
+ 871 03d4 01F0      		breq .L105
+ 872               	.LVL97:
+ 873               	.L41:
+ 194:../../os/various/chprintf.c ****       for (p = s; *p && (--precision >= 0); p++)
+ 874               		.loc 1 194 0 is_stmt 0 discriminator 1
+ 875 03d6 F901      		movw r30,r18
+ 876               	.LVL98:
+ 877 03d8 2F5F      		subi r18,-1
+ 878 03da 3F4F      		sbci r19,-1
+ 879               	.LVL99:
+ 880 03dc 4081      		ld r20,Z
+ 881 03de 4111      		cpse r20,__zero_reg__
+ 882 03e0 00C0      		rjmp .L40
+ 883               	.L105:
+ 884 03e2 3F01      		movw r6,r30
+ 885 03e4 6818      		sub r6,r8
+ 886 03e6 7908      		sbc r7,r9
+ 189:../../os/various/chprintf.c ****       filler = ' ';
+ 887               		.loc 1 189 0 is_stmt 1
+ 888 03e8 90E2      		ldi r25,lo8(32)
+ 889 03ea 592E      		mov r5,r25
+ 890 03ec 00C0      		rjmp .L37
+ 891               	.LVL100:
+ 892               	.L113:
+ 183:../../os/various/chprintf.c ****     switch (c) {
+ 893               		.loc 1 183 0
+ 894 03ee 2F36      		cpi r18,lo8(111)
+ 895 03f0 01F0      		breq .+2
+ 896 03f2 00C0      		rjmp .L27
+ 897               	.L29:
+ 898               	.LVL101:
+ 899 03f4 28E0      		ldi r18,lo8(8)
+ 900 03f6 30E0      		ldi r19,0
+ 901               	.LVL102:
+ 902               	.L30:
+ 231:../../os/various/chprintf.c ****       if (is_long)
+ 903               		.loc 1 231 0
+ 904 03f8 4423      		tst r20
+ 905 03fa 01F0      		breq .L45
+ 232:../../os/various/chprintf.c ****         l = va_arg(ap, long);
+ 906               		.loc 1 232 0
+ 907 03fc 84E0      		ldi r24,4
+ 908 03fe A80E      		add r10,r24
+ 909 0400 B11C      		adc r11,__zero_reg__
+ 910               	.LVL103:
+ 911 0402 4081      		ld r20,Z
+ 912 0404 5181      		ldd r21,Z+1
+ 913 0406 6281      		ldd r22,Z+2
+ 914 0408 7381      		ldd r23,Z+3
+ 915               	.LVL104:
+ 916               	.L46:
+ 917               	.LBB8:
+ 918               	.LBB9:
+  75:../../os/various/chprintf.c ****   return long_to_string_with_divisor(p, num, radix, 0);
+ 919               		.loc 1 75 0
+ 920 040a C101      		movw r24,r2
+ 921 040c 0E94 0000 		call long_to_string_with_divisor.constprop.0
+ 922               	.LVL105:
+ 923 0410 3C01      		movw r6,r24
+ 924 0412 6218      		sub r6,r2
+ 925 0414 7308      		sbc r7,r3
+ 926               	.LBE9:
+ 927               	.LBE8:
+ 137:../../os/various/chprintf.c ****     s = tmpbuf;
+ 928               		.loc 1 137 0
+ 929 0416 4101      		movw r8,r2
+ 236:../../os/various/chprintf.c ****       break;
+ 930               		.loc 1 236 0
+ 931 0418 00C0      		rjmp .L37
+ 932               	.LVL106:
+ 933               	.L45:
+ 234:../../os/various/chprintf.c ****         l = va_arg(ap, int);
+ 934               		.loc 1 234 0
+ 935 041a 92E0      		ldi r25,2
+ 936 041c A90E      		add r10,r25
+ 937 041e B11C      		adc r11,__zero_reg__
+ 938               	.LVL107:
+ 939 0420 4081      		ld r20,Z
+ 940 0422 5181      		ldd r21,Z+1
+ 941               	.LVL108:
+ 942 0424 6627      		clr r22
+ 943 0426 57FD      		sbrc r21,7
+ 944 0428 6095      		com r22
+ 945 042a 762F      		mov r23,r22
+ 946               	.LVL109:
+ 947 042c 00C0      		rjmp .L46
+ 948               	.LVL110:
+ 949               	.L36:
+ 183:../../os/various/chprintf.c ****     switch (c) {
+ 950               		.loc 1 183 0
+ 951 042e 2537      		cpi r18,lo8(117)
+ 952 0430 01F0      		breq .L60
+ 953 0432 2837      		cpi r18,lo8(120)
+ 954 0434 01F0      		breq .+2
+ 955 0436 00C0      		rjmp .L27
+ 956 0438 20E1      		ldi r18,lo8(16)
+ 957 043a 30E0      		ldi r19,0
+ 958               	.LVL111:
+ 959 043c 00C0      		rjmp .L30
+ 960               	.LVL112:
+ 961               	.L35:
+ 962 043e 2535      		cpi r18,lo8(85)
+ 963 0440 01F4      		brne .L119
+ 964               	.L60:
+ 965 0442 2AE0      		ldi r18,lo8(10)
+ 966 0444 30E0      		ldi r19,0
+ 967               	.LVL113:
+ 968 0446 00C0      		rjmp .L30
+ 969               	.LVL114:
+ 970               	.L119:
+ 971 0448 2835      		cpi r18,lo8(88)
+ 972 044a 01F0      		breq .+2
+ 973 044c 00C0      		rjmp .L27
+ 974 044e 20E1      		ldi r18,lo8(16)
+ 975 0450 30E0      		ldi r19,0
+ 976               	.LVL115:
+ 977 0452 00C0      		rjmp .L30
+ 978               	.LVL116:
+ 979               	.L114:
+ 200:../../os/various/chprintf.c ****         l = va_arg(ap, long);
+ 980               		.loc 1 200 0
+ 981 0454 B4E0      		ldi r27,4
+ 982 0456 AB0E      		add r10,r27
+ 983 0458 B11C      		adc r11,__zero_reg__
+ 984               	.LVL117:
+ 985 045a 4081      		ld r20,Z
+ 986 045c 5181      		ldd r21,Z+1
+ 987 045e 6281      		ldd r22,Z+2
+ 988 0460 7381      		ldd r23,Z+3
+ 989               	.LVL118:
+ 203:../../os/various/chprintf.c ****       if (l < 0) {
+ 990               		.loc 1 203 0
+ 991 0462 77FF      		sbrs r23,7
+ 992 0464 00C0      		rjmp .L64
+ 993               	.LVL119:
+ 994               	.L115:
+ 204:../../os/various/chprintf.c ****         *p++ = '-';
+ 995               		.loc 1 204 0
+ 996 0466 8DE2      		ldi r24,lo8(45)
+ 997               	.LVL120:
+ 998 0468 8983      		std Y+1,r24
+ 205:../../os/various/chprintf.c ****         l = -l;
+ 999               		.loc 1 205 0
+ 1000 046a 7095      		com r23
+ 1001 046c 6095      		com r22
+ 1002 046e 5095      		com r21
+ 1003 0470 4195      		neg r20
+ 1004 0472 5F4F      		sbci r21,lo8(-1)
+ 1005 0474 6F4F      		sbci r22,lo8(-1)
+ 1006 0476 7F4F      		sbci r23,lo8(-1)
+ 1007               	.LVL121:
+ 204:../../os/various/chprintf.c ****         *p++ = '-';
+ 1008               		.loc 1 204 0
+ 1009 0478 8D85      		ldd r24,Y+13
+ 1010 047a 9E85      		ldd r25,Y+14
+ 1011 047c 00C0      		rjmp .L44
+ 1012               	.LVL122:
+ 1013               	.L118:
+ 193:../../os/various/chprintf.c ****         precision = 32767;
+ 1014               		.loc 1 193 0
+ 1015 047e 8FEF      		ldi r24,lo8(-1)
+ 1016 0480 9FE7      		ldi r25,lo8(127)
+ 1017               	.LVL123:
+ 1018 0482 00C0      		rjmp .L39
+ 1019               	.LVL124:
+ 1020               	.L112:
+ 247:../../os/various/chprintf.c ****       if (*s == '-' && filler == '0') {
+ 1021               		.loc 1 247 0 discriminator 1
+ 1022 0484 B0E3      		ldi r27,lo8(48)
+ 1023 0486 5B12      		cpse r5,r27
+ 1024 0488 00C0      		rjmp .L86
+ 248:../../os/various/chprintf.c ****         chSequentialStreamPut(chp, (uint8_t)*s++);
+ 1025               		.loc 1 248 0
+ 1026 048a EFEF      		ldi r30,-1
+ 1027 048c 8E1A      		sub r8,r30
+ 1028 048e 9E0A      		sbc r9,r30
+ 1029               	.LVL125:
+ 1030 0490 D601      		movw r26,r12
+ 1031 0492 ED91      		ld r30,X+
+ 1032 0494 FC91      		ld r31,X
+ 1033 0496 0480      		ldd __tmp_reg__,Z+4
+ 1034 0498 F581      		ldd r31,Z+5
+ 1035 049a E02D      		mov r30,__tmp_reg__
+ 1036 049c 6DE2      		ldi r22,lo8(45)
+ 1037 049e C601      		movw r24,r12
+ 1038 04a0 0995      		icall
+ 1039               	.LVL126:
+ 249:../../os/various/chprintf.c ****         i--;
+ 1040               		.loc 1 249 0
+ 1041 04a2 B1E0      		ldi r27,1
+ 1042 04a4 6B1A      		sub r6,r27
+ 1043 04a6 7108      		sbc r7,__zero_reg__
+ 1044               	.LVL127:
+ 1045 04a8 00C0      		rjmp .L86
+ 1046               	.LVL128:
+ 1047               	.L117:
+ 191:../../os/various/chprintf.c ****         s = "(null)";
+ 1048               		.loc 1 191 0
+ 1049 04aa 20E0      		ldi r18,lo8(.LC0)
+ 1050 04ac 822E      		mov r8,r18
+ 1051 04ae 20E0      		ldi r18,hi8(.LC0)
+ 1052 04b0 922E      		mov r9,r18
+ 1053               	.LVL129:
+ 1054 04b2 00C0      		rjmp .L38
+ 1055               	.LVL130:
+ 1056               	.L63:
+ 194:../../os/various/chprintf.c ****       for (p = s; *p && (--precision >= 0); p++)
+ 1057               		.loc 1 194 0
+ 1058 04b4 612C      		mov r6,__zero_reg__
+ 1059 04b6 712C      		mov r7,__zero_reg__
+ 189:../../os/various/chprintf.c ****       filler = ' ';
+ 1060               		.loc 1 189 0
+ 1061 04b8 80E2      		ldi r24,lo8(32)
+ 1062 04ba 582E      		mov r5,r24
+ 1063               	.LVL131:
+ 1064 04bc 00C0      		rjmp .L37
+ 1065               		.cfi_endproc
+ 1066               	.LFE9:
+ 1068               	.Letext0:
+ 1069               		.file 2 "/usr/local/cross/lib/gcc/avr/4.7.2/include/stdarg.h"
+ 1070               		.file 3 "/usr/local/cross/lib/gcc/avr/4.7.2/include/stddef.h"
+ 1071               		.file 4 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+ 1072               		.file 5 "../../os/ports/GCC/AVR/chtypes.h"
+ 1073               		.file 6 "../../os/kernel/include/chstreams.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 chprintf.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccyQ6QV3.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccyQ6QV3.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccyQ6QV3.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccyQ6QV3.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccyQ6QV3.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccyQ6QV3.s:11     .text:0000000000000000 long_to_string_with_divisor.constprop.0
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccyQ6QV3.s:239    .text:00000000000000e8 chprintf
+
+UNDEFINED SYMBOLS
+__divmodsi4
+__do_copy_data

@@ -1,0 +1,256 @@
+   1               		.file	"pal.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	palReadBus
+  12               	palReadBus:
+  13               	.LFB7:
+  14               		.file 1 "../../os/hal/src/pal.c"
+   1:../../os/hal/src/pal.c **** /*
+   2:../../os/hal/src/pal.c ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/hal/src/pal.c ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/hal/src/pal.c **** 
+   5:../../os/hal/src/pal.c ****     This file is part of ChibiOS/RT.
+   6:../../os/hal/src/pal.c **** 
+   7:../../os/hal/src/pal.c ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/hal/src/pal.c ****     it under the terms of the GNU General Public License as published by
+   9:../../os/hal/src/pal.c ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/hal/src/pal.c ****     (at your option) any later version.
+  11:../../os/hal/src/pal.c **** 
+  12:../../os/hal/src/pal.c ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/hal/src/pal.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/hal/src/pal.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/hal/src/pal.c ****     GNU General Public License for more details.
+  16:../../os/hal/src/pal.c **** 
+  17:../../os/hal/src/pal.c ****     You should have received a copy of the GNU General Public License
+  18:../../os/hal/src/pal.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/hal/src/pal.c **** */
+  20:../../os/hal/src/pal.c **** 
+  21:../../os/hal/src/pal.c **** /**
+  22:../../os/hal/src/pal.c ****  * @file    pal.c
+  23:../../os/hal/src/pal.c ****  * @brief   I/O Ports Abstraction Layer code.
+  24:../../os/hal/src/pal.c ****  *
+  25:../../os/hal/src/pal.c ****  * @addtogroup PAL
+  26:../../os/hal/src/pal.c ****  * @{
+  27:../../os/hal/src/pal.c ****  */
+  28:../../os/hal/src/pal.c **** 
+  29:../../os/hal/src/pal.c **** #include "ch.h"
+  30:../../os/hal/src/pal.c **** #include "hal.h"
+  31:../../os/hal/src/pal.c **** 
+  32:../../os/hal/src/pal.c **** #if HAL_USE_PAL || defined(__DOXYGEN__)
+  33:../../os/hal/src/pal.c **** 
+  34:../../os/hal/src/pal.c **** /*===========================================================================*/
+  35:../../os/hal/src/pal.c **** /* Driver local definitions.                                                 */
+  36:../../os/hal/src/pal.c **** /*===========================================================================*/
+  37:../../os/hal/src/pal.c **** 
+  38:../../os/hal/src/pal.c **** /*===========================================================================*/
+  39:../../os/hal/src/pal.c **** /* Driver exported variables.                                                */
+  40:../../os/hal/src/pal.c **** /*===========================================================================*/
+  41:../../os/hal/src/pal.c **** 
+  42:../../os/hal/src/pal.c **** /*===========================================================================*/
+  43:../../os/hal/src/pal.c **** /* Driver local variables.                                                   */
+  44:../../os/hal/src/pal.c **** /*===========================================================================*/
+  45:../../os/hal/src/pal.c **** 
+  46:../../os/hal/src/pal.c **** /*===========================================================================*/
+  47:../../os/hal/src/pal.c **** /* Driver local functions.                                                   */
+  48:../../os/hal/src/pal.c **** /*===========================================================================*/
+  49:../../os/hal/src/pal.c **** 
+  50:../../os/hal/src/pal.c **** /*===========================================================================*/
+  51:../../os/hal/src/pal.c **** /* Driver exported functions.                                                */
+  52:../../os/hal/src/pal.c **** /*===========================================================================*/
+  53:../../os/hal/src/pal.c **** 
+  54:../../os/hal/src/pal.c **** /**
+  55:../../os/hal/src/pal.c ****  * @brief   Read from an I/O bus.
+  56:../../os/hal/src/pal.c ****  * @note    The operation is not guaranteed to be atomic on all the
+  57:../../os/hal/src/pal.c ****  *          architectures, for atomicity and/or portability reasons you may
+  58:../../os/hal/src/pal.c ****  *          need to enclose port I/O operations between @p chSysLock() and
+  59:../../os/hal/src/pal.c ****  *          @p chSysUnlock().
+  60:../../os/hal/src/pal.c ****  * @note    The function internally uses the @p palReadGroup() macro. The use
+  61:../../os/hal/src/pal.c ****  *          of this function is preferred when you value code size, readability
+  62:../../os/hal/src/pal.c ****  *          and error checking over speed.
+  63:../../os/hal/src/pal.c ****  *
+  64:../../os/hal/src/pal.c ****  * @param[in] bus       the I/O bus, pointer to a @p IOBus structure
+  65:../../os/hal/src/pal.c ****  * @return              The bus logical states.
+  66:../../os/hal/src/pal.c ****  *
+  67:../../os/hal/src/pal.c ****  * @api
+  68:../../os/hal/src/pal.c ****  */
+  69:../../os/hal/src/pal.c **** ioportmask_t palReadBus(IOBus *bus) {
+  15               		.loc 1 69 0
+  16               		.cfi_startproc
+  17               	.LVL0:
+  18               	/* prologue: function */
+  19               	/* frame size = 0 */
+  20               	/* stack size = 0 */
+  21               	.L__stack_usage = 0
+  22 0000 FC01      		movw r30,r24
+  70:../../os/hal/src/pal.c **** 
+  71:../../os/hal/src/pal.c ****   chDbgCheck((bus != NULL) &&
+  72:../../os/hal/src/pal.c ****              (bus->offset < PAL_IOPORTS_WIDTH), "palReadBus");
+  73:../../os/hal/src/pal.c **** 
+  74:../../os/hal/src/pal.c ****   return palReadGroup(bus->portid, bus->mask, bus->offset);
+  23               		.loc 1 74 0
+  24 0002 A081      		ld r26,Z
+  25 0004 B181      		ldd r27,Z+1
+  26 0006 2C91      		ld r18,X
+  27 0008 30E0      		ldi r19,0
+  28 000a 0380      		ldd r0,Z+3
+  29 000c 00C0      		rjmp 2f
+  30               		1:
+  31 000e 3595      		asr r19
+  32 0010 2795      		ror r18
+  33               		2:
+  34 0012 0A94      		dec r0
+  35 0014 02F4      		brpl 1b
+  36 0016 8281      		ldd r24,Z+2
+  37               	.LVL1:
+  75:../../os/hal/src/pal.c **** }
+  38               		.loc 1 75 0
+  39 0018 8223      		and r24,r18
+  40 001a 0895      		ret
+  41               		.cfi_endproc
+  42               	.LFE7:
+  44               	.global	palWriteBus
+  46               	palWriteBus:
+  47               	.LFB8:
+  76:../../os/hal/src/pal.c **** 
+  77:../../os/hal/src/pal.c **** /**
+  78:../../os/hal/src/pal.c ****  * @brief   Write to an I/O bus.
+  79:../../os/hal/src/pal.c ****  * @note    The operation is not guaranteed to be atomic on all the
+  80:../../os/hal/src/pal.c ****  *          architectures, for atomicity and/or portability reasons you may
+  81:../../os/hal/src/pal.c ****  *          need to enclose port I/O operations between @p chSysLock() and
+  82:../../os/hal/src/pal.c ****  *          @p chSysUnlock().
+  83:../../os/hal/src/pal.c ****  * @note    The default implementation is non atomic and not necessarily
+  84:../../os/hal/src/pal.c ****  *          optimal. Low level drivers may  optimize the function by using
+  85:../../os/hal/src/pal.c ****  *          specific hardware or coding.
+  86:../../os/hal/src/pal.c ****  *
+  87:../../os/hal/src/pal.c ****  * @param[in] bus       the I/O bus, pointer to a @p IOBus structure
+  88:../../os/hal/src/pal.c ****  * @param[in] bits      the bits to be written on the I/O bus. Values exceeding
+  89:../../os/hal/src/pal.c ****  *                      the bus width are masked so most significant bits are
+  90:../../os/hal/src/pal.c ****  *                      lost.
+  91:../../os/hal/src/pal.c ****  *
+  92:../../os/hal/src/pal.c ****  * @api
+  93:../../os/hal/src/pal.c ****  */
+  94:../../os/hal/src/pal.c **** void palWriteBus(IOBus *bus, ioportmask_t bits) {
+  48               		.loc 1 94 0
+  49               		.cfi_startproc
+  50               	.LVL2:
+  51               	/* prologue: function */
+  52               	/* frame size = 0 */
+  53               	/* stack size = 0 */
+  54               	.L__stack_usage = 0
+  55 001c FC01      		movw r30,r24
+  95:../../os/hal/src/pal.c **** 
+  96:../../os/hal/src/pal.c ****   chDbgCheck((bus != NULL) &&
+  97:../../os/hal/src/pal.c ****              (bus->offset < PAL_IOPORTS_WIDTH), "palWriteBus");
+  98:../../os/hal/src/pal.c **** 
+  99:../../os/hal/src/pal.c ****   palWriteGroup(bus->portid, bus->mask, bus->offset, bits);
+  56               		.loc 1 99 0
+  57 001e A081      		ld r26,Z
+  58 0020 B181      		ldd r27,Z+1
+  59 0022 1296      		adiw r26,2
+  60 0024 3C91      		ld r19,X
+  61 0026 1297      		sbiw r26,2
+  62 0028 8281      		ldd r24,Z+2
+  63               	.LVL3:
+  64 002a 2381      		ldd r18,Z+3
+  65 002c 6823      		and r22,r24
+  66               	.LVL4:
+  67 002e 022E      		mov r0,r18
+  68 0030 00C0      		rjmp 2f
+  69               		1:
+  70 0032 660F      		lsl r22
+  71               		2:
+  72 0034 0A94      		dec r0
+  73 0036 02F4      		brpl 1b
+  74 0038 022E      		mov r0,r18
+  75 003a 00C0      		rjmp 2f
+  76               		1:
+  77 003c 880F      		lsl r24
+  78               		2:
+  79 003e 0A94      		dec r0
+  80 0040 02F4      		brpl 1b
+  81 0042 8095      		com r24
+  82 0044 8323      		and r24,r19
+  83 0046 862B      		or r24,r22
+  84 0048 1296      		adiw r26,2
+  85 004a 8C93      		st X,r24
+  86 004c 0895      		ret
+  87               		.cfi_endproc
+  88               	.LFE8:
+  90               	.global	palSetBusMode
+  92               	palSetBusMode:
+  93               	.LFB9:
+ 100:../../os/hal/src/pal.c **** }
+ 101:../../os/hal/src/pal.c **** 
+ 102:../../os/hal/src/pal.c **** /**
+ 103:../../os/hal/src/pal.c ****  * @brief   Programs a bus with the specified mode.
+ 104:../../os/hal/src/pal.c ****  * @note    The operation is not guaranteed to be atomic on all the
+ 105:../../os/hal/src/pal.c ****  *          architectures, for atomicity and/or portability reasons you may
+ 106:../../os/hal/src/pal.c ****  *          need to enclose port I/O operations between @p chSysLock() and
+ 107:../../os/hal/src/pal.c ****  *          @p chSysUnlock().
+ 108:../../os/hal/src/pal.c ****  * @note    The default implementation is non atomic and not necessarily
+ 109:../../os/hal/src/pal.c ****  *          optimal. Low level drivers may  optimize the function by using
+ 110:../../os/hal/src/pal.c ****  *          specific hardware or coding.
+ 111:../../os/hal/src/pal.c ****  *
+ 112:../../os/hal/src/pal.c ****  * @param[in] bus       the I/O bus, pointer to a @p IOBus structure
+ 113:../../os/hal/src/pal.c ****  * @param[in] mode      the mode
+ 114:../../os/hal/src/pal.c ****  *
+ 115:../../os/hal/src/pal.c ****  * @api
+ 116:../../os/hal/src/pal.c ****  */
+ 117:../../os/hal/src/pal.c **** void palSetBusMode(IOBus *bus, iomode_t mode) {
+  94               		.loc 1 117 0
+  95               		.cfi_startproc
+  96               	.LVL5:
+  97               	/* prologue: function */
+  98               	/* frame size = 0 */
+  99               	/* stack size = 0 */
+ 100               	.L__stack_usage = 0
+ 101 004e FC01      		movw r30,r24
+ 102 0050 462F      		mov r20,r22
+ 118:../../os/hal/src/pal.c **** 
+ 119:../../os/hal/src/pal.c ****   chDbgCheck((bus != NULL) &&
+ 120:../../os/hal/src/pal.c ****              (bus->offset < PAL_IOPORTS_WIDTH), "palSetBusMode");
+ 121:../../os/hal/src/pal.c **** 
+ 122:../../os/hal/src/pal.c ****   palSetGroupMode(bus->portid, bus->mask, bus->offset, mode);
+ 103               		.loc 1 122 0
+ 104 0052 8281      		ldd r24,Z+2
+ 105               	.LVL6:
+ 106 0054 682F      		mov r22,r24
+ 107               	.LVL7:
+ 108 0056 70E0      		ldi r23,0
+ 109 0058 0380      		ldd r0,Z+3
+ 110 005a 00C0      		rjmp 2f
+ 111               		1:
+ 112 005c 660F      		lsl r22
+ 113 005e 771F      		rol r23
+ 114               		2:
+ 115 0060 0A94      		dec r0
+ 116 0062 02F4      		brpl 1b
+ 117 0064 8081      		ld r24,Z
+ 118 0066 9181      		ldd r25,Z+1
+ 119 0068 0C94 0000 		jmp _pal_lld_setgroupmode
+ 120               	.LVL8:
+ 121               		.cfi_endproc
+ 122               	.LFE9:
+ 124               	.Letext0:
+ 125               		.file 2 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+ 126               		.file 3 "../../os/hal/platforms/AVR/pal_lld.h"
+ 127               		.file 4 "../../os/hal/include/pal.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 pal.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccvYZAOm.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccvYZAOm.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccvYZAOm.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccvYZAOm.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccvYZAOm.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccvYZAOm.s:12     .text:0000000000000000 palReadBus
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccvYZAOm.s:46     .text:000000000000001c palWriteBus
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccvYZAOm.s:92     .text:000000000000004e palSetBusMode
+
+UNDEFINED SYMBOLS
+_pal_lld_setgroupmode

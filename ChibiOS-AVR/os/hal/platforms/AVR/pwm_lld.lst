@@ -1,0 +1,1886 @@
+   1               		.file	"pwm_lld.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	getTimerIndex
+  12               	getTimerIndex:
+  13               	.LFB8:
+  14               		.file 1 "../../os/hal/platforms/AVR/pwm_lld.c"
+   1:../../os/hal/platforms/AVR/pwm_lld.c **** /*
+   2:../../os/hal/platforms/AVR/pwm_lld.c ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/hal/platforms/AVR/pwm_lld.c ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/hal/platforms/AVR/pwm_lld.c **** 
+   5:../../os/hal/platforms/AVR/pwm_lld.c ****     This file is part of ChibiOS/RT.
+   6:../../os/hal/platforms/AVR/pwm_lld.c **** 
+   7:../../os/hal/platforms/AVR/pwm_lld.c ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/hal/platforms/AVR/pwm_lld.c ****     it under the terms of the GNU General Public License as published by
+   9:../../os/hal/platforms/AVR/pwm_lld.c ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/hal/platforms/AVR/pwm_lld.c ****     (at your option) any later version.
+  11:../../os/hal/platforms/AVR/pwm_lld.c **** 
+  12:../../os/hal/platforms/AVR/pwm_lld.c ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/hal/platforms/AVR/pwm_lld.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/hal/platforms/AVR/pwm_lld.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/hal/platforms/AVR/pwm_lld.c ****     GNU General Public License for more details.
+  16:../../os/hal/platforms/AVR/pwm_lld.c **** 
+  17:../../os/hal/platforms/AVR/pwm_lld.c ****     You should have received a copy of the GNU General Public License
+  18:../../os/hal/platforms/AVR/pwm_lld.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/hal/platforms/AVR/pwm_lld.c **** */
+  20:../../os/hal/platforms/AVR/pwm_lld.c **** 
+  21:../../os/hal/platforms/AVR/pwm_lld.c **** /**
+  22:../../os/hal/platforms/AVR/pwm_lld.c ****  * @file    templates/pwm_lld.c
+  23:../../os/hal/platforms/AVR/pwm_lld.c ****  * @brief   PWM Driver subsystem low level driver source template.
+  24:../../os/hal/platforms/AVR/pwm_lld.c ****  *
+  25:../../os/hal/platforms/AVR/pwm_lld.c ****  * @addtogroup PWM
+  26:../../os/hal/platforms/AVR/pwm_lld.c ****  * @{
+  27:../../os/hal/platforms/AVR/pwm_lld.c ****  */
+  28:../../os/hal/platforms/AVR/pwm_lld.c **** 
+  29:../../os/hal/platforms/AVR/pwm_lld.c **** #include "ch.h"
+  30:../../os/hal/platforms/AVR/pwm_lld.c **** #include "hal.h"
+  31:../../os/hal/platforms/AVR/pwm_lld.c **** 
+  32:../../os/hal/platforms/AVR/pwm_lld.c **** #if HAL_USE_PWM || defined(__DOXYGEN__)
+  33:../../os/hal/platforms/AVR/pwm_lld.c **** /*TODO
+  34:../../os/hal/platforms/AVR/pwm_lld.c ****  * change period, set frequency
+  35:../../os/hal/platforms/AVR/pwm_lld.c **** /*===========================================================================*/
+  36:../../os/hal/platforms/AVR/pwm_lld.c **** /* Driver local definitions.                                                 */
+  37:../../os/hal/platforms/AVR/pwm_lld.c **** /*===========================================================================*/
+  38:../../os/hal/platforms/AVR/pwm_lld.c **** typedef volatile uint8_t * timer_registers[12];
+  39:../../os/hal/platforms/AVR/pwm_lld.c **** timer_registers timer_registers_table[]=
+  40:../../os/hal/platforms/AVR/pwm_lld.c **** {
+  41:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM1 || defined(__DOXYGEN__)
+  42:../../os/hal/platforms/AVR/pwm_lld.c **** #if defined(OCR1C)
+  43:../../os/hal/platforms/AVR/pwm_lld.c ****     {&TCCR1A,  &TCCR1B, &OCR1AH,&OCR1AL,&OCR1BH,&OCR1BL,&OCR1CH,&OCR1CL,&TCNT1H,&TCNT1L,&TIFR1,&TIM
+  44:../../os/hal/platforms/AVR/pwm_lld.c **** #else
+  45:../../os/hal/platforms/AVR/pwm_lld.c ****     {&TCCR1A,  &TCCR1B, &OCR1AH,&OCR1AL,&OCR1BH,&OCR1BL,NULL,NULL,&TCNT1H,&TCNT1L,&TIFR1,&TIMSK1},
+  46:../../os/hal/platforms/AVR/pwm_lld.c **** 
+  47:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+  48:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+  49:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM2 || defined(__DOXYGEN__)
+  50:../../os/hal/platforms/AVR/pwm_lld.c ****     {&TCCR2A,  &TCCR2B, &OCR2A, &OCR2A, &OCR2B, &OCR2B, NULL, NULL, &TCNT2, &TCNT2, &TIFR2,&TIMSK2}
+  51:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+  52:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM3 || defined(__DOXYGEN__)
+  53:../../os/hal/platforms/AVR/pwm_lld.c ****     {&TCCR3A,  &TCCR3B, &OCR3AH,&OCR3AL,&OCR3BH,&OCR3BL,&OCR3CH,&OCR3CL,&TCNT3H,&TCNT3L,&TIFR3,&TIM
+  54:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+  55:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM4 || defined(__DOXYGEN__)
+  56:../../os/hal/platforms/AVR/pwm_lld.c ****     {&TCCR4A,  &TCCR4B, &OCR4AH,&OCR4AL,&OCR4CH,&OCR4CL,&OCR4CH,&OCR4CL,&TCNT4H,&TCNT4L,&TIFR4,&TIM
+  57:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+  58:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM5 || defined(__DOXYGEN__)
+  59:../../os/hal/platforms/AVR/pwm_lld.c ****     {&TCCR5A,  &TCCR5B, &OCR5AH,&OCR5AL,&OCR5BH,&OCR5BL,&OCR5CH,&OCR5CL,&TCNT5H,&TCNT5L,&TIFR5,&TIM
+  60:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+  61:../../os/hal/platforms/AVR/pwm_lld.c **** };
+  62:../../os/hal/platforms/AVR/pwm_lld.c **** /*===========================================================================*/
+  63:../../os/hal/platforms/AVR/pwm_lld.c **** /* Driver exported variables.                                                */
+  64:../../os/hal/platforms/AVR/pwm_lld.c **** /*===========================================================================*/
+  65:../../os/hal/platforms/AVR/pwm_lld.c **** /** @brief PWM driver identifiers.*/
+  66:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM1 || defined(__DOXYGEN__)
+  67:../../os/hal/platforms/AVR/pwm_lld.c **** PWMDriver PWMD1;
+  68:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+  69:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM2 || defined(__DOXYGEN__)
+  70:../../os/hal/platforms/AVR/pwm_lld.c **** PWMDriver PWMD2;
+  71:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+  72:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM3 || defined(__DOXYGEN__)
+  73:../../os/hal/platforms/AVR/pwm_lld.c **** PWMDriver PWMD3;
+  74:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+  75:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM4 || defined(__DOXYGEN__)
+  76:../../os/hal/platforms/AVR/pwm_lld.c **** PWMDriver PWMD4;
+  77:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+  78:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM5 || defined(__DOXYGEN__)
+  79:../../os/hal/platforms/AVR/pwm_lld.c **** PWMDriver PWMD5;
+  80:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+  81:../../os/hal/platforms/AVR/pwm_lld.c **** /*===========================================================================*/
+  82:../../os/hal/platforms/AVR/pwm_lld.c **** /* Driver local variables.                                                   */
+  83:../../os/hal/platforms/AVR/pwm_lld.c **** /*===========================================================================*/
+  84:../../os/hal/platforms/AVR/pwm_lld.c **** 
+  85:../../os/hal/platforms/AVR/pwm_lld.c **** /*===========================================================================*/
+  86:../../os/hal/platforms/AVR/pwm_lld.c **** /* Driver local functions.                                                   */
+  87:../../os/hal/platforms/AVR/pwm_lld.c **** /*===========================================================================*/
+  88:../../os/hal/platforms/AVR/pwm_lld.c **** static void pwm_configure_hw_channel(volatile uint8_t * TCCRnA, uint8_t COMnx1,uint8_t COMnx0, pwmm
+  89:../../os/hal/platforms/AVR/pwm_lld.c **** {
+  90:../../os/hal/platforms/AVR/pwm_lld.c ****     *TCCRnA &= ~((1<<COMnx1) | (1<<COMnx0));
+  91:../../os/hal/platforms/AVR/pwm_lld.c ****     if(PWM_OUTPUT_ACTIVE_HIGH ==mode )
+  92:../../os/hal/platforms/AVR/pwm_lld.c ****         *TCCRnA |=  ((1<<COMnx1) | (0<<COMnx0)); //non inverting mode
+  93:../../os/hal/platforms/AVR/pwm_lld.c ****     if(PWM_OUTPUT_ACTIVE_LOW ==mode)
+  94:../../os/hal/platforms/AVR/pwm_lld.c ****         *TCCRnA |= (1<<COMnx1) | (1<<COMnx0); //inverting mode
+  95:../../os/hal/platforms/AVR/pwm_lld.c **** }
+  96:../../os/hal/platforms/AVR/pwm_lld.c **** 
+  97:../../os/hal/platforms/AVR/pwm_lld.c **** uint8_t getTimerIndex(PWMDriver *gptp)
+  98:../../os/hal/platforms/AVR/pwm_lld.c **** {
+  15               		.loc 1 98 0
+  16               		.cfi_startproc
+  17               	.LVL0:
+  18               	/* prologue: function */
+  19               	/* frame size = 0 */
+  20               	/* stack size = 0 */
+  21               	.L__stack_usage = 0
+  99:../../os/hal/platforms/AVR/pwm_lld.c ****     uint8_t index = 0;
+ 100:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM1 || defined(__DOXYGEN__)
+ 101:../../os/hal/platforms/AVR/pwm_lld.c ****     if (gptp == &PWMD1) return index;
+  22               		.loc 1 101 0
+  23 0000 8050      		subi r24,lo8(PWMD1)
+  24 0002 9040      		sbci r25,hi8(PWMD1)
+  25 0004 01F0      		breq .L2
+  26               	.LVL1:
+  27               	.LVL2:
+  28 0006 0895      		ret
+  29               	.LVL3:
+  30               	.L2:
+  31 0008 80E0      		ldi r24,0
+  32               	.LVL4:
+ 102:../../os/hal/platforms/AVR/pwm_lld.c ****     else index++;
+ 103:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 104:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM2 || defined(__DOXYGEN__)
+ 105:../../os/hal/platforms/AVR/pwm_lld.c ****     if (gptp == &PWMD1) return index;
+ 106:../../os/hal/platforms/AVR/pwm_lld.c ****     else index++;
+ 107:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 108:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM3 || defined(__DOXYGEN__)
+ 109:../../os/hal/platforms/AVR/pwm_lld.c ****     if (gptp == &PWMD1) return index;
+ 110:../../os/hal/platforms/AVR/pwm_lld.c ****     else index++;
+ 111:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 112:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM4 || defined(__DOXYGEN__)
+ 113:../../os/hal/platforms/AVR/pwm_lld.c ****     if (gptp == &PWMD1) return index;
+ 114:../../os/hal/platforms/AVR/pwm_lld.c ****     else index++;
+ 115:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 116:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM5 || defined(__DOXYGEN__)
+ 117:../../os/hal/platforms/AVR/pwm_lld.c ****     if (gptp == &PWMD1) return index;
+ 118:../../os/hal/platforms/AVR/pwm_lld.c ****     else index++;
+ 119:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 120:../../os/hal/platforms/AVR/pwm_lld.c **** }
+  33               		.loc 1 120 0
+  34 000a 0895      		ret
+  35               		.cfi_endproc
+  36               	.LFE8:
+  38               	.global	__vector_13
+  40               	__vector_13:
+  41               	.LFB9:
+ 121:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 122:../../os/hal/platforms/AVR/pwm_lld.c **** /*===========================================================================*/
+ 123:../../os/hal/platforms/AVR/pwm_lld.c **** /* Driver interrupt handlers.                                                */
+ 124:../../os/hal/platforms/AVR/pwm_lld.c **** /*===========================================================================*/
+ 125:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 126:../../os/hal/platforms/AVR/pwm_lld.c **** /*
+ 127:../../os/hal/platforms/AVR/pwm_lld.c ****  * interrupt for compare1&2 and clock overflow. pwmd1 & pwmd2
+ 128:../../os/hal/platforms/AVR/pwm_lld.c ****  *
+ 129:../../os/hal/platforms/AVR/pwm_lld.c ****  *
+ 130:../../os/hal/platforms/AVR/pwm_lld.c ****  */
+ 131:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM1 || defined(__DOXYGEN__)
+ 132:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER1_OVF_vect)
+ 133:../../os/hal/platforms/AVR/pwm_lld.c **** {
+  42               		.loc 1 133 0
+  43               		.cfi_startproc
+  44 000c 1F92      		push r1
+  45               	.LCFI0:
+  46               		.cfi_def_cfa_offset 3
+  47               		.cfi_offset 1, -2
+  48 000e 0F92      		push r0
+  49               	.LCFI1:
+  50               		.cfi_def_cfa_offset 4
+  51               		.cfi_offset 0, -3
+  52 0010 0FB6      		in r0,__SREG__
+  53 0012 0F92      		push r0
+  54 0014 1124      		clr __zero_reg__
+  55 0016 2F93      		push r18
+  56               	.LCFI2:
+  57               		.cfi_def_cfa_offset 5
+  58               		.cfi_offset 18, -4
+  59 0018 3F93      		push r19
+  60               	.LCFI3:
+  61               		.cfi_def_cfa_offset 6
+  62               		.cfi_offset 19, -5
+  63 001a 4F93      		push r20
+  64               	.LCFI4:
+  65               		.cfi_def_cfa_offset 7
+  66               		.cfi_offset 20, -6
+  67 001c 5F93      		push r21
+  68               	.LCFI5:
+  69               		.cfi_def_cfa_offset 8
+  70               		.cfi_offset 21, -7
+  71 001e 6F93      		push r22
+  72               	.LCFI6:
+  73               		.cfi_def_cfa_offset 9
+  74               		.cfi_offset 22, -8
+  75 0020 7F93      		push r23
+  76               	.LCFI7:
+  77               		.cfi_def_cfa_offset 10
+  78               		.cfi_offset 23, -9
+  79 0022 8F93      		push r24
+  80               	.LCFI8:
+  81               		.cfi_def_cfa_offset 11
+  82               		.cfi_offset 24, -10
+  83 0024 9F93      		push r25
+  84               	.LCFI9:
+  85               		.cfi_def_cfa_offset 12
+  86               		.cfi_offset 25, -11
+  87 0026 AF93      		push r26
+  88               	.LCFI10:
+  89               		.cfi_def_cfa_offset 13
+  90               		.cfi_offset 26, -12
+  91 0028 BF93      		push r27
+  92               	.LCFI11:
+  93               		.cfi_def_cfa_offset 14
+  94               		.cfi_offset 27, -13
+  95 002a EF93      		push r30
+  96               	.LCFI12:
+  97               		.cfi_def_cfa_offset 15
+  98               		.cfi_offset 30, -14
+  99 002c FF93      		push r31
+ 100               	.LCFI13:
+ 101               		.cfi_def_cfa_offset 16
+ 102               		.cfi_offset 31, -15
+ 103               	/* prologue: Signal */
+ 104               	/* frame size = 0 */
+ 105               	/* stack size = 15 */
+ 106               	.L__stack_usage = 15
+ 134:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 107               		.loc 1 134 0
+ 135:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD1.config->callback(&PWMD1);
+ 108               		.loc 1 135 0
+ 109 002e E091 0000 		lds r30,PWMD1+1
+ 110 0032 F091 0000 		lds r31,PWMD1+1+1
+ 111 0036 0680      		ldd __tmp_reg__,Z+6
+ 112 0038 F781      		ldd r31,Z+7
+ 113 003a E02D      		mov r30,__tmp_reg__
+ 114 003c 80E0      		ldi r24,lo8(PWMD1)
+ 115 003e 90E0      		ldi r25,hi8(PWMD1)
+ 116 0040 0995      		icall
+ 117               	.LVL5:
+ 136:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 118               		.loc 1 136 0
+ 119 0042 0E94 0000 		call chSchIsPreemptionRequired
+ 120               	.LVL6:
+ 121 0046 8111      		cpse r24,__zero_reg__
+ 122               		.loc 1 136 0 is_stmt 0 discriminator 1
+ 123 0048 0E94 0000 		call chSchDoReschedule
+ 124               	.LVL7:
+ 125               	.L4:
+ 126               	/* epilogue start */
+ 137:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 127               		.loc 1 137 0 is_stmt 1
+ 128 004c FF91      		pop r31
+ 129 004e EF91      		pop r30
+ 130 0050 BF91      		pop r27
+ 131 0052 AF91      		pop r26
+ 132 0054 9F91      		pop r25
+ 133 0056 8F91      		pop r24
+ 134 0058 7F91      		pop r23
+ 135 005a 6F91      		pop r22
+ 136 005c 5F91      		pop r21
+ 137 005e 4F91      		pop r20
+ 138 0060 3F91      		pop r19
+ 139 0062 2F91      		pop r18
+ 140 0064 0F90      		pop r0
+ 141 0066 0FBE      		out __SREG__,r0
+ 142 0068 0F90      		pop r0
+ 143 006a 1F90      		pop r1
+ 144 006c 1895      		reti
+ 145               		.cfi_endproc
+ 146               	.LFE9:
+ 148               	.global	__vector_11
+ 150               	__vector_11:
+ 151               	.LFB10:
+ 138:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER1_COMPA_vect)
+ 139:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 152               		.loc 1 139 0
+ 153               		.cfi_startproc
+ 154 006e 1F92      		push r1
+ 155               	.LCFI14:
+ 156               		.cfi_def_cfa_offset 3
+ 157               		.cfi_offset 1, -2
+ 158 0070 0F92      		push r0
+ 159               	.LCFI15:
+ 160               		.cfi_def_cfa_offset 4
+ 161               		.cfi_offset 0, -3
+ 162 0072 0FB6      		in r0,__SREG__
+ 163 0074 0F92      		push r0
+ 164 0076 1124      		clr __zero_reg__
+ 165 0078 2F93      		push r18
+ 166               	.LCFI16:
+ 167               		.cfi_def_cfa_offset 5
+ 168               		.cfi_offset 18, -4
+ 169 007a 3F93      		push r19
+ 170               	.LCFI17:
+ 171               		.cfi_def_cfa_offset 6
+ 172               		.cfi_offset 19, -5
+ 173 007c 4F93      		push r20
+ 174               	.LCFI18:
+ 175               		.cfi_def_cfa_offset 7
+ 176               		.cfi_offset 20, -6
+ 177 007e 5F93      		push r21
+ 178               	.LCFI19:
+ 179               		.cfi_def_cfa_offset 8
+ 180               		.cfi_offset 21, -7
+ 181 0080 6F93      		push r22
+ 182               	.LCFI20:
+ 183               		.cfi_def_cfa_offset 9
+ 184               		.cfi_offset 22, -8
+ 185 0082 7F93      		push r23
+ 186               	.LCFI21:
+ 187               		.cfi_def_cfa_offset 10
+ 188               		.cfi_offset 23, -9
+ 189 0084 8F93      		push r24
+ 190               	.LCFI22:
+ 191               		.cfi_def_cfa_offset 11
+ 192               		.cfi_offset 24, -10
+ 193 0086 9F93      		push r25
+ 194               	.LCFI23:
+ 195               		.cfi_def_cfa_offset 12
+ 196               		.cfi_offset 25, -11
+ 197 0088 AF93      		push r26
+ 198               	.LCFI24:
+ 199               		.cfi_def_cfa_offset 13
+ 200               		.cfi_offset 26, -12
+ 201 008a BF93      		push r27
+ 202               	.LCFI25:
+ 203               		.cfi_def_cfa_offset 14
+ 204               		.cfi_offset 27, -13
+ 205 008c EF93      		push r30
+ 206               	.LCFI26:
+ 207               		.cfi_def_cfa_offset 15
+ 208               		.cfi_offset 30, -14
+ 209 008e FF93      		push r31
+ 210               	.LCFI27:
+ 211               		.cfi_def_cfa_offset 16
+ 212               		.cfi_offset 31, -15
+ 213               	/* prologue: Signal */
+ 214               	/* frame size = 0 */
+ 215               	/* stack size = 15 */
+ 216               	.L__stack_usage = 15
+ 140:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 217               		.loc 1 140 0
+ 141:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD1.config->channels[0].callback(&PWMD1);
+ 218               		.loc 1 141 0
+ 219 0090 E091 0000 		lds r30,PWMD1+1
+ 220 0094 F091 0000 		lds r31,PWMD1+1+1
+ 221 0098 0484      		ldd __tmp_reg__,Z+12
+ 222 009a F585      		ldd r31,Z+13
+ 223 009c E02D      		mov r30,__tmp_reg__
+ 224 009e 80E0      		ldi r24,lo8(PWMD1)
+ 225 00a0 90E0      		ldi r25,hi8(PWMD1)
+ 226 00a2 0995      		icall
+ 227               	.LVL8:
+ 142:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 228               		.loc 1 142 0
+ 229 00a4 0E94 0000 		call chSchIsPreemptionRequired
+ 230               	.LVL9:
+ 231 00a8 8111      		cpse r24,__zero_reg__
+ 232               		.loc 1 142 0 is_stmt 0 discriminator 1
+ 233 00aa 0E94 0000 		call chSchDoReschedule
+ 234               	.LVL10:
+ 235               	.L9:
+ 236               	/* epilogue start */
+ 143:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 237               		.loc 1 143 0 is_stmt 1
+ 238 00ae FF91      		pop r31
+ 239 00b0 EF91      		pop r30
+ 240 00b2 BF91      		pop r27
+ 241 00b4 AF91      		pop r26
+ 242 00b6 9F91      		pop r25
+ 243 00b8 8F91      		pop r24
+ 244 00ba 7F91      		pop r23
+ 245 00bc 6F91      		pop r22
+ 246 00be 5F91      		pop r21
+ 247 00c0 4F91      		pop r20
+ 248 00c2 3F91      		pop r19
+ 249 00c4 2F91      		pop r18
+ 250 00c6 0F90      		pop r0
+ 251 00c8 0FBE      		out __SREG__,r0
+ 252 00ca 0F90      		pop r0
+ 253 00cc 1F90      		pop r1
+ 254 00ce 1895      		reti
+ 255               		.cfi_endproc
+ 256               	.LFE10:
+ 258               	.global	__vector_12
+ 260               	__vector_12:
+ 261               	.LFB11:
+ 144:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER1_COMPB_vect)
+ 145:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 262               		.loc 1 145 0
+ 263               		.cfi_startproc
+ 264 00d0 1F92      		push r1
+ 265               	.LCFI28:
+ 266               		.cfi_def_cfa_offset 3
+ 267               		.cfi_offset 1, -2
+ 268 00d2 0F92      		push r0
+ 269               	.LCFI29:
+ 270               		.cfi_def_cfa_offset 4
+ 271               		.cfi_offset 0, -3
+ 272 00d4 0FB6      		in r0,__SREG__
+ 273 00d6 0F92      		push r0
+ 274 00d8 1124      		clr __zero_reg__
+ 275 00da 2F93      		push r18
+ 276               	.LCFI30:
+ 277               		.cfi_def_cfa_offset 5
+ 278               		.cfi_offset 18, -4
+ 279 00dc 3F93      		push r19
+ 280               	.LCFI31:
+ 281               		.cfi_def_cfa_offset 6
+ 282               		.cfi_offset 19, -5
+ 283 00de 4F93      		push r20
+ 284               	.LCFI32:
+ 285               		.cfi_def_cfa_offset 7
+ 286               		.cfi_offset 20, -6
+ 287 00e0 5F93      		push r21
+ 288               	.LCFI33:
+ 289               		.cfi_def_cfa_offset 8
+ 290               		.cfi_offset 21, -7
+ 291 00e2 6F93      		push r22
+ 292               	.LCFI34:
+ 293               		.cfi_def_cfa_offset 9
+ 294               		.cfi_offset 22, -8
+ 295 00e4 7F93      		push r23
+ 296               	.LCFI35:
+ 297               		.cfi_def_cfa_offset 10
+ 298               		.cfi_offset 23, -9
+ 299 00e6 8F93      		push r24
+ 300               	.LCFI36:
+ 301               		.cfi_def_cfa_offset 11
+ 302               		.cfi_offset 24, -10
+ 303 00e8 9F93      		push r25
+ 304               	.LCFI37:
+ 305               		.cfi_def_cfa_offset 12
+ 306               		.cfi_offset 25, -11
+ 307 00ea AF93      		push r26
+ 308               	.LCFI38:
+ 309               		.cfi_def_cfa_offset 13
+ 310               		.cfi_offset 26, -12
+ 311 00ec BF93      		push r27
+ 312               	.LCFI39:
+ 313               		.cfi_def_cfa_offset 14
+ 314               		.cfi_offset 27, -13
+ 315 00ee EF93      		push r30
+ 316               	.LCFI40:
+ 317               		.cfi_def_cfa_offset 15
+ 318               		.cfi_offset 30, -14
+ 319 00f0 FF93      		push r31
+ 320               	.LCFI41:
+ 321               		.cfi_def_cfa_offset 16
+ 322               		.cfi_offset 31, -15
+ 323               	/* prologue: Signal */
+ 324               	/* frame size = 0 */
+ 325               	/* stack size = 15 */
+ 326               	.L__stack_usage = 15
+ 146:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 327               		.loc 1 146 0
+ 147:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD1.config->channels[1].callback(&PWMD1);
+ 328               		.loc 1 147 0
+ 329 00f2 E091 0000 		lds r30,PWMD1+1
+ 330 00f6 F091 0000 		lds r31,PWMD1+1+1
+ 331 00fa 0288      		ldd __tmp_reg__,Z+18
+ 332 00fc F389      		ldd r31,Z+19
+ 333 00fe E02D      		mov r30,__tmp_reg__
+ 334 0100 80E0      		ldi r24,lo8(PWMD1)
+ 335 0102 90E0      		ldi r25,hi8(PWMD1)
+ 336 0104 0995      		icall
+ 337               	.LVL11:
+ 148:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 338               		.loc 1 148 0
+ 339 0106 0E94 0000 		call chSchIsPreemptionRequired
+ 340               	.LVL12:
+ 341 010a 8111      		cpse r24,__zero_reg__
+ 342               		.loc 1 148 0 is_stmt 0 discriminator 1
+ 343 010c 0E94 0000 		call chSchDoReschedule
+ 344               	.LVL13:
+ 345               	.L14:
+ 346               	/* epilogue start */
+ 149:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 347               		.loc 1 149 0 is_stmt 1
+ 348 0110 FF91      		pop r31
+ 349 0112 EF91      		pop r30
+ 350 0114 BF91      		pop r27
+ 351 0116 AF91      		pop r26
+ 352 0118 9F91      		pop r25
+ 353 011a 8F91      		pop r24
+ 354 011c 7F91      		pop r23
+ 355 011e 6F91      		pop r22
+ 356 0120 5F91      		pop r21
+ 357 0122 4F91      		pop r20
+ 358 0124 3F91      		pop r19
+ 359 0126 2F91      		pop r18
+ 360 0128 0F90      		pop r0
+ 361 012a 0FBE      		out __SREG__,r0
+ 362 012c 0F90      		pop r0
+ 363 012e 1F90      		pop r1
+ 364 0130 1895      		reti
+ 365               		.cfi_endproc
+ 366               	.LFE11:
+ 368               	.global	__vector_9
+ 370               	__vector_9:
+ 371               	.LFB12:
+ 150:../../os/hal/platforms/AVR/pwm_lld.c **** #if PWM_CHANNELS>2
+ 151:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER1_COMPC_vect)
+ 152:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 153:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 154:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD1.config->channels[2].callback(&PWMD1);
+ 155:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 156:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 157:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 158:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 159:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM2 || defined(__DOXYGEN__)
+ 160:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER2_OVF_vect)
+ 161:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 372               		.loc 1 161 0
+ 373               		.cfi_startproc
+ 374 0132 1F92      		push r1
+ 375               	.LCFI42:
+ 376               		.cfi_def_cfa_offset 3
+ 377               		.cfi_offset 1, -2
+ 378 0134 0F92      		push r0
+ 379               	.LCFI43:
+ 380               		.cfi_def_cfa_offset 4
+ 381               		.cfi_offset 0, -3
+ 382 0136 0FB6      		in r0,__SREG__
+ 383 0138 0F92      		push r0
+ 384 013a 1124      		clr __zero_reg__
+ 385 013c 2F93      		push r18
+ 386               	.LCFI44:
+ 387               		.cfi_def_cfa_offset 5
+ 388               		.cfi_offset 18, -4
+ 389 013e 3F93      		push r19
+ 390               	.LCFI45:
+ 391               		.cfi_def_cfa_offset 6
+ 392               		.cfi_offset 19, -5
+ 393 0140 4F93      		push r20
+ 394               	.LCFI46:
+ 395               		.cfi_def_cfa_offset 7
+ 396               		.cfi_offset 20, -6
+ 397 0142 5F93      		push r21
+ 398               	.LCFI47:
+ 399               		.cfi_def_cfa_offset 8
+ 400               		.cfi_offset 21, -7
+ 401 0144 6F93      		push r22
+ 402               	.LCFI48:
+ 403               		.cfi_def_cfa_offset 9
+ 404               		.cfi_offset 22, -8
+ 405 0146 7F93      		push r23
+ 406               	.LCFI49:
+ 407               		.cfi_def_cfa_offset 10
+ 408               		.cfi_offset 23, -9
+ 409 0148 8F93      		push r24
+ 410               	.LCFI50:
+ 411               		.cfi_def_cfa_offset 11
+ 412               		.cfi_offset 24, -10
+ 413 014a 9F93      		push r25
+ 414               	.LCFI51:
+ 415               		.cfi_def_cfa_offset 12
+ 416               		.cfi_offset 25, -11
+ 417 014c AF93      		push r26
+ 418               	.LCFI52:
+ 419               		.cfi_def_cfa_offset 13
+ 420               		.cfi_offset 26, -12
+ 421 014e BF93      		push r27
+ 422               	.LCFI53:
+ 423               		.cfi_def_cfa_offset 14
+ 424               		.cfi_offset 27, -13
+ 425 0150 EF93      		push r30
+ 426               	.LCFI54:
+ 427               		.cfi_def_cfa_offset 15
+ 428               		.cfi_offset 30, -14
+ 429 0152 FF93      		push r31
+ 430               	.LCFI55:
+ 431               		.cfi_def_cfa_offset 16
+ 432               		.cfi_offset 31, -15
+ 433               	/* prologue: Signal */
+ 434               	/* frame size = 0 */
+ 435               	/* stack size = 15 */
+ 436               	.L__stack_usage = 15
+ 162:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 437               		.loc 1 162 0
+ 163:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD2.config->callback(&PWMD2);
+ 438               		.loc 1 163 0
+ 439 0154 E091 0000 		lds r30,PWMD2+1
+ 440 0158 F091 0000 		lds r31,PWMD2+1+1
+ 441 015c 0680      		ldd __tmp_reg__,Z+6
+ 442 015e F781      		ldd r31,Z+7
+ 443 0160 E02D      		mov r30,__tmp_reg__
+ 444 0162 80E0      		ldi r24,lo8(PWMD2)
+ 445 0164 90E0      		ldi r25,hi8(PWMD2)
+ 446 0166 0995      		icall
+ 447               	.LVL14:
+ 164:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 448               		.loc 1 164 0
+ 449 0168 0E94 0000 		call chSchIsPreemptionRequired
+ 450               	.LVL15:
+ 451 016c 8111      		cpse r24,__zero_reg__
+ 452               		.loc 1 164 0 is_stmt 0 discriminator 1
+ 453 016e 0E94 0000 		call chSchDoReschedule
+ 454               	.LVL16:
+ 455               	.L19:
+ 456               	/* epilogue start */
+ 165:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 457               		.loc 1 165 0 is_stmt 1
+ 458 0172 FF91      		pop r31
+ 459 0174 EF91      		pop r30
+ 460 0176 BF91      		pop r27
+ 461 0178 AF91      		pop r26
+ 462 017a 9F91      		pop r25
+ 463 017c 8F91      		pop r24
+ 464 017e 7F91      		pop r23
+ 465 0180 6F91      		pop r22
+ 466 0182 5F91      		pop r21
+ 467 0184 4F91      		pop r20
+ 468 0186 3F91      		pop r19
+ 469 0188 2F91      		pop r18
+ 470 018a 0F90      		pop r0
+ 471 018c 0FBE      		out __SREG__,r0
+ 472 018e 0F90      		pop r0
+ 473 0190 1F90      		pop r1
+ 474 0192 1895      		reti
+ 475               		.cfi_endproc
+ 476               	.LFE12:
+ 478               	.global	__vector_7
+ 480               	__vector_7:
+ 481               	.LFB13:
+ 166:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER2_COMPA_vect)
+ 167:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 482               		.loc 1 167 0
+ 483               		.cfi_startproc
+ 484 0194 1F92      		push r1
+ 485               	.LCFI56:
+ 486               		.cfi_def_cfa_offset 3
+ 487               		.cfi_offset 1, -2
+ 488 0196 0F92      		push r0
+ 489               	.LCFI57:
+ 490               		.cfi_def_cfa_offset 4
+ 491               		.cfi_offset 0, -3
+ 492 0198 0FB6      		in r0,__SREG__
+ 493 019a 0F92      		push r0
+ 494 019c 1124      		clr __zero_reg__
+ 495 019e 2F93      		push r18
+ 496               	.LCFI58:
+ 497               		.cfi_def_cfa_offset 5
+ 498               		.cfi_offset 18, -4
+ 499 01a0 3F93      		push r19
+ 500               	.LCFI59:
+ 501               		.cfi_def_cfa_offset 6
+ 502               		.cfi_offset 19, -5
+ 503 01a2 4F93      		push r20
+ 504               	.LCFI60:
+ 505               		.cfi_def_cfa_offset 7
+ 506               		.cfi_offset 20, -6
+ 507 01a4 5F93      		push r21
+ 508               	.LCFI61:
+ 509               		.cfi_def_cfa_offset 8
+ 510               		.cfi_offset 21, -7
+ 511 01a6 6F93      		push r22
+ 512               	.LCFI62:
+ 513               		.cfi_def_cfa_offset 9
+ 514               		.cfi_offset 22, -8
+ 515 01a8 7F93      		push r23
+ 516               	.LCFI63:
+ 517               		.cfi_def_cfa_offset 10
+ 518               		.cfi_offset 23, -9
+ 519 01aa 8F93      		push r24
+ 520               	.LCFI64:
+ 521               		.cfi_def_cfa_offset 11
+ 522               		.cfi_offset 24, -10
+ 523 01ac 9F93      		push r25
+ 524               	.LCFI65:
+ 525               		.cfi_def_cfa_offset 12
+ 526               		.cfi_offset 25, -11
+ 527 01ae AF93      		push r26
+ 528               	.LCFI66:
+ 529               		.cfi_def_cfa_offset 13
+ 530               		.cfi_offset 26, -12
+ 531 01b0 BF93      		push r27
+ 532               	.LCFI67:
+ 533               		.cfi_def_cfa_offset 14
+ 534               		.cfi_offset 27, -13
+ 535 01b2 EF93      		push r30
+ 536               	.LCFI68:
+ 537               		.cfi_def_cfa_offset 15
+ 538               		.cfi_offset 30, -14
+ 539 01b4 FF93      		push r31
+ 540               	.LCFI69:
+ 541               		.cfi_def_cfa_offset 16
+ 542               		.cfi_offset 31, -15
+ 543               	/* prologue: Signal */
+ 544               	/* frame size = 0 */
+ 545               	/* stack size = 15 */
+ 546               	.L__stack_usage = 15
+ 168:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 547               		.loc 1 168 0
+ 169:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD2.config->channels[0].callback(&PWMD2);
+ 548               		.loc 1 169 0
+ 549 01b6 E091 0000 		lds r30,PWMD2+1
+ 550 01ba F091 0000 		lds r31,PWMD2+1+1
+ 551 01be 0484      		ldd __tmp_reg__,Z+12
+ 552 01c0 F585      		ldd r31,Z+13
+ 553 01c2 E02D      		mov r30,__tmp_reg__
+ 554 01c4 80E0      		ldi r24,lo8(PWMD2)
+ 555 01c6 90E0      		ldi r25,hi8(PWMD2)
+ 556 01c8 0995      		icall
+ 557               	.LVL17:
+ 170:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 558               		.loc 1 170 0
+ 559 01ca 0E94 0000 		call chSchIsPreemptionRequired
+ 560               	.LVL18:
+ 561 01ce 8111      		cpse r24,__zero_reg__
+ 562               		.loc 1 170 0 is_stmt 0 discriminator 1
+ 563 01d0 0E94 0000 		call chSchDoReschedule
+ 564               	.LVL19:
+ 565               	.L24:
+ 566               	/* epilogue start */
+ 171:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 567               		.loc 1 171 0 is_stmt 1
+ 568 01d4 FF91      		pop r31
+ 569 01d6 EF91      		pop r30
+ 570 01d8 BF91      		pop r27
+ 571 01da AF91      		pop r26
+ 572 01dc 9F91      		pop r25
+ 573 01de 8F91      		pop r24
+ 574 01e0 7F91      		pop r23
+ 575 01e2 6F91      		pop r22
+ 576 01e4 5F91      		pop r21
+ 577 01e6 4F91      		pop r20
+ 578 01e8 3F91      		pop r19
+ 579 01ea 2F91      		pop r18
+ 580 01ec 0F90      		pop r0
+ 581 01ee 0FBE      		out __SREG__,r0
+ 582 01f0 0F90      		pop r0
+ 583 01f2 1F90      		pop r1
+ 584 01f4 1895      		reti
+ 585               		.cfi_endproc
+ 586               	.LFE13:
+ 588               	.global	__vector_8
+ 590               	__vector_8:
+ 591               	.LFB14:
+ 172:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER2_COMPB_vect)
+ 173:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 592               		.loc 1 173 0
+ 593               		.cfi_startproc
+ 594 01f6 1F92      		push r1
+ 595               	.LCFI70:
+ 596               		.cfi_def_cfa_offset 3
+ 597               		.cfi_offset 1, -2
+ 598 01f8 0F92      		push r0
+ 599               	.LCFI71:
+ 600               		.cfi_def_cfa_offset 4
+ 601               		.cfi_offset 0, -3
+ 602 01fa 0FB6      		in r0,__SREG__
+ 603 01fc 0F92      		push r0
+ 604 01fe 1124      		clr __zero_reg__
+ 605 0200 2F93      		push r18
+ 606               	.LCFI72:
+ 607               		.cfi_def_cfa_offset 5
+ 608               		.cfi_offset 18, -4
+ 609 0202 3F93      		push r19
+ 610               	.LCFI73:
+ 611               		.cfi_def_cfa_offset 6
+ 612               		.cfi_offset 19, -5
+ 613 0204 4F93      		push r20
+ 614               	.LCFI74:
+ 615               		.cfi_def_cfa_offset 7
+ 616               		.cfi_offset 20, -6
+ 617 0206 5F93      		push r21
+ 618               	.LCFI75:
+ 619               		.cfi_def_cfa_offset 8
+ 620               		.cfi_offset 21, -7
+ 621 0208 6F93      		push r22
+ 622               	.LCFI76:
+ 623               		.cfi_def_cfa_offset 9
+ 624               		.cfi_offset 22, -8
+ 625 020a 7F93      		push r23
+ 626               	.LCFI77:
+ 627               		.cfi_def_cfa_offset 10
+ 628               		.cfi_offset 23, -9
+ 629 020c 8F93      		push r24
+ 630               	.LCFI78:
+ 631               		.cfi_def_cfa_offset 11
+ 632               		.cfi_offset 24, -10
+ 633 020e 9F93      		push r25
+ 634               	.LCFI79:
+ 635               		.cfi_def_cfa_offset 12
+ 636               		.cfi_offset 25, -11
+ 637 0210 AF93      		push r26
+ 638               	.LCFI80:
+ 639               		.cfi_def_cfa_offset 13
+ 640               		.cfi_offset 26, -12
+ 641 0212 BF93      		push r27
+ 642               	.LCFI81:
+ 643               		.cfi_def_cfa_offset 14
+ 644               		.cfi_offset 27, -13
+ 645 0214 EF93      		push r30
+ 646               	.LCFI82:
+ 647               		.cfi_def_cfa_offset 15
+ 648               		.cfi_offset 30, -14
+ 649 0216 FF93      		push r31
+ 650               	.LCFI83:
+ 651               		.cfi_def_cfa_offset 16
+ 652               		.cfi_offset 31, -15
+ 653               	/* prologue: Signal */
+ 654               	/* frame size = 0 */
+ 655               	/* stack size = 15 */
+ 656               	.L__stack_usage = 15
+ 174:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 657               		.loc 1 174 0
+ 175:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD2.config->channels[1].callback(&PWMD2);
+ 658               		.loc 1 175 0
+ 659 0218 E091 0000 		lds r30,PWMD2+1
+ 660 021c F091 0000 		lds r31,PWMD2+1+1
+ 661 0220 0288      		ldd __tmp_reg__,Z+18
+ 662 0222 F389      		ldd r31,Z+19
+ 663 0224 E02D      		mov r30,__tmp_reg__
+ 664 0226 80E0      		ldi r24,lo8(PWMD2)
+ 665 0228 90E0      		ldi r25,hi8(PWMD2)
+ 666 022a 0995      		icall
+ 667               	.LVL20:
+ 176:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 668               		.loc 1 176 0
+ 669 022c 0E94 0000 		call chSchIsPreemptionRequired
+ 670               	.LVL21:
+ 671 0230 8111      		cpse r24,__zero_reg__
+ 672               		.loc 1 176 0 is_stmt 0 discriminator 1
+ 673 0232 0E94 0000 		call chSchDoReschedule
+ 674               	.LVL22:
+ 675               	.L29:
+ 676               	/* epilogue start */
+ 177:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 677               		.loc 1 177 0 is_stmt 1
+ 678 0236 FF91      		pop r31
+ 679 0238 EF91      		pop r30
+ 680 023a BF91      		pop r27
+ 681 023c AF91      		pop r26
+ 682 023e 9F91      		pop r25
+ 683 0240 8F91      		pop r24
+ 684 0242 7F91      		pop r23
+ 685 0244 6F91      		pop r22
+ 686 0246 5F91      		pop r21
+ 687 0248 4F91      		pop r20
+ 688 024a 3F91      		pop r19
+ 689 024c 2F91      		pop r18
+ 690 024e 0F90      		pop r0
+ 691 0250 0FBE      		out __SREG__,r0
+ 692 0252 0F90      		pop r0
+ 693 0254 1F90      		pop r1
+ 694 0256 1895      		reti
+ 695               		.cfi_endproc
+ 696               	.LFE14:
+ 698               	.global	pwm_lld_init
+ 700               	pwm_lld_init:
+ 701               	.LFB15:
+ 178:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 179:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM3 || defined(__DOXYGEN__)
+ 180:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER3_OVF_vect)
+ 181:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 182:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 183:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD3.config->callback(&PWMD3);
+ 184:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 185:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 186:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER3_COMPA_vect)
+ 187:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 188:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 189:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD3.config->channels[0].callback(&PWMD3);
+ 190:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 191:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 192:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER3_COMPB_vect)
+ 193:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 194:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 195:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD3.config->channels[1].callback(&PWMD3);
+ 196:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 197:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 198:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER3_COMPC_vect)
+ 199:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 200:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 201:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD3.config->channels[2].callback(&PWMD3);
+ 202:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 203:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 204:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 205:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM4 || defined(__DOXYGEN__)
+ 206:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER4_OVF_vect)
+ 207:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 208:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 209:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD4.config->callback(&PWMD4);
+ 210:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 211:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 212:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER4_COMPA_vect)
+ 213:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 214:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 215:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD4.config->channels[0].callback(&PWMD4);
+ 216:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 217:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 218:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER4_COMPB_vect)
+ 219:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 220:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 221:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD4.config->channels[1].callback(&PWMD4);
+ 222:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 223:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 224:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER4_COMPC_vect)
+ 225:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 226:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 227:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD4.config->channels[2].callback(&PWMD4);
+ 228:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 229:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 230:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 231:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM5 || defined(__DOXYGEN__)
+ 232:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER5_OVF_vect)
+ 233:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 234:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 235:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD5.config->callback(&PWMD5);
+ 236:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 237:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 238:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER5_COMPA_vect)
+ 239:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 240:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 241:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD5.config->channels[0].callback(&PWMD5);
+ 242:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 243:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 244:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER5_COMPB_vect)
+ 245:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 246:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 247:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD5.config->channels[1].callback(&PWMD5);
+ 248:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 249:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 250:../../os/hal/platforms/AVR/pwm_lld.c **** CH_IRQ_HANDLER(TIMER5_COMPC_vect)
+ 251:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 252:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_PROLOGUE();
+ 253:../../os/hal/platforms/AVR/pwm_lld.c ****     PWMD5.config->channels[2].callback(&PWMD5);
+ 254:../../os/hal/platforms/AVR/pwm_lld.c ****     CH_IRQ_EPILOGUE();
+ 255:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 256:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 257:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 258:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 259:../../os/hal/platforms/AVR/pwm_lld.c **** /*===========================================================================*/
+ 260:../../os/hal/platforms/AVR/pwm_lld.c **** /* Driver exported functions.                                                */
+ 261:../../os/hal/platforms/AVR/pwm_lld.c **** /*===========================================================================*/
+ 262:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 263:../../os/hal/platforms/AVR/pwm_lld.c **** /**
+ 264:../../os/hal/platforms/AVR/pwm_lld.c ****  * @brief   Low level PWM driver initialization.
+ 265:../../os/hal/platforms/AVR/pwm_lld.c ****  *
+ 266:../../os/hal/platforms/AVR/pwm_lld.c ****  * @notapi
+ 267:../../os/hal/platforms/AVR/pwm_lld.c ****  */
+ 268:../../os/hal/platforms/AVR/pwm_lld.c **** void pwm_lld_init(void)
+ 269:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 702               		.loc 1 269 0
+ 703               		.cfi_startproc
+ 704               	/* prologue: function */
+ 705               	/* frame size = 0 */
+ 706               	/* stack size = 0 */
+ 707               	.L__stack_usage = 0
+ 270:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 271:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM1 || defined(__DOXYGEN__)
+ 272:../../os/hal/platforms/AVR/pwm_lld.c ****     pwmObjectInit(&PWMD1);
+ 708               		.loc 1 272 0
+ 709 0258 80E0      		ldi r24,lo8(PWMD1)
+ 710 025a 90E0      		ldi r25,hi8(PWMD1)
+ 711 025c 0E94 0000 		call pwmObjectInit
+ 712               	.LVL23:
+ 273:../../os/hal/platforms/AVR/pwm_lld.c ****     TCCR1A = (0<<WGM11) | (1<<WGM10);   //fast pwm 8 bit
+ 713               		.loc 1 273 0
+ 714 0260 81E0      		ldi r24,lo8(1)
+ 715 0262 8093 8000 		sts 128,r24
+ 274:../../os/hal/platforms/AVR/pwm_lld.c ****     TCCR1B = (1<<WGM12) | (0<<WGM13);  //fast pwm 8 bit
+ 716               		.loc 1 274 0
+ 717 0266 88E0      		ldi r24,lo8(8)
+ 718 0268 8093 8100 		sts 129,r24
+ 275:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 276:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM2 || defined(__DOXYGEN__)
+ 277:../../os/hal/platforms/AVR/pwm_lld.c ****     pwmObjectInit(&PWMD2);
+ 719               		.loc 1 277 0
+ 720 026c 80E0      		ldi r24,lo8(PWMD2)
+ 721 026e 90E0      		ldi r25,hi8(PWMD2)
+ 722 0270 0E94 0000 		call pwmObjectInit
+ 723               	.LVL24:
+ 278:../../os/hal/platforms/AVR/pwm_lld.c ****     TCCR2A = (1<<WGM21) | (1<<WGM20);   //fast pwm 8 bit
+ 724               		.loc 1 278 0
+ 725 0274 83E0      		ldi r24,lo8(3)
+ 726 0276 8093 B000 		sts 176,r24
+ 279:../../os/hal/platforms/AVR/pwm_lld.c ****     TCCR2B = (0<<WGM22);  //fast pwm 8 bit
+ 727               		.loc 1 279 0
+ 728 027a 1092 B100 		sts 177,__zero_reg__
+ 729 027e 0895      		ret
+ 730               		.cfi_endproc
+ 731               	.LFE15:
+ 733               	.global	pwm_lld_start
+ 735               	pwm_lld_start:
+ 736               	.LFB16:
+ 280:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 281:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 282:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM3 || defined(__DOXYGEN__)
+ 283:../../os/hal/platforms/AVR/pwm_lld.c ****     pwmObjectInit(&PWMD3);
+ 284:../../os/hal/platforms/AVR/pwm_lld.c ****     TCCR3A = (0<<WGM11) | (1<<WGM10);   //fast pwm 8 bit
+ 285:../../os/hal/platforms/AVR/pwm_lld.c ****     TCCR3B = (1<<WGM12) | (0<<WGM13);  //fast pwm 8 bit
+ 286:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 287:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM4 || defined(__DOXYGEN__)
+ 288:../../os/hal/platforms/AVR/pwm_lld.c ****     pwmObjectInit(&PWMD4);
+ 289:../../os/hal/platforms/AVR/pwm_lld.c ****     TCCR4A = (0<<WGM11) | (1<<WGM10);   //fast pwm 8 bit
+ 290:../../os/hal/platforms/AVR/pwm_lld.c ****     TCCR4B = (1<<WGM12) | (0<<WGM13);  //fast pwm 8 bit
+ 291:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 292:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM5 || defined(__DOXYGEN__)
+ 293:../../os/hal/platforms/AVR/pwm_lld.c ****     pwmObjectInit(&PWMD5);
+ 294:../../os/hal/platforms/AVR/pwm_lld.c ****     TCCR5A = (0<<WGM11) | (1<<WGM10);   //fast pwm 8 bit
+ 295:../../os/hal/platforms/AVR/pwm_lld.c ****     TCCR5B = (1<<WGM12) | (0<<WGM13);  //fast pwm 8 bit
+ 296:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 297:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 298:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 299:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 300:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 301:../../os/hal/platforms/AVR/pwm_lld.c **** /**
+ 302:../../os/hal/platforms/AVR/pwm_lld.c ****  * @brief   Configures and activates the PWM peripheral.
+ 303:../../os/hal/platforms/AVR/pwm_lld.c ****  *
+ 304:../../os/hal/platforms/AVR/pwm_lld.c ****  * @param[in] pwmp      pointer to the @p PWMDriver object
+ 305:../../os/hal/platforms/AVR/pwm_lld.c ****  *
+ 306:../../os/hal/platforms/AVR/pwm_lld.c ****  * @notapi
+ 307:../../os/hal/platforms/AVR/pwm_lld.c ****  */
+ 308:../../os/hal/platforms/AVR/pwm_lld.c **** void pwm_lld_start(PWMDriver *pwmp)
+ 309:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 737               		.loc 1 309 0
+ 738               		.cfi_startproc
+ 739               	.LVL25:
+ 740               	/* prologue: function */
+ 741               	/* frame size = 0 */
+ 742               	/* stack size = 0 */
+ 743               	.L__stack_usage = 0
+ 310:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 311:../../os/hal/platforms/AVR/pwm_lld.c ****     if ( pwmp->state == PWM_STOP)
+ 744               		.loc 1 311 0
+ 745 0280 FC01      		movw r30,r24
+ 746 0282 2081      		ld r18,Z
+ 747 0284 2130      		cpi r18,lo8(1)
+ 748 0286 01F0      		breq .L43
+ 749               	.LVL26:
+ 750               	.L35:
+ 751 0288 0895      		ret
+ 752               	.LVL27:
+ 753               	.L43:
+ 754               	.LBB17:
+ 312:../../os/hal/platforms/AVR/pwm_lld.c ****     {
+ 313:../../os/hal/platforms/AVR/pwm_lld.c ****         /* Clock activation.*/
+ 314:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 315:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM2 || defined(__DOXYGEN__)
+ 316:../../os/hal/platforms/AVR/pwm_lld.c ****         if(pwmp == &PWMD2)
+ 755               		.loc 1 316 0
+ 756 028a 8050      		subi r24,lo8(PWMD2)
+ 757 028c 9040      		sbci r25,hi8(PWMD2)
+ 758 028e 01F0      		breq .L44
+ 759               	.LVL28:
+ 317:../../os/hal/platforms/AVR/pwm_lld.c ****         {
+ 318:../../os/hal/platforms/AVR/pwm_lld.c ****             TCCR2B |= (0<<CS22) |(0<<CS21) | (1<<CS20); //parti col no prescaling
+ 319:../../os/hal/platforms/AVR/pwm_lld.c ****             if(pwmp->config->callback != NULL)
+ 320:../../os/hal/platforms/AVR/pwm_lld.c ****                 TIMSK2 = (1<<TOIE2);
+ 321:../../os/hal/platforms/AVR/pwm_lld.c ****             return;
+ 322:../../os/hal/platforms/AVR/pwm_lld.c ****         }
+ 323:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 324:../../os/hal/platforms/AVR/pwm_lld.c **** //{&TCCR1A,  &TCCR1B, &OCR1AH,&OCR1AL,&OCR1BH,&OCR1BL,&OCR1CH,&OCR1CL,&TCNT1H,&TCNT1L,&TIFR1,&TIMSK
+ 325:../../os/hal/platforms/AVR/pwm_lld.c ****         uint8_t index = getTimerIndex(pwmp);
+ 326:../../os/hal/platforms/AVR/pwm_lld.c ****         *timer_registers_table[index][1] |= (1<<CS12) |(0<<CS11) | (1<<CS10);
+ 760               		.loc 1 326 0
+ 761 0290 E091 0000 		lds r30,timer_registers_table+2
+ 762 0294 F091 0000 		lds r31,timer_registers_table+2+1
+ 763 0298 8081      		ld r24,Z
+ 764               	.LVL29:
+ 765 029a 8560      		ori r24,lo8(5)
+ 766 029c 8083      		st Z,r24
+ 327:../../os/hal/platforms/AVR/pwm_lld.c ****         *timer_registers_table[index][10] = (1<<TOIE1);
+ 767               		.loc 1 327 0
+ 768 029e E091 0000 		lds r30,timer_registers_table+20
+ 769 02a2 F091 0000 		lds r31,timer_registers_table+20+1
+ 770 02a6 2083      		st Z,r18
+ 771 02a8 0895      		ret
+ 772               	.LVL30:
+ 773               	.L44:
+ 318:../../os/hal/platforms/AVR/pwm_lld.c ****             TCCR2B |= (0<<CS22) |(0<<CS21) | (1<<CS20); //parti col no prescaling
+ 774               		.loc 1 318 0
+ 775 02aa 8091 B100 		lds r24,177
+ 776               	.LVL31:
+ 777 02ae 8160      		ori r24,lo8(1)
+ 778 02b0 8093 B100 		sts 177,r24
+ 319:../../os/hal/platforms/AVR/pwm_lld.c ****             if(pwmp->config->callback != NULL)
+ 779               		.loc 1 319 0
+ 780 02b4 E091 0000 		lds r30,PWMD2+1
+ 781 02b8 F091 0000 		lds r31,PWMD2+1+1
+ 782               	.LVL32:
+ 783 02bc 8681      		ldd r24,Z+6
+ 784 02be 9781      		ldd r25,Z+7
+ 785 02c0 892B      		or r24,r25
+ 786 02c2 01F0      		breq .L35
+ 320:../../os/hal/platforms/AVR/pwm_lld.c ****                 TIMSK2 = (1<<TOIE2);
+ 787               		.loc 1 320 0
+ 788 02c4 2093 7000 		sts 112,r18
+ 789 02c8 0895      		ret
+ 790               	.LBE17:
+ 791               		.cfi_endproc
+ 792               	.LFE16:
+ 794               	.global	pwm_lld_stop
+ 796               	pwm_lld_stop:
+ 797               	.LFB17:
+ 328:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 329:../../os/hal/platforms/AVR/pwm_lld.c ****     }
+ 330:../../os/hal/platforms/AVR/pwm_lld.c ****     /* Configuration.*/
+ 331:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 332:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 333:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 334:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 335:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 336:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 337:../../os/hal/platforms/AVR/pwm_lld.c **** /**
+ 338:../../os/hal/platforms/AVR/pwm_lld.c ****  * @brief   Deactivates the PWM peripheral.
+ 339:../../os/hal/platforms/AVR/pwm_lld.c ****  *
+ 340:../../os/hal/platforms/AVR/pwm_lld.c ****  * @param[in] pwmp      pointer to the @p PWMDriver object
+ 341:../../os/hal/platforms/AVR/pwm_lld.c ****  *
+ 342:../../os/hal/platforms/AVR/pwm_lld.c ****  * @notapi
+ 343:../../os/hal/platforms/AVR/pwm_lld.c ****  */
+ 344:../../os/hal/platforms/AVR/pwm_lld.c **** void pwm_lld_stop(PWMDriver *pwmp)
+ 345:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 798               		.loc 1 345 0
+ 799               		.cfi_startproc
+ 800               	.LVL33:
+ 801               	/* prologue: function */
+ 802               	/* frame size = 0 */
+ 803               	/* stack size = 0 */
+ 804               	.L__stack_usage = 0
+ 346:../../os/hal/platforms/AVR/pwm_lld.c **** //{&TCCR1A,  &TCCR1B, &OCR1AH,&OCR1AL,&OCR1BH,&OCR1BL,&OCR1CH,&OCR1CL,&TCNT1H,&TCNT1L,&TIFR1,&TIMSK
+ 347:../../os/hal/platforms/AVR/pwm_lld.c ****     uint8_t index = getTimerIndex(pwmp);
+ 348:../../os/hal/platforms/AVR/pwm_lld.c ****     *timer_registers_table[index][1] &= ~((1<<CS12) |(1<<CS11) | (1<<CS10));
+ 805               		.loc 1 348 0
+ 806 02ca E091 0000 		lds r30,timer_registers_table+2
+ 807 02ce F091 0000 		lds r31,timer_registers_table+2+1
+ 808 02d2 8081      		ld r24,Z
+ 809               	.LVL34:
+ 810 02d4 887F      		andi r24,lo8(-8)
+ 811 02d6 8083      		st Z,r24
+ 349:../../os/hal/platforms/AVR/pwm_lld.c ****     *timer_registers_table[index][11] = 0;
+ 812               		.loc 1 349 0
+ 813 02d8 E091 0000 		lds r30,timer_registers_table+22
+ 814 02dc F091 0000 		lds r31,timer_registers_table+22+1
+ 815 02e0 1082      		st Z,__zero_reg__
+ 816 02e2 0895      		ret
+ 817               		.cfi_endproc
+ 818               	.LFE17:
+ 820               	.global	pwm_lld_change_period
+ 822               	pwm_lld_change_period:
+ 823               	.LFB18:
+ 350:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 351:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 352:../../os/hal/platforms/AVR/pwm_lld.c **** /**
+ 353:../../os/hal/platforms/AVR/pwm_lld.c ****  * @brief   Changes the period the PWM peripheral.
+ 354:../../os/hal/platforms/AVR/pwm_lld.c ****  * @details This function changes the period of a PWM unit that has already
+ 355:../../os/hal/platforms/AVR/pwm_lld.c ****  *          been activated using @p pwmStart().
+ 356:../../os/hal/platforms/AVR/pwm_lld.c ****  * @pre     The PWM unit must have been activated using @p pwmStart().
+ 357:../../os/hal/platforms/AVR/pwm_lld.c ****  * @post    The PWM unit period is changed to the new value.
+ 358:../../os/hal/platforms/AVR/pwm_lld.c ****  * @note    The function has effect at the next cycle start.
+ 359:../../os/hal/platforms/AVR/pwm_lld.c ****  * @note    If a period is specified that is shorter than the pulse width
+ 360:../../os/hal/platforms/AVR/pwm_lld.c ****  *          programmed in one of the channels then the behavior is not
+ 361:../../os/hal/platforms/AVR/pwm_lld.c ****  *          guaranteed.
+ 362:../../os/hal/platforms/AVR/pwm_lld.c ****  *
+ 363:../../os/hal/platforms/AVR/pwm_lld.c ****  * @param[in] pwmp      pointer to a @p PWMDriver object
+ 364:../../os/hal/platforms/AVR/pwm_lld.c ****  * @param[in] period    new cycle time in ticks
+ 365:../../os/hal/platforms/AVR/pwm_lld.c ****  *
+ 366:../../os/hal/platforms/AVR/pwm_lld.c ****  * @notapi
+ 367:../../os/hal/platforms/AVR/pwm_lld.c ****  */
+ 368:../../os/hal/platforms/AVR/pwm_lld.c **** void pwm_lld_change_period(PWMDriver *pwmp, pwmcnt_t period)
+ 369:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 824               		.loc 1 369 0
+ 825               		.cfi_startproc
+ 826               	.LVL35:
+ 827               	/* prologue: function */
+ 828               	/* frame size = 0 */
+ 829               	/* stack size = 0 */
+ 830               	.L__stack_usage = 0
+ 831 02e4 0895      		ret
+ 832               		.cfi_endproc
+ 833               	.LFE18:
+ 835               	.global	pwm_lld_enable_channel
+ 837               	pwm_lld_enable_channel:
+ 838               	.LFB19:
+ 370:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 371:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 372:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 373:../../os/hal/platforms/AVR/pwm_lld.c **** /**
+ 374:../../os/hal/platforms/AVR/pwm_lld.c ****  * @brief   Enables a PWM channel.
+ 375:../../os/hal/platforms/AVR/pwm_lld.c ****  * @pre     The PWM unit must have been activated using @p pwmStart().
+ 376:../../os/hal/platforms/AVR/pwm_lld.c ****  * @post    The channel is active using the specified configuration.
+ 377:../../os/hal/platforms/AVR/pwm_lld.c ****  * @note    Depending on the hardware implementation this function has
+ 378:../../os/hal/platforms/AVR/pwm_lld.c ****  *          effect starting on the next cycle (recommended implementation)
+ 379:../../os/hal/platforms/AVR/pwm_lld.c ****  *          or immediately (fallback implementation).
+ 380:../../os/hal/platforms/AVR/pwm_lld.c ****  *
+ 381:../../os/hal/platforms/AVR/pwm_lld.c ****  * @param[in] pwmp      pointer to a @p PWMDriver object
+ 382:../../os/hal/platforms/AVR/pwm_lld.c ****  * @param[in] channel   PWM channel identifier (0...PWM_CHANNELS-1)
+ 383:../../os/hal/platforms/AVR/pwm_lld.c ****  * @param[in] width     PWM pulse width as clock pulses number
+ 384:../../os/hal/platforms/AVR/pwm_lld.c ****  *
+ 385:../../os/hal/platforms/AVR/pwm_lld.c ****  * @notapi
+ 386:../../os/hal/platforms/AVR/pwm_lld.c ****  */
+ 387:../../os/hal/platforms/AVR/pwm_lld.c **** void pwm_lld_enable_channel(PWMDriver *pwmp,
+ 388:../../os/hal/platforms/AVR/pwm_lld.c ****                             pwmchannel_t channel,
+ 389:../../os/hal/platforms/AVR/pwm_lld.c ****                             pwmcnt_t width)
+ 390:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 839               		.loc 1 390 0
+ 840               		.cfi_startproc
+ 841               	.LVL36:
+ 842               		.loc 1 390 0
+ 843 02e6 AF92      		push r10
+ 844               	.LCFI84:
+ 845               		.cfi_def_cfa_offset 3
+ 846               		.cfi_offset 10, -2
+ 847 02e8 BF92      		push r11
+ 848               	.LCFI85:
+ 849               		.cfi_def_cfa_offset 4
+ 850               		.cfi_offset 11, -3
+ 851 02ea CF92      		push r12
+ 852               	.LCFI86:
+ 853               		.cfi_def_cfa_offset 5
+ 854               		.cfi_offset 12, -4
+ 855 02ec DF92      		push r13
+ 856               	.LCFI87:
+ 857               		.cfi_def_cfa_offset 6
+ 858               		.cfi_offset 13, -5
+ 859 02ee EF92      		push r14
+ 860               	.LCFI88:
+ 861               		.cfi_def_cfa_offset 7
+ 862               		.cfi_offset 14, -6
+ 863 02f0 FF92      		push r15
+ 864               	.LCFI89:
+ 865               		.cfi_def_cfa_offset 8
+ 866               		.cfi_offset 15, -7
+ 867 02f2 0F93      		push r16
+ 868               	.LCFI90:
+ 869               		.cfi_def_cfa_offset 9
+ 870               		.cfi_offset 16, -8
+ 871 02f4 1F93      		push r17
+ 872               	.LCFI91:
+ 873               		.cfi_def_cfa_offset 10
+ 874               		.cfi_offset 17, -9
+ 875 02f6 CF93      		push r28
+ 876               	.LCFI92:
+ 877               		.cfi_def_cfa_offset 11
+ 878               		.cfi_offset 28, -10
+ 879 02f8 DF93      		push r29
+ 880               	.LCFI93:
+ 881               		.cfi_def_cfa_offset 12
+ 882               		.cfi_offset 29, -11
+ 883               	/* prologue: function */
+ 884               	/* frame size = 0 */
+ 885               	/* stack size = 10 */
+ 886               	.L__stack_usage = 10
+ 887 02fa EC01      		movw r28,r24
+ 888 02fc B62E      		mov r11,r22
+ 889               	.LVL37:
+ 391:../../os/hal/platforms/AVR/pwm_lld.c ****     uint32_t val = width;
+ 392:../../os/hal/platforms/AVR/pwm_lld.c ****     val *= 256;
+ 890               		.loc 1 392 0
+ 891 02fe CA01      		movw r24,r20
+ 892               	.LVL38:
+ 893 0300 A0E0      		ldi r26,0
+ 894 0302 B0E0      		ldi r27,0
+ 895 0304 6627      		clr r22
+ 896 0306 782F      		mov r23,r24
+ 897 0308 892F      		mov r24,r25
+ 898 030a 9A2F      		mov r25,r26
+ 899               	.LVL39:
+ 393:../../os/hal/platforms/AVR/pwm_lld.c ****     val /= (uint32_t)pwmp->period;
+ 900               		.loc 1 393 0
+ 901 030c 2B81      		ldd r18,Y+3
+ 902 030e 3C81      		ldd r19,Y+4
+ 903 0310 40E0      		ldi r20,0
+ 904 0312 50E0      		ldi r21,0
+ 905               	.LVL40:
+ 906 0314 0E94 0000 		call __udivmodsi4
+ 907               	.LVL41:
+ 908 0318 8901      		movw r16,r18
+ 909 031a 9A01      		movw r18,r20
+ 910 031c 0F3F      		cpi r16,-1
+ 911 031e 1105      		cpc r17,__zero_reg__
+ 912 0320 2105      		cpc r18,__zero_reg__
+ 913 0322 3105      		cpc r19,__zero_reg__
+ 914 0324 01F0      		breq .L48
+ 915 0326 00F0      		brlo .L48
+ 916 0328 0FEF      		ldi r16,lo8(-1)
+ 917 032a 10E0      		ldi r17,0
+ 918 032c 20E0      		ldi r18,0
+ 919 032e 30E0      		ldi r19,0
+ 920               	.L48:
+ 394:../../os/hal/platforms/AVR/pwm_lld.c ****     if(val > 0x00FF)
+ 395:../../os/hal/platforms/AVR/pwm_lld.c ****         val = 0xFF;
+ 396:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 397:../../os/hal/platforms/AVR/pwm_lld.c **** #if USE_AVR_PWM2 || defined(__DOXYGEN__)
+ 398:../../os/hal/platforms/AVR/pwm_lld.c ****     if(pwmp == &PWMD2)
+ 921               		.loc 1 398 0
+ 922 0330 40E0      		ldi r20,hi8(PWMD2)
+ 923 0332 C030      		cpi r28,lo8(PWMD2)
+ 924 0334 D407      		cpc r29,r20
+ 925 0336 01F4      		brne .+2
+ 926 0338 00C0      		rjmp .L62
+ 927               	.LVL42:
+ 399:../../os/hal/platforms/AVR/pwm_lld.c ****     {
+ 400:../../os/hal/platforms/AVR/pwm_lld.c ****         pwm_configure_hw_channel(&TCCR2A,7-2*channel,6-2*channel,pwmp->config->channels[channel].mo
+ 401:../../os/hal/platforms/AVR/pwm_lld.c ****         TIMSK2 |= (1<< (channel + 1));
+ 402:../../os/hal/platforms/AVR/pwm_lld.c ****         if(pwmp->config->channels[channel].callback != NULL)
+ 403:../../os/hal/platforms/AVR/pwm_lld.c ****             switch(channel)
+ 404:../../os/hal/platforms/AVR/pwm_lld.c ****             {
+ 405:../../os/hal/platforms/AVR/pwm_lld.c ****             case 0:
+ 406:../../os/hal/platforms/AVR/pwm_lld.c ****                 OCR2A = val;
+ 407:../../os/hal/platforms/AVR/pwm_lld.c ****                 break;
+ 408:../../os/hal/platforms/AVR/pwm_lld.c ****             case 1:
+ 409:../../os/hal/platforms/AVR/pwm_lld.c ****                 OCR2B = val;
+ 410:../../os/hal/platforms/AVR/pwm_lld.c ****                 break;
+ 411:../../os/hal/platforms/AVR/pwm_lld.c ****             }
+ 412:../../os/hal/platforms/AVR/pwm_lld.c ****         return;
+ 413:../../os/hal/platforms/AVR/pwm_lld.c ****     }
+ 414:../../os/hal/platforms/AVR/pwm_lld.c **** #endif
+ 415:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 416:../../os/hal/platforms/AVR/pwm_lld.c ****     //{&TCCR1A,  &TCCR1B, &OCR1AH,&OCR1AL,&OCR1BH,&OCR1BL,&OCR1CH,&OCR1CL,&TCNT1H,&TCNT1L,&TIFR1,&T
+ 417:../../os/hal/platforms/AVR/pwm_lld.c ****     uint8_t index = getTimerIndex(pwmp);
+ 418:../../os/hal/platforms/AVR/pwm_lld.c ****     pwm_configure_hw_channel(timer_registers_table[index][0],7-2*channel,6-2*channel,pwmp->config->
+ 928               		.loc 1 418 0
+ 929 033a 4B2D      		mov r20,r11
+ 930 033c 50E0      		ldi r21,0
+ 931 033e E981      		ldd r30,Y+1
+ 932 0340 FA81      		ldd r31,Y+2
+ 933 0342 DA01      		movw r26,r20
+ 934 0344 AA0F      		lsl r26
+ 935 0346 BB1F      		rol r27
+ 936 0348 CD01      		movw r24,r26
+ 937               	.LVL43:
+ 938 034a 840F      		add r24,r20
+ 939 034c 951F      		adc r25,r21
+ 940 034e 880F      		lsl r24
+ 941 0350 991F      		rol r25
+ 942 0352 E80F      		add r30,r24
+ 943 0354 F91F      		adc r31,r25
+ 944 0356 C084      		ldd r12,Z+8
+ 945 0358 D184      		ldd r13,Z+9
+ 946 035a E284      		ldd r14,Z+10
+ 947 035c F384      		ldd r15,Z+11
+ 948 035e E091 0000 		lds r30,timer_registers_table
+ 949 0362 F091 0000 		lds r31,timer_registers_table+1
+ 950               	.LVL44:
+ 951               	.LBB18:
+ 952               	.LBB19:
+  90:../../os/hal/platforms/AVR/pwm_lld.c ****     *TCCRnA &= ~((1<<COMnx1) | (1<<COMnx0));
+ 953               		.loc 1 90 0
+ 954 0366 A080      		ld r10,Z
+ 955               	.LBE19:
+ 956               	.LBE18:
+ 957               		.loc 1 418 0
+ 958 0368 8B2D      		mov r24,r11
+ 959 036a 8195      		neg r24
+ 960 036c 880F      		lsl r24
+ 961 036e 895F      		subi r24,lo8(-(7))
+ 962               	.LBB23:
+ 963               	.LBB20:
+  90:../../os/hal/platforms/AVR/pwm_lld.c ****     *TCCRnA &= ~((1<<COMnx1) | (1<<COMnx0));
+ 964               		.loc 1 90 0
+ 965 0370 61E0      		ldi r22,lo8(1)
+ 966 0372 70E0      		ldi r23,0
+ 967 0374 B62E      		mov r11,r22
+ 968               	.LVL45:
+ 969 0376 00C0      		rjmp 2f
+ 970               		1:
+ 971 0378 BB0C      		lsl r11
+ 972               		2:
+ 973 037a 8A95      		dec r24
+ 974 037c 02F4      		brpl 1b
+ 975               	.LBE20:
+ 976               	.LBE23:
+ 977               		.loc 1 418 0
+ 978 037e 83E0      		ldi r24,lo8(3)
+ 979 0380 90E0      		ldi r25,0
+ 980 0382 841B      		sub r24,r20
+ 981 0384 950B      		sbc r25,r21
+ 982 0386 880F      		lsl r24
+ 983               	.LBB24:
+ 984               	.LBB21:
+  90:../../os/hal/platforms/AVR/pwm_lld.c ****     *TCCRnA &= ~((1<<COMnx1) | (1<<COMnx0));
+ 985               		.loc 1 90 0
+ 986 0388 082E      		mov r0,r24
+ 987 038a 00C0      		rjmp 2f
+ 988               		1:
+ 989 038c 660F      		lsl r22
+ 990               		2:
+ 991 038e 0A94      		dec r0
+ 992 0390 02F4      		brpl 1b
+ 993 0392 6B29      		or r22,r11
+ 994 0394 962F      		mov r25,r22
+ 995 0396 9095      		com r25
+ 996 0398 9A21      		and r25,r10
+ 997 039a 9083      		st Z,r25
+  91:../../os/hal/platforms/AVR/pwm_lld.c ****     if(PWM_OUTPUT_ACTIVE_HIGH ==mode )
+ 998               		.loc 1 91 0
+ 999 039c 81E0      		ldi r24,1
+ 1000 039e C816      		cp r12,r24
+ 1001 03a0 D104      		cpc r13,__zero_reg__
+ 1002 03a2 E104      		cpc r14,__zero_reg__
+ 1003 03a4 F104      		cpc r15,__zero_reg__
+ 1004 03a6 01F4      		brne .+2
+ 1005 03a8 00C0      		rjmp .L63
+  93:../../os/hal/platforms/AVR/pwm_lld.c ****     if(PWM_OUTPUT_ACTIVE_LOW ==mode)
+ 1006               		.loc 1 93 0
+ 1007 03aa 82E0      		ldi r24,2
+ 1008 03ac C816      		cp r12,r24
+ 1009 03ae D104      		cpc r13,__zero_reg__
+ 1010 03b0 E104      		cpc r14,__zero_reg__
+ 1011 03b2 F104      		cpc r15,__zero_reg__
+ 1012 03b4 01F4      		brne .+2
+ 1013 03b6 00C0      		rjmp .L64
+ 1014               	.L57:
+ 1015               	.LBE21:
+ 1016               	.LBE24:
+ 419:../../os/hal/platforms/AVR/pwm_lld.c ****     *timer_registers_table[index][2*channel+2] = 0;
+ 1017               		.loc 1 419 0
+ 1018 03b8 CA01      		movw r24,r20
+ 1019 03ba 0196      		adiw r24,1
+ 1020 03bc FC01      		movw r30,r24
+ 1021               	.LVL46:
+ 1022 03be EE0F      		lsl r30
+ 1023 03c0 FF1F      		rol r31
+ 1024 03c2 EE0F      		lsl r30
+ 1025 03c4 FF1F      		rol r31
+ 1026 03c6 E050      		subi r30,lo8(-(timer_registers_table))
+ 1027 03c8 F040      		sbci r31,hi8(-(timer_registers_table))
+ 1028 03ca 0190      		ld __tmp_reg__,Z+
+ 1029 03cc F081      		ld r31,Z
+ 1030 03ce E02D      		mov r30,__tmp_reg__
+ 1031 03d0 1082      		st Z,__zero_reg__
+ 420:../../os/hal/platforms/AVR/pwm_lld.c ****     *timer_registers_table[index][2*channel+3] = val;
+ 1032               		.loc 1 420 0
+ 1033 03d2 FA01      		movw r30,r20
+ 1034 03d4 EE0F      		lsl r30
+ 1035 03d6 FF1F      		rol r31
+ 1036 03d8 EE0F      		lsl r30
+ 1037 03da FF1F      		rol r31
+ 1038 03dc E050      		subi r30,lo8(-(timer_registers_table+6))
+ 1039 03de F040      		sbci r31,hi8(-(timer_registers_table+6))
+ 1040 03e0 0190      		ld __tmp_reg__,Z+
+ 1041 03e2 F081      		ld r31,Z
+ 1042 03e4 E02D      		mov r30,__tmp_reg__
+ 1043 03e6 0083      		st Z,r16
+ 421:../../os/hal/platforms/AVR/pwm_lld.c ****     *timer_registers_table[index][10] |= (1<< (channel + 1));
+ 1044               		.loc 1 421 0
+ 1045 03e8 E091 0000 		lds r30,timer_registers_table+20
+ 1046 03ec F091 0000 		lds r31,timer_registers_table+20+1
+ 1047 03f0 9081      		ld r25,Z
+ 1048 03f2 21E0      		ldi r18,lo8(1)
+ 1049 03f4 30E0      		ldi r19,0
+ 1050 03f6 00C0      		rjmp 2f
+ 1051               		1:
+ 1052 03f8 220F      		lsl r18
+ 1053               		2:
+ 1054 03fa 8A95      		dec r24
+ 1055 03fc 02F4      		brpl 1b
+ 1056 03fe 922B      		or r25,r18
+ 1057 0400 9083      		st Z,r25
+ 422:../../os/hal/platforms/AVR/pwm_lld.c ****     if(pwmp->config->channels[channel].callback != NULL)
+ 1058               		.loc 1 422 0
+ 1059 0402 E981      		ldd r30,Y+1
+ 1060 0404 FA81      		ldd r31,Y+2
+ 1061 0406 4A0F      		add r20,r26
+ 1062 0408 5B1F      		adc r21,r27
+ 1063               	.LVL47:
+ 1064 040a 440F      		lsl r20
+ 1065 040c 551F      		rol r21
+ 1066 040e E40F      		add r30,r20
+ 1067 0410 F51F      		adc r31,r21
+ 1068 0412 8485      		ldd r24,Z+12
+ 1069 0414 9585      		ldd r25,Z+13
+ 1070               	.LVL48:
+ 1071 0416 892B      		or r24,r25
+ 1072 0418 01F0      		breq .L47
+ 423:../../os/hal/platforms/AVR/pwm_lld.c ****     {
+ 424:../../os/hal/platforms/AVR/pwm_lld.c ****         *timer_registers_table[index][11] |= (1<< (channel + 1));
+ 1073               		.loc 1 424 0
+ 1074 041a E091 0000 		lds r30,timer_registers_table+22
+ 1075 041e F091 0000 		lds r31,timer_registers_table+22+1
+ 1076 0422 8081      		ld r24,Z
+ 1077 0424 822B      		or r24,r18
+ 1078 0426 8083      		st Z,r24
+ 1079               	.LVL49:
+ 1080               	.L47:
+ 1081               	/* epilogue start */
+ 425:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 426:../../os/hal/platforms/AVR/pwm_lld.c ****     }
+ 427:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 428:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 1082               		.loc 1 428 0
+ 1083 0428 DF91      		pop r29
+ 1084 042a CF91      		pop r28
+ 1085 042c 1F91      		pop r17
+ 1086 042e 0F91      		pop r16
+ 1087 0430 FF90      		pop r15
+ 1088 0432 EF90      		pop r14
+ 1089 0434 DF90      		pop r13
+ 1090 0436 CF90      		pop r12
+ 1091 0438 BF90      		pop r11
+ 1092 043a AF90      		pop r10
+ 1093 043c 0895      		ret
+ 1094               	.LVL50:
+ 1095               	.L64:
+ 1096               	.LBB25:
+ 1097               	.LBB22:
+  94:../../os/hal/platforms/AVR/pwm_lld.c ****         *TCCRnA |= (1<<COMnx1) | (1<<COMnx0); //inverting mode
+ 1098               		.loc 1 94 0
+ 1099 043e 8081      		ld r24,Z
+ 1100 0440 862B      		or r24,r22
+ 1101 0442 8083      		st Z,r24
+ 1102 0444 00C0      		rjmp .L57
+ 1103               	.L63:
+  92:../../os/hal/platforms/AVR/pwm_lld.c ****         *TCCRnA |=  ((1<<COMnx1) | (0<<COMnx0)); //non inverting mode
+ 1104               		.loc 1 92 0
+ 1105 0446 8081      		ld r24,Z
+ 1106 0448 8B29      		or r24,r11
+ 1107 044a 8083      		st Z,r24
+ 1108 044c 00C0      		rjmp .L57
+ 1109               	.LVL51:
+ 1110               	.L62:
+ 1111               	.LBE22:
+ 1112               	.LBE25:
+ 400:../../os/hal/platforms/AVR/pwm_lld.c ****         pwm_configure_hw_channel(&TCCR2A,7-2*channel,6-2*channel,pwmp->config->channels[channel].mo
+ 1113               		.loc 1 400 0
+ 1114 044e 8B2D      		mov r24,r11
+ 1115               	.LVL52:
+ 1116 0450 90E0      		ldi r25,0
+ 1117 0452 6091 0000 		lds r22,PWMD2+1
+ 1118 0456 7091 0000 		lds r23,PWMD2+1+1
+ 1119 045a FC01      		movw r30,r24
+ 1120 045c EE0F      		lsl r30
+ 1121 045e FF1F      		rol r31
+ 1122 0460 DF01      		movw r26,r30
+ 1123 0462 A80F      		add r26,r24
+ 1124 0464 B91F      		adc r27,r25
+ 1125 0466 AA0F      		lsl r26
+ 1126 0468 BB1F      		rol r27
+ 1127               	.LVL53:
+ 1128 046a A60F      		add r26,r22
+ 1129 046c B71F      		adc r27,r23
+ 1130 046e 1896      		adiw r26,8
+ 1131 0470 CD90      		ld r12,X+
+ 1132 0472 DD90      		ld r13,X+
+ 1133 0474 ED90      		ld r14,X+
+ 1134 0476 FC90      		ld r15,X
+ 1135 0478 1B97      		sbiw r26,8+3
+ 1136               	.LVL54:
+ 1137               	.LBB26:
+ 1138               	.LBB27:
+  90:../../os/hal/platforms/AVR/pwm_lld.c ****     *TCCRnA &= ~((1<<COMnx1) | (1<<COMnx0));
+ 1139               		.loc 1 90 0
+ 1140 047a D091 B000 		lds r29,176
+ 1141               	.LBE27:
+ 1142               	.LBE26:
+ 400:../../os/hal/platforms/AVR/pwm_lld.c ****         pwm_configure_hw_channel(&TCCR2A,7-2*channel,6-2*channel,pwmp->config->channels[channel].mo
+ 1143               		.loc 1 400 0
+ 1144 047e 4B2D      		mov r20,r11
+ 1145 0480 4195      		neg r20
+ 1146 0482 440F      		lsl r20
+ 1147 0484 495F      		subi r20,lo8(-(7))
+ 1148               	.LBB31:
+ 1149               	.LBB28:
+  90:../../os/hal/platforms/AVR/pwm_lld.c ****     *TCCRnA &= ~((1<<COMnx1) | (1<<COMnx0));
+ 1150               		.loc 1 90 0
+ 1151 0486 A1E0      		ldi r26,lo8(1)
+ 1152 0488 B0E0      		ldi r27,0
+ 1153 048a CA2F      		mov r28,r26
+ 1154 048c 00C0      		rjmp 2f
+ 1155               		1:
+ 1156 048e CC0F      		lsl r28
+ 1157               		2:
+ 1158 0490 4A95      		dec r20
+ 1159 0492 02F4      		brpl 1b
+ 1160               	.LBE28:
+ 1161               	.LBE31:
+ 400:../../os/hal/platforms/AVR/pwm_lld.c ****         pwm_configure_hw_channel(&TCCR2A,7-2*channel,6-2*channel,pwmp->config->channels[channel].mo
+ 1162               		.loc 1 400 0
+ 1163 0494 43E0      		ldi r20,lo8(3)
+ 1164 0496 50E0      		ldi r21,0
+ 1165 0498 481B      		sub r20,r24
+ 1166 049a 590B      		sbc r21,r25
+ 1167 049c 440F      		lsl r20
+ 1168               	.LBB32:
+ 1169               	.LBB29:
+  90:../../os/hal/platforms/AVR/pwm_lld.c ****     *TCCRnA &= ~((1<<COMnx1) | (1<<COMnx0));
+ 1170               		.loc 1 90 0
+ 1171 049e 042E      		mov r0,r20
+ 1172 04a0 00C0      		rjmp 2f
+ 1173               		1:
+ 1174 04a2 AA0F      		lsl r26
+ 1175               		2:
+ 1176 04a4 0A94      		dec r0
+ 1177 04a6 02F4      		brpl 1b
+ 1178 04a8 AC2B      		or r26,r28
+ 1179 04aa 5A2F      		mov r21,r26
+ 1180 04ac 5095      		com r21
+ 1181 04ae 5D23      		and r21,r29
+ 1182 04b0 5093 B000 		sts 176,r21
+  91:../../os/hal/platforms/AVR/pwm_lld.c ****     if(PWM_OUTPUT_ACTIVE_HIGH ==mode )
+ 1183               		.loc 1 91 0
+ 1184 04b4 41E0      		ldi r20,1
+ 1185 04b6 C416      		cp r12,r20
+ 1186 04b8 D104      		cpc r13,__zero_reg__
+ 1187 04ba E104      		cpc r14,__zero_reg__
+ 1188 04bc F104      		cpc r15,__zero_reg__
+ 1189 04be 01F0      		breq .L65
+ 1190               	.LVL55:
+  93:../../os/hal/platforms/AVR/pwm_lld.c ****     if(PWM_OUTPUT_ACTIVE_LOW ==mode)
+ 1191               		.loc 1 93 0
+ 1192 04c0 42E0      		ldi r20,2
+ 1193 04c2 C416      		cp r12,r20
+ 1194 04c4 D104      		cpc r13,__zero_reg__
+ 1195 04c6 E104      		cpc r14,__zero_reg__
+ 1196 04c8 F104      		cpc r15,__zero_reg__
+ 1197 04ca 01F4      		brne .L51
+  94:../../os/hal/platforms/AVR/pwm_lld.c ****         *TCCRnA |= (1<<COMnx1) | (1<<COMnx0); //inverting mode
+ 1198               		.loc 1 94 0
+ 1199 04cc 4091 B000 		lds r20,176
+ 1200 04d0 4A2B      		or r20,r26
+ 1201 04d2 4093 B000 		sts 176,r20
+ 1202               	.L51:
+ 1203               	.LBE29:
+ 1204               	.LBE32:
+ 401:../../os/hal/platforms/AVR/pwm_lld.c ****         TIMSK2 |= (1<< (channel + 1));
+ 1205               		.loc 1 401 0
+ 1206 04d6 C091 7000 		lds r28,112
+ 1207 04da DC01      		movw r26,r24
+ 1208 04dc 1196      		adiw r26,1
+ 1209 04de 41E0      		ldi r20,lo8(1)
+ 1210 04e0 50E0      		ldi r21,0
+ 1211 04e2 0A2E      		mov r0,r26
+ 1212 04e4 00C0      		rjmp 2f
+ 1213               		1:
+ 1214 04e6 440F      		lsl r20
+ 1215               		2:
+ 1216 04e8 0A94      		dec r0
+ 1217 04ea 02F4      		brpl 1b
+ 1218 04ec C42B      		or r28,r20
+ 1219 04ee C093 7000 		sts 112,r28
+ 402:../../os/hal/platforms/AVR/pwm_lld.c ****         if(pwmp->config->channels[channel].callback != NULL)
+ 1220               		.loc 1 402 0
+ 1221 04f2 E80F      		add r30,r24
+ 1222 04f4 F91F      		adc r31,r25
+ 1223 04f6 EE0F      		lsl r30
+ 1224 04f8 FF1F      		rol r31
+ 1225 04fa E60F      		add r30,r22
+ 1226 04fc F71F      		adc r31,r23
+ 1227 04fe 8485      		ldd r24,Z+12
+ 1228 0500 9585      		ldd r25,Z+13
+ 1229               	.LVL56:
+ 1230 0502 892B      		or r24,r25
+ 1231 0504 01F4      		brne .+2
+ 1232 0506 00C0      		rjmp .L47
+ 403:../../os/hal/platforms/AVR/pwm_lld.c ****             switch(channel)
+ 1233               		.loc 1 403 0
+ 1234 0508 B110      		cpse r11,__zero_reg__
+ 1235 050a 00C0      		rjmp .L66
+ 406:../../os/hal/platforms/AVR/pwm_lld.c ****                 OCR2A = val;
+ 1236               		.loc 1 406 0
+ 1237 050c 0093 B300 		sts 179,r16
+ 407:../../os/hal/platforms/AVR/pwm_lld.c ****                 break;
+ 1238               		.loc 1 407 0
+ 1239 0510 00C0      		rjmp .L47
+ 1240               	.L66:
+ 403:../../os/hal/platforms/AVR/pwm_lld.c ****             switch(channel)
+ 1241               		.loc 1 403 0
+ 1242 0512 81E0      		ldi r24,lo8(1)
+ 1243 0514 B812      		cpse r11,r24
+ 1244 0516 00C0      		rjmp .L47
+ 409:../../os/hal/platforms/AVR/pwm_lld.c ****                 OCR2B = val;
+ 1245               		.loc 1 409 0
+ 1246 0518 0093 B400 		sts 180,r16
+ 410:../../os/hal/platforms/AVR/pwm_lld.c ****                 break;
+ 1247               		.loc 1 410 0
+ 1248 051c 00C0      		rjmp .L47
+ 1249               	.LVL57:
+ 1250               	.L65:
+ 1251               	.LBB33:
+ 1252               	.LBB30:
+  92:../../os/hal/platforms/AVR/pwm_lld.c ****         *TCCRnA |=  ((1<<COMnx1) | (0<<COMnx0)); //non inverting mode
+ 1253               		.loc 1 92 0
+ 1254 051e 4091 B000 		lds r20,176
+ 1255 0522 4C2B      		or r20,r28
+ 1256 0524 4093 B000 		sts 176,r20
+ 1257 0528 00C0      		rjmp .L51
+ 1258               	.LBE30:
+ 1259               	.LBE33:
+ 1260               		.cfi_endproc
+ 1261               	.LFE19:
+ 1263               	.global	pwm_lld_disable_channel
+ 1265               	pwm_lld_disable_channel:
+ 1266               	.LFB20:
+ 429:../../os/hal/platforms/AVR/pwm_lld.c **** 
+ 430:../../os/hal/platforms/AVR/pwm_lld.c **** /**
+ 431:../../os/hal/platforms/AVR/pwm_lld.c ****  * @brief   Disables a PWM channel.
+ 432:../../os/hal/platforms/AVR/pwm_lld.c ****  * @pre     The PWM unit must have been activated using @p pwmStart().
+ 433:../../os/hal/platforms/AVR/pwm_lld.c ****  * @post    The channel is disabled and its output line returned to the
+ 434:../../os/hal/platforms/AVR/pwm_lld.c ****  *          idle state.
+ 435:../../os/hal/platforms/AVR/pwm_lld.c ****  * @note    Depending on the hardware implementation this function has
+ 436:../../os/hal/platforms/AVR/pwm_lld.c ****  *          effect starting on the next cycle (recommended implementation)
+ 437:../../os/hal/platforms/AVR/pwm_lld.c ****  *          or immediately (fallback implementation).
+ 438:../../os/hal/platforms/AVR/pwm_lld.c ****  *
+ 439:../../os/hal/platforms/AVR/pwm_lld.c ****  * @param[in] pwmp      pointer to a @p PWMDriver object
+ 440:../../os/hal/platforms/AVR/pwm_lld.c ****  * @param[in] channel   PWM channel identifier (0...PWM_CHANNELS-1)
+ 441:../../os/hal/platforms/AVR/pwm_lld.c ****  *
+ 442:../../os/hal/platforms/AVR/pwm_lld.c ****  * @notapi
+ 443:../../os/hal/platforms/AVR/pwm_lld.c ****  */
+ 444:../../os/hal/platforms/AVR/pwm_lld.c **** void pwm_lld_disable_channel(PWMDriver *pwmp, pwmchannel_t channel)
+ 445:../../os/hal/platforms/AVR/pwm_lld.c **** {
+ 1267               		.loc 1 445 0
+ 1268               		.cfi_startproc
+ 1269               	.LVL58:
+ 1270 052a CF93      		push r28
+ 1271               	.LCFI94:
+ 1272               		.cfi_def_cfa_offset 3
+ 1273               		.cfi_offset 28, -2
+ 1274 052c DF93      		push r29
+ 1275               	.LCFI95:
+ 1276               		.cfi_def_cfa_offset 4
+ 1277               		.cfi_offset 29, -3
+ 1278               	/* prologue: function */
+ 1279               	/* frame size = 0 */
+ 1280               	/* stack size = 2 */
+ 1281               	.L__stack_usage = 2
+ 1282               	.LVL59:
+ 446:../../os/hal/platforms/AVR/pwm_lld.c ****     uint8_t index = getTimerIndex(pwmp);
+ 447:../../os/hal/platforms/AVR/pwm_lld.c ****     pwm_configure_hw_channel(timer_registers_table[index][0],7-2*channel,6-2*channel,PWM_OUTPUT_DIS
+ 1283               		.loc 1 447 0
+ 1284 052e 462F      		mov r20,r22
+ 1285 0530 50E0      		ldi r21,0
+ 1286 0532 E091 0000 		lds r30,timer_registers_table
+ 1287 0536 F091 0000 		lds r31,timer_registers_table+1
+ 1288               	.LVL60:
+ 1289               	.LBB34:
+ 1290               	.LBB35:
+  90:../../os/hal/platforms/AVR/pwm_lld.c ****     *TCCRnA &= ~((1<<COMnx1) | (1<<COMnx0));
+ 1291               		.loc 1 90 0
+ 1292 053a A081      		ld r26,Z
+ 1293               	.LBE35:
+ 1294               	.LBE34:
+ 1295               		.loc 1 447 0
+ 1296 053c 23E0      		ldi r18,lo8(3)
+ 1297 053e 30E0      		ldi r19,0
+ 1298 0540 241B      		sub r18,r20
+ 1299 0542 350B      		sbc r19,r21
+ 1300 0544 220F      		lsl r18
+ 1301               	.LBB38:
+ 1302               	.LBB36:
+  90:../../os/hal/platforms/AVR/pwm_lld.c ****     *TCCRnA &= ~((1<<COMnx1) | (1<<COMnx0));
+ 1303               		.loc 1 90 0
+ 1304 0546 81E0      		ldi r24,lo8(1)
+ 1305 0548 90E0      		ldi r25,0
+ 1306               	.LVL61:
+ 1307 054a EC01      		movw r28,r24
+ 1308 054c 00C0      		rjmp 2f
+ 1309               		1:
+ 1310 054e CC0F      		lsl r28
+ 1311 0550 DD1F      		rol r29
+ 1312               		2:
+ 1313 0552 2A95      		dec r18
+ 1314 0554 02F4      		brpl 1b
+ 1315 0556 9E01      		movw r18,r28
+ 1316               	.LBE36:
+ 1317               	.LBE38:
+ 1318               		.loc 1 447 0
+ 1319 0558 6195      		neg r22
+ 1320               	.LVL62:
+ 1321 055a 660F      		lsl r22
+ 1322 055c 695F      		subi r22,lo8(-(7))
+ 1323               	.LBB39:
+ 1324               	.LBB37:
+  90:../../os/hal/platforms/AVR/pwm_lld.c ****     *TCCRnA &= ~((1<<COMnx1) | (1<<COMnx0));
+ 1325               		.loc 1 90 0
+ 1326 055e EC01      		movw r28,r24
+ 1327 0560 00C0      		rjmp 2f
+ 1328               		1:
+ 1329 0562 CC0F      		lsl r28
+ 1330 0564 DD1F      		rol r29
+ 1331               		2:
+ 1332 0566 6A95      		dec r22
+ 1333 0568 02F4      		brpl 1b
+ 1334 056a 2C2B      		or r18,r28
+ 1335 056c 2095      		com r18
+ 1336 056e 2A23      		and r18,r26
+ 1337 0570 2083      		st Z,r18
+ 1338               	.LBE37:
+ 1339               	.LBE39:
+ 448:../../os/hal/platforms/AVR/pwm_lld.c ****     *timer_registers_table[index][11] &= ~(1<< (channel + 1));
+ 1340               		.loc 1 448 0
+ 1341 0572 E091 0000 		lds r30,timer_registers_table+22
+ 1342 0576 F091 0000 		lds r31,timer_registers_table+22+1
+ 1343               	.LVL63:
+ 1344 057a 2081      		ld r18,Z
+ 1345 057c 4F5F      		subi r20,-1
+ 1346 057e 5F4F      		sbci r21,-1
+ 1347               	.LVL64:
+ 1348 0580 042E      		mov r0,r20
+ 1349 0582 00C0      		rjmp 2f
+ 1350               		1:
+ 1351 0584 880F      		lsl r24
+ 1352               		2:
+ 1353 0586 0A94      		dec r0
+ 1354 0588 02F4      		brpl 1b
+ 1355 058a 8095      		com r24
+ 1356 058c 8223      		and r24,r18
+ 1357 058e 8083      		st Z,r24
+ 1358               	/* epilogue start */
+ 449:../../os/hal/platforms/AVR/pwm_lld.c **** }
+ 1359               		.loc 1 449 0
+ 1360 0590 DF91      		pop r29
+ 1361 0592 CF91      		pop r28
+ 1362 0594 0895      		ret
+ 1363               		.cfi_endproc
+ 1364               	.LFE20:
+ 1366               		.comm	PWMD2,5,1
+ 1367               		.comm	PWMD1,5,1
+ 1368               	.global	timer_registers_table
+ 1369               		.data
+ 1372               	timer_registers_table:
+ 1373 0000 8000      		.word	128
+ 1374 0002 8100      		.word	129
+ 1375 0004 8900      		.word	137
+ 1376 0006 8800      		.word	136
+ 1377 0008 8B00      		.word	139
+ 1378 000a 8A00      		.word	138
+ 1379 000c 0000      		.word	0
+ 1380 000e 0000      		.word	0
+ 1381 0010 8500      		.word	133
+ 1382 0012 8400      		.word	132
+ 1383 0014 3600      		.word	54
+ 1384 0016 6F00      		.word	111
+ 1385 0018 B000      		.word	176
+ 1386 001a B100      		.word	177
+ 1387 001c B300      		.word	179
+ 1388 001e B300      		.word	179
+ 1389 0020 B400      		.word	180
+ 1390 0022 B400      		.word	180
+ 1391 0024 0000      		.word	0
+ 1392 0026 0000      		.word	0
+ 1393 0028 B200      		.word	178
+ 1394 002a B200      		.word	178
+ 1395 002c 3700      		.word	55
+ 1396 002e 7000      		.word	112
+ 1397               		.text
+ 1398               	.Letext0:
+ 1399               		.file 2 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+ 1400               		.file 3 "../../os/ports/GCC/AVR/chtypes.h"
+ 1401               		.file 4 "../../os/hal/include/pwm.h"
+ 1402               		.file 5 "../../os/hal/platforms/AVR/pwm_lld.h"
+ 1403               		.file 6 "../../os/kernel/include/chschd.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 pwm_lld.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:12     .text:0000000000000000 getTimerIndex
+                            *COM*:0000000000000005 PWMD1
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:40     .text:000000000000000c __vector_13
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:150    .text:000000000000006e __vector_11
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:260    .text:00000000000000d0 __vector_12
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:370    .text:0000000000000132 __vector_9
+                            *COM*:0000000000000005 PWMD2
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:480    .text:0000000000000194 __vector_7
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:590    .text:00000000000001f6 __vector_8
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:700    .text:0000000000000258 pwm_lld_init
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:735    .text:0000000000000280 pwm_lld_start
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:1372   .data:0000000000000000 timer_registers_table
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:796    .text:00000000000002ca pwm_lld_stop
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:822    .text:00000000000002e4 pwm_lld_change_period
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:837    .text:00000000000002e6 pwm_lld_enable_channel
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccIFqGG8.s:1265   .text:000000000000052a pwm_lld_disable_channel
+
+UNDEFINED SYMBOLS
+chSchIsPreemptionRequired
+chSchDoReschedule
+pwmObjectInit
+__udivmodsi4
+__do_copy_data
+__do_clear_bss

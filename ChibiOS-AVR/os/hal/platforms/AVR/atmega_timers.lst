@@ -1,0 +1,333 @@
+   1               		.file	"atmega_timers.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	findBestPrescaler
+  12               	findBestPrescaler:
+  13               	.LFB7:
+  14               		.file 1 "../../os/hal/platforms/AVR/atmega_timers.c"
+   1:../../os/hal/platforms/AVR/atmega_timers.c **** 
+   2:../../os/hal/platforms/AVR/atmega_timers.c **** 
+   3:../../os/hal/platforms/AVR/atmega_timers.c **** #include "atmega_timers.h"
+   4:../../os/hal/platforms/AVR/atmega_timers.c **** 
+   5:../../os/hal/platforms/AVR/atmega_timers.c **** 
+   6:../../os/hal/platforms/AVR/atmega_timers.c **** uint16_t ratio_base[]={1024,256,64,8,1};
+   7:../../os/hal/platforms/AVR/atmega_timers.c **** uint8_t clock_source_base[]={5,4,3,2,1};
+   8:../../os/hal/platforms/AVR/atmega_timers.c **** uint16_t ratio_extended[]={1024,256,128,64,32,8,1};
+   9:../../os/hal/platforms/AVR/atmega_timers.c **** uint8_t clock_source_extended[]={7,6,5,4,3,2,1};
+  10:../../os/hal/platforms/AVR/atmega_timers.c **** 
+  11:../../os/hal/platforms/AVR/atmega_timers.c **** 
+  12:../../os/hal/platforms/AVR/atmega_timers.c **** uint8_t findBestPrescaler(uint16_t frequency, uint16_t *ratio ,uint8_t *clock_source,uint8_t n)
+  13:../../os/hal/platforms/AVR/atmega_timers.c **** {
+  15               		.loc 1 13 0
+  16               		.cfi_startproc
+  17               	.LVL0:
+  18 0000 4F92      		push r4
+  19               	.LCFI0:
+  20               		.cfi_def_cfa_offset 3
+  21               		.cfi_offset 4, -2
+  22 0002 5F92      		push r5
+  23               	.LCFI1:
+  24               		.cfi_def_cfa_offset 4
+  25               		.cfi_offset 5, -3
+  26 0004 6F92      		push r6
+  27               	.LCFI2:
+  28               		.cfi_def_cfa_offset 5
+  29               		.cfi_offset 6, -4
+  30 0006 7F92      		push r7
+  31               	.LCFI3:
+  32               		.cfi_def_cfa_offset 6
+  33               		.cfi_offset 7, -5
+  34 0008 8F92      		push r8
+  35               	.LCFI4:
+  36               		.cfi_def_cfa_offset 7
+  37               		.cfi_offset 8, -6
+  38 000a 9F92      		push r9
+  39               	.LCFI5:
+  40               		.cfi_def_cfa_offset 8
+  41               		.cfi_offset 9, -7
+  42 000c AF92      		push r10
+  43               	.LCFI6:
+  44               		.cfi_def_cfa_offset 9
+  45               		.cfi_offset 10, -8
+  46 000e BF92      		push r11
+  47               	.LCFI7:
+  48               		.cfi_def_cfa_offset 10
+  49               		.cfi_offset 11, -9
+  50 0010 CF92      		push r12
+  51               	.LCFI8:
+  52               		.cfi_def_cfa_offset 11
+  53               		.cfi_offset 12, -10
+  54 0012 DF92      		push r13
+  55               	.LCFI9:
+  56               		.cfi_def_cfa_offset 12
+  57               		.cfi_offset 13, -11
+  58 0014 EF92      		push r14
+  59               	.LCFI10:
+  60               		.cfi_def_cfa_offset 13
+  61               		.cfi_offset 14, -12
+  62 0016 FF92      		push r15
+  63               	.LCFI11:
+  64               		.cfi_def_cfa_offset 14
+  65               		.cfi_offset 15, -13
+  66 0018 0F93      		push r16
+  67               	.LCFI12:
+  68               		.cfi_def_cfa_offset 15
+  69               		.cfi_offset 16, -14
+  70 001a 1F93      		push r17
+  71               	.LCFI13:
+  72               		.cfi_def_cfa_offset 16
+  73               		.cfi_offset 17, -15
+  74 001c CF93      		push r28
+  75               	.LCFI14:
+  76               		.cfi_def_cfa_offset 17
+  77               		.cfi_offset 28, -16
+  78 001e DF93      		push r29
+  79               	.LCFI15:
+  80               		.cfi_def_cfa_offset 18
+  81               		.cfi_offset 29, -17
+  82               	/* prologue: function */
+  83               	/* frame size = 0 */
+  84               	/* stack size = 16 */
+  85               	.L__stack_usage = 16
+  86 0020 5C01      		movw r10,r24
+  87 0022 EB01      		movw r28,r22
+  88 0024 822E      		mov r8,r18
+  89               	.LVL1:
+  14:../../os/hal/platforms/AVR/atmega_timers.c ****   uint8_t i;
+  15:../../os/hal/platforms/AVR/atmega_timers.c ****   for(i=0;i<n;i++)
+  90               		.loc 1 15 0
+  91 0026 2223      		tst r18
+  92 0028 01F4      		brne .+2
+  93 002a 00C0      		rjmp .L2
+  94               	.LBB2:
+  16:../../os/hal/platforms/AVR/atmega_timers.c ****   {
+  17:../../os/hal/platforms/AVR/atmega_timers.c ****     uint32_t result = F_CPU/ratio[i]/frequency;
+  95               		.loc 1 17 0
+  96 002c 0881      		ld r16,Y
+  97 002e 1981      		ldd r17,Y+1
+  98 0030 6C01      		movw r12,r24
+  99 0032 E12C      		mov r14,__zero_reg__
+ 100 0034 F12C      		mov r15,__zero_reg__
+ 101 0036 9801      		movw r18,r16
+ 102               	.LVL2:
+ 103 0038 40E0      		ldi r20,0
+ 104 003a 50E0      		ldi r21,0
+ 105               	.LVL3:
+ 106 003c 60E0      		ldi r22,0
+ 107 003e 74E2      		ldi r23,lo8(36)
+ 108 0040 84EF      		ldi r24,lo8(-12)
+ 109 0042 90E0      		ldi r25,0
+ 110               	.LVL4:
+ 111 0044 0E94 0000 		call __udivmodsi4
+ 112 0048 CA01      		movw r24,r20
+ 113 004a B901      		movw r22,r18
+ 114 004c A701      		movw r20,r14
+ 115 004e 9601      		movw r18,r12
+ 116 0050 0E94 0000 		call __udivmodsi4
+ 117 0054 2901      		movw r4,r18
+ 118 0056 3A01      		movw r6,r20
+ 119               	.LVL5:
+  18:../../os/hal/platforms/AVR/atmega_timers.c ****     if(result > 256UL)
+ 120               		.loc 1 18 0
+ 121 0058 21E0      		ldi r18,1
+ 122 005a 4216      		cp r4,r18
+ 123 005c 5206      		cpc r5,r18
+ 124 005e 6104      		cpc r6,__zero_reg__
+ 125 0060 7104      		cpc r7,__zero_reg__
+ 126 0062 00F0      		brlo .+2
+ 127 0064 00C0      		rjmp .L8
+  19:../../os/hal/platforms/AVR/atmega_timers.c ****        return (i-1);
+  20:../../os/hal/platforms/AVR/atmega_timers.c ****     if(result * ratio[i] * frequency == F_CPU)
+ 128               		.loc 1 20 0
+ 129 0066 9801      		movw r18,r16
+ 130 0068 D501      		movw r26,r10
+ 131 006a 0E94 0000 		call __umulhisi3
+ 132 006e 9B01      		movw r18,r22
+ 133 0070 AC01      		movw r20,r24
+ 134 0072 C301      		movw r24,r6
+ 135 0074 B201      		movw r22,r4
+ 136 0076 0E94 0000 		call __mulsi3
+ 137 007a 6115      		cp r22,__zero_reg__
+ 138 007c 7442      		sbci r23,36
+ 139 007e 844F      		sbci r24,-12
+ 140 0080 9105      		cpc r25,__zero_reg__
+ 141 0082 01F4      		brne .+2
+ 142 0084 00C0      		rjmp .L9
+  12:../../os/hal/platforms/AVR/atmega_timers.c **** uint8_t findBestPrescaler(uint16_t frequency, uint16_t *ratio ,uint8_t *clock_source,uint8_t n)
+ 143               		.loc 1 12 0
+ 144 0086 8E01      		movw r16,r28
+ 145 0088 0E5F      		subi r16,-2
+ 146 008a 1F4F      		sbci r17,-1
+  15:../../os/hal/platforms/AVR/atmega_timers.c ****   for(i=0;i<n;i++)
+ 147               		.loc 1 15 0
+ 148 008c 912C      		mov r9,__zero_reg__
+ 149 008e 00C0      		rjmp .L5
+ 150               	.LVL6:
+ 151               	.L7:
+  17:../../os/hal/platforms/AVR/atmega_timers.c ****     uint32_t result = F_CPU/ratio[i]/frequency;
+ 152               		.loc 1 17 0
+ 153 0090 F801      		movw r30,r16
+ 154 0092 C191      		ld r28,Z+
+ 155 0094 D191      		ld r29,Z+
+ 156 0096 8F01      		movw r16,r30
+ 157 0098 9E01      		movw r18,r28
+ 158 009a 40E0      		ldi r20,0
+ 159 009c 50E0      		ldi r21,0
+ 160 009e 60E0      		ldi r22,0
+ 161 00a0 74E2      		ldi r23,lo8(36)
+ 162 00a2 84EF      		ldi r24,lo8(-12)
+ 163 00a4 90E0      		ldi r25,0
+ 164 00a6 0E94 0000 		call __udivmodsi4
+ 165 00aa CA01      		movw r24,r20
+ 166 00ac B901      		movw r22,r18
+ 167 00ae A701      		movw r20,r14
+ 168 00b0 9601      		movw r18,r12
+ 169 00b2 0E94 0000 		call __udivmodsi4
+ 170 00b6 2901      		movw r4,r18
+ 171 00b8 3A01      		movw r6,r20
+ 172               	.LVL7:
+  18:../../os/hal/platforms/AVR/atmega_timers.c ****     if(result > 256UL)
+ 173               		.loc 1 18 0
+ 174 00ba 2130      		cpi r18,1
+ 175 00bc F1E0      		ldi r31,1
+ 176 00be 3F07      		cpc r19,r31
+ 177 00c0 4105      		cpc r20,__zero_reg__
+ 178 00c2 5105      		cpc r21,__zero_reg__
+ 179 00c4 00F4      		brsh .L17
+ 180               		.loc 1 20 0
+ 181 00c6 9E01      		movw r18,r28
+ 182 00c8 D501      		movw r26,r10
+ 183 00ca 0E94 0000 		call __umulhisi3
+ 184 00ce 9B01      		movw r18,r22
+ 185 00d0 AC01      		movw r20,r24
+ 186 00d2 C301      		movw r24,r6
+ 187 00d4 B201      		movw r22,r4
+ 188 00d6 0E94 0000 		call __mulsi3
+ 189 00da 6115      		cp r22,__zero_reg__
+ 190 00dc 7442      		sbci r23,36
+ 191 00de 844F      		sbci r24,-12
+ 192 00e0 9105      		cpc r25,__zero_reg__
+ 193 00e2 01F0      		breq .L4
+ 194               	.LVL8:
+ 195               	.L5:
+ 196               	.LBE2:
+  15:../../os/hal/platforms/AVR/atmega_timers.c ****   for(i=0;i<n;i++)
+ 197               		.loc 1 15 0
+ 198 00e4 9394      		inc r9
+ 199               	.LVL9:
+ 200 00e6 9810      		cpse r9,r8
+ 201 00e8 00C0      		rjmp .L7
+ 202               	.LVL10:
+ 203               	.L2:
+ 204 00ea 00C0      		rjmp .L1
+ 205               	.LVL11:
+ 206               	.L17:
+ 207 00ec 9A94      		dec r9
+ 208               	.LVL12:
+ 209               	.L4:
+ 210 00ee 892D      		mov r24,r9
+ 211               	.LVL13:
+ 212               	.L1:
+ 213               	/* epilogue start */
+  21:../../os/hal/platforms/AVR/atmega_timers.c ****       return i;
+  22:../../os/hal/platforms/AVR/atmega_timers.c ****   };
+  23:../../os/hal/platforms/AVR/atmega_timers.c ****   
+  24:../../os/hal/platforms/AVR/atmega_timers.c **** }...
+ 214               		.loc 1 24 0
+ 215 00f0 DF91      		pop r29
+ 216 00f2 CF91      		pop r28
+ 217 00f4 1F91      		pop r17
+ 218 00f6 0F91      		pop r16
+ 219 00f8 FF90      		pop r15
+ 220 00fa EF90      		pop r14
+ 221 00fc DF90      		pop r13
+ 222 00fe CF90      		pop r12
+ 223 0100 BF90      		pop r11
+ 224 0102 AF90      		pop r10
+ 225               	.LVL14:
+ 226 0104 9F90      		pop r9
+ 227 0106 8F90      		pop r8
+ 228               	.LVL15:
+ 229 0108 7F90      		pop r7
+ 230 010a 6F90      		pop r6
+ 231 010c 5F90      		pop r5
+ 232 010e 4F90      		pop r4
+ 233 0110 0895      		ret
+ 234               	.LVL16:
+ 235               	.L9:
+ 236               	.LBB3:
+  15:../../os/hal/platforms/AVR/atmega_timers.c ****   for(i=0;i<n;i++)
+ 237               		.loc 1 15 0
+ 238 0112 912C      		mov r9,__zero_reg__
+ 239 0114 00C0      		rjmp .L4
+ 240               	.L8:
+  18:../../os/hal/platforms/AVR/atmega_timers.c ****     if(result > 256UL)
+ 241               		.loc 1 18 0
+ 242 0116 9924      		clr r9
+ 243 0118 9A94      		dec r9
+  19:../../os/hal/platforms/AVR/atmega_timers.c ****        return (i-1);
+ 244               		.loc 1 19 0
+ 245 011a 00C0      		rjmp .L4
+ 246               	.LBE3:
+ 247               		.cfi_endproc
+ 248               	.LFE7:
+ 250               	.global	clock_source_extended
+ 251               		.data
+ 254               	clock_source_extended:
+ 255 0000 07        		.byte	7
+ 256 0001 06        		.byte	6
+ 257 0002 05        		.byte	5
+ 258 0003 04        		.byte	4
+ 259 0004 03        		.byte	3
+ 260 0005 02        		.byte	2
+ 261 0006 01        		.byte	1
+ 262               	.global	ratio_extended
+ 265               	ratio_extended:
+ 266 0007 0004      		.word	1024
+ 267 0009 0001      		.word	256
+ 268 000b 8000      		.word	128
+ 269 000d 4000      		.word	64
+ 270 000f 2000      		.word	32
+ 271 0011 0800      		.word	8
+ 272 0013 0100      		.word	1
+ 273               	.global	clock_source_base
+ 276               	clock_source_base:
+ 277 0015 05        		.byte	5
+ 278 0016 04        		.byte	4
+ 279 0017 03        		.byte	3
+ 280 0018 02        		.byte	2
+ 281 0019 01        		.byte	1
+ 282               	.global	ratio_base
+ 285               	ratio_base:
+ 286 001a 0004      		.word	1024
+ 287 001c 0001      		.word	256
+ 288 001e 4000      		.word	64
+ 289 0020 0800      		.word	8
+ 290 0022 0100      		.word	1
+ 291               		.text
+ 292               	.Letext0:
+ 293               		.file 2 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 atmega_timers.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc4qgBmM.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc4qgBmM.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc4qgBmM.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc4qgBmM.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc4qgBmM.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc4qgBmM.s:12     .text:0000000000000000 findBestPrescaler
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc4qgBmM.s:254    .data:0000000000000000 clock_source_extended
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc4qgBmM.s:265    .data:0000000000000007 ratio_extended
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc4qgBmM.s:276    .data:0000000000000015 clock_source_base
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cc4qgBmM.s:285    .data:000000000000001a ratio_base
+
+UNDEFINED SYMBOLS
+__udivmodsi4
+__umulhisi3
+__mulsi3
+__do_copy_data

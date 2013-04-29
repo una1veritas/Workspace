@@ -1,0 +1,225 @@
+   1               		.file	"evtimer.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  11               	tmrcb:
+  12               	.LFB7:
+  13               		.file 1 "../../os/various/evtimer.c"
+   1:../../os/various/evtimer.c **** /*
+   2:../../os/various/evtimer.c ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/various/evtimer.c ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/various/evtimer.c **** 
+   5:../../os/various/evtimer.c ****     This file is part of ChibiOS/RT.
+   6:../../os/various/evtimer.c **** 
+   7:../../os/various/evtimer.c ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/various/evtimer.c ****     it under the terms of the GNU General Public License as published by
+   9:../../os/various/evtimer.c ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/various/evtimer.c ****     (at your option) any later version.
+  11:../../os/various/evtimer.c **** 
+  12:../../os/various/evtimer.c ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/various/evtimer.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/various/evtimer.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/various/evtimer.c ****     GNU General Public License for more details.
+  16:../../os/various/evtimer.c **** 
+  17:../../os/various/evtimer.c ****     You should have received a copy of the GNU General Public License
+  18:../../os/various/evtimer.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/various/evtimer.c **** */
+  20:../../os/various/evtimer.c **** 
+  21:../../os/various/evtimer.c **** /**
+  22:../../os/various/evtimer.c ****  * @file    evtimer.c
+  23:../../os/various/evtimer.c ****  * @brief   Events Generator Timer code.
+  24:../../os/various/evtimer.c ****  *
+  25:../../os/various/evtimer.c ****  * @addtogroup event_timer
+  26:../../os/various/evtimer.c ****  * @{
+  27:../../os/various/evtimer.c ****  */
+  28:../../os/various/evtimer.c **** 
+  29:../../os/various/evtimer.c **** #include "ch.h"
+  30:../../os/various/evtimer.c **** #include "evtimer.h"
+  31:../../os/various/evtimer.c **** 
+  32:../../os/various/evtimer.c **** static void tmrcb(void *p) {
+  14               		.loc 1 32 0
+  15               		.cfi_startproc
+  16               	.LVL0:
+  17 0000 CF93      		push r28
+  18               	.LCFI0:
+  19               		.cfi_def_cfa_offset 3
+  20               		.cfi_offset 28, -2
+  21 0002 DF93      		push r29
+  22               	.LCFI1:
+  23               		.cfi_def_cfa_offset 4
+  24               		.cfi_offset 29, -3
+  25               	/* prologue: function */
+  26               	/* frame size = 0 */
+  27               	/* stack size = 2 */
+  28               	.L__stack_usage = 2
+  29 0004 EC01      		movw r28,r24
+  30               	.LVL1:
+  33:../../os/various/evtimer.c ****   EvTimer *etp = p;
+  34:../../os/various/evtimer.c **** 
+  35:../../os/various/evtimer.c ****   chSysLockFromIsr();
+  36:../../os/various/evtimer.c ****   chEvtBroadcastI(&etp->et_es);
+  31               		.loc 1 36 0
+  32 0006 60E0      		ldi r22,0
+  33 0008 0A96      		adiw r24,10
+  34               	.LVL2:
+  35 000a 0E94 0000 		call chEvtBroadcastFlagsI
+  36               	.LVL3:
+  37:../../os/various/evtimer.c ****   chVTSetI(&etp->et_vt, etp->et_interval, tmrcb, etp);
+  37               		.loc 1 37 0
+  38 000e 6C85      		ldd r22,Y+12
+  39 0010 7D85      		ldd r23,Y+13
+  40 0012 9E01      		movw r18,r28
+  41 0014 40E0      		ldi r20,lo8(gs(tmrcb))
+  42 0016 50E0      		ldi r21,hi8(gs(tmrcb))
+  43 0018 CE01      		movw r24,r28
+  44               	/* epilogue start */
+  38:../../os/various/evtimer.c ****   chSysUnlockFromIsr();
+  39:../../os/various/evtimer.c **** }
+  45               		.loc 1 39 0
+  46 001a DF91      		pop r29
+  47 001c CF91      		pop r28
+  48               	.LVL4:
+  37:../../os/various/evtimer.c ****   chVTSetI(&etp->et_vt, etp->et_interval, tmrcb, etp);
+  49               		.loc 1 37 0
+  50 001e 0C94 0000 		jmp chVTSetI
+  51               	.LVL5:
+  52               		.cfi_endproc
+  53               	.LFE7:
+  55               	.global	evtStart
+  57               	evtStart:
+  58               	.LFB8:
+  40:../../os/various/evtimer.c **** 
+  41:../../os/various/evtimer.c **** /**
+  42:../../os/various/evtimer.c ****  * @brief Starts the timer
+  43:../../os/various/evtimer.c ****  * @details If the timer was already running then the function has no effect.
+  44:../../os/various/evtimer.c ****  *
+  45:../../os/various/evtimer.c ****  * @param etp pointer to an initialized @p EvTimer structure.
+  46:../../os/various/evtimer.c ****  */
+  47:../../os/various/evtimer.c **** void evtStart(EvTimer *etp) {
+  59               		.loc 1 47 0
+  60               		.cfi_startproc
+  61               	.LVL6:
+  62               	/* prologue: function */
+  63               	/* frame size = 0 */
+  64               	/* stack size = 0 */
+  65               	.L__stack_usage = 0
+  48:../../os/various/evtimer.c **** 
+  49:../../os/various/evtimer.c ****   chSysLock();
+  66               		.loc 1 49 0
+  67               	/* #APP */
+  68               	 ;  49 "../../os/various/evtimer.c" 1
+  69 0022 F894      		cli
+  70               	 ;  0 "" 2
+  50:../../os/various/evtimer.c **** 
+  51:../../os/various/evtimer.c ****   if (!chVTIsArmedI(&etp->et_vt))
+  71               		.loc 1 51 0
+  72               	/* #NOAPP */
+  73 0024 FC01      		movw r30,r24
+  74 0026 2681      		ldd r18,Z+6
+  75 0028 3781      		ldd r19,Z+7
+  76 002a 232B      		or r18,r19
+  77 002c 01F0      		breq .L5
+  52:../../os/various/evtimer.c ****     chVTSetI(&etp->et_vt, etp->et_interval, tmrcb, etp);
+  53:../../os/various/evtimer.c **** 
+  54:../../os/various/evtimer.c ****   chSysUnlock();
+  78               		.loc 1 54 0
+  79               	/* #APP */
+  80               	 ;  54 "../../os/various/evtimer.c" 1
+  81 002e 7894      		sei
+  82               	 ;  0 "" 2
+  83               	/* #NOAPP */
+  84 0030 0895      		ret
+  85               	.L5:
+  52:../../os/various/evtimer.c ****     chVTSetI(&etp->et_vt, etp->et_interval, tmrcb, etp);
+  86               		.loc 1 52 0
+  87 0032 6485      		ldd r22,Z+12
+  88 0034 7585      		ldd r23,Z+13
+  89 0036 9C01      		movw r18,r24
+  90 0038 40E0      		ldi r20,lo8(gs(tmrcb))
+  91 003a 50E0      		ldi r21,hi8(gs(tmrcb))
+  92 003c 0E94 0000 		call chVTSetI
+  93               	.LVL7:
+  94               		.loc 1 54 0
+  95               	/* #APP */
+  96               	 ;  54 "../../os/various/evtimer.c" 1
+  97 0040 7894      		sei
+  98               	 ;  0 "" 2
+  99               	/* #NOAPP */
+ 100 0042 0895      		ret
+ 101               		.cfi_endproc
+ 102               	.LFE8:
+ 104               	.global	evtStop
+ 106               	evtStop:
+ 107               	.LFB9:
+  55:../../os/various/evtimer.c **** }
+  56:../../os/various/evtimer.c **** 
+  57:../../os/various/evtimer.c **** /**
+  58:../../os/various/evtimer.c ****  * @brief Stops the timer.
+  59:../../os/various/evtimer.c ****  * @details If the timer was already stopped then the function has no effect.
+  60:../../os/various/evtimer.c ****  *
+  61:../../os/various/evtimer.c ****  * @param etp pointer to an initialized @p EvTimer structure.
+  62:../../os/various/evtimer.c ****  */
+  63:../../os/various/evtimer.c **** void evtStop(EvTimer *etp) {
+ 108               		.loc 1 63 0
+ 109               		.cfi_startproc
+ 110               	.LVL8:
+ 111               	/* prologue: function */
+ 112               	/* frame size = 0 */
+ 113               	/* stack size = 0 */
+ 114               	.L__stack_usage = 0
+  64:../../os/various/evtimer.c **** 
+  65:../../os/various/evtimer.c ****   chVTReset(&etp->et_vt);
+ 115               		.loc 1 65 0
+ 116               	/* #APP */
+ 117               	 ;  65 "../../os/various/evtimer.c" 1
+ 118 0044 F894      		cli
+ 119               	 ;  0 "" 2
+ 120               	/* #NOAPP */
+ 121 0046 FC01      		movw r30,r24
+ 122 0048 2681      		ldd r18,Z+6
+ 123 004a 3781      		ldd r19,Z+7
+ 124 004c 232B      		or r18,r19
+ 125 004e 01F0      		breq .L7
+ 126               		.loc 1 65 0 is_stmt 0 discriminator 1
+ 127 0050 0E94 0000 		call chVTResetI
+ 128               	.LVL9:
+ 129               	.L7:
+ 130               		.loc 1 65 0 discriminator 2
+ 131               	/* #APP */
+ 132               	 ;  65 "../../os/various/evtimer.c" 1
+ 133 0054 7894      		sei
+ 134               	 ;  0 "" 2
+ 135               	/* #NOAPP */
+ 136 0056 0895      		ret
+ 137               		.cfi_endproc
+ 138               	.LFE9:
+ 140               	.Letext0:
+ 141               		.file 2 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+ 142               		.file 3 "../../os/ports/GCC/AVR/chtypes.h"
+ 143               		.file 4 "../../os/kernel/include/chlists.h"
+ 144               		.file 5 "../../os/kernel/include/chthreads.h"
+ 145               		.file 6 "../../os/ports/GCC/AVR/chcore.h"
+ 146               		.file 7 "../../os/kernel/include/chvt.h"
+ 147               		.file 8 "../../os/kernel/include/chmtx.h"
+ 148               		.file 9 "../../os/kernel/include/chevents.h"
+ 149               		.file 10 "../../os/various/evtimer.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 evtimer.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccW9ccte.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccW9ccte.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccW9ccte.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccW9ccte.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccW9ccte.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccW9ccte.s:11     .text:0000000000000000 tmrcb
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccW9ccte.s:57     .text:0000000000000022 evtStart
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//ccW9ccte.s:106    .text:0000000000000044 evtStop
+
+UNDEFINED SYMBOLS
+chEvtBroadcastFlagsI
+chVTSetI
+chVTResetI

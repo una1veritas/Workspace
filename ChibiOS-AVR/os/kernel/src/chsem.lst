@@ -1,0 +1,1313 @@
+   1               		.file	"chsem.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	chSemInit
+  12               	chSemInit:
+  13               	.LFB7:
+  14               		.file 1 "../../os/kernel/src/chsem.c"
+   1:../../os/kernel/src/chsem.c **** /*
+   2:../../os/kernel/src/chsem.c ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/kernel/src/chsem.c ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/kernel/src/chsem.c **** 
+   5:../../os/kernel/src/chsem.c ****     This file is part of ChibiOS/RT.
+   6:../../os/kernel/src/chsem.c **** 
+   7:../../os/kernel/src/chsem.c ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/kernel/src/chsem.c ****     it under the terms of the GNU General Public License as published by
+   9:../../os/kernel/src/chsem.c ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/kernel/src/chsem.c ****     (at your option) any later version.
+  11:../../os/kernel/src/chsem.c **** 
+  12:../../os/kernel/src/chsem.c ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/kernel/src/chsem.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/kernel/src/chsem.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/kernel/src/chsem.c ****     GNU General Public License for more details.
+  16:../../os/kernel/src/chsem.c **** 
+  17:../../os/kernel/src/chsem.c ****     You should have received a copy of the GNU General Public License
+  18:../../os/kernel/src/chsem.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/kernel/src/chsem.c **** */
+  20:../../os/kernel/src/chsem.c **** 
+  21:../../os/kernel/src/chsem.c **** /**
+  22:../../os/kernel/src/chsem.c ****  * @file    chsem.c
+  23:../../os/kernel/src/chsem.c ****  * @brief   Semaphores code.
+  24:../../os/kernel/src/chsem.c ****  *
+  25:../../os/kernel/src/chsem.c ****  * @addtogroup semaphores
+  26:../../os/kernel/src/chsem.c ****  * @details Semaphores related APIs and services.
+  27:../../os/kernel/src/chsem.c ****  *
+  28:../../os/kernel/src/chsem.c ****  *          <h2>Operation mode</h2>
+  29:../../os/kernel/src/chsem.c ****  *          Semaphores are a flexible synchronization primitive, ChibiOS/RT
+  30:../../os/kernel/src/chsem.c ****  *          implements semaphores in their "counting semaphores" variant as
+  31:../../os/kernel/src/chsem.c ****  *          defined by Edsger Dijkstra plus several enhancements like:
+  32:../../os/kernel/src/chsem.c ****  *          - Wait operation with timeout.
+  33:../../os/kernel/src/chsem.c ****  *          - Reset operation.
+  34:../../os/kernel/src/chsem.c ****  *          - Atomic wait+signal operation.
+  35:../../os/kernel/src/chsem.c ****  *          - Return message from the wait operation (OK, RESET, TIMEOUT).
+  36:../../os/kernel/src/chsem.c ****  *          .
+  37:../../os/kernel/src/chsem.c ****  *          The binary semaphores variant can be easily implemented using
+  38:../../os/kernel/src/chsem.c ****  *          counting semaphores.<br>
+  39:../../os/kernel/src/chsem.c ****  *          Operations defined for semaphores:
+  40:../../os/kernel/src/chsem.c ****  *          - <b>Signal</b>: The semaphore counter is increased and if the
+  41:../../os/kernel/src/chsem.c ****  *            result is non-positive then a waiting thread is removed from
+  42:../../os/kernel/src/chsem.c ****  *            the semaphore queue and made ready for execution.
+  43:../../os/kernel/src/chsem.c ****  *          - <b>Wait</b>: The semaphore counter is decreased and if the result
+  44:../../os/kernel/src/chsem.c ****  *            becomes negative the thread is queued in the semaphore and
+  45:../../os/kernel/src/chsem.c ****  *            suspended.
+  46:../../os/kernel/src/chsem.c ****  *          - <b>Reset</b>: The semaphore counter is reset to a non-negative
+  47:../../os/kernel/src/chsem.c ****  *            value and all the threads in the queue are released.
+  48:../../os/kernel/src/chsem.c ****  *          .
+  49:../../os/kernel/src/chsem.c ****  *          Semaphores can be used as guards for mutual exclusion zones
+  50:../../os/kernel/src/chsem.c ****  *          (note that mutexes are recommended for this kind of use) but
+  51:../../os/kernel/src/chsem.c ****  *          also have other uses, queues guards and counters for example.<br>
+  52:../../os/kernel/src/chsem.c ****  *          Semaphores usually use a FIFO queuing strategy but it is possible
+  53:../../os/kernel/src/chsem.c ****  *          to make them order threads by priority by enabling
+  54:../../os/kernel/src/chsem.c ****  *          @p CH_USE_SEMAPHORES_PRIORITY in @p chconf.h.
+  55:../../os/kernel/src/chsem.c ****  * @pre     In order to use the semaphore APIs the @p CH_USE_SEMAPHORES
+  56:../../os/kernel/src/chsem.c ****  *          option must be enabled in @p chconf.h.
+  57:../../os/kernel/src/chsem.c ****  * @{
+  58:../../os/kernel/src/chsem.c ****  */
+  59:../../os/kernel/src/chsem.c **** 
+  60:../../os/kernel/src/chsem.c **** #include "ch.h"
+  61:../../os/kernel/src/chsem.c **** 
+  62:../../os/kernel/src/chsem.c **** #if CH_USE_SEMAPHORES || defined(__DOXYGEN__)
+  63:../../os/kernel/src/chsem.c **** 
+  64:../../os/kernel/src/chsem.c **** #if CH_USE_SEMAPHORES_PRIORITY
+  65:../../os/kernel/src/chsem.c **** #define sem_insert(tp, qp) prio_insert(tp, qp)
+  66:../../os/kernel/src/chsem.c **** #else
+  67:../../os/kernel/src/chsem.c **** #define sem_insert(tp, qp) queue_insert(tp, qp)
+  68:../../os/kernel/src/chsem.c **** #endif
+  69:../../os/kernel/src/chsem.c **** 
+  70:../../os/kernel/src/chsem.c **** /**
+  71:../../os/kernel/src/chsem.c ****  * @brief   Initializes a semaphore with the specified counter value.
+  72:../../os/kernel/src/chsem.c ****  *
+  73:../../os/kernel/src/chsem.c ****  * @param[out] sp       pointer to a @p Semaphore structure
+  74:../../os/kernel/src/chsem.c ****  * @param[in] n         initial value of the semaphore counter. Must be
+  75:../../os/kernel/src/chsem.c ****  *                      non-negative.
+  76:../../os/kernel/src/chsem.c ****  *
+  77:../../os/kernel/src/chsem.c ****  * @init
+  78:../../os/kernel/src/chsem.c ****  */
+  79:../../os/kernel/src/chsem.c **** void chSemInit(Semaphore *sp, cnt_t n) {
+  15               		.loc 1 79 0
+  16               		.cfi_startproc
+  17               	.LVL0:
+  18               	/* prologue: function */
+  19               	/* frame size = 0 */
+  20               	/* stack size = 0 */
+  21               	.L__stack_usage = 0
+  22 0000 FC01      		movw r30,r24
+  80:../../os/kernel/src/chsem.c **** 
+  81:../../os/kernel/src/chsem.c ****   chDbgCheck((sp != NULL) && (n >= 0), "chSemInit");
+  82:../../os/kernel/src/chsem.c **** 
+  83:../../os/kernel/src/chsem.c ****   queue_init(&sp->s_queue);
+  23               		.loc 1 83 0
+  24 0002 8283      		std Z+2,r24
+  25 0004 F383      		std Z+3,r31
+  26 0006 8083      		st Z,r24
+  27 0008 F183      		std Z+1,r31
+  84:../../os/kernel/src/chsem.c ****   sp->s_cnt = n;
+  28               		.loc 1 84 0
+  29 000a 6483      		std Z+4,r22
+  30 000c 0895      		ret
+  31               		.cfi_endproc
+  32               	.LFE7:
+  34               	.global	chSemResetI
+  36               	chSemResetI:
+  37               	.LFB9:
+  85:../../os/kernel/src/chsem.c **** }
+  86:../../os/kernel/src/chsem.c **** 
+  87:../../os/kernel/src/chsem.c **** /**
+  88:../../os/kernel/src/chsem.c ****  * @brief   Performs a reset operation on the semaphore.
+  89:../../os/kernel/src/chsem.c ****  * @post    After invoking this function all the threads waiting on the
+  90:../../os/kernel/src/chsem.c ****  *          semaphore, if any, are released and the semaphore counter is set
+  91:../../os/kernel/src/chsem.c ****  *          to the specified, non negative, value.
+  92:../../os/kernel/src/chsem.c ****  * @note    The released threads can recognize they were waked up by a reset
+  93:../../os/kernel/src/chsem.c ****  *          rather than a signal because the @p chSemWait() will return
+  94:../../os/kernel/src/chsem.c ****  *          @p RDY_RESET instead of @p RDY_OK.
+  95:../../os/kernel/src/chsem.c ****  *
+  96:../../os/kernel/src/chsem.c ****  * @param[in] sp        pointer to a @p Semaphore structure
+  97:../../os/kernel/src/chsem.c ****  * @param[in] n         the new value of the semaphore counter. The value must
+  98:../../os/kernel/src/chsem.c ****  *                      be non-negative.
+  99:../../os/kernel/src/chsem.c ****  *
+ 100:../../os/kernel/src/chsem.c ****  * @api
+ 101:../../os/kernel/src/chsem.c ****  */
+ 102:../../os/kernel/src/chsem.c **** void chSemReset(Semaphore *sp, cnt_t n) {
+ 103:../../os/kernel/src/chsem.c **** 
+ 104:../../os/kernel/src/chsem.c ****   chSysLock();
+ 105:../../os/kernel/src/chsem.c ****   chSemResetI(sp, n);
+ 106:../../os/kernel/src/chsem.c ****   chSchRescheduleS();
+ 107:../../os/kernel/src/chsem.c ****   chSysUnlock();
+ 108:../../os/kernel/src/chsem.c **** }
+ 109:../../os/kernel/src/chsem.c **** 
+ 110:../../os/kernel/src/chsem.c **** /**
+ 111:../../os/kernel/src/chsem.c ****  * @brief   Performs a reset operation on the semaphore.
+ 112:../../os/kernel/src/chsem.c ****  * @post    After invoking this function all the threads waiting on the
+ 113:../../os/kernel/src/chsem.c ****  *          semaphore, if any, are released and the semaphore counter is set
+ 114:../../os/kernel/src/chsem.c ****  *          to the specified, non negative, value.
+ 115:../../os/kernel/src/chsem.c ****  * @post    This function does not reschedule so a call to a rescheduling
+ 116:../../os/kernel/src/chsem.c ****  *          function must be performed before unlocking the kernel. Note that
+ 117:../../os/kernel/src/chsem.c ****  *          interrupt handlers always reschedule on exit so an explicit
+ 118:../../os/kernel/src/chsem.c ****  *          reschedule must not be performed in ISRs.
+ 119:../../os/kernel/src/chsem.c ****  * @note    The released threads can recognize they were waked up by a reset
+ 120:../../os/kernel/src/chsem.c ****  *          rather than a signal because the @p chSemWait() will return
+ 121:../../os/kernel/src/chsem.c ****  *          @p RDY_RESET instead of @p RDY_OK.
+ 122:../../os/kernel/src/chsem.c ****  *
+ 123:../../os/kernel/src/chsem.c ****  * @param[in] sp        pointer to a @p Semaphore structure
+ 124:../../os/kernel/src/chsem.c ****  * @param[in] n         the new value of the semaphore counter. The value must
+ 125:../../os/kernel/src/chsem.c ****  *                      be non-negative.
+ 126:../../os/kernel/src/chsem.c ****  *
+ 127:../../os/kernel/src/chsem.c ****  * @iclass
+ 128:../../os/kernel/src/chsem.c ****  */
+ 129:../../os/kernel/src/chsem.c **** void chSemResetI(Semaphore *sp, cnt_t n) {
+  38               		.loc 1 129 0
+  39               		.cfi_startproc
+  40               	.LVL1:
+  41 000e FF92      		push r15
+  42               	.LCFI0:
+  43               		.cfi_def_cfa_offset 3
+  44               		.cfi_offset 15, -2
+  45 0010 0F93      		push r16
+  46               	.LCFI1:
+  47               		.cfi_def_cfa_offset 4
+  48               		.cfi_offset 16, -3
+  49 0012 1F93      		push r17
+  50               	.LCFI2:
+  51               		.cfi_def_cfa_offset 5
+  52               		.cfi_offset 17, -4
+  53 0014 CF93      		push r28
+  54               	.LCFI3:
+  55               		.cfi_def_cfa_offset 6
+  56               		.cfi_offset 28, -5
+  57 0016 DF93      		push r29
+  58               	.LCFI4:
+  59               		.cfi_def_cfa_offset 7
+  60               		.cfi_offset 29, -6
+  61               	/* prologue: function */
+  62               	/* frame size = 0 */
+  63               	/* stack size = 5 */
+  64               	.L__stack_usage = 5
+  65 0018 EC01      		movw r28,r24
+ 130:../../os/kernel/src/chsem.c ****   cnt_t cnt;
+ 131:../../os/kernel/src/chsem.c **** 
+ 132:../../os/kernel/src/chsem.c ****   chDbgCheckClassI();
+ 133:../../os/kernel/src/chsem.c ****   chDbgCheck((sp != NULL) && (n >= 0), "chSemResetI");
+ 134:../../os/kernel/src/chsem.c ****   chDbgAssert(((sp->s_cnt >= 0) && isempty(&sp->s_queue)) ||
+  66               		.loc 1 134 0
+  67 001a FC80      		ldd r15,Y+4
+  68               	.LVL2:
+ 135:../../os/kernel/src/chsem.c ****               ((sp->s_cnt < 0) && notempty(&sp->s_queue)),
+ 136:../../os/kernel/src/chsem.c ****               "chSemResetI(), #1",
+ 137:../../os/kernel/src/chsem.c ****               "inconsistent semaphore");
+ 138:../../os/kernel/src/chsem.c **** 
+ 139:../../os/kernel/src/chsem.c ****   cnt = sp->s_cnt;
+ 140:../../os/kernel/src/chsem.c ****   sp->s_cnt = n;
+  69               		.loc 1 140 0
+  70 001c 6C83      		std Y+4,r22
+ 141:../../os/kernel/src/chsem.c ****   while (++cnt <= 0)
+  71               		.loc 1 141 0
+  72 001e F394      		inc r15
+  73               	.LVL3:
+  74 0020 1F14      		cp __zero_reg__,r15
+  75 0022 04F0      		brlt .L2
+ 142:../../os/kernel/src/chsem.c ****     chSchReadyI(lifo_remove(&sp->s_queue))->p_u.rdymsg = RDY_RESET;
+  76               		.loc 1 142 0
+  77 0024 0EEF      		ldi r16,lo8(-2)
+  78 0026 1FEF      		ldi r17,lo8(-1)
+  79               	.LVL4:
+  80               	.L6:
+  81               	.LBB20:
+  82               	.LBB21:
+  83               		.file 2 "../../os/kernel/include/chinline.h"
+   1:../../os/kernel/include/chinline.h **** /*
+   2:../../os/kernel/include/chinline.h ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/kernel/include/chinline.h ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/kernel/include/chinline.h **** 
+   5:../../os/kernel/include/chinline.h ****     This file is part of ChibiOS/RT.
+   6:../../os/kernel/include/chinline.h **** 
+   7:../../os/kernel/include/chinline.h ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/kernel/include/chinline.h ****     it under the terms of the GNU General Public License as published by
+   9:../../os/kernel/include/chinline.h ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/kernel/include/chinline.h ****     (at your option) any later version.
+  11:../../os/kernel/include/chinline.h **** 
+  12:../../os/kernel/include/chinline.h ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/kernel/include/chinline.h ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/kernel/include/chinline.h ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/kernel/include/chinline.h ****     GNU General Public License for more details.
+  16:../../os/kernel/include/chinline.h **** 
+  17:../../os/kernel/include/chinline.h ****     You should have received a copy of the GNU General Public License
+  18:../../os/kernel/include/chinline.h ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/kernel/include/chinline.h **** */
+  20:../../os/kernel/include/chinline.h **** 
+  21:../../os/kernel/include/chinline.h **** /**
+  22:../../os/kernel/include/chinline.h ****  * @file    chinline.h
+  23:../../os/kernel/include/chinline.h ****  * @brief   Kernel inlined functions.
+  24:../../os/kernel/include/chinline.h ****  * @details In this file there are a set of inlined functions if the
+  25:../../os/kernel/include/chinline.h ****  *          @p CH_OPTIMIZE_SPEED is enabled.
+  26:../../os/kernel/include/chinline.h ****  */
+  27:../../os/kernel/include/chinline.h **** 
+  28:../../os/kernel/include/chinline.h **** #ifndef _CHINLINE_H_
+  29:../../os/kernel/include/chinline.h **** #define _CHINLINE_H_
+  30:../../os/kernel/include/chinline.h **** 
+  31:../../os/kernel/include/chinline.h **** /* If the performance code path has been chosen then all the following
+  32:../../os/kernel/include/chinline.h ****    functions are inlined into the various kernel modules.*/
+  33:../../os/kernel/include/chinline.h **** #if CH_OPTIMIZE_SPEED
+  34:../../os/kernel/include/chinline.h **** static INLINE void prio_insert(Thread *tp, ThreadsQueue *tqp) {
+  35:../../os/kernel/include/chinline.h **** 
+  36:../../os/kernel/include/chinline.h ****   Thread *cp = (Thread *)tqp;
+  37:../../os/kernel/include/chinline.h ****   do {
+  38:../../os/kernel/include/chinline.h ****     cp = cp->p_next;
+  39:../../os/kernel/include/chinline.h ****   } while ((cp != (Thread *)tqp) && (cp->p_prio >= tp->p_prio));
+  40:../../os/kernel/include/chinline.h ****   tp->p_next = cp;
+  41:../../os/kernel/include/chinline.h ****   tp->p_prev = cp->p_prev;
+  42:../../os/kernel/include/chinline.h ****   tp->p_prev->p_next = cp->p_prev = tp;
+  43:../../os/kernel/include/chinline.h **** }
+  44:../../os/kernel/include/chinline.h **** 
+  45:../../os/kernel/include/chinline.h **** static INLINE void queue_insert(Thread *tp, ThreadsQueue *tqp) {
+  46:../../os/kernel/include/chinline.h **** 
+  47:../../os/kernel/include/chinline.h ****   tp->p_next = (Thread *)tqp;
+  48:../../os/kernel/include/chinline.h ****   tp->p_prev = tqp->p_prev;
+  49:../../os/kernel/include/chinline.h ****   tp->p_prev->p_next = tqp->p_prev = tp;
+  50:../../os/kernel/include/chinline.h **** }
+  51:../../os/kernel/include/chinline.h **** 
+  52:../../os/kernel/include/chinline.h **** static INLINE Thread *fifo_remove(ThreadsQueue *tqp) {
+  53:../../os/kernel/include/chinline.h ****   Thread *tp = tqp->p_next;
+  54:../../os/kernel/include/chinline.h **** 
+  55:../../os/kernel/include/chinline.h ****   (tqp->p_next = tp->p_next)->p_prev = (Thread *)tqp;
+  56:../../os/kernel/include/chinline.h ****   return tp;
+  57:../../os/kernel/include/chinline.h **** }
+  58:../../os/kernel/include/chinline.h **** 
+  59:../../os/kernel/include/chinline.h **** static INLINE Thread *lifo_remove(ThreadsQueue *tqp) {
+  60:../../os/kernel/include/chinline.h ****   Thread *tp = tqp->p_prev;
+  84               		.loc 2 60 0
+  85 0028 8A81      		ldd r24,Y+2
+  86 002a 9B81      		ldd r25,Y+3
+  87               	.LVL5:
+  61:../../os/kernel/include/chinline.h **** 
+  62:../../os/kernel/include/chinline.h ****   (tqp->p_prev = tp->p_prev)->p_next = (Thread *)tqp;
+  88               		.loc 2 62 0
+  89 002c DC01      		movw r26,r24
+  90 002e 1296      		adiw r26,2
+  91 0030 ED91      		ld r30,X+
+  92 0032 FC91      		ld r31,X
+  93 0034 1397      		sbiw r26,2+1
+  94 0036 FB83      		std Y+3,r31
+  95 0038 EA83      		std Y+2,r30
+  96 003a D183      		std Z+1,r29
+  97 003c C083      		st Z,r28
+  98               	.LBE21:
+  99               	.LBE20:
+ 100               		.loc 1 142 0
+ 101 003e 0E94 0000 		call chSchReadyI
+ 102               	.LVL6:
+ 103 0042 FC01      		movw r30,r24
+ 104 0044 138B      		std Z+19,r17
+ 105 0046 028B      		std Z+18,r16
+ 141:../../os/kernel/src/chsem.c ****   while (++cnt <= 0)
+ 106               		.loc 1 141 0
+ 107 0048 F394      		inc r15
+ 108               	.LVL7:
+ 109 004a F1E0      		ldi r31,lo8(1)
+ 110 004c FF12      		cpse r15,r31
+ 111 004e 00C0      		rjmp .L6
+ 112               	.LVL8:
+ 113               	.L2:
+ 114               	/* epilogue start */
+ 143:../../os/kernel/src/chsem.c **** }
+ 115               		.loc 1 143 0
+ 116 0050 DF91      		pop r29
+ 117 0052 CF91      		pop r28
+ 118               	.LVL9:
+ 119 0054 1F91      		pop r17
+ 120 0056 0F91      		pop r16
+ 121 0058 FF90      		pop r15
+ 122               	.LVL10:
+ 123 005a 0895      		ret
+ 124               		.cfi_endproc
+ 125               	.LFE9:
+ 127               	.global	chSemReset
+ 129               	chSemReset:
+ 130               	.LFB8:
+ 102:../../os/kernel/src/chsem.c **** void chSemReset(Semaphore *sp, cnt_t n) {
+ 131               		.loc 1 102 0
+ 132               		.cfi_startproc
+ 133               	.LVL11:
+ 134               	/* prologue: function */
+ 135               	/* frame size = 0 */
+ 136               	/* stack size = 0 */
+ 137               	.L__stack_usage = 0
+ 104:../../os/kernel/src/chsem.c ****   chSysLock();
+ 138               		.loc 1 104 0
+ 139               	/* #APP */
+ 140               	 ;  104 "../../os/kernel/src/chsem.c" 1
+ 141 005c F894      		cli
+ 142               	 ;  0 "" 2
+ 105:../../os/kernel/src/chsem.c ****   chSemResetI(sp, n);
+ 143               		.loc 1 105 0
+ 144               	/* #NOAPP */
+ 145 005e 0E94 0000 		call chSemResetI
+ 146               	.LVL12:
+ 106:../../os/kernel/src/chsem.c ****   chSchRescheduleS();
+ 147               		.loc 1 106 0
+ 148 0062 0E94 0000 		call chSchRescheduleS
+ 149               	.LVL13:
+ 107:../../os/kernel/src/chsem.c ****   chSysUnlock();
+ 150               		.loc 1 107 0
+ 151               	/* #APP */
+ 152               	 ;  107 "../../os/kernel/src/chsem.c" 1
+ 153 0066 7894      		sei
+ 154               	 ;  0 "" 2
+ 155               	/* #NOAPP */
+ 156 0068 0895      		ret
+ 157               		.cfi_endproc
+ 158               	.LFE8:
+ 160               	.global	chSemWaitS
+ 162               	chSemWaitS:
+ 163               	.LFB11:
+ 144:../../os/kernel/src/chsem.c **** 
+ 145:../../os/kernel/src/chsem.c **** /**
+ 146:../../os/kernel/src/chsem.c ****  * @brief   Performs a wait operation on a semaphore.
+ 147:../../os/kernel/src/chsem.c ****  *
+ 148:../../os/kernel/src/chsem.c ****  * @param[in] sp        pointer to a @p Semaphore structure
+ 149:../../os/kernel/src/chsem.c ****  * @return              A message specifying how the invoking thread has been
+ 150:../../os/kernel/src/chsem.c ****  *                      released from the semaphore.
+ 151:../../os/kernel/src/chsem.c ****  * @retval RDY_OK       if the thread has not stopped on the semaphore or the
+ 152:../../os/kernel/src/chsem.c ****  *                      semaphore has been signaled.
+ 153:../../os/kernel/src/chsem.c ****  * @retval RDY_RESET    if the semaphore has been reset using @p chSemReset().
+ 154:../../os/kernel/src/chsem.c ****  *
+ 155:../../os/kernel/src/chsem.c ****  * @api
+ 156:../../os/kernel/src/chsem.c ****  */
+ 157:../../os/kernel/src/chsem.c **** msg_t chSemWait(Semaphore *sp) {
+ 158:../../os/kernel/src/chsem.c ****   msg_t msg;
+ 159:../../os/kernel/src/chsem.c **** 
+ 160:../../os/kernel/src/chsem.c ****   chSysLock();
+ 161:../../os/kernel/src/chsem.c ****   msg = chSemWaitS(sp);
+ 162:../../os/kernel/src/chsem.c ****   chSysUnlock();
+ 163:../../os/kernel/src/chsem.c ****   return msg;
+ 164:../../os/kernel/src/chsem.c **** }
+ 165:../../os/kernel/src/chsem.c **** 
+ 166:../../os/kernel/src/chsem.c **** /**
+ 167:../../os/kernel/src/chsem.c ****  * @brief   Performs a wait operation on a semaphore.
+ 168:../../os/kernel/src/chsem.c ****  *
+ 169:../../os/kernel/src/chsem.c ****  * @param[in] sp        pointer to a @p Semaphore structure
+ 170:../../os/kernel/src/chsem.c ****  * @return              A message specifying how the invoking thread has been
+ 171:../../os/kernel/src/chsem.c ****  *                      released from the semaphore.
+ 172:../../os/kernel/src/chsem.c ****  * @retval RDY_OK       if the thread has not stopped on the semaphore or the
+ 173:../../os/kernel/src/chsem.c ****  *                      semaphore has been signaled.
+ 174:../../os/kernel/src/chsem.c ****  * @retval RDY_RESET    if the semaphore has been reset using @p chSemReset().
+ 175:../../os/kernel/src/chsem.c ****  *
+ 176:../../os/kernel/src/chsem.c ****  * @sclass
+ 177:../../os/kernel/src/chsem.c ****  */
+ 178:../../os/kernel/src/chsem.c **** msg_t chSemWaitS(Semaphore *sp) {
+ 164               		.loc 1 178 0
+ 165               		.cfi_startproc
+ 166               	.LVL14:
+ 167 006a CF93      		push r28
+ 168               	.LCFI5:
+ 169               		.cfi_def_cfa_offset 3
+ 170               		.cfi_offset 28, -2
+ 171 006c DF93      		push r29
+ 172               	.LCFI6:
+ 173               		.cfi_def_cfa_offset 4
+ 174               		.cfi_offset 29, -3
+ 175               	/* prologue: function */
+ 176               	/* frame size = 0 */
+ 177               	/* stack size = 2 */
+ 178               	.L__stack_usage = 2
+ 179 006e FC01      		movw r30,r24
+ 179:../../os/kernel/src/chsem.c **** 
+ 180:../../os/kernel/src/chsem.c ****   chDbgCheckClassS();
+ 181:../../os/kernel/src/chsem.c ****   chDbgCheck(sp != NULL, "chSemWaitS");
+ 182:../../os/kernel/src/chsem.c ****   chDbgAssert(((sp->s_cnt >= 0) && isempty(&sp->s_queue)) ||
+ 183:../../os/kernel/src/chsem.c ****               ((sp->s_cnt < 0) && notempty(&sp->s_queue)),
+ 184:../../os/kernel/src/chsem.c ****               "chSemWaitS(), #1",
+ 185:../../os/kernel/src/chsem.c ****               "inconsistent semaphore");
+ 186:../../os/kernel/src/chsem.c **** 
+ 187:../../os/kernel/src/chsem.c ****   if (--sp->s_cnt < 0) {
+ 180               		.loc 1 187 0
+ 181 0070 8481      		ldd r24,Z+4
+ 182               	.LVL15:
+ 183 0072 8150      		subi r24,lo8(-(-1))
+ 184 0074 8483      		std Z+4,r24
+ 185 0076 87FD      		sbrc r24,7
+ 186 0078 00C0      		rjmp .L13
+ 188:../../os/kernel/src/chsem.c ****     currp->p_u.wtobjp = sp;
+ 189:../../os/kernel/src/chsem.c ****     sem_insert(currp, &sp->s_queue);
+ 190:../../os/kernel/src/chsem.c ****     chSchGoSleepS(THD_STATE_WTSEM);
+ 191:../../os/kernel/src/chsem.c ****     return currp->p_u.rdymsg;
+ 192:../../os/kernel/src/chsem.c ****   }
+ 193:../../os/kernel/src/chsem.c ****   return RDY_OK;
+ 187               		.loc 1 193 0
+ 188 007a 20E0      		ldi r18,0
+ 189 007c 30E0      		ldi r19,0
+ 194:../../os/kernel/src/chsem.c **** }
+ 190               		.loc 1 194 0
+ 191 007e C901      		movw r24,r18
+ 192               	/* epilogue start */
+ 193 0080 DF91      		pop r29
+ 194 0082 CF91      		pop r28
+ 195 0084 0895      		ret
+ 196               	.L13:
+ 188:../../os/kernel/src/chsem.c ****     currp->p_u.wtobjp = sp;
+ 197               		.loc 1 188 0
+ 198 0086 A091 0000 		lds r26,rlist+11
+ 199 008a B091 0000 		lds r27,rlist+11+1
+ 200 008e 5396      		adiw r26,18+1
+ 201 0090 FC93      		st X,r31
+ 202 0092 EE93      		st -X,r30
+ 203 0094 5297      		sbiw r26,18
+ 204               	.LVL16:
+ 205               	.LBB22:
+ 206               	.LBB23:
+  47:../../os/kernel/include/chinline.h ****   tp->p_next = (Thread *)tqp;
+ 207               		.loc 2 47 0
+ 208 0096 1196      		adiw r26,1
+ 209 0098 FC93      		st X,r31
+ 210 009a EE93      		st -X,r30
+  48:../../os/kernel/include/chinline.h ****   tp->p_prev = tqp->p_prev;
+ 211               		.loc 2 48 0
+ 212 009c C281      		ldd r28,Z+2
+ 213 009e D381      		ldd r29,Z+3
+ 214 00a0 1396      		adiw r26,2+1
+ 215 00a2 DC93      		st X,r29
+ 216 00a4 CE93      		st -X,r28
+ 217 00a6 1297      		sbiw r26,2
+  49:../../os/kernel/include/chinline.h ****   tp->p_prev->p_next = tqp->p_prev = tp;
+ 218               		.loc 2 49 0
+ 219 00a8 B383      		std Z+3,r27
+ 220 00aa A283      		std Z+2,r26
+ 221 00ac B983      		std Y+1,r27
+ 222 00ae A883      		st Y,r26
+ 223               	.LBE23:
+ 224               	.LBE22:
+ 190:../../os/kernel/src/chsem.c ****     chSchGoSleepS(THD_STATE_WTSEM);
+ 225               		.loc 1 190 0
+ 226 00b0 83E0      		ldi r24,lo8(3)
+ 227 00b2 0E94 0000 		call chSchGoSleepS
+ 228               	.LVL17:
+ 191:../../os/kernel/src/chsem.c ****     return currp->p_u.rdymsg;
+ 229               		.loc 1 191 0
+ 230 00b6 E091 0000 		lds r30,rlist+11
+ 231 00ba F091 0000 		lds r31,rlist+11+1
+ 232 00be 2289      		ldd r18,Z+18
+ 233 00c0 3389      		ldd r19,Z+19
+ 234               		.loc 1 194 0
+ 235 00c2 C901      		movw r24,r18
+ 236               	/* epilogue start */
+ 237 00c4 DF91      		pop r29
+ 238 00c6 CF91      		pop r28
+ 239 00c8 0895      		ret
+ 240               		.cfi_endproc
+ 241               	.LFE11:
+ 243               	.global	chSemWait
+ 245               	chSemWait:
+ 246               	.LFB10:
+ 157:../../os/kernel/src/chsem.c **** msg_t chSemWait(Semaphore *sp) {
+ 247               		.loc 1 157 0
+ 248               		.cfi_startproc
+ 249               	.LVL18:
+ 250               	/* prologue: function */
+ 251               	/* frame size = 0 */
+ 252               	/* stack size = 0 */
+ 253               	.L__stack_usage = 0
+ 160:../../os/kernel/src/chsem.c ****   chSysLock();
+ 254               		.loc 1 160 0
+ 255               	/* #APP */
+ 256               	 ;  160 "../../os/kernel/src/chsem.c" 1
+ 257 00ca F894      		cli
+ 258               	 ;  0 "" 2
+ 161:../../os/kernel/src/chsem.c ****   msg = chSemWaitS(sp);
+ 259               		.loc 1 161 0
+ 260               	/* #NOAPP */
+ 261 00cc 0E94 0000 		call chSemWaitS
+ 262               	.LVL19:
+ 162:../../os/kernel/src/chsem.c ****   chSysUnlock();
+ 263               		.loc 1 162 0
+ 264               	/* #APP */
+ 265               	 ;  162 "../../os/kernel/src/chsem.c" 1
+ 266 00d0 7894      		sei
+ 267               	 ;  0 "" 2
+ 164:../../os/kernel/src/chsem.c **** }
+ 268               		.loc 1 164 0
+ 269               	/* #NOAPP */
+ 270 00d2 0895      		ret
+ 271               		.cfi_endproc
+ 272               	.LFE10:
+ 274               	.global	chSemWaitTimeoutS
+ 276               	chSemWaitTimeoutS:
+ 277               	.LFB13:
+ 195:../../os/kernel/src/chsem.c **** 
+ 196:../../os/kernel/src/chsem.c **** /**
+ 197:../../os/kernel/src/chsem.c ****  * @brief   Performs a wait operation on a semaphore with timeout specification.
+ 198:../../os/kernel/src/chsem.c ****  *
+ 199:../../os/kernel/src/chsem.c ****  * @param[in] sp        pointer to a @p Semaphore structure
+ 200:../../os/kernel/src/chsem.c ****  * @param[in] time      the number of ticks before the operation timeouts,
+ 201:../../os/kernel/src/chsem.c ****  *                      the following special values are allowed:
+ 202:../../os/kernel/src/chsem.c ****  *                      - @a TIME_IMMEDIATE immediate timeout.
+ 203:../../os/kernel/src/chsem.c ****  *                      - @a TIME_INFINITE no timeout.
+ 204:../../os/kernel/src/chsem.c ****  *                      .
+ 205:../../os/kernel/src/chsem.c ****  * @return              A message specifying how the invoking thread has been
+ 206:../../os/kernel/src/chsem.c ****  *                      released from the semaphore.
+ 207:../../os/kernel/src/chsem.c ****  * @retval RDY_OK       if the thread has not stopped on the semaphore or the
+ 208:../../os/kernel/src/chsem.c ****  *                      semaphore has been signaled.
+ 209:../../os/kernel/src/chsem.c ****  * @retval RDY_RESET    if the semaphore has been reset using @p chSemReset().
+ 210:../../os/kernel/src/chsem.c ****  * @retval RDY_TIMEOUT  if the semaphore has not been signaled or reset within
+ 211:../../os/kernel/src/chsem.c ****  *                      the specified timeout.
+ 212:../../os/kernel/src/chsem.c ****  *
+ 213:../../os/kernel/src/chsem.c ****  * @api
+ 214:../../os/kernel/src/chsem.c ****  */
+ 215:../../os/kernel/src/chsem.c **** msg_t chSemWaitTimeout(Semaphore *sp, systime_t time) {
+ 216:../../os/kernel/src/chsem.c ****   msg_t msg;
+ 217:../../os/kernel/src/chsem.c **** 
+ 218:../../os/kernel/src/chsem.c ****   chSysLock();
+ 219:../../os/kernel/src/chsem.c ****   msg = chSemWaitTimeoutS(sp, time);
+ 220:../../os/kernel/src/chsem.c ****   chSysUnlock();
+ 221:../../os/kernel/src/chsem.c ****   return msg;
+ 222:../../os/kernel/src/chsem.c **** }
+ 223:../../os/kernel/src/chsem.c **** 
+ 224:../../os/kernel/src/chsem.c **** /**
+ 225:../../os/kernel/src/chsem.c ****  * @brief   Performs a wait operation on a semaphore with timeout specification.
+ 226:../../os/kernel/src/chsem.c ****  *
+ 227:../../os/kernel/src/chsem.c ****  * @param[in] sp        pointer to a @p Semaphore structure
+ 228:../../os/kernel/src/chsem.c ****  * @param[in] time      the number of ticks before the operation timeouts,
+ 229:../../os/kernel/src/chsem.c ****  *                      the following special values are allowed:
+ 230:../../os/kernel/src/chsem.c ****  *                      - @a TIME_IMMEDIATE immediate timeout.
+ 231:../../os/kernel/src/chsem.c ****  *                      - @a TIME_INFINITE no timeout.
+ 232:../../os/kernel/src/chsem.c ****  *                      .
+ 233:../../os/kernel/src/chsem.c ****  * @return              A message specifying how the invoking thread has been
+ 234:../../os/kernel/src/chsem.c ****  *                      released from the semaphore.
+ 235:../../os/kernel/src/chsem.c ****  * @retval RDY_OK       if the thread has not stopped on the semaphore or the
+ 236:../../os/kernel/src/chsem.c ****  *                      semaphore has been signaled.
+ 237:../../os/kernel/src/chsem.c ****  * @retval RDY_RESET    if the semaphore has been reset using @p chSemReset().
+ 238:../../os/kernel/src/chsem.c ****  * @retval RDY_TIMEOUT  if the semaphore has not been signaled or reset within
+ 239:../../os/kernel/src/chsem.c ****  *                      the specified timeout.
+ 240:../../os/kernel/src/chsem.c ****  *
+ 241:../../os/kernel/src/chsem.c ****  * @sclass
+ 242:../../os/kernel/src/chsem.c ****  */
+ 243:../../os/kernel/src/chsem.c **** msg_t chSemWaitTimeoutS(Semaphore *sp, systime_t time) {
+ 278               		.loc 1 243 0
+ 279               		.cfi_startproc
+ 280               	.LVL20:
+ 281 00d4 CF93      		push r28
+ 282               	.LCFI7:
+ 283               		.cfi_def_cfa_offset 3
+ 284               		.cfi_offset 28, -2
+ 285 00d6 DF93      		push r29
+ 286               	.LCFI8:
+ 287               		.cfi_def_cfa_offset 4
+ 288               		.cfi_offset 29, -3
+ 289               	/* prologue: function */
+ 290               	/* frame size = 0 */
+ 291               	/* stack size = 2 */
+ 292               	.L__stack_usage = 2
+ 293 00d8 FC01      		movw r30,r24
+ 244:../../os/kernel/src/chsem.c **** 
+ 245:../../os/kernel/src/chsem.c ****   chDbgCheckClassS();
+ 246:../../os/kernel/src/chsem.c ****   chDbgCheck(sp != NULL, "chSemWaitTimeoutS");
+ 247:../../os/kernel/src/chsem.c ****   chDbgAssert(((sp->s_cnt >= 0) && isempty(&sp->s_queue)) ||
+ 294               		.loc 1 247 0
+ 295 00da 9481      		ldd r25,Z+4
+ 248:../../os/kernel/src/chsem.c ****               ((sp->s_cnt < 0) && notempty(&sp->s_queue)),
+ 249:../../os/kernel/src/chsem.c ****               "chSemWaitTimeoutS(), #1",
+ 250:../../os/kernel/src/chsem.c ****               "inconsistent semaphore");
+ 251:../../os/kernel/src/chsem.c **** 
+ 252:../../os/kernel/src/chsem.c ****   if (--sp->s_cnt < 0) {
+ 296               		.loc 1 252 0
+ 297 00dc 892F      		mov r24,r25
+ 298               	.LVL21:
+ 299 00de 8150      		subi r24,lo8(-(-1))
+ 300 00e0 8483      		std Z+4,r24
+ 301 00e2 87FD      		sbrc r24,7
+ 302 00e4 00C0      		rjmp .L19
+ 253:../../os/kernel/src/chsem.c ****     if (TIME_IMMEDIATE == time) {
+ 254:../../os/kernel/src/chsem.c ****       sp->s_cnt++;
+ 255:../../os/kernel/src/chsem.c ****       return RDY_TIMEOUT;
+ 256:../../os/kernel/src/chsem.c ****     }
+ 257:../../os/kernel/src/chsem.c ****     currp->p_u.wtobjp = sp;
+ 258:../../os/kernel/src/chsem.c ****     sem_insert(currp, &sp->s_queue);
+ 259:../../os/kernel/src/chsem.c ****     return chSchGoSleepTimeoutS(THD_STATE_WTSEM, time);
+ 260:../../os/kernel/src/chsem.c ****   }
+ 261:../../os/kernel/src/chsem.c ****   return RDY_OK;
+ 303               		.loc 1 261 0
+ 304 00e6 20E0      		ldi r18,0
+ 305 00e8 30E0      		ldi r19,0
+ 306               	.L16:
+ 262:../../os/kernel/src/chsem.c **** }
+ 307               		.loc 1 262 0
+ 308 00ea C901      		movw r24,r18
+ 309               	/* epilogue start */
+ 310 00ec DF91      		pop r29
+ 311 00ee CF91      		pop r28
+ 312 00f0 0895      		ret
+ 313               	.L19:
+ 253:../../os/kernel/src/chsem.c ****     if (TIME_IMMEDIATE == time) {
+ 314               		.loc 1 253 0
+ 315 00f2 6115      		cp r22,__zero_reg__
+ 316 00f4 7105      		cpc r23,__zero_reg__
+ 317 00f6 01F0      		breq .L20
+ 257:../../os/kernel/src/chsem.c ****     currp->p_u.wtobjp = sp;
+ 318               		.loc 1 257 0
+ 319 00f8 A091 0000 		lds r26,rlist+11
+ 320 00fc B091 0000 		lds r27,rlist+11+1
+ 321 0100 5396      		adiw r26,18+1
+ 322 0102 FC93      		st X,r31
+ 323 0104 EE93      		st -X,r30
+ 324 0106 5297      		sbiw r26,18
+ 325               	.LVL22:
+ 326               	.LBB24:
+ 327               	.LBB25:
+  47:../../os/kernel/include/chinline.h ****   tp->p_next = (Thread *)tqp;
+ 328               		.loc 2 47 0
+ 329 0108 1196      		adiw r26,1
+ 330 010a FC93      		st X,r31
+ 331 010c EE93      		st -X,r30
+  48:../../os/kernel/include/chinline.h ****   tp->p_prev = tqp->p_prev;
+ 332               		.loc 2 48 0
+ 333 010e C281      		ldd r28,Z+2
+ 334 0110 D381      		ldd r29,Z+3
+ 335 0112 1396      		adiw r26,2+1
+ 336 0114 DC93      		st X,r29
+ 337 0116 CE93      		st -X,r28
+ 338 0118 1297      		sbiw r26,2
+  49:../../os/kernel/include/chinline.h ****   tp->p_prev->p_next = tqp->p_prev = tp;
+ 339               		.loc 2 49 0
+ 340 011a B383      		std Z+3,r27
+ 341 011c A283      		std Z+2,r26
+ 342 011e B983      		std Y+1,r27
+ 343 0120 A883      		st Y,r26
+ 344               	.LBE25:
+ 345               	.LBE24:
+ 259:../../os/kernel/src/chsem.c ****     return chSchGoSleepTimeoutS(THD_STATE_WTSEM, time);
+ 346               		.loc 1 259 0
+ 347 0122 83E0      		ldi r24,lo8(3)
+ 348               	/* epilogue start */
+ 349               		.loc 1 262 0
+ 350 0124 DF91      		pop r29
+ 351 0126 CF91      		pop r28
+ 259:../../os/kernel/src/chsem.c ****     return chSchGoSleepTimeoutS(THD_STATE_WTSEM, time);
+ 352               		.loc 1 259 0
+ 353 0128 0C94 0000 		jmp chSchGoSleepTimeoutS
+ 354               	.LVL23:
+ 355               	.L20:
+ 254:../../os/kernel/src/chsem.c ****       sp->s_cnt++;
+ 356               		.loc 1 254 0
+ 357 012c 9483      		std Z+4,r25
+ 255:../../os/kernel/src/chsem.c ****       return RDY_TIMEOUT;
+ 358               		.loc 1 255 0
+ 359 012e 2FEF      		ldi r18,lo8(-1)
+ 360 0130 3FEF      		ldi r19,lo8(-1)
+ 361 0132 00C0      		rjmp .L16
+ 362               		.cfi_endproc
+ 363               	.LFE13:
+ 365               	.global	chSemWaitTimeout
+ 367               	chSemWaitTimeout:
+ 368               	.LFB12:
+ 215:../../os/kernel/src/chsem.c **** msg_t chSemWaitTimeout(Semaphore *sp, systime_t time) {
+ 369               		.loc 1 215 0
+ 370               		.cfi_startproc
+ 371               	.LVL24:
+ 372               	/* prologue: function */
+ 373               	/* frame size = 0 */
+ 374               	/* stack size = 0 */
+ 375               	.L__stack_usage = 0
+ 218:../../os/kernel/src/chsem.c ****   chSysLock();
+ 376               		.loc 1 218 0
+ 377               	/* #APP */
+ 378               	 ;  218 "../../os/kernel/src/chsem.c" 1
+ 379 0134 F894      		cli
+ 380               	 ;  0 "" 2
+ 219:../../os/kernel/src/chsem.c ****   msg = chSemWaitTimeoutS(sp, time);
+ 381               		.loc 1 219 0
+ 382               	/* #NOAPP */
+ 383 0136 0E94 0000 		call chSemWaitTimeoutS
+ 384               	.LVL25:
+ 220:../../os/kernel/src/chsem.c ****   chSysUnlock();
+ 385               		.loc 1 220 0
+ 386               	/* #APP */
+ 387               	 ;  220 "../../os/kernel/src/chsem.c" 1
+ 388 013a 7894      		sei
+ 389               	 ;  0 "" 2
+ 222:../../os/kernel/src/chsem.c **** }
+ 390               		.loc 1 222 0
+ 391               	/* #NOAPP */
+ 392 013c 0895      		ret
+ 393               		.cfi_endproc
+ 394               	.LFE12:
+ 396               	.global	chSemSignal
+ 398               	chSemSignal:
+ 399               	.LFB14:
+ 263:../../os/kernel/src/chsem.c **** 
+ 264:../../os/kernel/src/chsem.c **** /**
+ 265:../../os/kernel/src/chsem.c ****  * @brief   Performs a signal operation on a semaphore.
+ 266:../../os/kernel/src/chsem.c ****  *
+ 267:../../os/kernel/src/chsem.c ****  * @param[in] sp        pointer to a @p Semaphore structure
+ 268:../../os/kernel/src/chsem.c ****  *
+ 269:../../os/kernel/src/chsem.c ****  * @api
+ 270:../../os/kernel/src/chsem.c ****  */
+ 271:../../os/kernel/src/chsem.c **** void chSemSignal(Semaphore *sp) {
+ 400               		.loc 1 271 0
+ 401               		.cfi_startproc
+ 402               	.LVL26:
+ 403 013e CF93      		push r28
+ 404               	.LCFI9:
+ 405               		.cfi_def_cfa_offset 3
+ 406               		.cfi_offset 28, -2
+ 407 0140 DF93      		push r29
+ 408               	.LCFI10:
+ 409               		.cfi_def_cfa_offset 4
+ 410               		.cfi_offset 29, -3
+ 411               	/* prologue: function */
+ 412               	/* frame size = 0 */
+ 413               	/* stack size = 2 */
+ 414               	.L__stack_usage = 2
+ 415 0142 FC01      		movw r30,r24
+ 272:../../os/kernel/src/chsem.c **** 
+ 273:../../os/kernel/src/chsem.c ****   chDbgCheck(sp != NULL, "chSemSignal");
+ 274:../../os/kernel/src/chsem.c ****   chDbgAssert(((sp->s_cnt >= 0) && isempty(&sp->s_queue)) ||
+ 275:../../os/kernel/src/chsem.c ****               ((sp->s_cnt < 0) && notempty(&sp->s_queue)),
+ 276:../../os/kernel/src/chsem.c ****               "chSemSignal(), #1",
+ 277:../../os/kernel/src/chsem.c ****               "inconsistent semaphore");
+ 278:../../os/kernel/src/chsem.c **** 
+ 279:../../os/kernel/src/chsem.c ****   chSysLock();
+ 416               		.loc 1 279 0
+ 417               	/* #APP */
+ 418               	 ;  279 "../../os/kernel/src/chsem.c" 1
+ 419 0144 F894      		cli
+ 420               	 ;  0 "" 2
+ 280:../../os/kernel/src/chsem.c ****   if (++sp->s_cnt <= 0)
+ 421               		.loc 1 280 0
+ 422               	/* #NOAPP */
+ 423 0146 8481      		ldd r24,Z+4
+ 424               	.LVL27:
+ 425 0148 8F5F      		subi r24,lo8(-(1))
+ 426 014a 8483      		std Z+4,r24
+ 427 014c 1816      		cp __zero_reg__,r24
+ 428 014e 04F4      		brge .L24
+ 281:../../os/kernel/src/chsem.c ****     chSchWakeupS(fifo_remove(&sp->s_queue), RDY_OK);
+ 282:../../os/kernel/src/chsem.c ****   chSysUnlock();
+ 429               		.loc 1 282 0
+ 430               	/* #APP */
+ 431               	 ;  282 "../../os/kernel/src/chsem.c" 1
+ 432 0150 7894      		sei
+ 433               	 ;  0 "" 2
+ 434               	/* epilogue start */
+ 283:../../os/kernel/src/chsem.c **** }
+ 435               		.loc 1 283 0
+ 436               	/* #NOAPP */
+ 437 0152 DF91      		pop r29
+ 438 0154 CF91      		pop r28
+ 439 0156 0895      		ret
+ 440               	.L24:
+ 441               	.LVL28:
+ 442               	.LBB26:
+ 443               	.LBB27:
+  53:../../os/kernel/include/chinline.h ****   Thread *tp = tqp->p_next;
+ 444               		.loc 2 53 0
+ 445 0158 8081      		ld r24,Z
+ 446 015a 9181      		ldd r25,Z+1
+ 447               	.LVL29:
+  55:../../os/kernel/include/chinline.h ****   (tqp->p_next = tp->p_next)->p_prev = (Thread *)tqp;
+ 448               		.loc 2 55 0
+ 449 015c EC01      		movw r28,r24
+ 450 015e A881      		ld r26,Y
+ 451 0160 B981      		ldd r27,Y+1
+ 452 0162 B183      		std Z+1,r27
+ 453 0164 A083      		st Z,r26
+ 454 0166 1396      		adiw r26,2+1
+ 455 0168 FC93      		st X,r31
+ 456 016a EE93      		st -X,r30
+ 457 016c 1297      		sbiw r26,2
+ 458               	.LBE27:
+ 459               	.LBE26:
+ 281:../../os/kernel/src/chsem.c ****     chSchWakeupS(fifo_remove(&sp->s_queue), RDY_OK);
+ 460               		.loc 1 281 0
+ 461 016e 60E0      		ldi r22,0
+ 462 0170 70E0      		ldi r23,0
+ 463 0172 0E94 0000 		call chSchWakeupS
+ 464               	.LVL30:
+ 282:../../os/kernel/src/chsem.c ****   chSysUnlock();
+ 465               		.loc 1 282 0
+ 466               	/* #APP */
+ 467               	 ;  282 "../../os/kernel/src/chsem.c" 1
+ 468 0176 7894      		sei
+ 469               	 ;  0 "" 2
+ 470               	/* epilogue start */
+ 471               		.loc 1 283 0
+ 472               	/* #NOAPP */
+ 473 0178 DF91      		pop r29
+ 474 017a CF91      		pop r28
+ 475               	.LVL31:
+ 476 017c 0895      		ret
+ 477               		.cfi_endproc
+ 478               	.LFE14:
+ 480               	.global	chSemSignalI
+ 482               	chSemSignalI:
+ 483               	.LFB15:
+ 284:../../os/kernel/src/chsem.c **** 
+ 285:../../os/kernel/src/chsem.c **** /**
+ 286:../../os/kernel/src/chsem.c ****  * @brief   Performs a signal operation on a semaphore.
+ 287:../../os/kernel/src/chsem.c ****  * @post    This function does not reschedule so a call to a rescheduling
+ 288:../../os/kernel/src/chsem.c ****  *          function must be performed before unlocking the kernel. Note that
+ 289:../../os/kernel/src/chsem.c ****  *          interrupt handlers always reschedule on exit so an explicit
+ 290:../../os/kernel/src/chsem.c ****  *          reschedule must not be performed in ISRs.
+ 291:../../os/kernel/src/chsem.c ****  *
+ 292:../../os/kernel/src/chsem.c ****  * @param[in] sp    pointer to a @p Semaphore structure
+ 293:../../os/kernel/src/chsem.c ****  *
+ 294:../../os/kernel/src/chsem.c ****  * @iclass
+ 295:../../os/kernel/src/chsem.c ****  */
+ 296:../../os/kernel/src/chsem.c **** void chSemSignalI(Semaphore *sp) {
+ 484               		.loc 1 296 0
+ 485               		.cfi_startproc
+ 486               	.LVL32:
+ 487 017e CF93      		push r28
+ 488               	.LCFI11:
+ 489               		.cfi_def_cfa_offset 3
+ 490               		.cfi_offset 28, -2
+ 491 0180 DF93      		push r29
+ 492               	.LCFI12:
+ 493               		.cfi_def_cfa_offset 4
+ 494               		.cfi_offset 29, -3
+ 495               	/* prologue: function */
+ 496               	/* frame size = 0 */
+ 497               	/* stack size = 2 */
+ 498               	.L__stack_usage = 2
+ 499 0182 FC01      		movw r30,r24
+ 297:../../os/kernel/src/chsem.c **** 
+ 298:../../os/kernel/src/chsem.c ****   chDbgCheckClassI();
+ 299:../../os/kernel/src/chsem.c ****   chDbgCheck(sp != NULL, "chSemSignalI");
+ 300:../../os/kernel/src/chsem.c ****   chDbgAssert(((sp->s_cnt >= 0) && isempty(&sp->s_queue)) ||
+ 301:../../os/kernel/src/chsem.c ****               ((sp->s_cnt < 0) && notempty(&sp->s_queue)),
+ 302:../../os/kernel/src/chsem.c ****               "chSemSignalI(), #1",
+ 303:../../os/kernel/src/chsem.c ****               "inconsistent semaphore");
+ 304:../../os/kernel/src/chsem.c **** 
+ 305:../../os/kernel/src/chsem.c ****   if (++sp->s_cnt <= 0) {
+ 500               		.loc 1 305 0
+ 501 0184 8481      		ldd r24,Z+4
+ 502               	.LVL33:
+ 503 0186 8F5F      		subi r24,lo8(-(1))
+ 504 0188 8483      		std Z+4,r24
+ 505 018a 1816      		cp __zero_reg__,r24
+ 506 018c 04F4      		brge .L27
+ 507               	/* epilogue start */
+ 306:../../os/kernel/src/chsem.c ****     /* Note, it is done this way in order to allow a tail call on
+ 307:../../os/kernel/src/chsem.c ****              chSchReadyI().*/
+ 308:../../os/kernel/src/chsem.c ****     Thread *tp = fifo_remove(&sp->s_queue);
+ 309:../../os/kernel/src/chsem.c ****     tp->p_u.rdymsg = RDY_OK;
+ 310:../../os/kernel/src/chsem.c ****     chSchReadyI(tp);
+ 311:../../os/kernel/src/chsem.c ****   }
+ 312:../../os/kernel/src/chsem.c **** }
+ 508               		.loc 1 312 0
+ 509 018e DF91      		pop r29
+ 510 0190 CF91      		pop r28
+ 511 0192 0895      		ret
+ 512               	.L27:
+ 513               	.LVL34:
+ 514               	.LBB28:
+ 515               	.LBB29:
+ 516               	.LBB30:
+  53:../../os/kernel/include/chinline.h ****   Thread *tp = tqp->p_next;
+ 517               		.loc 2 53 0
+ 518 0194 8081      		ld r24,Z
+ 519 0196 9181      		ldd r25,Z+1
+ 520               	.LVL35:
+  55:../../os/kernel/include/chinline.h ****   (tqp->p_next = tp->p_next)->p_prev = (Thread *)tqp;
+ 521               		.loc 2 55 0
+ 522 0198 EC01      		movw r28,r24
+ 523 019a A881      		ld r26,Y
+ 524 019c B981      		ldd r27,Y+1
+ 525 019e B183      		std Z+1,r27
+ 526 01a0 A083      		st Z,r26
+ 527 01a2 1396      		adiw r26,2+1
+ 528 01a4 FC93      		st X,r31
+ 529 01a6 EE93      		st -X,r30
+ 530 01a8 1297      		sbiw r26,2
+ 531               	.LBE30:
+ 532               	.LBE29:
+ 309:../../os/kernel/src/chsem.c ****     tp->p_u.rdymsg = RDY_OK;
+ 533               		.loc 1 309 0
+ 534 01aa 1B8A      		std Y+19,__zero_reg__
+ 535 01ac 1A8A      		std Y+18,__zero_reg__
+ 536               	/* epilogue start */
+ 537               	.LBE28:
+ 538               		.loc 1 312 0
+ 539 01ae DF91      		pop r29
+ 540 01b0 CF91      		pop r28
+ 541               	.LBB31:
+ 310:../../os/kernel/src/chsem.c ****     chSchReadyI(tp);
+ 542               		.loc 1 310 0
+ 543 01b2 0C94 0000 		jmp chSchReadyI
+ 544               	.LVL36:
+ 545               	.LBE31:
+ 546               		.cfi_endproc
+ 547               	.LFE15:
+ 549               	.global	chSemAddCounterI
+ 551               	chSemAddCounterI:
+ 552               	.LFB16:
+ 313:../../os/kernel/src/chsem.c **** 
+ 314:../../os/kernel/src/chsem.c **** /**
+ 315:../../os/kernel/src/chsem.c ****  * @brief   Adds the specified value to the semaphore counter.
+ 316:../../os/kernel/src/chsem.c ****  * @post    This function does not reschedule so a call to a rescheduling
+ 317:../../os/kernel/src/chsem.c ****  *          function must be performed before unlocking the kernel. Note that
+ 318:../../os/kernel/src/chsem.c ****  *          interrupt handlers always reschedule on exit so an explicit
+ 319:../../os/kernel/src/chsem.c ****  *          reschedule must not be performed in ISRs.
+ 320:../../os/kernel/src/chsem.c ****  *
+ 321:../../os/kernel/src/chsem.c ****  * @param[in] sp        pointer to a @p Semaphore structure
+ 322:../../os/kernel/src/chsem.c ****  * @param[in] n         value to be added to the semaphore counter. The value
+ 323:../../os/kernel/src/chsem.c ****  *                      must be positive.
+ 324:../../os/kernel/src/chsem.c ****  *
+ 325:../../os/kernel/src/chsem.c ****  * @iclass
+ 326:../../os/kernel/src/chsem.c ****  */
+ 327:../../os/kernel/src/chsem.c **** void chSemAddCounterI(Semaphore *sp, cnt_t n) {
+ 553               		.loc 1 327 0
+ 554               		.cfi_startproc
+ 555               	.LVL37:
+ 556 01b6 1F93      		push r17
+ 557               	.LCFI13:
+ 558               		.cfi_def_cfa_offset 3
+ 559               		.cfi_offset 17, -2
+ 560 01b8 CF93      		push r28
+ 561               	.LCFI14:
+ 562               		.cfi_def_cfa_offset 4
+ 563               		.cfi_offset 28, -3
+ 564 01ba DF93      		push r29
+ 565               	.LCFI15:
+ 566               		.cfi_def_cfa_offset 5
+ 567               		.cfi_offset 29, -4
+ 568               	/* prologue: function */
+ 569               	/* frame size = 0 */
+ 570               	/* stack size = 3 */
+ 571               	.L__stack_usage = 3
+ 572 01bc EC01      		movw r28,r24
+ 573 01be 162F      		mov r17,r22
+ 328:../../os/kernel/src/chsem.c **** 
+ 329:../../os/kernel/src/chsem.c ****   chDbgCheckClassI();
+ 330:../../os/kernel/src/chsem.c ****   chDbgCheck((sp != NULL) && (n > 0), "chSemAddCounterI");
+ 331:../../os/kernel/src/chsem.c ****   chDbgAssert(((sp->s_cnt >= 0) && isempty(&sp->s_queue)) ||
+ 332:../../os/kernel/src/chsem.c ****               ((sp->s_cnt < 0) && notempty(&sp->s_queue)),
+ 333:../../os/kernel/src/chsem.c ****               "chSemAddCounterI(), #1",
+ 334:../../os/kernel/src/chsem.c ****               "inconsistent semaphore");
+ 335:../../os/kernel/src/chsem.c **** 
+ 336:../../os/kernel/src/chsem.c ****   while (n > 0) {
+ 574               		.loc 1 336 0
+ 575 01c0 1616      		cp __zero_reg__,r22
+ 576 01c2 04F0      		brlt .L33
+ 577 01c4 00C0      		rjmp .L28
+ 578               	.LVL38:
+ 579               	.L30:
+ 337:../../os/kernel/src/chsem.c ****     if (++sp->s_cnt <= 0)
+ 338:../../os/kernel/src/chsem.c ****       chSchReadyI(fifo_remove(&sp->s_queue))->p_u.rdymsg = RDY_OK;
+ 339:../../os/kernel/src/chsem.c ****     n--;
+ 580               		.loc 1 339 0
+ 581 01c6 1150      		subi r17,lo8(-(-1))
+ 582               	.LVL39:
+ 336:../../os/kernel/src/chsem.c ****   while (n > 0) {
+ 583               		.loc 1 336 0
+ 584 01c8 01F0      		breq .L28
+ 585               	.L33:
+ 337:../../os/kernel/src/chsem.c ****     if (++sp->s_cnt <= 0)
+ 586               		.loc 1 337 0
+ 587 01ca 8C81      		ldd r24,Y+4
+ 588 01cc 8F5F      		subi r24,lo8(-(1))
+ 589 01ce 8C83      		std Y+4,r24
+ 590 01d0 1816      		cp __zero_reg__,r24
+ 591 01d2 04F0      		brlt .L30
+ 592               	.LVL40:
+ 593               	.LBB32:
+ 594               	.LBB33:
+  53:../../os/kernel/include/chinline.h ****   Thread *tp = tqp->p_next;
+ 595               		.loc 2 53 0
+ 596 01d4 8881      		ld r24,Y
+ 597 01d6 9981      		ldd r25,Y+1
+ 598               	.LVL41:
+  55:../../os/kernel/include/chinline.h ****   (tqp->p_next = tp->p_next)->p_prev = (Thread *)tqp;
+ 599               		.loc 2 55 0
+ 600 01d8 DC01      		movw r26,r24
+ 601 01da ED91      		ld r30,X+
+ 602 01dc FC91      		ld r31,X
+ 603 01de F983      		std Y+1,r31
+ 604 01e0 E883      		st Y,r30
+ 605 01e2 D383      		std Z+3,r29
+ 606 01e4 C283      		std Z+2,r28
+ 607               	.LBE33:
+ 608               	.LBE32:
+ 338:../../os/kernel/src/chsem.c ****       chSchReadyI(fifo_remove(&sp->s_queue))->p_u.rdymsg = RDY_OK;
+ 609               		.loc 1 338 0
+ 610 01e6 0E94 0000 		call chSchReadyI
+ 611               	.LVL42:
+ 612 01ea FC01      		movw r30,r24
+ 613 01ec 138A      		std Z+19,__zero_reg__
+ 614 01ee 128A      		std Z+18,__zero_reg__
+ 615               		.loc 1 339 0
+ 616 01f0 1150      		subi r17,lo8(-(-1))
+ 617               	.LVL43:
+ 336:../../os/kernel/src/chsem.c ****   while (n > 0) {
+ 618               		.loc 1 336 0
+ 619 01f2 01F4      		brne .L33
+ 620               	.LVL44:
+ 621               	.L28:
+ 622               	/* epilogue start */
+ 340:../../os/kernel/src/chsem.c ****   }
+ 341:../../os/kernel/src/chsem.c **** }
+ 623               		.loc 1 341 0
+ 624 01f4 DF91      		pop r29
+ 625 01f6 CF91      		pop r28
+ 626               	.LVL45:
+ 627 01f8 1F91      		pop r17
+ 628               	.LVL46:
+ 629 01fa 0895      		ret
+ 630               		.cfi_endproc
+ 631               	.LFE16:
+ 633               	.global	chSemSignalWait
+ 635               	chSemSignalWait:
+ 636               	.LFB17:
+ 342:../../os/kernel/src/chsem.c **** 
+ 343:../../os/kernel/src/chsem.c **** #if CH_USE_SEMSW
+ 344:../../os/kernel/src/chsem.c **** /**
+ 345:../../os/kernel/src/chsem.c ****  * @brief   Performs atomic signal and wait operations on two semaphores.
+ 346:../../os/kernel/src/chsem.c ****  * @pre     The configuration option @p CH_USE_SEMSW must be enabled in order
+ 347:../../os/kernel/src/chsem.c ****  *          to use this function.
+ 348:../../os/kernel/src/chsem.c ****  *
+ 349:../../os/kernel/src/chsem.c ****  * @param[in] sps       pointer to a @p Semaphore structure to be signaled
+ 350:../../os/kernel/src/chsem.c ****  * @param[in] spw       pointer to a @p Semaphore structure to be wait on
+ 351:../../os/kernel/src/chsem.c ****  * @return              A message specifying how the invoking thread has been
+ 352:../../os/kernel/src/chsem.c ****  *                      released from the semaphore.
+ 353:../../os/kernel/src/chsem.c ****  * @retval RDY_OK       if the thread has not stopped on the semaphore or the
+ 354:../../os/kernel/src/chsem.c ****  *                      semaphore has been signaled.
+ 355:../../os/kernel/src/chsem.c ****  * @retval RDY_RESET    if the semaphore has been reset using @p chSemReset().
+ 356:../../os/kernel/src/chsem.c ****  *
+ 357:../../os/kernel/src/chsem.c ****  * @api
+ 358:../../os/kernel/src/chsem.c ****  */
+ 359:../../os/kernel/src/chsem.c **** msg_t chSemSignalWait(Semaphore *sps, Semaphore *spw) {
+ 637               		.loc 1 359 0
+ 638               		.cfi_startproc
+ 639               	.LVL47:
+ 640 01fc 0F93      		push r16
+ 641               	.LCFI16:
+ 642               		.cfi_def_cfa_offset 3
+ 643               		.cfi_offset 16, -2
+ 644 01fe 1F93      		push r17
+ 645               	.LCFI17:
+ 646               		.cfi_def_cfa_offset 4
+ 647               		.cfi_offset 17, -3
+ 648 0200 CF93      		push r28
+ 649               	.LCFI18:
+ 650               		.cfi_def_cfa_offset 5
+ 651               		.cfi_offset 28, -4
+ 652 0202 DF93      		push r29
+ 653               	.LCFI19:
+ 654               		.cfi_def_cfa_offset 6
+ 655               		.cfi_offset 29, -5
+ 656               	/* prologue: function */
+ 657               	/* frame size = 0 */
+ 658               	/* stack size = 4 */
+ 659               	.L__stack_usage = 4
+ 660 0204 FC01      		movw r30,r24
+ 661 0206 EB01      		movw r28,r22
+ 360:../../os/kernel/src/chsem.c ****   msg_t msg;
+ 361:../../os/kernel/src/chsem.c **** 
+ 362:../../os/kernel/src/chsem.c ****   chDbgCheck((sps != NULL) && (spw != NULL), "chSemSignalWait");
+ 363:../../os/kernel/src/chsem.c ****   chDbgAssert(((sps->s_cnt >= 0) && isempty(&sps->s_queue)) ||
+ 364:../../os/kernel/src/chsem.c ****               ((sps->s_cnt < 0) && notempty(&sps->s_queue)),
+ 365:../../os/kernel/src/chsem.c ****               "chSemSignalWait(), #1",
+ 366:../../os/kernel/src/chsem.c ****               "inconsistent semaphore");
+ 367:../../os/kernel/src/chsem.c ****   chDbgAssert(((spw->s_cnt >= 0) && isempty(&spw->s_queue)) ||
+ 368:../../os/kernel/src/chsem.c ****               ((spw->s_cnt < 0) && notempty(&spw->s_queue)),
+ 369:../../os/kernel/src/chsem.c ****               "chSemSignalWait(), #2",
+ 370:../../os/kernel/src/chsem.c ****               "inconsistent semaphore");
+ 371:../../os/kernel/src/chsem.c **** 
+ 372:../../os/kernel/src/chsem.c ****   chSysLock();
+ 662               		.loc 1 372 0
+ 663               	/* #APP */
+ 664               	 ;  372 "../../os/kernel/src/chsem.c" 1
+ 665 0208 F894      		cli
+ 666               	 ;  0 "" 2
+ 373:../../os/kernel/src/chsem.c ****   if (++sps->s_cnt <= 0)
+ 667               		.loc 1 373 0
+ 668               	/* #NOAPP */
+ 669 020a 8481      		ldd r24,Z+4
+ 670               	.LVL48:
+ 671 020c 8F5F      		subi r24,lo8(-(1))
+ 672 020e 8483      		std Z+4,r24
+ 673 0210 1816      		cp __zero_reg__,r24
+ 674 0212 04F4      		brge .L39
+ 675               	.LVL49:
+ 676               	.L36:
+ 374:../../os/kernel/src/chsem.c ****     chSchReadyI(fifo_remove(&sps->s_queue))->p_u.rdymsg = RDY_OK;
+ 375:../../os/kernel/src/chsem.c ****   if (--spw->s_cnt < 0) {
+ 677               		.loc 1 375 0
+ 678 0214 8C81      		ldd r24,Y+4
+ 679 0216 8150      		subi r24,lo8(-(-1))
+ 680 0218 8C83      		std Y+4,r24
+ 681 021a 87FD      		sbrc r24,7
+ 682 021c 00C0      		rjmp .L40
+ 376:../../os/kernel/src/chsem.c ****     Thread *ctp = currp;
+ 377:../../os/kernel/src/chsem.c ****     sem_insert(ctp, &spw->s_queue);
+ 378:../../os/kernel/src/chsem.c ****     ctp->p_u.wtobjp = spw;
+ 379:../../os/kernel/src/chsem.c ****     chSchGoSleepS(THD_STATE_WTSEM);
+ 380:../../os/kernel/src/chsem.c ****     msg = ctp->p_u.rdymsg;
+ 381:../../os/kernel/src/chsem.c ****   }
+ 382:../../os/kernel/src/chsem.c ****   else {
+ 383:../../os/kernel/src/chsem.c ****     chSchRescheduleS();
+ 683               		.loc 1 383 0
+ 684 021e 0E94 0000 		call chSchRescheduleS
+ 685               	.LVL50:
+ 384:../../os/kernel/src/chsem.c ****     msg = RDY_OK;
+ 686               		.loc 1 384 0
+ 687 0222 20E0      		ldi r18,0
+ 688 0224 30E0      		ldi r19,0
+ 689               	.LVL51:
+ 385:../../os/kernel/src/chsem.c ****   }
+ 386:../../os/kernel/src/chsem.c ****   chSysUnlock();
+ 690               		.loc 1 386 0
+ 691               	/* #APP */
+ 692               	 ;  386 "../../os/kernel/src/chsem.c" 1
+ 693 0226 7894      		sei
+ 694               	 ;  0 "" 2
+ 387:../../os/kernel/src/chsem.c ****   return msg;
+ 388:../../os/kernel/src/chsem.c **** }
+ 695               		.loc 1 388 0
+ 696               	/* #NOAPP */
+ 697 0228 C901      		movw r24,r18
+ 698               	/* epilogue start */
+ 699 022a DF91      		pop r29
+ 700 022c CF91      		pop r28
+ 701               	.LVL52:
+ 702 022e 1F91      		pop r17
+ 703 0230 0F91      		pop r16
+ 704 0232 0895      		ret
+ 705               	.LVL53:
+ 706               	.L40:
+ 707               	.LBB34:
+ 376:../../os/kernel/src/chsem.c ****     Thread *ctp = currp;
+ 708               		.loc 1 376 0
+ 709 0234 0091 0000 		lds r16,rlist+11
+ 710 0238 1091 0000 		lds r17,rlist+11+1
+ 711               	.LVL54:
+ 712               	.LBB35:
+ 713               	.LBB36:
+  47:../../os/kernel/include/chinline.h ****   tp->p_next = (Thread *)tqp;
+ 714               		.loc 2 47 0
+ 715 023c D801      		movw r26,r16
+ 716 023e 1196      		adiw r26,1
+ 717 0240 DC93      		st X,r29
+ 718 0242 CE93      		st -X,r28
+  48:../../os/kernel/include/chinline.h ****   tp->p_prev = tqp->p_prev;
+ 719               		.loc 2 48 0
+ 720 0244 EA81      		ldd r30,Y+2
+ 721 0246 FB81      		ldd r31,Y+3
+ 722 0248 1396      		adiw r26,2+1
+ 723 024a FC93      		st X,r31
+ 724 024c EE93      		st -X,r30
+ 725 024e 1297      		sbiw r26,2
+  49:../../os/kernel/include/chinline.h ****   tp->p_prev->p_next = tqp->p_prev = tp;
+ 726               		.loc 2 49 0
+ 727 0250 1B83      		std Y+3,r17
+ 728 0252 0A83      		std Y+2,r16
+ 729 0254 1183      		std Z+1,r17
+ 730 0256 0083      		st Z,r16
+ 731               	.LBE36:
+ 732               	.LBE35:
+ 378:../../os/kernel/src/chsem.c ****     ctp->p_u.wtobjp = spw;
+ 733               		.loc 1 378 0
+ 734 0258 5396      		adiw r26,18+1
+ 735 025a DC93      		st X,r29
+ 736 025c CE93      		st -X,r28
+ 737 025e 5297      		sbiw r26,18
+ 379:../../os/kernel/src/chsem.c ****     chSchGoSleepS(THD_STATE_WTSEM);
+ 738               		.loc 1 379 0
+ 739 0260 83E0      		ldi r24,lo8(3)
+ 740 0262 0E94 0000 		call chSchGoSleepS
+ 741               	.LVL55:
+ 380:../../os/kernel/src/chsem.c ****     msg = ctp->p_u.rdymsg;
+ 742               		.loc 1 380 0
+ 743 0266 F801      		movw r30,r16
+ 744 0268 2289      		ldd r18,Z+18
+ 745 026a 3389      		ldd r19,Z+19
+ 746               	.LVL56:
+ 747               	.LBE34:
+ 386:../../os/kernel/src/chsem.c ****   chSysUnlock();
+ 748               		.loc 1 386 0
+ 749               	/* #APP */
+ 750               	 ;  386 "../../os/kernel/src/chsem.c" 1
+ 751 026c 7894      		sei
+ 752               	 ;  0 "" 2
+ 753               		.loc 1 388 0
+ 754               	/* #NOAPP */
+ 755 026e C901      		movw r24,r18
+ 756               	/* epilogue start */
+ 757 0270 DF91      		pop r29
+ 758 0272 CF91      		pop r28
+ 759               	.LVL57:
+ 760 0274 1F91      		pop r17
+ 761 0276 0F91      		pop r16
+ 762               	.LVL58:
+ 763 0278 0895      		ret
+ 764               	.LVL59:
+ 765               	.L39:
+ 766               	.LBB37:
+ 767               	.LBB38:
+  53:../../os/kernel/include/chinline.h ****   Thread *tp = tqp->p_next;
+ 768               		.loc 2 53 0
+ 769 027a 8081      		ld r24,Z
+ 770 027c 9181      		ldd r25,Z+1
+ 771               	.LVL60:
+  55:../../os/kernel/include/chinline.h ****   (tqp->p_next = tp->p_next)->p_prev = (Thread *)tqp;
+ 772               		.loc 2 55 0
+ 773 027e DC01      		movw r26,r24
+ 774 0280 2D91      		ld r18,X+
+ 775 0282 3C91      		ld r19,X
+ 776 0284 3183      		std Z+1,r19
+ 777 0286 2083      		st Z,r18
+ 778 0288 D901      		movw r26,r18
+ 779 028a 1396      		adiw r26,2+1
+ 780 028c FC93      		st X,r31
+ 781 028e EE93      		st -X,r30
+ 782 0290 1297      		sbiw r26,2
+ 783               	.LBE38:
+ 784               	.LBE37:
+ 374:../../os/kernel/src/chsem.c ****     chSchReadyI(fifo_remove(&sps->s_queue))->p_u.rdymsg = RDY_OK;
+ 785               		.loc 1 374 0
+ 786 0292 0E94 0000 		call chSchReadyI
+ 787               	.LVL61:
+ 788 0296 FC01      		movw r30,r24
+ 789 0298 138A      		std Z+19,__zero_reg__
+ 790 029a 128A      		std Z+18,__zero_reg__
+ 791 029c 00C0      		rjmp .L36
+ 792               		.cfi_endproc
+ 793               	.LFE17:
+ 795               	.Letext0:
+ 796               		.file 3 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+ 797               		.file 4 "../../os/ports/GCC/AVR/chtypes.h"
+ 798               		.file 5 "../../os/kernel/include/chlists.h"
+ 799               		.file 6 "../../os/kernel/include/chthreads.h"
+ 800               		.file 7 "../../os/ports/GCC/AVR/chcore.h"
+ 801               		.file 8 "../../os/kernel/include/chschd.h"
+ 802               		.file 9 "../../os/kernel/include/chsem.h"
+ 803               		.file 10 "../../os/kernel/include/chmtx.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 chsem.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cct0Lx2r.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cct0Lx2r.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cct0Lx2r.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cct0Lx2r.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cct0Lx2r.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cct0Lx2r.s:12     .text:0000000000000000 chSemInit
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cct0Lx2r.s:36     .text:000000000000000e chSemResetI
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cct0Lx2r.s:129    .text:000000000000005c chSemReset
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cct0Lx2r.s:162    .text:000000000000006a chSemWaitS
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cct0Lx2r.s:245    .text:00000000000000ca chSemWait
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cct0Lx2r.s:276    .text:00000000000000d4 chSemWaitTimeoutS
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cct0Lx2r.s:367    .text:0000000000000134 chSemWaitTimeout
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cct0Lx2r.s:398    .text:000000000000013e chSemSignal
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cct0Lx2r.s:482    .text:000000000000017e chSemSignalI
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cct0Lx2r.s:551    .text:00000000000001b6 chSemAddCounterI
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cct0Lx2r.s:635    .text:00000000000001fc chSemSignalWait
+
+UNDEFINED SYMBOLS
+chSchReadyI
+chSchRescheduleS
+rlist
+chSchGoSleepS
+chSchGoSleepTimeoutS
+chSchWakeupS

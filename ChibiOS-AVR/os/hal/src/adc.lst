@@ -1,0 +1,866 @@
+   1               		.file	"adc.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	adcInit
+  12               	adcInit:
+  13               	.LFB7:
+  14               		.file 1 "../../os/hal/src/adc.c"
+   1:../../os/hal/src/adc.c **** /*
+   2:../../os/hal/src/adc.c ****     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+   3:../../os/hal/src/adc.c ****                  2011,2012 Giovanni Di Sirio.
+   4:../../os/hal/src/adc.c **** 
+   5:../../os/hal/src/adc.c ****     This file is part of ChibiOS/RT.
+   6:../../os/hal/src/adc.c **** 
+   7:../../os/hal/src/adc.c ****     ChibiOS/RT is free software; you can redistribute it and/or modify
+   8:../../os/hal/src/adc.c ****     it under the terms of the GNU General Public License as published by
+   9:../../os/hal/src/adc.c ****     the Free Software Foundation; either version 3 of the License, or
+  10:../../os/hal/src/adc.c ****     (at your option) any later version.
+  11:../../os/hal/src/adc.c **** 
+  12:../../os/hal/src/adc.c ****     ChibiOS/RT is distributed in the hope that it will be useful,
+  13:../../os/hal/src/adc.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../../os/hal/src/adc.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../../os/hal/src/adc.c ****     GNU General Public License for more details.
+  16:../../os/hal/src/adc.c **** 
+  17:../../os/hal/src/adc.c ****     You should have received a copy of the GNU General Public License
+  18:../../os/hal/src/adc.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  19:../../os/hal/src/adc.c **** */
+  20:../../os/hal/src/adc.c **** 
+  21:../../os/hal/src/adc.c **** /**
+  22:../../os/hal/src/adc.c ****  * @file    adc.c
+  23:../../os/hal/src/adc.c ****  * @brief   ADC Driver code.
+  24:../../os/hal/src/adc.c ****  *
+  25:../../os/hal/src/adc.c ****  * @addtogroup ADC
+  26:../../os/hal/src/adc.c ****  * @{
+  27:../../os/hal/src/adc.c ****  */
+  28:../../os/hal/src/adc.c **** 
+  29:../../os/hal/src/adc.c **** #include "ch.h"
+  30:../../os/hal/src/adc.c **** #include "hal.h"
+  31:../../os/hal/src/adc.c **** 
+  32:../../os/hal/src/adc.c **** #if HAL_USE_ADC || defined(__DOXYGEN__)
+  33:../../os/hal/src/adc.c **** 
+  34:../../os/hal/src/adc.c **** /*===========================================================================*/
+  35:../../os/hal/src/adc.c **** /* Driver local definitions.                                                 */
+  36:../../os/hal/src/adc.c **** /*===========================================================================*/
+  37:../../os/hal/src/adc.c **** 
+  38:../../os/hal/src/adc.c **** /*===========================================================================*/
+  39:../../os/hal/src/adc.c **** /* Driver exported variables.                                                */
+  40:../../os/hal/src/adc.c **** /*===========================================================================*/
+  41:../../os/hal/src/adc.c **** 
+  42:../../os/hal/src/adc.c **** /*===========================================================================*/
+  43:../../os/hal/src/adc.c **** /* Driver local variables.                                                   */
+  44:../../os/hal/src/adc.c **** /*===========================================================================*/
+  45:../../os/hal/src/adc.c **** 
+  46:../../os/hal/src/adc.c **** /*===========================================================================*/
+  47:../../os/hal/src/adc.c **** /* Driver local functions.                                                   */
+  48:../../os/hal/src/adc.c **** /*===========================================================================*/
+  49:../../os/hal/src/adc.c **** 
+  50:../../os/hal/src/adc.c **** /*===========================================================================*/
+  51:../../os/hal/src/adc.c **** /* Driver exported functions.                                                */
+  52:../../os/hal/src/adc.c **** /*===========================================================================*/
+  53:../../os/hal/src/adc.c **** 
+  54:../../os/hal/src/adc.c **** /**
+  55:../../os/hal/src/adc.c ****  * @brief   ADC Driver initialization.
+  56:../../os/hal/src/adc.c ****  * @note    This function is implicitly invoked by @p halInit(), there is
+  57:../../os/hal/src/adc.c ****  *          no need to explicitly initialize the driver.
+  58:../../os/hal/src/adc.c ****  *
+  59:../../os/hal/src/adc.c ****  * @init
+  60:../../os/hal/src/adc.c ****  */
+  61:../../os/hal/src/adc.c **** void adcInit(void) {
+  15               		.loc 1 61 0
+  16               		.cfi_startproc
+  17               	/* prologue: function */
+  18               	/* frame size = 0 */
+  19               	/* stack size = 0 */
+  20               	.L__stack_usage = 0
+  62:../../os/hal/src/adc.c **** 
+  63:../../os/hal/src/adc.c ****   adc_lld_init();
+  21               		.loc 1 63 0
+  22 0000 0C94 0000 		jmp adc_lld_init
+  23               	.LVL0:
+  24               		.cfi_endproc
+  25               	.LFE7:
+  27               	.global	adcObjectInit
+  29               	adcObjectInit:
+  30               	.LFB8:
+  64:../../os/hal/src/adc.c **** }
+  65:../../os/hal/src/adc.c **** 
+  66:../../os/hal/src/adc.c **** /**
+  67:../../os/hal/src/adc.c ****  * @brief   Initializes the standard part of a @p ADCDriver structure.
+  68:../../os/hal/src/adc.c ****  *
+  69:../../os/hal/src/adc.c ****  * @param[out] adcp     pointer to the @p ADCDriver object
+  70:../../os/hal/src/adc.c ****  *
+  71:../../os/hal/src/adc.c ****  * @init
+  72:../../os/hal/src/adc.c ****  */
+  73:../../os/hal/src/adc.c **** void adcObjectInit(ADCDriver *adcp) {
+  31               		.loc 1 73 0
+  32               		.cfi_startproc
+  33               	.LVL1:
+  34               	/* prologue: function */
+  35               	/* frame size = 0 */
+  36               	/* stack size = 0 */
+  37               	.L__stack_usage = 0
+  38 0004 FC01      		movw r30,r24
+  74:../../os/hal/src/adc.c **** 
+  75:../../os/hal/src/adc.c ****   adcp->state    = ADC_STOP;
+  39               		.loc 1 75 0
+  40 0006 81E0      		ldi r24,lo8(1)
+  41               	.LVL2:
+  42 0008 8083      		st Z,r24
+  76:../../os/hal/src/adc.c ****   adcp->config   = NULL;
+  43               		.loc 1 76 0
+  44 000a 1282      		std Z+2,__zero_reg__
+  45 000c 1182      		std Z+1,__zero_reg__
+  77:../../os/hal/src/adc.c ****   adcp->samples  = NULL;
+  46               		.loc 1 77 0
+  47 000e 1482      		std Z+4,__zero_reg__
+  48 0010 1382      		std Z+3,__zero_reg__
+  78:../../os/hal/src/adc.c ****   adcp->depth    = 0;
+  49               		.loc 1 78 0
+  50 0012 1682      		std Z+6,__zero_reg__
+  51 0014 1582      		std Z+5,__zero_reg__
+  79:../../os/hal/src/adc.c ****   adcp->grpp     = NULL;
+  52               		.loc 1 79 0
+  53 0016 1086      		std Z+8,__zero_reg__
+  54 0018 1782      		std Z+7,__zero_reg__
+  80:../../os/hal/src/adc.c **** #if ADC_USE_WAIT
+  81:../../os/hal/src/adc.c ****   adcp->thread   = NULL;
+  55               		.loc 1 81 0
+  56 001a 1286      		std Z+10,__zero_reg__
+  57 001c 1186      		std Z+9,__zero_reg__
+  82:../../os/hal/src/adc.c **** #endif /* ADC_USE_WAIT */
+  83:../../os/hal/src/adc.c **** #if ADC_USE_MUTUAL_EXCLUSION
+  84:../../os/hal/src/adc.c **** #if CH_USE_MUTEXES
+  85:../../os/hal/src/adc.c ****   chMtxInit(&adcp->mutex);
+  58               		.loc 1 85 0
+  59 001e CF01      		movw r24,r30
+  60 0020 0B96      		adiw r24,11
+  61 0022 0C94 0000 		jmp chMtxInit
+  62               	.LVL3:
+  63               		.cfi_endproc
+  64               	.LFE8:
+  66               	.global	adcStart
+  68               	adcStart:
+  69               	.LFB9:
+  86:../../os/hal/src/adc.c **** #else
+  87:../../os/hal/src/adc.c ****   chSemInit(&adcp->semaphore, 1);
+  88:../../os/hal/src/adc.c **** #endif
+  89:../../os/hal/src/adc.c **** #endif /* ADC_USE_MUTUAL_EXCLUSION */
+  90:../../os/hal/src/adc.c **** #if defined(ADC_DRIVER_EXT_INIT_HOOK)
+  91:../../os/hal/src/adc.c ****   ADC_DRIVER_EXT_INIT_HOOK(adcp);
+  92:../../os/hal/src/adc.c **** #endif
+  93:../../os/hal/src/adc.c **** }
+  94:../../os/hal/src/adc.c **** 
+  95:../../os/hal/src/adc.c **** /**
+  96:../../os/hal/src/adc.c ****  * @brief   Configures and activates the ADC peripheral.
+  97:../../os/hal/src/adc.c ****  *
+  98:../../os/hal/src/adc.c ****  * @param[in] adcp      pointer to the @p ADCDriver object
+  99:../../os/hal/src/adc.c ****  * @param[in] config    pointer to the @p ADCConfig object. Depending on
+ 100:../../os/hal/src/adc.c ****  *                      the implementation the value can be @p NULL.
+ 101:../../os/hal/src/adc.c ****  *
+ 102:../../os/hal/src/adc.c ****  * @api
+ 103:../../os/hal/src/adc.c ****  */
+ 104:../../os/hal/src/adc.c **** void adcStart(ADCDriver *adcp, const ADCConfig *config) {
+  70               		.loc 1 104 0
+  71               		.cfi_startproc
+  72               	.LVL4:
+  73 0026 CF93      		push r28
+  74               	.LCFI0:
+  75               		.cfi_def_cfa_offset 3
+  76               		.cfi_offset 28, -2
+  77 0028 DF93      		push r29
+  78               	.LCFI1:
+  79               		.cfi_def_cfa_offset 4
+  80               		.cfi_offset 29, -3
+  81               	/* prologue: function */
+  82               	/* frame size = 0 */
+  83               	/* stack size = 2 */
+  84               	.L__stack_usage = 2
+  85 002a EC01      		movw r28,r24
+ 105:../../os/hal/src/adc.c **** 
+ 106:../../os/hal/src/adc.c ****   chDbgCheck(adcp != NULL, "adcStart");
+ 107:../../os/hal/src/adc.c **** 
+ 108:../../os/hal/src/adc.c ****   chSysLock();
+  86               		.loc 1 108 0
+  87               	/* #APP */
+  88               	 ;  108 "../../os/hal/src/adc.c" 1
+  89 002c F894      		cli
+  90               	 ;  0 "" 2
+ 109:../../os/hal/src/adc.c ****   chDbgAssert((adcp->state == ADC_STOP) || (adcp->state == ADC_READY),
+ 110:../../os/hal/src/adc.c ****               "adcStart(), #1", "invalid state");
+ 111:../../os/hal/src/adc.c ****   adcp->config = config;
+  91               		.loc 1 111 0
+  92               	/* #NOAPP */
+  93 002e 7A83      		std Y+2,r23
+  94 0030 6983      		std Y+1,r22
+ 112:../../os/hal/src/adc.c ****   adc_lld_start(adcp);
+  95               		.loc 1 112 0
+  96 0032 0E94 0000 		call adc_lld_start
+  97               	.LVL5:
+ 113:../../os/hal/src/adc.c ****   adcp->state = ADC_READY;
+  98               		.loc 1 113 0
+  99 0036 82E0      		ldi r24,lo8(2)
+ 100 0038 8883      		st Y,r24
+ 114:../../os/hal/src/adc.c ****   chSysUnlock();
+ 101               		.loc 1 114 0
+ 102               	/* #APP */
+ 103               	 ;  114 "../../os/hal/src/adc.c" 1
+ 104 003a 7894      		sei
+ 105               	 ;  0 "" 2
+ 106               	/* epilogue start */
+ 115:../../os/hal/src/adc.c **** }
+ 107               		.loc 1 115 0
+ 108               	/* #NOAPP */
+ 109 003c DF91      		pop r29
+ 110 003e CF91      		pop r28
+ 111               	.LVL6:
+ 112 0040 0895      		ret
+ 113               		.cfi_endproc
+ 114               	.LFE9:
+ 116               	.global	adcStop
+ 118               	adcStop:
+ 119               	.LFB10:
+ 116:../../os/hal/src/adc.c **** 
+ 117:../../os/hal/src/adc.c **** /**
+ 118:../../os/hal/src/adc.c ****  * @brief   Deactivates the ADC peripheral.
+ 119:../../os/hal/src/adc.c ****  *
+ 120:../../os/hal/src/adc.c ****  * @param[in] adcp      pointer to the @p ADCDriver object
+ 121:../../os/hal/src/adc.c ****  *
+ 122:../../os/hal/src/adc.c ****  * @api
+ 123:../../os/hal/src/adc.c ****  */
+ 124:../../os/hal/src/adc.c **** void adcStop(ADCDriver *adcp) {
+ 120               		.loc 1 124 0
+ 121               		.cfi_startproc
+ 122               	.LVL7:
+ 123 0042 CF93      		push r28
+ 124               	.LCFI2:
+ 125               		.cfi_def_cfa_offset 3
+ 126               		.cfi_offset 28, -2
+ 127 0044 DF93      		push r29
+ 128               	.LCFI3:
+ 129               		.cfi_def_cfa_offset 4
+ 130               		.cfi_offset 29, -3
+ 131               	/* prologue: function */
+ 132               	/* frame size = 0 */
+ 133               	/* stack size = 2 */
+ 134               	.L__stack_usage = 2
+ 135 0046 EC01      		movw r28,r24
+ 125:../../os/hal/src/adc.c **** 
+ 126:../../os/hal/src/adc.c ****   chDbgCheck(adcp != NULL, "adcStop");
+ 127:../../os/hal/src/adc.c **** 
+ 128:../../os/hal/src/adc.c ****   chSysLock();
+ 136               		.loc 1 128 0
+ 137               	/* #APP */
+ 138               	 ;  128 "../../os/hal/src/adc.c" 1
+ 139 0048 F894      		cli
+ 140               	 ;  0 "" 2
+ 129:../../os/hal/src/adc.c ****   chDbgAssert((adcp->state == ADC_STOP) || (adcp->state == ADC_READY),
+ 130:../../os/hal/src/adc.c ****               "adcStop(), #1", "invalid state");
+ 131:../../os/hal/src/adc.c ****   adc_lld_stop(adcp);
+ 141               		.loc 1 131 0
+ 142               	/* #NOAPP */
+ 143 004a 0E94 0000 		call adc_lld_stop
+ 144               	.LVL8:
+ 132:../../os/hal/src/adc.c ****   adcp->state = ADC_STOP;
+ 145               		.loc 1 132 0
+ 146 004e 81E0      		ldi r24,lo8(1)
+ 147 0050 8883      		st Y,r24
+ 133:../../os/hal/src/adc.c ****   chSysUnlock();
+ 148               		.loc 1 133 0
+ 149               	/* #APP */
+ 150               	 ;  133 "../../os/hal/src/adc.c" 1
+ 151 0052 7894      		sei
+ 152               	 ;  0 "" 2
+ 153               	/* epilogue start */
+ 134:../../os/hal/src/adc.c **** }
+ 154               		.loc 1 134 0
+ 155               	/* #NOAPP */
+ 156 0054 DF91      		pop r29
+ 157 0056 CF91      		pop r28
+ 158               	.LVL9:
+ 159 0058 0895      		ret
+ 160               		.cfi_endproc
+ 161               	.LFE10:
+ 163               	.global	adcStartConversion
+ 165               	adcStartConversion:
+ 166               	.LFB11:
+ 135:../../os/hal/src/adc.c **** 
+ 136:../../os/hal/src/adc.c **** /**
+ 137:../../os/hal/src/adc.c ****  * @brief   Starts an ADC conversion.
+ 138:../../os/hal/src/adc.c ****  * @details Starts an asynchronous conversion operation.
+ 139:../../os/hal/src/adc.c ****  * @note    The buffer is organized as a matrix of M*N elements where M is the
+ 140:../../os/hal/src/adc.c ****  *          channels number configured into the conversion group and N is the
+ 141:../../os/hal/src/adc.c ****  *          buffer depth. The samples are sequentially written into the buffer
+ 142:../../os/hal/src/adc.c ****  *          with no gaps.
+ 143:../../os/hal/src/adc.c ****  *
+ 144:../../os/hal/src/adc.c ****  * @param[in] adcp      pointer to the @p ADCDriver object
+ 145:../../os/hal/src/adc.c ****  * @param[in] grpp      pointer to a @p ADCConversionGroup object
+ 146:../../os/hal/src/adc.c ****  * @param[out] samples  pointer to the samples buffer
+ 147:../../os/hal/src/adc.c ****  * @param[in] depth     buffer depth (matrix rows number). The buffer depth
+ 148:../../os/hal/src/adc.c ****  *                      must be one or an even number.
+ 149:../../os/hal/src/adc.c ****  *
+ 150:../../os/hal/src/adc.c ****  * @api
+ 151:../../os/hal/src/adc.c ****  */
+ 152:../../os/hal/src/adc.c **** void adcStartConversion(ADCDriver *adcp,
+ 153:../../os/hal/src/adc.c ****                         const ADCConversionGroup *grpp,
+ 154:../../os/hal/src/adc.c ****                         adcsample_t *samples,
+ 155:../../os/hal/src/adc.c ****                         size_t depth) {
+ 167               		.loc 1 155 0
+ 168               		.cfi_startproc
+ 169               	.LVL10:
+ 170               	/* prologue: function */
+ 171               	/* frame size = 0 */
+ 172               	/* stack size = 0 */
+ 173               	.L__stack_usage = 0
+ 156:../../os/hal/src/adc.c **** 
+ 157:../../os/hal/src/adc.c ****   chSysLock();
+ 174               		.loc 1 157 0
+ 175               	/* #APP */
+ 176               	 ;  157 "../../os/hal/src/adc.c" 1
+ 177 005a F894      		cli
+ 178               	 ;  0 "" 2
+ 179               	.LVL11:
+ 180               	/* #NOAPP */
+ 181               	.LBB6:
+ 182               	.LBB7:
+ 158:../../os/hal/src/adc.c ****   adcStartConversionI(adcp, grpp, samples, depth);
+ 159:../../os/hal/src/adc.c ****   chSysUnlock();
+ 160:../../os/hal/src/adc.c **** }
+ 161:../../os/hal/src/adc.c **** 
+ 162:../../os/hal/src/adc.c **** /**
+ 163:../../os/hal/src/adc.c ****  * @brief   Starts an ADC conversion.
+ 164:../../os/hal/src/adc.c ****  * @details Starts an asynchronous conversion operation.
+ 165:../../os/hal/src/adc.c ****  * @post    The callbacks associated to the conversion group will be invoked
+ 166:../../os/hal/src/adc.c ****  *          on buffer fill and error events.
+ 167:../../os/hal/src/adc.c ****  * @note    The buffer is organized as a matrix of M*N elements where M is the
+ 168:../../os/hal/src/adc.c ****  *          channels number configured into the conversion group and N is the
+ 169:../../os/hal/src/adc.c ****  *          buffer depth. The samples are sequentially written into the buffer
+ 170:../../os/hal/src/adc.c ****  *          with no gaps.
+ 171:../../os/hal/src/adc.c ****  *
+ 172:../../os/hal/src/adc.c ****  * @param[in] adcp      pointer to the @p ADCDriver object
+ 173:../../os/hal/src/adc.c ****  * @param[in] grpp      pointer to a @p ADCConversionGroup object
+ 174:../../os/hal/src/adc.c ****  * @param[out] samples  pointer to the samples buffer
+ 175:../../os/hal/src/adc.c ****  * @param[in] depth     buffer depth (matrix rows number). The buffer depth
+ 176:../../os/hal/src/adc.c ****  *                      must be one or an even number.
+ 177:../../os/hal/src/adc.c ****  *
+ 178:../../os/hal/src/adc.c ****  * @iclass
+ 179:../../os/hal/src/adc.c ****  */
+ 180:../../os/hal/src/adc.c **** void adcStartConversionI(ADCDriver *adcp,
+ 181:../../os/hal/src/adc.c ****                          const ADCConversionGroup *grpp,
+ 182:../../os/hal/src/adc.c ****                          adcsample_t *samples,
+ 183:../../os/hal/src/adc.c ****                          size_t depth) {
+ 184:../../os/hal/src/adc.c **** 
+ 185:../../os/hal/src/adc.c ****   chDbgCheckClassI();
+ 186:../../os/hal/src/adc.c ****   chDbgCheck((adcp != NULL) && (grpp != NULL) && (samples != NULL) &&
+ 187:../../os/hal/src/adc.c ****              ((depth == 1) || ((depth & 1) == 0)),
+ 188:../../os/hal/src/adc.c ****              "adcStartConversionI");
+ 189:../../os/hal/src/adc.c ****   chDbgAssert((adcp->state == ADC_READY) ||
+ 190:../../os/hal/src/adc.c ****               (adcp->state == ADC_COMPLETE) ||
+ 191:../../os/hal/src/adc.c ****               (adcp->state == ADC_ERROR),
+ 192:../../os/hal/src/adc.c ****               "adcStartConversionI(), #1", "not ready");
+ 193:../../os/hal/src/adc.c **** 
+ 194:../../os/hal/src/adc.c ****   adcp->samples  = samples;
+ 183               		.loc 1 194 0
+ 184 005c FC01      		movw r30,r24
+ 185 005e 5483      		std Z+4,r21
+ 186 0060 4383      		std Z+3,r20
+ 195:../../os/hal/src/adc.c ****   adcp->depth    = depth;
+ 187               		.loc 1 195 0
+ 188 0062 3683      		std Z+6,r19
+ 189 0064 2583      		std Z+5,r18
+ 196:../../os/hal/src/adc.c ****   adcp->grpp     = grpp;
+ 190               		.loc 1 196 0
+ 191 0066 7087      		std Z+8,r23
+ 192 0068 6783      		std Z+7,r22
+ 197:../../os/hal/src/adc.c ****   adcp->state    = ADC_ACTIVE;
+ 193               		.loc 1 197 0
+ 194 006a 23E0      		ldi r18,lo8(3)
+ 195               	.LVL12:
+ 196 006c 2083      		st Z,r18
+ 198:../../os/hal/src/adc.c ****   adc_lld_start_conversion(adcp);
+ 197               		.loc 1 198 0
+ 198 006e 0E94 0000 		call adc_lld_start_conversion
+ 199               	.LVL13:
+ 200               	.LBE7:
+ 201               	.LBE6:
+ 159:../../os/hal/src/adc.c ****   chSysUnlock();
+ 202               		.loc 1 159 0
+ 203               	/* #APP */
+ 204               	 ;  159 "../../os/hal/src/adc.c" 1
+ 205 0072 7894      		sei
+ 206               	 ;  0 "" 2
+ 207               	/* #NOAPP */
+ 208 0074 0895      		ret
+ 209               		.cfi_endproc
+ 210               	.LFE11:
+ 212               	.global	adcStartConversionI
+ 214               	adcStartConversionI:
+ 215               	.LFB12:
+ 183:../../os/hal/src/adc.c ****                          size_t depth) {
+ 216               		.loc 1 183 0
+ 217               		.cfi_startproc
+ 218               	.LVL14:
+ 219               	/* prologue: function */
+ 220               	/* frame size = 0 */
+ 221               	/* stack size = 0 */
+ 222               	.L__stack_usage = 0
+ 194:../../os/hal/src/adc.c ****   adcp->samples  = samples;
+ 223               		.loc 1 194 0
+ 224 0076 FC01      		movw r30,r24
+ 225 0078 5483      		std Z+4,r21
+ 226 007a 4383      		std Z+3,r20
+ 195:../../os/hal/src/adc.c ****   adcp->depth    = depth;
+ 227               		.loc 1 195 0
+ 228 007c 3683      		std Z+6,r19
+ 229 007e 2583      		std Z+5,r18
+ 196:../../os/hal/src/adc.c ****   adcp->grpp     = grpp;
+ 230               		.loc 1 196 0
+ 231 0080 7087      		std Z+8,r23
+ 232 0082 6783      		std Z+7,r22
+ 197:../../os/hal/src/adc.c ****   adcp->state    = ADC_ACTIVE;
+ 233               		.loc 1 197 0
+ 234 0084 23E0      		ldi r18,lo8(3)
+ 235               	.LVL15:
+ 236 0086 2083      		st Z,r18
+ 237               		.loc 1 198 0
+ 238 0088 0C94 0000 		jmp adc_lld_start_conversion
+ 239               	.LVL16:
+ 240               		.cfi_endproc
+ 241               	.LFE12:
+ 243               	.global	adcStopConversion
+ 245               	adcStopConversion:
+ 246               	.LFB13:
+ 199:../../os/hal/src/adc.c **** }
+ 200:../../os/hal/src/adc.c **** 
+ 201:../../os/hal/src/adc.c **** /**
+ 202:../../os/hal/src/adc.c ****  * @brief   Stops an ongoing conversion.
+ 203:../../os/hal/src/adc.c ****  * @details This function stops the currently ongoing conversion and returns
+ 204:../../os/hal/src/adc.c ****  *          the driver in the @p ADC_READY state. If there was no conversion
+ 205:../../os/hal/src/adc.c ****  *          being processed then the function does nothing.
+ 206:../../os/hal/src/adc.c ****  *
+ 207:../../os/hal/src/adc.c ****  * @param[in] adcp      pointer to the @p ADCDriver object
+ 208:../../os/hal/src/adc.c ****  *
+ 209:../../os/hal/src/adc.c ****  * @api
+ 210:../../os/hal/src/adc.c ****  */
+ 211:../../os/hal/src/adc.c **** void adcStopConversion(ADCDriver *adcp) {
+ 247               		.loc 1 211 0
+ 248               		.cfi_startproc
+ 249               	.LVL17:
+ 250 008c CF93      		push r28
+ 251               	.LCFI4:
+ 252               		.cfi_def_cfa_offset 3
+ 253               		.cfi_offset 28, -2
+ 254 008e DF93      		push r29
+ 255               	.LCFI5:
+ 256               		.cfi_def_cfa_offset 4
+ 257               		.cfi_offset 29, -3
+ 258               	/* prologue: function */
+ 259               	/* frame size = 0 */
+ 260               	/* stack size = 2 */
+ 261               	.L__stack_usage = 2
+ 262 0090 EC01      		movw r28,r24
+ 212:../../os/hal/src/adc.c **** 
+ 213:../../os/hal/src/adc.c ****   chDbgCheck(adcp != NULL, "adcStopConversion");
+ 214:../../os/hal/src/adc.c **** 
+ 215:../../os/hal/src/adc.c ****   chSysLock();
+ 263               		.loc 1 215 0
+ 264               	/* #APP */
+ 265               	 ;  215 "../../os/hal/src/adc.c" 1
+ 266 0092 F894      		cli
+ 267               	 ;  0 "" 2
+ 216:../../os/hal/src/adc.c ****   chDbgAssert((adcp->state == ADC_READY) ||
+ 217:../../os/hal/src/adc.c ****               (adcp->state == ADC_ACTIVE),
+ 218:../../os/hal/src/adc.c ****               "adcStopConversion(), #1", "invalid state");
+ 219:../../os/hal/src/adc.c ****   if (adcp->state != ADC_READY) {
+ 268               		.loc 1 219 0
+ 269               	/* #NOAPP */
+ 270 0094 8881      		ld r24,Y
+ 271               	.LVL18:
+ 272 0096 8230      		cpi r24,lo8(2)
+ 273 0098 01F0      		breq .L9
+ 220:../../os/hal/src/adc.c ****     adc_lld_stop_conversion(adcp);
+ 274               		.loc 1 220 0
+ 275 009a CE01      		movw r24,r28
+ 276 009c 0E94 0000 		call adc_lld_stop_conversion
+ 277               	.LVL19:
+ 221:../../os/hal/src/adc.c ****     adcp->grpp  = NULL;
+ 278               		.loc 1 221 0
+ 279 00a0 1886      		std Y+8,__zero_reg__
+ 280 00a2 1F82      		std Y+7,__zero_reg__
+ 222:../../os/hal/src/adc.c ****     adcp->state = ADC_READY;
+ 281               		.loc 1 222 0
+ 282 00a4 82E0      		ldi r24,lo8(2)
+ 283 00a6 8883      		st Y,r24
+ 223:../../os/hal/src/adc.c ****     _adc_reset_s(adcp);
+ 284               		.loc 1 223 0
+ 285 00a8 8985      		ldd r24,Y+9
+ 286 00aa 9A85      		ldd r25,Y+10
+ 287 00ac 0097      		sbiw r24,0
+ 288 00ae 01F0      		breq .L9
+ 289               	.LVL20:
+ 290               	.LBB8:
+ 291               		.loc 1 223 0 is_stmt 0 discriminator 1
+ 292 00b0 1A86      		std Y+10,__zero_reg__
+ 293 00b2 1986      		std Y+9,__zero_reg__
+ 294 00b4 6EEF      		ldi r22,lo8(-2)
+ 295 00b6 7FEF      		ldi r23,lo8(-1)
+ 296 00b8 0E94 0000 		call chSchWakeupS
+ 297               	.LVL21:
+ 298               	.L9:
+ 299               	.LBE8:
+ 224:../../os/hal/src/adc.c ****   }
+ 225:../../os/hal/src/adc.c ****   chSysUnlock();
+ 300               		.loc 1 225 0 is_stmt 1
+ 301               	/* #APP */
+ 302               	 ;  225 "../../os/hal/src/adc.c" 1
+ 303 00bc 7894      		sei
+ 304               	 ;  0 "" 2
+ 305               	/* epilogue start */
+ 226:../../os/hal/src/adc.c **** }
+ 306               		.loc 1 226 0
+ 307               	/* #NOAPP */
+ 308 00be DF91      		pop r29
+ 309 00c0 CF91      		pop r28
+ 310               	.LVL22:
+ 311 00c2 0895      		ret
+ 312               		.cfi_endproc
+ 313               	.LFE13:
+ 315               	.global	adcStopConversionI
+ 317               	adcStopConversionI:
+ 318               	.LFB14:
+ 227:../../os/hal/src/adc.c **** 
+ 228:../../os/hal/src/adc.c **** /**
+ 229:../../os/hal/src/adc.c ****  * @brief   Stops an ongoing conversion.
+ 230:../../os/hal/src/adc.c ****  * @details This function stops the currently ongoing conversion and returns
+ 231:../../os/hal/src/adc.c ****  *          the driver in the @p ADC_READY state. If there was no conversion
+ 232:../../os/hal/src/adc.c ****  *          being processed then the function does nothing.
+ 233:../../os/hal/src/adc.c ****  *
+ 234:../../os/hal/src/adc.c ****  * @param[in] adcp      pointer to the @p ADCDriver object
+ 235:../../os/hal/src/adc.c ****  *
+ 236:../../os/hal/src/adc.c ****  * @iclass
+ 237:../../os/hal/src/adc.c ****  */
+ 238:../../os/hal/src/adc.c **** void adcStopConversionI(ADCDriver *adcp) {
+ 319               		.loc 1 238 0
+ 320               		.cfi_startproc
+ 321               	.LVL23:
+ 322 00c4 CF93      		push r28
+ 323               	.LCFI6:
+ 324               		.cfi_def_cfa_offset 3
+ 325               		.cfi_offset 28, -2
+ 326 00c6 DF93      		push r29
+ 327               	.LCFI7:
+ 328               		.cfi_def_cfa_offset 4
+ 329               		.cfi_offset 29, -3
+ 330               	/* prologue: function */
+ 331               	/* frame size = 0 */
+ 332               	/* stack size = 2 */
+ 333               	.L__stack_usage = 2
+ 334 00c8 EC01      		movw r28,r24
+ 239:../../os/hal/src/adc.c **** 
+ 240:../../os/hal/src/adc.c ****   chDbgCheckClassI();
+ 241:../../os/hal/src/adc.c ****   chDbgCheck(adcp != NULL, "adcStopConversionI");
+ 242:../../os/hal/src/adc.c ****   chDbgAssert((adcp->state == ADC_READY) ||
+ 243:../../os/hal/src/adc.c ****               (adcp->state == ADC_ACTIVE) ||
+ 244:../../os/hal/src/adc.c ****               (adcp->state == ADC_COMPLETE),
+ 245:../../os/hal/src/adc.c ****               "adcStopConversionI(), #1", "invalid state");
+ 246:../../os/hal/src/adc.c **** 
+ 247:../../os/hal/src/adc.c ****   if (adcp->state != ADC_READY) {
+ 335               		.loc 1 247 0
+ 336 00ca 8881      		ld r24,Y
+ 337               	.LVL24:
+ 338 00cc 8230      		cpi r24,lo8(2)
+ 339 00ce 01F0      		breq .L15
+ 248:../../os/hal/src/adc.c ****     adc_lld_stop_conversion(adcp);
+ 340               		.loc 1 248 0
+ 341 00d0 CE01      		movw r24,r28
+ 342 00d2 0E94 0000 		call adc_lld_stop_conversion
+ 343               	.LVL25:
+ 249:../../os/hal/src/adc.c ****     adcp->grpp  = NULL;
+ 344               		.loc 1 249 0
+ 345 00d6 1886      		std Y+8,__zero_reg__
+ 346 00d8 1F82      		std Y+7,__zero_reg__
+ 250:../../os/hal/src/adc.c ****     adcp->state = ADC_READY;
+ 347               		.loc 1 250 0
+ 348 00da 82E0      		ldi r24,lo8(2)
+ 349 00dc 8883      		st Y,r24
+ 251:../../os/hal/src/adc.c ****     _adc_reset_i(adcp);
+ 350               		.loc 1 251 0
+ 351 00de 8985      		ldd r24,Y+9
+ 352 00e0 9A85      		ldd r25,Y+10
+ 353 00e2 0097      		sbiw r24,0
+ 354 00e4 01F0      		breq .L15
+ 355               	.LVL26:
+ 356               	.LBB9:
+ 357               		.loc 1 251 0 is_stmt 0 discriminator 1
+ 358 00e6 1A86      		std Y+10,__zero_reg__
+ 359 00e8 1986      		std Y+9,__zero_reg__
+ 360 00ea 2EEF      		ldi r18,lo8(-2)
+ 361 00ec 3FEF      		ldi r19,lo8(-1)
+ 362 00ee FC01      		movw r30,r24
+ 363 00f0 338B      		std Z+19,r19
+ 364 00f2 228B      		std Z+18,r18
+ 365               	/* epilogue start */
+ 366               	.LBE9:
+ 252:../../os/hal/src/adc.c ****   }
+ 253:../../os/hal/src/adc.c **** }
+ 367               		.loc 1 253 0 is_stmt 1 discriminator 1
+ 368 00f4 DF91      		pop r29
+ 369 00f6 CF91      		pop r28
+ 370               	.LVL27:
+ 371               	.LBB10:
+ 251:../../os/hal/src/adc.c ****     _adc_reset_i(adcp);
+ 372               		.loc 1 251 0 discriminator 1
+ 373 00f8 0C94 0000 		jmp chSchReadyI
+ 374               	.LVL28:
+ 375               	.L15:
+ 376               	/* epilogue start */
+ 377               	.LBE10:
+ 378               		.loc 1 253 0
+ 379 00fc DF91      		pop r29
+ 380 00fe CF91      		pop r28
+ 381               	.LVL29:
+ 382 0100 0895      		ret
+ 383               		.cfi_endproc
+ 384               	.LFE14:
+ 386               	.global	adcConvert
+ 388               	adcConvert:
+ 389               	.LFB15:
+ 254:../../os/hal/src/adc.c **** 
+ 255:../../os/hal/src/adc.c **** #if ADC_USE_WAIT || defined(__DOXYGEN__)
+ 256:../../os/hal/src/adc.c **** /**
+ 257:../../os/hal/src/adc.c ****  * @brief   Performs an ADC conversion.
+ 258:../../os/hal/src/adc.c ****  * @details Performs a synchronous conversion operation.
+ 259:../../os/hal/src/adc.c ****  * @note    The buffer is organized as a matrix of M*N elements where M is the
+ 260:../../os/hal/src/adc.c ****  *          channels number configured into the conversion group and N is the
+ 261:../../os/hal/src/adc.c ****  *          buffer depth. The samples are sequentially written into the buffer
+ 262:../../os/hal/src/adc.c ****  *          with no gaps.
+ 263:../../os/hal/src/adc.c ****  *
+ 264:../../os/hal/src/adc.c ****  * @param[in] adcp      pointer to the @p ADCDriver object
+ 265:../../os/hal/src/adc.c ****  * @param[in] grpp      pointer to a @p ADCConversionGroup object
+ 266:../../os/hal/src/adc.c ****  * @param[out] samples  pointer to the samples buffer
+ 267:../../os/hal/src/adc.c ****  * @param[in] depth     buffer depth (matrix rows number). The buffer depth
+ 268:../../os/hal/src/adc.c ****  *                      must be one or an even number.
+ 269:../../os/hal/src/adc.c ****  * @return              The operation result.
+ 270:../../os/hal/src/adc.c ****  * @retval RDY_OK       Conversion finished.
+ 271:../../os/hal/src/adc.c ****  * @retval RDY_RESET    The conversion has been stopped using
+ 272:../../os/hal/src/adc.c ****  *                      @p acdStopConversion() or @p acdStopConversionI(),
+ 273:../../os/hal/src/adc.c ****  *                      the result buffer may contain incorrect data.
+ 274:../../os/hal/src/adc.c ****  * @retval RDY_TIMEOUT  The conversion has been stopped because an hardware
+ 275:../../os/hal/src/adc.c ****  *                      error.
+ 276:../../os/hal/src/adc.c ****  *
+ 277:../../os/hal/src/adc.c ****  * @api
+ 278:../../os/hal/src/adc.c ****  */
+ 279:../../os/hal/src/adc.c **** msg_t adcConvert(ADCDriver *adcp,
+ 280:../../os/hal/src/adc.c ****                  const ADCConversionGroup *grpp,
+ 281:../../os/hal/src/adc.c ****                  adcsample_t *samples,
+ 282:../../os/hal/src/adc.c ****                  size_t depth) {
+ 390               		.loc 1 282 0
+ 391               		.cfi_startproc
+ 392               	.LVL30:
+ 393 0102 CF93      		push r28
+ 394               	.LCFI8:
+ 395               		.cfi_def_cfa_offset 3
+ 396               		.cfi_offset 28, -2
+ 397 0104 DF93      		push r29
+ 398               	.LCFI9:
+ 399               		.cfi_def_cfa_offset 4
+ 400               		.cfi_offset 29, -3
+ 401               	/* prologue: function */
+ 402               	/* frame size = 0 */
+ 403               	/* stack size = 2 */
+ 404               	.L__stack_usage = 2
+ 405 0106 EC01      		movw r28,r24
+ 283:../../os/hal/src/adc.c ****   msg_t msg;
+ 284:../../os/hal/src/adc.c **** 
+ 285:../../os/hal/src/adc.c ****   chSysLock();
+ 406               		.loc 1 285 0
+ 407               	/* #APP */
+ 408               	 ;  285 "../../os/hal/src/adc.c" 1
+ 409 0108 F894      		cli
+ 410               	 ;  0 "" 2
+ 411               	.LVL31:
+ 412               	/* #NOAPP */
+ 413               	.LBB11:
+ 414               	.LBB12:
+ 194:../../os/hal/src/adc.c ****   adcp->samples  = samples;
+ 415               		.loc 1 194 0
+ 416 010a 5C83      		std Y+4,r21
+ 417 010c 4B83      		std Y+3,r20
+ 195:../../os/hal/src/adc.c ****   adcp->depth    = depth;
+ 418               		.loc 1 195 0
+ 419 010e 3E83      		std Y+6,r19
+ 420 0110 2D83      		std Y+5,r18
+ 196:../../os/hal/src/adc.c ****   adcp->grpp     = grpp;
+ 421               		.loc 1 196 0
+ 422 0112 7887      		std Y+8,r23
+ 423 0114 6F83      		std Y+7,r22
+ 197:../../os/hal/src/adc.c ****   adcp->state    = ADC_ACTIVE;
+ 424               		.loc 1 197 0
+ 425 0116 83E0      		ldi r24,lo8(3)
+ 426               	.LVL32:
+ 427 0118 8883      		st Y,r24
+ 198:../../os/hal/src/adc.c ****   adc_lld_start_conversion(adcp);
+ 428               		.loc 1 198 0
+ 429 011a CE01      		movw r24,r28
+ 430 011c 0E94 0000 		call adc_lld_start_conversion
+ 431               	.LVL33:
+ 432               	.LBE12:
+ 433               	.LBE11:
+ 286:../../os/hal/src/adc.c ****   chDbgAssert(adcp->thread == NULL, "adcConvert(), #1", "already waiting");
+ 287:../../os/hal/src/adc.c ****   adcStartConversionI(adcp, grpp, samples, depth);
+ 288:../../os/hal/src/adc.c ****   (adcp)->thread = chThdSelf();
+ 434               		.loc 1 288 0
+ 435 0120 8091 0000 		lds r24,rlist+11
+ 436 0124 9091 0000 		lds r25,rlist+11+1
+ 437 0128 9A87      		std Y+10,r25
+ 438 012a 8987      		std Y+9,r24
+ 289:../../os/hal/src/adc.c ****   chSchGoSleepS(THD_STATE_SUSPENDED);
+ 439               		.loc 1 289 0
+ 440 012c 82E0      		ldi r24,lo8(2)
+ 441 012e 0E94 0000 		call chSchGoSleepS
+ 442               	.LVL34:
+ 290:../../os/hal/src/adc.c ****   msg = chThdSelf()->p_u.rdymsg;
+ 443               		.loc 1 290 0
+ 444 0132 E091 0000 		lds r30,rlist+11
+ 445 0136 F091 0000 		lds r31,rlist+11+1
+ 446 013a 8289      		ldd r24,Z+18
+ 447 013c 9389      		ldd r25,Z+19
+ 448               	.LVL35:
+ 291:../../os/hal/src/adc.c ****   chSysUnlock();
+ 449               		.loc 1 291 0
+ 450               	/* #APP */
+ 451               	 ;  291 "../../os/hal/src/adc.c" 1
+ 452 013e 7894      		sei
+ 453               	 ;  0 "" 2
+ 454               	/* epilogue start */
+ 292:../../os/hal/src/adc.c ****   return msg;
+ 293:../../os/hal/src/adc.c **** }
+ 455               		.loc 1 293 0
+ 456               	/* #NOAPP */
+ 457 0140 DF91      		pop r29
+ 458 0142 CF91      		pop r28
+ 459               	.LVL36:
+ 460 0144 0895      		ret
+ 461               		.cfi_endproc
+ 462               	.LFE15:
+ 464               	.global	adcAcquireBus
+ 466               	adcAcquireBus:
+ 467               	.LFB16:
+ 294:../../os/hal/src/adc.c **** #endif /* ADC_USE_WAIT */
+ 295:../../os/hal/src/adc.c **** 
+ 296:../../os/hal/src/adc.c **** #if ADC_USE_MUTUAL_EXCLUSION || defined(__DOXYGEN__)
+ 297:../../os/hal/src/adc.c **** /**
+ 298:../../os/hal/src/adc.c ****  * @brief   Gains exclusive access to the ADC peripheral.
+ 299:../../os/hal/src/adc.c ****  * @details This function tries to gain ownership to the ADC bus, if the bus
+ 300:../../os/hal/src/adc.c ****  *          is already being used then the invoking thread is queued.
+ 301:../../os/hal/src/adc.c ****  * @pre     In order to use this function the option
+ 302:../../os/hal/src/adc.c ****  *          @p ADC_USE_MUTUAL_EXCLUSION must be enabled.
+ 303:../../os/hal/src/adc.c ****  *
+ 304:../../os/hal/src/adc.c ****  * @param[in] adcp      pointer to the @p ADCDriver object
+ 305:../../os/hal/src/adc.c ****  *
+ 306:../../os/hal/src/adc.c ****  * @api
+ 307:../../os/hal/src/adc.c ****  */
+ 308:../../os/hal/src/adc.c **** void adcAcquireBus(ADCDriver *adcp) {
+ 468               		.loc 1 308 0
+ 469               		.cfi_startproc
+ 470               	.LVL37:
+ 471               	/* prologue: function */
+ 472               	/* frame size = 0 */
+ 473               	/* stack size = 0 */
+ 474               	.L__stack_usage = 0
+ 309:../../os/hal/src/adc.c **** 
+ 310:../../os/hal/src/adc.c ****   chDbgCheck(adcp != NULL, "adcAcquireBus");
+ 311:../../os/hal/src/adc.c **** 
+ 312:../../os/hal/src/adc.c **** #if CH_USE_MUTEXES
+ 313:../../os/hal/src/adc.c ****   chMtxLock(&adcp->mutex);
+ 475               		.loc 1 313 0
+ 476 0146 0B96      		adiw r24,11
+ 477               	.LVL38:
+ 478 0148 0C94 0000 		jmp chMtxLock
+ 479               	.LVL39:
+ 480               		.cfi_endproc
+ 481               	.LFE16:
+ 483               	.global	adcReleaseBus
+ 485               	adcReleaseBus:
+ 486               	.LFB17:
+ 314:../../os/hal/src/adc.c **** #elif CH_USE_SEMAPHORES
+ 315:../../os/hal/src/adc.c ****   chSemWait(&adcp->semaphore);
+ 316:../../os/hal/src/adc.c **** #endif
+ 317:../../os/hal/src/adc.c **** }
+ 318:../../os/hal/src/adc.c **** 
+ 319:../../os/hal/src/adc.c **** /**
+ 320:../../os/hal/src/adc.c ****  * @brief   Releases exclusive access to the ADC peripheral.
+ 321:../../os/hal/src/adc.c ****  * @pre     In order to use this function the option
+ 322:../../os/hal/src/adc.c ****  *          @p ADC_USE_MUTUAL_EXCLUSION must be enabled.
+ 323:../../os/hal/src/adc.c ****  *
+ 324:../../os/hal/src/adc.c ****  * @param[in] adcp      pointer to the @p ADCDriver object
+ 325:../../os/hal/src/adc.c ****  *
+ 326:../../os/hal/src/adc.c ****  * @api
+ 327:../../os/hal/src/adc.c ****  */
+ 328:../../os/hal/src/adc.c **** void adcReleaseBus(ADCDriver *adcp) {
+ 487               		.loc 1 328 0
+ 488               		.cfi_startproc
+ 489               	.LVL40:
+ 490               	/* prologue: function */
+ 491               	/* frame size = 0 */
+ 492               	/* stack size = 0 */
+ 493               	.L__stack_usage = 0
+ 329:../../os/hal/src/adc.c **** 
+ 330:../../os/hal/src/adc.c ****   chDbgCheck(adcp != NULL, "adcReleaseBus");
+ 331:../../os/hal/src/adc.c **** 
+ 332:../../os/hal/src/adc.c **** #if CH_USE_MUTEXES
+ 333:../../os/hal/src/adc.c ****   (void)adcp;
+ 334:../../os/hal/src/adc.c ****   chMtxUnlock();
+ 494               		.loc 1 334 0
+ 495 014c 0C94 0000 		jmp chMtxUnlock
+ 496               	.LVL41:
+ 497               		.cfi_endproc
+ 498               	.LFE17:
+ 500               	.Letext0:
+ 501               		.file 2 "/usr/local/cross/lib/gcc/avr/4.7.2/include/stddef.h"
+ 502               		.file 3 "/usr/local/cross/lib/gcc/avr/4.7.2/../../../../avr/include/stdint.h"
+ 503               		.file 4 "../../os/ports/GCC/AVR/chtypes.h"
+ 504               		.file 5 "../../os/kernel/include/chlists.h"
+ 505               		.file 6 "../../os/kernel/include/chthreads.h"
+ 506               		.file 7 "../../os/ports/GCC/AVR/chcore.h"
+ 507               		.file 8 "../../os/kernel/include/chschd.h"
+ 508               		.file 9 "../../os/kernel/include/chmtx.h"
+ 509               		.file 10 "../../os/hal/include/adc.h"
+ 510               		.file 11 "../../os/hal/platforms/AVR/adc_lld.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 adc.c
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckcm13X.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckcm13X.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckcm13X.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckcm13X.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckcm13X.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckcm13X.s:12     .text:0000000000000000 adcInit
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckcm13X.s:29     .text:0000000000000004 adcObjectInit
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckcm13X.s:68     .text:0000000000000026 adcStart
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckcm13X.s:118    .text:0000000000000042 adcStop
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckcm13X.s:165    .text:000000000000005a adcStartConversion
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckcm13X.s:214    .text:0000000000000076 adcStartConversionI
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckcm13X.s:245    .text:000000000000008c adcStopConversion
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckcm13X.s:317    .text:00000000000000c4 adcStopConversionI
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckcm13X.s:388    .text:0000000000000102 adcConvert
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckcm13X.s:466    .text:0000000000000146 adcAcquireBus
+/var/folders/5n/p_75w94d66l9ssrldxqdhh700000gn/T//cckcm13X.s:485    .text:000000000000014c adcReleaseBus
+
+UNDEFINED SYMBOLS
+adc_lld_init
+chMtxInit
+adc_lld_start
+adc_lld_stop
+adc_lld_start_conversion
+adc_lld_stop_conversion
+chSchWakeupS
+chSchReadyI
+rlist
+chSchGoSleepS
+chMtxLock
+chMtxUnlock
