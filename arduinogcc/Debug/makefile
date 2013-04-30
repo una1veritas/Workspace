@@ -8,15 +8,16 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include src/IDCardReaderServer/subdir.mk
+-include src/Ethernet_W5100/examples/UDPSendReceiveString/subdir.mk
+-include src/subdir.mk
 -include libraries/Wire/utility/subdir.mk
 -include libraries/Wire/subdir.mk
 -include libraries/TextMonitor/subdir.mk
 -include libraries/SPI/subdir.mk
 -include libraries/RTC_DS3234/subdir.mk
 -include libraries/RFID_PN532_I2C/subdir.mk
--include libraries/Ethernet/utility/subdir.mk
--include libraries/Ethernet/subdir.mk
+-include libraries/Ethernet_W5100/utility/subdir.mk
+-include libraries/Ethernet_W5100/subdir.mk
 -include libraries/EEPROM/subdir.mk
 -include libraries/ColorLCDShield/subdir.mk
 -include arduino/subdir.mk
