@@ -8,6 +8,7 @@
 
 //#include <stdio.h>
 //#include <conio.h>
+#include <unistd.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
