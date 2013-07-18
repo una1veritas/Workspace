@@ -1,0 +1,1030 @@
+
+DemoSoft.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000004e2  00000000  00000000  000000b4  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .bss          0000000b  00800060  00800060  00000596  2**0
+                  ALLOC
+  2 .eeprom       00000001  00810000  00810000  00000596  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  3 .fuse         00000002  00820000  00820000  00000597  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  4 .debug_aranges 000000c0  00000000  00000000  00000599  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_pubnames 000001b3  00000000  00000000  00000659  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_info   00000692  00000000  00000000  0000080c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_abbrev 000003ea  00000000  00000000  00000e9e  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_line   0000081b  00000000  00000000  00001288  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_frame  00000160  00000000  00000000  00001aa4  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_str    00000401  00000000  00000000  00001c04  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_loc    00000100  00000000  00000000  00002005  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_ranges 00000018  00000000  00000000  00002105  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 2a 00 	jmp	0x54	; 0x54 <__ctors_end>
+   4:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+   8:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+   c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  10:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  14:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  18:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  1c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  20:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  24:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  28:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  2c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  30:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  34:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  38:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  3c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  40:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  44:	0c 94 31 01 	jmp	0x262	; 0x262 <__vector_17>
+  48:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  4c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  50:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+
+00000054 <__ctors_end>:
+  54:	11 24       	eor	r1, r1
+  56:	1f be       	out	0x3f, r1	; 63
+  58:	cf e5       	ldi	r28, 0x5F	; 95
+  5a:	d4 e0       	ldi	r29, 0x04	; 4
+  5c:	de bf       	out	0x3e, r29	; 62
+  5e:	cd bf       	out	0x3d, r28	; 61
+
+00000060 <__do_clear_bss>:
+  60:	10 e0       	ldi	r17, 0x00	; 0
+  62:	a0 e6       	ldi	r26, 0x60	; 96
+  64:	b0 e0       	ldi	r27, 0x00	; 0
+  66:	01 c0       	rjmp	.+2      	; 0x6a <.do_clear_bss_start>
+
+00000068 <.do_clear_bss_loop>:
+  68:	1d 92       	st	X+, r1
+
+0000006a <.do_clear_bss_start>:
+  6a:	ab 36       	cpi	r26, 0x6B	; 107
+  6c:	b1 07       	cpc	r27, r17
+  6e:	e1 f7       	brne	.-8      	; 0x68 <.do_clear_bss_loop>
+  70:	0e 94 44 00 	call	0x88	; 0x88 <main>
+  74:	0c 94 6f 02 	jmp	0x4de	; 0x4de <_exit>
+
+00000078 <__bad_interrupt>:
+  78:	0c 94 3e 00 	jmp	0x7c	; 0x7c <__vector_default>
+
+0000007c <__vector_default>:
+	
+	sei(); /* enable interrupts */
+}
+
+ISR(BADISR_vect)
+{
+  7c:	1f 92       	push	r1
+  7e:	0f 92       	push	r0
+  80:	0f b6       	in	r0, 0x3f	; 63
+  82:	0f 92       	push	r0
+  84:	11 24       	eor	r1, r1
+  86:	ff cf       	rjmp	.-2      	; 0x86 <__vector_default+0xa>
+
+00000088 <main>:
+static void InitializeSystem(void);
+
+/* DEFINE FUNCTIONS HERE */
+
+int main(void)
+{
+  88:	df 92       	push	r13
+  8a:	ef 92       	push	r14
+  8c:	ff 92       	push	r15
+  8e:	0f 93       	push	r16
+  90:	1f 93       	push	r17
+static void InitializeSystem(void)
+{
+	char result = 0;
+	
+	// initialize not used pins to inputs
+	DDRD &= ~((1<<0) | (1<<1));
+  92:	81 b3       	in	r24, 0x11	; 17
+  94:	8c 7f       	andi	r24, 0xFC	; 252
+  96:	81 bb       	out	0x11, r24	; 17
+	DDRB &= ~((1<<4) | (1<<5) | (1<<6) | (1<<7));
+  98:	87 b3       	in	r24, 0x17	; 23
+  9a:	8f 70       	andi	r24, 0x0F	; 15
+  9c:	87 bb       	out	0x17, r24	; 23
+	
+	InitLED();
+  9e:	bb 9a       	sbi	0x17, 3	; 23
+	
+	result |= DINs_Initialize();
+  a0:	0e 94 f4 00 	call	0x1e8	; 0x1e8 <DINs_Initialize>
+  a4:	e8 2e       	mov	r14, r24
+	result |= AINs_Initialize();
+  a6:	0e 94 c7 00 	call	0x18e	; 0x18e <AINs_Initialize>
+  aa:	18 2f       	mov	r17, r24
+	result |= DOUTs_Initialize();
+  ac:	0e 94 19 01 	call	0x232	; 0x232 <DOUTs_Initialize>
+  b0:	f8 2e       	mov	r15, r24
+	result |= I2C_Address_Initialize();
+  b2:	0e 94 2b 02 	call	0x456	; 0x456 <I2C_Address_Initialize>
+  b6:	08 2f       	mov	r16, r24
+	result |= I2C_FSM_Initialize();
+  b8:	0e 94 b8 01 	call	0x370	; 0x370 <I2C_FSM_Initialize>
+	DDRB &= ~((1<<4) | (1<<5) | (1<<6) | (1<<7));
+	
+	InitLED();
+	
+	result |= DINs_Initialize();
+	result |= AINs_Initialize();
+  bc:	1e 29       	or	r17, r14
+	result |= DOUTs_Initialize();
+  be:	1f 29       	or	r17, r15
+	result |= I2C_Address_Initialize();
+  c0:	10 2b       	or	r17, r16
+	result |= I2C_FSM_Initialize();
+	
+	// check for error
+	if(result) {
+  c2:	18 2b       	or	r17, r24
+  c4:	a9 f0       	breq	.+42     	; 0xf0 <main+0x68>
+  c6:	80 e1       	ldi	r24, 0x10	; 16
+  c8:	97 e2       	ldi	r25, 0x27	; 39
+  ca:	a0 e0       	ldi	r26, 0x00	; 0
+  cc:	b0 e0       	ldi	r27, 0x00	; 0
+		while(1)
+		{
+			delay = 10000;
+			while(delay--);
+		
+			ToggleLED();
+  ce:	28 e0       	ldi	r18, 0x08	; 8
+		uint32_t delay;
+		
+		while(1)
+		{
+			delay = 10000;
+			while(delay--);
+  d0:	00 97       	sbiw	r24, 0x00	; 0
+  d2:	a1 05       	cpc	r26, r1
+  d4:	b1 05       	cpc	r27, r1
+  d6:	21 f0       	breq	.+8      	; 0xe0 <main+0x58>
+  d8:	01 97       	sbiw	r24, 0x01	; 1
+  da:	a1 09       	sbc	r26, r1
+  dc:	b1 09       	sbc	r27, r1
+  de:	f8 cf       	rjmp	.-16     	; 0xd0 <main+0x48>
+		
+			ToggleLED();
+  e0:	88 b3       	in	r24, 0x18	; 24
+  e2:	82 27       	eor	r24, r18
+  e4:	88 bb       	out	0x18, r24	; 24
+  e6:	80 e1       	ldi	r24, 0x10	; 16
+  e8:	97 e2       	ldi	r25, 0x27	; 39
+  ea:	a0 e0       	ldi	r26, 0x00	; 0
+  ec:	b0 e0       	ldi	r27, 0x00	; 0
+  ee:	f4 cf       	rjmp	.-24     	; 0xd8 <main+0x50>
+		}		
+	}
+	
+	sei(); /* enable interrupts */
+  f0:	78 94       	sei
+	uint32_t delay;
+	
+	InitializeSystem();
+
+	// check for button pressed at startup to reset slave address to default
+	if(BtnPressed()) {
+  f2:	82 99       	sbic	0x10, 2	; 16
+  f4:	29 c0       	rjmp	.+82     	; 0x148 <main+0xc0>
+  f6:	40 e3       	ldi	r20, 0x30	; 48
+  f8:	e4 2e       	mov	r14, r20
+  fa:	45 e7       	ldi	r20, 0x75	; 117
+  fc:	f4 2e       	mov	r15, r20
+  fe:	01 2d       	mov	r16, r1
+ 100:	11 2d       	mov	r17, r1
+			if(!BtnPressed())
+				break;
+
+			// indicate activity
+			if(!(delay % 1000))
+				ToggleLED();
+ 102:	38 e0       	ldi	r19, 0x08	; 8
+ 104:	d3 2e       	mov	r13, r19
+ 106:	12 c0       	rjmp	.+36     	; 0x12c <main+0xa4>
+	// check for button pressed at startup to reset slave address to default
+	if(BtnPressed()) {
+		delay = 30000;
+		while(--delay) {
+			// button released before timeout occurred
+			if(!BtnPressed())
+ 108:	82 99       	sbic	0x10, 2	; 16
+ 10a:	1e c0       	rjmp	.+60     	; 0x148 <main+0xc0>
+				break;
+
+			// indicate activity
+			if(!(delay % 1000))
+ 10c:	c8 01       	movw	r24, r16
+ 10e:	b7 01       	movw	r22, r14
+ 110:	28 ee       	ldi	r18, 0xE8	; 232
+ 112:	33 e0       	ldi	r19, 0x03	; 3
+ 114:	40 e0       	ldi	r20, 0x00	; 0
+ 116:	50 e0       	ldi	r21, 0x00	; 0
+ 118:	0e 94 38 02 	call	0x470	; 0x470 <__udivmodsi4>
+ 11c:	61 15       	cp	r22, r1
+ 11e:	71 05       	cpc	r23, r1
+ 120:	81 05       	cpc	r24, r1
+ 122:	91 05       	cpc	r25, r1
+ 124:	19 f4       	brne	.+6      	; 0x12c <main+0xa4>
+				ToggleLED();
+ 126:	88 b3       	in	r24, 0x18	; 24
+ 128:	8d 25       	eor	r24, r13
+ 12a:	88 bb       	out	0x18, r24	; 24
+	InitializeSystem();
+
+	// check for button pressed at startup to reset slave address to default
+	if(BtnPressed()) {
+		delay = 30000;
+		while(--delay) {
+ 12c:	08 94       	sec
+ 12e:	e1 08       	sbc	r14, r1
+ 130:	f1 08       	sbc	r15, r1
+ 132:	01 09       	sbc	r16, r1
+ 134:	11 09       	sbc	r17, r1
+ 136:	e1 14       	cp	r14, r1
+ 138:	f1 04       	cpc	r15, r1
+ 13a:	01 05       	cpc	r16, r1
+ 13c:	11 05       	cpc	r17, r1
+ 13e:	21 f7       	brne	.-56     	; 0x108 <main+0x80>
+				ToggleLED();
+		}
+
+		// button pressed long enough, reset to default
+		if(!delay) {
+			I2C_Address_SetDefault();
+ 140:	0e 94 27 02 	call	0x44e	; 0x44e <I2C_Address_SetDefault>
+			I2C_FSM_Initialize(); // load the new address
+ 144:	0e 94 b8 01 	call	0x370	; 0x370 <I2C_FSM_Initialize>
+ 148:	20 e2       	ldi	r18, 0x20	; 32
+ 14a:	e2 2e       	mov	r14, r18
+ 14c:	2e e4       	ldi	r18, 0x4E	; 78
+ 14e:	f2 2e       	mov	r15, r18
+ 150:	01 2d       	mov	r16, r1
+ 152:	11 2d       	mov	r17, r1
+		I2C_FSM_Refresh();
+
+		// toggle LED to indicate activity
+		if( (delay--) == 0 ) {
+			delay = 200000;
+			ToggleLED();
+ 154:	98 e0       	ldi	r25, 0x08	; 8
+ 156:	d9 2e       	mov	r13, r25
+
+	delay = 20000;
+		
+    while(1)
+    {
+		I2C_FSM_Refresh();
+ 158:	0e 94 cf 01 	call	0x39e	; 0x39e <I2C_FSM_Refresh>
+
+		// toggle LED to indicate activity
+		if( (delay--) == 0 ) {
+ 15c:	08 94       	sec
+ 15e:	e1 08       	sbc	r14, r1
+ 160:	f1 08       	sbc	r15, r1
+ 162:	01 09       	sbc	r16, r1
+ 164:	11 09       	sbc	r17, r1
+ 166:	8f ef       	ldi	r24, 0xFF	; 255
+ 168:	e8 16       	cp	r14, r24
+ 16a:	8f ef       	ldi	r24, 0xFF	; 255
+ 16c:	f8 06       	cpc	r15, r24
+ 16e:	8f ef       	ldi	r24, 0xFF	; 255
+ 170:	08 07       	cpc	r16, r24
+ 172:	8f ef       	ldi	r24, 0xFF	; 255
+ 174:	18 07       	cpc	r17, r24
+ 176:	81 f7       	brne	.-32     	; 0x158 <main+0xd0>
+			delay = 200000;
+			ToggleLED();
+ 178:	88 b3       	in	r24, 0x18	; 24
+ 17a:	8d 25       	eor	r24, r13
+ 17c:	88 bb       	out	0x18, r24	; 24
+ 17e:	80 e4       	ldi	r24, 0x40	; 64
+ 180:	e8 2e       	mov	r14, r24
+ 182:	8d e0       	ldi	r24, 0x0D	; 13
+ 184:	f8 2e       	mov	r15, r24
+ 186:	83 e0       	ldi	r24, 0x03	; 3
+ 188:	08 2f       	mov	r16, r24
+ 18a:	11 2d       	mov	r17, r1
+ 18c:	e5 cf       	rjmp	.-54     	; 0x158 <main+0xd0>
+
+0000018e <AINs_Initialize>:
+* Return:	0 if successfully initialized, -1 if error occurred 
+*******************************************************************************/
+char AINs_Initialize(void)
+{
+	// make pins inputs
+	AIN0_DDR &= ~AIN0_PIN;
+ 18e:	d7 98       	cbi	0x1a, 7	; 26
+	AIN1_DDR &= ~AIN1_PIN;
+ 190:	d6 98       	cbi	0x1a, 6	; 26
+	AIN2_DDR &= ~AIN2_PIN;
+ 192:	d5 98       	cbi	0x1a, 5	; 26
+	AIN3_DDR &= ~AIN3_PIN;
+ 194:	d4 98       	cbi	0x1a, 4	; 26
+	
+	// configure ADC
+	ADMUX = AIN0_MUX & 0x1F;
+ 196:	87 e0       	ldi	r24, 0x07	; 7
+ 198:	87 b9       	out	0x07, r24	; 7
+	ADCSRA = (1<<ADEN) | (1<<ADPS2) | (1<<ADPS1);
+ 19a:	86 e8       	ldi	r24, 0x86	; 134
+ 19c:	86 b9       	out	0x06, r24	; 6
+	
+	return 0;
+}
+ 19e:	80 e0       	ldi	r24, 0x00	; 0
+ 1a0:	08 95       	ret
+
+000001a2 <AINs_Get>:
+*******************************************************************************/
+uint16_t AINs_Get(uint8_t channel)
+{
+	uint16_t adcVal = 0;
+	
+	switch(channel) {
+ 1a2:	81 30       	cpi	r24, 0x01	; 1
+ 1a4:	59 f0       	breq	.+22     	; 0x1bc <AINs_Get+0x1a>
+ 1a6:	81 30       	cpi	r24, 0x01	; 1
+ 1a8:	28 f0       	brcs	.+10     	; 0x1b4 <AINs_Get+0x12>
+ 1aa:	82 30       	cpi	r24, 0x02	; 2
+ 1ac:	59 f0       	breq	.+22     	; 0x1c4 <AINs_Get+0x22>
+ 1ae:	83 30       	cpi	r24, 0x03	; 3
+ 1b0:	89 f4       	brne	.+34     	; 0x1d4 <AINs_Get+0x32>
+ 1b2:	0c c0       	rjmp	.+24     	; 0x1cc <AINs_Get+0x2a>
+		case 0:	ADMUX = (ADMUX & 0xE0) | (AIN0_MUX & 0x1F); break;
+ 1b4:	87 b1       	in	r24, 0x07	; 7
+ 1b6:	80 7e       	andi	r24, 0xE0	; 224
+ 1b8:	87 60       	ori	r24, 0x07	; 7
+ 1ba:	0e c0       	rjmp	.+28     	; 0x1d8 <AINs_Get+0x36>
+		case 1:	ADMUX = (ADMUX & 0xE0) | (AIN1_MUX & 0x1F); break;
+ 1bc:	87 b1       	in	r24, 0x07	; 7
+ 1be:	80 7e       	andi	r24, 0xE0	; 224
+ 1c0:	86 60       	ori	r24, 0x06	; 6
+ 1c2:	0a c0       	rjmp	.+20     	; 0x1d8 <AINs_Get+0x36>
+		case 2:	ADMUX = (ADMUX & 0xE0) | (AIN2_MUX & 0x1F); break;
+ 1c4:	87 b1       	in	r24, 0x07	; 7
+ 1c6:	80 7e       	andi	r24, 0xE0	; 224
+ 1c8:	85 60       	ori	r24, 0x05	; 5
+ 1ca:	06 c0       	rjmp	.+12     	; 0x1d8 <AINs_Get+0x36>
+		case 3:	ADMUX = (ADMUX & 0xE0) | (AIN3_MUX & 0x1F); break;
+ 1cc:	87 b1       	in	r24, 0x07	; 7
+ 1ce:	80 7e       	andi	r24, 0xE0	; 224
+ 1d0:	84 60       	ori	r24, 0x04	; 4
+ 1d2:	02 c0       	rjmp	.+4      	; 0x1d8 <AINs_Get+0x36>
+		default: ADMUX = (ADMUX & 0xE0) | 0x1F; break;		
+ 1d4:	87 b1       	in	r24, 0x07	; 7
+ 1d6:	8f 61       	ori	r24, 0x1F	; 31
+ 1d8:	87 b9       	out	0x07, r24	; 7
+	}
+	
+	ADCSRA |= (1<<ADSC);
+ 1da:	36 9a       	sbi	0x06, 6	; 6
+	
+	// wait conversion to finish
+	while(ADCSRA & (1<<ADSC))
+ 1dc:	36 99       	sbic	0x06, 6	; 6
+ 1de:	fe cf       	rjmp	.-4      	; 0x1dc <AINs_Get+0x3a>
+		;
+		
+	adcVal = ADCW;
+ 1e0:	24 b1       	in	r18, 0x04	; 4
+ 1e2:	35 b1       	in	r19, 0x05	; 5
+		
+	return adcVal;
+}
+ 1e4:	c9 01       	movw	r24, r18
+ 1e6:	08 95       	ret
+
+000001e8 <DINs_Initialize>:
+* Return:	0 if successfully initialized, -1 if error occurred 
+*******************************************************************************/
+char DINs_Initialize(void)
+{
+	// make pins inputs
+	DIN0_DDR &= ~DIN0_PIN;
+ 1e8:	b8 98       	cbi	0x17, 0	; 23
+	DIN1_DDR &= ~DIN1_PIN;
+ 1ea:	b9 98       	cbi	0x17, 1	; 23
+	DIN2_DDR &= ~DIN2_PIN;
+ 1ec:	ba 98       	cbi	0x17, 2	; 23
+	DIN3_DDR &= ~DIN3_PIN;
+ 1ee:	8b 98       	cbi	0x11, 3	; 17
+	
+	return 0;
+}
+ 1f0:	80 e0       	ldi	r24, 0x00	; 0
+ 1f2:	08 95       	ret
+
+000001f4 <DINs_Get>:
+*******************************************************************************/
+uint8_t DINs_Get(void)
+{
+	uint8_t bitmap = 0;
+	
+	if(!(DIN0_PORT & DIN0_PIN))
+ 1f4:	86 b3       	in	r24, 0x16	; 22
+ 1f6:	80 95       	com	r24
+ 1f8:	81 70       	andi	r24, 0x01	; 1
+		bitmap |= (1 << 0);
+	if(!(DIN1_PORT & DIN1_PIN))
+ 1fa:	b1 9b       	sbis	0x16, 1	; 22
+		bitmap |= (1 << 1);
+ 1fc:	82 60       	ori	r24, 0x02	; 2
+	if(!(DIN2_PORT & DIN2_PIN))
+ 1fe:	b2 9b       	sbis	0x16, 2	; 22
+		bitmap |= (1 << 2);
+ 200:	84 60       	ori	r24, 0x04	; 4
+	if(!(DIN3_PORT & DIN3_PIN))
+ 202:	83 9b       	sbis	0x10, 3	; 16
+		bitmap |= (1 << 3);
+ 204:	88 60       	ori	r24, 0x08	; 8
+		
+	return bitmap;
+}
+ 206:	08 95       	ret
+
+00000208 <DOUTs_Set>:
+* Output: 	none
+* Return:	none
+*******************************************************************************/
+void DOUTs_Set(uint8_t bitmap)
+{
+	if(bitmap & (1 << 0))
+ 208:	80 ff       	sbrs	r24, 0
+ 20a:	02 c0       	rjmp	.+4      	; 0x210 <DOUTs_Set+0x8>
+		DOUT0_PORT |= DOUT0_PIN;
+ 20c:	db 9a       	sbi	0x1b, 3	; 27
+ 20e:	01 c0       	rjmp	.+2      	; 0x212 <DOUTs_Set+0xa>
+	else
+		DOUT0_PORT &= ~DOUT0_PIN;
+ 210:	db 98       	cbi	0x1b, 3	; 27
+
+	if(bitmap & (1 << 1))
+ 212:	81 ff       	sbrs	r24, 1
+ 214:	02 c0       	rjmp	.+4      	; 0x21a <DOUTs_Set+0x12>
+		DOUT1_PORT |= DOUT1_PIN;
+ 216:	da 9a       	sbi	0x1b, 2	; 27
+ 218:	01 c0       	rjmp	.+2      	; 0x21c <DOUTs_Set+0x14>
+	else
+		DOUT1_PORT &= ~DOUT1_PIN;
+ 21a:	da 98       	cbi	0x1b, 2	; 27
+
+	if(bitmap & (1 << 2))
+ 21c:	82 ff       	sbrs	r24, 2
+ 21e:	02 c0       	rjmp	.+4      	; 0x224 <DOUTs_Set+0x1c>
+		DOUT2_PORT |= DOUT2_PIN;
+ 220:	d9 9a       	sbi	0x1b, 1	; 27
+ 222:	01 c0       	rjmp	.+2      	; 0x226 <DOUTs_Set+0x1e>
+	else
+		DOUT2_PORT &= ~DOUT2_PIN;
+ 224:	d9 98       	cbi	0x1b, 1	; 27
+
+	if(bitmap & (1 << 3))
+ 226:	83 ff       	sbrs	r24, 3
+ 228:	02 c0       	rjmp	.+4      	; 0x22e <DOUTs_Set+0x26>
+		DOUT3_PORT |= DOUT3_PIN;
+ 22a:	d8 9a       	sbi	0x1b, 0	; 27
+ 22c:	08 95       	ret
+	else
+		DOUT3_PORT &= ~DOUT3_PIN;
+ 22e:	d8 98       	cbi	0x1b, 0	; 27
+ 230:	08 95       	ret
+
+00000232 <DOUTs_Initialize>:
+* Return:	0 if successfully initialized, -1 if error occurred 
+*******************************************************************************/
+char DOUTs_Initialize(void)
+{
+	// make pins outputs
+	DOUT0_DDR |= DOUT0_PIN;
+ 232:	d3 9a       	sbi	0x1a, 3	; 26
+	DOUT1_DDR |= DOUT1_PIN;
+ 234:	d2 9a       	sbi	0x1a, 2	; 26
+	DOUT2_DDR |= DOUT2_PIN;
+ 236:	d1 9a       	sbi	0x1a, 1	; 26
+	DOUT3_DDR |= DOUT3_PIN;
+ 238:	d0 9a       	sbi	0x1a, 0	; 26
+	
+	DOUTs_Set(0x00);
+ 23a:	80 e0       	ldi	r24, 0x00	; 0
+ 23c:	0e 94 04 01 	call	0x208	; 0x208 <DOUTs_Set>
+	
+	return 0;
+}
+ 240:	80 e0       	ldi	r24, 0x00	; 0
+ 242:	08 95       	ret
+
+00000244 <DOUTs_Get>:
+*******************************************************************************/
+uint8_t DOUTs_Get(void)
+{
+	uint8_t bitmap = 0;
+	
+	if(DOUT0_PORT & DOUT0_PIN)
+ 244:	8b b3       	in	r24, 0x1b	; 27
+ 246:	90 e0       	ldi	r25, 0x00	; 0
+ 248:	23 e0       	ldi	r18, 0x03	; 3
+ 24a:	96 95       	lsr	r25
+ 24c:	87 95       	ror	r24
+ 24e:	2a 95       	dec	r18
+ 250:	e1 f7       	brne	.-8      	; 0x24a <DOUTs_Get+0x6>
+ 252:	81 70       	andi	r24, 0x01	; 1
+		bitmap |= (1 << 0);
+	if(DOUT1_PORT & DOUT1_PIN)
+ 254:	da 99       	sbic	0x1b, 2	; 27
+		bitmap |= (1 << 1);
+ 256:	82 60       	ori	r24, 0x02	; 2
+	if(DOUT2_PORT & DOUT2_PIN)
+ 258:	d9 99       	sbic	0x1b, 1	; 27
+		bitmap |= (1 << 2);
+ 25a:	84 60       	ori	r24, 0x04	; 4
+	if(DOUT3_PORT & DOUT3_PIN)
+ 25c:	d8 99       	sbic	0x1b, 0	; 27
+		bitmap |= (1 << 3);
+ 25e:	88 60       	ori	r24, 0x08	; 8
+		
+	return bitmap;
+}
+ 260:	08 95       	ret
+
+00000262 <__vector_17>:
+	}
+}
+
+
+ISR(TWI_vect)
+{
+ 262:	1f 92       	push	r1
+ 264:	0f 92       	push	r0
+ 266:	0f b6       	in	r0, 0x3f	; 63
+ 268:	0f 92       	push	r0
+ 26a:	11 24       	eor	r1, r1
+ 26c:	2f 93       	push	r18
+ 26e:	3f 93       	push	r19
+ 270:	4f 93       	push	r20
+ 272:	5f 93       	push	r21
+ 274:	6f 93       	push	r22
+ 276:	7f 93       	push	r23
+ 278:	8f 93       	push	r24
+ 27a:	9f 93       	push	r25
+ 27c:	af 93       	push	r26
+ 27e:	bf 93       	push	r27
+ 280:	ef 93       	push	r30
+ 282:	ff 93       	push	r31
+	switch(TWSR) {
+ 284:	81 b1       	in	r24, 0x01	; 1
+ 286:	88 38       	cpi	r24, 0x88	; 136
+ 288:	09 f4       	brne	.+2      	; 0x28c <__vector_17+0x2a>
+ 28a:	5c c0       	rjmp	.+184    	; 0x344 <__vector_17+0xe2>
+ 28c:	89 38       	cpi	r24, 0x89	; 137
+ 28e:	30 f4       	brcc	.+12     	; 0x29c <__vector_17+0x3a>
+ 290:	80 36       	cpi	r24, 0x60	; 96
+ 292:	e1 f0       	breq	.+56     	; 0x2cc <__vector_17+0x6a>
+ 294:	80 38       	cpi	r24, 0x80	; 128
+ 296:	09 f0       	breq	.+2      	; 0x29a <__vector_17+0x38>
+ 298:	55 c0       	rjmp	.+170    	; 0x344 <__vector_17+0xe2>
+ 29a:	1a c0       	rjmp	.+52     	; 0x2d0 <__vector_17+0x6e>
+ 29c:	88 3b       	cpi	r24, 0xB8	; 184
+ 29e:	31 f0       	breq	.+12     	; 0x2ac <__vector_17+0x4a>
+ 2a0:	80 3c       	cpi	r24, 0xC0	; 192
+ 2a2:	09 f4       	brne	.+2      	; 0x2a6 <__vector_17+0x44>
+ 2a4:	4f c0       	rjmp	.+158    	; 0x344 <__vector_17+0xe2>
+ 2a6:	88 3a       	cpi	r24, 0xA8	; 168
+ 2a8:	09 f0       	breq	.+2      	; 0x2ac <__vector_17+0x4a>
+ 2aa:	4c c0       	rjmp	.+152    	; 0x344 <__vector_17+0xe2>
+		case 0xA8: // Own SLA+R has been received; ACK has been returned
+		case 0xB8: // Data byte in TWDR has been transmitted; ACK has been received
+			if(txBufIndex < TX_BUF_LENGTH)
+ 2ac:	90 91 68 00 	lds	r25, 0x0068
+ 2b0:	92 30       	cpi	r25, 0x02	; 2
+ 2b2:	50 f4       	brcc	.+20     	; 0x2c8 <__vector_17+0x66>
+				TWDR = txBuf[txBufIndex++];
+ 2b4:	e9 2f       	mov	r30, r25
+ 2b6:	f0 e0       	ldi	r31, 0x00	; 0
+ 2b8:	ea 59       	subi	r30, 0x9A	; 154
+ 2ba:	ff 4f       	sbci	r31, 0xFF	; 255
+ 2bc:	80 81       	ld	r24, Z
+ 2be:	83 b9       	out	0x03, r24	; 3
+ 2c0:	9f 5f       	subi	r25, 0xFF	; 255
+ 2c2:	90 93 68 00 	sts	0x0068, r25
+ 2c6:	40 c0       	rjmp	.+128    	; 0x348 <__vector_17+0xe6>
+			else
+				TWDR = 0x00; // send dummy data
+ 2c8:	13 b8       	out	0x03, r1	; 3
+ 2ca:	3e c0       	rjmp	.+124    	; 0x348 <__vector_17+0xe6>
+		case 0xC0: // Data byte in TWDR has been transmitted; NOT ACK has been received
+			i2c_state = I2C_FSM_IDLE;
+			break;
+		
+		case 0x60: // Own SLA+W has been received; ACK has been returned
+			i2c_state = I2C_FSM_WAIT_COMMAND;
+ 2cc:	81 e0       	ldi	r24, 0x01	; 1
+ 2ce:	37 c0       	rjmp	.+110    	; 0x33e <__vector_17+0xdc>
+			break;
+		
+		case 0x80: // Previously addressed with own SLA+W; data has been received; ACK has been returned
+			switch(i2c_state) {
+ 2d0:	80 91 69 00 	lds	r24, 0x0069
+ 2d4:	82 30       	cpi	r24, 0x02	; 2
+ 2d6:	b9 f0       	breq	.+46     	; 0x306 <__vector_17+0xa4>
+ 2d8:	83 30       	cpi	r24, 0x03	; 3
+ 2da:	c9 f0       	breq	.+50     	; 0x30e <__vector_17+0xac>
+ 2dc:	81 30       	cpi	r24, 0x01	; 1
+ 2de:	a1 f5       	brne	.+104    	; 0x348 <__vector_17+0xe6>
+				case I2C_FSM_WAIT_COMMAND:
+					i2c_command = TWDR;
+ 2e0:	83 b1       	in	r24, 0x03	; 3
+ 2e2:	80 93 60 00 	sts	0x0060, r24
+					switch(i2c_command) {
+ 2e6:	80 31       	cpi	r24, 0x10	; 16
+ 2e8:	19 f0       	breq	.+6      	; 0x2f0 <__vector_17+0x8e>
+ 2ea:	80 3f       	cpi	r24, 0xF0	; 240
+ 2ec:	29 f4       	brne	.+10     	; 0x2f8 <__vector_17+0x96>
+ 2ee:	02 c0       	rjmp	.+4      	; 0x2f4 <__vector_17+0x92>
+						case I2C_SET_OUTPUTS:
+							i2c_state = I2C_FSM_WAIT_DOUTS;
+ 2f0:	82 e0       	ldi	r24, 0x02	; 2
+ 2f2:	03 c0       	rjmp	.+6      	; 0x2fa <__vector_17+0x98>
+							break;
+						case I2C_SET_SLAVE_ADDR:
+							i2c_state = I2C_FSM_WAIT_ADDRUPDATE;
+ 2f4:	83 e0       	ldi	r24, 0x03	; 3
+ 2f6:	01 c0       	rjmp	.+2      	; 0x2fa <__vector_17+0x98>
+							break;
+						default:
+							i2c_state = I2C_FSM_WAIT_DUMMY;
+ 2f8:	84 e0       	ldi	r24, 0x04	; 4
+ 2fa:	80 93 69 00 	sts	0x0069, r24
+							break;
+					}
+					
+					readCommandRequested = 1;
+ 2fe:	81 e0       	ldi	r24, 0x01	; 1
+ 300:	80 93 61 00 	sts	0x0061, r24
+ 304:	21 c0       	rjmp	.+66     	; 0x348 <__vector_17+0xe6>
+					break;
+					
+				case I2C_FSM_WAIT_DOUTS:
+					DOUTs_Set(TWDR);
+ 306:	83 b1       	in	r24, 0x03	; 3
+ 308:	0e 94 04 01 	call	0x208	; 0x208 <DOUTs_Set>
+ 30c:	17 c0       	rjmp	.+46     	; 0x33c <__vector_17+0xda>
+					i2c_state = I2C_FSM_WAIT_DUMMY;
+					break;
+					
+				case I2C_FSM_WAIT_ADDRUPDATE:
+					// only update address if button is pressed
+					if( BtnPressed() ) {
+ 30e:	82 99       	sbic	0x10, 2	; 16
+ 310:	15 c0       	rjmp	.+42     	; 0x33c <__vector_17+0xda>
+						if( I2C_Address_Set(TWDR) == 0) {
+ 312:	83 b1       	in	r24, 0x03	; 3
+ 314:	0e 94 0d 02 	call	0x41a	; 0x41a <I2C_Address_Set>
+ 318:	88 23       	and	r24, r24
+ 31a:	81 f4       	brne	.+32     	; 0x33c <__vector_17+0xda>
+							// immediately update own address
+							TWAR = I2C_Address_Get() << 1;
+ 31c:	0e 94 0a 02 	call	0x414	; 0x414 <I2C_Address_Get>
+ 320:	88 0f       	add	r24, r24
+ 322:	82 b9       	out	0x02, r24	; 2
+
+							addressUpdatedIndTimeout = 500000;
+ 324:	80 e2       	ldi	r24, 0x20	; 32
+ 326:	91 ea       	ldi	r25, 0xA1	; 161
+ 328:	a7 e0       	ldi	r26, 0x07	; 7
+ 32a:	b0 e0       	ldi	r27, 0x00	; 0
+ 32c:	80 93 62 00 	sts	0x0062, r24
+ 330:	90 93 63 00 	sts	0x0063, r25
+ 334:	a0 93 64 00 	sts	0x0064, r26
+ 338:	b0 93 65 00 	sts	0x0065, r27
+						}
+					}
+					
+					i2c_state = I2C_FSM_WAIT_DUMMY;
+ 33c:	84 e0       	ldi	r24, 0x04	; 4
+ 33e:	80 93 69 00 	sts	0x0069, r24
+ 342:	02 c0       	rjmp	.+4      	; 0x348 <__vector_17+0xe6>
+		case 0x88: // Previously addressed with own SLA+W; data has been received; NOT ACK has been returned
+			i2c_state = I2C_FSM_IDLE;
+			break;
+		
+		default:
+			i2c_state = I2C_FSM_IDLE;
+ 344:	10 92 69 00 	sts	0x0069, r1
+			break;
+	}
+
+	// clear interrupt flag
+	TWCR |= (1<<TWINT);
+ 348:	86 b7       	in	r24, 0x36	; 54
+ 34a:	80 68       	ori	r24, 0x80	; 128
+ 34c:	86 bf       	out	0x36, r24	; 54
+	
+}
+ 34e:	ff 91       	pop	r31
+ 350:	ef 91       	pop	r30
+ 352:	bf 91       	pop	r27
+ 354:	af 91       	pop	r26
+ 356:	9f 91       	pop	r25
+ 358:	8f 91       	pop	r24
+ 35a:	7f 91       	pop	r23
+ 35c:	6f 91       	pop	r22
+ 35e:	5f 91       	pop	r21
+ 360:	4f 91       	pop	r20
+ 362:	3f 91       	pop	r19
+ 364:	2f 91       	pop	r18
+ 366:	0f 90       	pop	r0
+ 368:	0f be       	out	0x3f, r0	; 63
+ 36a:	0f 90       	pop	r0
+ 36c:	1f 90       	pop	r1
+ 36e:	18 95       	reti
+
+00000370 <I2C_FSM_Initialize>:
+* Return:	0 if successfully initialized, -1 if error occurred 
+*******************************************************************************/
+char I2C_FSM_Initialize(void)
+{
+	// configure the I2C module
+	TWAR = I2C_Address_Get() << 1;
+ 370:	0e 94 0a 02 	call	0x414	; 0x414 <I2C_Address_Get>
+ 374:	88 0f       	add	r24, r24
+ 376:	82 b9       	out	0x02, r24	; 2
+	TWSR = 0x00;
+ 378:	11 b8       	out	0x01, r1	; 1
+	TWCR = (1<<TWEN) | (1<<TWEA) | (1<<TWIE);
+ 37a:	85 e4       	ldi	r24, 0x45	; 69
+ 37c:	86 bf       	out	0x36, r24	; 54
+	
+	i2c_command = I2C_NO_COMMAND;
+ 37e:	10 92 60 00 	sts	0x0060, r1
+	i2c_state = I2C_FSM_IDLE;
+ 382:	10 92 69 00 	sts	0x0069, r1
+
+	readCommandRequested = 0;
+ 386:	10 92 61 00 	sts	0x0061, r1
+	addressUpdatedIndTimeout = 0;
+ 38a:	10 92 62 00 	sts	0x0062, r1
+ 38e:	10 92 63 00 	sts	0x0063, r1
+ 392:	10 92 64 00 	sts	0x0064, r1
+ 396:	10 92 65 00 	sts	0x0065, r1
+	
+	return 0;
+}
+ 39a:	80 e0       	ldi	r24, 0x00	; 0
+ 39c:	08 95       	ret
+
+0000039e <I2C_FSM_Refresh>:
+* Output: 	none
+* Return:	none
+*******************************************************************************/
+void I2C_FSM_Refresh(void)
+{
+	if(readCommandRequested) {
+ 39e:	80 91 61 00 	lds	r24, 0x0061
+ 3a2:	88 23       	and	r24, r24
+ 3a4:	f1 f0       	breq	.+60     	; 0x3e2 <I2C_FSM_Refresh+0x44>
+		switch(i2c_command) {
+ 3a6:	80 91 60 00 	lds	r24, 0x0060
+ 3aa:	80 32       	cpi	r24, 0x20	; 32
+ 3ac:	31 f0       	breq	.+12     	; 0x3ba <I2C_FSM_Refresh+0x1c>
+ 3ae:	80 32       	cpi	r24, 0x20	; 32
+ 3b0:	80 f0       	brcs	.+32     	; 0x3d2 <I2C_FSM_Refresh+0x34>
+ 3b2:	80 53       	subi	r24, 0x30	; 48
+ 3b4:	84 30       	cpi	r24, 0x04	; 4
+ 3b6:	68 f4       	brcc	.+26     	; 0x3d2 <I2C_FSM_Refresh+0x34>
+ 3b8:	05 c0       	rjmp	.+10     	; 0x3c4 <I2C_FSM_Refresh+0x26>
+			case I2C_GET_DINPUTS:
+				txBuf[0] = DINs_Get();
+ 3ba:	0e 94 fa 00 	call	0x1f4	; 0x1f4 <DINs_Get>
+ 3be:	80 93 66 00 	sts	0x0066, r24
+ 3c2:	0b c0       	rjmp	.+22     	; 0x3da <I2C_FSM_Refresh+0x3c>
+				break;
+			case I2C_GET_AIN_0:
+			case I2C_GET_AIN_1:
+			case I2C_GET_AIN_2:
+			case I2C_GET_AIN_3:
+				*((uint16_t*)txBuf) = AINs_Get(i2c_command - I2C_GET_AIN_0);	
+ 3c4:	0e 94 d1 00 	call	0x1a2	; 0x1a2 <AINs_Get>
+ 3c8:	90 93 67 00 	sts	0x0067, r25
+ 3cc:	80 93 66 00 	sts	0x0066, r24
+ 3d0:	04 c0       	rjmp	.+8      	; 0x3da <I2C_FSM_Refresh+0x3c>
+				break;
+			default:
+				memset(txBuf, 0x00, TX_BUF_LENGTH);
+ 3d2:	10 92 67 00 	sts	0x0067, r1
+ 3d6:	10 92 66 00 	sts	0x0066, r1
+				break;
+		}
+		
+		readCommandRequested = 0;
+ 3da:	10 92 61 00 	sts	0x0061, r1
+		txBufIndex = 0;
+ 3de:	10 92 68 00 	sts	0x0068, r1
+	}
+
+	// lit LED constatntly for the period of timeout
+	if(addressUpdatedIndTimeout) {
+ 3e2:	80 91 62 00 	lds	r24, 0x0062
+ 3e6:	90 91 63 00 	lds	r25, 0x0063
+ 3ea:	a0 91 64 00 	lds	r26, 0x0064
+ 3ee:	b0 91 65 00 	lds	r27, 0x0065
+ 3f2:	00 97       	sbiw	r24, 0x00	; 0
+ 3f4:	a1 05       	cpc	r26, r1
+ 3f6:	b1 05       	cpc	r27, r1
+ 3f8:	61 f0       	breq	.+24     	; 0x412 <I2C_FSM_Refresh+0x74>
+		addressUpdatedIndTimeout--;
+ 3fa:	01 97       	sbiw	r24, 0x01	; 1
+ 3fc:	a1 09       	sbc	r26, r1
+ 3fe:	b1 09       	sbc	r27, r1
+ 400:	80 93 62 00 	sts	0x0062, r24
+ 404:	90 93 63 00 	sts	0x0063, r25
+ 408:	a0 93 64 00 	sts	0x0064, r26
+ 40c:	b0 93 65 00 	sts	0x0065, r27
+		SetLED(1);
+ 410:	c3 9a       	sbi	0x18, 3	; 24
+ 412:	08 95       	ret
+
+00000414 <I2C_Address_Get>:
+* Return:	the current I2C address 
+*******************************************************************************/
+uint8_t I2C_Address_Get(void)
+{
+	return localI2CAddress;
+}
+ 414:	80 91 6a 00 	lds	r24, 0x006A
+ 418:	08 95       	ret
+
+0000041a <I2C_Address_Set>:
+* Input: 	none
+* Output: 	none
+* Return:	0 if successfully updated, -1 if error occurred 
+*******************************************************************************/
+char I2C_Address_Set(uint8_t addr)
+{
+ 41a:	1f 93       	push	r17
+ 41c:	18 2f       	mov	r17, r24
+	char result = 0;
+
+	// update address here	
+	eeprom_busy_wait();
+ 41e:	e1 99       	sbic	0x1c, 1	; 28
+ 420:	fe cf       	rjmp	.-4      	; 0x41e <I2C_Address_Set+0x4>
+	cli();
+ 422:	f8 94       	cli
+	eeprom_write_byte(I2C_ADDRESS_EEADDRESS, addr);
+ 424:	80 e0       	ldi	r24, 0x00	; 0
+ 426:	90 e0       	ldi	r25, 0x00	; 0
+ 428:	61 2f       	mov	r22, r17
+ 42a:	0e 94 62 02 	call	0x4c4	; 0x4c4 <__eewr_byte_m16>
+	sei();
+ 42e:	78 94       	sei
+
+	// verify that data is correct
+	eeprom_busy_wait();
+ 430:	e1 99       	sbic	0x1c, 1	; 28
+ 432:	fe cf       	rjmp	.-4      	; 0x430 <I2C_Address_Set+0x16>
+	result = (addr == eeprom_read_byte(I2C_ADDRESS_EEADDRESS)) ? 0 : -1;
+ 434:	80 e0       	ldi	r24, 0x00	; 0
+ 436:	90 e0       	ldi	r25, 0x00	; 0
+ 438:	0e 94 5a 02 	call	0x4b4	; 0x4b4 <__eerd_byte_m16>
+ 43c:	18 17       	cp	r17, r24
+ 43e:	11 f0       	breq	.+4      	; 0x444 <I2C_Address_Set+0x2a>
+ 440:	8f ef       	ldi	r24, 0xFF	; 255
+ 442:	03 c0       	rjmp	.+6      	; 0x44a <I2C_Address_Set+0x30>
+
+	if(!result)
+		localI2CAddress = addr;
+ 444:	10 93 6a 00 	sts	0x006A, r17
+ 448:	80 e0       	ldi	r24, 0x00	; 0
+			
+	return result;	
+}
+ 44a:	1f 91       	pop	r17
+ 44c:	08 95       	ret
+
+0000044e <I2C_Address_SetDefault>:
+* Output: 	none
+* Return:	0 if successfully updated, -1 if error occurred 
+*******************************************************************************/
+char I2C_Address_SetDefault(void)
+{
+	return I2C_Address_Set(I2C_DEFAULT_ADDRESS);
+ 44e:	88 e5       	ldi	r24, 0x58	; 88
+ 450:	0e 94 0d 02 	call	0x41a	; 0x41a <I2C_Address_Set>
+}
+ 454:	08 95       	ret
+
+00000456 <I2C_Address_Initialize>:
+*******************************************************************************/
+char I2C_Address_Initialize(void)
+{
+	char result = 0;
+	
+	localI2CAddress = I2C_DEFAULT_ADDRESS;
+ 456:	88 e5       	ldi	r24, 0x58	; 88
+ 458:	80 93 6a 00 	sts	0x006A, r24
+	
+	// read address stored in EEPROM
+	eeprom_busy_wait();
+ 45c:	e1 99       	sbic	0x1c, 1	; 28
+ 45e:	fe cf       	rjmp	.-4      	; 0x45c <I2C_Address_Initialize+0x6>
+	localI2CAddress = eeprom_read_byte(I2C_ADDRESS_EEADDRESS);
+ 460:	80 e0       	ldi	r24, 0x00	; 0
+ 462:	90 e0       	ldi	r25, 0x00	; 0
+ 464:	0e 94 5a 02 	call	0x4b4	; 0x4b4 <__eerd_byte_m16>
+ 468:	80 93 6a 00 	sts	0x006A, r24
+	
+	return result;
+}
+ 46c:	80 e0       	ldi	r24, 0x00	; 0
+ 46e:	08 95       	ret
+
+00000470 <__udivmodsi4>:
+ 470:	a1 e2       	ldi	r26, 0x21	; 33
+ 472:	1a 2e       	mov	r1, r26
+ 474:	aa 1b       	sub	r26, r26
+ 476:	bb 1b       	sub	r27, r27
+ 478:	fd 01       	movw	r30, r26
+ 47a:	0d c0       	rjmp	.+26     	; 0x496 <__udivmodsi4_ep>
+
+0000047c <__udivmodsi4_loop>:
+ 47c:	aa 1f       	adc	r26, r26
+ 47e:	bb 1f       	adc	r27, r27
+ 480:	ee 1f       	adc	r30, r30
+ 482:	ff 1f       	adc	r31, r31
+ 484:	a2 17       	cp	r26, r18
+ 486:	b3 07       	cpc	r27, r19
+ 488:	e4 07       	cpc	r30, r20
+ 48a:	f5 07       	cpc	r31, r21
+ 48c:	20 f0       	brcs	.+8      	; 0x496 <__udivmodsi4_ep>
+ 48e:	a2 1b       	sub	r26, r18
+ 490:	b3 0b       	sbc	r27, r19
+ 492:	e4 0b       	sbc	r30, r20
+ 494:	f5 0b       	sbc	r31, r21
+
+00000496 <__udivmodsi4_ep>:
+ 496:	66 1f       	adc	r22, r22
+ 498:	77 1f       	adc	r23, r23
+ 49a:	88 1f       	adc	r24, r24
+ 49c:	99 1f       	adc	r25, r25
+ 49e:	1a 94       	dec	r1
+ 4a0:	69 f7       	brne	.-38     	; 0x47c <__udivmodsi4_loop>
+ 4a2:	60 95       	com	r22
+ 4a4:	70 95       	com	r23
+ 4a6:	80 95       	com	r24
+ 4a8:	90 95       	com	r25
+ 4aa:	9b 01       	movw	r18, r22
+ 4ac:	ac 01       	movw	r20, r24
+ 4ae:	bd 01       	movw	r22, r26
+ 4b0:	cf 01       	movw	r24, r30
+ 4b2:	08 95       	ret
+
+000004b4 <__eerd_byte_m16>:
+ 4b4:	e1 99       	sbic	0x1c, 1	; 28
+ 4b6:	fe cf       	rjmp	.-4      	; 0x4b4 <__eerd_byte_m16>
+ 4b8:	9f bb       	out	0x1f, r25	; 31
+ 4ba:	8e bb       	out	0x1e, r24	; 30
+ 4bc:	e0 9a       	sbi	0x1c, 0	; 28
+ 4be:	99 27       	eor	r25, r25
+ 4c0:	8d b3       	in	r24, 0x1d	; 29
+ 4c2:	08 95       	ret
+
+000004c4 <__eewr_byte_m16>:
+ 4c4:	26 2f       	mov	r18, r22
+
+000004c6 <__eewr_r18_m16>:
+ 4c6:	e1 99       	sbic	0x1c, 1	; 28
+ 4c8:	fe cf       	rjmp	.-4      	; 0x4c6 <__eewr_r18_m16>
+ 4ca:	9f bb       	out	0x1f, r25	; 31
+ 4cc:	8e bb       	out	0x1e, r24	; 30
+ 4ce:	2d bb       	out	0x1d, r18	; 29
+ 4d0:	0f b6       	in	r0, 0x3f	; 63
+ 4d2:	f8 94       	cli
+ 4d4:	e2 9a       	sbi	0x1c, 2	; 28
+ 4d6:	e1 9a       	sbi	0x1c, 1	; 28
+ 4d8:	0f be       	out	0x3f, r0	; 63
+ 4da:	01 96       	adiw	r24, 0x01	; 1
+ 4dc:	08 95       	ret
+
+000004de <_exit>:
+ 4de:	f8 94       	cli
+
+000004e0 <__stop_program>:
+ 4e0:	ff cf       	rjmp	.-2      	; 0x4e0 <__stop_program>
