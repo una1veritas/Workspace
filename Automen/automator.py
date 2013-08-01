@@ -6,7 +6,8 @@ if len(sys.argv) != 3 and len(sys.argv[1]) != len(sys.argv[2]) :
     exit
 
 example = (sys.argv[1], sys.argv[2])
-print example
+print "Input", example, "."
+print
 
 substrdict = {}
 
@@ -15,11 +16,11 @@ for iFrom in range(0, len(example[1])) :
 #        print "from %d to (before) %d" % (iFrom, iTo)
         sub = example[0][iFrom:iTo]
         label = example[1][iTo]
-        substrdict[sub] = label
+        substrdict[( sub, sub[::-1], iFrom, iTo)] = label
 
-sortedlist = sorted(substrdict) #, key=operator.itemgetter(1, 0), reverse = False ) 
+sortedlist = sorted(substrdict, key=operator.itemgetter(1, 3)) #, key=operator.itemgetter(1, 0), reverse = False ) 
 for sub in sortedlist:
-    print "%s --+> %s" % (sub, substrdict[sub])
+    print "%s[%d,%d] --+> %s" % (sub[0], sub[2], sub[3], substrdict[sub])
 # print "text is: ", text
 # worddict = {}
 # 
