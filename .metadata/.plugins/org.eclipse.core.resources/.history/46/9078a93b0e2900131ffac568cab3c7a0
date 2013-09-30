@@ -1,0 +1,10 @@
+
+size_t printHexString(uint8_t * a, int n) {
+	size_t i;
+    for(i = 0; i < n; i++) {
+      Serial.print(a[i]>>4, HEX);
+      Serial.print(a[i]& 0x0f, HEX);
+      Serial.print(' ');
+    }
+    return i;
+}

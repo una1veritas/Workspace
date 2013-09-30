@@ -1,0 +1,130 @@
+#include <Wire.h>
+#include "RTC.h"
+#include "PN532_I2C.h"
+#include "ISO14443.h"
+
+#include "main.h"
+
+const int IRQ = 2;
+const int RST = 0xff;  
+// Not connected by default on the NFC Shield
+// tied with CPU RESET
+
+PN532 nfc(PN532::I2C_ADDRESS, IRQ, RST);
+RTC   rtc(RTC::ST_M41T62);
+byte buff[80];
+uint32_t lastMillis;
+ISO14443Card lastCard;
+
+const byte IizukaKey_b[] = {
+  0xBB, 0x63, 0x45, 0x74, 0x55, 0x79, 0x4B };
+const byte factory_a[] = {
+  0xaa, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+
+  byte polling[] = {
+    2,
+    NFC::BAUDTYPE_106K_A,
+    NFC::BAUDTYPE_212K_F
+  };
+
+
+void setup() {
+  byte n;
+
+  Wire.begin();
+  rtc.begin();
+  nfc.begin();
+
+	rtc.update();
+  Serial.begin(9600);
+  Serial.print("Hello.");
+  Serial.print(rtc.time, HEX);
+  Serial.print(", ");
+  Serial.print(0x20000000 + rtc.date, HEX);
+  Serial.println(".");
+  Serial.println("PN532 via I2C Firmware inspection/FeliCa read test.");
+
+  if ( nfc.GetFirmwareVersion() && nfc.getCommandResponse(buff) ) {
+    Serial.print("PN53x firm. '");
+    Serial.print((char) buff[0]);
+    Serial.print("', ");
+    Serial.print(buff[1], HEX); 
+    Serial.print(' ');
+    Serial.print(buff[2], HEX);
+    Serial.print(' ');
+    Serial.print(buff[3], HEX);
+    Serial.println(".");
+  } 
+  else {
+    Serial.println("PN532 not found.");
+    while (1);
+  }
+
+  Serial.println("  SAMConfiguration ");
+  if ( nfc.SAMConfiguration() && (0 == nfc.getCommandResponse(buff)) ) {
+    Serial.println();
+  } 
+  else {
+    Serial.println(" failed.");
+  }
+  if ( nfc.GetGeneralStatus() && (n = nfc.getCommandResponse(buff)) ) {
+  	printHexString(Serial, buff, n);
+    Serial.println();
+    Serial.println("  GetGeneralState >>");
+  }
+  nfc.PowerDown(0xff);
+  Serial.print(nfc.getCommandResponse(buff));
+  Serial.println("  PowerDown >>");
+  
+  lastMillis = millis();
+}
+
+void loop() {
+	IDIizuka * idptr;
+  byte c;
+
+  if ( (millis() > lastMillis + 1000) and 
+    (c = nfc.InAutoPoll(1, 1, polling+1, polling[0])) and
+    (c = nfc.getAutoPollResponse()) ) { // (byte*) buff)) ) {
+    // NbTg, type1, length1, [Tg, ...]
+    if ( nfc.target != lastCard ) { 
+      lastCard = nfc.target;
+      lastMillis = millis();
+      rtc.update();
+      if ( lastCard.type == NFC::CARDTYPE_MIFARE ) {
+        //tone(4, 1800, 100);
+        Serial.print(rtc.date, HEX);
+        Serial.print("-");
+        Serial.print(rtc.time, HEX);
+        Serial << lastCard << nl;
+        if ( nfc.mifare_AuthenticateBlock(4, IizukaKey_b) ) {
+          nfc.mifare_ReadBlock(4, buff);
+          idptr = (IDIizuka*) buff;
+          Serial.print(idptr->occup);
+          for(int i = 0; i < 8; i++)
+	          Serial.print(idptr->ID[i]);
+	      Serial.print('-');
+          Serial.print(idptr->issue);
+          Serial.println();
+        } 
+        else {
+          //tone(4, 1200, 100);
+          Serial.println("Auth blk 4 failed.");
+        }
+        Serial.println();
+      }
+    } 
+  }
+  else {
+    lastCard.clear();
+  }
+
+}
+
+
+
+
+
+
+
+
