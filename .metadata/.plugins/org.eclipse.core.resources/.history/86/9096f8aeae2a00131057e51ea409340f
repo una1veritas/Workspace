@@ -1,0 +1,150 @@
+#include <Wire.h>
+#include "RTC.h"
+#include "PN532_I2C.h"
+#include "ISO14443.h"
+
+#include "SPI.h"
+#include "SD_SPI.h"
+
+#include "StringBuffer.h"
+#include "main.h"
+
+const int IRQ = 2;
+const int RST = 0xff;
+// Not connected by default on the NFC Shield
+// tied with CPU RESET
+
+//SD
+const int SD_CS = 4;
+const int SPI_CS = 10;
+boolean SD_active = false;
+SDClass SD(SD_CS);
+
+PN532 nfc(PN532::I2C_ADDRESS, IRQ, RST);
+RTC rtc(RTC::ST_M41T62);
+byte buff[80];
+uint32_t lastMillis;
+ISO14443Card lastCard;
+
+const byte IizukaKey_b[] = { 0xBB, 0x63, 0x45, 0x74, 0x55, 0x79, 0x4B };
+const byte factory_a[] = { 0xaa, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+
+byte polling[] = { 2, NFC::BAUDTYPE_106K_A, NFC::BAUDTYPE_212K_F };
+
+char datatmp[64];
+StringBuffer databuf(datatmp, 64);
+
+void setup() {
+	byte n;
+
+	Wire.begin();
+	rtc.begin();
+	nfc.begin();
+
+	rtc.update();
+	Serial.begin(9600);
+	Serial.print("Hello. ");
+	printTimestampString(Serial, rtc.time, rtc.date);
+	Serial.println(".");
+
+	Serial.println("PN532 I2C Firmware inspection/FeliCa read test.");
+	if (nfc.GetFirmwareVersion() && nfc.getCommandResponse(buff)) {
+		Serial.print("PN53x firm. '");
+		Serial.print((char) buff[0]);
+		Serial.print("', ");
+		Serial.print(buff[1], HEX);
+		Serial.print(' ');
+		Serial.print(buff[2], HEX);
+		Serial.print(' ');
+		Serial.print(buff[3], HEX);
+		Serial.println(".");
+	} else {
+		Serial.println("PN532 not found.");
+		while (1)
+			;
+	}
+	Serial.println("  SAMConfiguration ");
+	if (nfc.SAMConfiguration() && (0 == nfc.getCommandResponse(buff))) {
+		Serial.println();
+	} else {
+		Serial.println(" failed.");
+	}
+	if (nfc.GetGeneralStatus() && (n = nfc.getCommandResponse(buff))) {
+		printHexString(Serial, buff, n);
+		Serial.println();
+		Serial.println("  GetGeneralState >>");
+	}
+	nfc.PowerDown(0xff);
+	Serial.print(nfc.getCommandResponse(buff));
+	Serial.println("  PowerDown >>");
+
+	Serial.println("SPI bus.");
+	pinMode(10, OUTPUT);
+	SPI.begin();
+	if (!SD.begin(SD_CS)) {
+		Serial.println("Card failed, or not present");
+	} else {
+		SD_active = true;
+	}
+	Serial.println("SD card initialized.");
+
+	lastMillis = millis();
+}
+
+void loop() {
+	IDIizuka * idptr;
+	byte c;
+
+	if ((millis() > lastMillis + 1000)
+			and (c = nfc.InAutoPoll(1, 1, polling + 1, polling[0]))
+			and (c = nfc.getAutoPollResponse())) { // (byte*) buff)) ) {
+		// NbTg, type1, length1, [Tg, ...]
+		if (nfc.target != lastCard) {
+			lastCard = nfc.target;
+			lastMillis = millis();
+			rtc.update();
+			if (lastCard.type == NFC::CARDTYPE_MIFARE) {
+				//tone(4, 1800, 100);
+				databuf.clear();
+				printTimestampString(databuf, rtc.time, rtc.date);
+				databuf << " " << lastCard << " ";
+				if (nfc.mifare_AuthenticateBlock(4, IizukaKey_b)) {
+					nfc.mifare_ReadBlock(4, buff);
+					idptr = (IDIizuka*) buff;
+//					Serial.print(idptr->occup);
+					databuf.print(idptr->occup);
+//					Serial.print('-');
+					databuf.print('-');
+					for (int i = 0; i < 8; i++) {
+//						Serial.print(idptr->ID[i]);
+						databuf.print(idptr->ID[i]);
+					}
+//					Serial.print('-');
+					databuf.print('-');
+//					Serial.print(idptr->issue);
+					databuf.print(idptr->issue);
+//					Serial.println();
+					
+					File logfile = SD.open("idcard.log", FILE_WRITE);
+					/*
+					if ( logfile ) {
+						logfile.println(databuf);
+						logfile.close();
+					} else {
+						Serial.println("File open failed.");
+					}
+					*/
+					logfile.close();
+					Serial.println(databuf);
+				} else {
+					//tone(4, 1200, 100);
+					Serial.println("Auth-failed");
+				}
+			}
+		}
+	} else {
+		lastCard.clear();
+	}
+
+}
+
