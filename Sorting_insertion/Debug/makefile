@@ -8,17 +8,6 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include sorting/heap_sort/subdir.mk
--include sorting/BucketSort/subdir.mk
--include sorting/BucketInC/subdir.mk
--include sorting/subdir.mk
--include knapsack/subdir.mk
--include factors/subdir.mk
--include divconq-power/subdir.mk
--include StringMatching/subdir.mk
--include JulianDayNumber/subdir.mk
--include Euclidean/subdir.mk
--include Combinatorial/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -48,19 +37,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: AlgorithmDesign
+all: Sorting_insertion
 
 # Tool invocations
-AlgorithmDesign: $(OBJS) $(USER_OBJS)
+Sorting_insertion: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MacOS X C++ Linker'
-	g++  -o "AlgorithmDesign" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++  -o "Sorting_insertion" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) AlgorithmDesign
+	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) Sorting_insertion
 	-@echo ' '
 
 .PHONY: all clean dependents
