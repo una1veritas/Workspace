@@ -4,20 +4,19 @@
 /* Algorithm naive string matching */
 
 int matching_naive(char * text, char * pattern, int start) {
-	int n = strlen(text);
-	int m = strlen(pattern);
 	int pos, i;
 
-	for(pos = start; pos < n; pos++) {
-		for(i = 0; i < m; i++) {
+	for(pos = start; text[pos] != 0; pos++) {
+		for(i = 0; pattern[i] != 0; i++) {
 			if ( text[pos+i] != pattern[i] )
 				break;
 		}
-		if ( !(i < m) ) {
+		if ( pattern[i] == 0 ) {
 			printf("Found at %d,\n", pos);
 			// return pos;
 		}
 	}
+	printf("No more/any occurrences.\n");
 }
 
 /* Algorithm end */
