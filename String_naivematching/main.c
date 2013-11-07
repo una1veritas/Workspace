@@ -10,14 +10,17 @@ int matching_naive(char * text, char * pattern, int start) {
 
 	for(pos = start; pos < n; pos++) {
 		for(i = 0; i < m; i++) {
+			// ... count the number of iterations here.
 			if ( text[pos+i] != pattern[i] )
 				break;
 		}
 		if ( !(i < m) ) {
-			printf("Found at %d,\n", pos);
-			// return pos;
+			printf("Found at %d.\n", pos);
+			return pos; // >= 0
 		}
 	}
+	printf("No occurrences found.\n", pos);
+	return -1;
 }
 
 /* Algorithm end */
