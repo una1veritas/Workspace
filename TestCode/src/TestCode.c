@@ -55,6 +55,10 @@ int main(int argc, char * argv[]) {
 
 	puts("!!!Hello World!!!"); /* prints !!!Hello World!!! */
 
+	float f = 0.00006103515625;
+	printf("%f\n", f);
+	printf("%x\n\n", *((uint32_t *)(&f)));
+
 	printf("argc = %d\n", argc);
 	count = 0;
 	for(i = 1; i < argc - 1; i += 2) {
