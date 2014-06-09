@@ -12,80 +12,110 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct DATA {
-	unsigned short id;
-	char name[16];
+/*
+ * NSA @NSACareers
+ * フォローする
+ * "tpfccdlfdtte pcaccplircdt dklpcfrp?qeiq lhpqlipqeodf ",
+ * "gpwafopwprti izxndkiqpkii krirrifcapnc dxkdciqcafmd vkfpcadf. "
+ * #MissionMonday #NSA #news
+ */
+
+typedef uint8_t boolean;
+enum {
+	false = 0,
+	true = 0xff,
 };
 
-int greaterThanID(struct DATA * a, struct DATA * b) {
-	if ( a->id > b->id )
+boolean next(char * a, int n);
+
+int main(int argc, char * argv[]) {
+	char * ptr;
+	int count[128];
+
+	puts("Hi.\n");
+
+	if ( argc == 1 )
 		return 1;
-	return 0;
-}
+	ptr = argv[1];
+	printf("Input: %s\n", ptr);
 
-int greaterThan(struct DATA * a, struct DATA * b) {
-	if ( strcmp(a->name, b->name) > 0 )
-		return 1;
-	return 0;
-}
+	for(int i = 0; i < 128; i++)
+		count[i] = 0;
+	for(int i = 0; i < strlen(ptr); i++) {
+		count[(int)ptr[i]]++;
+	}
+	puts("\n\n");
 
-void swap(struct DATA * a, struct DATA * b) {
-	struct DATA tmp;
-	tmp = *a;
-	*a = *b;
-	*b = tmp;
-	return;
-}
-
-void sort(struct DATA a[], int begin, int end) {
-	int i, j;
-	for(i = begin; i < end; i++) {
-		for(j = i + 1; j < end; j++) {
-			if ( greaterThan(&a[i], &a[j]) == 1 ) {
-				swap(&a[i], &a[j]);
+	int index[128];
+	int t;
+	for(int i = 0; i < 128; i++)
+		index[i] = i;
+	for(int i = 0; i + 1 < 128; i++) {
+		for(int j = i + 1; j < 128; j++) {
+			if ( count[index[i]] < count[index[j]] ) {
+				t = index[i];
+				index[i] = index[j];
+				index[j] = t;
 			}
 		}
 	}
+
+	char map[128], alphabet[128] = ".?abcdefghijklmnopqrstuvwxyz";
+	int asize = strlen(alphabet);
+	memcpy(map, alphabet, asize+1);
+
+	for(int i = 0; alphabet[i]; i++) {
+		printf("%c", alphabet[i]);
+	}
+	printf("\n");
+
+	char transed[256];
+	char target;
+	long counter;
+	for (counter = 0; ; counter++) {
+		printf("%012ld: ", counter);
+		for(int i = 0; i < asize; i++) {
+			printf("%c", map[i]);
+		}
+		for(int i = 0; i <= strlen(ptr); i++) {
+			for(target = 0; target < asize; target++)
+				if ( ptr[i] == alphabet[(int)target] )
+					break;
+			transed[i] = (char) map[(int)target];
+		}
+		printf(": %s\n", transed);
+
+		if ( !next(map, asize) )
+			break;
+	}
+
+	printf("\n");
+	puts("Bye.\n\n");
+	return 0;
 }
 
-int main(int argc, char * argv[]) {
-	struct DATA data[16];
-	struct DATA tmp;
-	int count, i, tid;
+boolean next(char * a, int n) {
+	int t;
 
-	puts("!!!Hello World!!!"); /* prints !!!Hello World!!! */
-
-	float f = 0.00006103515625;
-	printf("%f\n", f);
-	printf("%x\n\n", *((uint32_t *)(&f)));
-
-	printf("argc = %d\n", argc);
-	count = 0;
-	for(i = 1; i < argc - 1; i += 2) {
-		tid = atoi(argv[i]);
-		if ( tid == 0 ) break;
-		tmp.id = tid;
-		if ( strlen(argv[i+1]) > 15 ) {
-			strncpy(tmp.name, argv[i+1], 15);
-			tmp.name[15] = 0;
-		} else {
-			strcpy(tmp.name, argv[i+1]);
+	for(int i = n-1; i > 0; i--) {
+		// DEBUG printf("a[i-1], a[i] = %d, %d\n", a[i-1], a[i]);
+		if ( a[i-1] < a[i] ) {
+			t = a[i-1];
+			a[i-1] = a[i];
+			a[i] = t;
+			// DEBUG printf("i = %d\n", i);
+			for(int j = i; j < n; j++) {
+				for(int k = j+1; k < n; k++) {
+					if ( a[j] > a[k] ) {
+						t = a[j];
+						a[j] = a[k];
+						a[k] = t;
+						// DEBUG printf("j, k = %d, %d\n", j, k);
+					}
+				}
+			}
+			return true;
 		}
-		data[count++] = tmp;
-		printf("(%d: %s), \n", tmp.id, tmp.name);
 	}
-	puts("\nReading arguments finished.\n");
-
-	for(i = 0; i < count; i++) {
-		printf("id: %d, name: %s\n", data[i].id, data[i].name);
-	}
-	puts("");
-
-	sort(data, 0, count);
-	puts("After sorting:");
-	for(i = 0; i < count; i++) {
-		printf("id: %d, name: %s\n", data[i].id, data[i].name);
-	}
-
-	return EXIT_SUCCESS;
+	return false;
 }
