@@ -15,11 +15,12 @@
 /*
  * NSA @NSACareers
  * フォローする
- * "tpfccdlfdtte pcaccplircdt dklpcfrp?qeiq lhpqlipqeodf ",
- * "gpwafopwprti izxndkiqpkii krirrifcapnc dxkdciqcafmd vkfpcadf. "
+ * "tpfccdlfdtte pcaccplircdt dklpcfrp?qeiq lhpqlipqeodf gpwafopwprti izxndkiqpkii krirrifcapnc dxkdciqcafmd vkfpcadf."
  * #MissionMonday #NSA #news
  */
+// "tpfccdlfdttepcaccplircdtdklpcfrp?qeiqlhpqlipqeodfgpwafopwprtiizxndkiqpkiikrirrifcapncdxkdciqcafmdvkfpcadf."
 
+#include <stdint.h>
 typedef uint8_t boolean;
 enum {
 	false = 0,
@@ -39,19 +40,20 @@ int main(int argc, char * argv[]) {
 	ptr = argv[1];
 	printf("Input: %s\n", ptr);
 
-	for(int i = 0; i < 128; i++)
+	int i, j, t;
+	int index[128];
+
+	for(i = 0; i < 128; i++)
 		count[i] = 0;
-	for(int i = 0; i < strlen(ptr); i++) {
+	for(i = 0; i < strlen(ptr); i++) {
 		count[(int)ptr[i]]++;
 	}
 	puts("\n\n");
 
-	int index[128];
-	int t;
-	for(int i = 0; i < 128; i++)
+	for(i = 0; i < 128; i++)
 		index[i] = i;
-	for(int i = 0; i + 1 < 128; i++) {
-		for(int j = i + 1; j < 128; j++) {
+	for(i = 0; i + 1 < 128; i++) {
+		for(j = i + 1; j < 128; j++) {
 			if ( count[index[i]] < count[index[j]] ) {
 				t = index[i];
 				index[i] = index[j];
@@ -64,7 +66,7 @@ int main(int argc, char * argv[]) {
 	int asize = strlen(alphabet);
 	memcpy(map, alphabet, asize+1);
 
-	for(int i = 0; alphabet[i]; i++) {
+	for(i = 0; alphabet[i]; i++) {
 		printf("%c", alphabet[i]);
 	}
 	printf("\n");
@@ -74,10 +76,10 @@ int main(int argc, char * argv[]) {
 	long counter;
 	for (counter = 0; ; counter++) {
 		printf("%012ld: ", counter);
-		for(int i = 0; i < asize; i++) {
+		for(i = 0; i < asize; i++) {
 			printf("%c", map[i]);
 		}
-		for(int i = 0; i <= strlen(ptr); i++) {
+		for(i = 0; i <= strlen(ptr); i++) {
 			for(target = 0; target < asize; target++)
 				if ( ptr[i] == alphabet[(int)target] )
 					break;
@@ -95,17 +97,17 @@ int main(int argc, char * argv[]) {
 }
 
 boolean next(char * a, int n) {
-	int t;
+	int i, j, k, t;
 
-	for(int i = n-1; i > 0; i--) {
+	for(i = n-1; i > 0; i--) {
 		// DEBUG printf("a[i-1], a[i] = %d, %d\n", a[i-1], a[i]);
 		if ( a[i-1] < a[i] ) {
 			t = a[i-1];
 			a[i-1] = a[i];
 			a[i] = t;
 			// DEBUG printf("i = %d\n", i);
-			for(int j = i; j < n; j++) {
-				for(int k = j+1; k < n; k++) {
+			for(j = i; j < n; j++) {
+				for(k = j+1; k < n; k++) {
 					if ( a[j] > a[k] ) {
 						t = a[j];
 						a[j] = a[k];
