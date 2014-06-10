@@ -28,6 +28,37 @@ enum {
 };
 
 boolean next(char * a, int n);
+void asort(char array[], int s, int n ) {
+	char t;
+	int i, j;
+	for(i = s; i < n - 1; i++)
+		for(j = i + 1; j < n; j++)
+			if ( array[i] > array[j] ) {
+				t = array[i];
+				array[i] = array[j];
+				array[j] = t;
+			}
+}
+void dsort(char array[], int n ) {
+	char t;
+	int i, j;
+	for(i = 0; i < n - 1; i++)
+		for(j = i + 1; j < n; j++)
+			if ( array[i] < array[j] ) {
+				t = array[i];
+				array[i] = array[j];
+				array[j] = t;
+			}
+}
+void translate(char * str, char map[], char alphabet[], int asize) {
+	int i, target;
+	for(i = 0; i < strlen(str); i++) {
+		for(target = 0; target < asize; target++)
+			if ( (char)(str[i]) == alphabet[target] )
+				break;
+		str[i] = (char) map[(int)target];
+	}
+}
 
 int main(int argc, char * argv[]) {
 	char * ptr;
@@ -40,51 +71,36 @@ int main(int argc, char * argv[]) {
 	ptr = argv[1];
 	printf("Input: %s\n", ptr);
 
-	int i, j, t;
-	int index[128];
-
+	int i;
 	for(i = 0; i < 128; i++)
 		count[i] = 0;
 	for(i = 0; i < strlen(ptr); i++) {
 		count[(int)ptr[i]]++;
 	}
-	puts("\n\n");
-
-	for(i = 0; i < 128; i++)
-		index[i] = i;
-	for(i = 0; i + 1 < 128; i++) {
-		for(j = i + 1; j < 128; j++) {
-			if ( count[index[i]] < count[index[j]] ) {
-				t = index[i];
-				index[i] = index[j];
-				index[j] = t;
-			}
+	puts("\nFrequency:\n");
+	for(i = 0; i < 128; i++) {
+		if ( count[i] != 0 ) {
+			printf("%c: %d\n", (char)i, count[i]);
 		}
 	}
+	puts("\n\n");
 
-	char map[128], alphabet[128] = ".?abcdefghijklmnopqrstuvwxyz";
+	char map[128], alphabet[128] = "abcdefghijklmnopqrstuvwxyz.?";
 	int asize = strlen(alphabet);
-	memcpy(map, alphabet, asize+1);
 
-	for(i = 0; alphabet[i]; i++) {
-		printf("%c", alphabet[i]);
-	}
-	printf("\n");
+	asort(alphabet, 0, asize);
+	memcpy(map, alphabet, asize+1);
+	printf("alphabet: %s\n", alphabet);
 
 	char transed[256];
-	char target;
 	long counter;
 	for (counter = 0; ; counter++) {
 		printf("%012ld: ", counter);
 		for(i = 0; i < asize; i++) {
 			printf("%c", map[i]);
 		}
-		for(i = 0; i <= strlen(ptr); i++) {
-			for(target = 0; target < asize; target++)
-				if ( ptr[i] == alphabet[(int)target] )
-					break;
-			transed[i] = (char) map[(int)target];
-		}
+		strcpy(transed, ptr);
+		translate(transed, map, alphabet, asize);
 		printf(": %s\n", transed);
 
 		if ( !next(map, asize) )
@@ -97,7 +113,7 @@ int main(int argc, char * argv[]) {
 }
 
 boolean next(char * a, int n) {
-	int i, j, k, t;
+	int i, t;
 
 	for(i = n-1; i > 0; i--) {
 		// DEBUG printf("a[i-1], a[i] = %d, %d\n", a[i-1], a[i]);
@@ -106,16 +122,7 @@ boolean next(char * a, int n) {
 			a[i-1] = a[i];
 			a[i] = t;
 			// DEBUG printf("i = %d\n", i);
-			for(j = i; j < n; j++) {
-				for(k = j+1; k < n; k++) {
-					if ( a[j] > a[k] ) {
-						t = a[j];
-						a[j] = a[k];
-						a[k] = t;
-						// DEBUG printf("j, k = %d, %d\n", j, k);
-					}
-				}
-			}
+			asort(a, i, n);
 			return true;
 		}
 	}
