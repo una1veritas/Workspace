@@ -64,12 +64,12 @@ int main(int argc, char * argv[]) {
 	char * ptr;
 	int count[128];
 
-	puts("Hi.\n");
+	printf("Hi.\n\r");
 
 	if ( argc == 1 )
 		return 1;
 	ptr = argv[1];
-	printf("Input: %s\n", ptr);
+	printf("Input: %s\n\r", ptr);
 
 	int i;
 	for(i = 0; i < 128; i++)
@@ -77,20 +77,21 @@ int main(int argc, char * argv[]) {
 	for(i = 0; i < strlen(ptr); i++) {
 		count[(int)ptr[i]]++;
 	}
-	puts("\nFrequency:\n");
+	printf("\n\rFrequency:\n\r");
 	for(i = 0; i < 128; i++) {
 		if ( count[i] != 0 ) {
-			printf("%c: %d\n", (char)i, count[i]);
+			printf("%c: %d\n\r", (char)i, count[i]);
 		}
 	}
-	puts("\n\n");
+	printf("\n\r");
+	fflush(stdout);
 
 	char map[128], alphabet[128] = "abcdefghijklmnopqrstuvwxyz.?";
 	int asize = strlen(alphabet);
 
 	asort(alphabet, 0, asize);
 	memcpy(map, alphabet, asize+1);
-	printf("alphabet: %s\n", alphabet);
+	printf("alphabet: %s\n\r", alphabet);
 
 	char transed[256];
 	long counter;
@@ -101,14 +102,15 @@ int main(int argc, char * argv[]) {
 		}
 		strcpy(transed, ptr);
 		translate(transed, map, alphabet, asize);
-		printf(": %s\n", transed);
+		printf(": %s\n\r", transed);
+		fflush(stdout);
 
 		if ( !next(map, asize) )
 			break;
 	}
 
-	printf("\n");
-	puts("Bye.\n\n");
+	printf("\n\r");
+	printf("Bye.\n\r\n\r");
 	return 0;
 }
 
