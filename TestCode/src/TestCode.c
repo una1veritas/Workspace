@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <string.h>
 
 /*
@@ -35,8 +36,8 @@ void translate(char * str, char map[], char alphabet[], int asize);
 int main(int argc, char * argv[]) {
 	char * ptr;
 	int count[128];
-	char map[128], talphabet[128] = "abcdefghijklmnopqrstuvwxyz";
-	int iasize, tasize = strlen(talphabet);
+	char map[128], alphabet[128] = "abcdefghijklmnopqrstuvwxyz";
+	int asize = strlen(alphabet);
 
 	printf("Hi.\n");
 
@@ -47,9 +48,9 @@ int main(int argc, char * argv[]) {
 	ptr = argv[1];
 	printf("Input string: \"%s\" of length %ld.\n", ptr, strlen(ptr));
 	if ( argc == 3 ) {
-		strcpy(talphabet, argv[2]);
-		tasize = strlen(talphabet);
-		strcpy(map, talphabet);
+		strcpy(alphabet, argv[2]);
+		asize = strlen(alphabet);
+		strcpy(map, alphabet);
 	}
 
 	int i, j;
@@ -62,30 +63,19 @@ int main(int argc, char * argv[]) {
 	for(i = 0; i < 128; i++) {
 		if ( count[i] != 0 ) {
 			printf("%c: %d\n", (char)i, count[i]);
-
-			for(j = 0; map[j] != 0; j++) {
-				if ( map[j] == (char)i )
-					break;
-			}
-			if ( map[j] == 0 ) {
-				map[j] = (char)i;
-				map[j+1] = 0;
-			}
 		}
 	}
-	iasize = strlen(map);
 	printf("\n");
-	fflush(stdout);
 
-	asort(map, 0, tasize);
-	printf("target alphabet: %s\n", talphabet);
-	printf("input alphabet: %s\n", map);
+	strcpy(map, alphabet);
+	asort(map, 0, asize);
+	printf("alphabet: %s\n", alphabet);
 
 	char transed[256];
 	long counter;
 	for (counter = 0; ; counter++) {
 		printf("%012ld: ", counter);
-		for(i = 0; i < iasize; i++) {
+		for(i = 0; i < asize; i++) {
 			if ( isprint(map[i]) ) {
 				printf("%c", map[i]);
 			} else {
@@ -93,11 +83,11 @@ int main(int argc, char * argv[]) {
 			}
 		}
 		strcpy(transed, ptr);
-		translate(transed, map, talphabet, iasize);
+		translate(transed, map, alphabet, asize);
 		printf(": %s\n", transed);
 		fflush(stdout);
 
-		if ( !next(map, tasize) )
+		if ( !next(map, asize) )
 			break;
 	}
 
