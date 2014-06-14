@@ -28,10 +28,10 @@ enum {
 	true = 0xff,
 };
 
-boolean next(char * a, int n);
+boolean lexconext(char * a, int n);
 void asort(char array[], int s, int n );
-void dsort(char array[], int n );
-void translate(char * str, char map[], char alphabet[], int asize);
+void dsort(char array[], int s, int n );
+void translate(char * str, char map[], char alphabet[]);
 
 int main(int argc, char * argv[]) {
 	char * ptr;
@@ -50,10 +50,9 @@ int main(int argc, char * argv[]) {
 	if ( argc == 3 ) {
 		strcpy(alphabet, argv[2]);
 		asize = strlen(alphabet);
-		strcpy(map, alphabet);
 	}
 
-	int i, j;
+	int i;
 	for(i = 0; i < 128; i++)
 		count[i] = 0;
 	for(i = 0; i < strlen(ptr); i++) {
@@ -68,8 +67,9 @@ int main(int argc, char * argv[]) {
 	printf("\n");
 
 	strcpy(map, alphabet);
-	asort(map, 0, asize);
+	asort(alphabet, 0, asize);
 	printf("alphabet: %s\n", alphabet);
+	printf("     map: %s\n", map);
 
 	char transed[256];
 	long counter;
@@ -83,11 +83,14 @@ int main(int argc, char * argv[]) {
 			}
 		}
 		strcpy(transed, ptr);
-		translate(transed, map, alphabet, asize);
+		translate(transed, map, alphabet);
 		printf(": %s\n", transed);
+		if ( strstr(transed, "wantto") ) {
+			printf("Got it!!\n");
+		}
 		fflush(stdout);
 
-		if ( !next(map, asize) )
+		if ( !lexconext(map, asize) )
 			break;
 	}
 
@@ -96,17 +99,18 @@ int main(int argc, char * argv[]) {
 	return 0;
 }
 
-boolean next(char * a, int n) {
-	int i, t;
+boolean lexconext(char * a, int n) {
+	int i, j, t;
 
-	for(i = n-1; i > 0; i--) {
+	for(i = n - 1; i > 0; i--) {
 		// DEBUG printf("a[i-1], a[i] = %d, %d\n", a[i-1], a[i]);
 		if ( a[i-1] < a[i] ) {
-			t = a[i-1];
-			a[i-1] = a[i];
-			a[i] = t;
-			// DEBUG printf("i = %d\n", i);
 			asort(a, i, n);
+			for (j = i; a[j] < a[i-1]  ; j++);
+			t = a[i-1];
+			a[i-1] = a[j];
+			a[j] = t;
+			// DEBUG printf("i = %d\n", i);
 			return true;
 		}
 	}
@@ -125,7 +129,7 @@ void asort(char array[], int s, int n ) {
 			}
 }
 
-void dsort(char array[], int n ) {
+void dsort(char array[], int s, int n ) {
 	char t;
 	int i, j;
 	for(i = 0; i < n - 1; i++)
@@ -137,13 +141,11 @@ void dsort(char array[], int n ) {
 			}
 }
 
-void translate(char * str, char map[], char alphabet[], int asize) {
-	int i, target;
+void translate(char * str, char map[], char alph[]) {
+	int i, t;
 	for(i = 0; i < strlen(str); i++) {
-		for(target = 0; target < asize; target++)
-			if ( (char)(str[i]) == alphabet[target] )
-				break;
-		if ( target < asize )
-			str[i] = (char) map[(int)target];
+		for(t = 0; alph[t] && ((char)(str[i]) != alph[t]); t++);
+		if ( alph[t] )
+			str[i] = (char) map[(int)t];
 	}
 }
