@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-
 /*
  * NSA @NSACareers
  * フォローする
@@ -28,16 +27,27 @@ enum {
 	true = 0xff,
 };
 
-boolean lexconext(char * a, int n);
-void asort(char array[], int s, int n );
+boolean lexconext(int map[], int n);
+void asort(int array[], int s, int n );
 void dsort(char array[], int s, int n );
-void translate(char * str, char map[], char alphabet[]);
+void translate(char * str, int map[], char alp[]);
 
 int main(int argc, char * argv[]) {
 	char * ptr;
 	int count[128];
-	char map[128], alphabet[128] = "abcdefghijklmnopqrstuvwxyz";
-	int asize = strlen(alphabet);
+	char alphabet[128] = "abcdefghijklmnopqrstuvwxyz";
+	char talphabet[128], transed[256];
+	int alsize;
+	int map[128];
+	char stop[128] = "";
+
+	long counter;
+	struct {
+		char word[8];
+		int weight;
+	} keywords[8];
+	int threshold = 0;
+	int i, n;
 
 	printf("Hi.\n");
 
@@ -46,13 +56,38 @@ int main(int argc, char * argv[]) {
 		return 1;
 	}
 	ptr = argv[1];
-	printf("Input string: \"%s\" of length %ld.\n", ptr, strlen(ptr));
-	if ( argc == 3 ) {
-		strcpy(alphabet, argv[2]);
-		asize = strlen(alphabet);
+	printf("Input string: \"%s\" of length %d.\n", ptr, (int)strlen(ptr));
+	if ( argc >= 3 ) {
+		if ( strlen(argv[2]) > 0 )
+			strcpy(alphabet, argv[2]);
+	}
+	alsize = strlen(alphabet);
+	if ( argc >= 4 )
+		strcpy(stop, argv[3]);
+	if ( strlen(stop) != alsize )
+		stop[0] = 0;
+	if ( argc >= 5 ) {
+		printf("argc = %d\n", argc);
+		n = 0;
+		for (i = 4; i + 1 < argc; i += 2) {
+			strcpy(keywords[n].word, argv[i]);
+			keywords[n].weight = atoi(argv[i+1]);
+			n++;
+		}
+		keywords[n].word[0] = 0;
+		if ( argv[i] )
+			threshold = atoi(argv[i]);
+
+		printf("threshold = %d, ", threshold);
+		for(i = 0; keywords[i].word[0]; i++) {
+			printf("%s (%d), ", keywords[i].word, keywords[i].weight);
+		}
+		printf("\n");
+	} else {
+		keywords[0].word[0] = 0;
+		keywords[0].weight = 0;
 	}
 
-	int i;
 	for(i = 0; i < 128; i++)
 		count[i] = 0;
 	for(i = 0; i < strlen(ptr); i++) {
@@ -66,31 +101,47 @@ int main(int argc, char * argv[]) {
 	}
 	printf("\n");
 
-	strcpy(map, alphabet);
-	asort(alphabet, 0, asize);
-	printf("alphabet: %s\n", alphabet);
-	printf("     map: %s\n", map);
 
-	char transed[256];
-	long counter;
+	for (i = 0; i < alsize; i++) {
+		map[i] = i;
+	}
+	map[alsize] = 0;
+
+	printf("alphabet = %s, size = %d\n", alphabet, alsize);
+
 	for (counter = 0; ; counter++) {
 		printf("%012ld: ", counter);
-		for(i = 0; i < asize; i++) {
-			if ( isprint(map[i]) ) {
-				printf("%c", map[i]);
+		strcpy(talphabet, alphabet);
+		//printf("%s ", talphabet);
+		translate(talphabet, map, alphabet);
+		for(i = 0; i < alsize ; i++) {
+			if ( isprint(talphabet[i]) ) {
+				printf("%c", talphabet[i]);
 			} else {
 				printf(" ");
 			}
 		}
+
 		strcpy(transed, ptr);
 		translate(transed, map, alphabet);
-		printf(": %s\n", transed);
-		if ( strstr(transed, "wantto") ) {
-			printf("Got it!!\n");
+		printf("; %s", transed);
+
+		n = 0;
+		for(i = 0; keywords[i].word[0]; i++) {
+			if ( strstr(transed, keywords[i].word) )
+				n += keywords[i].weight;
 		}
+		if ( n > threshold ) {
+			printf(" @%d", n);
+		}
+		printf("\n");
+
 		fflush(stdout);
 
-		if ( !lexconext(map, asize) )
+		if ( !lexconext(map, alsize) )
+			break;
+
+		if ( strcmp(talphabet, stop) == 0 )
 			break;
 	}
 
@@ -99,7 +150,7 @@ int main(int argc, char * argv[]) {
 	return 0;
 }
 
-boolean lexconext(char * a, int n) {
+boolean lexconext(int a[], int n) {
 	int i, j, t;
 
 	for(i = n - 1; i > 0; i--) {
@@ -117,16 +168,19 @@ boolean lexconext(char * a, int n) {
 	return false;
 }
 
-void asort(char array[], int s, int n ) {
-	char t;
+void asort(int array[], int s, int n ) {
+	int t;
 	int i, j;
-	for(i = s; i < n - 1; i++)
+	for(i = s; i < n - 1; i++) {
 		for(j = i + 1; j < n; j++)
 			if ( array[i] > array[j] ) {
 				t = array[i];
 				array[i] = array[j];
 				array[j] = t;
 			}
+		//printf("%d, ", array[i]);
+	}
+	//puts("\n");
 }
 
 void dsort(char array[], int s, int n ) {
@@ -141,11 +195,11 @@ void dsort(char array[], int s, int n ) {
 			}
 }
 
-void translate(char * str, char map[], char alph[]) {
+void translate(char * str, int map[], char alph[]) {
 	int i, t;
 	for(i = 0; i < strlen(str); i++) {
 		for(t = 0; alph[t] && ((char)(str[i]) != alph[t]); t++);
 		if ( alph[t] )
-			str[i] = (char) map[(int)t];
+			str[i] = (char) alph[map[(int)t]];
 	}
 }
