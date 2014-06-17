@@ -17,7 +17,6 @@
 
 /*
  * NSA @NSACareers
- * フォローする
  * "tpfccdlfdtte pcaccplircdt dklpcfrp?qeiq lhpqlipqeodf gpwafopwprti izxndkiqpkii krirrifcapnc dxkdciqcafmd vkfpcadf."
  * #MissionMonday #NSA #news
  */
@@ -82,7 +81,6 @@ int main(int argc, char * argv[]) {
 	}
 	map.transf[map.size] = 0;
 
-
 	if ( argc == 1 ) {
 		printf("Specify input(s) please.\n\n");
 		return 1;
@@ -132,7 +130,6 @@ int main(int argc, char * argv[]) {
 
 		if ( !lexconext(&map) )
 			break;
-
 	}
 
 	printf("\n");
