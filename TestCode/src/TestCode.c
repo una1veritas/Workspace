@@ -21,6 +21,7 @@
  * #MissionMonday #NSA #news
  */
 // "tpfccdlfdttepcaccplircdtdklpcfrp?qeiqlhpqlipqeodfgpwafopwprtiizxndkiqpkiikrirrifcapncdxkdciqcafmdvkfpcadf."
+// "cpfttolfocceptattplirtocoklptfrp?qeiqlhpqlipqedofgpwafdpwprciizxnokiqpkiikrirriftapntoxkotiqtafmovkfptaof."
 /*
 .: 1
 ?: 1
@@ -68,7 +69,7 @@ int main(int argc, char * argv[]) {
 	int count[128];
 	char transed[256];
 	long counter;
-	int i;
+	int i, t;
 	mapping map;
 
 	printf("Hi.\n");
@@ -90,8 +91,10 @@ int main(int argc, char * argv[]) {
 	if ( argc >= 3 ) {
 		if ( strlen(argv[2]) > 0 )
 			strcpy(map.alphabet, argv[2]);
+		map.size = strlen(map.alphabet);
 	}
-	map.size = strlen(map.alphabet);
+
+
 
 	for(i = 0; i < 128; i++)
 		count[i] = 0;
@@ -115,7 +118,7 @@ int main(int argc, char * argv[]) {
 		translate(transed, &map);
 		for(i = 0; i < map.size ; i++) {
 			if ( isprint(transed[i]) ) {
-				printf("%c", transed[i]);
+				printf("%c%c ", map.alphabet[i],transed[i]);
 			} else {
 				printf(" ");
 			}
