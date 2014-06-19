@@ -17,6 +17,7 @@ extern "C" {
 #include <stdint.h>
 }
 
+#include <iostream>
 #include "TestDecoder.h"
 
 /*
@@ -26,7 +27,6 @@ extern "C" {
  */
 // "tpfccdlfdttepcaccplircdtdklpcfrp?qeiqlhpqlipqeodfgpwafopwprtiizxndkiqpkiikrirrifcapncdxkdciqcafmdvkfpcadf."
 // "cpfttolfocceptattplirtocoklptfrp?qeiqlhpqlipqedofgpwafdpwprciizxnokiqpkiikrirriftapntoxkotiqtafmovkfptaof."
-
 
 int main(int argc, char * argv[]) {
 	char * ptr;
@@ -47,17 +47,22 @@ int main(int argc, char * argv[]) {
 	ptr = argv[1];
 	printf("Input string: \"%s\" of length %d.\n", ptr, (int)strlen(ptr));
 	if ( argc >= 3 && strlen(argv[2]) > 0 ) {
-		for(i = 0, t = 0; argv[2][i] && argv[2][i] != '/'; i++) {
-			if (argv[2][i] == '~' ) {
+		ptr = argv[2];
+		for(i = 0, t = 0; ptr[i] && ptr[i] != '/'; i++) {
+			if (ptr[i] == '~' ) {
 				lim = t-1;
 			} else {
-				transed[t++] = argv[2][i];
+				transed[t++] = ptr[i];
 			}
 		}
-		if ( argv[2][i] == '/' ) {
-
-		}
 		map.set(transed, lim);
+
+		if ( ptr[i] == '/' ) {
+			i++;
+			std::cout << "Got a /." << std::endl;
+			map.setTranslate(ptr, ptr+i);
+			std::cout << std::endl;
+		}
 	}
 
 
@@ -169,7 +174,7 @@ char Mapping::operator[](const char c) const {
 	uint t;
 	for(t = 0; t < size ; t++)
 		if ( c == alphabet[t] )
-			return alphabet[transfer[t]];
+			return alphabet[(const uint &)transfer[t]];
 	return c;
 }
 
@@ -177,5 +182,42 @@ void Mapping::translate(char * str) const {
 	uint i; //, t;
 	for(i = 0; i < strlen(str); i++) {
 		str[i] = (*this)[str[i]];
+	}
+}
+
+void Mapping::setTranslate(const char orig[], const char trans[]) {
+	uint i;
+	uint t;
+	uint check[128];
+
+	for(i = 0; orig[i] && trans[i] && (orig[i] != '~') ; i++) {
+		std::cout << orig[i] << "/" << trans[i] << ", ";
+	}
+
+	for(i = 0; i < size; i++) {
+		transfer[i] = size;
+	}
+	for(i = 0; orig[i] && trans[i] && (orig[i] != '~') ; i++) {
+		for(t = 0; t < size ; t++)
+			if ( orig[i] == alphabet[t] )
+				break;
+		transfer[i] = t;
+	}
+
+	for(i = 0; i < size; i++) {
+		if ( transfer[i] != size )
+			check[i] = 1;
+		else
+			check[i] = 0;
+	}
+	for(i = 0; i < size; i++) {
+		if ( transfer[i] == size ) {
+			for(t = 0; t < size; t++) {
+				if ( check[t] == 0 ) {
+					transfer[i] = t;
+					check[t] = 1;
+				}
+			}
+		}
 	}
 }
