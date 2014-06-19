@@ -139,8 +139,8 @@ boolean Permutation::next() {
 }
 
 void asort(uint array[], uint s, uint n ) {
-	int t;
-	int i, j;
+	uint t;
+	uint i, j;
 	for(i = s; i < n - 1; i++) {
 		for(j = i + 1; j < n; j++)
 			if ( array[i] > array[j] ) {
@@ -155,7 +155,7 @@ void asort(uint array[], uint s, uint n ) {
 
 void dsort(uint array[], uint s, uint n ) {
 	char t;
-	int i, j;
+	uint i, j;
 	for(i = 0; i < n - 1; i++)
 		for(j = i + 1; j < n; j++)
 			if ( array[i] < array[j] ) {
@@ -163,6 +163,14 @@ void dsort(uint array[], uint s, uint n ) {
 				array[i] = array[j];
 				array[j] = t;
 			}
+}
+
+char Mapping::operator[](const char c) const {
+	uint t;
+	for(t = 0; t < size ; t++)
+		if ( c == alphabet[t] )
+			return alphabet[transfer[t]];
+	return c;
 }
 
 void Mapping::translate(char * str) const {

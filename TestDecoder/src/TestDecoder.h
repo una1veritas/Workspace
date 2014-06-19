@@ -59,13 +59,7 @@ struct Mapping {
 
 	void set(const char a[], const uint lim = 0);
 	void translate(char str[]) const;
-	char operator[](const char c) const {
-		uint t;
-		for(t = 0; t < size ; t++)
-			if ( c == alphabet[t] )
-				return alphabet[transfer[t]];
-		return c;
-	}
+	char operator[](const char c) const;
 };
 
 void asort(uint array[], uint s, uint n );
