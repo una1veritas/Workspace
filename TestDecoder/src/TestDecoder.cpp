@@ -33,7 +33,7 @@ int main(int argc, char * argv[]) {
 	int count[128];
 	char transed[256];
 	long counter;
-	uint i;
+	uint i, t, lim;
 	Mapping map;
 
 	printf("Hi.\n");
@@ -46,11 +46,19 @@ int main(int argc, char * argv[]) {
 	}
 	ptr = argv[1];
 	printf("Input string: \"%s\" of length %d.\n", ptr, (int)strlen(ptr));
-	if ( argc >= 3 ) {
-		if ( strlen(argv[2]) > 0 )
-			map.set(argv[2]);
-	}
+	if ( argc >= 3 && strlen(argv[2]) > 0 ) {
+		for(i = 0, t = 0; argv[2][i] && argv[2][i] != '/'; i++) {
+			if (argv[2][i] == '~' ) {
+				lim = t-1;
+			} else {
+				transed[t++] = argv[2][i];
+			}
+		}
+		if ( argv[2][i] == '/' ) {
 
+		}
+		map.set(transed, lim);
+	}
 
 
 	for(i = 0; i < 128; i++)
@@ -71,8 +79,8 @@ int main(int argc, char * argv[]) {
 	for (counter = 0; ; counter++) {
 		printf("%012ld: ", counter);
 		strcpy(transed, map.alphabet);
-		//printf("%s ", talphabet);
 		map.translate(transed);
+		/*
 		for(i = 0; i < map.size ; i++) {
 			if ( isprint(transed[i]) ) {
 				printf("%c%c ", map.alphabet[i],transed[i]);
@@ -80,6 +88,8 @@ int main(int argc, char * argv[]) {
 				printf(" ");
 			}
 		}
+		*/
+		printf("%s ", transed);
 
 		strcpy(transed, ptr);
 		map.translate(transed);
@@ -88,7 +98,7 @@ int main(int argc, char * argv[]) {
 
 		fflush(stdout);
 
-		if ( ! map.next() )
+		if ( ! map.transfer.next() )
 			break;
 	}
 
@@ -97,29 +107,30 @@ int main(int argc, char * argv[]) {
 	return 0;
 }
 
-void Mapping::set(const char a[]) {
-	strcpy(alphabet, a);
-	size = strlen(alphabet);
-	for (uint i = 0; i < size; i++) {
-		transfer[i] = i;
+void Mapping::set(const char a[], const uint lim) {
+	uint i; //, t;
+	for(i = 0; a[i] != 0 ; i++) {
+		alphabet[i] = a[i];
 	}
-	transfer[size] = 0;
+	alphabet[i] = 0;
+	size = strlen(alphabet);
+	transfer.init(size, lim);
 }
 
 
-boolean Mapping::next() {
+boolean Permutation::next() {
 	uint i, j, t;
 
-	for(i = size - 1; i > 0 ; i--) {
+	for(i = permsize - 1; i > 0 ; i--) {
 		// DEBUG printf("a[i-1], a[i] = %d, %d\n", a[i-1], a[i]);
-		if ( alphabet[transfer[i-1]] == '~' )
+		if ( perm[i-1] == anchor )
 			break;
-		if ( transfer[i-1] < transfer[i] ) {
-			asort(transfer, i, size);
-			for (j = i; transfer[j] < transfer[i-1]  ; j++);
-			t = transfer[i-1];
-			transfer[i-1] = transfer[j];
-			transfer[j] = t;
+		if ( perm[i-1] < perm[i] ) {
+			asort(perm, i, permsize);
+			for (j = i; perm[j] < perm[i-1]  ; j++);
+			t = perm[i-1];
+			perm[i-1] = perm[j];
+			perm[j] = t;
 			// DEBUG printf("i = %d\n", i);
 			return true;
 		}
@@ -127,7 +138,7 @@ boolean Mapping::next() {
 	return false;
 }
 
-void asort(int array[], int s, int n ) {
+void asort(uint array[], uint s, uint n ) {
 	int t;
 	int i, j;
 	for(i = s; i < n - 1; i++) {
@@ -142,7 +153,7 @@ void asort(int array[], int s, int n ) {
 	//puts("\n");
 }
 
-void dsort(char array[], int s, int n ) {
+void dsort(uint array[], uint s, uint n ) {
 	char t;
 	int i, j;
 	for(i = 0; i < n - 1; i++)
@@ -155,10 +166,8 @@ void dsort(char array[], int s, int n ) {
 }
 
 void Mapping::translate(char * str) const {
-	uint i, t;
+	uint i; //, t;
 	for(i = 0; i < strlen(str); i++) {
-		for(t = 0; alphabet[t] && ((char)(str[i]) != alphabet[t]); t++);
-		if ( alphabet[t] )
-			str[i] = alphabet[transfer[t]];
+		str[i] = (*this)[str[i]];
 	}
 }

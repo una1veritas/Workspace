@@ -20,23 +20,56 @@ typedef bool boolean;
 
 typedef unsigned int uint;
 
+struct Permutation {
+	uint permsize, anchor;
+	uint perm[128];
+
+	Permutation() {
+		permsize = 0;
+		anchor = 0;
+	}
+
+	Permutation(uint size, uint limit = 0) {
+		init(size, limit);
+	}
+
+	void init(uint size, uint limit = 0) {
+		anchor = limit;
+		permsize = size;
+		for(uint i = 0; i < permsize; i++)
+			perm[i] = i;
+	}
+
+	boolean next();
+	uint operator[](const uint i) const {
+		return perm[i];
+	}
+};
+
 struct Mapping {
 	char alphabet[128];
 	unsigned int size;
-	int transfer[128];
+	Permutation transfer;
+
+	static const char terminator = '~';
 
 	Mapping() {
 		set("abcdefghijklmnopqrstuvwxyz");
 	}
 
-	void set(const char a[]);
-	boolean hasNext();
-	boolean next();
+	void set(const char a[], const uint lim = 0);
 	void translate(char str[]) const;
+	char operator[](const char c) const {
+		uint t;
+		for(t = 0; t < size ; t++)
+			if ( c == alphabet[t] )
+				return alphabet[transfer[t]];
+		return c;
+	}
 };
 
-void asort(int array[], int s, int n );
-void dsort(char array[], int s, int n );
+void asort(uint array[], uint s, uint n );
+void dsort(uint array[], uint s, uint n );
 
 
 
