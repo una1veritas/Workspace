@@ -41,6 +41,9 @@ struct Permutation {
 	}
 
 	boolean next();
+	const uint & operator[](const uint i) const {
+		return perm[i];
+	}
 	uint & operator[](const uint i) {
 		return perm[i];
 	}
@@ -60,13 +63,12 @@ struct Mapping {
 	void set(const char a[], const uint lim = 0);
 	void translate(char str[]) const;
 	char operator[](const char c) const;
+	uint order(const char c) const;
 	void setTranslate(const char orig[], const char trans[]);
 };
 
 void asort(uint array[], uint s, uint n );
 void dsort(uint array[], uint s, uint n );
-
-
 
 
 #endif /* TESTCODE_H_ */
