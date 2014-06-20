@@ -219,11 +219,11 @@ void Mapping::setTranslate(const char orig[], const char trans[]) {
 		transfer[i] = t;
 		ixset[t] = 1;
 	}
-
+/*
 	for(int j = 0; j < size; j++) {
 		std::cout << "ixset[" << j << "] = " << ixset[j] << ", " << std::endl;
 	}
-
+*/
 	for(i = 0; i < size; i++) {
 		if ( transfer[i] == size ) {
 			for(t = 0; t < size && (ixset[t] != 0); t++);
@@ -234,8 +234,10 @@ void Mapping::setTranslate(const char orig[], const char trans[]) {
 			}
 			ixset[t] = 1;
 		}
+		/*
 		for(int j = 0; j < size; j++) {
 			std::cout << "ixset[" << j << "] = " << ixset[j] << ", " << std::endl;
 		}
+		*/
 	}
 }
