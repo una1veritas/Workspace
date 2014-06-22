@@ -20,27 +20,26 @@ typedef bool boolean;
 
 typedef unsigned int uint;
 
-struct Permutation {
-	uint permsize, anchor;
+class Permutation {
+	uint length;
 	uint perm[128];
 
+public:
 	Permutation() {
-		permsize = 0;
-		anchor = 0;
+		length = 0;
 	}
 
-	Permutation(uint size, uint limit = 0) {
-		init(size, limit);
+	Permutation(uint sz) {
+		init(sz);
 	}
 
-	void init(uint size, uint limit = 0) {
-		anchor = limit;
-		permsize = size;
-		for(uint i = 0; i < permsize; i++)
+	void init(uint sz) {
+		length = sz;
+		for(uint i = 0; i < length; i++)
 			perm[i] = i;
 	}
 
-	boolean next();
+	boolean next(const uint startpos = 0);
 	const uint & operator[](const uint i) const {
 		return perm[i];
 	}
@@ -49,22 +48,33 @@ struct Permutation {
 	}
 };
 
-struct Mapping {
-	char alphabet[128];
-	unsigned int size;
-	Permutation transfer;
+class Mapping {
+	char charfrom[128];
+	char charto[128];
+	int charmap[256];
+	uint alphsize;
+	Permutation rotor;
+	uint permlimit;
 
+public:
 	static const char terminator = '~';
 
 	Mapping() {
-		set("abcdefghijklmnopqrstuvwxyz");
+		init("abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxyz");
 	}
 
-	void set(const char a[], const uint lim = 0);
+	void init(const char a[], const char r[], const uint lim = 0);
+
+	const char * domain() const { return charfrom; }
+	const char * range() const { return charto; }
+	const uint alphabetSize() const { return alphsize; }
+
 	void translate(char str[]) const;
-	char operator[](const char c) const;
-	uint order(const char c) const;
-	void setTranslate(const char orig[], const char trans[]);
+//	char operator[](const char c) const;
+//	uint order(const char c) const;
+//	void setTranslate(const char orig[], const char trans[]);
+
+	boolean next();
 };
 
 void asort(uint array[], uint s, uint n );

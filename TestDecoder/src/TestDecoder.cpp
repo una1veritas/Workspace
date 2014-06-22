@@ -28,66 +28,79 @@ extern "C" {
 // "tpfccdlfdttepcaccplircdtdklpcfrp?qeiqlhpqlipqeodfgpwafopwprtiizxndkiqpkiikrirrifcapncdxkdciqcafmdvkfpcadf."
 // "cpfttolfocceptattplirtocoklptfrp?qeiqlhpqlipqedofgpwafdpwprciizxnokiqpkiikrirriftapntoxkotiqtafmovkfptaof."
 
+// "tpfcdlkriaeqxnmhzvogw~/wantokrseihcplgbxumdy"
+/*
+ * 000000000000: wantokrseihcplgbxumdy ; want to know what it takes to work at nsa?
+ * check back each monday in may as we explore careers essential to protecting our nation.
+ *
+ */
+
 int main(int argc, char * argv[]) {
-	char * ptr;
-	char * alphabet;
-	int count[128];
-	char transed[256];
+	char * text;
+	char tmp[256];
+	int freq[128];
 	long counter;
-	uint i, t, lim;
+	uint i, t;
 	Mapping map;
 
 	printf("Hi.\n");
 
 	// setting the default values
 
-	if ( argc == 1 ) {
+	if ( argc <= 1 ) {
 		printf("Specify input(s) please.\n\n");
 		return 1;
 	}
-	ptr = argv[1];
-	printf("Input string: \"%s\" of length %d.\n", ptr, (int)strlen(ptr));
-	if ( argc >= 3 && strlen(argv[2]) > 0 ) {
-		alphabet = argv[2];
-		for(i = 0, t = 0; alphabet[i] && alphabet[i] != '/'; i++) {
-			if (alphabet[i] == Mapping::terminator ) {
-				lim = t-1;
-			} else {
-				transed[t++] = alphabet[i];
-			}
-		}
-		map.set(transed, lim);
 
-		if ( alphabet[i] == '/' ) {
-			i++;
-			std::cout << "Got a /." << std::endl;
-			map.setTranslate(alphabet, alphabet+i);
-			strcpy(transed, map.alphabet);
-			map.translate(transed);
-			std::cout << " map: " << transed << std::endl;
+	text = argv[1];
+	printf("Input string: \"%s\" of length %d.\n", text, (int)strlen(text));
+
+	char * ptr;
+	char alphabet[128];
+	uint start = 0;
+	if ( argc >= 3 && (strlen(argv[2]) > 0) ) {
+		ptr = argv[2];
+		for(i = 0, t = 0; ptr[i] && ptr[i] != '/' && ptr[i] != Mapping::terminator; i++, t++) {
+			alphabet[t] = ptr[i];
 		}
+		if ( ptr[i] == Mapping::terminator ) {
+			start = i;
+			i++;
+		}
+		for( ; ptr[i] && ptr[i] != '/'; i++, t++) {
+			alphabet[t] = ptr[i];
+		}
+		alphabet[t] = 0;
+		if ( ptr[i] == '/' ) {
+			i++;
+			for(t = 0 ; ptr[i] ; i++, t++) {
+				tmp[t] = ptr[i];
+			}
+			tmp[t] = 0;
+		}
+		printf("alphabet = %s, target range = %s, starts from %d.\n", alphabet, tmp, start);
+		map.init(alphabet, tmp, start);
 	}
 
-
 	for(i = 0; i < 128; i++)
-		count[i] = 0;
-	for(i = 0; i < strlen(ptr); i++) {
-		count[(int)ptr[i]]++;
+		freq[i] = 0;
+	for(i = 0; i < strlen(text); i++) {
+		freq[(int)text[i]]++;
 	}
 	printf("\nFrequency:\n");
 	for(i = 0; i < 128; i++) {
-		if ( count[i] != 0 ) {
-			printf("%c: %d\n", (char)i, count[i]);
+		if ( freq[i] != 0 ) {
+			printf("%c: %d\n", (char)i, freq[i]);
 		}
 	}
 	printf("\n");
 
-	printf("alphabet = %s, size = %d\n", map.alphabet, map.size);
+	printf("alphabet = %s, size = %d\n", map.domain(), map.alphabetSize());
 
 	for (counter = 0; ; counter++) {
 		printf("%012ld: ", counter);
-		strcpy(transed, map.alphabet);
-		map.translate(transed);
+		strcpy(tmp, map.domain());
+		map.translate(tmp);
 		/*
 		for(i = 0; i < map.size ; i++) {
 			if ( isprint(transed[i]) ) {
@@ -97,16 +110,16 @@ int main(int argc, char * argv[]) {
 			}
 		}
 		*/
-		printf("%s ", transed);
+		printf("%s ", tmp);
 
-		strcpy(transed, ptr);
-		map.translate(transed);
-		printf("; %s", transed);
+		strcpy(tmp, text);
+		map.translate(tmp);
+		printf("; %s", tmp);
 		printf("\n");
 
 		fflush(stdout);
 
-		if ( ! map.transfer.next() )
+		if ( ! map.next() )
 			break;
 	}
 
@@ -115,26 +128,32 @@ int main(int argc, char * argv[]) {
 	return 0;
 }
 
-void Mapping::set(const char a[], const uint lim) {
-	uint i; //, t;
-	for(i = 0; a[i] != 0 ; i++) {
-		alphabet[i] = a[i];
+void Mapping::init(const char a[], const char r[], const uint lim) {
+	strcpy(charfrom, a);
+	alphsize = strlen(charfrom);
+	if ( alphsize != strlen(r) )
+		strcpy(charto, charfrom);
+	else {
+		strcpy(charto, r);
+
 	}
-	alphabet[i] = 0;
-	size = strlen(alphabet);
-	transfer.init(size, lim);
+	for(int i = 0; i < 256; i++)
+		charmap[i] = -1;
+	for(int i = 0; i < alphsize; i++) {
+		charmap[(uint)charfrom[i]] = i;
+	}
+	permlimit = lim;
+	rotor.init(alphsize);
 }
 
 
-boolean Permutation::next() {
+boolean Permutation::next(const uint startpos) {
 	uint i, j, t;
 
-	for(i = permsize - 1; i > 0 ; i--) {
+	for(i = length - 1; i > startpos ; i--) {
 		// DEBUG printf("a[i-1], a[i] = %d, %d\n", a[i-1], a[i]);
-		if ( perm[i-1] == anchor )
-			break;
 		if ( perm[i-1] < perm[i] ) {
-			asort(perm, i, permsize);
+			asort(perm, i, length);
 			for (j = i; perm[j] < perm[i-1]  ; j++);
 			t = perm[i-1];
 			perm[i-1] = perm[j];
@@ -145,6 +164,7 @@ boolean Permutation::next() {
 	}
 	return false;
 }
+
 
 void asort(uint array[], uint s, uint n ) {
 	uint t;
@@ -172,7 +192,7 @@ void dsort(uint array[], uint s, uint n ) {
 				array[j] = t;
 			}
 }
-
+/*
 char Mapping::operator[](const char c) const {
 	uint i, t;
 	for(t = 0; t < size ; t++)
@@ -182,62 +202,22 @@ char Mapping::operator[](const char c) const {
 		}
 	return c;
 }
+*/
 
-uint Mapping::order(const char c) const {
-	uint i;
-	for (i = 0; i < size && (alphabet[i] != c); i++);
-	if ( alphabet[i] == c )
-		return i;
-	return size;
+boolean Mapping::next() {
+	return rotor.next(permlimit);
 }
 
 void Mapping::translate(char * str) const {
 	uint i; //, t;
 	for(i = 0; i < strlen(str); i++) {
-		str[i] = (*this)[str[i]];
+		if ( charmap[(uint)str[i]] != -1 )
+			str[i] = charto[rotor[charmap[(uint)str[i]]]];
 	}
 }
 
-void Mapping::setTranslate(const char orig[], const char trans[]) {
-	uint i;
-	uint t;
-	uint ixset[128];
-
-	for(i = 0; orig[i] && trans[i] && (orig[i] != terminator) ; i++) {
-		std::cout << orig[i] << "/" << trans[i] << ", ";
-	}
-	std::cout << std::endl;
-
-	// initialize two arrays
-	for(i = 0; i < size; i++) {
-		ixset[i] = 0;
-		transfer[i] = size;
-	}
-
-	for(i = 0; orig[i] && trans[i] && (orig[i] != terminator) ; i++) {
-		t = order(trans[i]);
-		transfer[i] = t;
-		ixset[t] = 1;
-	}
 /*
-	for(int j = 0; j < size; j++) {
-		std::cout << "ixset[" << j << "] = " << ixset[j] << ", " << std::endl;
-	}
-*/
-	for(i = 0; i < size; i++) {
-		if ( transfer[i] == size ) {
-			for(t = 0; t < size && (ixset[t] != 0); t++);
-			if ( ixset[t] == 0 ) {
-				transfer[i] = t;
-			} else {
-				transfer[i] = i; // error has occurred.
-			}
-			ixset[t] = 1;
-		}
-		/*
-		for(int j = 0; j < size; j++) {
-			std::cout << "ixset[" << j << "] = " << ixset[j] << ", " << std::endl;
-		}
-		*/
-	}
+void Mapping::setTranslate(const char orig[], const char trans[]) {
+
 }
+*/
