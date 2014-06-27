@@ -26,8 +26,6 @@ extern "C" {
  * #MissionMonday #NSA #news
  */
 // "tpfccdlfdttepcaccplircdtdklpcfrp?qeiqlhpqlipqeodfgpwafopwprtiizxndkiqpkiikrirrifcapncdxkdciqcafmdvkfpcadf."
-// "cpfttolfocceptattplirtocoklptfrp?qeiqlhpqlipqedofgpwafdpwprciizxnokiqpkiikrirriftapntoxkotiqtafmovkfptaof."
-
 // "tpfcdlkriaeqxnmhzvogw~/wantokrseihcplgbxumdy"
 /*
  * 000000000000: wantokrseihcplgbxumdy ; want to know what it takes to work at nsa?
