@@ -27,7 +27,7 @@ extern "C" {
  */
 // "tpfccdlfdttepcaccplircdtdklpcfrp?qeiqlhpqlipqeodfgpwafopwprtiizxndkiqpkiikrirrifcapncdxkdciqcafmdvkfpcadf."
 // "tpfcdlkriaeqxnmhzvogw~/wantokrseihcplgbxumdy"
-/*
+/*"toatyxpsdlionofdwurnzvupvbymvswpyutwxiosd?"
  * 000000000000: wantokrseihcplgbxumdy ; want to know what it takes to work at nsa?
  * check back each monday in may as we explore careers essential to protecting our nation.
  *
@@ -137,7 +137,7 @@ void Mapping::init(const char a[], const char r[], const uint lim) {
 	}
 	for(int i = 0; i < 256; i++)
 		charmap[i] = -1;
-	for(int i = 0; i < alphsize; i++) {
+	for(uint i = 0; i < alphsize; i++) {
 		charmap[(uint)charfrom[i]] = i;
 	}
 	permlimit = lim;
