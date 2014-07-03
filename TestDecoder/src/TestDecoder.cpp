@@ -38,7 +38,6 @@ int main(int argc, char * argv[]) {
 	char tmp[256];
 	int freq[128];
 	long counter;
-	uint i, t;
 	Mapping map;
 
 	printf("Hi.\n");
@@ -53,33 +52,56 @@ int main(int argc, char * argv[]) {
 	text = argv[1];
 	printf("Input string: \"%s\" of length %d.\n", text, (int)strlen(text));
 
-	char * ptr;
-	char alphabet[128];
-	uint start = 0;
-	if ( argc >= 3 && (strlen(argv[2]) > 0) ) {
-		ptr = argv[2];
-		for(i = 0, t = 0; ptr[i] && ptr[i] != '/' && ptr[i] != Mapping::terminator; i++, t++) {
-			alphabet[t] = ptr[i];
-		}
-		if ( ptr[i] == Mapping::terminator ) {
-			start = i;
-			i++;
-		}
-		for( ; ptr[i] && ptr[i] != '/'; i++, t++) {
-			alphabet[t] = ptr[i];
-		}
-		alphabet[t] = 0;
-		if ( ptr[i] == '/' ) {
-			i++;
-			for(t = 0 ; ptr[i] ; i++, t++) {
-				tmp[t] = ptr[i];
+	{
+		char * ptr;
+		char original[128] = { 0 };
+		char converted[128] = { 0 };
+		char permutate[128] = { 0 };
+		char permconv[128] = { 0 };
+		uint startpos = 0;
+		uint i, t;
+
+		if ( argc > 2 ) {
+			// const replacement
+			ptr = argv[2];
+			for(i = 0; ptr[i] != 0 && ptr[i] != '/' ; i++) {
+				original[i] = ptr[i];
 			}
-			tmp[t] = 0;
+			original[i] = 0;
+			if ( ptr[i] == '/' ) {
+				i++;
+			}
+			for(t=0 ; ptr[i] != 0 ; i++, t++) {
+				converted[t] = ptr[i];
+			}
+			for( ; t < strlen(original); t++) {
+				converted[t] = original[t];
+			}
+			converted[t] = 0;
+			std::cout << "original alphabet: " << original << ", replace to: " << converted << std::endl;
 		}
-		printf("alphabet = %s, target range = %s, starts from %d.\n", alphabet, tmp, start);
-		map.init(alphabet, tmp, start);
+		if ( argc > 3 ) {
+			ptr = argv[3];
+			for(i = 0; ptr[i] != 0 && ptr[i] != '/' ; i++) {
+				permutate[i] = ptr[i];
+			}
+			i++;
+			for(t=0 ; ptr[i] != 0 ; i++, t++) {
+				permconv[t] = ptr[i];
+			}
+			for( ; t < strlen(original); t++) {
+				permconv[t] = permutate[t];
+			}
+			std::cout << "permutation alphabet: " << permutate << ", replace to: " << permconv << std::endl;
+		}
+		startpos = strlen(original);
+		strcat(original, permutate);
+		strcat(converted, permconv);
+		printf("alphabet = %s, target range = %s, starts from %d.\n", original, converted, startpos);
+		map.init(original, converted, startpos);
 	}
 
+	uint i;
 	for(i = 0; i < 128; i++)
 		freq[i] = 0;
 	for(i = 0; i < strlen(text); i++) {
