@@ -16,8 +16,7 @@ using namespace std;
 int main(int argc, char * argv[]) {
 
 	ifstream ifreader;
-	stringstream sstream("", ios_base::app | ios_base::out);
-	string lines, token;
+	stringstream sstream;
 	const int bufsize = 128;
 	char buf[bufsize];
 
@@ -36,28 +35,39 @@ int main(int argc, char * argv[]) {
 	for(int cnt = 0; cnt < 6; cnt++) {
 		ifreader.getline(buf, bufsize);
 	}
+
 	while ( !ifreader.eof() ) {
 		int len;
-		sstream.clear();
-		lines.clear();
+		string str;
+		str.clear();
 		do {
 			ifreader.getline(buf, bufsize);
 			len = strlen(buf);
 			if ( len == 0 ) {
-				cout << "-------" << endl;
 				continue;
 			}
-			lines.append(buf);
-			lines.append("\n");
+			str.append(buf);
+			str.append(";");
 		} while (len > 0);
-		sstream.str(lines);
-		sstream >> token;
-		cout << "cnode: " << token << endl;
-		while (!sstream.eof()) {
-			sstream >> token;
-			cout << '"' << token << "\", "<< endl;
+
+		sstream.clear();
+		sstream.str(str);
+
+		string netname, part, pad, pin, sheet;
+		stringstream line;
+		netname.clear();
+		sstream.getline(buf, bufsize, ';');
+		if ( sstream >> netname ) {
+			do {
+				line.str(buf);
+				part.clear(); pad.clear(); pin.clear(); sheet.clear();
+				line >> part >> pad >> pin >> sheet;
+				cout << "net name = " << netname.c_str() << ", " << pad.c_str() << ", " << pin.c_str() <<
+						", " << sheet.c_str() << endl;
+				line.clear();
+			} while ( sstream.getline(buf, bufsize, ';') );
 		}
-		cout << "-----" << endl;
+		cout << endl;
 	}
 	ifreader.close();
 
