@@ -1,0 +1,12 @@
+#! /bin/sh
+if [ "$1" == "--help" ] || [ "$1" == "" ] || [ "$2" == "" ]; then
+   echo
+   echo "PS to PNG converter"
+   echo
+   echo "Uses gs in 600dpi color mode for conversion." 
+   echo "Usage:"
+   echo "ps2png <PS input file> <PNG output file>"
+   echo
+   exit
+fi
+gs -dBATCH -dNOPAUSE -r600 -sDEVICE=png256 -sOutputFile=$2 $1
