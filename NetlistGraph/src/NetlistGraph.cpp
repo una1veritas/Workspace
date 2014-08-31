@@ -19,12 +19,14 @@ using namespace std;
 
 struct Part {
 	string label;
-	string value;
+	string val;
 	map<string,string> pads;
 
-	Part(void) : label(""), pads() {}
-	Part(const string & name) : label(name), pads() { }
+	Part(void) : label(""), val(""), pads() {}
+	Part(const string & name) : label(name), val(""), pads() { }
 
+	void value(const string & v) { val = v; }
+	string & value(void) { return val; }
 	void add(string & pin, string & padname) {
 		pads[pin] = padname;
 	}
@@ -33,78 +35,132 @@ struct Part {
 		return pads[pin];
 	}
 
-	friend ostream & operator<<(ostream & st, Part & me) {
-		st << me.label << "[";
-		for(map<string,string>::iterator i = me.pads.begin(); i != me.pads.end(); ) {
+	ostream & printOn(ostream & st) {
+		st << label << "[";
+		for(map<string,string>::iterator i = pads.begin(); i != pads.end(); ) {
 			cout << i->first;
 			++i;
-			if ( i != me.pads.end() )
+			if ( i != pads.end() )
 				cout <<  ",";
 		}
 		cout << "]";
+		if ( !val.empty() ) {
+			cout << " " << val;
+		}
 		return st;
 	}
+	friend ostream & operator<<(ostream & st, Part & me) { return me.printOn(st); }
 };
 
 struct Net {
 	string label;
-	vector< pair<Part&,string&> > link;
+	typedef pair<Part&,string> conn;
+	vector< conn > link;
 
 	Net(void) { }
 	Net(const string & name) : label(name), link() {  }
 
 	void add(Part & part, string & pin) {
-		link.push_back(pair<Part&,string&>(part,pin) );
+		link.push_back(conn(part,pin) );
 	}
 
+	ostream & printOn(ostream & st);
 	friend ostream & operator<<(ostream & st, Net & me) {
-		st << me.label << "[";
-		for( vector<pair<Part&,string&> >::iterator i = me.link.begin();
-			i != me.link.end() ; ) {
-			pair<Part&,string&> & p = *i;
-			st << p.first.label << ":" << p.second << "(" << p.first.pad(p.second) << ")";
-			++i;
-			if ( i != me.link.end() )
-				st << ", ";
-		}
-		st << "] ";
-		st << " ";
-		return st;
+		return me.printOn(st);
 	}
 
 };
 
+ostream & Net::printOn(ostream & st) {
+	st << label << "[";
+	for( vector<conn>::iterator i = link.begin(); i != link.end() ; ) {
+		conn p = *i;
+		st << p.first.label << ":" << p.second << "(" << p.first.pad(p.second) << ")";
+		++i;
+		if ( i != link.end() )
+			st << ", ";
+	}
+	st << "] ";
+	st << " ";
+	return st;
+}
+
+void readNetlist(map<string,Net> &, map<string,Part> &, ifstream &, ifstream &);
+
 int main(int argc, char * argv[]) {
 
-	ifstream ifreader;
-	stringstream sstream;
+	ifstream inetlist;
+	ifstream ipartlist;
+	map<string, Net> nets;
+	map<string, Part> parts;
 
-	if ( argc == 1 ) {
+	if ( argc < 2 ) {
 		cerr << "Give me the file name as the argument." << endl;
 		return 1;
 	}
 
-	ifreader.open(argv[1], ios::in);
+	inetlist.open(argv[1], ios::in);
+	if ( argc >= 3 ) {
+		ipartlist.open(argv[2], ios::in);
+	}
 
-	if ( !ifreader ) {
+	if ( !inetlist ) {
 		cout.flush();
 		cerr << "Couldn't open the file " << argv[1] << ". " << endl;
-				return 1;
+		return 1;
 	}
+
+	readNetlist(nets, parts, inetlist, ipartlist);
+	inetlist.close();
+
+	cout << endl << "Parts: " << endl;
+	for( map<string,Part>::iterator i = parts.begin(); i != parts.end(); ++i ) {
+		cout << i->second << endl;
+	}
+
+	cout << endl << "Netlist:" << endl;
+	for( map<string,Net>::iterator i = nets.begin(); i != nets.end(); ++i ) {
+		cout << i->second << endl;
+	}
+
+	return 0;
+}
+
+void readNetlist(map<string,Net> & nets, map<string,Part> & parts,
+		ifstream & netlist, ifstream & partlist) {
 
 	string buf;
+	stringstream line;
+	string tmp[6];
 
-	for(int cnt = 0; cnt < 8; cnt++) {
-		std::getline(ifreader, buf);
+	if ( partlist.is_open() ) {
+		//cout << "partlist is opened." << endl;
+		for(int cnt = 0; cnt < 10 && getline(partlist, buf); cnt++);
+		while ( !partlist.eof() ) {
+			getline(partlist, buf);
+			for(int i = 0; i < buf.length(); ++i) {
+				if ( (unsigned char)buf[i] == 0xb5 )
+					buf[i] = 'u';
+			}
+			line.str(buf);
+			line.clear();
+			line >> tmp[0] >> tmp[1] >> tmp[2] >> tmp[3] >> tmp[4] >> tmp[5];
+			//cout << tmp[0] << ',' << tmp[1] << ',' << tmp[2] << ',' << tmp[3] << endl;
+			parts[tmp[0]] = Part(tmp[0]);
+			parts[tmp[0]].value(tmp[1]);
+		}
+	} else {
+		//cout << "skip partlist." << endl;
 	}
 
-	string str, token, netname, part, pad, pin, sheet;
-	stringstream line;
+	for(int cnt = 0; cnt < 8; cnt++) {
+		getline(netlist, buf);
+	}
+
+	string str, netname, part, pad, pin, sheet;
 	int linenum = 0;
-	map<string,Part> parts;
-	map<string,Net> nets;
-	while ( !ifreader.eof() ) {
-		std::getline(ifreader, buf);
+	while ( !netlist.eof() ) {
+		getline(netlist, buf);
 		if ( buf.length() == 0 ) {
 			// the end of the last net
 			linenum = 0;
@@ -133,17 +189,5 @@ int main(int argc, char * argv[]) {
 		}
 		linenum++;
 	}
-	ifreader.close();
 
-	cout << endl << "Bill of Materials: " << endl;
-	for( map<string,Part>::iterator i = parts.begin(); i != parts.end(); ++i ) {
-		cout << i->second << endl;
-	}
-
-	cout << endl << "Netlist:" << endl;
-	for( map<string,Net>::iterator i = nets.begin(); i != nets.end(); ++i ) {
-		cout << i->second << endl;
-	}
-
-	return 0;
 }
