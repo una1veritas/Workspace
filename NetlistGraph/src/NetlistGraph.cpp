@@ -19,13 +19,17 @@ using namespace std;
 
 struct Part {
 	string label;
-	string val;
+	string val, dev, pkg;
 	map<string,string> pads;
 
-	Part(void) : label(""), val(""), pads() {}
-	Part(const string & name) : label(name), val(""), pads() { }
+	Part(void) : label(""), val(""), dev(""), pkg(""), pads() {}
+	Part(const string & name) : label(name), val(""), dev(""), pkg(""), pads() { }
 
-	void value(const string & v) { val = v; }
+	void setProperty(const string & v, const string & d, const string & p) {
+		val = v;
+		dev = d;
+		pkg = p;
+	}
 	string & value(void) { return val; }
 	void add(string & pin, string & padname) {
 		pads[pin] = padname;
@@ -46,6 +50,12 @@ struct Part {
 		cout << "]";
 		if ( !val.empty() ) {
 			cout << " " << val;
+		}
+		if ( !dev.empty() ) {
+			cout << " " << dev;
+		}
+		if ( !pkg.empty() ) {
+			cout << " " << pkg;
 		}
 		return st;
 	}
@@ -144,10 +154,11 @@ void readNetlist(map<string,Net> & nets, map<string,Part> & parts,
 			}
 			line.str(buf);
 			line.clear();
+			// Part     Value          Device      Package  Library    Sheet
 			line >> tmp[0] >> tmp[1] >> tmp[2] >> tmp[3] >> tmp[4] >> tmp[5];
 			//cout << tmp[0] << ',' << tmp[1] << ',' << tmp[2] << ',' << tmp[3] << endl;
 			parts[tmp[0]] = Part(tmp[0]);
-			parts[tmp[0]].value(tmp[1]);
+			parts[tmp[0]].setProperty(tmp[1], tmp[2], tmp[3]);
 		}
 	} else {
 		//cout << "skip partlist." << endl;
