@@ -39,13 +39,13 @@ class KMPMachine {
         var periodic : [ Int: Character ] = [ Int: Character]()
         border = [Int](count: countElements(mypattern), repeatedValue: -1)
         for i = 1, j = 0, border[0] = 0; i < countElements(mypattern) ;  {
-            println("(i, j) = (\(i), \(j))")
             
+            println(periodic)
+
             var match = (mypattern[i] == mypattern[j])
-            println("pattern[\(i)]=\(pattern[i]) <=> pattern[\(j)]=\(pattern[j])")
             if pattern[i] == "*" {
                 periodic[i] = mypattern[j]
-                println(periodic)
+//                println(periodic)
                 match = true
             } else if pattern[j] == "*" {
                 if let tpm = periodic[j] {
@@ -54,18 +54,29 @@ class KMPMachine {
                     }
                 }
             }
+
             if match {
+                print("\(pattern[0,i+1]) : \(pattern[i-j,i+1]) ;")
                 j++;
                 border[i] = j;
                 i++;
+                println("(i,j) = (\(i),\(j)) ")
             } else if j > 0 {
+                print("\(pattern[0,i+1]) : \(pattern[i-j,i+1]) ;")
                 j = border[j-1];
+                println("(i,j) = (\(i),\(j)) ")
             } else /* j == 0 */ {
+                print("\(pattern[0,i+1]) : \(pattern[i-j,i+1]) ;")
                 border[i] = 0
                 i++;
+                println("(i,j) = (\(i),\(j)) ")
+                periodic.removeAll(keepCapacity: true)
             }
+            println(border)
+            println()
+            
         }
-        println("\n\(periodic).")
+//        println("\n\(periodic).")
     }
 
     var pattern : String {
@@ -75,7 +86,7 @@ class KMPMachine {
 
 println("Hello, World!")
 
-var kmp : KMPMachine = KMPMachine(pattern: "11*111**1*11") //"110*100**011001*11001***10")
+var kmp : KMPMachine = KMPMachine(pattern: "10010*1011*110*10") //"110*100**011001*11001***10")
 
 for var i : Int = 0; i < countElements(kmp.pattern) ; i++ {
     print(kmp.pattern[i])
