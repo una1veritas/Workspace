@@ -28,6 +28,26 @@ extension String {
     
 }
 
+class IntPair : Hashable, Printable {
+    var first, second : Int
+    
+    init(first: Int, second: Int) {
+        self.first = first
+        self.second = second
+    }
+    
+    var hashValue : Int {
+        get { return (first<<15)^second }
+    }
+
+    var description: String {
+        get { return "(\(first),\(second))"}
+    }
+}
+func == (lhs: IntPair, rhs: IntPair) -> Bool {
+    return (lhs.first == rhs.first) && (lhs.second == rhs.second)
+}
+
 
 class KMPMachine {
     var mypattern : String
@@ -36,43 +56,53 @@ class KMPMachine {
     init(pattern : String) {
         var i, j: Int
         mypattern = pattern
-        var periodic : [ Int: Character ] = [ Int: Character]()
+        var periodic = [ IntPair:Character]()
         border = [Int](count: countElements(mypattern), repeatedValue: -1)
         for i = 1, j = 0, border[0] = 0; i < countElements(mypattern) ;  {
             
-            println(periodic)
+            //println(periodic)
+
+            println(pattern[0,i+1])
+            for var iter = 0; iter < i - j; iter++ { print(" ") }
+            println(pattern[0,j+1])
+            print("(i,j,period) = (\(i),\(j); \(i-j))")
 
             var match = (mypattern[i] == mypattern[j])
-            if pattern[i] == "*" {
-                periodic[i] = mypattern[j]
-//                println(periodic)
-                match = true
-            } else if pattern[j] == "*" {
-                if let tpm = periodic[j] {
-                    if periodic[j] == pattern[i] {
-                        match = true
-                    }
+            if !match && (pattern[i] == "*") {
+                let pair = IntPair(first: i, second: j)
+                if let temp_result = periodic[pair] {
+                    match = periodic[pair] == pattern[j]
+                } else {
+                    periodic[pair] = pattern[j]
+                    match = true
+                }
+            } else if !match && (pattern[j] == "*") {
+                let pair = IntPair(first: i, second: j)
+                if let temp_result = periodic[pair] {
+                    match = periodic[pair] == pattern[i]
+                } else {
+                    periodic[pair] = pattern[i]
+                    match = true
                 }
             }
 
+
             if match {
-                print("\(pattern[0,i+1]) : \(pattern[i-j,i+1]) ;")
                 j++;
                 border[i] = j;
                 i++;
-                println("(i,j) = (\(i),\(j)) ")
+                println(" -o-> (\(i),\(j); \(i-j)) ")
             } else if j > 0 {
-                print("\(pattern[0,i+1]) : \(pattern[i-j,i+1]) ;")
                 j = border[j-1];
-                println("(i,j) = (\(i),\(j)) ")
+                println(" -x-> (\(i),\(j); \(i-j)) ")
             } else /* j == 0 */ {
-                print("\(pattern[0,i+1]) : \(pattern[i-j,i+1]) ;")
                 border[i] = 0
                 i++;
-                println("(i,j) = (\(i),\(j)) ")
-                periodic.removeAll(keepCapacity: true)
+                println(" -x-> (\(i),\(j); \(i-j)) ")
             }
-            println(border)
+            
+            print("B[] = "); println(border)
+            println(periodic)
             println()
             
         }
@@ -86,7 +116,7 @@ class KMPMachine {
 
 println("Hello, World!")
 
-var kmp : KMPMachine = KMPMachine(pattern: "10010*1011*110*10") //"110*100**011001*11001***10")
+var kmp : KMPMachine = KMPMachine(pattern: "abaa*baaabaaaaababaababaabaas") //"110*100**011001*11001***10")
 
 for var i : Int = 0; i < countElements(kmp.pattern) ; i++ {
     print(kmp.pattern[i])
