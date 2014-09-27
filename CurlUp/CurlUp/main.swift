@@ -61,15 +61,16 @@ class KMPMachine {
         for i = 1, j = 0, border[0] = 0; i < countElements(mypattern) ;  {
             
             //println(periodic)
-
             println(pattern[0,i+1])
             for var iter = 0; iter < i - j; iter++ { print(" ") }
             println(pattern[0,j+1])
             print("(i,j,period) = (\(i),\(j); \(i-j))")
 
+            let period = i-j
             var match = (mypattern[i] == mypattern[j])
+/*
             if !match && (pattern[i] == "*") {
-                let pair = IntPair(first: i, second: j)
+                let pair = IntPair(first: period, second: i)
                 if let temp_result = periodic[pair] {
                     match = periodic[pair] == pattern[j]
                 } else {
@@ -77,7 +78,7 @@ class KMPMachine {
                     match = true
                 }
             } else if !match && (pattern[j] == "*") {
-                let pair = IntPair(first: i, second: j)
+                let pair = IntPair(first: period, second: j)
                 if let temp_result = periodic[pair] {
                     match = periodic[pair] == pattern[i]
                 } else {
@@ -85,7 +86,7 @@ class KMPMachine {
                     match = true
                 }
             }
-
+*/
 
             if match {
                 j++;
@@ -116,7 +117,7 @@ class KMPMachine {
 
 println("Hello, World!")
 
-var kmp : KMPMachine = KMPMachine(pattern: "abaa*baaabaaaaababaababaabaas") //"110*100**011001*11001***10")
+var kmp : KMPMachine = KMPMachine(pattern: "abaa*baaabaaa*a*abaababaabaas") //"110*100**011001*11001***10")
 
 for var i : Int = 0; i < countElements(kmp.pattern) ; i++ {
     print(kmp.pattern[i])
