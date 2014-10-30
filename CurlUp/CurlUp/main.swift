@@ -77,10 +77,10 @@ func length1(s : [Character]) -> Int {
             print("k' = \(kp): ")
             //print("* = ell[\(n-kp+1)]? "); println("*" == ell[n-k'+1] )
             if "*" != ell[n-kp+1] {
-                println("t[pp-((k'+pp-1) % pp)] = t[\(pp-((kp+pp-1) % pp))] = \(t[pp-((kp+pp-1) % pp)]).")
-                if t[pp-((kp+pp-1) % pp)] == "*" {
-                    t[pp - ((kp+pp-1) % pp)] = ell[n - kp+1]
-                } else if t[pp-((kp+pp-1) % pp)] != ell[n-kp+1] {
+                println("t[pp-((k'-1) % pp)] = t[\(pp-((kp-1) % pp))] = \(t[pp-((kp-1) % pp)]).")
+                if t[pp-((kp-1) % pp)] == "*" {
+                    t[pp - ((kp-1) % pp)] = ell[n - kp+1]
+                } else if t[pp-((kp-1) % pp)] != ell[n-kp+1] {
                     println("compare failed.")
                     break
                 }
