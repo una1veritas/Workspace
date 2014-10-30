@@ -26,6 +26,9 @@ extension String {
         return self[range.startIndex, range.endIndex]
     }
     
+    func length() -> Int {
+        return countElements(self)
+    }
 }
 
 class IntPair : Hashable, Printable {
@@ -49,83 +52,43 @@ func == (lhs: IntPair, rhs: IntPair) -> Bool {
 }
 
 
-class KMPMachine {
-    var mypattern : String
-    var border : [Int]
+/* program main part. */
+    println("Hello, World!")
 
-    init(pattern : String) {
-        var i, j: Int
-        mypattern = pattern
-        var periodic = [ IntPair:Character]()
-        border = [Int](count: countElements(mypattern), repeatedValue: -1)
-        for i = 1, j = 0, border[0] = 0; i < countElements(mypattern) ;  {
-            
-            //println(periodic)
-            println(pattern[0,i+1])
-            for var iter = 0; iter < i - j; iter++ { print(" ") }
-            println(pattern[0,j+1])
-            print("(i,j,period) = (\(i),\(j); \(i-j))")
+let base0 : Int = -1
+    var ell = [Character]("_0111011011")
+    println("ell = \(ell).")
+    println()
+    
+    /* algorithm naive */
+    
+    let n = countElements(ell)-1
+    var d = n, p = 1  /* d = n means there's no loop. */
 
-            let period = i-j
-            var match = (mypattern[i] == mypattern[j])
-/*
-            if !match && (pattern[i] == "*") {
-                let pair = IntPair(first: period, second: i)
-                if let temp_result = periodic[pair] {
-                    match = periodic[pair] == pattern[j]
-                } else {
-                    periodic[pair] = pattern[j]
-                    match = true
+    for pp in 1...n /* test period pp */ {
+        var t = [Character](count: pp+1, repeatedValue: "_") /* we ignore the 0th element */
+        t[1...pp] = ell[n-pp+1...n]
+        println("status: t = \(t), pp = \(pp),")
+        var k : Int
+        for k = pp+1 ; k < n; ++k {
+            println("k = \(k).")
+            //print("* = ell[\(n-k+1)]? "); println("*" == ell[n-k+1] )
+            if "*" != ell[n-k+1] {
+                println("t[pp-(k % pp)] = t[\(pp-(k % pp))] = \(t[pp-(k % pp)]).")
+                if t[pp-(k % pp)] == "*" {
+                    t[pp - (k % pp)] = ell[n - k]
+                } else if t[pp-(k % pp)] != ell[n-k] {
+                    break
                 }
-            } else if !match && (pattern[j] == "*") {
-                let pair = IntPair(first: period, second: j)
-                if let temp_result = periodic[pair] {
-                    match = periodic[pair] == pattern[i]
-                } else {
-                    periodic[pair] = pattern[i]
-                    match = true
-                }
+                println("passed.")
             }
-*/
-
-            if match {
-                j++;
-                border[i] = j;
-                i++;
-                println(" -o-> (\(i),\(j); \(i-j)) ")
-            } else if j > 0 {
-                j = border[j-1];
-                println(" -x-> (\(i),\(j); \(i-j)) ")
-            } else /* j == 0 */ {
-                border[i] = 0
-                i++;
-                println(" -x-> (\(i),\(j); \(i-j)) ")
-            }
-            
-            print("B[] = "); println(border)
-            println(periodic)
-            println()
-            
         }
-//        println("\n\(periodic).")
+        if n - k - 1 + pp < d + p - 1 {
+            (d, p) = (n-k, pp)
+            print("(d, p) = (\(d), \(p)), t = \(t[1...pp]); ")
+            println("\(ell[1...d]) -> \(ell[d+1 ... d+p])")
+        }
+        println()
     }
-
-    var pattern : String {
-        get { return mypattern }
-    }
-}
-
-println("Hello, World!")
-
-var kmp : KMPMachine = KMPMachine(pattern: "abaa*baaabaaa*a*abaababaabaas") //"110*100**011001*11001***10")
-
-for var i : Int = 0; i < countElements(kmp.pattern) ; i++ {
-    print(kmp.pattern[i])
-    print(" ")
-}
-println()
-for var i : Int = 0; i < countElements(kmp.pattern) ; i++ {
-    print(kmp.border[i])
-    print(" ")
-}
-println()
+    print("(d,p) = (\(d), \(p))")
+    println()
