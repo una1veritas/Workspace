@@ -56,7 +56,7 @@ func == (lhs: IntPair, rhs: IntPair) -> Bool {
     println("Hello, World!")
 
 let base0 : Int = -1
-    var ell = [Character]("_0111011011")
+    var ell = [Character]("_01110111011")
     println("ell = \(ell).")
     println()
     
