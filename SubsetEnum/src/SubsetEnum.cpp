@@ -9,24 +9,34 @@
 #include <iostream>
 using namespace std;
 
-int * subsetenum(const int b, const int list[], const int n);
+int * bestSubset(const int b, const int list[], const int n);
 
-int main() {
+int main(int argc, char * argv[]) {
 	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
 
-	int list[] = { 45, 98, 103, 128, 38, 198, 75, 0 };
 	int n = 0;
 	int budget = 500;
+
+	if ( !(argc >= 3) ) {
+		cerr << "budget, item1, item2, ...." << endl << endl;
+		return -1; // input format error
+	}
+	budget = atoi(argv[1]);
+	n = argc - 2;
+	int * list = new int[n+1];
+	for(int i = 0; i < n; ++i) {
+		list[i] = atoi(argv[i+2]);
+	}
+	list[n] = 0;
 
 	cout << "Given items: ";
 	for (int i = 0; list[i] != 0; ++i) {
 		cout << list[i] << ", ";
-		n++;
 	}
 	cout << endl << "Size: " << n << endl;
 	cout << "Budget: " << budget << endl;
 
-	int * cart = subsetenum(budget, list, n);
+	int * cart = bestSubset(budget, list, n);
 	int price = 0;
 
 	cout << endl << "In the best cart: ";
@@ -39,10 +49,12 @@ int main() {
 	cout << endl;
 	cout << "Price: " << price << endl;
 
+	delete[] list;
+	delete[] cart;
 	return 0;
 }
 
-int * subsetenum(const int b, const int list[], const int n) {
+int * bestSubset(const int b, const int list[], const int n) {
 	int subset[n];
 	int sum = 0;
 	int * bestcart = new int[n];
@@ -60,11 +72,8 @@ int * subsetenum(const int b, const int list[], const int n) {
 			subset[d] = 0;
 		//
 		int temp = 0;
-		for(int i = 0; i < n; ++i) {
+		for(int i = 0; i < n; ++i)
 			if ( subset[i] != 0 ) { temp += list[i]; }
-			cout << subset[i] << " ";
-		}
-		cout << ", " << temp << endl;
 		if ( temp <= b && temp > sum ) {
 			sum = temp;
 			for(int i = 0; i < n; ++i)
