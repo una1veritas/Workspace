@@ -40,17 +40,19 @@ int main(int argc, char * argv[]) {
 	// main
 	const unsigned long pnorm_sq = iproduct(pattern, pattern, plen);
 
-	for(unsigned int pos = 0; pos < tlen - plen + 1; pos++) {
-		printf("pos = %d: ", pos);
-
-		printf("'");
-		for(int i = 0; i < plen; i++) {
-			printf("%c", text[pos + i]);
-		}
-		printf("'\n");
+	for(unsigned int pos = 0; pos < tlen - plen + 1 ; pos++) {
 		const unsigned long tnorm_sq = iproduct(text+pos, text+pos, plen);
-		const unsigned long iprod = iproduct(pattern, text+pos, plen);
-		printf("pn %lu, tn %lu, product: %5.4f\n", pnorm_sq, tnorm_sq, (double) iprod / sqrt(pnorm_sq) / sqrt(tnorm_sq) ) ;
+		const double iprod = iproduct(pattern, text+pos, plen) / sqrt(pnorm_sq * tnorm_sq);
+		if ( iprod == 1.0f ) {
+			printf("pos = %d: ", pos);
+
+			printf("'");
+			for(int i = 0; i < plen; i++) {
+				printf("%c", text[pos + i]);
+			}
+			printf("'\n");
+			printf("p norm = %lu, t norm = %lu, i product = %5.4f\n", pnorm_sq, tnorm_sq, iprod) ;
+		}
 	}
 
 	printf("end.\n\n");
@@ -61,7 +63,7 @@ unsigned long iproduct(const char * p, const char * t, const unsigned int len) {
 	unsigned long sum = 0;
 
 	for(int i = 0; i < len; i++) {
-		sum = ((unsigned long) p[i]) * ((unsigned long) t[i]);
+		sum += ((unsigned long) p[i]) * ((unsigned long) t[i]);
 	}
 	return sum;
 }
