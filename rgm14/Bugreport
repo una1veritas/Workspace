@@ -1,0 +1,13 @@
+/*
+ * Bugreport: Rog-O-Matic XIV (CMU) Mon Feb 16 15:28:00 1987 - mlm
+ * Copyright (C) 1985 by A. Appel, G. Jacobson, L. Hamey, and M. Mauldin
+ */
+
+1. utility.c uses "getpw (getuid (), name)", which according to
+   Rick Adams @ Seismo is obsolete.  no fix made here.  Caveat Emptor!
+
+2. Peter Wan reports problems with screen handling on terminals with
+   no tabs.  Jeff Anton at Berkeley replies that putting "GT=0"
+   after the call to initscr() in main.c will force curses to use
+   spaces or cursor positioning, so this hack will make the program
+   work on terminals without tabs.
