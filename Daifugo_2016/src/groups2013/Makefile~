@@ -1,0 +1,28 @@
+CC	= gcc
+CXX	= g++
+CFLAGS = -Wall -O0 -g3
+CXXFLAGS = -Wall -O0 -g3
+INCLUDES = -I./ -I../ 
+
+HEADERS = ../Card.h ../CardSet.h ../Dealer.h ../Player.h ../GameStatus.h 
+OBJS = Card.o CardSet.o CardSet_remove.o CardSet_pickup.o CardSet_insert.o \
+	CardSet_shuffle.o \
+	Dealer.o Player.o SamplePlayer.o
+
+GROUPS2013OBJS = GroupA.o GroupB.o GroupC.o GroupD.o GroupE.o GroupF.o GroupG.o GroupH.o 
+GROUPS2013HEADERS = GroupB.h GroupC.h GroupH.h 
+
+
+.SUFFIXES : .o .cpp
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $<
+
+libgroups2013.a:  $(GROUPS2013OBJS)
+	ar r libgroups2013.a $(GROUPS2013OBJS)
+	mv -f ./libgroups2013.a ../
+
+$(GROUPS2013OBJS): $(GROUPS2013HEADERS) $(HEADERS)
+
+clean:
+	\rm -f $(GROUPS2013OBJS) libgroups2013.a
