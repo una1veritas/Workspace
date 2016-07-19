@@ -7,6 +7,7 @@
 //============================================================================
 
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <set>
 #include <algorithm>
@@ -89,8 +90,17 @@ int main(const int argc, const char * argv[]) {
 		str[i] = tolower(str[i]);
 	Permutator perm(str.length());
 
+	std::fstream dictfile;
 	std::set<std::string> worddict;
-	load_dict(worddict, std::cin);
+	dictfile.open("words.txt", std::fstream::in);
+	if ( dictfile.is_open() ) {
+		load_dict(worddict, std::cin);
+		dictfile.close();
+	} else {
+		std::cerr << "Failed opening the words file." << std::endl << std::endl;
+		return EXIT_FAILURE;
+	}
+
 	std::cout << worddict.size() << " words: " << std::endl;
 	std::set<std::string>::iterator it;
 	for(it = worddict.begin(); it != worddict.end(); it++) {
