@@ -1,5 +1,5 @@
 //============================================================================
-// Name        : Permutator.cpp
+// Name        : permutator.cpp
 // Author      : 
 // Version     :
 // Copyright   : Your copyright notice
@@ -82,7 +82,6 @@ public:
 void load_dict(std::set<std::string> &, std::istream &);
 
 int main(const int argc, const char * argv[]) {
-	std::cout << "!!!Hello World!!!" << std::endl; // prints !!!Hello World!!!
 	if ( argc == 0 )
 		return EXIT_FAILURE;
 	std::string str(argv[1]);
@@ -90,14 +89,17 @@ int main(const int argc, const char * argv[]) {
 		str[i] = tolower(str[i]);
 	Permutator perm(str.length());
 
+	std::cout << "!!!Hello World!!! " << std::endl; // prints !!!Hello World!!!
+
 	std::fstream dictfile;
 	std::set<std::string> worddict;
-	dictfile.open("words.txt", std::fstream::in);
+	dictfile.open("/Users/sin/Documents/Workspace/permutator/words.txt", std::fstream::in);
 	if ( dictfile.is_open() ) {
-		load_dict(worddict, std::cin);
+		std::cout << "reading words..." << std::endl;
+		load_dict(worddict, dictfile);
 		dictfile.close();
 	} else {
-		std::cerr << "Failed opening the words file." << std::endl << std::endl;
+		std::cout << "Failed opening the words file." << std::endl << std::endl;
 		return EXIT_FAILURE;
 	}
 
@@ -127,7 +129,6 @@ void load_dict(std::set<std::string> & list, std::istream & indata) {
 		indata >> word;
 		if ( word.length() > 0 ) {
 			list.insert(std::string(word));
-			//std::cout << word<< ", ";
 		}
 	}
 
