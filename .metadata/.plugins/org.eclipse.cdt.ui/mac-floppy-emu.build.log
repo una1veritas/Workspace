@@ -1,0 +1,37 @@
+16:48:46 **** Incremental Build of configuration Debug for project mac-floppy-emu ****
+make all 
+Building file: ../AVR/floppyemu.cpp
+Invoking: AVR C++ Compiler
+avr-g++ -I"/Users/sin/Documents/mac-floppy-emu/floppy-emu-source-1.0L-F11/AVR/SdFat" -I"/Users/sin/Documents/mac-floppy-emu/floppy-emu-source-1.0L-F11/AVR/xsvf" -Wall -g2 -gstabs -O2 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -funsigned-char -funsigned-bitfields -fno-exceptions -mmcu=atmega1284p -DF_CPU=16000000UL -MMD -MP -MF"AVR/floppyemu.d" -MT"AVR/floppyemu.d" -c -o "AVR/floppyemu.o" "../AVR/floppyemu.cpp"
+Finished building: ../AVR/floppyemu.cpp
+ 
+Building target: mac-floppy-emu.elf
+Invoking: AVR C++ Linker
+avr-g++ -Wl,-Map,mac-floppy-emu.map,--cref -mrelax -Wl,--gc-sections -Wl,-section-start=.bootldrinfo=0x1eff8 -mmcu=atmega1284p -o "mac-floppy-emu.elf"  ./AVR/xsvf/lenval.o ./AVR/xsvf/micro.o ./AVR/xsvf/ports.o  ./AVR/SdFat/Sd2Card.o ./AVR/SdFat/SdBaseFile.o ./AVR/SdFat/SdFat.o ./AVR/SdFat/SdVolume.o  ./AVR/cardtest.o ./AVR/diskmenu.o ./AVR/floppyemu.o ./AVR/millitimer.o ./AVR/noklcd.o   
+Finished building target: mac-floppy-emu.elf
+ 
+make --no-print-directory post-build
+avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature  "mac-floppy-emu.elf" "mac-floppy-emu..hex"
+ 
+Invoking: AVR Create Extended Listing
+avr-objdump -h -S mac-floppy-emu.elf  >"mac-floppy-emu.lss"
+Finished building: mac-floppy-emu.lss
+ 
+Invoking: Print Size
+avr-size --format=avr --mcu=atmega1284p mac-floppy-emu.elf
+AVR Memory Usage
+----------------
+Device: atmega1284p
+
+Program:   30390 bytes (23.2% Full)
+(.text + .data + .bootloader)
+
+Data:      14041 bytes (85.7% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 
+
+16:48:47 Build Finished (took 433ms)
+

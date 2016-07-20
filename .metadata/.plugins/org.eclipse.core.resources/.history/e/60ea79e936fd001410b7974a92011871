@@ -1,0 +1,88 @@
+//============================================================================
+// Name        : tm.cpp
+// Author      : 
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+
+//#include <stdio.h>
+//#include <conio.h>
+#include <unistd.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <time.h>
+//#include <windows.h>
+#include <cmath>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <set>
+#include <map>
+#include <vector>
+#include <stack>
+
+#include "TuringMachine.h"
+
+using namespace std;
+
+// メイン関数
+int main(int argc, char * argv[]) {
+
+	TuringMachine tm;
+
+	unsigned int i; //,v;			// v:mapのキー
+	string fname;
+	string inputTape;
+
+	unsigned int c;
+	for(c = 1; i < argc; i++) {
+		if (c == 1 && (std::string(argv[i]) == "-rw") ) {
+			std::cout << "RW!!!" << std::endl;
+		}
+	}
+	// テープ初期化
+	if (argc == 3)
+		inputTape = argv[2];
+
+	cout << "Version 12.0419" << endl << endl;
+
+	// TMファイルを読み込み、状態遷移表を作成する
+	tm.maketable(argv[1]);
+
+// 遷移関数の表示
+	cout << "---Transition table---" << endl;
+	for (i = 0; i < tm.table.size(); i++)
+		cout << tm.table[i].current << ' ' << tm.table[i].read[0] << ' '
+				<< tm.table[i].read[1] << " -> " << tm.table[i].next << " ("
+				<< tm.table[i].write[0] << ", " << tm.table[i].headding[0]
+				<< "), (" << tm.table[i].write[1] << ", "
+				<< tm.table[i].headding[1] << ") " << endl;
+	cout << "---Table end---" << endl;
+	cout << "Accepting states: ";
+	for (set<string>::iterator ep = tm.acceptingStates.begin();
+			ep != tm.acceptingStates.end(); ep++) {
+		cout << *ep << ", ";
+	}
+	cout << endl;
+	// シミュレート実行
+	cout
+	//		<< " Redo      -> 'r'" << endl
+	<< " Go next step         -> '[return]'" << endl
+//		<< " Undo      -> 'u'" << endl
+			<< " Continue until halt  -> 'c'" << endl
+//		<< " Traverse  -> 't'" << endl
+			<< " Exit                 -> 'e'" << endl << endl;
+
+	string * workingTapes = new string[tm.tapes];
+	for(unsigned int i = 1; i < tm.tapes; i++) {
+		workingTapes[i] += tm.BLANK;
+	}
+	tm.simulate(inputTape, workingTapes);
+
+	delete[] workingTapes;
+	return 0;
+}
+
