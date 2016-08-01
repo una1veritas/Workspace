@@ -8,76 +8,11 @@
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <set>
-#include <algorithm>
 
 #include <cctype>
 
-class Permutator {
-	const unsigned int size;
-	std::vector<unsigned int> perm;
-
-public:
-	Permutator(const unsigned int n) : size(n), perm(size) {
-		init();
-	}
-
-	void init(void) {
-		for(unsigned int i = 0; i < size; i++)
-			perm[i] = i;
-	}
-
-	const bool next(void) {
-		unsigned int boundary = size - 1;
-		for ( ; boundary > 0 && perm[boundary-1] > perm[boundary]; --boundary) {}
-		// std::cout << "boundary = " << boundary << ", " << *this << std::endl;
-		//sort
-		std::sort(perm.begin()+boundary, perm.end(), [](int a, int b) { return a < b; } );
-		// std::cout << "sorted: " << *this << std::endl;
-		// find the next for perm[top-1]
-		unsigned int larger;
-		for(larger = boundary; larger < size; ++larger) {
-			if ( perm[boundary-1] < perm[larger] )
-				break;
-		}
-		if ( !(larger < size) ) {
-			//std::cerr << "next error!" << std::endl;
-			return false;
-		}
-		unsigned int t = perm[boundary-1];
-		perm[boundary-1] = perm[larger];
-		perm[larger] = t;
-		//std::cout << *this << std::endl;
-		return true;
-	}
-
-	std::string & map(std::string & str) const {
-		std::string tmp(str);
-		str.clear();
-		for(int i = 0; i < size; i++) {
-			if ( perm[i] < tmp.length() ) {
-				str.push_back(tmp[perm[i]]);
-			}
-		}
-		return str;
-	}
-
-	std::ostream & printOn(std::ostream & out) const {
-		out << "(";
-		for(unsigned int i = 0; i < size; i++) {
-			out << perm[i];
-			if ( i+1 < size )
-				out << ", ";
-		}
-		out << ") ";
-		return out;
-	}
-
-	friend std::ostream & operator<<(std::ostream & out, const Permutator & p) {
-		return p.printOn(out);
-	}
-};
+#include "Permutation.h"
 
 void load_dict(std::set<std::string> &, std::istream &);
 
@@ -87,7 +22,7 @@ int main(const int argc, const char * argv[]) {
 	std::string str(argv[1]);
 	for(int i = 0; i < str.length(); ++i)
 		str[i] = tolower(str[i]);
-	Permutator perm(str.length());
+	Permutation perm(str.length());
 
 	//std::cout << "!!!Hello World!!! " << std::endl; // prints !!!Hello World!!!
 
@@ -111,17 +46,23 @@ int main(const int argc, const char * argv[]) {
 	}
 	std::cout << std::endl;
 
-	unsigned long count = 0;
+	std::string matched = "";
 	std::cout << perm << std::endl << std::endl;
-	while (perm.next()) {
-		count++;
+	do {
 		std::string t = str;
 		perm.map(t);
 		std::set<std::string>::iterator pos = worddict.find(t);
-		if ( pos != worddict.end() )
-			std::cout << t << std::endl;
-	}
+		if ( pos != worddict.end() ) {
+			matched = t;
+		}
+		std::cout << t << std::endl;
+	} while (perm.next());
 
+	if ( matched == "" ) {
+		std::cout << std::endl << "No suggestion." << std::endl << std::endl;
+	} else {
+		std::cout << std::endl  << "Suggestion: " << matched << std::endl << std::endl;
+	}
 	return EXIT_SUCCESS;
 }
 
