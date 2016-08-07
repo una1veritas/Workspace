@@ -15,6 +15,7 @@
 #include "Permutation.h"
 
 void load_dict(std::set<std::string> &, std::istream &);
+int strdist(const std::string & t, const std::string & p);
 
 int main(const int argc, const char * argv[]) {
 	if ( argc == 0 )
@@ -22,6 +23,8 @@ int main(const int argc, const char * argv[]) {
 	std::string str(argv[1]);
 	for(int i = 0; i < str.length(); ++i)
 		str[i] = tolower(str[i]);
+	std::sort(&str[0], &str[str.length()], [](char a, char b) { return a < b; } );
+
 	Permutation perm(str.length());
 
 	//std::cout << "!!!Hello World!!! " << std::endl; // prints !!!Hello World!!!
@@ -48,20 +51,34 @@ int main(const int argc, const char * argv[]) {
 
 	std::string matched = "";
 	std::cout << perm << std::endl << std::endl;
+	double maxval = 0;
 	do {
 		std::string t = str;
 		perm.map(t);
-		std::set<std::string>::iterator pos = worddict.find(t);
-		if ( pos != worddict.end() ) {
-			matched = t;
+		for(std::set<std::string>::iterator elem = worddict.begin(); elem != worddict.end(); elem++) {
+			const int pos = strdist(t, *elem);
+			if ( pos == -1 )
+				continue;
+
+			const int pos_end = pos + elem->length();
+			const double point = ((double) elem->length()) / t.length();
+			if ( pos > 0 )
+				std::cout << t.substr(0, pos) << "-";
+			std::cout << t.substr(pos, elem->length());
+			if ( pos_end < t.length() )
+				std::cout << "-" << t.substr(pos_end,t.length()-pos_end+1);
+			std::cout << std::endl;
+			if ( point > maxval ) {
+				matched = t;
+				maxval = point;
+			}
 		}
-		std::cout << t << std::endl;
 	} while (perm.next());
 
 	if ( matched == "" ) {
 		std::cout << std::endl << "No suggestion." << std::endl << std::endl;
 	} else {
-		std::cout << std::endl  << "Suggestion: " << matched << std::endl << std::endl;
+		std::cout << std::endl  << "Suggestion: " << matched << " with " << maxval << std::endl << std::endl;
 	}
 	return EXIT_SUCCESS;
 }
@@ -77,4 +94,17 @@ void load_dict(std::set<std::string> & list, std::istream & indata) {
 	}
 
 	return;
+}
+
+int strdist(const std::string & text, const std::string & patt) {
+
+	if ( text.length() < patt.length() )
+		return -1;
+
+	int pos;
+	for(pos = 0; pos < text.length() - patt.length() + 1; pos++)
+		if ( text.compare(pos, patt.length(), patt) == 0 ) {
+			return pos ;
+		}
+	return -1;
 }
