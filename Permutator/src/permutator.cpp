@@ -15,12 +15,20 @@
 #include "Permutation.h"
 
 void load_dict(std::set<std::string> &, std::istream &);
-int strdist(const std::string & t, const std::string & p);
+int strpos(const std::string & t, const std::string & p);
 
 int main(const int argc, const char * argv[]) {
+	struct {
+		bool all = false;
+	} options;
+
 	if ( argc == 0 )
 		return EXIT_FAILURE;
 	std::string str(argv[1]);
+	if ( str == "-a" ) {
+		options.all = true;
+		str = argv[2];
+	}
 	for(int i = 0; i < str.length(); ++i)
 		str[i] = tolower(str[i]);
 	std::sort(&str[0], &str[str.length()], [](char a, char b) { return a < b; } );
@@ -55,11 +63,12 @@ int main(const int argc, const char * argv[]) {
 	do {
 		std::string t = str;
 		perm.map(t);
+		if ( options.all )
+			std::cout << t << std::endl;
 		for(std::set<std::string>::iterator elem = worddict.begin(); elem != worddict.end(); elem++) {
-			const int pos = strdist(t, *elem);
+			const int pos = strpos(t, *elem);
 			if ( pos == -1 )
 				continue;
-
 			const int pos_end = pos + elem->length();
 			const double point = ((double) elem->length()) / t.length();
 			if ( pos > 0 )
@@ -96,14 +105,34 @@ void load_dict(std::set<std::string> & list, std::istream & indata) {
 	return;
 }
 
-int strdist(const std::string & text, const std::string & patt) {
+int strpos(const std::string & text, const std::string & word) {
 
-	if ( text.length() < patt.length() )
+	if ( text.length() < word.length() )
 		return -1;
 
+	if ( word == "glass-" )
+		std::cout << std::endl;
 	int pos;
-	for(pos = 0; pos < text.length() - patt.length() + 1; pos++)
+	std::string patt = word;
+	if ( patt.compare(0,1,"-") == 0 ) {
+		patt = patt.substr(1,patt.length()-1);
+		pos = text.length() - patt.length();
 		if ( text.compare(pos, patt.length(), patt) == 0 ) {
+			return pos ;
+		}
+	} else if ( patt.compare(patt.length()-1,1,"-") == 0 ) {
+		patt = patt.substr(0,patt.length()-1);
+		pos = 0;
+		if ( text.compare(pos, patt.length(), patt) == 0 ) {
+			return pos ;
+		}
+	}
+	pos = 0;
+	if ( text.compare(pos, patt.length(), patt) == 0 ) {
+		return pos ;
+	}
+	pos = text.length() - patt.length();
+	if ( text.compare(pos, patt.length(), patt) == 0 ) {
 			return pos ;
 		}
 	return -1;
