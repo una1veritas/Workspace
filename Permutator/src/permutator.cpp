@@ -50,12 +50,12 @@ int main(const int argc, const char * argv[]) {
 	}
 
 	std::cout << worddict.size() << " words: " << std::endl;
-	std::set<std::string>::iterator it;
-	for(it = worddict.begin(); it != worddict.end(); it++) {
-		std::string word = *it;
-		std::cout << word << std::endl;
-	}
-	std::cout << std::endl;
+//	std::set<std::string>::iterator it;
+//	for(it = worddict.begin(); it != worddict.end(); it++) {
+//		std::string word = *it;
+//		std::cout << word << std::endl;
+//	}
+//	std::cout << std::endl;
 
 	std::string matched = "";
 	std::cout << perm << std::endl << std::endl;
