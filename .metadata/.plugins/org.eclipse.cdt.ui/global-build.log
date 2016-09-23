@@ -1,12 +1,48 @@
-21:55:55 **** Build of configuration Debug for project permutator ****
-make all 
-Building file: ../src/permutator.cpp
-Invoking: GCC C++ Compiler
-g++ -std=c++0x -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/permutator.d" -MT"src/permutator.o" -o "src/permutator.o" "../src/permutator.cpp"
-Finished building: ../src/permutator.cpp
- 
-Building target: permutator
-Invoking: MacOS X C++ Linker
-g++  -o "permutator"  ./src/Permutation.o ./src/permutator.o   
-Finished building target: permutator
- 
+23:14:18 **** Incremental Build of configuration Debug for project CSVReader ****
+Info: Internal Builder is used for build
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -o "src\\main.o" "..\\src\\main.cpp" 
+In file included from ..\src\main.cpp:14:0:
+..\src\main.h:11:21: error: variable or field 'load_dict' declared void
+ void load_dict(std::set<std::string> &, std::istream &);
+                     ^~~
+..\src\main.h:11:16: error: 'set' is not a member of 'std'
+ void load_dict(std::set<std::string> &, std::istream &);
+                ^~~
+..\src\main.h:11:36: error: expected primary-expression before '>' token
+ void load_dict(std::set<std::string> &, std::istream &);
+                                    ^
+..\src\main.h:11:39: error: expected primary-expression before ',' token
+ void load_dict(std::set<std::string> &, std::istream &);
+                                       ^
+..\src\main.h:11:54: error: expected primary-expression before '&' token
+ void load_dict(std::set<std::string> &, std::istream &);
+                                                      ^
+..\src\main.h:11:55: error: expected primary-expression before ')' token
+ void load_dict(std::set<std::string> &, std::istream &);
+                                                       ^
+..\src\main.cpp: In function 'int main(int, const char**)':
+..\src\main.cpp:25:13: error: 'table' was not declared in this scope
+   load_dict(table, csvfile);
+             ^~~~~
+..\src\main.cpp:25:27: error: 'load_dict' was not declared in this scope
+   load_dict(table, csvfile);
+                           ^
+..\src\main.cpp: At global scope:
+..\src\main.cpp:35:21: error: variable or field 'load_dict' declared void
+ void load_dict(std::set<std::string> & list, std::istream & indata) {
+                     ^~~
+..\src\main.cpp:35:16: error: 'set' is not a member of 'std'
+ void load_dict(std::set<std::string> & list, std::istream & indata) {
+                ^~~
+..\src\main.cpp:35:36: error: expected primary-expression before '>' token
+ void load_dict(std::set<std::string> & list, std::istream & indata) {
+                                    ^
+..\src\main.cpp:35:40: error: 'list' was not declared in this scope
+ void load_dict(std::set<std::string> & list, std::istream & indata) {
+                                        ^~~~
+..\src\main.cpp:35:59: error: expected primary-expression before '&' token
+ void load_dict(std::set<std::string> & list, std::istream & indata) {
+                                                           ^
+..\src\main.cpp:35:61: error: 'indata' was not declared in this scope
+ void load_dict(std::set<std::string> & list, std::istream & indata) {
+                                                             ^~~~~~
