@@ -10,7 +10,7 @@
 std::string & Permutation::map(std::string & str) const {
 	std::string tmp(str);
 	str.clear();
-	for(int i = 0; i < size; i++) {
+	for(int unsigned i = 0; i < size; i++) {
 		if ( perm[i] < tmp.length() ) {
 			str.push_back(tmp[perm[i]]);
 		}
