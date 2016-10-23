@@ -1,0 +1,650 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="ja">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=shift_jis">
+	<meta http-equiv="Content-Style-Type" content="text/css; charset=Shift_JIS">
+	<link type="text/css" rel="stylesheet" href="document.css">
+	<title>ロボット作成方法</title>
+</head>
+<body>
+<h1>ロボット作成方法</h1>
+<p>ここでは、ロボットの基本的な作り方について説明します。</p>
+<ul>
+	<li><a href="#class">ロボットクラス作成</a></li>
+	<li><a href="#func">様々な機能</a></li>
+	<li><a href="#order">注文の発行</a></li>
+	<li><a href="#portfolio">ポートフォリオ</a></li>
+	<li><a href="#data">株式情報データの利用</a></li>
+	<li><a href="#screening">スクリーニング</a></li>
+	<li><a href="#technical">テクニカル分析</a></li>
+	<li><a href="#etf">ETFの利用について</a> <span style="font-style:italic; color:black; background-color:yellow;">[New!]</span></li>
+	<li><a href="#record">成績表</a></li>
+	<li><a href="#conclusion">まとめ</a></li>
+</ul>
+
+<hr>
+<h2 id="class">ロボットクラス作成</h2>
+<p>ロボットのクラスは jp.tradesc.superkaburobo.sdk.robot.AbstractRobot 抽象クラスを extends し、実装します。</p>
+
+<h3>ロボットの注文処理</h3>
+<br>
+　ロボットは前場の前（８時～９時）と後場の前（１１時半～１２時半）の２回、それぞれ前場・後場の注文に向けて思考する時間が与えられます。
+思考時間はそれぞれとも３分が上限となっております。具体的には、ロボットクラスの order メソッドが実行されます。<br>
+<br>
+
+<h3>ロボットのスクリーニング処理</h3>
+<p>　ロボットは翌営業日の注文に向けて、スクリーニング処理をすることで銘柄の絞込みを行なうことができます。<br>
+スクリーニング処理は、後場後（１６時～２４時）の最大８分の間に行ないます。<br>
+スクリーニング後の銘柄を「監視銘柄」と呼び、翌営業日の注文では、この監視銘柄の中から注文することになります。<br>
+　具体的には、ロボットクラスの screening メソッドが実行されます（ order メソッドは呼ばれません）。<br>
+よって、order メソッドだけではなく、別に screening メソッドも実装する必要があります。<br>
+<br>
+例えば、下記のような MyRobot というロボットクラスを作ります。<br>
+</p>
+<pre><tt class="java">
+<span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.robot.AbstractRobot;</span>
+<span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.TradeAgent;</span>
+
+<span class="java4">public class </span><span class="java10">MyRobot </span><span class="java4">extends </span><span class="java10">AbstractRobot </span><span class="java8">{</span>
+&nbsp; <span class="java16">@Override</span>
+&nbsp; <span class="java4">public </span><span class="java9">void </span><span class="java10">order</span><span class="java8">(</span><span class="java10">TradeAgent tradeAgent</span><span class="java8">) {</span>
+&nbsp;&nbsp;&nbsp; <span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;Robot Order Start&#34;</span><span class="java8">)</span><span class="java10">;</span>
+&nbsp; <span class="java8">}</span>
+
+&nbsp; <span class="java16">@Override</span>
+&nbsp; <span class="java4">public </span><span class="java9">void </span><span class="java10">screening</span><span class="java8">(</span><span class="java10">TradeAgent tradeAgent</span><span class="java8">) {</span>
+&nbsp;&nbsp;&nbsp; <span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;Robot Screening Start&#34;</span><span class="java8">)</span><span class="java10">;</span>
+&nbsp; <span class="java8">}</span>
+<span class="java8">}</span>
+
+</tt></pre>
+
+
+<p>
+これをカレントディレクトリ、または kaburobo ホームディレクトリ配下の robot ディレクトリに MyRobot.java に保存し、次のようなコマンドを実行してコンパイルします。<br>
+<br>
+Windows なら<br>
+<code>%KABUROBO_HOME%\build MyRobot.java</code><br>
+<br>
+Unix なら<br>
+<code>$KABUROBO_HOME/build.sh MyRobot.java</code><br>
+<br>
+でコンパイルできます。<br>
+コンパイルした後、Windows なら<br>
+<code>%KABUROBO_HOME%\kaburobo -n <em>ロボット名</em></code><br>
+<br>
+Unixなら<br>
+<code>$KABUROBO_HOME/kaburobo.sh -n <em>ロボット名</em></code><br>
+<br>
+と入力すると、作ったロボットを起動することができます。
+また、<a href="robot-config.html">robot-config.xml</a> の robot-class-name タグで指定することもできます。<br>
+今回は MyRobot という名前にしたので、ロボット名を MyRobot にして実行します。<br>
+</p>
+<pre class="console">
+>%KABUROBO_HOME%\kaburobo MyRobot
+.
+.
+.
+よろしければ[Enter]キーまたは start と打って[Enter]キーを押してください。
+キャンセルする場合は quit と打って[Enter]キーを押してください。
+ヘルプを表示する場合は help と打って[Enter]キーを押してください。
+>
+start[Enter]
+
+
+●● 2004/09/01 16:00　(水) ● スクリーニング処理開始 ●●●●●●●●●●●●●●●●●●●●●●●
+
+
+【保有資産評価】
+                                                                 取引余力        50,000,000 円
+                                                                 株式評価額               0 円
+                                                                 資産評価額      50,000,000 円
+
+
+【ポートフォリオ】
+所有銘柄はありません。
+
+Robot Screening Start
+
+●● 2004/09/01 23:59　(水) ● スクリーニング処理終了 ●●●●●●●●●●●●●●●●●●●●●●●
+
+ロボット処理時間(ミリ秒): 63
+
+
+■■ 2004/09/02 08:00　(木) ■ 注文処理開始 ■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+
+【保有資産評価】
+                                                                 取引余力        50,000,000 円
+                                                                 株式評価額               0 円
+                                                                 資産評価額      50,000,000 円
+
+
+【ポートフォリオ】
+所有銘柄はありません。
+
+Robot Order Start
+
+【注文結果】
+注文はありません。
+
+■■ 2004/09/02 09:00　(木) ■ 注文処理終了 ■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+ロボット処理時間(ミリ秒): 12
+
+（略）
+</pre>
+<p>
+このようにロボットが動作し、スクリーニング処理の時には "Robot Screening Start"、
+注文処理の時には "Robot Order Start" というメッセージが出力されています。<br>
+</p>
+
+<hr>
+
+<h2 id="func">様々な機能</h2>
+<p>
+解析及び注文のための機能が数多く揃っています。<br>
+それらを利用するのは全て TradeAgent から取得可能です。<br>
+全ての機能は ～Manager というクラスにまとめられています。<br>
+</p>
+<ul>
+<li>InformationManager - 株式情報管理クラス</li>
+<li>PortfolioManager - ポートフォリオ管理クラス</li>
+<li>AssetManager - 資産情報管理クラス</li>
+<li>AnalysisManager - 分析手法管理クラス</li>
+<li>RobotLogManager - ログ管理クラス</li>
+<li>OrderManager - 注文管理クラス</li>
+<li>CostManager - コスト管理クラス</li>
+<li>MemoManager - メモ管理クラス</li>
+<li>TimeManager - 時間管理クラス</li>
+<li>OrderHistoryManager - 注文約定履歴管理クラス</li>
+</ul>
+
+<hr>
+<h2 id="order">注文の発行</h2>
+<p>注文指示は、とてもシンプルにできます。<br>
+OrderManagerのorder系メソッドを利用する事で注文を発行することが出来ます。<br>
+下記の例だと、トヨタ自動車(銘柄コード:7203)の現物買い注文を即時に成行で 100 株分出しています。<br>
+</p>
+<pre><tt class="java"><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.robot.AbstractRobot;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.InformationManager;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.OrderManager;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.TradeAgent;
+
+</span><span class="java4">public class </span><span class="java10">MyRobotToyota </span><span class="java4">extends </span><span class="java10">AbstractRobot </span><span class="java8">{
+&nbsp; </span><span class="java16">@Override
+&nbsp; </span><span class="java4">public </span><span class="java9">void </span><span class="java10">order</span><span class="java8">(</span><span class="java10">TradeAgent tradeAgent</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp; </span><span class="java10">InformationManager informationManager = tradeAgent.getInformationManager</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; OrderManager order = tradeAgent.getOrderManager</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; order.orderActualNowMarket</span><span class="java8">(</span><span class="java10">informationManager.getStock</span><span class="java8">(</span><span class="java7">7203</span><span class="java8">)</span><span class="java10">, </span><span class="java7">100</span><span class="java8">)</span><span class="java10">;
+&nbsp; </span><span class="java8">}
+
+&nbsp; </span><span class="java16">@Override
+&nbsp; </span><span class="java4">public </span><span class="java9">void </span><span class="java10">screening</span><span class="java8">(</span><span class="java10">TradeAgent tradeAgent</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp; </span><span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;Robot Screeing Start&#34;</span><span class="java8">)</span><span class="java10">;
+&nbsp; </span><span class="java8">}
+}</span></tt></pre>
+<p>
+この他にも指値や逆指値、寄り引けの指定など、細かく注文を出すことが出来ます。<br>
+また、新規信用取引の売却注文を出すことで空売りも出来ます。<br>
+</p>
+
+<hr>
+<h2 id="portfolio">ポートフォリオ</h2>
+<p>
+注文したものが、本当に約定されているかを確かめる為にポートフォリオを見てみます。<br>
+ポートフォリオの扱いは PortfolioManager から行います。<br>
+そして、ポートフォリオにある事を確認したら、それの反対売買を行ってみます。<br>
+下記の例ではポートフォリオに存在する銘柄の全株数を即時に成行で反対売買注文しています。<br>
+</p>
+<pre><tt class="java"><span class="java4">import </span><span class="java10">java.util.ArrayList;
+
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.robot.AbstractRobot;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.InformationManager;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.OrderManager;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.PortfolioManager;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.TradeAgent;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.data.Portfolio;
+
+</span><span class="java4">public class </span><span class="java10">MyRobotPortfolio </span><span class="java4">extends </span><span class="java10">AbstractRobot </span><span class="java8">{
+&nbsp; </span><span class="java16">@Override
+&nbsp; </span><span class="java4">public </span><span class="java9">void </span><span class="java10">order</span><span class="java8">(</span><span class="java10">TradeAgent tradeAgent</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// ポートフォリオマネージャを取得します。
+&nbsp;&nbsp;&nbsp; </span><span class="java10">PortfolioManager portfolioManager = tradeAgent.getPortfolioManager</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// ポートフォリオを取得します。
+&nbsp;&nbsp;&nbsp; </span><span class="java10">ArrayList&lt;Portfolio&gt; portfolioList = portfolioManager.getPortfolio</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// ポートフォリオの内容を列挙します。
+&nbsp;&nbsp;&nbsp; </span><span class="java4">for </span><span class="java8">(</span><span class="java10">Portfolio portfolio : portfolioList</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java3">// コンソールに銘柄コードを出力します。
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;Portfolio stockcode : &#34; </span><span class="java10">+ portfolio.getStock</span><span class="java8">()</span><span class="java10">.getStockCode</span><span class="java8">())</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java3">// 対象ポートフォリオの全株数を反対売買します。
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">portfolio.orderReverseNowMarketAll</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java8">}
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// インフォメーションマネージャを取得します。
+&nbsp;&nbsp;&nbsp; </span><span class="java10">InformationManager informationManager = tradeAgent.getInformationManager</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// オーダーマネージャを取得します。
+&nbsp;&nbsp;&nbsp; </span><span class="java10">OrderManager order = tradeAgent.getOrderManager</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// 銘柄コード7203(トヨタ)の株を100株、現物即時成行注文します。
+&nbsp;&nbsp;&nbsp; </span><span class="java10">order.orderActualNowMarket</span><span class="java8">(</span><span class="java10">informationManager.getStock</span><span class="java8">(</span><span class="java7">7203</span><span class="java8">)</span><span class="java10">, </span><span class="java7">100</span><span class="java8">)</span><span class="java10">;
+&nbsp; </span><span class="java8">}
+
+&nbsp; </span><span class="java16">@Override
+&nbsp; </span><span class="java4">public </span><span class="java9">void </span><span class="java10">screening</span><span class="java8">(</span><span class="java10">TradeAgent tradeAgent</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp; </span><span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;Robot Screeing Start&#34;</span><span class="java8">)</span><span class="java10">;
+&nbsp; </span><span class="java8">}
+}</span></tt></pre>
+
+
+<hr>
+<h2 id="data">株式情報データの利用</h2>
+
+ではもう少ししっかりとしたデータに基づいて注文を行いたい為、株式情報データを見てみる事にします。<BR>
+株式情報データは InformationManager から行います。<BR>
+とりあえずカブロボで取り扱っている銘柄が何があるのかを調べるために、全銘柄リストを取得します。<BR>
+下記の例では銘柄数を表示しています。<BR>
+<pre><tt class="java"><span class="java4">import </span><span class="java10">java.util.ArrayList;
+
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.robot.AbstractRobot;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.InformationManager;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.OrderManager;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.PortfolioManager;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.TradeAgent;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.data.Portfolio;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.data.Stock;
+
+</span><span class="java4">public class </span><span class="java10">MyRobotStockCount </span><span class="java4">extends </span><span class="java10">AbstractRobot </span><span class="java8">{
+
+&nbsp; </span><span class="java16">@Override
+&nbsp; </span><span class="java4">public </span><span class="java9">void </span><span class="java10">order</span><span class="java8">(</span><span class="java10">TradeAgent tradeAgent</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// インフォメーションマネージャを取得します。
+&nbsp;&nbsp;&nbsp; </span><span class="java10">InformationManager informationManager = tradeAgent.getInformationManager</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// 対象銘柄の一覧を取得します
+&nbsp;&nbsp;&nbsp; </span><span class="java10">ArrayList&lt;Stock&gt; stockList = informationManager.getStockList</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// 対象銘柄数を出力します。
+&nbsp;&nbsp;&nbsp; </span><span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;StockList count : &#34; </span><span class="java10">+ stockList.size</span><span class="java8">())</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; PortfolioManager portfolioManager = tradeAgent.getPortfolioManager</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; ArrayList&lt;Portfolio&gt; portfolioList = portfolioManager.getPortfolio</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java4">for</span><span class="java8">(</span><span class="java10">Portfolio portfolio : portfolioList</span><span class="java8">){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;Portfolio stockcode : &#34; </span><span class="java10">+ portfolio.getStock</span><span class="java8">()</span><span class="java10">.getStockCode</span><span class="java8">())</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; portfolio.orderReverseNowMarketAll</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java8">}
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; </span><span class="java10">OrderManager order = tradeAgent.getOrderManager</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; order.orderActualNowMarket</span><span class="java8">(</span><span class="java10">informationManager.getStock</span><span class="java8">(</span><span class="java7">7203</span><span class="java8">)</span><span class="java10">, </span><span class="java7">100</span><span class="java8">)</span><span class="java10">;
+&nbsp; </span><span class="java8">}
+
+&nbsp; </span><span class="java16">@Override
+&nbsp; </span><span class="java4">public </span><span class="java9">void </span><span class="java10">screening</span><span class="java8">(</span><span class="java10">TradeAgent tradeAgent</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp; </span><span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;Robot Screeing Start&#34;</span><span class="java8">)</span><span class="java10">;
+&nbsp; </span><span class="java8">}
+}</span></tt>
+</pre>
+次に先頭の銘柄の情報を取得してみます。<BR>
+<pre><tt class="java"><span class="java4">import </span><span class="java10">java.util.ArrayList;
+
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.robot.AbstractRobot;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.InformationManager;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.OrderManager;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.PortfolioManager;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.TradeAgent;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.data.Portfolio;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.data.Stock;
+
+</span><span class="java4">public class </span><span class="java10">MyRobotStockInfo </span><span class="java4">extends </span><span class="java10">AbstractRobot </span><span class="java8">{
+&nbsp; 
+&nbsp; </span><span class="java16">@Override
+&nbsp; </span><span class="java4">public </span><span class="java9">void </span><span class="java10">order</span><span class="java8">(</span><span class="java10">TradeAgent tradeAgent</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// インフォメーションマネージャを取得します。
+&nbsp;&nbsp;&nbsp; </span><span class="java10">InformationManager informationManager = tradeAgent.getInformationManager</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// 対象銘柄の一覧を取得します。
+&nbsp;&nbsp;&nbsp; </span><span class="java10">ArrayList&lt;Stock&gt; stockList = informationManager.getStockList</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// 対象銘柄数を出力します。
+&nbsp;&nbsp;&nbsp; </span><span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;StockList count : &#34; </span><span class="java10">+ stockList.size</span><span class="java8">())</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// 最初の銘柄の銘柄コード、銘柄、単位株数、業種コード、業種名を取得し表示します。
+&nbsp;&nbsp;&nbsp; </span><span class="java4">if </span><span class="java8">(</span><span class="java10">stockList.size</span><span class="java8">() </span><span class="java10">&gt;= </span><span class="java7">0</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">Stock stock = stockList.get</span><span class="java8">(</span><span class="java7">0</span><span class="java8">)</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System.out.println</span><span class="java8">(</span><span class="java5">&#34;StockList firststock&#34; 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">+ </span><span class="java5">&#34; StockCode:&#34; </span><span class="java10">+ stock.getStockCode</span><span class="java8">() 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">+ </span><span class="java5">&#34; StockName:&#34; </span><span class="java10">+ stock.getStockName</span><span class="java8">()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">+ </span><span class="java5">&#34; Unit:&#34; </span><span class="java10">+ stock.getUnit</span><span class="java8">()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">+ </span><span class="java5">&#34; CategoryCode:&#34; </span><span class="java10">+ stock.getCategory</span><span class="java8">()</span><span class="java10">.getCategoryCode</span><span class="java8">()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">+ </span><span class="java5">&#34; CategoryName:&#34; </span><span class="java10">+ stock.getCategory</span><span class="java8">()</span><span class="java10">.getCategoryName</span><span class="java8">())</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java8">}
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; </span><span class="java10">PortfolioManager portfolioManager = tradeAgent.getPortfolioManager</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; ArrayList&lt;Portfolio&gt; portfolioList = portfolioManager.getPortfolio</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java4">for</span><span class="java8">(</span><span class="java10">Portfolio portfolio : portfolioList</span><span class="java8">){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;Portfolio stockcode : &#34; </span><span class="java10">+ portfolio.getStock</span><span class="java8">()</span><span class="java10">.getStockCode</span><span class="java8">())</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; portfolio.orderReverseNowMarketAll</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java8">}
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; </span><span class="java10">OrderManager order = tradeAgent.getOrderManager</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; order.orderActualNowMarket</span><span class="java8">(</span><span class="java10">informationManager.getStock</span><span class="java8">(</span><span class="java7">7203</span><span class="java8">)</span><span class="java10">, </span><span class="java7">100</span><span class="java8">)</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; 
+&nbsp; </span><span class="java8">}
+&nbsp; 
+&nbsp; </span><span class="java16">@Override
+&nbsp; </span><span class="java4">public </span><span class="java9">void </span><span class="java10">screening</span><span class="java8">(</span><span class="java10">TradeAgent tradeAgent</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp; </span><span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;Robot Screeing Start&#34;</span><span class="java8">)</span><span class="java10">;
+&nbsp; </span><span class="java8">}
+}</span></tt></pre>
+これで銘柄の基本的な情報となる銘柄コード、銘柄名、単元株数、業種コード、業種名を取得出来ました。<BR>
+次は前後場の4本値を取得してみます。<BR>
+
+<pre><tt class="java"><span class="java4">import </span><span class="java10">java.util.ArrayList;
+
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.robot.AbstractRobot;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.InformationManager;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.OrderManager;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.PortfolioManager;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.TradeAgent;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.data.Portfolio;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.data.Stock;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.data.StockData;
+
+</span><span class="java4">public class </span><span class="java10">MyRobotStockPrice </span><span class="java4">extends </span><span class="java10">AbstractRobot </span><span class="java8">{
+&nbsp; </span><span class="java16">@Override
+&nbsp; </span><span class="java4">public </span><span class="java9">void </span><span class="java10">order</span><span class="java8">(</span><span class="java10">TradeAgent tradeAgent</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// インフォメーションマネージャを取得します。
+&nbsp;&nbsp;&nbsp; </span><span class="java10">InformationManager informationManager = tradeAgent.getInformationManager</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// 対象銘柄の一覧を取得します。
+&nbsp;&nbsp;&nbsp; </span><span class="java10">ArrayList&lt;Stock&gt; stockList = informationManager.getStockList</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// 対象銘柄数を出力します。
+&nbsp;&nbsp;&nbsp; </span><span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;StockList count : &#34; </span><span class="java10">+ stockList.size</span><span class="java8">())</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; </span><span class="java3">// 最初の銘柄の銘柄コード、銘柄、単位株数、業種コード、業種名を取得し表示します。
+&nbsp;&nbsp;&nbsp; </span><span class="java4">if </span><span class="java8">(</span><span class="java10">stockList.size</span><span class="java8">() </span><span class="java10">&gt;= </span><span class="java7">0</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">Stock stock = stockList.get</span><span class="java8">(</span><span class="java7">0</span><span class="java8">)</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System.out.println</span><span class="java8">(</span><span class="java5">&#34;StockList firststock&#34; 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">+ </span><span class="java5">&#34; StockCode:&#34; </span><span class="java10">+ stock.getStockCode</span><span class="java8">() 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">+ </span><span class="java5">&#34; StockName:&#34; </span><span class="java10">+ stock.getStockName</span><span class="java8">()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">+ </span><span class="java5">&#34; Unit:&#34; </span><span class="java10">+ stock.getUnit</span><span class="java8">()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">+ </span><span class="java5">&#34; CategoryCode:&#34; </span><span class="java10">+ stock.getCategory</span><span class="java8">()</span><span class="java10">.getCategoryCode</span><span class="java8">()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">+ </span><span class="java5">&#34; CategoryName:&#34; </span><span class="java10">+ stock.getCategory</span><span class="java8">()</span><span class="java10">.getCategoryName</span><span class="java8">())</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java3">// 4本値を取得・表示します。
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">StockData stockData = informationManager.getStockSession</span><span class="java8">(</span><span class="java10">stock</span><span class="java8">)</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System.out.println</span><span class="java8">(</span><span class="java5">&#34;StockSessionData &#34; 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">+ </span><span class="java5">&#34; opening:&#34; </span><span class="java10">+ stockData.getOpeningPrice</span><span class="java8">() 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">+ </span><span class="java5">&#34; high:&#34; </span><span class="java10">+ stockData.getHighPrice</span><span class="java8">()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">+ </span><span class="java5">&#34; low:&#34; </span><span class="java10">+ stockData.getLowPrice</span><span class="java8">()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">+ </span><span class="java5">&#34; closing:&#34; </span><span class="java10">+ stockData.getClosingPrice</span><span class="java8">()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">+ </span><span class="java5">&#34; volume:&#34; </span><span class="java10">+ stockData.getTradingVolume</span><span class="java8">()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">+ </span><span class="java5">&#34; value:&#34; </span><span class="java10">+ stockData.getTradingValue</span><span class="java8">())</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OrderManager orderManager = tradeAgent.getOrderManager</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; orderManager.orderActualNowMarket</span><span class="java8">(</span><span class="java10">stock, stock.getUnit</span><span class="java8">())</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java8">}
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; </span><span class="java10">PortfolioManager portfolioManager = tradeAgent.getPortfolioManager</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; ArrayList&lt;Portfolio&gt; portfolioList = portfolioManager.getPortfolio</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java4">for</span><span class="java8">(</span><span class="java10">Portfolio portfolio : portfolioList</span><span class="java8">){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;Portfolio stockcode : &#34; </span><span class="java10">+ portfolio.getStock</span><span class="java8">()</span><span class="java10">.getStockCode</span><span class="java8">())</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; portfolio.orderReverseNowMarketAll</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java8">}
+&nbsp; }
+&nbsp; 
+&nbsp; </span><span class="java16">@Override
+&nbsp; </span><span class="java4">public </span><span class="java9">void </span><span class="java10">screening</span><span class="java8">(</span><span class="java10">TradeAgent tradeAgent</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp; </span><span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;Robot Screeing Start&#34;</span><span class="java8">)</span><span class="java10">;
+&nbsp; </span><span class="java8">}
+}</span></tt></pre>
+4本値は InformationManager から取得出来ます。<BR>
+getStockSession からは StockData 型で返ってきます。<BR>
+上記の例では4本値及び出来高、売買代金を表示しています。<BR>
+また、注文を 7203 に固定していましたが、最初の銘柄を買うように変更しました。<BR>
+注文株数を1単位分にしました。<BR>
+
+
+
+<hr>
+<h2 id="screening">スクリーニング</h2>
+
+今回から、このスクリーニング作業を、夜間に長い時間できるようにしました。<BR>
+その為戦略としては<BR>
+<UL>
+<LI>スクリーニング時に様々な分析をして銘柄を絞り込む</LI>
+<LI>注文時には状況をみて損切り、利益確定、新規注文等を行う</LI>
+</UL>
+というのが最も良いと思われます。<BR>
+<BR>
+絞り込んだ銘柄は、MemoManager の ObjectMemo を利用して保存しましょう。<BR>
+下記にその利用方法を示します。<BR>
+<BR>
+まず、MyObjectMemo クラスを作ります。<BR>
+注意点として、データベースに書き込んで保存されるため、<BR>
+Serializable インターフェースを実装しておかないと書き込むことが出来ない事があげられます。<BR>
+<pre><tt class="java"><span class="java4">import </span><span class="java10">java.io.Serializable;
+</span><span class="java4">import </span><span class="java10">java.util.ArrayList;
+
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.data.Stock;
+
+</span><span class="java4">public class </span><span class="java10">MyObjectMemo </span><span class="java4">implements </span><span class="java10">Serializable </span><span class="java8">{
+&nbsp; </span><span class="java4">private static final </span><span class="java9">long </span><span class="java10">serialVersionUID = </span><span class="java7">1L</span><span class="java10">;
+&nbsp; </span><span class="java4">private </span><span class="java10">ArrayList&lt;Stock&gt; buyList = </span><span class="java4">new </span><span class="java10">ArrayList&lt;Stock&gt;</span><span class="java8">()</span><span class="java10">;
+&nbsp; </span><span class="java4">private </span><span class="java10">ArrayList&lt;Stock&gt; sellList = </span><span class="java4">new </span><span class="java10">ArrayList&lt;Stock&gt;</span><span class="java8">()</span><span class="java10">;
+&nbsp; </span><span class="java4">public </span><span class="java10">ArrayList&lt;Stock&gt; getBuyList</span><span class="java8">() {
+&nbsp;&nbsp;&nbsp; </span><span class="java4">return </span><span class="java10">buyList;
+&nbsp; </span><span class="java8">}
+&nbsp; </span><span class="java4">public </span><span class="java10">ArrayList&lt;Stock&gt; getSellList</span><span class="java8">() {
+&nbsp;&nbsp;&nbsp; </span><span class="java4">return </span><span class="java10">sellList;
+&nbsp; </span><span class="java8">}
+&nbsp; </span><span class="java4">public </span><span class="java9">void </span><span class="java10">setBuyList</span><span class="java8">(</span><span class="java10">ArrayList&lt;Stock&gt; buyList</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp; </span><span class="java4">this</span><span class="java10">.buyList = buyList;
+&nbsp; </span><span class="java8">}
+&nbsp; </span><span class="java4">public </span><span class="java9">void </span><span class="java10">setSellList</span><span class="java8">(</span><span class="java10">ArrayList&lt;Stock&gt; sellList</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp; </span><span class="java4">this</span><span class="java10">.sellList = sellList;
+&nbsp; </span><span class="java8">}
+}</span></tt></pre>
+次に、上記で作成した MyObjectMemo の利用方法を例示します。<BR>
+下記ではスクリーニング時に、買う銘柄である buyList に 7203 を、売る銘柄である sellList に 2914 を追加してます。<BR>
+そして、注文時にそれらを呼び出しています。<BR>
+この流れは MemoManager を使うことで実現できます。<BR>
+<pre><tt class="java"><span class="java4">import </span><span class="java10">java.util.ArrayList;
+
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.robot.AbstractRobot;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.InformationManager;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.TradeAgent;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.data.Stock;
+
+</span><span class="java4">public class </span><span class="java10">MyRobotUsingMemo </span><span class="java4">extends </span><span class="java10">AbstractRobot </span><span class="java8">{
+
+&nbsp; </span><span class="java16">@Override
+&nbsp; </span><span class="java4">public </span><span class="java9">void </span><span class="java10">order</span><span class="java8">(</span><span class="java10">TradeAgent tradeAgent</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp; </span><span class="java10">MyObjectMemo memo = </span><span class="java8">(</span><span class="java10">MyObjectMemo</span><span class="java8">)</span><span class="java10">tradeAgent.getMemoManager</span><span class="java8">()</span><span class="java10">.getObjectMemo</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java4">if</span><span class="java8">(</span><span class="java10">memo != </span><span class="java4">null</span><span class="java8">){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java4">for</span><span class="java8">(</span><span class="java10">Stock stock : memo.getBuyList</span><span class="java8">())
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;買う銘柄：&#34; </span><span class="java10">+ stock.getStockCode</span><span class="java8">())</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java4">for</span><span class="java8">(</span><span class="java10">Stock stock : memo.getSellList</span><span class="java8">())
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;売る銘柄：&#34;</span><span class="java10">+ stock.getStockCode</span><span class="java8">())</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java8">}
+&nbsp; }
+
+&nbsp; </span><span class="java16">@Override
+&nbsp; </span><span class="java4">public </span><span class="java9">void </span><span class="java10">screening</span><span class="java8">(</span><span class="java10">TradeAgent tradeAgent</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp; </span><span class="java10">InformationManager informationManager = tradeAgent.getInformationManager</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; MyObjectMemo memo = </span><span class="java4">new </span><span class="java10">MyObjectMemo</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; ArrayList&lt;Stock&gt; buyList = memo.getBuyList</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; ArrayList&lt;Stock&gt; sellList = memo.getSellList</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; buyList.add</span><span class="java8">(</span><span class="java10">informationManager.getStock</span><span class="java8">(</span><span class="java7">7203</span><span class="java8">))</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; sellList.add</span><span class="java8">(</span><span class="java10">informationManager.getStock</span><span class="java8">(</span><span class="java7">2914</span><span class="java8">))</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; tradeAgent.getMemoManager</span><span class="java8">()</span><span class="java10">.setObjectMemo</span><span class="java8">(</span><span class="java10">memo</span><span class="java8">)</span><span class="java10">;
+&nbsp; </span><span class="java8">}
+}</span></tt></pre>
+
+
+<hr>
+<h2 id="technical">テクニカル分析</h2>
+
+スクリーニング時により詳細に絞り込みたい時にはテクニカル分析が便利です。<BR>
+テクニカル分析には AnalysisManager を利用します。<BR>
+<BR>
+下記の例では、まず AnalysisManager から RSI と MovingAverage クラスを引数を指定して取得します。<BR>
+EnumAnalysisSpan では、分析期間の粒度（前後場足、日足、週足、月足）を指定できます。<BR>
+取得した分析クラスでは、getIndex～ というメソッドに銘柄コードを入れるだけで値を取得する事が可能です。<BR>
+今回は RSI と短期移動平均と長期移動平均の数値を組み合わせてスクリーニングをしています。
+<pre><tt class="java"><span class="java4">import </span><span class="java10">java.util.ArrayList;
+
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.robot.AbstractRobot;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.AnalysisManager;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.EnumAnalysisSpan;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.TradeAgent;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.analysis.technicalindex.MovingAverage;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.analysis.technicalindex.RSI;
+</span><span class="java4">import </span><span class="java10">jp.tradesc.superkaburobo.sdk.trade.data.Stock;
+
+</span><span class="java4">public class </span><span class="java10">MyRobotTechnical </span><span class="java4">extends </span><span class="java10">AbstractRobot </span><span class="java8">{
+
+&nbsp; </span><span class="java16">@Override
+&nbsp; </span><span class="java4">public </span><span class="java9">void </span><span class="java10">order</span><span class="java8">(</span><span class="java10">TradeAgent tradeAgent</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp; </span><span class="java10">MyObjectMemo memo = </span><span class="java8">(</span><span class="java10">MyObjectMemo</span><span class="java8">)</span><span class="java10">tradeAgent.getMemoManager</span><span class="java8">()</span><span class="java10">.getObjectMemo</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java4">if</span><span class="java8">(</span><span class="java10">memo != </span><span class="java4">null</span><span class="java8">){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java4">for</span><span class="java8">(</span><span class="java10">Stock stock : memo.getBuyList</span><span class="java8">())
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;買う銘柄：&#34; </span><span class="java10">+ stock.getStockCode</span><span class="java8">())</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java4">for</span><span class="java8">(</span><span class="java10">Stock stock : memo.getSellList</span><span class="java8">())
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">System.out.println</span><span class="java8">(</span><span class="java5">&#34;売る銘柄：&#34;</span><span class="java10">+ stock.getStockCode</span><span class="java8">())</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java8">}
+&nbsp; }
+
+&nbsp; </span><span class="java16">@Override
+&nbsp; </span><span class="java4">public </span><span class="java9">void </span><span class="java10">screening</span><span class="java8">(</span><span class="java10">TradeAgent tradeAgent</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp; </span><span class="java10">MyObjectMemo memo = </span><span class="java4">new </span><span class="java10">MyObjectMemo</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; ArrayList&lt;Stock&gt; buyList = memo.getBuyList</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; ArrayList&lt;Stock&gt; sellList = memo.getSellList</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; AnalysisManager analysisManager = tradeAgent.getAnalysisManager</span><span class="java8">()</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; RSI rsi = analysisManager.getRSI</span><span class="java8">(</span><span class="java10">EnumAnalysisSpan.DAILY, </span><span class="java7">10</span><span class="java8">)</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; MovingAverage ma20 = analysisManager.getMovingAverage</span><span class="java8">(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">EnumAnalysisSpan.DAILY, </span><span class="java7">20</span><span class="java8">)</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; MovingAverage ma40 = analysisManager.getMovingAverage</span><span class="java8">(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">EnumAnalysisSpan.DAILY, </span><span class="java7">40</span><span class="java8">)</span><span class="java10">;
+&nbsp;&nbsp;&nbsp; </span><span class="java4">for </span><span class="java8">(</span><span class="java10">Stock stock : tradeAgent.getInformationManager</span><span class="java8">()</span><span class="java10">.getStockList</span><span class="java8">()) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">Double rsiVal = rsi.getIndexSimple</span><span class="java8">(</span><span class="java10">stock</span><span class="java8">)</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Double maVal20 = ma20.getIndexSimple</span><span class="java8">(</span><span class="java10">stock</span><span class="java8">)</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Double maVal40 = ma40.getIndexSimple</span><span class="java8">(</span><span class="java10">stock</span><span class="java8">)</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java4">if </span><span class="java8">(</span><span class="java10">rsiVal != </span><span class="java4">null </span><span class="java10">&amp;&amp; maVal20 != </span><span class="java4">null </span><span class="java10">&amp;&amp; maVal40 != </span><span class="java4">null</span><span class="java8">)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java4">if </span><span class="java8">(</span><span class="java10">rsiVal &lt;= </span><span class="java7">40.0 </span><span class="java10">&amp;&amp; maVal20 &gt; maVal40</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">buyList.add</span><span class="java8">(</span><span class="java10">stock</span><span class="java8">)</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java8">} </span><span class="java4">else if </span><span class="java8">(</span><span class="java10">rsiVal * </span><span class="java7">100 </span><span class="java10">&gt;= </span><span class="java7">60.0 </span><span class="java10">&amp;&amp; maVal20 &lt; maVal40</span><span class="java8">) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java10">sellList.add</span><span class="java8">(</span><span class="java10">stock</span><span class="java8">)</span><span class="java10">;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="java8">}
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; </span><span class="java10">tradeAgent.getMemoManager</span><span class="java8">()</span><span class="java10">.setObjectMemo</span><span class="java8">(</span><span class="java10">memo</span><span class="java8">)</span><span class="java10">;
+&nbsp; </span><span class="java8">}
+}</span></tt></pre>
+
+
+<hr>
+<h2 id="etf">ETFの利用について</h2>
+<h3>◆ETFとは</h3>
+<p>ETF とは、"Exchange Traded Fund"の略で、東証などの取引所で取引きされている投資信託のことを指しています。</p>
+<p>カブロボでは、以下の2銘柄を取り扱います。</p>
+
+<table summary="カブロボでは1330-上場インデックスファンド225、1306-TOPIX連動型上場投資信託を扱います。">
+<caption>ETF取り扱い一覧</caption>
+<col align="center">
+<col align="left">
+<thead><tr><th>銘柄コード</th><th>銘柄名</th></tr></thead>
+<tbody>
+<tr><td>1330</td><td>上場インデックスファンド225</td></tr>
+<tr><td>1306</td><td>TOPIX連動型上場投資信託</td></tr>
+</tbody>
+</table>
+
+<p>以下に、ETF対応のSDKの使用方法を簡単にご説明いたします。</p>
+
+<h3>◆ETFを使うために</h3>
+<p>robot-config.xml を事前に修正しておく必要があります。<br>
+方法は SDK付属の <a href="robot-config.html">robot-config.html</a> のドキュメントをご覧ください。</p>
+
+<h3>◆ETFの使い方</h3>
+<p>ETFは通常の銘柄と同様に扱うことができます。<br>
+<code>OrderManager</code><a href="../javadoc/jp/tradesc\superkaburobo\sdk\trade\class-useOrderManager.html">-&gt;[JavaDoc]</a> クラスで通常の銘柄同様注文します。<br>
+成行、指値、逆指値も可能です。<br>
+また、空売りもできます。</p>
+
+<h3>◆ETFのStockクラスの取得方法</h3>
+<p>詳しい内容は、JavaDocをご覧ください。</p>
+<p>以下のサンプルでは、ETFの銘柄コードと銘柄名を出力します。</p>
+<pre><tt class="java"><span class="java0">&#xA0;&#xA0;&#xA0; </span><span class="java4">for</span><span class="java8">(</span><span class="java10">Category cat: InformationManager.getInstance</span><span class="java8">()</span><span class="java10">.getEtfList</span><span class="java8">()){
+&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; </span><span class="java10">ArrayList&lt;Stock&gt; stocks = cat.getStockList</span><span class="java8">()</span><span class="java10">;
+&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; </span><span class="java4">for</span><span class="java8">(</span><span class="java10">Stock etf: stocks</span><span class="java8">){
+&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; </span><span class="java10">RobotLogManager.getInstance</span><span class="java8">()</span><span class="java10">.log</span><span class="java8">(</span><span class="java10">etf.getStockCode</span><span class="java8">() </span><span class="java10">+ </span><span class="java5">&#34; : &#34; </span><span class="java10">+ etf.getStockName</span><span class="java8">())</span><span class="java10">;
+&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; </span><span class="java8">}
+&#xA0;&#xA0;&#xA0; }</span></tt></pre><p>出力例:</p><pre>1306 : ＴＯＰＩＸ連動型上場投資信託
+1330 : 上場インデックスファンド２２５</pre>
+
+<p>その他の下記の形でETFリストを取得可能です。</p>
+<ul>
+<li>EnumETFCodeList</li>
+<li>InformationManager.getInstance().getEtfList()</li>
+<li>InformationManager.getInstance().getEtfNikkei225List()</li>
+<li>InformationManager.getInstance().getEtfTopixList()</li>
+</ul>
+
+<h3>◆ETFと通常の銘柄の違い</h3>
+<ul>
+<li>robot-config.xml の修正が必要</li>
+<li>業種コードが10000以上 (通常は10000未満)</li>
+<li>ETF では出来高制限無し</li>
+<li>出来高、売買代金は取得可能</li>
+<li>銘柄詳細情報（stock_detail）では、PER, PBR は必ず -1 が返るが、それ以外は取得可能</li>
+<li><strong style="color:red;font-weight:bold;">※ご注意</strong>：上場(<code>2001-07-13</code>)までの期間はデータが存在しないため、<a href="../javadoc/jp/tradesc/superkaburobo/sdk/trade/InformationManager.html#getStockDaily(jp.tradesc.superkaburobo.sdk.trade.data.Stock)"><code>InformationManager#getStockDaily(Stock)</code></a>など、
+銘柄に対する情報取得を行おうとした際に<code>null</code>が戻されることもあります。<br>
+このため10年バックテストでは<code>NullPointerException</code>が発生する可能性がありますので、取得したデータに関しては<code>null</code>チェックを行うようにしてください。<br>
+なお、通常のオンラインテストの対象期間は未上場期間が存在しませんので、この問題に気づきにくくなっております。ご注意ください。</li>
+</ul>
+
+<hr>
+<h2 id="record">成績表</h2>
+
+ロボットの稼動状況及び成績は最後に表示される成績表を確認するのが最も効率的です。<BR>
+中でもエントリー基準の項目は最低限合格しなければならないので注意してください。<BR>
+<BR>
+ここでは、最後の成績表示を自分なりにカスタマイズしたい方に、そのやり方を解説します。<BR>
+<code>AbstractRobot</code> の <code>terminate(PerformanceAgent performanceAgent)</code> メソッドをオーバーライドして下さい。<BR>
+引数の PerformanceAgent では様々な成績を計算して閲覧することが出来ます。<BR>
+自分なりに組み合わせたい場合や、アラートを出したい場合などに利用する事が可能です。<BR>
+<BR>
+下記の例では、super.terminate(performanceAgent)を呼ぶ事で、デフォルトの表示をして、<BR>
+さらに自分なりに解析した結果を出力するようにしています。<BR>
+<pre><tt class="java">&nbsp;&nbsp;<span class="java16">@Override</span>
+&nbsp; <span class="java4">public </span><span class="java9">void </span><span class="java10">terminate</span><span class="java8">(</span><span class="java10">PerformanceAgent performanceAgent</span><span class="java8">){</span>
+&nbsp;&nbsp;&nbsp; <span class="java4">super</span><span class="java10">.terminate</span><span class="java8">(</span><span class="java10">performanceAgent</span><span class="java8">)</span><span class="java10">;</span>
+&nbsp;&nbsp;&nbsp; System.out.println<span class="java8">(</span><span class="java5">&#34;My合格基準　[純損益１０％以上]　：&#34;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="java10">+ </span><span class="java8">(</span><span class="java10">performanceAgent.getProfitAll</span><span class="java8">() </span><span class="java10">&gt; </span><span class="java7">10 </span><span class="java10">? </span><span class="java5">&#34;合格&#34; </span><span class="java10">: </span><span class="java5">&#34;不合格&#34;</span><span class="java8">))</span><span class="java10">;</span>
+&nbsp; <span class="java8">}</span></tt>
+</pre>
+一つ注意しなくてはいけないのが、この terminate メソッドは SDK でのセルフテスト時のみ有効という事です。<BR>
+全ての運用が終わった時に解析をするため、仮想運用中や実運用中はこのメソッドは呼ばれません。<BR>
+あくまでも最終成績の確認の為に利用してください。<BR>
+
+
+<hr>
+<h2 id="conclusion">まとめ</h2>
+
+以上で簡単なロボットの作り方は終わりです。<BR>
+ここでは全ての機能を説明しきれませんが、<BR>
+他にも数多くの機能があります。<BR>
+TradeAgentから全てアクセス出来るようになっていますので、色々とお試しください。<BR>
+そして、オリジナルのカブロボを作って参加しましょう！
+
+<hr>
+<div class=copyright>
+(c) 2004-2008 kaburobo.jp and Trade Science Corp. All rights reserved.<br>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,465 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="ja">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=shift_jis">
+	<meta http-equiv="Content-Style-Type" content="text/css; charset=Shift_JIS">
+	<link type="text/css" rel="stylesheet" href="document.css">
+	<title>バックテスト用カブロボ起動設定ファイル</title>
+</head>
+<body>
+
+<h1>バックテスト用カブロボ起動設定ファイル</h1>
+
+<p>カブロボ起動時の設定は、バックテスト用カブロボ起動設定ファイルを読み込んで行われます。</p>
+<p>デフォルトでは作業ディレクトリの robot-config.xml が検索され、
+見つからない場合は %KABUROBO_HOME%/config/robot-config.xml (あるいは $KABUROBO_HOME/config/robot-config.xml) が読み込まれます。</p>
+<p>ドライバの引数に "-f ファイル名" を与えて読み込むファイルを指定することもできます。</p>
+<p>この設定ファイルでは、カブロボクラス名、シミュレーションを行う期間、ログの出力方法を設定することができます。</p>
+
+<ul>
+	<li><a href="#class">カブロボクラス名の設定</a></li>
+	<li><a href="#time">期間の設定</a></li>
+	<li><a href="#money">初期資産額の設定</a></li>
+	<li><a href="#auto_losscut">自動損切り値の設定</a></li>
+	<li><a href="#each_stock_limit">新規注文時の銘柄組入比率上限値の設定</a></li>
+	<li><a href="#short_sell">空売りの有無の設定</a></li>
+	<li><a href="#special_order">特別条件付注文の有無の設定</a></li>
+	<li><a href="#etf">ETF使用の有無の設定</a></li>
+	<li><a href="#datapath">拡張検証パックの設定</a></li>
+	<!--
+	<li><a href="#"></a></li>
+	-->
+	<li><a href="#log">ログの設定</a></li>
+	<li><a href="#show">設定表示の設定</a></li>
+	<li><a href="#overwrite">カブロボの動作履歴保存の設定</a></li>
+</ul>
+
+<!--
+	<li><a href="#"></a></li>
+-->
+
+<hr>
+
+<h2 id="class">カブロボクラス名の設定</h2>
+カブロボのクラス名を指定するには、&lt;robot-class-name&gt;タグを設定します。<br>
+パッケージ名も含めて指定して下さい。<BR>
+<br>
+<table summary="robot-class-name の使い方">
+  <tr>
+    <td>&lt;robot-class-name&gt;</td>
+    <td>
+      カブロボクラス名<br>
+      （package 名も含む）
+    </td>
+    <td>必須</td>
+  </tr>
+</table>
+<br>
+例:
+<pre>
+  &lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+  &lt;robot-config&gt;
+    ....
+　　&lt;robot-class-name&gt;SampleRobot&lt;/robot-class-name&gt;
+    ....
+  &lt;/robot-config&gt;
+</pre>
+
+<hr>
+
+<h2 id="time">期間の設定</h2>
+カブロボを起動するときに使用するデータの期間を設定して、
+その期間で売買のシミュレーションを行うことができます。
+指定するには&lt;time&gt;タグを使います。<br>
+<br>
+
+&lt;time&gt;の構成
+<table summary="startの使い方">
+  <tr>
+    <td>&lt;start&gt;</td>
+    <td>
+      開始する日付<br>
+      yyyy-MM-ddの形式で指定
+    </td>
+    <td>必須</td>
+  </tr>
+  <tr>
+    <td>&lt;end&gt;</td>
+    <td>
+      終了する日付<br>
+      yyyy-MM-ddの形式で指定
+    </td>
+    <td>必須</td>
+  </tr>
+</table>
+
+<br>
+
+例:
+<pre>
+  &lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+  &lt;robot-config&gt;
+    ....
+    &lt;time&gt;
+      &lt;start&gt;2006-01-04&lt;/start&gt;
+      &lt;end&gt;2006-12-29&lt;/end&gt;
+    &lt;/time&gt;
+    ....
+  &lt;/robot-config&gt;
+</pre>
+
+start に 2006-01-04 が指定され、end に 2006-12-29 が指定されています。<br>
+この場合、2006年1月4日にカブロボが開始し、2006年12月29日まで動かすことを意味します。<br>
+<br>
+
+<hr>
+<h2 id="money">バックテスト時の初期資産の設定</h2>
+バックテスト時の初期資産を指定するには、&lt;asset&gt;タグを設定します。<br>
+デフォルトでは5000万円になっています。この数字を変えてテストすることで、資金の増減に対しての耐久性がテスト出来ます。<BR>
+<br>
+<table summary="assetの使い方">
+  <tr>
+    <td>&lt;asset&gt;</td>
+    <td>
+      初期資産（円）
+    </td>
+    <td>必須</td>
+  </tr>
+</table>
+<br>
+例:
+<pre>
+  &lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+  &lt;robot-config&gt;
+    ....
+　　&lt;asset&gt;50000000&lt;/asset&gt;
+    ....
+  &lt;/robot-config&gt;
+</pre>
+
+
+<hr>
+<h2 id="auto_losscut">自動損切り値の設定</h2>
+<p>システムによる自動損切りのパーセンテージを指定します。<br />
+１トレードの含み損がこの値以上になると自動で損切り注文を出すことが出来ます。<br />
+デフォルト値は20(%)です。
+</p>
+<table summary="auto-losscutの使い方"><tr>
+  <td>&lt;auto-losscut&gt;</td>
+  <td>
+    自動損切り値の設定<br>
+    （パーセント）
+  </td>
+  <td>必須</td>
+</tr></table>
+<br>
+例:
+<pre>
+  &lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+  &lt;robot-config&gt;
+    ....
+　　&lt;auto-losscut&gt;20&lt;/auto-losscut&gt;
+    ....
+  &lt;/robot-config&gt;
+</pre>
+
+<hr>
+<h2 id="each_stock_limit">新規注文時の銘柄組入比率上限値の設定</h2>
+新規注文時の銘柄組入比率上限値を指定するには、&lt;each-stock-limit&gt;タグを設定します。<br>
+これは新規注文の際に、総資産の何パーセントをある銘柄に集中させても良いかを設定します。<br>
+ポートフォリオの銘柄組入比率が、この上限値を超えるような注文は自動的に丸められます。<br>
+例えば総資産5000万円、銘柄組入比率上限値10パーセント、銘柄Aの株式評価額400万円の場合、<br>
+各銘柄は500万円以内になるように上限が設定されるので、銘柄Aに対しての新規注文は最大でも100万円に丸められます。<br>
+保有している銘柄の株式評価額が株価の上下に応じて増加し、組入比率上限値を超えた場合は特に問題はありません。<br>
+新規注文にのみ適用されます。<BR>
+<br>
+<table summary="each-stock-limitの使い方">
+  <tr>
+    <td>&lt;each-stock-limit&gt;</td>
+    <td>
+      銘柄組入比率上限値<br>
+      （パーセント）
+    </td>
+    <td>必須</td>
+  </tr>
+</table>
+<br>
+例:
+<pre>
+  &lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+  &lt;robot-config&gt;
+    ....
+　　&lt;each-stock-limit&gt;10&lt;/each-stock-limit&gt;
+    ....
+  &lt;/robot-config&gt;
+</pre>
+
+
+<hr>
+<h2 id="short_sell">空売りの有無の設定</h2>
+<p>空売りの有無を指定するには、&lt;short-trade&gt;タグを設定します。<br>
+trueで空売り有り、falseで空売り無しです。falseに設定していた場合はシステム内で空売りが出ないように制御されます。<BR>
+意図的に空売りをしない設定にする事で、サーバー上で動作させる際にカブロボの評価や挙動を正しく把握出来るようになります。<BR>
+</p>
+<table summary="short-sellの使い方">
+  <tr>
+    <td>&lt;short-trade&gt;</td>
+    <td>
+      true:空売り有り<br>
+      false:空売り無し
+    </td>
+    <td>必須</td>
+  </tr>
+</table>
+<br>
+例:
+<pre>
+  &lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+  &lt;robot-config&gt;
+    ....
+    &lt;short-trade&gt;true&lt;/short-trade&gt;
+    ....
+  &lt;/robot-config&gt;
+</pre>
+
+
+<hr>
+<h2 id="special_order">特別条件付注文の有無の設定</h2>
+特別条件付注文の有無を指定するには、&lt;special-order&gt;タグを設定します。<br>
+trueで特別注文有り、falseで無しです。falseに設定していた場合はシステム内で特別条件付注文が出ないように制御されます。<BR>
+意図的に特別条件付注文をしない設定にする事で、サーバー上で動作させる際にカブロボの評価や挙動を正しく把握出来るようになります。<BR>
+<br>
+<table summary="special-orderの使い方">
+  <tr>
+    <td>&lt;special-order&gt;</td>
+    <td>
+      true:特別条件付注文有り<br>
+      false:特別条件付注文無し
+    </td>
+    <td>必須</td>
+  </tr>
+</table>
+<br>
+例:
+<pre>
+  &lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+  &lt;robot-config&gt;
+    ....
+    &lt;special-order&gt;true&lt;/special-order&gt;
+    ....
+  &lt;/robot-config&gt;
+</pre>
+
+
+<hr>
+<h2 id="etf">ETF使用有無の設定</h2>
+ETF使用の有無を指定するには、&lt;etf&gt;タグを設定します。<br>
+trueでETF使用有り、falseで無しです。falseに設定していた場合はシステム内でETFを扱えないように制御されます。<BR>
+意図的にETFを使用しない設定にする事で、サーバー上で動作させる際にカブロボの評価や挙動を正しく把握出来るようになります。<BR>
+<br>
+<table summary="ETFの使い方">
+  <tr>
+    <td>&lt;ETF&gt;</td>
+    <td>
+      true:ETF使用有り<br>
+      false:ETF使用無し
+    </td>
+    <td>必須</td>
+  </tr>
+</table>
+<br>
+例:
+<pre>
+  &lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+  &lt;robot-config&gt;
+    ....
+    &lt;etf&gt;true&lt;/etf&gt;
+    ....
+  &lt;/robot-config&gt;
+</pre>
+
+
+<hr>
+<h2 id="datapath">拡張検証パックの設定</h2>
+拡張検証パックを指定するには、&lt;data&gt;タグを設定します。<br>
+デフォルトでは基本検証パックの data50 が設定されています。<BR>
+SDK 用の拡張検証パックをダウンロードして展開し、その "data*" ディレクトリの<br>
+KABUROBO_HOME からの相対パスを設定します。
+<br>
+<table summary="data の使い方">
+  <tr>
+    <td>&lt;data&gt;</td>
+    <td>
+      data50<br>
+      （KABUROBO_HOMEからの相対パス）
+    </td>
+    <td>必須</td>
+  </tr>
+</table>
+<br>
+例:
+<pre>
+  &lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+  &lt;robot-config&gt;
+    ....
+　　&lt;data&gt;data50&lt;/data&gt;
+    ....
+  &lt;/robot-config&gt;
+</pre>
+<hr>
+
+<h2 id="log">ログの設定</h2>
+プログラムで出力されるログのフィルタリングやログファイルの生成を設定することができます。<br>
+<br>
+&lt;user-log&gt;の構成
+<table summary="logの使い方">
+  <tr>
+    <td>&lt;console&gt;</td>
+    <td>
+      コンソールの出力方法を指定<br>
+      level 属性でログ出力レベルの閾値を設定
+    </td>
+  </tr>
+  <tr>
+    <td>&lt;file&gt;</td>
+    <td>
+      ファイルへの出力方法を指定<br>
+      path 属性で書き出すファイルを指定<br>
+      level 属性でログ出力レベルの閾値を設定
+    </td>
+  </tr>
+  <tr>
+    <td>&lt;database&gt;</td>
+    <td>
+      データベースへの出力方法を指定<br>
+      level 属性でログ出力レベルの閾値を設定
+    </td>
+  </tr>
+</table>
+<br>
+level 属性のログ出力レベルとは、ログ出力の閾値であり、この閾値以下のログが出力されます。<br>
+ログの出力レベルは、RobotLogManager.log(String msg, Integer level) メソッドで設定できます。<br>
+例えば、ログ出力の閾値を 5 した場合、5 以下のレベルのログが出力されます。
+0 の場合は全く出力されなくなります。<br>
+<br>
+例:
+<pre>
+ &lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+  &lt;robot-config&gt;
+    ....
+    &lt;log&gt;
+        &lt;console level="5" /&gt;
+        &lt;file level="0" path="log.txt" /&gt;
+        &lt;database level="0" /&gt;
+    &lt;/log>
+    ....
+  &lt;/robot-config&gt;
+</pre>
+
+<br>
+
+また、下記のようなシステムログを出力するかどうかを設定できます。<br>
+<br>
+<table summary="system-log の使い方">
+  <tr>
+    <td>&lt;system-log&gt;</td>
+    <td>
+      true: システムログを表示する<br>
+      false: システムログを表示しない
+    </td>
+    <td>必須</td>
+  </tr>
+</table>
+
+<br>
+
+例:
+<pre>
+  &lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+  &lt;robot-config&gt;
+    ....
+　　&lt;system-log&gt;true&lt;/system-log&gt;
+    ....
+  &lt;/robot-config&gt;
+</pre>
+
+<hr>
+
+<h2 id="show">設定の確認表示の設定</h2>
+カブロボの設定を確認表示にするには、&lt;config-confirmation&gt;タグを設定します。<br>
+設定の確認表示にした場合、
+
+<pre class=console>
+よろしければ[Enter]キーまたは start と打って[Enter]キーを押してください。
+キャンセルする場合は quit と打って[Enter]キーを押してください。
+ヘルプを表示する場合は help と打って[Enter]キーを押してください。
+>
+</pre>
+
+と表示され、一時停止します。<br>
+その後、[Enter]キーを押すことでカブロボがスタートします。
+また、キャンセルをすることもできます。<br>
+設定の確認表示をしなかった場合は止まらずにカブロボがスタートされます。<br>
+<br>
+<table summary="config-confirmation の使い方">
+  <tr>
+    <td>&lt;config-confirmation&gt;</td>
+    <td>
+      true: 確認表示をする<br>
+      false: 確認表示をしない
+    </td>
+    <td>必須</td>
+  </tr>
+</table>
+<br>
+例:
+<pre>
+  &lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+  &lt;robot-config&gt;
+    ....
+　　&lt;config-confirmation&gt;true&lt;/config-confirmation&gt;
+    ....
+  &lt;/robot-config&gt;
+</pre>
+
+<hr>
+
+<h2 id="overwrite">カブロボの動作履歴保存の設定</h2>
+カブロボの動作履歴を保存するには、&lt;overwrite&gt;タグを設定します。<br>
+カブロボの動作履歴は、HSQL データベース内に保存されます。<br>
+保存をした場合、何回もカブロボを実行すると、それだけ保存されていくため、
+カブロボの動作が遅くなる場合があります。<br>
+また、回数によっては HSQL の容量制限により動作しなくなる場合もありますのでご注意ください。<br>
+保存しなかった場合は、毎回上書きされます。
+デフォルトでは上書きされるようになっています。<br>
+
+<br>
+<table summary="overwrite の使い方">
+  <tr>
+    <td>&lt;overwrite&gt;</td>
+    <td>
+      true: 保存をする<br>
+      false: 保存をしない
+    </td>
+    <td>必須</td>
+  </tr>
+</table>
+<br>
+例:
+<pre>
+  &lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+  &lt;robot-config&gt;
+    ....
+　　&lt;overwrite&gt;true&lt;/overwrite&gt;
+    ....
+  &lt;/robot-config&gt;
+</pre>
+
+<hr>
+<div class="copyright">
+Copyright (c) 2004-2008 kaburobo.jp and Trade Science Corp. All rights reserved.
+<br>
+</div>
+
+</body>
+</html>

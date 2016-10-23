@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<robot-profile version="2.1.0">
+
+<!--
+	【アップロード用ロボットプロフィール設定ファイル】
+	
+	1. 概要
+	Javaロボットを提出する際に、そのロボットの情報をこのxmlファイルに
+	記述して同時にアップロードするためのものです。
+	設定項目は４点あります。
+	
+	2. デフォルト配置箇所
+	2-1. Windowsの場合
+	%KABUROBO_HOME%\config\robot_profile.xmlに配置してあります。
+	2-2. Linuxの場合
+	$KABUROBO_HOME/config/robot_profile.xmlに配置してあります。
+	
+	3. 設定項目内容
+	3-1. robot-class-name
+		ロボットのクラス名を指定します。
+		パッケージまで含めて記述して下さい。
+	3-2. encode
+		ロボットのソースファイルのエンコードを設定します。
+		指定できるエンコード文字列は
+		http://java.sun.com/j2se/1.5.0/ja/docs/ja/guide/intl/encoding.doc.html
+		を参照してください。
+		主なものにはShift_JIS、EUC-JP、UTF-8などがあります。
+	3-3. auto-losscut
+		システムによる自動損切りのパーセンテージを指定します。
+		１トレードの含み損がこの値以上になると自動で損切り注文を出すことが出来ます。
+	3-4. each-stock-limit
+		新規注文時の銘柄組入比率上限値を指定します。
+		新規注文の際に、総資産の何パーセントをある銘柄に集中させても良いかを設定します。
+		ポートフォリオの銘柄組入比率が、この上限値を超えるような注文は自動的に丸められます。
+		例えば総資産5000万円、銘柄組入比率上限値10パーセント、銘柄Aの株式評価額400万円の場合、
+		各銘柄は500万円以内になるように上限が設定されるので、
+		銘柄Aに対しての新規注文は最大でも100万円に丸められます。
+		保有している銘柄の株式評価額が株価の上下に応じて増加し、組入比率上限値を超えた場合は
+		特に問題はありません。新規注文にのみ適用されます。
+	3-5. short-trade
+		空売りの有無をtrue,falseで指定します。
+		空売りをしないロボットであればこの項目をfalseにして下さい。
+		falseになっているロボットは空売り時に注文が失敗します。
+		この項目はロボットの審査に利用されます。
+	3-6. special-order
+		条件付特別注文の有無をtrue,falseで指定します。
+		条件付特別注文をするロボットであればこの項目をtrueにして下さい。
+		始値を見て注文することができ、さらに注文時の指値価格も始値をベースに設定することができます。
+		falseになっているロボットは条件付特別注文の条件付与が失敗し、通常の注文として扱われます。
+		この項目はロボットの審査に利用されます。
+	3.7. etf
+		ETFの取り扱いの有無をtrue,falseで指定します。
+		ETFを売買するロボットであればこの項目をtrueにして下さい。
+		falseになっているロボットではETF銘柄の取得・注文ともにできません。
+		この項目はロボットの審査に利用されます。
+	
+	4. デフォルト値
+	<robot-profile sdkversion="*.*.*">	
+		<robot-class-name>SampleRobot</robot-class-name>
+		<encode>Shift_JIS</encode>
+		<auto-losscut>20</auto-losscut>
+		<each-stock-limit>10</each-stock-limit>
+		<short-trade>true</short-trade>
+		<special-order>false</special-order>
+		<etf>false</etf>
+	</robot-profile>
+-->
+
+	<robot-class-name>SampleRobot</robot-class-name>
+	<encode>Shift_JIS</encode>
+	<auto-losscut>20</auto-losscut>
+	<each-stock-limit>10</each-stock-limit>
+	<short-trade>true</short-trade>
+	<special-order>false</special-order>
+	<etf>false</etf>
+</robot-profile>

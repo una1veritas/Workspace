@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<robot-config>
+<!--
+	【バックテスト用ロボット起動設定ファイル】
+	
+	1. 概要
+	Javaロボットでバックテストする際の設定をします。
+	また、このファイルの読み込み順序は
+	　1. ロボットを実行した際のカレントディレクトリ
+	　2. 下記のデフォルト配置箇所
+	となっています。
+	また、この設定ファイルについてにヘルプファイルがKABUROBO_HOME/doc/help/robot-config.htmlにあります。
+	
+	2. デフォルト配置箇所
+	2-1. Windowsの場合
+	%KABUROBO_HOME%\config\robot_profile.xmlに配置してあります。
+	2-2. Linuxの場合
+	$KABUROBO_HOME/config/robot_profile.xmlに配置してあります。
+	
+	3. 設定項目内容
+	3-1. robot-class-name
+		ロボットのクラス名を指定します。
+		パッケージまで含めて記述して下さい。
+	3-2. time
+		バックテストの期間を指定します。
+		SDKの付属データは2004年1月4日～2006年12月29日です。
+		テクニカル分析等を利用する場合には期間に余裕をもって設定して下さい。
+	3-3. asset
+		バックテスト時の初期資産です。
+		これを変えることで様々な資産状況でのテストが行えます。
+	3-4. auto-losscut
+		システムによる自動損切りのパーセンテージを指定します。
+		１トレードの含み損がこの値以上になると自動で損切り注文を出すことが出来ます。
+	3-5. each-stock-limit
+		新規注文時の銘柄組入比率上限値を指定します。
+		新規注文の際に、総資産の何パーセントをある銘柄に集中させても良いかを設定します。
+		ポートフォリオの銘柄組入比率が、この上限値を超えるような注文は自動的に丸められます。
+		例えば総資産5000万円、銘柄組入比率上限値10パーセント、銘柄Aの株式評価額400万円の場合、
+		各銘柄は500万円以内になるように上限が設定されるので、
+		銘柄Aに対しての新規注文は最大でも100万円に丸められます。
+		保有している銘柄の株式評価額が株価の上下に応じて増加し、組入比率上限値を超えた場合は
+		特に問題はありません。新規注文にのみ適用されます。
+	3-6. short-trade
+		空売りの有無をtrue,falseで指定します。
+		空売りをしないロボットであればこの項目をfalseにして下さい。
+		falseになっているロボットは空売り時に注文が失敗します。
+		意図的に空売りをしない設定にする事で、
+		サーバー上で動作させる際にロボットの評価や挙動を正しく把握出来るようになります。
+	3-7. special-order
+		条件付特別注文の有無をtrue,falseで指定します。
+		条件付特別注文をするロボットであればこの項目をtrueにして下さい。
+		始値を見て注文することができ、さらに注文時の指値価格も始値をベースに設定することができます。
+		falseになっているロボットは条件付特別注文の条件付与が失敗し、通常の注文として扱われます。
+		この項目はロボットの審査に利用されます。
+	3.8. etf
+		ETFの取り扱いの有無をtrue,falseで指定します。
+		ETFを売買するロボットであればこの項目をtrueにして下さい。
+		falseになっているロボットではETF銘柄の取得・注文ともにできません。
+		この項目はロボットの審査に利用されます。
+	3-9. data
+		拡張検証パックを利用する時には、ここのディレクトリ名を変更して下さい。
+		SDK用の拡張検証パックをダウンロードして展開し、そのデータディレクトリの
+		KABUROBO_HOMEからの相対パスを設定します。
+	3-10. user-log
+		各ログの出力レベルを設定します。
+		最大値が5で最小値は0です。0だと何も出力しません。
+		System.out.print()で表示されたものはログには記録されません。（コンソールにのみ表示されます）
+		ログに出力するにはLogManagerを利用して下さい。
+		LogManagerのログ出力時にログレベルを指定出来、出力レベル以下のログだけ表示されます。
+		fileのpathによってログ出力先を指定できます。
+	3-11. system-log
+		日々の資産状況やポートフォリオなどのシステムログの出力有無をtrue,falseで指定します。
+	3-12. config-confirmation
+		バックテスト時の設定確認の有無をtrue,falseで指定します。
+	3-13. overwrite
+		売買履歴を組込データベースに上書きするかどうかをtrue,falseで指定します。
+		過去の履歴がたまるとロボットの動作が遅くなるので、デフォルトのままをお勧めします。
+	4. デフォルト値
+	<robot-class-name>SampleRobot</robot-class-name>
+	<time>
+		<start>2006-01-04</start>
+		<end>2006-12-29</end>
+	</time>
+	<asset>50000000</asset>
+	<auto-losscut>20</auto-losscut>
+	<each-stock-limit>10</each-stock-limit>
+	<short-trade>true</short-trade>
+	<special-order>false</special-order>
+	<etf>false</etf>
+	<data>data50</data>
+	<user-log>
+		<console level="5" />
+		<file level="0" path="log.txt" />
+		<database level="0" />
+	</user-log>
+	<system-log>true</system-log>
+	<config-confirmation>true</config-confirmation>
+	<overwrite>true</overwrite>
+	<special-order>false</special-order>
+-->
+
+	<robot-class-name>SampleRobot</robot-class-name>
+	<time>
+		<start>2006-01-04</start>
+		<end>2006-12-29</end>
+	</time>
+	<asset>50000000</asset>
+	<auto-losscut>20</auto-losscut>
+	<each-stock-limit>10</each-stock-limit>
+	<short-trade>true</short-trade>
+	<special-order>false</special-order>
+	<etf>false</etf>
+	<data>data50</data>
+	<user-log>
+		<console level="5" />
+		<file level="0" path="log.txt" />
+		<database level="0" />
+	</user-log>
+	<system-log>true</system-log>
+	<config-confirmation>true</config-confirmation>
+	<overwrite>true</overwrite>
+</robot-config>
