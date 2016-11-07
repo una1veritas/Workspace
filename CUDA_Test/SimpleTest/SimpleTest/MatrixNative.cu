@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
 	}
 
 	time(&Stop);
-	printf("Processing time: %d (sec)\n", Stop - Start);
+	printf("Processing time: %d (sec)\n", (int)(Stop - Start) );
 
 	/*ƒƒ‚ƒŠ‚ğ‰ğ•ú*/
 	free(matA);
