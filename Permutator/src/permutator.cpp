@@ -15,7 +15,7 @@
 #include "Permutation.h"
 
 void load_dict(std::set<std::string> &, std::istream &);
-int strpos(const std::string & t, const std::string & p);
+unsigned int prefixmatch(const std::string & t, const std::string & p);
 
 int main(const int argc, const char * argv[]) {
 	struct {
@@ -29,7 +29,7 @@ int main(const int argc, const char * argv[]) {
 		options.all = true;
 		str = argv[2];
 	}
-	for(int i = 0; i < str.length(); ++i)
+	for(int i = 0; (unsigned int)i < str.length(); ++i)
 		str[i] = tolower(str[i]);
 	std::sort(&str[0], &str[str.length()], [](char a, char b) { return a < b; } );
 
@@ -57,38 +57,40 @@ int main(const int argc, const char * argv[]) {
 //	}
 //	std::cout << std::endl;
 
-	std::string matched = "";
+	std::vector<std::string> matched;
+	double bestpoint = 0;
 	std::cout << perm << std::endl << std::endl;
-	double maxval = 0;
 	do {
 		std::string t = str;
 		perm.map(t);
 		if ( options.all )
 			std::cout << t << std::endl;
 		for(std::set<std::string>::iterator elem = worddict.begin(); elem != worddict.end(); elem++) {
-			const int pos = strpos(t, *elem);
-			if ( pos == -1 )
+			double point = prefixmatch(t, *elem)/(double)(t.length() > elem->length() ? t.length() : elem->length() );
+			if ( point == 0 )
 				continue;
-			const int pos_end = pos + elem->length();
-			const double point = ((double) elem->length()) / t.length();
-			if ( pos > 0 )
-				std::cout << t.substr(0, pos) << "-";
-			std::cout << t.substr(pos, elem->length());
-			if ( pos_end < t.length() )
-				std::cout << "-" << t.substr(pos_end,t.length()-pos_end+1);
-			std::cout << std::endl;
-			if ( point > maxval ) {
-				matched = t;
-				maxval = point;
+			if ( point > bestpoint ) {
+				if ( bestpoint < 1.0 ) {
+					if ( matched.size() > 0 ) // must be equal to 1
+						matched.pop_back();
+				}
+				std::cout << *elem << " <-> " << t;
+				std::cout << " with " << (int)(point*100) << "%" << std::endl;;
+				if ( t.length() < elem->length() )
+					matched.push_back(*elem);
+				else
+					matched.push_back(t);
+				bestpoint = point;
 			}
 		}
 	} while (perm.next());
 
-	if ( matched == "" ) {
-		std::cout << std::endl << "No suggestion." << std::endl << std::endl;
-	} else {
-		std::cout << std::endl  << "Suggestion: " << matched << " with " << maxval << std::endl << std::endl;
+	std::cout << std::endl  << "Suggestion: " << std::endl;
+	for(std::vector<std::string>::iterator it = matched.begin();
+			it != matched.end(); ++it ) {
+		std::cout << *it << ", ";
 	}
+	std::cout << std::endl << std::endl;
 	return EXIT_SUCCESS;
 }
 
@@ -105,35 +107,13 @@ void load_dict(std::set<std::string> & list, std::istream & indata) {
 	return;
 }
 
-int strpos(const std::string & text, const std::string & word) {
-
-	if ( text.length() < word.length() )
-		return -1;
-
-	if ( word == "glass-" )
-		std::cout << std::endl;
-	int pos;
-	std::string patt = word;
-	if ( patt.compare(0,1,"-") == 0 ) {
-		patt = patt.substr(1,patt.length()-1);
-		pos = text.length() - patt.length();
-		if ( text.compare(pos, patt.length(), patt) == 0 ) {
-			return pos ;
-		}
-	} else if ( patt.compare(patt.length()-1,1,"-") == 0 ) {
-		patt = patt.substr(0,patt.length()-1);
-		pos = 0;
-		if ( text.compare(pos, patt.length(), patt) == 0 ) {
-			return pos ;
-		}
+unsigned int prefixmatch(const std::string & str1, const std::string & str2) {
+	unsigned int matchlen;
+	unsigned int pattlen = ((str1.length() < str2.length()) ? str1.length() : str2.length() );
+	for ( matchlen = 0; matchlen < pattlen; matchlen++ ) {
+		if ( str1[matchlen] != str2[matchlen] )
+			break;
 	}
-	pos = 0;
-	if ( text.compare(pos, patt.length(), patt) == 0 ) {
-		return pos ;
-	}
-	pos = text.length() - patt.length();
-	if ( text.compare(pos, patt.length(), patt) == 0 ) {
-			return pos ;
-		}
-	return -1;
+
+	return matchlen;
 }
