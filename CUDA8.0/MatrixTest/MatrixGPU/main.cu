@@ -76,13 +76,10 @@ int main(int argc, char** argv) {
 
 	/*タイマーを停止しかかった時間を表示*/
 	/*
-	CUT_SAFE_CALL(cutStopTimer(timer));
-	printf("Processing time: %f (msec)\n", cutGetTimerValue(timer));
-	CUT_SAFE_CALL(cutDeleteTimer(timer));
-	*/
 	sdkStopTimer(&timer);
 	printf("計算時間 =%f(ms)\n", sdkGetTimerValue(&timer));
 	sdkDeleteTimer(&timer);
+	*/
 
 	/*ホスト・デバイスメモリの開放*/
 	free(hMatrixA);
