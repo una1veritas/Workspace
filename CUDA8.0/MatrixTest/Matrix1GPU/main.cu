@@ -14,8 +14,8 @@
 #include <helper_cuda.h>
 #include <helper_timer.h>
 
-#define MATRIX_SIZE 1024/*行列１辺の数*/
-#define BLOCK_SIZE 16
+/*行列１辺の数*/
+#define MATRIX_SIZE 1024
 
 __global__ void
 matrixMul(int* inMatrixA, int* inMatrixB, int* inMatrixC);
@@ -53,9 +53,6 @@ int main(int argc, char** argv) {
 	cudaMemcpy(dMatrixB, hMatrixB, matrixSize, cudaMemcpyHostToDevice);
 	cudaMalloc((void**)&dMatrixC, matrixSize);
 
-	/*ブロックサイズとグリッドサイズの設定*/
-	dim3 block(1, 1);
-	dim3 grid(1, 1);
 
 	/*タイマーを作成して計測開始*/
 	sdkCreateTimer(&timer);
@@ -63,7 +60,7 @@ int main(int argc, char** argv) {
 	sdkStartTimer(&timer);
 
 	/*カーネルの起動*/
-	matrixMul << < grid, block >> >(dMatrixA, dMatrixB, dMatrixC);
+	matrixMul <<< 1, 1 >>>(dMatrixA, dMatrixB, dMatrixC);
 	cudaThreadSynchronize();
 
 	/*結果の領域確保とデバイス側からのメモリ転送*/

@@ -21,8 +21,6 @@ __global__ void
 matrixMul(int* inMatrixA, int* inMatrixB, int* inMatrixC);
 
 int main(int argc, char** argv) {
-	StopWatchInterface *timer = NULL;
-
 	unsigned int matrixSize = sizeof(unsigned int) * MATRIX_SIZE * MATRIX_SIZE;
 
 	int* hMatrixA;
@@ -57,11 +55,7 @@ int main(int argc, char** argv) {
 	dim3 grid(MATRIX_SIZE / BLOCK_SIZE, MATRIX_SIZE / BLOCK_SIZE);
 
 	/*タイマーを作成して計測開始*/
-	/*
-	unsigned int timer = 0;
-	CUT_SAFE_CALL(cutCreateTimer(&timer));
-	CUT_SAFE_CALL(cutStartTimer(timer));
-	*/
+	StopWatchInterface *timer = NULL;
 	sdkCreateTimer(&timer);
 	sdkResetTimer(&timer);
 	sdkStartTimer(&timer);
@@ -75,11 +69,9 @@ int main(int argc, char** argv) {
 	cudaMemcpy(hMatrixC, dMatrixC, matrixSize, cudaMemcpyDeviceToHost);
 
 	/*タイマーを停止しかかった時間を表示*/
-	/*
 	sdkStopTimer(&timer);
 	printf("計算時間 =%f(ms)\n", sdkGetTimerValue(&timer));
 	sdkDeleteTimer(&timer);
-	*/
 
 	/*ホスト・デバイスメモリの開放*/
 	free(hMatrixA);
