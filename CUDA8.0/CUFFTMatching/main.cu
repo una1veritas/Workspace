@@ -26,25 +26,34 @@ Description : Factored discrete Fourier transform, or FFT, and its inverse iFFT
 #include <helper_timer.h>
 
 
+#define TEXTBUFFER_LENGTH 512
 #define VECTOR_MAXSIZE 512
 
+<<<<<<< HEAD
 #define DEBUG_VECTOR
 
 struct compvect {
+=======
+struct dcompvec {
+>>>>>>> parent of dcca675... CUFFTMatching
 	cufftComplex * elem;
-	unsigned int dim;
+	int dimsize;
 };
+<<<<<<< HEAD
 typedef struct compvect compvect;
+=======
+typedef struct dcompvec dcompvec;
+const int CONJ_REVERSE = 1;
+>>>>>>> parent of dcca675... CUFFTMatching
 
 struct text {
-	char * str;
-	unsigned int size;
-	unsigned int length;
+	char str[TEXTBUFFER_LENGTH];
+	int length;
 };
 typedef struct text text;
 
 __global__ void cuCvecmul_into(cuComplex * x, cuComplex * y, const int dimsize);
-__global__ void cuCfindpos(cuComplex * v, int * occurrences, const int dim, const int pattlen);
+__global__ void cuCfindpos(cuComplex * v, const int dimsize, const int pattlen);
 long smallestpow2(const long n) {
 	long t = 1;
 	while (t < n) {
@@ -57,8 +66,15 @@ long smallestpow2(const long n) {
 #define max(x,y)  ( ((x) < (y) ? (y) : (x)) )
 #define abs(x)  ( (x) < 0 ? (-(x)) : (x) )
 
+<<<<<<< HEAD
 __global__ void make_signal(const char * text1, const int strlen, const int dimsize, cuComplex * vec, const int flag);
 void print_vector(const char *title, compvect *x);
+=======
+int make_signal(text * text1, int dimsize, dcompvec * vec, const int flag);
+void print_vector(const char *title, cufftComplex *x, int n);
+
+void cufft(cufftComplex * vec, int n, int inverseflag);
+>>>>>>> parent of dcca675... CUFFTMatching
 
 __host__ __device__ static __inline__ cuComplex cuCexpf(cuComplex x)
 {
@@ -68,31 +84,35 @@ __host__ __device__ static __inline__ cuComplex cuCexpf(cuComplex x)
 
 int main(int argc, char * argv[]) {
 	text text1, text2;
-	compvect vec1, vec2;
+	dcompvec vec1, vec2;
 	int vecsize;
 	int pattlen;
 
 	if ( argc != 3)
 		exit(EXIT_FAILURE);
 
-	text1.size = VECTOR_MAXSIZE;
-	text1.str = (char*)malloc(sizeof(char)*text1.size);
-	strncpy(text1.str, argv[1], text1.size);
-	text1.length = min(strlen(argv[1]), text1.size);
-	text2.size = VECTOR_MAXSIZE;
-	text2.str = (char*)malloc(sizeof(char)*text2.size);
-	strncpy(text2.str, argv[2], text2.size);
-	text2.length = min(strlen(argv[2]), text2.size);
+	strncpy(text1.str, argv[1], TEXTBUFFER_LENGTH);
+	text1.length = min(strlen(text1.str), TEXTBUFFER_LENGTH);
+	strncpy(text2.str, argv[2], TEXTBUFFER_LENGTH);
+	text2.length = min(strlen(text2.str), TEXTBUFFER_LENGTH);
 
 	printf("inputs: \"%s\", \"%s\" \n", text1.str, text2.str);
-	vecsize = smallestpow2(min(max(text1.length, text2.length), VECTOR_MAXSIZE));
+	vecsize = smallestpow2(min(VECTOR_MAXSIZE, max(text1.length, text2.length)));
 	pattlen = min(text1.length, text2.length);
 
+<<<<<<< HEAD
 
 	vec1.dim = vecsize;
 	vec1.elem = (cuComplex *)malloc(sizeof(cuComplex)*vecsize);
 	vec2.dim = vecsize;
 	vec2.elem = (cuComplex *)malloc(sizeof(cuComplex)*vecsize);
+=======
+	make_signal(&text1, vecsize, &vec1, !CONJ_REVERSE);
+	make_signal(&text2, vecsize, &vec2, CONJ_REVERSE);
+	/* FFT, iFFT of v[]: */
+	print_vector("text1 ", vec1.elem, vec1.dimsize);
+	print_vector("text2 ", vec2.elem, vec2.dimsize);
+>>>>>>> parent of dcca675... CUFFTMatching
 
 	/*タイマーを作成して計測開始*/
 	StopWatchInterface *timer = NULL;
@@ -105,10 +125,15 @@ int main(int argc, char * argv[]) {
 	dim3 grid(16, 1);
 	dim3 block(vecsize / 16, 1);
 	cufftComplex *devmemptr;
+<<<<<<< HEAD
 	char * devstrptr;
 
 	cudaMalloc((void**)&devmemptr, sizeof(cufftComplex) * vecsize * 2);  /* バッチ数 2 (vec1.elem, vec2.elem)*/
 	cudaMalloc((void**)&devstrptr, sizeof(char) * vecsize);
+=======
+	/* バッチ数 2 (vec1.elem, vec2.elem)*/
+	cudaMalloc((void**)&devmemptr, sizeof(cufftComplex) * vecsize * 2 );
+>>>>>>> parent of dcca675... CUFFTMatching
 
 	/* 複素数ベクトル作成 */
 	cudaMemcpy(devstrptr, text1.str, sizeof(char)*vecsize, cudaMemcpyHostToDevice);
@@ -158,18 +183,43 @@ int main(int argc, char * argv[]) {
 
 #ifdef DEBUG_VECTOR
 	cudaMemcpy(vec1.elem, devmemptr, sizeof(cufftComplex)* vecsize, cudaMemcpyDeviceToHost);
+<<<<<<< HEAD
 	print_vector("iFFT ", &vec1);
 #endif
 	cuCfindpos<<<grid, block>>>(devmemptr, (int *) (devmemptr+vecsize), vecsize, pattlen);
 
 	int pos[VECTOR_MAXSIZE];
 	cudaMemcpy(&pos, devmemptr+vecsize, sizeof(int) * vecsize , cudaMemcpyDeviceToHost);
+=======
+	print_vector("iFFT ", vec1.elem, vecsize);
+
+	cuCfindpos<<<grid, block>>>(devmemptr, vecsize, pattlen);
+
+	/*
+	int pos = vec1.dimsize;
+	for (int i = pattlen - 1; i < vec1.dimsize + pattlen - 1; i++) {
+		if (abs(cuCrealf(vec1.elem[(vec1.dimsize + i - 1) % vec1.dimsize])/vecsize - (double)pattlen) < (1.0F/4096.0F))
+			pos = min(pos, i);
+	}
+	*/
+	/*
+	printf("Occurring positions: ");
+	for(int i = 0; i < vec1.dimsize; i++) {
+	if ( abs(creal(vec1.elem[(vec1.dimsize - pattlen + i) % vec1.dimsize]) - (double) pattlen) < 0.0001220703125 )
+	printf("%d, ", i - pattlen + 1);
+	}
+	printf(".\n");
+	*/
+	cudaMemcpy(vec1.elem, devmemptr, sizeof(cufftComplex)* vecsize, cudaMemcpyDeviceToHost);
+	int pos = (int) cuCrealf(vec1.elem[0]);
+>>>>>>> parent of dcca675... CUFFTMatching
 
 	/*タイマーを停止しかかった時間を表示*/
 	sdkStopTimer(&timer);
 	printf("計算時間 =%f(ms)\n", sdkGetTimerValue(&timer));
 	sdkDeleteTimer(&timer);
 
+<<<<<<< HEAD
 	printf("\nResult: \n");
 #ifdef DEBUG_VECTOR
 	for (int i = 0; i < vecsize; i++) {
@@ -185,6 +235,18 @@ int main(int argc, char * argv[]) {
 	/* GPU用メモリ開放 */
 	cudaFree(devmemptr);
 	cudaFree(devstrptr);
+=======
+	print_vector(" pos ", vec1.elem, vecsize);
+	if (pos < vecsize) {
+		printf("The 1st occurrence at: %d.\n", pos);
+	}
+	else {
+		printf("None.\n");
+	}
+
+	/* GPU用メモリ開放 */
+	cudaFree(devmemptr);
+>>>>>>> parent of dcca675... CUFFTMatching
 
 	/* CUFFT plan削除 */
 	cufftDestroy(plan2way);
@@ -192,30 +254,54 @@ int main(int argc, char * argv[]) {
 
 	free(vec1.elem);
 	free(vec2.elem);
+<<<<<<< HEAD
 	
 	free(text1.str);
 	free(text2.str);
+=======
+>>>>>>> parent of dcca675... CUFFTMatching
 
 	exit(EXIT_SUCCESS);
 }
 
 
+<<<<<<< HEAD
 __global__ void make_signal(const char * str, int strlen, const int dim, cuComplex * vec, const int flag) {
+=======
+int make_signal(text * str, const int dimsize, dcompvec * vec, const int flag) {
+	int len;
+>>>>>>> parent of dcca675... CUFFTMatching
 	int dst;
 	float factor;
 	int idx = blockDim.x*blockIdx.x+threadIdx.x;
 
+<<<<<<< HEAD
 	if (idx < dim) {
+=======
+	// the first as normal
+	vec->dimsize = dimsize;
+	vec->elem = (cuComplex*)malloc(sizeof(cuComplex)*dimsize);
+	len = str->length;
+	for (int i = 0; i < vec->dimsize; ++i) {
+>>>>>>> parent of dcca675... CUFFTMatching
 		if (!flag) {
 			dst = idx;
 			factor = 2 * 3.14159265358979323846264338327950288F;
 		}
 		else {
+<<<<<<< HEAD
 			dst = dim - idx - 1;
 			factor = -2 * 3.14159265358979323846264338327950288F;
 		}
 		if ( idx < strlen )
 			vec[dst] = cuCexpf(make_cuComplex(0, factor * (float)(str[idx]) / 256.0f));  // by rotated unit vector
+=======
+			dst = vec->dimsize - i - 1;
+			factor = -2 * 3.14159265358979323846264338327950288F;
+		}
+		if (i < len)
+			vec->elem[dst] = cuCexpf(make_cuComplex(0, factor * (float)(str->str[i]) / 256.0f));  // by rotated unit vector
+>>>>>>> parent of dcca675... CUFFTMatching
 																								  // (*array)[i] = (float)(str[i]) / 128.0f  ;  // by char value
 		else
 			vec[dst] = make_cuComplex(0, 0);
@@ -224,20 +310,20 @@ __global__ void make_signal(const char * str, int strlen, const int dim, cuCompl
 }
 
 /* Print a vector of complexes as ordered pairs. */
-void print_vector(const char *title, compvect *v) {
-	unsigned int i;
-	printf("%s (dim=%d):\n", title, v->dim);
-	for (i = 0; i < v->dim; i++)
+void print_vector(const char *title, cufftComplex *x, int n) {
+	int i;
+	printf("%s (dim=%d):\n", title, n);
+	for (i = 0; i < n; i++)
 		printf("%5d    ", i);
 	putchar('\n');
-	for (i = 0; i < v->dim; i++)
-		printf(" %7.3f,", cuCrealf(v->elem[i]));
+	for (i = 0; i < n; i++)
+		printf(" %7.3f,", cuCrealf(x[i]));
 	putchar('\n');
-	for (i = 0; i < v->dim; i++)
-		printf(" %7.3f,", cuCimagf(v->elem[i]));
+	for (i = 0; i < n; i++)
+		printf(" %7.3f,", cuCimagf(x[i]));
 	putchar('\n');
-	for (i = 0; i < v->dim; i++)
-		printf(" %7.3f,", cuCabsf(v->elem[i]));
+	for (i = 0; i < n; i++)
+		printf(" %7.3f,", cuCabsf(x[i]));
 	printf("\n\n");
 	return;
 }
@@ -249,42 +335,36 @@ __global__ void cuCvecmul_into(cuComplex * v, cuComplex * w, const int dimsize) 
 	__syncthreads();
 }
 
-__global__ void cuCfindpos(cuComplex * v, int * occ, const int dim, const int pattlen) {
+__global__ void cuCfindpos(cuComplex * v, const int dimsize, const int pattlen) {
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
 	float val;
 	int width;
 
 	//(vec1.dimsize - pattlen + i) % vec1.dimsize
 
-	if (idx < dim) {
-		val = (cuCrealf(v[idx]) / dim) - (float)pattlen;
+	if (idx < dimsize) {
+		int i = dimsize - pattlen + idx;
+		if (i >= dimsize)
+			i %= dimsize;
+		val = cuCrealf(v[i]) / dimsize - (float)pattlen;
 		if (val < 0)
 			val = -val;
 	}
 	__syncthreads();
-
-	if (idx < dim) {
+	if (idx < dimsize) {
 		if (val < 0.000122)
-			occ[idx] = (idx + pattlen) % dim;
+			v[idx] = make_cuComplex(idx, 0.0);
 		else
-			occ[idx] = dim;
+			v[idx] = make_cuComplex(dimsize, 0.0);
 	}
 	__syncthreads();
 
-	
-	int t1, t2;
-	for (width = (dim >> 1); width > 0; width >>= 1) {
+	float pos1, pos2;
+	for (width = (dimsize >> 1); width > 0; width >>= 1) {
 		if ( idx < width ) {
-			t1 = occ[idx];
-			t2 = occ[idx + width];
-			if (t1 < t2) {
-				occ[idx] = t1;
-				occ[idx + width] = t1;
-			}
-			else {
-				occ[idx] = t2;
-				occ[idx + width] = t2;
-			}
+			pos1 = cuCrealf(v[idx]);
+			pos2 = cuCrealf(v[idx + width]);
+			v[idx] = make_cuComplex( (pos1 < pos2 ? pos1 : pos2), 0.0);
 		}
 		__syncthreads();
 	}
