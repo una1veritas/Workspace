@@ -25,9 +25,10 @@ Description : Factored discrete Fourier transform, or FFT, and its inverse iFFT
 #include <helper_cuda.h>
 #include <helper_timer.h>
 
+#define DEBUG_VECTOR
 #define DEBUG_OCCURRENCES
 
-#define VECTOR_MAXSIZE 512
+#define VECTOR_MAXSIZE 1024
 
 struct compvect {
 	cuComplex * elem;
@@ -78,15 +79,19 @@ int main(int argc, char * argv[]) {
 	text1.size = VECTOR_MAXSIZE;
 	text1.str = (char*)malloc(sizeof(char)*text1.size);
 	strncpy(text1.str, argv[1], text1.size);
-	text1.str[VECTOR_MAXSIZE - 1] = 0;
 	text1.length = min(strlen(argv[1]), text1.size);
 	text2.size = VECTOR_MAXSIZE;
 	text2.str = (char*)malloc(sizeof(char)*text2.size);
 	strncpy(text2.str, argv[2], text2.size);
-	text2.str[VECTOR_MAXSIZE - 1] = 0;
 	text2.length = min(strlen(argv[2]), text2.size);
 
-	printf("inputs: \"%s\", \"%s\" \n", text1.str, text2.str);
+	char buf[VECTOR_MAXSIZE+1];
+	strncpy(buf, text1.str, VECTOR_MAXSIZE);
+	buf[VECTOR_MAXSIZE] = 0;
+	printf("inputs: \"%s\" (%d), ", buf, text1.length);
+	strncpy(buf, text2.str, VECTOR_MAXSIZE);
+	buf[VECTOR_MAXSIZE] = 0;
+	printf("\"%s\" (%d)\n", buf, text2.length);
 	vecsize = smallestpow2(min(max(text1.length, text2.length), VECTOR_MAXSIZE));
 	pattlen = min(text1.length, text2.length);
 
@@ -106,10 +111,21 @@ int main(int argc, char * argv[]) {
 	cufftComplex *devmemptr;
 	char * devstrptr;
 
+	
 	/* バッチ数 2 (vec1.elem, vec2.elem)　*/
-	cudaMalloc((void**)&devmemptr, sizeof(cufftComplex) * vecsize * 2);
-	cudaMalloc((void**)&devstrptr, sizeof(int) * vecsize);
-
+	cudaError_t error_id;
+	error_id = cudaMalloc((void**)&devmemptr, sizeof(cufftComplex) * vecsize * 2);
+	if ( error_id != cudaSuccess ) {
+		printf("cudaMalloc returned %d\n-> %s\n", (int)error_id, cudaGetErrorString(error_id));
+		printf("Result = FAIL\n");
+		exit(EXIT_FAILURE);
+	}
+	error_id = cudaMalloc((void**)&devstrptr, sizeof(int) * vecsize);
+	if ( error_id != cudaSuccess ) {
+		printf("cudaMalloc returned %d\n-> %s\n", (int)error_id, cudaGetErrorString(error_id));
+		printf("Result = FAIL\n");
+		exit(EXIT_FAILURE);
+	}
 	/* GPU thread allocation */
 	dim3 grid(32, 1);
 	dim3 block(VECTOR_MAXSIZE / 32, 1);
@@ -139,10 +155,10 @@ int main(int argc, char * argv[]) {
 
 #ifdef DEBUG_VECTOR
 	/*  計算結果をGPUメモリから転送して表示 */
-	cudaMemcpy(vec1.elem, devmemptr, sizeof(cufftComplex)*vec1.dimsize, cudaMemcpyDeviceToHost);
-	cudaMemcpy(vec2.elem, devmemptr + vecsize, sizeof(cufftComplex)*vec2.dimsize, cudaMemcpyDeviceToHost);
-	print_vector("fft1: 2 ", vec1.elem, vec1.dimsize);
-	print_vector("fft2 ", vec2.elem, vec2.dimsize);
+	cudaMemcpy(vec1.elem, devmemptr, sizeof(cufftComplex)*vec1.dim, cudaMemcpyDeviceToHost);
+	cudaMemcpy(vec2.elem, devmemptr + vecsize, sizeof(cufftComplex)*vec2.dim, cudaMemcpyDeviceToHost);
+	print_vector("fft1: 2 ", &vec1);
+	print_vector("fft2 ", &vec2);
 #endif
 
 	/* ベクトルの積をとる */
@@ -152,7 +168,7 @@ int main(int argc, char * argv[]) {
 	/*  計算結果をGPUメモリから転送して表示 */
 	cudaMemcpy(vec1.elem, devmemptr, sizeof(cufftComplex)* vecsize, cudaMemcpyDeviceToHost);
 	cudaMemcpy(vec2.elem, devmemptr + vecsize, sizeof(cufftComplex)*vecsize, cudaMemcpyDeviceToHost);
-	print_vector("prod ", vec1.elem, vec1.dimsize);
+	print_vector("prod ", &vec1);
 #endif
 
 	cufftPlan1d(&cufftplan, vecsize, CUFFT_C2C, 1);
@@ -197,7 +213,7 @@ int main(int argc, char * argv[]) {
 #ifdef DEBUG_OCCURRENCES
 	printf("\nResult: \n");
 	for (int i = 0; i < vecsize; i++) {
-		printf("[%d] = %d, ", i, pos[i]);
+		printf("[%d] %d, ", i, pos[i]);
 	}
 #endif
 	printf("\n");
@@ -247,17 +263,17 @@ __global__ void make_signal(const char * str, const unsigned int strlen,
 void print_vector(const char *title, compvect *v) {
 	unsigned int i;
 	printf("%s (dim=%d):\n", title, v->dim);
-	for (i = 0; i < v->dim; i++)
-		printf("%5d    ", i);
+	for (i = 0; i < min(v->dim, 28); i++)
+		printf("%6d    ", i);
 	putchar('\n');
-	for (i = 0; i < v->dim; i++)
-		printf(" %7.3f,", cuCrealf(v->elem[i]));
+	for (i = 0; i < min(v->dim, 28); i++)
+		printf(" %8.3f,", cuCrealf(v->elem[i]));
 	putchar('\n');
-	for (i = 0; i < v->dim; i++)
-		printf(" %7.3f,", cuCimagf(v->elem[i]));
+	for (i = 0; i < min(v->dim, 28); i++)
+		printf(" %8.3f,", cuCimagf(v->elem[i]));
 	putchar('\n');
-	for (i = 0; i < v->dim; i++)
-		printf(" %7.3f,", cuCabsf(v->elem[i]));
+	for (i = 0; i < min(v->dim, 28); i++)
+		printf(" %8.3f,", cuCabsf(v->elem[i]));
 	printf("\n\n");
 	return;
 }
