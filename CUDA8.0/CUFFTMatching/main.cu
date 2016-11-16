@@ -28,10 +28,10 @@ Description : Factored discrete Fourier transform, or FFT, and its inverse iFFT
 #define DEBUG_VECTOR
 #define DEBUG_OCCURRENCES
 
-#define VECTOR_MAXSIZE 1024
+#define VECTOR_MAXSIZE 2048
 
 struct compvect {
-	cuComplex * elem;
+	cuComplex * elem; // = cuFloatComplex (8 bytes)
 	unsigned int dim;
 };
 typedef struct compvect compvect;
@@ -43,8 +43,8 @@ struct text {
 };
 typedef struct text text;
 
-__global__ void cuCvecmul_into(cuComplex * x, cuComplex * y, const int dimsize);
-__global__ void cuCfindpos(cuComplex * v, unsigned int * occurrences, const int dim, const int pattlen);
+__global__ void cuCvecmul_into(cuComplex * x, cuComplex * y, const int pattlen, const int dim);
+__global__ void cuCfindpos(cuComplex * v, int * occurrences, const int dim, const int pattlen);
 __global__ void make_signal(const char * str, const unsigned int length, cuComplex * vec, const int dim, const int flag);
 
 #define min(x,y)  ( ((x) < (y) ? (x) : (y)) )
@@ -77,7 +77,7 @@ int main(int argc, char * argv[]) {
 		exit(EXIT_FAILURE);
 
 	text1.size = VECTOR_MAXSIZE;
-	text1.str = (char*)malloc(sizeof(char)*text1.size);
+	text1.str = (char*)malloc(sizeof(char) * VECTOR_MAXSIZE);
 	strncpy(text1.str, argv[1], text1.size);
 	text1.length = min(strlen(argv[1]), text1.size);
 	text2.size = VECTOR_MAXSIZE;
@@ -92,6 +92,7 @@ int main(int argc, char * argv[]) {
 	strncpy(buf, text2.str, VECTOR_MAXSIZE);
 	buf[VECTOR_MAXSIZE] = 0;
 	printf("\"%s\" (%d)\n", buf, text2.length);
+
 	vecsize = smallestpow2(min(max(text1.length, text2.length), VECTOR_MAXSIZE));
 	pattlen = min(text1.length, text2.length);
 
@@ -110,31 +111,24 @@ int main(int argc, char * argv[]) {
 	/* GPU用メモリ割り当て */
 	cufftComplex *devmemptr;
 	char * devstrptr;
+//	int * devoccptr;
 
 	
 	/* バッチ数 2 (vec1.elem, vec2.elem)　*/
-	cudaError_t error_id;
-	error_id = cudaMalloc((void**)&devmemptr, sizeof(cufftComplex) * vecsize * 2);
-	if ( error_id != cudaSuccess ) {
-		printf("cudaMalloc returned %d\n-> %s\n", (int)error_id, cudaGetErrorString(error_id));
-		printf("Result = FAIL\n");
-		exit(EXIT_FAILURE);
-	}
-	error_id = cudaMalloc((void**)&devstrptr, sizeof(int) * vecsize);
-	if ( error_id != cudaSuccess ) {
-		printf("cudaMalloc returned %d\n-> %s\n", (int)error_id, cudaGetErrorString(error_id));
-		printf("Result = FAIL\n");
-		exit(EXIT_FAILURE);
-	}
+	cudaMalloc((void**)&devmemptr, sizeof(cufftComplex) * vecsize * 2);
+	cudaMalloc((void**)&devstrptr, sizeof(char) * vecsize);
+	
 	/* GPU thread allocation */
-	dim3 grid(32, 1);
-	dim3 block(VECTOR_MAXSIZE / 32, 1);
+	dim3 grid(16, 1);
+	dim3 block(VECTOR_MAXSIZE / 16, 1);
 
 	/* GPU用メモリに転送 */
 	cudaMemcpy(devstrptr, text1.str, sizeof(char)*text1.length, cudaMemcpyHostToDevice);
 	make_signal<<<grid, block>>>(devstrptr, text1.length, devmemptr, vecsize, 0);
 	cudaMemcpy(devstrptr, text2.str, sizeof(char)*text1.length, cudaMemcpyHostToDevice);
 	make_signal<<<grid, block>>>(devstrptr, text2.length, devmemptr+vecsize, vecsize, 1);
+
+	cudaFree(devstrptr);
 
 #ifdef DEBUG_VECTOR
 	cudaMemcpy(vec1.elem, devmemptr, sizeof(cuComplex)*vecsize, cudaMemcpyDeviceToHost);
@@ -162,7 +156,7 @@ int main(int argc, char * argv[]) {
 #endif
 
 	/* ベクトルの積をとる */
-	cuCvecmul_into << < grid, block >> > (devmemptr, devmemptr + vecsize, vecsize);
+	cuCvecmul_into << < grid, block >> > (devmemptr, devmemptr + vecsize, pattlen, vecsize);
 
 #ifdef DEBUG_VECTOR
 	/*  計算結果をGPUメモリから転送して表示 */
@@ -181,7 +175,8 @@ int main(int argc, char * argv[]) {
 	print_vector("iFFT ", &vec1);
 #endif
 
-	cuCfindpos << <grid, block >> >(devmemptr, (unsigned int *)(devmemptr + vecsize), vecsize, pattlen);
+//	cudaMalloc((void**)&devoccptr, sizeof(int) * vecsize);
+	cuCfindpos <<< grid, block >>>(devmemptr, (int *) (devmemptr + vecsize), vecsize, pattlen);
 
 	/*
 	int pos = vec1.dimsize;
@@ -199,10 +194,10 @@ int main(int argc, char * argv[]) {
 	printf(".\n");
 	*/
 #ifdef DEBUG_OCCURRENCES
-	unsigned int pos[VECTOR_MAXSIZE];
-	cudaMemcpy(pos, devmemptr + vecsize, sizeof(int) * vecsize, cudaMemcpyDeviceToHost);
+	int pos[VECTOR_MAXSIZE];
+	cudaMemcpy(pos, devmemptr+vecsize, sizeof(int) * vecsize, cudaMemcpyDeviceToHost);
 #else
-	unsigned int pos[1];
+	int pos[1];
 	cudaMemcpy(pos, devmemptr + vecsize, sizeof(int) * 1, cudaMemcpyDeviceToHost);
 #endif
 	/* タイマーを停止しかかった時間を表示 */
@@ -212,9 +207,12 @@ int main(int argc, char * argv[]) {
 
 #ifdef DEBUG_OCCURRENCES
 	printf("\nResult: \n");
-	for (int i = 0; i < vecsize; i++) {
-		printf("[%d] %d, ", i, pos[i]);
-	}
+	for (int i = 0; i < min(vecsize, 24); i++)
+		printf("%4d  ", i);
+	putchar('\n');
+	for (int i = 0; i < min(vecsize, 24); i++)
+		printf(" %4d,", pos[i]);
+	putchar('\n');
 #endif
 	printf("\n");
 	if (pos[0] < vecsize)
@@ -224,7 +222,7 @@ int main(int argc, char * argv[]) {
 
 	/* GPU用メモリ開放*/
 	cudaFree(devmemptr);
-	cudaFree(devstrptr);
+//	cudaFree(devoccptr);
 
 	free(vec1.elem);
 	free(vec2.elem);
@@ -251,8 +249,9 @@ __global__ void make_signal(const char * str, const unsigned int strlen,
 			factor = -2 * 3.14159265358979323846264338327950288F;
 		}
 		if (idx < strlen)
-			vec[dst] = cuCexpf(make_cuComplex(0, factor * (float)(str[idx]) / 256.0f));  // by rotated unit vector
-																								  // (*array)[i] = (float)(str[i]) / 128.0f  ;  // by char value
+			vec[dst] = cuCexpf(make_cuComplex(0, factor * (float)(str[idx]) / 256.0f));  
+			// char value by rotated unit vector
+			// (*array)[i] = (float)(str[i]) / 128.0f;
 		else
 			vec[dst] = make_cuComplex(0, 0);
 	}
@@ -263,29 +262,31 @@ __global__ void make_signal(const char * str, const unsigned int strlen,
 void print_vector(const char *title, compvect *v) {
 	unsigned int i;
 	printf("%s (dim=%d):\n", title, v->dim);
-	for (i = 0; i < min(v->dim, 28); i++)
-		printf("%6d    ", i);
+	for (i = 0; i < min(v->dim, 27); i++)
+		printf("%6d   ", i);
 	putchar('\n');
-	for (i = 0; i < min(v->dim, 28); i++)
-		printf(" %8.3f,", cuCrealf(v->elem[i]));
+	for (i = 0; i < min(v->dim, 27); i++)
+		printf(" %7.2f,", cuCrealf(v->elem[i]));
 	putchar('\n');
-	for (i = 0; i < min(v->dim, 28); i++)
-		printf(" %8.3f,", cuCimagf(v->elem[i]));
+	for (i = 0; i < min(v->dim, 27); i++)
+		printf(" %7.2f,", cuCimagf(v->elem[i]));
 	putchar('\n');
-	for (i = 0; i < min(v->dim, 28); i++)
-		printf(" %8.3f,", cuCabsf(v->elem[i]));
+/*
+	for (i = 0; i < min(v->dim, 27); i++)
+		printf(" %7.2f,", cuCabsf(v->elem[i]));
 	printf("\n\n");
+	*/
 	return;
 }
 
-__global__ void cuCvecmul_into(cuComplex * v, cuComplex * w, const int dimsize) {
+__global__ void cuCvecmul_into(cuComplex * v, cuComplex * w, const int pattlen, const int dimsize) {
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
 	if (idx < dimsize)
-		v[idx] = cuCmulf(v[idx], w[idx]);
+		v[idx] = cuCdivf(cuCmulf(v[idx], w[idx]), make_cuComplex((float) dimsize, 0) );
 	__syncthreads();
 }
 
-__global__ void cuCfindpos(cuComplex * v, unsigned int * occ, const int dim, const int pattlen) {
+__global__ void cuCfindpos(cuComplex * v, int * occ, const int dim, const int pattlen) {
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
 	float val;
 	int width;
@@ -293,7 +294,7 @@ __global__ void cuCfindpos(cuComplex * v, unsigned int * occ, const int dim, con
 	//(vec1.dimsize - pattlen + i) % vec1.dimsize
 
 	if (idx < dim) {
-		val = (cuCrealf(v[idx]) / dim) - (float) pattlen;
+		val = cuCrealf(v[idx]) - (float) pattlen;
 		val = ((val < 0) ? -val : val);
 	}
 	__syncthreads();
