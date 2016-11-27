@@ -1,0 +1,1 @@
+javac -classpath .:$KABUROBO_HOME/lib/skaburobo-sdk.jar $*
