@@ -12,6 +12,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-unsigned long textfromfile(const char * filename, const unsigned long maxsize, char * text);
+long textfromfile(const char * filename, const long maxsize, char * text);
 
 #endif /* SRC_TEXTFROMFILE_H_ */

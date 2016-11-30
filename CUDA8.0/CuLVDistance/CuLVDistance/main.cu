@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "winstopwatch.h"
+#include "custopwatch.h"
 #include "textfromfile.h"
 #include "editdistance.h"
 

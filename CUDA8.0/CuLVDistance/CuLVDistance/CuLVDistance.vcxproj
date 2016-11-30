@@ -24,12 +24,12 @@
   <ItemGroup>
     <ClInclude Include="editdistance.h" />
     <ClInclude Include="textfromfile.h" />
-    <ClInclude Include="winstopwatch.h" />
+    <ClInclude Include="custopwatch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cu" />
-    <ClCompile Include="textfromfile.c" />
-    <ClCompile Include="winstopwatch.cu" />
+    <ClCompile Include="textfromfile.cu" />
+    <ClCompile Include="custopwatch.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5A8B904E-0B64-49AC-9EA4-5EB147AB4BBD}</ProjectGuid>
@@ -118,6 +118,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <Include>./;../common/inc;%(Include)</Include>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
