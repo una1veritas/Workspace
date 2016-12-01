@@ -1,3 +1,4 @@
+
 /*
  * editdistance.c
  *
@@ -16,9 +17,26 @@
 #define DEBUG_DPTABLE
 
 #define min(x, y)  ((x) <= (y)? (x) : (y))
+#define max(x, y)  ((x) >= (y)? (x) : (y))
+
+long pow2(long val) {
+	long result;
+	for (result = 1; result < val; result <<= 1);
+	return result;
+}
+
+int cuStatCheck(const cudaError_t stat, const char * msg) {
+	if (stat != cudaSuccess) {
+		fprintf(stderr, "%s: %s\n", msg, cudaGetErrorString(stat));
+		return -1;
+	}
+	return 0;
+}
 
 long cu_lvdist(long * table, const char t[], const long n, const char p[], const long m) {
 	long result = n + m + 1; // an impossible value
+
+	cudaError_t cuStat;
 
 #ifdef DEBUG_DPTABLE
 	long r, c, dix;
@@ -27,23 +45,36 @@ long cu_lvdist(long * table, const char t[], const long n, const char p[], const
 		for (long c = 0; c < (n + 1); ++c)
 			table[(m + 1)*c + r] = -1;
 #endif
-	
+
+	char * devt, *devp;
+	cuStat = cudaMalloc((void**) &devt, n);
+	cuStatCheck(cuStat, "cudaMalloc devt");
+
+	cuStat = cudaMalloc((void**) &devp, m);
+	cuStatCheck(cuStat, "cudaMalloc devp");
+	cudaMemcpy(devt, t, n, cudaMemcpyHostToDevice);
+	cudaMemcpy(devp, p, m, cudaMemcpyHostToDevice);
+
 	const long tablesize = sizeof(long) * (n + 1)*(m + 1);
 	long * devtable;
-	cudaError_t cudaStatus = cudaMalloc((void**)&devtable, tablesize);
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr,"cudaMalloc failed.\n");
-		fflush(stderr);
-		return result;
-	}	
+	cuStat = cudaMalloc((void**)&devtable, tablesize);
+	cuStatCheck(cuStat, "cudaMalloc devtable failed.\n");
 	cudaMemcpy(devtable, table, tablesize , cudaMemcpyHostToDevice);
 
-	fprintf(stdout, "copied input, going to device...\n");
+	fprintf(stdout, "copied input, calling kernel...\n");
 
-	dim3 grid(16, 1), block(16, 1);
-	cu_dptable <<< grid, block >>> (devtable, t, n, p, m);
+	long nthreads = pow2(n+1+m+1);
+	fprintf(stdout,"num threads %d, %d grids.\n",nthreads, max(1, nthreads / 1024));
+	cu_dptable <<< max(1, nthreads / 1024), 1024 >>> (devtable, devt, n, devp, m);
 
-	fprintf(stdout, "returned.\n");
+	// Check for any errors launching the kernel
+	cuStat = cudaGetLastError();
+	if (cuStat != cudaSuccess) {
+		fprintf(stderr, "kernel cu_dptable() failed: %s\n", cudaGetErrorString(cuStat));
+	}
+	else {
+		fprintf(stdout, "returned from kernel.\n");
+	}
 
 	cudaMemcpy(table, devtable, tablesize, cudaMemcpyDeviceToHost);
 	cudaFree(devtable);
@@ -53,7 +84,7 @@ long cu_lvdist(long * table, const char t[], const long n, const char p[], const
 #ifdef DEBUG_DPTABLE
 	// show DP table
 	for (r = 0; r <= m; r++) {
-		for (c = 0; c <= n; c++) {
+		for (c = 0; c <= min(n, 40); c++) {
 			if (c + r <= m) {
 				dix = (c + r)*(c + r + 1) / 2 + r;
 			}
@@ -63,7 +94,7 @@ long cu_lvdist(long * table, const char t[], const long n, const char p[], const
 			else {
 				dix = (m + 1)*(m + 2) / 2 + (m + 1)*(c - m - 1 + r) + r - (c + r - n)*(c + r - n + 1) / 2;
 			}
-			fprintf(stdout, "%3ld\t", table[dix]);
+			fprintf(stdout, "%3ld ", table[dix]);
 		}
 		fprintf(stdout, "\n");
 	}
@@ -79,12 +110,12 @@ __global__ void cu_dptable(long * table, const char t[], const long n, const cha
 	long col; // inner diagonal index
 	long ins, del, repl;
 
-	long thix = blockDim.x * blockIdx.x + threadIdx.x;
+	long thix = blockDim.x * blockIdx.x + threadIdx.x ;
 
 	
 #ifdef DEBUG_DPTABLE
 	if (thix < (n+1) * (m + 1))
-		table[thix] = 0;
+		table[thix] = blockDim.x;
 	__syncthreads();
 #endif
 
@@ -113,7 +144,8 @@ __global__ void cu_dptable(long * table, const char t[], const long n, const cha
 	}
 	__syncthreads();
 
-	
+	return;
+
 	// upper-left triangle
 	dix = 1;
 	for (dcol = 2; dcol <= m + 1; ++dcol) {
@@ -125,19 +157,16 @@ __global__ void cu_dptable(long * table, const char t[], const long n, const cha
 			col = dcol - drow;
 			ins = table[dix + drow - dcol - 1] + 1;
 			del = table[dix + drow - dcol] + 1;
-	
-			repl = table[dix + drow - 2 * dcol]
+			repl = table[dix + drow - 2 * dcol];
 				+ (t[col - 1] == p[drow - 1] ? 0 : 1);
-			/*
 			//fprintf(stdout, " %c=%c? ",t[col-1],p[drow-1] );
-			ins = ((ins <= del) ? ins : del);
+			ins = ((ins <= del) ? ins : del); 
 			table[dix + drow] = (ins < repl ? ins : repl);
-			*/
-		}
-		
+		}	
 		__syncthreads();
 	}
-	/*
+	
+	
 	// skewed rectangle
 	for (dcol = m + 2; dcol < n + 1; ++dcol) {
 		dix += m + 1;
@@ -155,6 +184,7 @@ __global__ void cu_dptable(long * table, const char t[], const long n, const cha
 	__syncthreads();
 	}
 
+	
 	// bottom-right triangle
 	for (dcol = n + 1; dcol < n + m + 2; ++dcol) {
 		dix += n + m + 1 - dcol;
@@ -172,7 +202,8 @@ __global__ void cu_dptable(long * table, const char t[], const long n, const cha
 		}
 		__syncthreads();
 	}
-*/	
+	
+	return;
 }
 
 

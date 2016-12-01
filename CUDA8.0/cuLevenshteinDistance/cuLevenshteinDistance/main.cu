@@ -14,7 +14,7 @@
 
 #define MEGA_B 1048576UL
 #define KILO_B 1024UL
-#define STR_MAXLENGTH (32 * KILO_B)
+#define STR_MAXLENGTH (4 * KILO_B)
 
 long pow2log(long base, long val) {
 	long result = base;
@@ -103,7 +103,7 @@ int main(int argc, const char * argv[]) {
 	free(table);
 
 	//	stopwatch_stop(&sw);
-	printf("Edit distance (by DP): %l\n", dist);
+	printf("Edit distance (by DP): %ld\n", dist);
 	//	printf("%lu sec %lu milli %lu micros.\n", stopwatch_secs(&sw), stopwatch_millis(&sw), stopwatch_micros(&sw));
 
 exit_error:
