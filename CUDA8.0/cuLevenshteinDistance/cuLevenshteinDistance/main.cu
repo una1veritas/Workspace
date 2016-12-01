@@ -14,7 +14,7 @@
 
 #define MEGA_B 1048576UL
 #define KILO_B 1024UL
-#define STR_MAXLENGTH (128 * KILO_B)
+#define STR_MAXLENGTH (32 * KILO_B)
 
 long pow2log(long base, long val) {
 	long result = base;
@@ -87,25 +87,23 @@ int main(int argc, const char * argv[]) {
 		goto exit_error;
 	}
 
-	/*タイマーを作成して計測開始*/
+	/* Create timer and start the measurment */
 	StopWatchInterface *timer = NULL;
 	sdkCreateTimer(&timer);
 	sdkResetTimer(&timer);
 	sdkStartTimer(&timer);
 
-	dim3 block(1,1);
-	dim3 grid(1,1);
-	dptable<<<grid, block>>>(table, N, M, text, n, patt, m);
+	dist = cu_lvdist(table, text, n, patt, m);
 
-	/*タイマーを停止しかかった時間を表示*/
+	/* Stop timer and report the duration, delete timer */
 	sdkStopTimer(&timer);
-	printf("計算時間 =%f(ms)\n", sdkGetTimerValue(&timer));
+	printf("Elapsed time %f(ms)\n", sdkGetTimerValue(&timer));
 	sdkDeleteTimer(&timer);
 
 	free(table);
 
 	//	stopwatch_stop(&sw);
-	printf("Edit distance (by DP): %lu\n", dist);
+	printf("Edit distance (by DP): %l\n", dist);
 	//	printf("%lu sec %lu milli %lu micros.\n", stopwatch_secs(&sw), stopwatch_millis(&sw), stopwatch_micros(&sw));
 
 exit_error:
