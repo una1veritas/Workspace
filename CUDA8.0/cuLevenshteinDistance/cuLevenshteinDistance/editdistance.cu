@@ -64,8 +64,8 @@ long cu_lvdist(long * table, const char t[], const long n, const char p[], const
 	fprintf(stdout, "copied input, calling kernel...\n");
 
 	long nthreads = pow2(n+1+m+1);
-	fprintf(stdout,"num threads %d, %d grids.\n",nthreads, max(1, nthreads / 1024));
-	cu_dptable <<< max(1, nthreads / 1024), 1024 >>> (devtable, devt, n, devp, m);
+	fprintf(stdout,"num threads %d, %d grids.\n",nthreads, max(2, nthreads / 1024));
+	cu_dptable <<< max(2, nthreads / 1024), 1024 >>> (devtable, devt, n, devp, m);
 
 	// Check for any errors launching the kernel
 	cuStat = cudaGetLastError();
@@ -84,7 +84,7 @@ long cu_lvdist(long * table, const char t[], const long n, const char p[], const
 #ifdef DEBUG_DPTABLE
 	// show DP table
 	for (r = 0; r <= m; r++) {
-		for (c = 0; c <= min(n, 40); c++) {
+		for (c = 0; c <= n; c++) {
 			if (c + r <= m) {
 				dix = (c + r)*(c + r + 1) / 2 + r;
 			}
@@ -94,7 +94,11 @@ long cu_lvdist(long * table, const char t[], const long n, const char p[], const
 			else {
 				dix = (m + 1)*(m + 2) / 2 + (m + 1)*(c - m - 1 + r) + r - (c + r - n)*(c + r - n + 1) / 2;
 			}
-			fprintf(stdout, "%3ld ", table[dix]);
+			fprintf(stdout, "%4ld ", table[dix]);
+			if (n > 40 && c == 32) {
+				c = n - 6;
+				fprintf(stdout, " ... ");
+			}
 		}
 		fprintf(stdout, "\n");
 	}
@@ -108,14 +112,14 @@ long cu_lvdist(long * table, const char t[], const long n, const char p[], const
 __global__ void cu_dptable(long * table, const char t[], const long n, const char p[], const long m) {
 	long dix, dcol, drow; // diagonal column index, row index
 	long col; // inner diagonal index
-	long ins, del, repl;
+	long ins, del, diff, repl;
 
 	long thix = blockDim.x * blockIdx.x + threadIdx.x ;
 
 	
 #ifdef DEBUG_DPTABLE
 	if (thix < (n+1) * (m + 1))
-		table[thix] = blockDim.x;
+		table[thix] = 0;
 	__syncthreads();
 #endif
 
@@ -144,7 +148,6 @@ __global__ void cu_dptable(long * table, const char t[], const long n, const cha
 	}
 	__syncthreads();
 
-	return;
 
 	// upper-left triangle
 	dix = 1;
@@ -152,21 +155,25 @@ __global__ void cu_dptable(long * table, const char t[], const long n, const cha
 		dix += dcol;
 //		for (drow = 1; drow < dcol; ++drow) {
 		drow = thix;
-		
 		if ( drow >= 1 && drow < dcol ) {
 			col = dcol - drow;
 			ins = table[dix + drow - dcol - 1] + 1;
 			del = table[dix + drow - dcol] + 1;
-			repl = table[dix + drow - 2 * dcol];
-				+ (t[col - 1] == p[drow - 1] ? 0 : 1);
+			diff = 0;
+			if (t[col - 1] != p[drow - 1])
+				diff = 1;
+			repl = table[dix + drow - 2 * dcol]	+ diff;
 			//fprintf(stdout, " %c=%c? ",t[col-1],p[drow-1] );
-			ins = ((ins <= del) ? ins : del); 
-			table[dix + drow] = (ins < repl ? ins : repl);
+			if ( ins > del )
+				ins = del;
+			if (repl > ins)
+				repl = ins;
+			table[dix + drow] = repl;
 		}	
 		__syncthreads();
 	}
 	
-	
+
 	// skewed rectangle
 	for (dcol = m + 2; dcol < n + 1; ++dcol) {
 		dix += m + 1;
@@ -176,10 +183,15 @@ __global__ void cu_dptable(long * table, const char t[], const long n, const cha
 			col = dcol - drow;
 			ins = table[dix + drow - (m + 1) - 1] + 1;
 			del = table[dix + drow - (m + 1)] + 1;
-			repl = table[dix + drow - 2 * (m + 1) - 1]
-				+ (t[col - 1] == p[drow - 1] ? 0 : 1);
-			ins = ((ins <= del) ? ins : del);
-			table[dix + drow] = (ins < repl ? ins : repl);
+			diff = 0;
+			if (t[col - 1] != p[drow - 1])
+				diff = 1;
+			repl = table[dix + drow - 2 * (m + 1) - 1] + diff;
+			if (ins > del)
+				ins = del;
+			if (repl > ins)
+				repl = ins;
+			table[dix + drow] = repl;
 		}
 	__syncthreads();
 	}
@@ -194,11 +206,16 @@ __global__ void cu_dptable(long * table, const char t[], const long n, const cha
 			col = dcol - drow;
 			ins = table[dix + drow - (n + m + 2 - dcol)] + 1;
 			del = table[dix + drow - (n + m + 2 - dcol) + 1] + 1;
-			repl = table[dix + drow - 2 * (n + m + 2 - dcol)]
-				+ (t[col - 1] == p[drow - 1] ? 0 : 1);
+			diff = 0;
+			if (t[col - 1] != p[drow - 1])
+				diff = 1;
+			repl = table[dix + drow - 2 * (n + m + 2 - dcol)] + diff;
 			//fprintf(stdout, "(%3ld)", n + m + 2 - dcol);
-			ins = ((ins <= del) ? ins : del);
-			table[dix + drow] = (ins < repl ? ins : repl);
+			if (ins > del)
+				ins = del;
+			if (repl > ins)
+				repl = ins;
+			table[dix + drow] = repl;
 		}
 		__syncthreads();
 	}
