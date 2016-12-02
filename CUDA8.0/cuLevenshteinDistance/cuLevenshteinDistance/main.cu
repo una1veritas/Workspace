@@ -79,6 +79,7 @@ int main(int argc, const char * argv[]) {
 	const long N = pow2log(4, n + 1);
 	const long M = pow2log(4, m + 1);
 	fprintf(stdout, "N = %lu, M = %lu\n\n", N, M);
+	fflush(stdout);
 
 	table = (long *)malloc(sizeof(long)*N*M);
 	if (table == NULL) {
@@ -97,13 +98,13 @@ int main(int argc, const char * argv[]) {
 
 	/* Stop timer and report the duration, delete timer */
 	sdkStopTimer(&timer);
-	printf("Elapsed time %f(ms)\n", sdkGetTimerValue(&timer));
+	printf("Elapsed %f msec.\n", sdkGetTimerValue(&timer));
 	sdkDeleteTimer(&timer);
 
 	free(table);
 
 	//	stopwatch_stop(&sw);
-	printf("Edit distance (by DP): %ld\n", dist);
+	fprintf(stdout, "Edit distance (by DP): %ld\n", dist);
 	//	printf("%lu sec %lu milli %lu micros.\n", stopwatch_secs(&sw), stopwatch_millis(&sw), stopwatch_micros(&sw));
 
 exit_error:

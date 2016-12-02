@@ -1,5 +1,49 @@
-Barack and I were raised with so many of the same values: that you work hard for what you want in life; 
-that your word is your bond and you do what you say you're going to do; 
-that you treat people with dignity and respect, even if you don't know them, and even if you don't agree with them. 
-And Barack and I set out to build lives guided by these values, and pass them on to the next generation. 
-Because we want our children - and all children in this nation - to know that the only limit to the height of your achievements is the reach of your dreams and your willingness to work for them. 
+//
+// babanuki1.cc - ババ抜きプログラム(C++版)
+//	作者: (あなたの名前); 日付: (完成した日付)
+//
+#include "babastate.h"
+#include <time.h>
+#include <stdlib.h>
+#include <iostream>
+
+//
+// main() - ババ抜きプログラム
+//
+int main(void)
+{
+	time_t seed;
+// 乱数発生のシード
+// (デバッグ等で同じ乱数を発生させたい時は，以下の2行を除くこと)
+	time(&seed);
+	srandom(seed);
+
+	BabaState bs;	// ババ抜きの状態
+
+	bs.print();
+
+// 終了条件になるまでカードを引き続ける
+	int from, to = 0; // to は from からカードを取る
+	while(1) {
+	// 次の from と to を探す
+		for(to = (to + 1) % BabaState::numplayer;
+		 bs.isfinished(to);
+		 to = (to + 1) % BabaState::numplayer)
+			;
+		for(from = (to + BabaState::numplayer - 1) % BabaState::numplayer;
+		 bs.isfinished(from);
+		 from = (from + BabaState::numplayer - 1) % BabaState::numplayer)
+			;
+// 終了判定
+		if(from == to)	// ゲームの終了条件(1人以外は上がった)
+			break;
+// from から to にカードが渡る
+		bs.move(from, to);
+		std::cout << "# プレーヤ " << from << " からプレーヤ " << to << " にカードが渡る"<< std::endl;
+		bs.print();
+	}
+
+	std::cout << std::endl << "### FINISHED ###" << std::endl;
+
+	return 0;
+}
