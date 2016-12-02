@@ -14,13 +14,13 @@
 
 #define MEGA_B 1048576UL
 #define KILO_B 1024UL
-#define STR_MAXLENGTH (4 * KILO_B)
+#define STR_MAXLENGTH (1024)
 
 long pow2log(long base, long val) {
 	long result = base;
 	if (base < 2)
 		return 0;
-	for (result = base; result < val; result <<= 1);
+	for (result = base; result <= val; result <<= 1);
 	return result;
 }
 
