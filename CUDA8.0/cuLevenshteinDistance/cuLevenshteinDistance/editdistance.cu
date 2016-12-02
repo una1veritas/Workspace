@@ -14,7 +14,7 @@
 
 #include "editdistance.h"
 
-#define MAX_THREADSPERBLOCK 1024
+#define MAX_THREADSPERBLOCK 256
 
 //#define DEBUG_DPTABLE
 
@@ -61,12 +61,12 @@ long cu_lvdist(long * table, const char t[], const long n, const char p[], const
 	long * devtable;
 	cuStat = cudaMalloc((void**)&devtable, tablesize);
 	cuStatCheck(cuStat, "cudaMalloc devtable failed.\n");
-	cudaMemcpy(devtable, table, tablesize , cudaMemcpyHostToDevice);
+	//cudaMemcpy(devtable, table, tablesize , cudaMemcpyHostToDevice);
 
 	fprintf(stdout, "copied input, calling kernel...\n");
 	fflush(stdout);
 
-	long nthreads = pow2(max(n+1,m+1));
+	long nthreads = pow2(m+1);
 	fprintf(stdout,"num threads %d, %d grids.\n",nthreads, max(1, nthreads / MAX_THREADSPERBLOCK));
 	fflush(stdout);
 	//cu_dptable <<< max(1, nthreads / MAX_THREADSPERBLOCK), MAX_THREADSPERBLOCK >>> (devtable, devt, n, devp, m);
@@ -100,7 +100,8 @@ long cu_lvdist(long * table, const char t[], const long n, const char p[], const
 	fprintf(stdout,"Finished kernel functions.\n");
 	fflush(stdout);
 
-	cudaMemcpy(table, devtable, tablesize, cudaMemcpyDeviceToHost);
+	//cudaMemcpy(table, devtable, tablesize, cudaMemcpyDeviceToHost);
+	cudaMemcpy(table+((n+1)*(m+1)-1), devtable + ((n + 1)*(m + 1) - 1), sizeof(long), cudaMemcpyDeviceToHost);
 	cudaFree(devtable);
 
 #ifdef DEBUG_DPTABLE
@@ -254,7 +255,7 @@ __global__ void cu_dptable_init(long * table, const char t[], const long n, cons
 	long ins, del, diff, repl;
 
 	long thix = blockDim.x * blockIdx.x + threadIdx.x;
-
+	long nthreads = gridDim.x * blockDim.x;
 
 #ifdef DEBUG_DPTABLE
 	if (thix < (n + 1) * (m + 1))
@@ -265,15 +266,17 @@ __global__ void cu_dptable_init(long * table, const char t[], const long n, cons
 	// initialize
 	// do in parallel for each dcol
 	// for (dcol = 0; dcol <= n; ++dcol) {
-	dcol = thix;
-	if (dcol <= m) {
-		dix = dcol*(dcol + 1) / 2;
+	for (int rep = 0; rep < (n + 1) / nthreads; ++rep) {
+		dcol = thix + nthreads*rep;
+		if (dcol <= m) {
+			dix = dcol*(dcol + 1) / 2;
+		}
+		else if (dcol <= n) {
+			dix = m*(m + 1) / 2 + (m + 1)*(dcol - m);
+		}
+		if (dcol <= n)
+			table[dix] = dcol;
 	}
-	else if (dcol <= n) {
-		dix = m*(m + 1) / 2 + (m + 1)*(dcol - m);
-	}
-	if (dcol <= n)
-		table[dix] = dcol;
 
 	// do in parallel for each drow
 	// for (drow = 1; drow <= m; ++drow) {
@@ -283,7 +286,6 @@ __global__ void cu_dptable_init(long * table, const char t[], const long n, cons
 		dix = (drow + 1)*(drow + 2) / 2 - 1;
 		table[dix] = drow;
 	}
-	//__syncthreads();
 
 	return;
 }

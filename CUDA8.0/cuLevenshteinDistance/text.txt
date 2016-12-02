@@ -1,49 +1,21 @@
-//
-// babanuki1.cc - ババ抜きプログラム(C++版)
-//	作者: (あなたの名前); 日付: (完成した日付)
-//
-#include "babastate.h"
-#include <time.h>
-#include <stdlib.h>
-#include <iostream>
-
-//
-// main() - ババ抜きプログラム
-//
-int main(void)
-{
-	time_t seed;
-// 乱数発生のシード
-// (デバッグ等で同じ乱数を発生させたい時は，以下の2行を除くこと)
-	time(&seed);
-	srandom(seed);
-
-	BabaState bs;	// ババ抜きの状態
-
-	bs.print();
-
-// 終了条件になるまでカードを引き続ける
-	int from, to = 0; // to は from からカードを取る
-	while(1) {
-	// 次の from と to を探す
-		for(to = (to + 1) % BabaState::numplayer;
-		 bs.isfinished(to);
-		 to = (to + 1) % BabaState::numplayer)
-			;
-		for(from = (to + BabaState::numplayer - 1) % BabaState::numplayer;
-		 bs.isfinished(from);
-		 from = (from + BabaState::numplayer - 1) % BabaState::numplayer)
-			;
-// 終了判定
-		if(from == to)	// ゲームの終了条件(1人以外は上がった)
-			break;
-// from から to にカードが渡る
-		bs.move(from, to);
-		std::cout << "# プレーヤ " << from << " からプレーヤ " << to << " にカードが渡る"<< std::endl;
-		bs.print();
-	}
-
-	std::cout << std::endl << "### FINISHED ###" << std::endl;
-
-	return 0;
+In ages which have no record these islands were the home of millions of happy birds, the resort of a hundred times more millions of fishes, of sea lions, and other creatures whose names are not so common; the marine residence, in fact, of innumerable creatures predestined from the creation of the world to lay up a store of wealth for the British farmer, and a store of quite another sort for an immaculate Republican government.
+Contrast the condition into which all these friendly Indians are suddenly plunged now, with their condition only two years previous: martial law now in force on all their reservations; themselves in danger of starvation, and constantly exposed to the influence of emissaries from their friends and relations, urging them to join in fighting this treacherous government that had kept faith with nobody--neither with friend nor with foe.
+The legal system is made up of civil courts, criminal courts and specialty courts such as family law courts and bankruptcy court. Each court has its own jurisdiction, which refers to the cases that the court is allowed to hear. In some instances, a case can only be heard in one type of court. For example, a bankruptcy case must be heard in a bankruptcy court. In other instances, there may be several potential courts with jurisdiction. For example, a federal criminal court and a state criminal court would each have jurisdiction over a crime that is a federal drug offense but that is also an offense on the state level. 
+From time to time this submerged or latent theater in Hamlet becomes almost overt. It is close to the surface in Hamlet’s pretense of madness, the “antic disposition” he puts on to protect himself and prevent his antagonists from plucking out the heart of his mystery. It is even closer to the surface when Hamlet enters his mother’s room and holds up, side by side, the pictures of the two kings, Old Hamlet and Claudius, and proceeds to describe for her the true nature of the choice she has made, presenting truth by means of a show. Similarly, when he leaps into the open grave at Ophelia’s funeral, ranting in high heroic terms, he is acting out for Laertes, and perhaps for himself as well, the folly of excessive, melodramatic expressions of grief.
+private static int partition(Comparable[] a, int lo, int hi)
+{  
+   int i = lo, j = hi+1;
+   Comparable v = a[lo];
+   while (true)
+   {
+      while (less(a[++i], v)) if (i == hi) break;
+      while (less(v, a[--j])) if (j == lo) break;
+      if (i >= j) break;
+      exch(a, i, j);
+   }
+   exch(a, lo, j);
+   return j;
 }
+This book has been written against a background of both reckless optimism and reckless despair. It holds that Progress and Doom are two sides of the same medal; that both are articles of superstition, not of faith. It was written out of the conviction that it should be possible to discover the hidden mechanics by which all traditional elements of our political and spiritual world were dissolved into a conglomeration where everything seems to have lost specific value, and has become unrecognizable for human comprehension, unusable for human purpose.
+"And Barack and I were raised with so many of the same values: that you work hard for what you want in life; that your word is your bond and you do what you say you're going to do; that you treat people with dignity and respect, even if you don't know them, and even if you don't agree with them.
+"And Barack and I set out to build lives guided by these values, and to pass them on to the next generation. Because we want our children — and all children in this nation — to know that the only limit to the height of your achievements is the reach of your dreams and your willingness to work for them."
