@@ -9,10 +9,13 @@
 #define SRC_EDITDISTANCE_H_
 
 __global__ void cu_init_row(long * row, const long n, const long offset);
-__global__ void cu_dptable(long * dist, const long * boundary, const char t[], const long tsize, const char p[], const long psize);
-long cu_lvdist(long * dist, const char t[], const long tsize, const char p[], const long psize);
+__global__ void cu_dptable(long * distbuff, 
+	const long * intop, const long * inleft, long * outbound, const char t[], const long tsize, const char p[], const long psize, 
+	long * devtable);
 
-long lvdist(long * dist, const char t[], const long tsize, const char p[], const long msize);
+long cu_lvdist(long * inbound, long * outbound, const char t[], const long tsize, const char p[], const long psize);
+
+long lvdist(long * dist, long * boundary, const char t[], const long tsize, const char p[], const long msize);
 
 
 #endif /* SRC_EDITDISTANCE_H_ */
