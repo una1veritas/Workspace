@@ -14,31 +14,23 @@
 
 #define MEGA_B 1048576UL
 #define KILO_B 1024UL
-#define STR_MAXLENGTH (4 * KILO_B)
+#define STR_MAXLENGTH (1024)
+
 
 long pow2log(long base, long val) {
 	long result = base;
 	if (base < 2)
 		return 0;
-	for (result = base; result < val; result <<= 1);
+	for (result = base; result <= val; result <<= 1);
 	return result;
 }
 
 int main(int argc, const char * argv[]) {
+	char textbuf[STR_MAXLENGTH], pattbuf[STR_MAXLENGTH];
 	char * text, *patt;
 	long m, n;
 	long dist;
-	long * table;
-
-	//	stopwatch sw;
-
-	text = (char *)malloc(sizeof(char)*STR_MAXLENGTH);
-	patt = (char *)malloc(sizeof(char)*STR_MAXLENGTH);
-	if (text == NULL || patt == NULL) {
-		fprintf(stderr, "malloc error on the string arrays.\n");
-		fflush(stderr);
-		goto exit_error;
-	}
+	long inbound[2*STR_MAXLENGTH+1], outbound[2*STR_MAXLENGTH+1];
 
 	if (argc != 3) {
 		fprintf(stderr, "Incorrect arguments.\n");
@@ -47,12 +39,8 @@ int main(int argc, const char * argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	//	getcwd(text, STR_MAXLENGTH);
-	//	fprintf(stderr,"Current working directory: \n%s\n", text);
-	//	fflush(stderr);
-
-	n = textfromfile(argv[1], STR_MAXLENGTH, text);
-	m = textfromfile(argv[2], STR_MAXLENGTH, patt);
+	n = textfromfile(argv[1], STR_MAXLENGTH, textbuf);
+	m = textfromfile(argv[2], STR_MAXLENGTH, pattbuf);
 	if (n == 0 || m == 0) {
 		goto exit_error;
 	}
@@ -60,9 +48,12 @@ int main(int argc, const char * argv[]) {
 		long t = n;
 		n = m;
 		m = t;
-		char * ptr = text;
-		text = patt;
-		patt = ptr;
+		text = pattbuf;
+		patt = textbuf;
+	}
+	else {
+		text = textbuf;
+		patt = pattbuf;
 	}
 	dist = n + m + 1;
 
@@ -76,17 +67,8 @@ int main(int argc, const char * argv[]) {
 	fflush(stdout);
 	//	stopwatch_start(&sw);
 
-	const long N = pow2log(4, n + 1);
-	const long M = pow2log(4, m + 1);
-	fprintf(stdout, "N = %lu, M = %lu\n\n", N, M);
+	fprintf(stdout, "n = %lu, m = %lu\n\n", n, m);
 	fflush(stdout);
-
-	table = (long *)malloc(sizeof(long)*N*M);
-	if (table == NULL) {
-		fprintf(stderr, "malloc failed for DP table.\n");
-		fflush(stderr);
-		goto exit_error;
-	}
 
 	/* Create timer and start the measurment */
 	StopWatchInterface *timer = NULL;
@@ -94,22 +76,44 @@ int main(int argc, const char * argv[]) {
 	sdkResetTimer(&timer);
 	sdkStartTimer(&timer);
 
-	dist = cu_lvdist(table, text, n, patt, m);
+	for (int i = 0; i < n + m + 1; ++i) {
+		if (i < n + 1) {
+			inbound[i] = i;
+		} else {
+			inbound[i] = i - n;
+		}
+	}
+	fprintf(stdout, "Input: \n");
+	for (int c = 0; c < n + m + 1; ++c) {
+		fprintf(stdout, "%3ld ", inbound[c]);
+		if (c == n)
+			fprintf(stdout, "\n");
+	}
+	fprintf(stdout, "\n");
 
+	dist = cu_lvdist(inbound, outbound, text, n, patt, m);
+	 
 	/* Stop timer and report the duration, delete timer */
 	sdkStopTimer(&timer);
 	printf("Elapsed %f msec.\n", sdkGetTimerValue(&timer));
 	sdkDeleteTimer(&timer);
+	
+	fprintf(stdout, "\nOutput:\n");
 
-	free(table);
+	for (int c = 0; c < n + m + 1; ++c) {
+		fprintf(stdout, "%3ld ", outbound[c]);
+		if (c == n)
+			fprintf(stdout, "\n");
+	}
+	fprintf(stdout, "\n");
 
 	//	stopwatch_stop(&sw);
 	fprintf(stdout, "Edit distance (by DP): %ld\n", dist);
-	//	printf("%lu sec %lu milli %lu micros.\n", stopwatch_secs(&sw), stopwatch_millis(&sw), stopwatch_micros(&sw));
+	fflush(stdout);
 
 exit_error:
-	free(text);
-	free(patt);
+	fprintf(stderr, "task finished.\n");
+	fflush(stderr);
 
 	return 0;
 }
