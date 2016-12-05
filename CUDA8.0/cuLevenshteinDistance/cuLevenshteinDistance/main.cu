@@ -30,7 +30,7 @@ int main(int argc, const char * argv[]) {
 	char * text, *patt;
 	long m, n;
 	long dist;
-	long inbound[2*STR_MAXLENGTH+1], outbound[2*STR_MAXLENGTH+1];
+	long frame[4*(STR_MAXLENGTH+1)];
 
 	if (argc != 3) {
 		fprintf(stderr, "Incorrect arguments.\n");
@@ -78,20 +78,20 @@ int main(int argc, const char * argv[]) {
 
 	for (int i = 0; i < n + m + 1; ++i) {
 		if (i < n + 1) {
-			inbound[i] = i;
+			frame[i] = i;
 		} else {
-			inbound[i] = i - n;
+			frame[i] = i - n;
 		}
 	}
 	fprintf(stdout, "Input: \n");
 	for (int c = 0; c < n + m + 1; ++c) {
-		fprintf(stdout, "%3ld ", inbound[c]);
+		fprintf(stdout, "%3ld ", frame[c]);
 		if (c == n)
 			fprintf(stdout, "\n");
 	}
 	fprintf(stdout, "\n");
 
-	dist = cu_lvdist(inbound, outbound, text, n, patt, m);
+	dist = cu_lvdist(text, n, patt, m, frame);
 	 
 	/* Stop timer and report the duration, delete timer */
 	sdkStopTimer(&timer);
@@ -101,7 +101,7 @@ int main(int argc, const char * argv[]) {
 	fprintf(stdout, "\nOutput:\n");
 
 	for (int c = 0; c < n + m + 1; ++c) {
-		fprintf(stdout, "%3ld ", outbound[c]);
+		fprintf(stdout, "%3ld ", frame[(n+m+1)+c]);
 		if (c == n)
 			fprintf(stdout, "\n");
 	}

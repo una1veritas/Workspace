@@ -35,13 +35,13 @@ int cuStatCheck(const cudaError_t stat, const char * msg) {
 }
 
 
-long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, const char p[], const long m) {
+long cu_lvdist(const char t[], const long n, const char p[], const long m, long * frame) {
 	long result = n + m + 1; // an impossible value
 
 	cudaError_t cuStat;
 
 	char * devt, *devp;
-	long * devwavebuff, *devframe;
+	long * devwavebuff, *devframetop, *devframeleft, *devframebott, *devframeright;
 
 	cuStat = cudaMalloc((void**) &devt, n);
 	cudaMemcpy(devt, t, n, cudaMemcpyHostToDevice);
@@ -50,11 +50,10 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	cudaMemcpy(devp, p, m, cudaMemcpyHostToDevice);
 	cuStatCheck(cuStat, "cudaMalloc devp");
 
-
 	const long table_height = m + 1;
 	const long table_width = n + m + 1;
 
-	cuStat = cudaMalloc((void**)&devwavebuff, sizeof(long)*table_height*4);
+	cuStat = cudaMalloc((void**)&devwavebuff, sizeof(long)*align(32,table_height)*4);
 	cuStatCheck(cuStat, "cudaMalloc devtable failed.\n");
 
 	long * dptable;
@@ -63,8 +62,17 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	cuStat = cudaMalloc((void**)&devtable, sizeof(long)*table_height*table_width);
 	cuStatCheck(cuStat, "cudaMalloc devtable failed.\n");
 #endif
-	cuStat = cudaMalloc((void**)&devframe, sizeof(long)*(2*align(32, n+1)+2*align(32, m)));
-	cuStatCheck(cuStat, "cudaMalloc devoutbd failed.\n");
+	cuStat = cudaMalloc((void**)&devframetop, sizeof(long)*align(32, n + 1));
+	cuStatCheck(cuStat, "cudaMalloc devframetop failed.\n");
+	cuStat = cudaMalloc((void**)&devframeleft, sizeof(long)*align(32, m + 1));
+	cuStatCheck(cuStat, "cudaMalloc devframeleft failed.\n");
+	cuStat = cudaMalloc((void**)&devframeright, sizeof(long)*align(32, m + 1));
+	cuStatCheck(cuStat, "cudaMalloc devrfameright failed.\n");
+	cuStat = cudaMalloc((void**)&devframebott, sizeof(long)*align(32, n + 1));
+	cuStatCheck(cuStat, "cudaMalloc devframebott failed.\n");
+
+	cudaMemcpy(devframetop, frame, sizeof(long)*(n + 1), cudaMemcpyHostToDevice);
+	cudaMemcpy(devframeleft, frame+(n+1), sizeof(long)*m, cudaMemcpyHostToDevice);
 
 	fprintf(stdout, "copied input, calling kernel...\n");
 	fflush(stdout);
@@ -73,9 +81,8 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	dim3 grids(max(1, nthreads / MAX_THREADSPERBLOCK), 1), blocks(MAX_THREADSPERBLOCK);
 	fprintf(stdout,"num threads %d, %d blocks.\n",nthreads, max(1, nthreads / MAX_THREADSPERBLOCK));
 
-	cudaMemcpy(devframe, inbound, sizeof(long)*(n + 1), cudaMemcpyHostToDevice);
-	cudaMemcpy(devframe+align(32, n+1), inbound, sizeof(long)*m, cudaMemcpyHostToDevice);
-	cu_dptable<<< grids, blocks >>>(devwavebuff, devframe, devt, n, devp, m, devtable);
+	cu_dptable<<< grids, blocks >>>(devwavebuff, devframetop, devframeleft, devframebott, devframeright, 
+		devt, n, devp, m, devtable);
 
 	// Check for any errors launching the kernel
 	cuStat = cudaGetLastError();
@@ -85,8 +92,8 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	fprintf(stdout,"Finished kernel functions.\n");
 	fflush(stdout);
 
-	cudaMemcpy(outbound, devframe + align(32, n + 1) + align(32, m), sizeof(long)*(n + 1), cudaMemcpyDeviceToHost);
-	cudaMemcpy(outbound+(n+1), devframe + 2*align(32, n + 1) + align(32, m), sizeof(long)*m, cudaMemcpyDeviceToHost);
+	cudaMemcpy(frame+(n+m+1), devframebott, sizeof(long)*(n + 1), cudaMemcpyDeviceToHost);
+	cudaMemcpy(frame+(n+m+1 + n + 1), devframeright, sizeof(long)*m, cudaMemcpyDeviceToHost);
 
 #ifdef DEBUG_DPTABLE
 	long * table;
@@ -100,8 +107,8 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 			long gray = m - table[c*(m+1)+r];
 			gray = (gray > 0 ? gray : 0);
 			gray = (gray < 0 ? 0 : gray)*scales / m;
-			//fprintf(stdout, "%3ld ", table[c*(m+1)+r]);
-			fprintf(stdout, "%c ", grayscale[gray]);
+			fprintf(stdout, "%3ld ", table[c*(m+1)+r]);
+			//fprintf(stdout, "%c ", grayscale[gray]);
 		}
 		fprintf(stdout, "\n");
 	}
@@ -111,9 +118,12 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 #endif
 
 	cudaFree(devwavebuff);
-	cudaFree(devframe);
+	cudaFree(devframetop);
+	cudaFree(devframeleft);
+	cudaFree(devframebott);
+	cudaFree(devframeright);
 
-	result = outbound[n];
+	result = frame[n+1+m+n];
 
 	return result;
 }
@@ -133,8 +143,9 @@ __global__ void cu_init_row(long * row, const long n, const long m) {
 }
 
 // assuming the table array size (n+1) x (m+1)
-__global__ void cu_dptable(long * wavebuff, 
-	long * frame, const char t[], const long n, const char p[], const long m
+__global__ void cu_dptable(long * wavebuff,
+	long * frametop, long * frameleft, long *framebott, long * frameright, 
+	const char t[], const long n, const char p[], const long m
 #ifdef DEBUG_DPTABLE
 	,long * table
 #endif
@@ -157,12 +168,12 @@ __global__ void cu_dptable(long * wavebuff,
 		wave_2 = wavebuff + ((dcol - 2 + 4) % 4)*(m + 1); // % mperiod)*(m * 1); // the 2nd last line of waves
 		if (drow == 0) {
 			// load the value of the top row from the initial boundary
-			cellval = frame[col];
+			cellval = frametop[col];
 		}
 		if (col == 0 && drow > 0 && drow < m + 1) {
 			// load the value of the left-most column from the initial boundary
 			// drow != 0
-			cellval = frame[align(32,n+1) +drow];
+			cellval = frameleft[drow-1];
 		}
 		if ((col > 0) && (1 <= drow && drow < m + 1)) {
 			ins = wave_1[drow - 1] + 1;
@@ -181,9 +192,9 @@ __global__ void cu_dptable(long * wavebuff,
 			wave[drow] = cellval;
 			table[(m + 1)*col + drow] = wave[drow];
 			if (drow == m)
-				frame[align(32, n+1)+align(32, m)+col] = cellval;
+				framebott[col] = cellval;
 			if ( drow < m && col == n ) 
-				frame[2*align(32, n + 1)+align(32, m) + drow] = cellval;
+				frameright[drow] = cellval;
 		}
 
 		__syncthreads();
