@@ -8,14 +8,14 @@
 #ifndef SRC_EDITDISTANCE_H_
 #define SRC_EDITDISTANCE_H_
 
-__global__ void cu_dptable_by1block(long * dist, const char t[], const long tsize, const char p[], const long psize);
-long cu_lvdist(long * dist, const char t[], const long tsize, const char p[], const long psize);
+__global__ void cu_init_row(long * row, const long n, const long offset);
+__global__ void cu_dptable(long * wavebuff, 
+	long * frame, const char t[], const long tsize, const char p[], const long psize, 
+	long * devtable);
 
-long lvdist(long * dist, const char t[], const long tsize, const char p[], const long msize);
+long cu_lvdist(long * inbound, long * outbound, const char t[], const long tsize, const char p[], const long psize);
 
-__global__ void cu_dptable_init(long * table, const char t[], const long n, const char p[], const long m);
-__global__ void cu_dptable_topleft(long * table, const char t[], const long n, const char p[], const long m, long dix, long dcol);
-__global__ void cu_dptable_center(long * table, const char t[], const long n, const char p[], const long m, const long dix, const long dcol);
-__global__ void cu_dptable_bottomright(long * table, const char t[], const long n, const char p[], const long m, const long dix, const long dcol);
+long lvdist(long * dist, long * boundary, const char t[], const long tsize, const char p[], const long msize);
+
 
 #endif /* SRC_EDITDISTANCE_H_ */
