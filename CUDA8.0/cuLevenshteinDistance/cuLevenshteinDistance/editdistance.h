@@ -10,10 +10,11 @@
 
 __global__ void cu_init_row(long * row, const long n, const long offset);
 __global__ void cu_dptable(long * wavebuff, 
-	long * frame, const char t[], const long tsize, const char p[], const long psize, 
+	long * devframetop, long * devframeleft, long * devframebott, long * devfameright,
+	const char t[], const long tsize, const char p[], const long psize, 
 	long * devtable);
 
-long cu_lvdist(long * inbound, long * outbound, const char t[], const long tsize, const char p[], const long psize);
+long cu_lvdist(const char t[], const long tsize, const char p[], const long psize, long * frame);
 
 long lvdist(long * dist, long * boundary, const char t[], const long tsize, const char p[], const long msize);
 
