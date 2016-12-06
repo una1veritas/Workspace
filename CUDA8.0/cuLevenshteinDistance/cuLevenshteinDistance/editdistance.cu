@@ -21,13 +21,9 @@
 
 #define min(x, y)  ((x) <= (y)? (x) : (y))
 #define max(x, y)  ((x) >= (y)? (x) : (y))
-
+#define align(base, val)    ((((val)+(base)-1)/(base))*(base))
 
 static char grayscale[] = "@#$B%8&WM*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>ilI;!:,\"^`'. ";
-
-long align(const long base, const long val) {
-	return ((val + base - 1) / base)*base;
-}
 
 int cuStatCheck(const cudaError_t stat, const char * msg) {
 	if (stat != cudaSuccess) {
@@ -45,6 +41,8 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	cudaError_t cuStat;
 
 	char * devt, *devp;
+	long * devwavebuff, *devframe;
+
 	cuStat = cudaMalloc((void**) &devt, n);
 	cudaMemcpy(devt, t, n, cudaMemcpyHostToDevice);
 	cuStatCheck(cuStat, "cudaMalloc devt");
@@ -53,7 +51,10 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	cuStatCheck(cuStat, "cudaMalloc devp");
 
 
+<<<<<<< HEAD
 	long * devweftbuff, * devinframe, *devoutframe;
+=======
+>>>>>>> refs/remotes/origin/master
 	const long table_height = m + 1;
 	const long table_width = n + m + 1;
 
@@ -66,11 +67,16 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	cuStat = cudaMalloc((void**)&devtable, sizeof(long)*table_height*table_width);
 	cuStatCheck(cuStat, "cudaMalloc devtable failed.\n");
 #endif
+<<<<<<< HEAD
 	cuStat = cudaMalloc((void**)&devinframe, sizeof(long)*(n + m + 1));
 	cuStatCheck(cuStat, "cudaMalloc devinframe failed.\n");
 	cuStat = cudaMalloc((void**)&devoutframe, sizeof(long)*(n + 1 + m));
 	cuStatCheck(cuStat, "cudaMalloc devoutframe failed.\n");
 	cudaMemcpy(devinframe, inbound, sizeof(long)*(n + m + 1), cudaMemcpyHostToDevice);
+=======
+	cuStat = cudaMalloc((void**)&devframe, sizeof(long)*(2*align(32, n+1)+2*align(32, m)));
+	cuStatCheck(cuStat, "cudaMalloc devoutbd failed.\n");
+>>>>>>> refs/remotes/origin/master
 
 	fprintf(stdout, "copied input, calling kernel...\n");
 	fflush(stdout);
@@ -79,7 +85,13 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	dim3 grids(max(1, nthreads / MAX_THREADSPERBLOCK), 1), blocks(MAX_THREADSPERBLOCK);
 	fprintf(stdout,"num threads %d, %d blocks.\n",nthreads, max(1, nthreads / MAX_THREADSPERBLOCK));
 
+<<<<<<< HEAD
 	cu_dptable<<< grids, blocks >>>(devweftbuff, devinframe, devoutframe, devt, n, devp, m, devtable);
+=======
+	cudaMemcpy(devframe, inbound, sizeof(long)*(n + 1), cudaMemcpyHostToDevice);
+	cudaMemcpy(devframe+align(32, n+1), inbound, sizeof(long)*m, cudaMemcpyHostToDevice);
+	cu_dptable<<< grids, blocks >>>(devwavebuff, devframe, devt, n, devp, m, devtable);
+>>>>>>> refs/remotes/origin/master
 
 	// Check for any errors launching the kernel
 	cuStat = cudaGetLastError();
@@ -89,7 +101,12 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	fprintf(stdout,"Finished kernel functions.\n");
 	fflush(stdout);
 
+<<<<<<< HEAD
 	cudaMemcpy(outbound, devoutframe, sizeof(long)*(n + m + 1), cudaMemcpyDeviceToHost);
+=======
+	cudaMemcpy(outbound, devframe + align(32, n + 1) + align(32, m), sizeof(long)*(n + 1), cudaMemcpyDeviceToHost);
+	cudaMemcpy(outbound+(n+1), devframe + 2*align(32, n + 1) + align(32, m), sizeof(long)*m, cudaMemcpyDeviceToHost);
+>>>>>>> refs/remotes/origin/master
 
 #ifdef DEBUG_DPTABLE
 	long * table;
@@ -103,8 +120,8 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 			long gray = m - table[c*(m+1)+r];
 			gray = (gray > 0 ? gray : 0);
 			gray = (gray < 0 ? 0 : gray)*scales / m;
-			fprintf(stdout, "%3ld ", table[c*(m+1)+r]);
-			//fprintf(stdout, "%c ", grayscale[gray]);
+			//fprintf(stdout, "%3ld ", table[c*(m+1)+r]);
+			fprintf(stdout, "%c ", grayscale[gray]);
 		}
 		fprintf(stdout, "\n");
 	}
@@ -113,9 +130,14 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	cudaFree(devtable);
 #endif
 
+<<<<<<< HEAD
 	cudaFree(devweftbuff);
 	cudaFree(devinframe);
 	cudaFree(devoutframe);
+=======
+	cudaFree(devwavebuff);
+	cudaFree(devframe);
+>>>>>>> refs/remotes/origin/master
 
 	result = outbound[n];
 
@@ -137,8 +159,13 @@ __global__ void cu_init_row(long * row, const long n, const long m) {
 }
 
 // assuming the table array size (n+1) x (m+1)
+<<<<<<< HEAD
 __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outframe, 
 	const char t[], const long n, const char p[], const long m
+=======
+__global__ void cu_dptable(long * wavebuff, 
+	long * frame, const char t[], const long n, const char p[], const long m
+>>>>>>> refs/remotes/origin/master
 #ifdef DEBUG_DPTABLE
 	,long * table
 #endif
@@ -172,6 +199,7 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 		w2 = weftbuff + ((dcol - 2 + 4) % 4)*(m + 1); // % mperiod)*(m * 1); // the 2nd last line of waves
 		if (drow == 0) {
 			// load the value of the top row from the initial boundary
+<<<<<<< HEAD
 			cellval = inframe[col];
 		} else if (col == 0) {
 			// load the value of the left-most column from the initial boundary
@@ -179,6 +207,18 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 		} else if ((col > 0) && (1 <= drow && drow < m + 1)) {
 			ins = w1[drow - 1] + 1;
 			del = w1[drow] + 1;
+=======
+			cellval = frame[col];
+		}
+		if (col == 0 && drow > 0 && drow < m + 1) {
+			// load the value of the left-most column from the initial boundary
+			// drow != 0
+			cellval = frame[align(32,n+1) +drow];
+		}
+		if ((col > 0) && (1 <= drow && drow < m + 1)) {
+			ins = wave_1[drow - 1] + 1;
+			del = wave_1[drow] + 1;
+>>>>>>> refs/remotes/origin/master
 			repl = 0;
 			if (t[col - 1] != p[drow - 1])
 				repl = 1;
@@ -189,6 +229,7 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 				repl = ins;
 			cellval = repl;
 		}
+<<<<<<< HEAD
 		if (drow <= m) {
 			w0[drow] = cellval;
 			table[(m + 1)*col + drow] = w0[drow];
@@ -196,6 +237,15 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 				outframe[col] = cellval;
 			if ( drow < m && col == n ) 
 				outframe[n + 1 + drow] = cellval;
+=======
+		if (drow < m + 1) {
+			wave[drow] = cellval;
+			table[(m + 1)*col + drow] = wave[drow];
+			if (drow == m)
+				frame[align(32, n+1)+align(32, m)+col] = cellval;
+			if ( drow < m && col == n ) 
+				frame[2*align(32, n + 1)+align(32, m) + drow] = cellval;
+>>>>>>> refs/remotes/origin/master
 		}
 
 		__syncthreads();
