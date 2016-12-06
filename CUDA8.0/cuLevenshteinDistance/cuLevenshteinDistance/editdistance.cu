@@ -51,10 +51,11 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	cuStatCheck(cuStat, "cudaMalloc devp");
 
 
+	long * devweftbuff, * devinframe, *devoutframe;
 	const long table_height = m + 1;
 	const long table_width = n + m + 1;
 
-	cuStat = cudaMalloc((void**)&devwavebuff, sizeof(long)*table_height*4);
+	cuStat = cudaMalloc((void**)&devweftbuff, sizeof(long)*table_height*4);
 	cuStatCheck(cuStat, "cudaMalloc devtable failed.\n");
 
 	long * dptable;
@@ -63,8 +64,11 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	cuStat = cudaMalloc((void**)&devtable, sizeof(long)*table_height*table_width);
 	cuStatCheck(cuStat, "cudaMalloc devtable failed.\n");
 #endif
-	cuStat = cudaMalloc((void**)&devframe, sizeof(long)*(2*align(32, n+1)+2*align(32, m)));
-	cuStatCheck(cuStat, "cudaMalloc devoutbd failed.\n");
+	cuStat = cudaMalloc((void**)&devinframe, sizeof(long)*(n + m + 1));
+	cuStatCheck(cuStat, "cudaMalloc devinframe failed.\n");
+	cuStat = cudaMalloc((void**)&devoutframe, sizeof(long)*(n + 1 + m));
+	cuStatCheck(cuStat, "cudaMalloc devoutframe failed.\n");
+	cudaMemcpy(devinframe, inbound, sizeof(long)*(n + m + 1), cudaMemcpyHostToDevice);
 
 	fprintf(stdout, "copied input, calling kernel...\n");
 	fflush(stdout);
@@ -73,9 +77,7 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	dim3 grids(max(1, nthreads / MAX_THREADSPERBLOCK), 1), blocks(MAX_THREADSPERBLOCK);
 	fprintf(stdout,"num threads %d, %d blocks.\n",nthreads, max(1, nthreads / MAX_THREADSPERBLOCK));
 
-	cudaMemcpy(devframe, inbound, sizeof(long)*(n + 1), cudaMemcpyHostToDevice);
-	cudaMemcpy(devframe+align(32, n+1), inbound, sizeof(long)*m, cudaMemcpyHostToDevice);
-	cu_dptable<<< grids, blocks >>>(devwavebuff, devframe, devt, n, devp, m, devtable);
+	cu_dptable<<< grids, blocks >>>(devweftbuff, devinframe, devoutframe, devt, n, devp, m, devtable);
 
 	// Check for any errors launching the kernel
 	cuStat = cudaGetLastError();
@@ -85,8 +87,7 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	fprintf(stdout,"Finished kernel functions.\n");
 	fflush(stdout);
 
-	cudaMemcpy(outbound, devframe + align(32, n + 1) + align(32, m), sizeof(long)*(n + 1), cudaMemcpyDeviceToHost);
-	cudaMemcpy(outbound+(n+1), devframe + 2*align(32, n + 1) + align(32, m), sizeof(long)*m, cudaMemcpyDeviceToHost);
+	cudaMemcpy(outbound, devoutframe, sizeof(long)*(n + m + 1), cudaMemcpyDeviceToHost);
 
 #ifdef DEBUG_DPTABLE
 	long * table;
@@ -110,8 +111,9 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	cudaFree(devtable);
 #endif
 
-	cudaFree(devwavebuff);
-	cudaFree(devframe);
+	cudaFree(devweftbuff);
+	cudaFree(devinframe);
+	cudaFree(devoutframe);
 
 	result = outbound[n];
 
@@ -133,8 +135,8 @@ __global__ void cu_init_row(long * row, const long n, const long m) {
 }
 
 // assuming the table array size (n+1) x (m+1)
-__global__ void cu_dptable(long * wavebuff, 
-	long * frame, const char t[], const long n, const char p[], const long m
+__global__ void cu_dptable(long * weftbuff, const long * inframe, long * outframe, 
+	const char t[], const long n, const char p[], const long m
 #ifdef DEBUG_DPTABLE
 	,long * table
 #endif
@@ -143,47 +145,56 @@ __global__ void cu_dptable(long * wavebuff,
 	long col; // inner diagonal index
 	long ins, del, repl, cellval;
 
-	long *wave, *wave_1, *wave_2;
+	const long mperiod = 4;
+	long *w0, *w1, *w2;
+
+	// thread id
 	long drow = blockDim.x * blockIdx.x + threadIdx.x ;
 
-	const long mperiod = 4;
+	long col0val, raw0val;
+	if (drow == 0) {
+		col0val = inframe[0];
+	}
+	else if (drow < m + 1) {
+		col0val = inframe[n+1+drow-1];
+	}
+	__syncthreads();
+
 	// skewed rectangle
 	for (dcol = 0, dix = 0; dcol < n + m + 1; ++dcol, dix += m+1) {
 		//		for (drow = 1; drow < m + 1; ++drow) {
 		//drow = thix;
 		col = dcol - drow;
-		wave = wavebuff + (dcol % 4)*(m + 1); // % mperiod)*(m + 1); // the current front line of waves
-		wave_1 = wavebuff + ((dcol - 1 + 4) % 4)*(m + 1); // % mperiod)*(m + 1); // the last passed line of waves
-		wave_2 = wavebuff + ((dcol - 2 + 4) % 4)*(m + 1); // % mperiod)*(m * 1); // the 2nd last line of waves
+		raw0val = inframe[col];
+		w0 = weftbuff + (dcol % 4)*(m + 1); // % mperiod)*(m + 1); // the current front line of waves
+		w1 = weftbuff + ((dcol - 1 + 4) % 4)*(m + 1); // % mperiod)*(m + 1); // the last passed line of waves
+		w2 = weftbuff + ((dcol - 2 + 4) % 4)*(m + 1); // % mperiod)*(m * 1); // the 2nd last line of waves
 		if (drow == 0) {
 			// load the value of the top row from the initial boundary
-			cellval = frame[col];
-		}
-		if (col == 0 && drow > 0 && drow < m + 1) {
+			cellval = raw0val;
+		} else if (col == 0) {
 			// load the value of the left-most column from the initial boundary
-			// drow != 0
-			cellval = frame[align(32,n+1) +drow];
-		}
-		if ((col > 0) && (1 <= drow && drow < m + 1)) {
-			ins = wave_1[drow - 1] + 1;
-			del = wave_1[drow] + 1;
+			cellval = col0val;
+		} else if ((col > 0) && (1 <= drow && drow < m + 1)) {
+			ins = w1[drow - 1] + 1;
+			del = w1[drow] + 1;
 			repl = 0;
 			if (t[col - 1] != p[drow - 1])
 				repl = 1;
-			repl = wave_2[drow - 1] + repl;
+			repl = w2[drow - 1] + repl;
 			if (ins > del)
 				ins = del;
 			if (repl > ins)
 				repl = ins;
 			cellval = repl;
 		}
-		if (drow < m + 1) {
-			wave[drow] = cellval;
-			table[(m + 1)*col + drow] = wave[drow];
-			if (drow == m)
-				frame[align(32, n+1)+align(32, m)+col] = cellval;
+		if (drow <= m) {
+			w0[drow] = cellval;
+			table[(m + 1)*col + drow] = w0[drow];
+			if (drow == m && col <= n)
+				outframe[col] = cellval;
 			if ( drow < m && col == n ) 
-				frame[2*align(32, n + 1)+align(32, m) + drow] = cellval;
+				outframe[n + 1 + drow] = cellval;
 		}
 
 		__syncthreads();

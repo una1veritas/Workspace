@@ -9,8 +9,8 @@
 #define SRC_EDITDISTANCE_H_
 
 __global__ void cu_init_row(long * row, const long n, const long offset);
-__global__ void cu_dptable(long * wavebuff, 
-	long * frame, const char t[], const long tsize, const char p[], const long psize, 
+__global__ void cu_dptable(long * weftbuff, const long * inframe, long * outframe, 
+	const char t[], const long tsize, const char p[], const long psize, 
 	long * devtable);
 
 long cu_lvdist(long * inbound, long * outbound, const char t[], const long tsize, const char p[], const long psize);
