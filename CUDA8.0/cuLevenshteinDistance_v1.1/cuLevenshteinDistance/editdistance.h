@@ -15,7 +15,4 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 
 long cu_lvdist(long * inbound, long * outbound, const char t[], const long tsize, const char p[], const long psize);
 
-long lvdist(long * dist, long * boundary, const char t[], const long tsize, const char p[], const long msize);
-
-
 #endif /* SRC_EDITDISTANCE_H_ */
