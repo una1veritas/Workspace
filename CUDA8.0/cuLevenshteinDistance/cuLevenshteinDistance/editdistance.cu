@@ -101,8 +101,8 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 			long gray = m - table[c*(m+1)+r];
 			gray = (gray > 0 ? gray : 0);
 			gray = (gray < 0 ? 0 : gray)*scales / m;
-			//fprintf(stdout, "%3ld ", table[c*(m+1)+r]);
-			fprintf(stdout, "%c ", grayscale[gray]);
+			fprintf(stdout, "%3ld ", table[c*(m+1)+r]);
+			//fprintf(stdout, "%c ", grayscale[gray]);
 		}
 		fprintf(stdout, "\n");
 	}
@@ -138,7 +138,7 @@ __global__ void cu_init_row(long * row, const long n, const long m) {
 __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outframe, 
 	const char t[], const long n, const char p[], const long m
 #ifdef DEBUG_DPTABLE
-	,long * table
+	, long * table
 #endif
 ) {
 	long weft;
@@ -151,11 +151,33 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 	__syncthreads();
 
 	// weft x thread
-	for (weft = 0; weft < n + m + 1; ++weft) {
-		if (thix < 2*(m + 1) ) {
-			// dix = row - col.
-			// thix = (dix + (m+1)) % (m+1)
-			// col + row = weft whenever.
+	for (weft = 0; weft < n+m+1; ++weft) {
+		// dix = row - col.
+		// thix = (dix + (m+1)) % (m+1)
+		// col + row = weft whenever.
+		if (thix <= weft) {
+			if ((weft & 1) == 0 && (thix & 1) == 0) {
+				col = (weft >> 1) + (thix >> 1);
+				row = (weft >> 1) - (thix >> 1);
+				if (col < n + 1 && row < m + 1) {
+					table[col*(m + 1) + row] = thix;
+				}
+			} else if ((weft & 1) == 1 && (thix & 1) == 1 ) {
+				col = (weft >> 1) + (thix >> 1) + 1;
+				row = (weft >> 1) - (thix >> 1);
+				if (col < n + 1 && row < m + 1) {
+					table[col*(m + 1) + row] = thix;
+				}
+			}
+		}
+		else if (thix > m + 1 && thix < 2 * (m + 1) && (2*m - thix) <= weft ) {
+			if ((weft & 1) == 0 && ((2 * m - thix) & 1) == 0) {
+				col = (weft >> 1) - ((2 * m - thix) >> 1);
+				row = (weft >> 1) + ((2 * m - thix) >> 1);
+				if (col < n + 1 && row < m + 1) {
+					table[col*(m + 1) + row] = thix;
+				}
+			}
 		}
 		__syncthreads();
 	}
