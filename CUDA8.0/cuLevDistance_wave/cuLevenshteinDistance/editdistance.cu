@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define DEBUG_DPTABLE
+//#define DEBUG_DPTABLE
 
 #include "editdistance.h"
 
@@ -59,7 +59,7 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	cuStatCheck(cuStat, "cudaMalloc devtable failed.\n");
 
 	long * dptable;
-	long * devtable;
+	long * devtable = NULL;
 #ifdef DEBUG_DPTABLE
 	cuStat = cudaMalloc((void**)&devtable, sizeof(long)*table_height*table_width);
 	cuStatCheck(cuStat, "cudaMalloc devtable failed.\n");
@@ -101,8 +101,8 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 			long gray = m - table[c*(m+1)+r];
 			gray = (gray > 0 ? gray : 0);
 			gray = (gray < 0 ? 0 : gray)*scales / m;
-			fprintf(stdout, "%3ld ", table[c*(m+1)+r]);
-			//fprintf(stdout, "%c ", grayscale[gray]);
+			//fprintf(stdout, "%3ld ", table[c*(m+1)+r]);
+			fprintf(stdout, "%c ", grayscale[gray]);
 		}
 		fprintf(stdout, "\n");
 	}
@@ -136,14 +136,11 @@ __global__ void cu_init_row(long * row, const long n, const long m) {
 
 // assuming the table array size (n+1) x (m+1)
 __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outframe, 
-	const char t[], const long n, const char p[], const long m
-#ifdef DEBUG_DPTABLE
-	,long * table
-#endif
+	const char t[], const long n, const char p[], const long m, long * table
 ) {
 	long dcol; // , drow; // diagonal column index
 	long col; // inner diagonal index
-	long ins, del, repl, nextrepl, w2, cellval;
+	long ins, del, repl, nextrepl, above, prevval;
 
 	const long mperiod = 2;
 	long *w0, *w1;
@@ -170,16 +167,16 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 		w1 = weftbuff + ((dcol - 1 + 2) % 2)*(m + 1); // % mperiod)*(m + 1); // the last passed line of waves
 		if ((col > 0) && (1 <= drow && drow < m + 1)) {
 			if (drow == 1) {
-				w2 = inframe[col];
+				above = inframe[col];
 			} else {
-				w2 = w1[drow - 1];
+				above = w1[drow - 1];
 			}
-			ins = w2 + 1;
+			ins = above + 1;
 			if (col == 1) {
 				del = col0val;
 			} else {
 				//del = w1[drow] + 1;
-				del = cellval + 1;
+				del = prevval + 1;
 			}
 			if (col == 1 && drow == 1) {
 				repl = 0;
@@ -191,18 +188,19 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 				ins = del;
 			if (repl > ins)
 				repl = ins;
-			cellval = repl;
 			//
-			del = cellval;
-			nextrepl = w2;
+			prevval = repl;
+			nextrepl = above;
 		}
 		if (drow <= m) {
-			w0[drow] = cellval;
+			w0[drow] = prevval;
+#ifdef DEBUG_DPTABLE
 			table[(m + 1)*col + drow] = w0[drow];
+#endif
 			if (drow == m && col <= n)
-				outframe[col] = cellval;
+				outframe[col] = prevval;
 			if ( drow < m && col == n ) 
-				outframe[n + 1 + drow] = cellval;
+				outframe[n + 1 + drow] = prevval;
 		}
 
 		__syncthreads();
