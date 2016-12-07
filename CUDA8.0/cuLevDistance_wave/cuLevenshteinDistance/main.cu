@@ -9,12 +9,13 @@
 #include <helper_timer.h>
 
 #include "textfromfile.h"
-#include "editdistance.h"
+#include "culevdist.h"
+#include "editdist.h"
 
 
 #define MEGA_B 1048576UL
 #define KILO_B 1024UL
-#define STR_MAXLENGTH (1024 - 1)
+#define STR_MAXLENGTH (512)
 
 
 long pow2log(long base, long val) {
@@ -26,7 +27,7 @@ long pow2log(long base, long val) {
 }
 
 int main(int argc, const char * argv[]) {
-	char textbuf[STR_MAXLENGTH], pattbuf[STR_MAXLENGTH];
+	char textbuf[STR_MAXLENGTH+1], pattbuf[STR_MAXLENGTH+1];
 	char * text, *patt;
 	long m, n;
 	long dist;
@@ -40,7 +41,9 @@ int main(int argc, const char * argv[]) {
 	}
 
 	n = textfromfile(argv[1], STR_MAXLENGTH, textbuf);
+	textbuf[STR_MAXLENGTH] = 0;
 	m = textfromfile(argv[2], STR_MAXLENGTH, pattbuf);
+	pattbuf[STR_MAXLENGTH] = 0;
 	if (n == 0 || m == 0) {
 		goto exit_error;
 	}
@@ -70,9 +73,22 @@ int main(int argc, const char * argv[]) {
 	fprintf(stdout, "n = %lu, m = %lu\n\n", n, m);
 	fflush(stdout);
 
-	/* Create timer and start the measurment */
 	StopWatchInterface *timer = NULL;
 	sdkCreateTimer(&timer);
+
+	sdkResetTimer(&timer);
+	sdkStartTimer(&timer);
+
+	dist = dp_edist(text,n,patt,m);
+
+	//	stopwatch_stop(&sw);
+	sdkStopTimer(&timer);
+	printf("Elapsed %f msec.\n", sdkGetTimerValue(&timer));
+
+	fprintf(stdout, "Edit distance (by DP/CPU): %ld\n", dist);
+	fflush(stdout);
+
+	/* Create timer and start the measurment */
 	sdkResetTimer(&timer);
 	sdkStartTimer(&timer);
 
@@ -84,7 +100,7 @@ int main(int argc, const char * argv[]) {
 		}
 	}
 	fprintf(stdout, "Input: \n");
-	for (int c = 0; c < n + m + 1; ++c) {
+	for (int c = 0; c < (n + m + 1 > 32 ? 32 : n + m + 1); ++c) {
 		fprintf(stdout, "%3ld ", inbound[c]);
 		if (c == n)
 			fprintf(stdout, "\n");
@@ -96,11 +112,12 @@ int main(int argc, const char * argv[]) {
 	/* Stop timer and report the duration, delete timer */
 	sdkStopTimer(&timer);
 	printf("Elapsed %f msec.\n", sdkGetTimerValue(&timer));
+
 	sdkDeleteTimer(&timer);
 	
 	fprintf(stdout, "\nOutput:\n");
 
-	for (int c = 0; c < n + m + 1; ++c) {
+	for (int c = 0; c < (n + m + 1 > 32 ? 32 : n + m + 1); ++c) {
 		fprintf(stdout, "%3ld ", outbound[c]);
 		if (c == n)
 			fprintf(stdout, "\n");
@@ -108,7 +125,7 @@ int main(int argc, const char * argv[]) {
 	fprintf(stdout, "\n");
 
 	//	stopwatch_stop(&sw);
-	fprintf(stdout, "Edit distance (by DP): %ld\n", dist);
+	fprintf(stdout, "Edit distance (by DP/GPU): %ld\n", dist);
 	fflush(stdout);
 
 exit_error:
