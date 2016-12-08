@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define DEBUG_TABLE
+#include "debug_table.h"
+
 
 long dp_edist(char t[], long n, char p[], long m) {
 	long * table;
@@ -41,16 +42,10 @@ long dp_edist(char t[], long n, char p[], long m) {
 	}
 
 #ifdef DEBUG_TABLE
-	// show DP table
-	for(row = 0; row < m+1; row++) {
-		for (col = 0; col < n+1; col++) {
-			fprintf(stdout, "%3ld ", table[(m+1)*col+row]);
-		}
-		fprintf(stdout, "\n");
+	for (int i = 0; i < (n+1)*(m+1); i++) {
+		debug_table[i] = table[i];
 	}
 #endif
-	fprintf(stdout, "\n");
-
 	result = table[(n+1) * (m+1) - 1];
 	free(table);
 	return result;

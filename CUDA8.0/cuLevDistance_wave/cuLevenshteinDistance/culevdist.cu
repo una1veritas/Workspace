@@ -13,9 +13,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define DEBUG_DPTABLE
-
 #include "culevdist.h"
+
+#include "debug_table.h"
 
 #define MAX_THREADSPERBLOCK 1024
 
@@ -60,7 +60,7 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 
 	long * dptable;
 	long * devtable = NULL;
-#ifdef DEBUG_DPTABLE
+#ifdef DEBUG_TABLE
 	cuStat = cudaMalloc((void**)&devtable, sizeof(long)*table_height*table_width);
 	cuStatCheck(cuStat, "cudaMalloc devtable failed.\n");
 #endif
@@ -90,7 +90,7 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 
 	cudaMemcpy(outbound, devoutframe, sizeof(long)*(n + m + 1), cudaMemcpyDeviceToHost);
 
-#ifdef DEBUG_DPTABLE
+#ifdef DEBUG_TABLE
 	long * table;
 	table = (long*)malloc(sizeof(long)*table_height*table_width);
 	cudaMemcpy(table, devtable, sizeof(long)*table_height*table_width, cudaMemcpyDeviceToHost);
@@ -143,13 +143,12 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 	long col; // inner diagonal index
 	long ins, del, repl, cellval; // nextrepl, above, prevval;
 
-	const long mperiod = 4;
 	long *w0, *w1, *w2;
 
 	// thread id = row index
 	long drow = blockDim.x * blockIdx.x + threadIdx.x ;
 
-	long col0val, raw0val;
+	long col0val;
 	if (drow == 0) {
 		col0val = inframe[0];
 	}
@@ -163,13 +162,12 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 		//		for (drow = 1; drow < m + 1; ++drow) {
 		//drow = thix;
 		col = dcol - drow;
-		raw0val = inframe[col];
 		w0 = weftbuff + (dcol % 4)*(m + 1); // % mperiod)*(m + 1); // the current front line of waves
 		w1 = weftbuff + ((dcol - 1 + 4) % 4)*(m + 1); // % mperiod)*(m + 1); // the last passed line of waves
 		w2 = weftbuff + ((dcol - 2 + 4) % 4)*(m + 1); // % mperiod)*(m + 1); // the second last line of waves
 		if (drow == 0) {
 			// load the value of the top row from the initial boundary 
-			cellval = raw0val;
+			cellval = inframe[col];
 		}
 		else if (col == 0) {
 			// load the value of the left-most column from the initial boundary 
@@ -189,7 +187,7 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 			//if (cellval < 0 || cellval > 10000)
 			//	cellval = -1;
 			w0[drow] = cellval;
-#ifdef DEBUG_DPTABLE
+#ifdef DEBUG_TABLE
 			table[(m + 1)*col + drow] = w0[drow];
 #endif
 			if (drow == m && col <= n)

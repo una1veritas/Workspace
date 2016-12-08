@@ -12,11 +12,13 @@
 #include "culevdist.h"
 #include "editdist.h"
 
+#include "debug_table.h"
 
 #define MEGA_B 1048576UL
 #define KILO_B 1024UL
 #define STR_MAXLENGTH (500)
 
+long * debug_table;
 
 long pow2log(long base, long val) {
 	long result = base;
@@ -32,6 +34,7 @@ int main(int argc, const char * argv[]) {
 	long m, n;
 	long dist;
 	long inbound[2*STR_MAXLENGTH+1], outbound[2*STR_MAXLENGTH+1];
+
 
 	if (argc != 3) {
 		fprintf(stderr, "Incorrect arguments.\n");
@@ -73,6 +76,8 @@ int main(int argc, const char * argv[]) {
 	fprintf(stdout, "n = %lu, m = %lu\n\n", n, m);
 	fflush(stdout);
 
+	debug_table = (long*)malloc(sizeof(long)*(n + 1)*(m + 1));
+
 	StopWatchInterface *timer = NULL;
 	sdkCreateTimer(&timer);
 
@@ -88,6 +93,15 @@ int main(int argc, const char * argv[]) {
 	fprintf(stdout, "Edit distance (by DP/CPU): %ld\n", dist);
 	fflush(stdout);
 
+	for (int r = 0; r < m + 1; r++) {
+		for (int c = 0; c < n + 1; c++) {
+			fprintf(stdout, "%3ld ", debug_table[(m + 1)*c + r]);
+		}
+		fprintf(stdout, "\n");
+	}
+	fprintf(stdout, "\n");
+
+	free(debug_table);
 	/* Create timer and start the measurment */
 	sdkResetTimer(&timer);
 	sdkStartTimer(&timer);
