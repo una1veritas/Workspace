@@ -180,12 +180,14 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 			del = w1[drow] + 1;
 			repl = w2[drow - 1] + (t[col - 1] != p[drow - 1]);
 			cellval = ins;
-			if (ins > del)
+			if (del < cellval)
 				cellval = del;
-			if (del > repl)
+			if (repl < cellval)
 				cellval = repl;
 		}	
-		if (drow <= m) {
+		if (drow < m + 1) {
+			//if (cellval < 0 || cellval > 10000)
+			//	cellval = -1;
 			w0[drow] = cellval;
 #ifdef DEBUG_DPTABLE
 			table[(m + 1)*col + drow] = w0[drow];

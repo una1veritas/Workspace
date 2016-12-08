@@ -4,57 +4,54 @@
 #define DEBUG_TABLE
 
 long dp_edist(char t[], long n, char p[], long m) {
-	long * dist;
+	long * table;
 	long result = 0;
-	long ins, del, repl;
+	long del, repl, cellval;
 	
-	dist = (long *) malloc(sizeof(long)*m*n);
-	if ( dist == NULL )
-		return 0;
+	table = (long *) malloc(sizeof(long)*(m+1)*(n+1));
+	if ( table == NULL )
+		return n+m+1;
 	
 	// initialize cells in the top row or in the left-most column
 	// n -- the number of columns, m -- the number of rows
 	long col = 0;
 	long row = 0;
-	ins = col + 1;
-	repl = (p[0] == t[col] ? 0 : 1);
-	dist[0] = (ins < repl ? ins : repl);
 
-	for(col = 1; col < n; ++col) {
+	for(col = 0; col < n+1; ++col) {
 		// row == 0
-		ins = col + 1;
-		repl = col - 1 + (p[0] == t[col] ? 0 : 1);
-		dist[0 + m * col] = (ins < repl ? ins : repl);
+		table[(m + 1)*col] = col;
 	}
-	for(row = 1; row < m; ++row) {
+	for(row = 1; row < m+1; ++row) {
 		// col == 0
-		del = row + 1;
-		repl = row - 1 + (p[row] == t[0] ? 0 : 1);
-		dist[row + 0]  = (del < repl ? del : repl);
+		table[row] = row;
 	}
 
 	//table calcuration
-	for(long c = 1; c < n; c++) { // column, text axis
-		for (long r = 1; r < m; r++) {  // row, pattern axis
-			ins = dist[(r-1) + m*c]+1;
-			del = dist[r + m*(c-1)]+1;
-			repl = dist[(r-1) + m*(c-1)] + (t[c] == p[r] ? 0 : 1);
-			dist[r + m*c] = ins < del ? (ins < repl ? ins : repl) : (del < repl ? del : repl);
+	for(long col = 1; col < n+1; col++) { // column, text axis
+		for (long row = 1; row < m+1; row++) {  // row, pattern axis
+			cellval = table[(m + 1)*(col - 1) + row] + 1;
+			del = table[(m + 1)*col + row - 1] + 1;
+			repl = table[(m + 1)*(col - 1) + row - 1] + (t[col-1] != p[row-1]);
+			if (del < cellval )
+				cellval = del;
+			if (repl < cellval)
+				cellval = repl;
+			table[(m + 1)*col + row] = cellval;
 		}
 	}
 
 #ifdef DEBUG_TABLE
 	// show DP table
-	for(long r = 0; r < m; r++) {
-		for (long c = 0; c < n; c++) {
-			fprintf(stdout, "%3ld ", dist[m*c+r]);
+	for(row = 0; row < m+1; row++) {
+		for (col = 0; col < n+1; col++) {
+			fprintf(stdout, "%3ld ", table[(m+1)*col+row]);
 		}
 		fprintf(stdout, "\n");
 	}
 #endif
 	fprintf(stdout, "\n");
 
-	result = dist[n * m - 1];
-	free(dist);
+	result = table[(n+1) * (m+1) - 1];
+	free(table);
 	return result;
 }

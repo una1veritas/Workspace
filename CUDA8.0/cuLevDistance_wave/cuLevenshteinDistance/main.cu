@@ -15,7 +15,7 @@
 
 #define MEGA_B 1048576UL
 #define KILO_B 1024UL
-#define STR_MAXLENGTH (512)
+#define STR_MAXLENGTH (500)
 
 
 long pow2log(long base, long val) {
