@@ -1,45 +1,41 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
-#include <time.h>
-
-//#include <malloc.h>
-
-// includes CUDA
 #include <cuda_runtime.h>
 
-// includes, project
 #include <helper_cuda.h>
 #include <helper_functions.h> // helper functions for SDK examples
-
 #include <helper_timer.h>
 
 #define ARRAY_ELEMENTS_MAX 0x7fffffff
 //262144
-#define THREADS_IN_BLOCK_MAX 128
+#define THREADS_IN_BLOCK_MAX 1024
 
 #define min(x,y)  ((y) > (x) ? (x) : (y))
+#define align(val,base)  ( (((val)/(base)) + ((val)%(base) != 0) )*(base) )
 
 __global__ void exchEven(unsigned int *A, const unsigned int n);
 __global__ void exchOdd(unsigned int *A, const unsigned int n);
 
 int main(const int argc, const char * argv[]) {
 	int elemCount = 0;
+	int blockSize = THREADS_IN_BLOCK_MAX;
 
-	printf("sizeof(unsigned int) = %d, sizeof(long) = %d.\n",sizeof(unsigned int), sizeof(long));
-
-	if (argc != 2)
+	if (argc == 2) {
+		elemCount = atoi(argv[1]);
+	} else if ( argc == 3 ) {
+		elemCount = atoi(argv[1]);
+		blockSize = atoi(argv[2]);
+	} else {
+		printf("incorrect argument number.n");
 		return EXIT_FAILURE;
-
-	elemCount = atoi(argv[1]);
+	}
 
 	if (!(elemCount > 0 && elemCount <= ARRAY_ELEMENTS_MAX)) {
 		printf("Supplied number of elements is out of bound %d.\n", ARRAY_ELEMENTS_MAX);
 		return EXIT_FAILURE;
 	}
-	printf("%u elements.\n\n");
 
 	// device(0) : GTX 1080
 	// device(1) : GTX 750Ti
@@ -47,7 +43,11 @@ int main(const int argc, const char * argv[]) {
 	
 	unsigned int *A;
 	A = (unsigned int*) malloc(sizeof(unsigned int) * elemCount );
-
+	if (A == NULL) {
+		printf("malloc failed.\n");
+		fflush(stdout);
+		return EXIT_FAILURE;
+	}
 	// setup dummy input 
 	srand(time(NULL));
 	for (unsigned int i = 0; i < elemCount; i++) {
@@ -71,17 +71,21 @@ int main(const int argc, const char * argv[]) {
 			printf("... ");
 		}
 	}
-	printf("\n\n");
-	
+	printf("\n");
+	printf("generated %u elements.\n\n", elemCount);
+	fflush(stdout);
+
 	// setup input copy on device mem
 	unsigned int *devA;
-	const unsigned devACapa = ((elemCount + 31) / 32) * 32;
+	unsigned devACapa = align(elemCount,32);
+	blockSize = min(blockSize, devACapa / 2);
+	unsigned int gridSize = align(devACapa / 2, blockSize)/blockSize;
 	cudaMalloc((void**)&devA, sizeof(unsigned int) * devACapa);
 	cudaMemcpy(devA, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
 
-	const unsigned int blockSize = min(THREADS_IN_BLOCK_MAX, devACapa/2);
-	const unsigned int gridSize = (devACapa/2+(blockSize -1))/blockSize;
-	printf("Going to use %d blocks, %d threas per block with capacity %d.\n\n", gridSize, blockSize, devACapa);
+	printf("Going to use %d blocks, %d threas per block for array capacity %d.\n\n", gridSize, blockSize, devACapa);
+	fflush(stdout);
+
 	dim3 grids(gridSize), blocks(blockSize);
 
 	StopWatchInterface *timer = NULL;
@@ -98,12 +102,10 @@ int main(const int argc, const char * argv[]) {
 
 	sdkStopTimer(&timer);
 
-	int flag = 0;
-	unsigned int firstFailure = elemCount;
+	int firstFailure = elemCount;
 	for (unsigned int i = 0; i < elemCount; i++) {
 		if (i < elemCount - 1) {
 			if (A[i] > A[i + 1]) {
-				flag = 1;
 				firstFailure = i;
 			}
 		}
@@ -116,7 +118,7 @@ int main(const int argc, const char * argv[]) {
 
 	}
 	printf("\n");
-	if (flag != 0) {
+	if (firstFailure < elemCount) {
 		printf("!!!Sort failure deteced at A[%d] = %d and A[%d] = %d!!!\n", 
 			firstFailure, A[firstFailure], firstFailure+1, A[firstFailure+1]);
 	}
