@@ -1,17 +1,30 @@
-﻿C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppBuild.targets(392,5): warning MSB8028: The intermediate directory (x64/Debug/) contains files shared from another project (template.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  Compiling CUDA source file bubble.cu...
+﻿  Compiling CUDA source file bubble.cu...
   
-  C:\Users\Sin\Documents\Workspace\CUDA8.0\bubbleSort>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\bin\nvcc.exe" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64"  -I./ -I../common/inc -I./ -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\/include" -I../../common/inc -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include"  -G   --keep-dir x64\Debug -maxrregcount=0 --ptxas-options=-v --machine 64 --compile -cudart static -Xcompiler "/wd 4819" -g   -DWIN32 -DWIN32 -D_MBCS -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi /RTC1 /MTd " -o x64/Debug/bubble.cu.obj "C:\Users\Sin\Documents\Workspace\CUDA8.0\bubbleSort\bubble.cu" 
+  C:\Users\sin\Documents\Workspace\CUDA8.0\bubbleSort>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\bin\nvcc.exe" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64"  -I./ -I../common/inc -I./ -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\/include" -I../../common/inc -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include"  -G   --keep-dir x64\Debug -maxrregcount=0 --ptxas-options=-v --machine 64 --compile -cudart static -Xcompiler "/wd 4819" -g   -DWIN32 -DWIN32 -D_MBCS -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi /RTC1 /MTd " -o x64/Debug/bubble.cu.obj "C:\Users\sin\Documents\Workspace\CUDA8.0\bubbleSort\bubble.cu" 
   ptxas info    : 144 bytes gmem
-  ptxas info    : Compiling entry function '_Z11bubSortEvenPjS_' for 'sm_30'
-  ptxas info    : Function properties for _Z11bubSortEvenPjS_
+  ptxas info    : Compiling entry function '_Z8exchEvenPjj' for 'sm_30'
+  ptxas info    : Function properties for _Z8exchEvenPjj
       0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
-  ptxas info    : Used 13 registers, 336 bytes cmem[0]
-  ptxas info    : Compiling entry function '_Z10bubSortOddPjS_' for 'sm_30'
-  ptxas info    : Function properties for _Z10bubSortOddPjS_
+  ptxas info    : Used 11 registers, 332 bytes cmem[0]
+  ptxas info    : Compiling entry function '_Z7exchOddPjj' for 'sm_30'
+  ptxas info    : Function properties for _Z7exchOddPjj
       0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
-  ptxas info    : Used 13 registers, 336 bytes cmem[0]
+  ptxas info    : Used 11 registers, 332 bytes cmem[0]
   bubble.cu
-C:/Users/Sin/Documents/Workspace/CUDA8.0/bubbleSort/bubble.cu(45): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  template_vs2015.vcxproj -> C:\Users\Sin\Documents\Workspace\CUDA8.0\bubbleSort\./Debug/bubble.exe
+C:/Users/sin/Documents/Workspace/CUDA8.0/bubbleSort/bubble.cu(52): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:/Users/sin/Documents/Workspace/CUDA8.0/bubbleSort/bubble.cu(53): warning C4018: '<': signed/unsigned mismatch
+C:/Users/sin/Documents/Workspace/CUDA8.0/bubbleSort/bubble.cu(57): warning C4018: '<': signed/unsigned mismatch
+C:/Users/sin/Documents/Workspace/CUDA8.0/bubbleSort/bubble.cu(66): warning C4018: '<': signed/unsigned mismatch
+C:/Users/sin/Documents/Workspace/CUDA8.0/bubbleSort/bubble.cu(92): warning C4018: '<': signed/unsigned mismatch
+C:/Users/sin/Documents/Workspace/CUDA8.0/bubbleSort/bubble.cu(103): warning C4018: '<': signed/unsigned mismatch
+C:/Users/sin/Documents/Workspace/CUDA8.0/bubbleSort/bubble.cu(104): warning C4018: '<': signed/unsigned mismatch
+C:/Users/sin/Documents/Workspace/CUDA8.0/bubbleSort/bubble.cu(31): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'std::size_t'
+  C:/Users/sin/Documents/Workspace/CUDA8.0/bubbleSort/bubble.cu(31): note: consider using '%zd' in the format string
+C:/Users/sin/Documents/Workspace/CUDA8.0/bubbleSort/bubble.cu(31): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 2 has type 'std::size_t'
+  C:/Users/sin/Documents/Workspace/CUDA8.0/bubbleSort/bubble.cu(31): note: consider using '%zd' in the format string
+C:/Users/sin/Documents/Workspace/CUDA8.0/bubbleSort/bubble.cu(42): warning C4473: 'printf' : not enough arguments passed for format string
+  C:/Users/sin/Documents/Workspace/CUDA8.0/bubbleSort/bubble.cu(42): note: placeholders and their parameters expect 1 variadic arguments, but 0 were provided
+  C:/Users/sin/Documents/Workspace/CUDA8.0/bubbleSort/bubble.cu(42): note: the missing variadic argument 1 is required by format string '%u'
+     Creating library ./Debug/bubble.lib and object ./Debug/bubble.exp
+  template_vs2015.vcxproj -> C:\Users\sin\Documents\Workspace\CUDA8.0\bubbleSort\./Debug/bubble.exe
   template_vs2015.vcxproj -> ./Debug/bubble.pdb (Full PDB)
