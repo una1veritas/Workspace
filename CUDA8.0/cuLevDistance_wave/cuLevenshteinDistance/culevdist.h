@@ -12,6 +12,9 @@ __global__ void cu_init_row(long * row, const long n, const long offset);
 __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outframe, 
 	const char t[], const long tsize, const char p[], const long psize, 
 	long * devtable);
+__global__ void cu_dptable_kernel(long * w2, long * w1, long * w0, const long dcol, const long * inframe, long * outframe,
+	const char t[], const long tsize, const char p[], const long psize,
+	long * devtable);
 
 long cu_lvdist(long * inbound, long * outbound, const char t[], const long tsize, const char p[], const long psize);
 

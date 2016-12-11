@@ -16,7 +16,7 @@
 
 #define MEGA_B 1048576UL
 #define KILO_B 1024UL
-#define STR_MAXLENGTH (2048)
+#define STR_MAXLENGTH (64*KILO_B)
 
 long * debug_table;
 
@@ -33,9 +33,18 @@ int main(int argc, const char * argv[]) {
 	char * text, *patt;
 	long m, n;
 	long dist;
-	long inbound[2*STR_MAXLENGTH+1], outbound[2*STR_MAXLENGTH+1];
+
+	long * inbound = (long*)malloc(sizeof(long)*(2 * STR_MAXLENGTH + 1));
+	long * outbound = (long*) malloc(sizeof(long)*(2 * STR_MAXLENGTH + 1));
 
 	long * dp_table, *cu_table;
+
+	if (inbound == NULL || outbound == NULL) {
+		fprintf(stderr, "Allocate for inbound/outbound failed.\n");
+		fprintf(stderr, "Exit the program.\n\n");
+		fflush(stderr);
+		return EXIT_FAILURE;
+	}
 
 	if (argc != 3) {
 		fprintf(stderr, "Incorrect arguments.\n");
@@ -72,19 +81,14 @@ int main(int argc, const char * argv[]) {
 		fprintf(stdout, "Input: (%lu), (%lu)\n\n", n, m);
 	fflush(stdout);
 
-	fprintf(stdout, "computing edit distance by DP.\n");
+	fprintf(stdout, "Computing edit distance by DP.\n");
 	fflush(stdout);
 	//	stopwatch_start(&sw);
 
+#ifdef DEBUG_TABLE
 	debug_table = (long*)malloc(sizeof(long)*(n + 1)*(m + 1));
 	if (debug_table == NULL) {
 		fprintf(stdout, "debug_table allocation failed.\n");
-		fflush(stdout);
-		return EXIT_FAILURE;
-	}
-	dp_table = (long*)malloc(sizeof(long)*(n + 1)*(m + 1));
-	if (debug_table == NULL) {
-		fprintf(stdout, "dp_table allocation failed.\n");
 		fflush(stdout);
 		return EXIT_FAILURE;
 	}
@@ -94,6 +98,15 @@ int main(int argc, const char * argv[]) {
 		fflush(stdout);
 		return EXIT_FAILURE;
 	}
+	dp_table = (long*)malloc(sizeof(long)*(n + 1)*(m + 1));
+	if (debug_table == NULL) {
+		fprintf(stdout, "dp_table allocation failed.\n");
+		fflush(stdout);
+		return EXIT_FAILURE;
+	}
+#else
+	debug_table = NULL;
+#endif
 
 
 	StopWatchInterface *timer = NULL;
@@ -105,25 +118,26 @@ int main(int argc, const char * argv[]) {
 
 	//	stopwatch_stop(&sw);
 	sdkStopTimer(&timer);
-	printf("Elapsed %f msec.\n", sdkGetTimerValue(&timer));
+	printf("\nElapsed %f msec.\n", sdkGetTimerValue(&timer));
 
-	fprintf(stdout, "Edit distance (by DP/CPU): %ld\n", dist);
+	fprintf(stdout, "Edit distance (by DP/CPU): %ld\n\n", dist);
 	fflush(stdout);
 
+#ifdef DEBUG_TABLE
 	for (int r = 0; r < m + 1; r++) {
 		for (int c = 0; c < n + 1; c++) {
 			dp_table[(m + 1)*c + r] = debug_table[(m + 1)*c + r];
 			debug_table[(m + 1)*c + r] = -1;
-			if (r < 20 || r > m + 1 - 12) {
-				if ((c < 24) || (c > n + 1 - 14)) {
-					fprintf(stdout, "%3ld ", dp_table[(m + 1)*c + r]);
+			if (r < 20 || r > m + 1 - 8) {
+				if ((c < 18) || (c > n + 1 - 8)) {
+					fprintf(stdout, "%4ld ", dp_table[(m + 1)*c + r]);
 				}
-				else if (c == 24) {
+				else if (c == 18) {
 					fprintf(stdout, "... ");
 				}
 			}
 		}
-		if (r < 20 || r > m + 1 - 12) {
+		if (r < 20 || r > m + 1 - 8) {
 			fprintf(stdout, "\n");
 		}
 		else if (r == 20) {
@@ -132,6 +146,7 @@ int main(int argc, const char * argv[]) {
 	}
 	fprintf(stdout, "\n");
 	fflush(stdout);
+#endif
 
 	sdkResetTimer(&timer);
 	sdkStartTimer(&timer);
@@ -145,8 +160,8 @@ int main(int argc, const char * argv[]) {
 		}
 	}
 
-	fprintf(stdout, "Input frame: \n");
-	for (int c = 0; c < (n + m + 1 > 32 ? m+5 : n + m + 1); ++c) {
+	fprintf(stdout, "Inframe: \n");
+	for (int c = 0; c < (n + m + 1 > 32 ? 32 : n + m + 1); ++c) {
 		fprintf(stdout, "%3ld ", inbound[c]);
 		if (c == m - 1)
 			fprintf(stdout, "\n");
@@ -157,35 +172,35 @@ int main(int argc, const char * argv[]) {
 	 
 	/* Stop timer and report the duration, delete timer */
 	sdkStopTimer(&timer);
-	printf("Elapsed %f msec.\n", sdkGetTimerValue(&timer));
+	printf("\nElapsed %f msec.\n", sdkGetTimerValue(&timer));
 	sdkDeleteTimer(&timer);
 
-	fprintf(stdout, "\nOutput:\n");
+	fprintf(stdout, "\nOutframe:\n");
 	for (int c = 0; c < (n + m + 1 > 32 ? 32 : n + m + 1); ++c) {
 		fprintf(stdout, "%3ld ", outbound[c]);
 		if (c == n)
 			fprintf(stdout, "\n");
 	}
 	fprintf(stdout, "\n");
+
+	fprintf(stdout, "\nEdit distance (by DP/GPU): %ld\n\n", dist);
 	fflush(stdout);
 
-	fprintf(stdout, "Edit distance (by DP/GPU): %ld\n\n", dist);
-	fflush(stdout);
-
+#ifdef DEBUG_TABLE
 	// debug table 
 	for (int r = 0; r < m + 1; r++) {
 		for (int c = 0; c < n + 1; c++) {
 			cu_table[(m + 1)*c + r] = debug_table[(m + 1)*c + r];
-			if (r < 20 || r > m + 1 - 12) {
-				if ((c < 24) || (c > n + 1 - 14)) {
-					fprintf(stdout, "%3ld ", cu_table[(m + 1)*c + r]);
+			if (r < 20 || r > m + 1 - 8) {
+				if ((c < 18) || (c > n + 1 - 8)) {
+					fprintf(stdout, "%4ld ", cu_table[(m + 1)*c + r]);
 				}
-				else if (c == 24) {
+				else if (c == 18) {
 					fprintf(stdout, "... ");
 				}
 			}
 		}
-		if (r < 20 || r > m + 1 - 12) {
+		if (r < 20 || r > m + 1 - 8) {
 			fprintf(stdout, "\n");
 		}
 		else if (r == 20) {
@@ -211,8 +226,9 @@ int main(int argc, const char * argv[]) {
 	free(dp_table);
 	free(cu_table);
 	free(debug_table);
-
-
+#endif
+	free(inbound);
+	free(outbound);
 	return 0;
 }
 

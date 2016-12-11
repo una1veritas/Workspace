@@ -15,7 +15,8 @@ long dp_edist(char t[], long n, char p[], long m) {
 #endif
 	if (table == NULL) {
 		fprintf(stderr,"allocate table %d x %d failed.\n",n+1, m+1);
-		return n + m + 1;
+		fflush(stderr);
+		return n+m+1;
 	}
 	
 	// initialize cells in the top row or in the left-most column
@@ -46,7 +47,7 @@ long dp_edist(char t[], long n, char p[], long m) {
 		}
 	}
 
-	result = table[(n+1) * (m+1) - 1];
+	result = table[(m+1) * (n + 1) - 1];
 #ifndef DEBUG_TABLE
 	free(table);
 #endif

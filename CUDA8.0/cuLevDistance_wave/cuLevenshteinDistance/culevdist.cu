@@ -17,7 +17,7 @@
 
 #include "debug_table.h"
 
-#define MAX_THREADSPERBLOCK (512)
+#define MAX_THREADSPERBLOCK (192)
 
 #define min(x, y)  ((x) <= (y)? (x) : (y))
 #define max(x, y)  ((x) >= (y)? (x) : (y))
@@ -52,10 +52,10 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 
 
 	long * devweftbuff, * devinframe, *devoutframe;
-	const long table_height = m + 1;
-	const long table_width = n + 1;
+	const long theight = align(MAX_THREADSPERBLOCK, m + 1);
+	const long twidth = n + 1;
 
-	cuStat = cudaMalloc((void**)&devweftbuff, sizeof(long)*table_height*4);
+	cuStat = cudaMalloc((void**)&devweftbuff, sizeof(long)*theight* 4);
 	cuStatCheck(cuStat, "cudaMalloc devtable failed.\n");
 
 	long * devtable = NULL;
@@ -73,8 +73,17 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	dim3 grids(ceildiv(nthreads, threadsperblock)), blocks(threadsperblock);
 	fprintf(stdout,"\nnum threads %d, %d blocks, %d threads per block.\n",nthreads, ceildiv(nthreads,threadsperblock), threadsperblock);
 
-	cu_dptable<<< grids, blocks >>>(devweftbuff, devinframe, devoutframe, devt, n, devp, m, devtable);
-	fflush(stdout);
+	// dp table computation
+	long dcol; // , drow; // diagonal column index
+	long *w0, *w1, *w2;
+	for (dcol = 0; dcol < n + m + 1; ++dcol) {
+		w0 = devweftbuff + (dcol & 0x03)*theight; // % mperiod)*(m + 1); // the current front line of waves
+		w1 = devweftbuff + ((dcol - 1 + 4) & 0x03)*theight; // % mperiod)*(m + 1); // the last passed line of waves
+		w2 = devweftbuff + ((dcol - 2 + 4) & 0x03)*theight; // % mperiod)*(m + 1); // the second last line of waves
+
+		cu_dptable_kernel << < grids, blocks >> > (w2, w1, w0, dcol, devinframe, devoutframe, devt, n, devp, m, devtable);
+	}
+
 	// Check for any errors launching the kernel
 	cuStat = cudaGetLastError();
 	if (cuStat != cudaSuccess) {
@@ -133,9 +142,9 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 		//		for (drow = 1; drow < m + 1; ++drow) {
 		//drow = thix;
 		col = dcol - drow;
-		w0 = weftbuff + (dcol % 4)*(m + 1); // % mperiod)*(m + 1); // the current front line of waves
-		w1 = weftbuff + ((dcol - 1 + 4) % 4)*(m + 1); // % mperiod)*(m + 1); // the last passed line of waves
-		w2 = weftbuff + ((dcol - 2 + 4) % 4)*(m + 1); // % mperiod)*(m + 1); // the second last line of waves
+		w0 = weftbuff + (dcol & 0x03)*(m + 1); // % mperiod)*(m + 1); // the current front line of waves
+		w1 = weftbuff + ((dcol - 1 + 4) & 0x03)*(m + 1); // % mperiod)*(m + 1); // the last passed line of waves
+		w2 = weftbuff + ((dcol - 2 + 4) & 0x03)*(m + 1); // % mperiod)*(m + 1); // the second last line of waves
 		if (drow == 0 && drow < m + 1) {
 			// load the value of the top row from the initial boundary 
 			cellval = inframe[m+col];
@@ -169,6 +178,60 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 
 		__syncthreads();
 	}
+
+	return;
+}
+
+// assuming the table array size (n+1) x (m+1)
+__global__ void cu_dptable_kernel(long * w2, long *w1, long *w0, const long dcol, const long * inframe, long * outframe,
+	const char t[], const long n, const char p[], const long m, long * table
+) {
+	long col; // inner diagonal index
+	long ins, del, repl, cellval; // nextrepl, above, prevval;
+
+	// thread id = row index
+	long drow = blockDim.x * blockIdx.x + threadIdx.x;
+
+	//__syncthreads();
+
+	//for (dcol = 0; dcol < n + m + 1; ++dcol) {
+		//for (drow = 1; drow < m + 1; ++drow) {
+		//drow = thix;
+		col = dcol - drow;
+		//w0 = weftbuff + (dcol % 4)*(m + 1); // % mperiod)*(m + 1); // the current front line of waves
+		//w1 = weftbuff + ((dcol - 1 + 4) % 4)*(m + 1); // % mperiod)*(m + 1); // the last passed line of waves
+		//w2 = weftbuff + ((dcol - 2 + 4) % 4)*(m + 1); // % mperiod)*(m + 1); // the second last line of waves
+		if (drow == 0 && drow < m + 1) {
+			// load the value of the top row from the initial boundary 
+			cellval = inframe[m + col];
+		}
+		else if (col == 0 && drow < m + 1) {
+			// load the value of the left-most column from the initial boundary 
+			//cellval = col0val;
+			cellval = inframe[m - drow];
+		}
+		else if ((col > 0) && (1 <= drow && drow < m + 1)) {
+			ins = w1[drow - 1] + 1;
+			del = w1[drow] + 1;
+			repl = w2[drow - 1] + (t[col - 1] != p[drow - 1]);
+			cellval = ins;
+			if (del < cellval)
+				cellval = del;
+			if (repl < cellval)
+				cellval = repl;
+		}
+		if ((0 <= col && col < n + 1) && drow < m + 1) {
+			//if (drow == 2) printf("(%d, 1) = %d\n", col, cellval);
+			w0[drow] = cellval;
+#ifdef DEBUG_TABLE
+			table[(m + 1)*col + drow] = w0[drow];
+#endif
+			if (drow == m && col <= n)
+				outframe[col] = cellval;
+			if (drow < m && col == n)
+				outframe[n + 1 + drow] = cellval;
+		}
+		//__syncthreads();
 
 	return;
 }
