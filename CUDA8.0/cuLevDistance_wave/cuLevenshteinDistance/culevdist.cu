@@ -17,12 +17,12 @@
 
 #include "debug_table.h"
 
-#define MAX_THREADSPERBLOCK 1024
+#define MAX_THREADSPERBLOCK (512)
 
 #define min(x, y)  ((x) <= (y)? (x) : (y))
 #define max(x, y)  ((x) >= (y)? (x) : (y))
 #define align(base, val)    ((((val)+(base)-1)/(base))*(base))
-
+#define ceildiv(n,d)		( (n)%(d) > 0 ? (n)/(d)+1 : (n)/(d) )
 static char grayscale[] = "@#$B%8&WM*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>ilI;!:,\"^`'. ";
 
 int cuStatCheck(const cudaError_t stat, const char * msg) {
@@ -53,12 +53,11 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 
 	long * devweftbuff, * devinframe, *devoutframe;
 	const long table_height = m + 1;
-	const long table_width = n + m + 1;
+	const long table_width = n + 1;
 
 	cuStat = cudaMalloc((void**)&devweftbuff, sizeof(long)*table_height*4);
 	cuStatCheck(cuStat, "cudaMalloc devtable failed.\n");
 
-	long * dptable;
 	long * devtable = NULL;
 #ifdef DEBUG_TABLE
 	cuStat = cudaMalloc((void**)&devtable, sizeof(long)*table_height*table_width);
@@ -70,45 +69,23 @@ long cu_lvdist(long * inbound, long * outbound, const char t[], const long n, co
 	cuStatCheck(cuStat, "cudaMalloc devoutframe failed.\n");
 	cudaMemcpy(devinframe, inbound, sizeof(long)*(n + m + 1), cudaMemcpyHostToDevice);
 
-	fprintf(stdout, "copied input, calling kernel...\n");
-	fflush(stdout);
-
-	long nthreads = align(32, m+1);
-	dim3 grids(max(1, nthreads / MAX_THREADSPERBLOCK), 1), blocks(MAX_THREADSPERBLOCK);
-	fprintf(stdout,"num threads %d, %d blocks.\n",nthreads, max(1, nthreads / MAX_THREADSPERBLOCK));
+	long nthreads = align(32, m + 1), threadsperblock = min(nthreads, MAX_THREADSPERBLOCK);
+	dim3 grids(ceildiv(nthreads, threadsperblock)), blocks(threadsperblock);
+	fprintf(stdout,"\nnum threads %d, %d blocks, %d threads per block.\n",nthreads, ceildiv(nthreads,threadsperblock), threadsperblock);
 
 	cu_dptable<<< grids, blocks >>>(devweftbuff, devinframe, devoutframe, devt, n, devp, m, devtable);
-
+	fflush(stdout);
 	// Check for any errors launching the kernel
 	cuStat = cudaGetLastError();
 	if (cuStat != cudaSuccess) {
 		fprintf(stderr, "kernel function(s) failed: %s\n", cudaGetErrorString(cuStat));
 		fflush(stdout);
 	}
-	fprintf(stdout,"Finished kernel functions.\n");
-	fflush(stdout);
 
 	cudaMemcpy(outbound, devoutframe, sizeof(long)*(n + m + 1), cudaMemcpyDeviceToHost);
 
 #ifdef DEBUG_TABLE
-	long * table;
-	table = (long*)malloc(sizeof(long)*table_height*table_width);
-	cudaMemcpy(table, devtable, sizeof(long)*table_height*table_width, cudaMemcpyDeviceToHost);
-	// show DP table
-	long c, r, dix;
-	const long scales = strlen(grayscale) - 1;
-	for (r = 0; r < m + 1; r++) {
-		for (c = 0; c < n + 1; c++) {
-			long gray = m - table[c*(m+1)+r];
-			gray = (gray > 0 ? gray : 0);
-			gray = (gray < 0 ? 0 : gray)*scales / m;
-			fprintf(stdout, "%3ld ", table[c*(m+1)+r]);
-			//fprintf(stdout, "%c ", grayscale[gray]);
-		}
-		fprintf(stdout, "\n");
-	}
-	fprintf(stdout, "\n");
-	free(table);
+	cudaMemcpy(debug_table, devtable, sizeof(long)*table_height*table_width, cudaMemcpyDeviceToHost);
 	cudaFree(devtable);
 #endif
 
@@ -148,14 +125,8 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 	// thread id = row index
 	long drow = blockDim.x * blockIdx.x + threadIdx.x ;
 
-	long col0val;
-	if (drow == 0) {
-		col0val = inframe[0];
-	}
-	else if (drow < m + 1) {
-		col0val = inframe[n+1+drow-1];
-	}
-	__syncthreads();
+	//long col0val;
+	//__syncthreads();
 
 	// skewed rectangle
 	for (dcol = 0; dcol < n + m + 1; ++dcol) {
@@ -165,13 +136,14 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 		w0 = weftbuff + (dcol % 4)*(m + 1); // % mperiod)*(m + 1); // the current front line of waves
 		w1 = weftbuff + ((dcol - 1 + 4) % 4)*(m + 1); // % mperiod)*(m + 1); // the last passed line of waves
 		w2 = weftbuff + ((dcol - 2 + 4) % 4)*(m + 1); // % mperiod)*(m + 1); // the second last line of waves
-		if (drow == 0) {
+		if (drow == 0 && drow < m + 1) {
 			// load the value of the top row from the initial boundary 
-			cellval = inframe[col];
+			cellval = inframe[m+col];
 		}
-		else if (col == 0) {
+		else if (col == 0 && drow < m + 1) {
 			// load the value of the left-most column from the initial boundary 
-			cellval = col0val;
+			//cellval = col0val;
+			cellval = inframe[m-drow];
 		}
 		else if ((col > 0) && (1 <= drow && drow < m + 1)) {
 			ins = w1[drow - 1] + 1;
@@ -182,10 +154,9 @@ __global__ void cu_dptable(long * weftbuff, const long * inframe, long * outfram
 				cellval = del;
 			if (repl < cellval)
 				cellval = repl;
-		}	
-		if (drow < m + 1) {
-			//if (cellval < 0 || cellval > 10000)
-			//	cellval = -1;
+		}
+		if ( (0 <= col && col < n+1) && drow < m + 1) {
+			//if (drow == 2) printf("(%d, 1) = %d\n", col, cellval);
 			w0[drow] = cellval;
 #ifdef DEBUG_TABLE
 			table[(m + 1)*col + drow] = w0[drow];
