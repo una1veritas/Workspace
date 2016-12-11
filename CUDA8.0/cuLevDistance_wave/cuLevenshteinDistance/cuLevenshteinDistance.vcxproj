@@ -118,6 +118,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <AdditionalCompilerOptions>
       </AdditionalCompilerOptions>
       <PtxAsOptionV>true</PtxAsOptionV>
+      <GenerateLineInfo>true</GenerateLineInfo>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -165,14 +166,14 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <CudaCompile Include="culevdist.cu" />
-    <CudaCompile Include="editdist.cu" />
+    <CudaCompile Include="dpedist.cu" />
     <CudaCompile Include="main.cu" />
     <CudaCompile Include="textfromfile.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="culevdist.h" />
-    <ClInclude Include="editdist.h" />
     <ClInclude Include="debug_table.h" />
+    <ClInclude Include="dpedist.h" />
     <ClInclude Include="textfromfile.h" />
   </ItemGroup>
   <ItemGroup>
