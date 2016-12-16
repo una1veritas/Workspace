@@ -63,7 +63,7 @@ long cu_levdist(long * frame, const char t[], const long n, const char p[], cons
 
 	cudaFree(devframe);
 
-	result = frame[(n - m) & (pow2(n+m+1)-1)];
+	result = frame[(n - m) & (weftlen -1)];
 
 	return result;
 }
