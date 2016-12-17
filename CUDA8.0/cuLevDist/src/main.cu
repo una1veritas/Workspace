@@ -90,7 +90,7 @@ int main (int argc, const char * argv[]) {
 
 	long * frame = (long*)malloc(sizeof(long)*pow2(m + n + 1));
 	wv_setframe(frame, text, n, patt, m);
-	for (int i = 0; i < n + m + 1; i++) {
+	for (int i = 0; i < pow2(n + m + 1); i++) {
 		printf("%d, ", frame[i]);
 	}
 	fflush(stdout);
