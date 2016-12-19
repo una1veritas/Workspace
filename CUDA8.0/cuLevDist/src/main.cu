@@ -1,8 +1,13 @@
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
+
 #include <stdio.h>
 #include <string.h>
 //#include <unistd.h>
 
+#include "cu_utils.h"
 #include "levdist.h"
+#include "cu_levdist.h"
 //#include "stopwatch.h"
 #include "textfromfile.h"
 
@@ -49,7 +54,10 @@ int main (int argc, const char * argv[]) {
 	long * table;
 	long m, n;
 	long d;
-	
+
+	cudaSetDevice(0);
+	cudaDeviceSetLimit(cudaLimitDevRuntimeSyncDepth, 2);
+
 	text = (char*) malloc(sizeof(char)*STR_MAXLENGTH);
 	patt = (char*) malloc(sizeof(char)*STR_MAXLENGTH);
 	if ( text == NULL || patt == NULL ) {
@@ -57,6 +65,7 @@ int main (int argc, const char * argv[]) {
 		fflush(stderr);
 		goto exit_error;
 	}
+
 
 	if ( getargs(argc, argv, text, patt, &n, &m) != 0 )
 		goto exit_error;
@@ -89,21 +98,31 @@ int main (int argc, const char * argv[]) {
 	fflush(stdout);
 
 	long * frame = (long*)malloc(sizeof(long)*pow2(m + n + 1));
-	wv_setframe(frame, text, n, patt, m);
+	wv_setframe(frame, n, m);
+	printf("frame input: \n");
 	for (int i = 0; i < pow2(n + m + 1); i++) {
 		printf("%d, ", frame[i]);
 	}
+	printf("\n");
 	fflush(stdout);
-	/*
+
+		/*
 	stopwatch_start(&sw);
 	*/
-	d = wv_edist(frame, text, n, patt, m);
-	free(frame);
+	d = cu_levdist(frame, text, n, patt, m);
+
 	/*
 	stopwatch_stop(&sw);
 	printf("%lu sec %lu milli %lu micros.\n", stopwatch_secs(&sw), stopwatch_millis(&sw), stopwatch_micros(&sw));
 	*/
-	printf("Edit distance (by Weaving DP): %lu\n", d);
+	printf("Edit distance (by Weaving DP): %lu\n\n", d);
+	printf("frame output: \n");
+	for (int i = 0; i < pow2(n + m + 1); i++) {
+		printf("%d, ", frame[i]);
+	}
+	printf("\n");
+	fflush(stdout);
+	free(frame);
 
 #ifdef DEBUG_TABLE
 	show_table(debug_table, n, m);
