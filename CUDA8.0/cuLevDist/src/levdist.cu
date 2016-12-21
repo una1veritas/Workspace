@@ -7,7 +7,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cu_utils.h"
 #include "levdist.h"
+
+long pow2(const long val) {
+	long result = 1;
+	for (result = 1; result < val; result <<= 1);
+	return result;
+}
 
 long r_edist(char s[], int m, char t[], int n) {
 	long a, b, c;
@@ -71,7 +78,7 @@ long dp_edist(long * dist, char t[], long n, char p[], long m) {
 	return dist[n * m - 1];
 }
 
-void wv_setframe(long * frame, const char t[], const long n, const char p[], const long m) {
+void wv_setframe(long * frame, const long n, const long m) {
 	const long weftlen = pow2(n + m + 1);
 	for (long i = 0; i < weftlen; i++) {
 		if (i < n + 1) {
@@ -84,16 +91,6 @@ void wv_setframe(long * frame, const char t[], const long n, const char p[], con
 			frame[i] = 0;  // will be untouched.
 		}
 	}
-}
-
-
-long pow2(const long val) {
-	long result = 1;
-
-	while ( result < val ) {
-		result <<= 1;
-	}
-	return result;
 }
 
 long wv_edist(long * frame, const char t[], const long n, const char p[], const long m) {
