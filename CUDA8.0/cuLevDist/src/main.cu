@@ -3,21 +3,19 @@
 
 #include <stdio.h>
 #include <string.h>
-//#include <unistd.h>
 
 #include <helper_timer.h>
 
 #include "cu_utils.h"
 #include "levdist.h"
 #include "cu_levdist.h"
-//#include "stopwatch.h"
 #include "textfromfile.h"
 
 #include "debug_table.h"
 
 #define MEGA_B 1048576UL
 #define KILO_B 1024UL
-#define STR_MAXLENGTH (1 * KILO_B)
+#define STR_MAXLENGTH (32 * KILO_B)
 
 int getargs(const int argc, const char * argv[], char * text, char * patt, long * n, long *m) {
 	if ( argc != 3 )
@@ -41,7 +39,6 @@ int getargs(const int argc, const char * argv[], char * text, char * patt, long 
 		*m = t;
 	}
 
-	printf("%s\n", patt);
 	if ( *n < 1000 && *m < 1000 )
 		fprintf(stdout, "Input: %s \n(%lu), \n%s \n(%lu)\n\n", text, *n, patt, *m);
 	else
@@ -51,7 +48,7 @@ int getargs(const int argc, const char * argv[], char * text, char * patt, long 
 	return 0;
 }
 
-int main (int argc, const char * argv[]) {
+int main(int argc, const char * argv[]) {
 	char * text, *patt;
 	long * table;
 	long m, n;
@@ -60,55 +57,52 @@ int main (int argc, const char * argv[]) {
 	cudaSetDevice(0);
 	cudaDeviceSetLimit(cudaLimitDevRuntimeSyncDepth, 2);
 
-	text = (char*) malloc(sizeof(char)*STR_MAXLENGTH);
-	patt = (char*) malloc(sizeof(char)*STR_MAXLENGTH);
-	if ( text == NULL || patt == NULL ) {
+	text = (char*)malloc(sizeof(char)*STR_MAXLENGTH);
+	patt = (char*)malloc(sizeof(char)*STR_MAXLENGTH);
+	if (text == NULL || patt == NULL) {
 		fprintf(stderr, "malloc error.\n");
 		fflush(stderr);
 		goto exit_error;
 	}
 
 
-	if ( getargs(argc, argv, text, patt, &n, &m) != 0 )
+	if (getargs(argc, argv, text, patt, &n, &m) != 0)
 		goto exit_error;
 
 	StopWatchInterface *timer = NULL;
 	sdkCreateTimer(&timer);
 	sdkResetTimer(&timer);
+
+#ifdef USE_PURE_DP
 	sdkStartTimer(&timer);
 
-	table = (long*) malloc(sizeof(long)*m*n);
+	table = (long*)malloc(sizeof(long)*m*n);
 
 	d = dp_edist(table, text, n, patt, m);
-
 #ifndef DEBUG_TABLE
 	free(table);
 #endif
+
 	sdkStopTimer(&timer);
 	printf("\nElapsed %f msec.\n", sdkGetTimerValue(&timer));
 
 	printf("Edit distance (by Pure DP): %lu\n", d);
 #ifdef DEBUG_TABLE
-	show_table(table, n, m);
+	if (max(n, m) < 128)
+		show_table(table, n, m);
 
-	debug_table = (long*) malloc(sizeof(long)*m*n);
+	debug_table = (long*)malloc(sizeof(long)*m*n);
 #endif
+#endif USE_PURE_DP
 
-	fprintf(stdout, "computing edit distance by Waving DP.\n");
+	fprintf(stdout, "\nNow computing edit distance by Weaving DP.\n");
 	fflush(stdout);
 
-	long * frame = (long*)malloc(sizeof(long)*cu::pow2(m + n + 1));
-	const long weftlen = cu::pow2(n + m + 1);
-	for (long i = 0; i < n+m+1; i++) {
-		if (i < m) {
-			frame[i] = m-i;
-		}
-		else {
-			frame[i] = i-m;  // will be untouched.
-		}
-	}
+	long * frame = (long*)malloc(sizeof(long)*(m + n + 1));
+	weaving_setframe(frame, n, m);
+
 	printf("frame input: \n");
-	for (int i = 0; i < n + m + 1; i++) {
+	for (int i = 0; i < min(n + m + 1, 64); i++) {
 		printf("%d, ", frame[i]);
 	}
 	printf("\n");
@@ -125,7 +119,7 @@ int main (int argc, const char * argv[]) {
 
 	printf("Edit distance (by Weaving DP): %lu\n\n", d);
 	printf("frame output: \n");
-	for (int i = 0; i < n + m + 1; i++) {
+	for (int i = 0; i < min(n + m + 1, 64); i++) {
 		printf("%d, ", frame[i]);
 	}
 	printf("\n");
@@ -133,18 +127,16 @@ int main (int argc, const char * argv[]) {
 	free(frame);
 
 #ifdef DEBUG_TABLE
-	show_table(debug_table, n, m);
-	
+	if ( max(n,m) < 128 )
+		show_table(debug_table, n, m);
 	if ( compare_table(debug_table, table, n, m) != 0) {
 		printf("table compare failed.\n");
 	} else {
 		printf("two tables are identical.\n");
 	}
-	
 	free(debug_table);
-#endif
-
 	free(table);
+#endif
 
 exit_error:
 	free(text);
