@@ -12,7 +12,7 @@
 
 long cu_levdist(long * frame, const char text[], const long n, const char patt[], const long m) {
 	long result = n + m + 1;
-	long weftlen = cu::pow2(n+m+1);
+	long weftlen = n+m+1;
 
 	long * devframe;
 	char *devtext, *devpatt;
@@ -28,7 +28,7 @@ long cu_levdist(long * frame, const char text[], const long n, const char patt[]
 	cudaMalloc((void**)&dev_debug_table, sizeof(long)*(n*m));
 #endif
 
-	weaving_kernel <<<1, 1>> > (devframe, weftlen, devtext, n, devpatt, m
+	weaving_cdp_kernel <<<1, 1>>> (devframe, weftlen, devtext, n, devpatt, m
 #ifdef DEBUG_TABLE
 		, dev_debug_table
 #endif
@@ -55,7 +55,6 @@ __global__ void weaving_kernel(long * frame, const long weftlen, const char t[],
 , long * table
 #endif
 ) {
-	long result = n + m + 1;
 	long col, row;
 	long del, ins, repl, cellval; // del = delete from pattern, downward; ins = insert to pattern, rightward
 	long warpix, warp_start, warp_last;
@@ -106,3 +105,82 @@ __global__ void weaving_kernel(long * frame, const long weftlen, const char t[],
 	}
 }
 
+
+__global__ void weaving_cdp_kernel(long * frame, const long weftlen, const char t[], const long n, const char p[], const long m
+#ifdef DEBUG_TABLE
+	, long * table
+#endif
+) {
+	long warp_start, warp_last;
+	const long threads_per_block = 192;
+
+	if (frame == NULL)
+		return;
+
+	//dim3 blocks(ceildiv( (m+1)>>1, threads_per_block)), threads(threads_per_block);
+	for (long depth = 0; depth <= (n - 1) + (m - 1); depth++) {
+		warp_start = abs((m - 1) - depth);
+		if (depth < n) {
+			warp_last = depth + (m - 1);
+		}
+		else {
+			warp_last = ((n - 1) << 1) + (m - 1) - depth;
+		}
+		//printf("depth %ld [%ld, %ld]: warpix ", depth, warp_start, warp_last);
+		long warpnum = (warp_last - warp_start + 1)>>1;
+		dim3 blocks(ceildiv(warpnum, threads_per_block)), threads(threads_per_block);
+		warps_cdp_kernel<<<blocks, threads>>>(frame, t, n, p, m, depth, warp_start, warp_last
+#ifdef DEBUG_TABLE
+			, table
+#endif
+		);
+		//cudaDeviceSynchronize();
+		//printf("\n");
+	}
+}
+
+__global__ void warps_cdp_kernel(long * frame, const char * t, const long n, const char * p, const long m, const long depth, const long warp_start, const long warp_last
+#ifdef DEBUG_TABLE
+	, long * table
+#endif
+) {
+	long thix = blockDim.x * blockIdx.x + threadIdx.x;
+	long warpix = warp_start + (thix << 1);
+	long del, ins, repl; // del = delete from pattern, downward; ins = insert to pattern, rightward
+	long col, row;
+
+	if ( (warp_start <= warpix) && (warpix <= warp_last) ) {
+
+		col = (depth + warpix - (m - 1)) >> 1;
+		row = (depth - warpix + (m - 1)) >> 1;
+
+		del = frame[warpix + 1 + 1] + 1;
+		ins = frame[warpix - 1 + 1] + 1;
+		repl = frame[warpix + 1] + (t[col] != p[row]);
+		//printf("%ld: %ld [%ld,%ld] %c|%c : %ld/%ld/%ld+%ld,\n",depth, warpix, col,row,t[col],p[row], del,ins, frame[warpix], (t[col] != p[row]));
+		//
+		if (del < ins) {
+			ins = del;
+		}
+		if (ins < repl) {
+			repl = ins;
+		}
+		//
+		frame[warpix + 1] = repl;
+#ifdef DEBUG_TABLE
+		table[m*col + row] = repl;
+#endif
+	}
+	__syncthreads();
+}
+
+void weaving_setframe(long * frame, const long n, const long m) {
+	for (long i = 0; i < n + m + 1; i++) {
+		if (i < m) {
+			frame[i] = m - i;
+		}
+		else {
+			frame[i] = i - m;  // will be untouched.
+		}
+	}
+}

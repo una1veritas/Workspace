@@ -39,7 +39,8 @@ long compare_table(long * t0, long * t1, long n, long m) {
 		for (r = 0; r < m; r++) {
 			if (t0[m*c + r] != t1[m*c + r]) {
 				count++;
-				printf("different @ %ld, %ld\n", c, r);
+				if ( count < 8 )
+					printf("different @ %ld, %ld\n", c, r);
 			}
 		}
 	}
