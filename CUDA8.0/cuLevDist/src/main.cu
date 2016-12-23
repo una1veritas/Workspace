@@ -5,6 +5,8 @@
 #include <string.h>
 //#include <unistd.h>
 
+#include <helper_timer.h>
+
 #include "cu_utils.h"
 #include "levdist.h"
 #include "cu_levdist.h"
@@ -70,10 +72,11 @@ int main (int argc, const char * argv[]) {
 	if ( getargs(argc, argv, text, patt, &n, &m) != 0 )
 		goto exit_error;
 
-/*
-	stopwatch sw;
-	stopwatch_start(&sw);
-	*/
+	StopWatchInterface *timer = NULL;
+	sdkCreateTimer(&timer);
+	sdkResetTimer(&timer);
+	sdkStartTimer(&timer);
+
 	table = (long*) malloc(sizeof(long)*m*n);
 
 	d = dp_edist(table, text, n, patt, m);
@@ -81,12 +84,9 @@ int main (int argc, const char * argv[]) {
 #ifndef DEBUG_TABLE
 	free(table);
 #endif
-	/*
-	stopwatch_stop(&sw);
+	sdkStopTimer(&timer);
+	printf("\nElapsed %f msec.\n", sdkGetTimerValue(&timer));
 
-	printf("%lu sec %lu milli %lu micros.\n", stopwatch_secs(&sw), stopwatch_millis(&sw), stopwatch_micros(&sw));
-	printf("\n");
-*/
 	printf("Edit distance (by Pure DP): %lu\n", d);
 #ifdef DEBUG_TABLE
 	show_table(table, n, m);
@@ -97,27 +97,35 @@ int main (int argc, const char * argv[]) {
 	fprintf(stdout, "computing edit distance by Waving DP.\n");
 	fflush(stdout);
 
-	long * frame = (long*)malloc(sizeof(long)*pow2(m + n + 1));
-	wv_setframe(frame, n, m);
+	long * frame = (long*)malloc(sizeof(long)*cu::pow2(m + n + 1));
+	const long weftlen = cu::pow2(n + m + 1);
+	for (long i = 0; i < n+m+1; i++) {
+		if (i < m) {
+			frame[i] = m-i;
+		}
+		else {
+			frame[i] = i-m;  // will be untouched.
+		}
+	}
 	printf("frame input: \n");
-	for (int i = 0; i < pow2(n + m + 1); i++) {
+	for (int i = 0; i < n + m + 1; i++) {
 		printf("%d, ", frame[i]);
 	}
 	printf("\n");
 	fflush(stdout);
 
-		/*
-	stopwatch_start(&sw);
-	*/
+	sdkResetTimer(&timer);
+	sdkStartTimer(&timer);
+
 	d = cu_levdist(frame, text, n, patt, m);
 
-	/*
-	stopwatch_stop(&sw);
-	printf("%lu sec %lu milli %lu micros.\n", stopwatch_secs(&sw), stopwatch_millis(&sw), stopwatch_micros(&sw));
-	*/
+	sdkStopTimer(&timer);
+	printf("\nElapsed %f msec.\n", sdkGetTimerValue(&timer));
+	sdkDeleteTimer(&timer);
+
 	printf("Edit distance (by Weaving DP): %lu\n\n", d);
 	printf("frame output: \n");
-	for (int i = 0; i < pow2(n + m + 1); i++) {
+	for (int i = 0; i < n + m + 1; i++) {
 		printf("%d, ", frame[i]);
 	}
 	printf("\n");
@@ -126,12 +134,13 @@ int main (int argc, const char * argv[]) {
 
 #ifdef DEBUG_TABLE
 	show_table(debug_table, n, m);
-
+	
 	if ( compare_table(debug_table, table, n, m) != 0) {
 		printf("table compare failed.\n");
 	} else {
 		printf("two tables are identical.\n");
 	}
+	
 	free(debug_table);
 #endif
 
