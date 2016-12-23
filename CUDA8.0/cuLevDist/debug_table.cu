@@ -22,8 +22,8 @@ void show_table(long * table, long n, long m) {
 	printf("\ntable contents:\n");
 	for (long r = 0; r < m; r++) {
 		for (long c = 0; c < n; c++) {
-			//printf("%c", grays[max(0, 61 - (int)((table[m*c + r] / (float)(n))*grayscale))]);
-			printf("%3ld ", table[m*c+r]);
+			printf("%c", grays[max(0, 61 - (int)((table[m*c + r] / (float)(n))*grayscale))]);
+			//printf("%3ld ", table[m*c+r]);
 		}
 		printf("\n");
 		fflush(stdout);
