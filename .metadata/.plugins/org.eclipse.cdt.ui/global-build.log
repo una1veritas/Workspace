@@ -1,75 +1,15 @@
-16:13:37 **** Incremental Build of configuration Default for project bzip2-1.0.6 ****
+20:56:39 **** Incremental Build of configuration Debug for project bzip2_106 ****
 make all 
-gcc -Wall -Winline -O2 -g -D_FILE_OFFSET_BITS=64 -c bzip2recover.c
-bzip2recover.c:376:59: warning: invalid conversion specifier 'P' [-Wformat-invalid-specifier]
-               fprintf ( stderr, "   block %d runs from " MaybeUInt64_FMT 
-                                                          ^
-bzip2recover.c:41:29: note: expanded from macro 'MaybeUInt64_FMT'
-#  define MaybeUInt64_FMT "%PRIu64"
-                           ~^
-bzip2recover.c:377:41: warning: invalid conversion specifier 'P' [-Wformat-invalid-specifier]
-                                 " to " MaybeUInt64_FMT " (incomplete)\n",
-                                        ^
-bzip2recover.c:41:29: note: expanded from macro 'MaybeUInt64_FMT'
-#  define MaybeUInt64_FMT "%PRIu64"
-                           ~^
-bzip2recover.c:398:56: warning: invalid conversion specifier 'P' [-Wformat-invalid-specifier]
-            fprintf ( stderr, "   block %d runs from " MaybeUInt64_FMT 
-                                                       ^
-bzip2recover.c:41:29: note: expanded from macro 'MaybeUInt64_FMT'
-#  define MaybeUInt64_FMT "%PRIu64"
-                           ~^
-bzip2recover.c:399:38: warning: invalid conversion specifier 'P' [-Wformat-invalid-specifier]
-                              " to " MaybeUInt64_FMT "\n",
-                                     ^
-bzip2recover.c:41:29: note: expanded from macro 'MaybeUInt64_FMT'
-#  define MaybeUInt64_FMT "%PRIu64"
-                           ~^
-4 warnings generated.
-gcc -Wall -Winline -O2 -g -D_FILE_OFFSET_BITS=64  -o bzip2recover bzip2recover.o
-
-Doing 6 tests (3 compress, 3 uncompress) ...
-If there's a problem, things might stop at this point.
+Building file: ../src/bzip2.c
+Invoking: GCC C Compiler
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/bzip2.d" -MT"src/bzip2.o" -o "src/bzip2.o" "../src/bzip2.c"
+Finished building: ../src/bzip2.c
  
-./bzip2 -1  < sample1.ref > sample1.rb2
-./bzip2 -2  < sample2.ref > sample2.rb2
-./bzip2 -3  < sample3.ref > sample3.rb2
-./bzip2 -d  < sample1.bz2 > sample1.tst
-./bzip2 -d  < sample2.bz2 > sample2.tst
-./bzip2 -ds < sample3.bz2 > sample3.tst
-cmp sample1.bz2 sample1.rb2 
-cmp sample2.bz2 sample2.rb2
-cmp sample3.bz2 sample3.rb2
-cmp sample1.tst sample1.ref
-cmp sample2.tst sample2.ref
-cmp sample3.tst sample3.ref
-
-If you got this far and the 'cmp's didn't complain, it looks
-like you're in business.  
-
-To install in /usr/local/bin, /usr/local/lib, /usr/local/man and 
-/usr/local/include, type
-
-   make install
-
-To install somewhere else, eg, /xxx/yyy/{bin,lib,man,include}, type 
-
-   make install PREFIX=/xxx/yyy
-
-If you are (justifiably) paranoid and want to see what 'make install'
-is going to do, you can first do
-
-   make -n install                      or
-   make -n install PREFIX=/xxx/yyy      respectively.
-
-The -n instructs make to show the commands it would execute, but
-not actually execute them.
-
-Instructions for use are in the preformatted manual page, in the file
-bzip2.txt.  For more detailed documentation, read the full manual.  
-It is available in Postscript form (manual.ps), PDF form (manual.pdf),
-and HTML form (manual.html).
-
-You can also do "bzip2 --help" to see some helpful information. 
-"bzip2 -L" displays the software license.
-
+Building target: bzip2_106
+Invoking: MacOS X C Linker
+gcc  -o "bzip2_106"  ./src/blocksort.o ./src/bzip2.o ./src/bzlib.o ./src/compress.o ./src/crctable.o ./src/decompress.o ./src/huffman.o ./src/randtable.o   
+Finished building target: bzip2_106
+ 
+21:55:18 **** Incremental Build of configuration Debug for project bzip2_106 ****
+make all 
+make: Nothing to be done for `all'.
