@@ -15,7 +15,7 @@
 
 #define MEGA_B 1048576UL
 #define KILO_B 1024UL
-#define STR_MAXLENGTH (32 * KILO_B)
+#define STR_MAXLENGTH (64 * KILO_B)
 
 int getargs(const int argc, const char * argv[], char * text, char * patt, long * n, long *m) {
 	if ( argc != 3 )
@@ -71,9 +71,9 @@ int main(int argc, const char * argv[]) {
 
 	StopWatchInterface *timer = NULL;
 	sdkCreateTimer(&timer);
-	sdkResetTimer(&timer);
 
 #ifdef USE_PURE_DP
+	sdkResetTimer(&timer);
 	sdkStartTimer(&timer);
 
 	table = (long*)malloc(sizeof(long)*m*n);
@@ -94,11 +94,20 @@ int main(int argc, const char * argv[]) {
 	debug_table = (long*)malloc(sizeof(long)*m*n);
 #endif
 #endif USE_PURE_DP
+	sdkResetTimer(&timer);
+	sdkStartTimer(&timer);
+	long * frame = (long*)malloc(sizeof(long)*(m + n + 1));
+	weaving_setframe(frame, n, m);
+	d = weaving_edist(frame, text, n, patt, m);
 
-	fprintf(stdout, "\nNow computing edit distance by Weaving DP.\n");
+	sdkStopTimer(&timer);
+	printf("\nElapsed %f msec.\n", sdkGetTimerValue(&timer));
+	printf("Edit distance (by single thread weaving DP): %lu\n", d);
+
+
+	fprintf(stdout, "\nNow computing edit distance by cu cdp Weaving DP.\n");
 	fflush(stdout);
 
-	long * frame = (long*)malloc(sizeof(long)*(m + n + 1));
 	weaving_setframe(frame, n, m);
 
 	printf("frame input: \n");
@@ -117,7 +126,7 @@ int main(int argc, const char * argv[]) {
 	printf("\nElapsed %f msec.\n", sdkGetTimerValue(&timer));
 	sdkDeleteTimer(&timer);
 
-	printf("Edit distance (by Weaving DP): %lu\n\n", d);
+	printf("Edit distance (by CDP Weaving DP): %lu\n\n", d);
 	printf("frame output: \n");
 	for (int i = 0; i < min(n + m + 1, 64); i++) {
 		printf("%d, ", frame[i]);

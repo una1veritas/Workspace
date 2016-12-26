@@ -19,5 +19,4 @@ __global__ void warps_cdp_kernel(long * frame, const char * t, const long n, con
 #endif
 );
 
-void weaving_setframe(long * frame, const long n, const long m);
 long cu_levdist(long * frame, const char t[], const long n, const char p[], const long m);

@@ -33,7 +33,7 @@ long cu_levdist(long * frame, const char text[], const long n, const char patt[]
 		, dev_debug_table
 #endif
 		);
-		cuCheckErrors(cudaGetLastError());
+	cuCheckErrors(cudaGetLastError());
 
 #ifdef DEBUG_TABLE
 	cudaMemcpy(debug_table, dev_debug_table, sizeof(long)*(n*m),cudaMemcpyDeviceToHost);
@@ -144,18 +144,16 @@ __global__ void warps_cdp_kernel(long * frame, const char * t, const long n, con
 	, long * table
 #endif
 ) {
-	long thix = blockDim.x * blockIdx.x + threadIdx.x;
-	long warpix = warp_start + (thix << 1);
+	long warpix = warp_start + ((blockDim.x * blockIdx.x + threadIdx.x) << 1);
 	long del, ins, repl; // del = delete from pattern, downward; ins = insert to pattern, rightward
 	long col, row;
 
 	if ( (warp_start <= warpix) && (warpix <= warp_last) ) {
-
 		col = (depth + warpix - (m - 1)) >> 1;
 		row = (depth - warpix + (m - 1)) >> 1;
 
-		del = frame[warpix + 1 + 1] + 1;
-		ins = frame[warpix - 1 + 1] + 1;
+		del = frame[warpix + 2] + 1;
+		ins = frame[warpix] + 1;
 		repl = frame[warpix + 1] + (t[col] != p[row]);
 		//printf("%ld: %ld [%ld,%ld] %c|%c : %ld/%ld/%ld+%ld,\n",depth, warpix, col,row,t[col],p[row], del,ins, frame[warpix], (t[col] != p[row]));
 		//
@@ -172,15 +170,4 @@ __global__ void warps_cdp_kernel(long * frame, const char * t, const long n, con
 #endif
 	}
 	__syncthreads();
-}
-
-void weaving_setframe(long * frame, const long n, const long m) {
-	for (long i = 0; i < n + m + 1; i++) {
-		if (i < m) {
-			frame[i] = m - i;
-		}
-		else {
-			frame[i] = i - m;  // will be untouched.
-		}
-	}
 }
