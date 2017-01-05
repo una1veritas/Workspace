@@ -5,16 +5,24 @@
  *      Author: sin
  */
 
-#include <ncurses.h>
+#include <stdlib.h>
 #include <ctype.h>
+
+#include <ncurses.h>
 
 int main(void)
 {
+	WINDOW * mainwin;
 	int row, col;
 	char ch = ' ';
 	int counter;
 
-	initscr();			/* Start curses mode 		  */
+	mainwin = initscr();			/* Start curses mode 		  */
+	if ( mainwin == NULL ) {
+		printf("failed ncurses mode.\n");
+		return EXIT_FAILURE;
+	}
+
 	getmaxyx(stdscr,row,col); 	/* get the size of stdscr */
 	cbreak(); 			/* not raw mode but read key immediately */
 	noecho(); 			/* do not echo the input key char */
@@ -48,7 +56,9 @@ int main(void)
 
 		counter++;
 	}
+	delwin(mainwin);
 	endwin();			/* End curses mode		  */
+	refresh();
 
 	return 0;
 }
