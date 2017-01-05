@@ -35,7 +35,8 @@ OBJS= blocksort.o  \
       decompress.o \
       bzlib.o
 
-all: libbz2.a bzip2 bzip2recover test
+all: libbz2.a bzip2 
+#bzip2recover test
 
 bzip2: libbz2.a bzip2.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o bzip2 bzip2.o -L. -lbz2
@@ -114,7 +115,7 @@ clean:
 	sample1.tst sample2.tst sample3.tst
 
 blocksort.o: blocksort.c
-	@cat words0
+#	@cat words0
 	$(CC) $(CFLAGS) -c blocksort.c
 huffman.o: huffman.c
 	$(CC) $(CFLAGS) -c huffman.c
