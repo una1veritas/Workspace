@@ -1,0 +1,14 @@
+extern int get_head_bit(void);
+extern int get_match_pos(int part);
+extern int get_match_pos2(int part);
+extern int get_match_leng(void);
+extern int get_chr_code(void);
+extern void put_txt(int chr);
+extern int put_buf(int chr);
+extern int get_buf(int num);
+extern void shift_buf(int num);
+extern int move_part(int num);
+extern int get_search_code(int pos);
+extern int get_part(void);
+extern int decode(void);
+//extern void main(int argc, char **argv);
