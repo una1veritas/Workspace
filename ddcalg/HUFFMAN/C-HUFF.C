@@ -1,5 +1,5 @@
 /*
- *		‹¤’Ê•”•ª Huffman–Ø‚Ìì¬
+ *		å…±é€šéƒ¨åˆ† Huffmanæœ¨ã®ä½œæˆ
  *			(c) Nobukazu Yoshioka Sep. 24 1993
  */
 
@@ -11,75 +11,70 @@ extern NODE Nodes[];
 extern int Node_size;
 extern int Root;
 
-
 /*********************************************************
- *	Huffman –Ø‚ğì‚è Root‚ğİ’è‚·‚é
- *	ì‚ê‚È‚©‚Á‚½‚çNIL‚ğ‚©‚¦‚·.
+ *	Huffman æœ¨ã‚’ä½œã‚Š Rootã‚’è¨­å®šã™ã‚‹
+ *	ä½œã‚Œãªã‹ã£ãŸã‚‰NILã‚’ã‹ãˆã™.
  */
 
-int make_tree(void)
-{
-    int search_least(void);
-    int left, right;
+int make_tree(void) {
+	int search_least(void);
+	int left, right;
 
-    left = search_least();
-    while (left >= 0) {
-	Nodes[left].up = Node_size;	/* V‚µ‚¢node‚Ìì¬ */
-	/* ã‚Ìs‚Ísearch_least()‚ªŒÄ‚Î‚ê‚é‘O‚Éˆ—‚·‚é‚±‚Æ */
-	/* ‚³‚à‚È‚¢‚Æ‚à‚¤ˆê“x“¯‚¶ƒm[ƒh‚ğ•Ô‚µ‚Ä‚µ‚Ü‚¤ */
-	Nodes[Node_size].up = NIL;
-	Nodes[Node_size].left = left;
-	Nodes[Node_size].right = NIL;
-
-	right = search_least();
-	if (right < 0) {
-	    Root = left;	/* ‚P”Ô•p“x‚Ì‘½‚¢node‚ªRoot‚Æ‚È‚é. */
-	    if (Nodes[Root].left == NIL && Nodes[Root].right == NIL) {
-		Root = Node_size;	/* –Ø‚ªnode‚Ì‚İ‚Ì(null file) */
-		Node_size++;	/* Root‚Æ—t‚¾‚¯‚Ì–Ø‚ğì‚é */
-	    }
-	    return Root;
-	}
-	Nodes[Node_size].right = right;
-	Nodes[Node_size].frq = Nodes[left].frq + Nodes[right].frq;
-	Nodes[right].up = Node_size;
-	Node_size++;
 	left = search_least();
-    }
-    Root = NIL;			/* ‚±‚±‚É‚Íâ‘Î—ˆ‚È‚¢‚Í‚¸ */
-    return NIL;
-}
+	while (left >= 0) {
+		Nodes[left].up = Node_size; /* æ–°ã—ã„nodeã®ä½œæˆ */
+		/* ä¸Šã®è¡Œã¯search_least()ãŒå‘¼ã°ã‚Œã‚‹å‰ã«å‡¦ç†ã™ã‚‹ã“ã¨ */
+		/* ã•ã‚‚ãªã„ã¨ã‚‚ã†ä¸€åº¦åŒã˜ãƒãƒ¼ãƒ‰ã‚’è¿”ã—ã¦ã—ã¾ã† */
+		Nodes[Node_size].up = NIL;
+		Nodes[Node_size].left = left;
+		Nodes[Node_size].right = NIL;
 
-/*********************************************************
- *	search‚µ‚Ä‚¢‚È‚¢code‚Ì’†‚Å1”Ô­‚È‚¢•p“x‚Ì‚à‚Ì‚Ö‚ÌƒCƒ“ƒfƒbƒNƒX‚ğ•Ô‚·.
- *	‚½‚¾‚µ,•p“x‚ª0‚Ìnode‚Í•Ô‚ç‚È‚¢.
- */
-
-int search_least(void)
-{
-    int i, least = NIL;
-
-
-    for (i = 0; i < Node_size; i++) {
-	/* e‚Ì–³‚¢node‚¾‚¯ŒŸõ */
-	if (Nodes[i].up == NIL && Nodes[i].frq > 0) {
-	    if (least == NIL || Nodes[least].frq > Nodes[i].frq)
-		least = i;
+		right = search_least();
+		if (right < 0) {
+			Root = left; /* ï¼‘ç•ªé »åº¦ã®å¤šã„nodeãŒRootã¨ãªã‚‹. */
+			if (Nodes[Root].left == NIL && Nodes[Root].right == NIL) {
+				Root = Node_size; /* æœ¨ãŒnodeã®ã¿ã®æ™‚(null file) */
+				Node_size++; /* Rootã¨è‘‰ã ã‘ã®æœ¨ã‚’ä½œã‚‹ */
+			}
+			return Root;
+		}
+		Nodes[Node_size].right = right;
+		Nodes[Node_size].frq = Nodes[left].frq + Nodes[right].frq;
+		Nodes[right].up = Node_size;
+		Node_size++;
+		left = search_least();
 	}
-    }
-    if (least == NIL)		/* –Ø‚ª‚Å‚«‚ ‚ª‚Á‚Ä‚¢‚é */
-	return -1;
-
-    return least;
+	Root = NIL; /* ã“ã“ã«ã¯çµ¶å¯¾æ¥ãªã„ã¯ãš */
+	return NIL;
 }
 
 /*********************************************************
- *	node‚ª—t‚È‚ç0ˆÈŠO‚ğ•Ô‚·
+ *	searchã—ã¦ã„ãªã„codeã®ä¸­ã§1ç•ªå°‘ãªã„é »åº¦ã®ã‚‚ã®ã¸ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’è¿”ã™.
+ *	ãŸã ã—,é »åº¦ãŒ0ã®nodeã¯è¿”ã‚‰ãªã„.
  */
-int is_leaf(int node)
-{
-    if (Nodes[node].left == NIL && Nodes[node].left == NIL)
-	return -1;
-    else
-	return 0;
+
+int search_least(void) {
+	int i, least = NIL;
+
+	for (i = 0; i < Node_size; i++) {
+		/* è¦ªã®ç„¡ã„nodeã ã‘æ¤œç´¢ */
+		if (Nodes[i].up == NIL && Nodes[i].frq > 0) {
+			if (least == NIL || Nodes[least].frq > Nodes[i].frq)
+				least = i;
+		}
+	}
+	if (least == NIL) /* æœ¨ãŒã§ãã‚ãŒã£ã¦ã„ã‚‹ */
+		return -1;
+
+	return least;
+}
+
+/*********************************************************
+ *	nodeãŒè‘‰ãªã‚‰0ä»¥å¤–ã‚’è¿”ã™
+ */
+int is_leaf(int node) {
+	if (Nodes[node].left == NIL && Nodes[node].left == NIL)
+		return -1;
+	else
+		return 0;
 }

@@ -16,6 +16,8 @@
 #include "e-lzb.h"
 #include "bin_code.h"
 
+#include "swatch.h"
+
 /********************************************** 入出力操作 */
 
 FILE *fp_in, *fp_out;
@@ -161,6 +163,8 @@ int do_cont() { /* 符号化 終了判定 */
 int now_match_leng = 0;
 
 int search(int pos0, int pos1, int *lng) { /* 一致記号数探索 */
+	sw_reset(SEARCH);
+
 	int p0, p1, pe = get_buf_leng() - 4, f = 0;
 
 	p0 = get_ring_pos(pos0);
@@ -177,6 +181,8 @@ int search(int pos0, int pos1, int *lng) { /* 一致記号数探索 */
 		f = 1; /* 未符号化bufferを超えても一致 */
 	else if ((now_match_leng + (*lng)) == MAX_MATCH_LENG)
 		f = 2; /* 上限を超えても一致 */
+
+	sw_accumlate(SEARCH);
 	return (f);
 }
 
@@ -343,6 +349,9 @@ int main(int argc, char *argv[]) {
 	put_code(0, get_buf(0), 0, 0); /* 最初の記号は無条件に記号の符号化 */
 	mod_buf(1);
 
+
+	sw_clear_all();
+
 	while (do_cont()) {
 
 		match_leng = 0; /* 最長一致記号数 */
@@ -351,14 +360,19 @@ int main(int argc, char *argv[]) {
 
 		s_c = get_search_code(0); /* s_c は 検索記号 */
 
+		sw_reset(SET_TREE);
 		set_tree(get_part(), &match_pos, &match_leng);
+		sw_accumlate(SET_TREE);
 		/* 仕切りの記号を符号化 */
 
 		if (match_leng < 4) { /* 不一致符号化 */
 			put_code(0, s_c, 0, get_part());
 			mod_buf(1);
-		} else
+		} else {
+			sw_reset(ENCODE);
 			encode(match_pos, get_real_pos(get_part()));
+			sw_accumlate(ENCODE);
+		}
 	}
 	i = 0; /* 有効一致記号数未満の残り */
 	while ((chr = get_search_code(i++)) != -2) {
@@ -371,4 +385,9 @@ int main(int argc, char *argv[]) {
 
 	fclose(fp_in);
 	fclose(fp_out);
+
+	printf("SET_TREE: \t%.3f, \n", sw_value(SET_TREE)/(double)CLOCKS_PER_SEC);
+	printf("  ALLOC: \t%.3f, \n", sw_value(ALLOC)/(double)CLOCKS_PER_SEC);
+	printf("ENCODE: \t%.3f, \n", sw_value(ENCODE)/(double)CLOCKS_PER_SEC);
+	printf("SEARCH: \t%.3f, \n", sw_value(SEARCH)/(double)CLOCKS_PER_SEC);
 }

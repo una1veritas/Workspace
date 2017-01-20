@@ -1,6 +1,6 @@
 /*
  *	decode for Huffman
- *	g‚¢•û: decode “ü—Íƒtƒ@ƒCƒ‹ o—Íƒtƒ@ƒCƒ‹
+ *	ä½¿ã„æ–¹: decode å…¥åŠ›ãƒ•ã‚¡ã‚¤ãƒ« å‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«
  *					(c) Nobukazu Yoshioka Sep. 24 1993
  */
 
@@ -14,13 +14,13 @@ int Node_size = LEAF_SIZE;
 int Root = NIL;
 
 /*********************************************************
- *	Header•”‚©‚çNode‚ğ•œŒ³‚·‚é
+ *	Headeréƒ¨ã‹ã‚‰Nodeã‚’å¾©å…ƒã™ã‚‹
  */
 int start_input_bits(FILE * input_fp)
 {
     int i;
 
-    for (i = 0; i < LEAF_SIZE; i++) {	/* —t‚Ì‰Šú‰» */
+    for (i = 0; i < LEAF_SIZE; i++) {	/* è‘‰ã®åˆæœŸåŒ– */
 	Nodes[i].frq = 0;
 	Nodes[i].left = Nodes[i].right = Nodes[i].up = NIL;
     }
@@ -30,19 +30,19 @@ int start_input_bits(FILE * input_fp)
 	c = fgetc(input_fp);
 	if (c == EOF)
 	    return -1;
-	Nodes[i].frq = c;	/* ãˆÊƒoƒCƒg‚©‚ç“Ç‚İ‚Ş */
+	Nodes[i].frq = c;	/* ä¸Šä½ãƒã‚¤ãƒˆã‹ã‚‰èª­ã¿è¾¼ã‚€ */
 	Nodes[i].frq <<= 8;
-	c = fgetc(input_fp);	/* ‰ºˆÊƒoƒCƒg */
+	c = fgetc(input_fp);	/* ä¸‹ä½ãƒã‚¤ãƒˆ */
 	if (c == EOF)
 	    return -1;
 	Nodes[i].frq |= c;
     }
-    Nodes[EOF_symbol].frq = 1;	/* EOF_symbol‚ÌoŒ»•p“x‚Íí‚É1 */
+    Nodes[EOF_symbol].frq = 1;	/* EOF_symbolã®å‡ºç¾é »åº¦ã¯å¸¸ã«1 */
     return 0;
 }
 
 /*********************************************************
- *	Huffman–Ø‚Ìì¬ ì‚ê‚È‚©‚Á‚½ê‡ 0ˆÈŠO‚ğ•Ô‚·.
+ *	Huffmanæœ¨ã®ä½œæˆ ä½œã‚Œãªã‹ã£ãŸå ´åˆ 0ä»¥å¤–ã‚’è¿”ã™.
  */
 
 int start_decoding(void)
@@ -55,15 +55,15 @@ int start_decoding(void)
 }
 
 /*********************************************************
- *	input_fp‚©‚ç‚Ì•„†‚ğ•¶š‚É‚µ‚Ä•Ô‚·
- *	ƒtƒ@ƒCƒ‹‚ÌÅŒã‚ÍEOF_symbol‚Ì•„†‚ÅI‚í‚é.
+ *	input_fpã‹ã‚‰ã®ç¬¦å·ã‚’æ–‡å­—ã«ã—ã¦è¿”ã™
+ *	ãƒ•ã‚¡ã‚¤ãƒ«ã®æœ€å¾Œã¯EOF_symbolã®ç¬¦å·ã§çµ‚ã‚ã‚‹.
  */
 int decode_symbol(FILE * input_fp)
 {
     int node = Root;
 
 
-    while (!is_leaf(node)) {	/* Root‚©‚çª‚ÉŒü‚©‚Á‚ÄƒXƒLƒƒƒ“ */
+    while (!is_leaf(node)) {	/* Rootã‹ã‚‰æ ¹ã«å‘ã‹ã£ã¦ã‚¹ã‚­ãƒ£ãƒ³ */
 	int inbit;
 	inbit = bit_in(input_fp);
 	if (inbit == 0 && Nodes[node].right != NIL) {
@@ -90,18 +90,18 @@ int main(int argc, char *argv[])
 	fprintf(stderr, "usage: decode input_file output_file\n");
 	exit(EXIT_FAILURE);
     }
-    input_fp = fopen(argv[1], "rb");	/* “Ç‚İ‚İ—pƒtƒ@ƒCƒ‹ */
+    input_fp = fopen(argv[1], "rb");	/* èª­ã¿è¾¼ã¿ç”¨ãƒ•ã‚¡ã‚¤ãƒ« */
     if (input_fp == NULL) {
 	fprintf(stderr, "Cannot open %s!\n", argv[1]);
 	exit(EXIT_FAILURE);
     }
-    output_fp = fopen(argv[2], "wb");	/* ‘‚«‚İ—pƒtƒ@ƒCƒ‹ */
+    output_fp = fopen(argv[2], "wb");	/* æ›¸ãè¾¼ã¿ç”¨ãƒ•ã‚¡ã‚¤ãƒ« */
     if (output_fp == NULL) {
 	fprintf(stderr, "Cannot open %s!\n", argv[2]);
 	exit(EXIT_FAILURE);
     }
-    start_input_bits(input_fp);	/* Nodes‚Ì•œŒ³ */
-    if (start_decoding())	/* –Ø‚Ìì¬ */
+    start_input_bits(input_fp);	/* Nodesã®å¾©å…ƒ */
+    if (start_decoding())	/* æœ¨ã®ä½œæˆ */
 	exit(EXIT_FAILURE);
 
     for (;;) {

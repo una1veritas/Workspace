@@ -9,13 +9,16 @@ INCLUDES = -I./
 %.o: %.c
 	$(CC) $(CCFLAGS) $(INCLUDES) -c $<
 
+#
+LZBLIBOBJS = tree.o bin_code.o bitio.o swatch.o
+
 all: enlzb delzb
 
-enlzb:  e-lzb.o tree.o bin_code.o bitio.o
-	$(CC) $(CCFLAGS) $(INCLUDES) -o enlzb e-lzb.o tree.o bin_code.o bitio.o
+enlzb:  e-lzb.o $(LZBLIBOBJS)
+	$(CC) $(CCFLAGS) $(INCLUDES) -o enlzb e-lzb.o $(LZBLIBOBJS)
 	
-delzb: d-lzb.o bin_code.o bitio.o
-	$(CC) $(CCFLAGS) $(INCLUDES) -o delzb d-lzb.o bin_code.o bitio.o
+delzb: d-lzb.o $(LZBLIBOBJS)
+	$(CC) $(CCFLAGS) $(INCLUDES) -o delzb d-lzb.o $(LZBLIBOBJS)
 
 
 clean: 

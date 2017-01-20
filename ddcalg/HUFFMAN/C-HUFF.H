@@ -1,9 +1,9 @@
 /*
- *	ЛдТ╩ХФХк ТшРФВ╠ТшЛ`В╚В╟
+ *	хЕ▒щАЪщГихИЖ хоЪцХ░уБохоЪч╛йуБкуБй
  *			(c) Nobukazu Yoshioka Sep. 24 1993
  */
 
-#define LEAF_SIZE	257	/* У╟В▌НЮВ▐Х╢ОЪВ╠ОэЧ▐ + 1 */
+#define LEAF_SIZE	257	/* шкнуБ┐ш╛╝уВАцЦЗхнЧуБочиощбЮ + 1 */
 #define EOF_symbol	(LEAF_SIZE - 1)
 #define NIL	(-1)
 #if !defined(EXIT_FAILURE)
