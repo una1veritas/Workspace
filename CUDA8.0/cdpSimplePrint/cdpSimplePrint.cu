@@ -15,6 +15,22 @@
 #include <helper_cuda.h>
 #include <helper_string.h>
 
+ ////////////////////////////////////////////////////////////////////////////////
+ // Inline PTX call to return index of highest non-zero bit in a word
+ ////////////////////////////////////////////////////////////////////////////////
+static __device__ __forceinline__ unsigned int __qsflo(unsigned int word)
+{
+	unsigned int ret;
+	asm volatile("bfind.u32 %0, %1;" : "=r"(ret) : "r"(word));
+	return ret;
+}
+
+// (find most significant bit) bfind.u32/64, .s32/64, (count leading zeros) clz.b32/64
+// sm_20 or higher
+// popc.b32/64 (population (1 bits) count )
+// brev.b32/64 (bitwise reversal, msb <--> lsb )
+// Other PTX operators: div, rem, max, min, abs, neg
+
 ////////////////////////////////////////////////////////////////////////////////
 // Variable on the GPU used to generate unique identifiers of blocks.
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +57,7 @@ __device__ void print_info(int depth, int thread, int uid, int parent_uid)
             }
 
             buffer[3*depth] = '\0';
-            printf("%sBLOCK %d launched by thread %d of block %d\n", buffer, uid, thread, parent_uid);
+            printf("%sBLOCK %d launched by thread %d of block %d, thread __qsflo(%d) = %d\n", buffer, uid, thread, parent_uid, uid, __qsflo(uid));
         }
     }
 
