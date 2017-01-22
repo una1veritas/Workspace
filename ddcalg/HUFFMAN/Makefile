@@ -22,7 +22,4 @@ dehuff: d-huff.o $(LIBOBJS)
 
 
 clean: 
-	\rm *.o #*#
-	\rm dejones enjones
-	
-
+	\rm *.o dejones enjones #*#

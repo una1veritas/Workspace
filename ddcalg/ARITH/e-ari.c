@@ -9,6 +9,8 @@
 #include "c-ari.h"
 #include "bitio.h"
 
+int shift_frq(void);
+
 extern long u;
 extern int w;
 
@@ -95,7 +97,7 @@ int start_encoding(void)
 int encode_symbol(FILE * output_fp, int symbol)
 {
     static int high_bit = -1;	/* 最上位ビット 0 or -1:存在しない */
-    static bit_X = 0;		/* Xの桁数 */
+    static int bit_X = 0;		/* Xの桁数 */
     long V;
     long Fi_1, Fi;		/* F_{i-1}とF_i */
     int s;
@@ -160,51 +162,51 @@ int bit_flush(FILE * fp)
 	bit_out(fp, 1);
     bit_out(fp, bit(X, w + 1));
     while (bit_out(fp, 1) != 0);/* 1でフラッシュ */
+
+    return 0;
 }
 
 /******************************************************************
  *	MAIN PROGRAM FOR ENCODING
  *	usage: encode input output
  */
-int main(int argc, char *argv[])
-{
-    FILE *input_fp, *output_fp;
+int main(int argc, char *argv[]) {
+	FILE *input_fp, *output_fp;
 
+	if (argc != 3) {
+		fprintf(stderr, "usage: encode input_file output_file\n");
+		exit(EXIT_FAILURE);
+	}
+	input_fp = fopen(argv[1], "rb"); /* 読み込み用ファイル */
+	if (input_fp == NULL) {
+		fprintf(stderr, "Cannot open %s!\n", argv[1]);
+		exit(EXIT_FAILURE);
+	}
+	output_fp = fopen(argv[2], "wb"); /* 書き込み用ファイル */
+	if (output_fp == NULL) {
+		fprintf(stderr, "Cannot open %s!\n", argv[2]);
+		exit(EXIT_FAILURE);
+	}
 
-    if (argc != 3) {
-	fprintf(stderr, "usage: encode input_file output_file\n");
-	exit(EXIT_FAILURE);
-    }
-    input_fp = fopen(argv[1], "rb");	/* 読み込み用ファイル */
-    if (input_fp == NULL) {
-	fprintf(stderr, "Cannot open %s!\n", argv[1]);
-	exit(EXIT_FAILURE);
-    }
-    output_fp = fopen(argv[2], "wb");	/* 書き込み用ファイル */
-    if (output_fp == NULL) {
-	fprintf(stderr, "Cannot open %s!\n", argv[2]);
-	exit(EXIT_FAILURE);
-    }
-    start_model(input_fp);	/* 文字の頻度を計算する */
-    start_output_bits(output_fp);	/* headerを出力 */
+	start_model(input_fp); /* 文字の頻度を計算する */
+	start_output_bits(output_fp); /* headerを出力 */
 
-    if (start_encoding())	/* 初期設定 */
-	exit(EXIT_FAILURE);
+	if (start_encoding()) /* 初期設定 */
+		exit(EXIT_FAILURE);
 
-    rewind(input_fp);
-    for (;;) {
-	int symbol;
-	symbol = getc(input_fp);
-	if (symbol == EOF)
-	    break;
-	encode_symbol(output_fp, symbol);
-    }
-    encode_symbol(output_fp, EOF_symbol);
-    bit_flush(output_fp);
+	rewind(input_fp);
+	for (;;) {
+		int symbol;
+		symbol = getc(input_fp);
+		if (symbol == EOF)
+			break;
+		encode_symbol(output_fp, symbol);
+	}
+	encode_symbol(output_fp, EOF_symbol);
+	bit_flush(output_fp);
 
-    fclose(input_fp);
-    fclose(output_fp);
+	fclose(input_fp);
+	fclose(output_fp);
 
-
-    return 0;
+	return 0;
 }

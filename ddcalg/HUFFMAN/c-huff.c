@@ -3,10 +3,11 @@
  *			(c) Nobukazu Yoshioka Sep. 24 1993
  */
 
+#include "c-huff.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "c-huff.h"
 
 extern NODE Nodes[];
 extern int Node_size;

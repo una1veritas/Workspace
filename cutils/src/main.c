@@ -15,30 +15,23 @@ uint32 dummy(uint32 x) {
 	return x;
 }
 
-uint32 clz0(uint32 x) {
-	int count;
-	uint32_t bit = 0x80000000;
-	for(count = 0; bit != 0; ++count, bit >>= 1) {
-		if ( (x & bit) != 0 )
-			break;
-	}
-	return count;
-}
 
 int main(void) {
-	uint32 r[1000000];
+	const int NUM = 2000000;
+	uint32 r[NUM];
 	time_t lap;
 	long dummysum;
 
-	printf("Hello.\n");
+	int32 x = 2;
+	printf("Hello. %04x, %04ux\n", -x, x);
 
 	srand(113);
-	for(int i = 0; i < 1000000; i++)
+	for(int i = 0; i < NUM; i++)
 		r[i] = rand();
 
 	dummysum = 0;
 	lap = clock();
-	for(int i = 0; i < 1000000; i++) {
+	for(int i = 0; i < NUM; i++) {
 		dummysum += dummy(r[i]);
 	}
 	lap = clock() - lap;
@@ -47,7 +40,7 @@ int main(void) {
 
 	dummysum = 0;
 	lap = clock();
-	for(int i = 0; i < 1000000; i++) {
+	for(int i = 0; i < NUM; i++) {
 		dummysum += clz(r[i]);
 	}
 	lap = clock() - lap;
@@ -56,7 +49,7 @@ int main(void) {
 
 	dummysum = 0;
 	lap = clock();
-	for(int i = 0; i < 1000000; i++) {
+	for(int i = 0; i < NUM; i++) {
 		dummysum += clz0(r[i]);
 	}
 	lap = clock() - lap;
@@ -65,11 +58,38 @@ int main(void) {
 
 	dummysum = 0;
 	lap = clock();
-	for(int i = 0; i < 1000000; i++) {
+	for(int i = 0; i < NUM; i++) {
 		dummysum += ceil2pow(r[i]);
 	}
 	lap = clock() - lap;
 	printf("ceil2pow:\n");
+	printf("lap = %ld, sum = %ld\n", (long)lap, dummysum);
+
+	dummysum = 0;
+	lap = clock();
+	for(int i = 0; i < NUM; i++) {
+		dummysum += popc0(r[i]);
+	}
+	lap = clock() - lap;
+	printf("popc0:\n");
+	printf("lap = %ld, sum = %ld\n", (long)lap, dummysum);
+
+	dummysum = 0;
+	lap = clock();
+	for(int i = 0; i < NUM; i++) {
+		dummysum += popc(r[i]);
+	}
+	lap = clock() - lap;
+	printf("popc:\n");
+	printf("lap = %ld, sum = %ld\n", (long)lap, dummysum);
+
+	dummysum = 0;
+	lap = clock();
+	for(int i = 0; i < NUM; i++) {
+		dummysum += ctz(r[i]);
+	}
+	lap = clock() - lap;
+	printf("ctz:\n");
 	printf("lap = %ld, sum = %ld\n", (long)lap, dummysum);
 
 	return EXIT_SUCCESS;
