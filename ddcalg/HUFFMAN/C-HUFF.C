@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "c-huff.h"
 
 extern NODE Nodes[];
@@ -16,8 +17,9 @@ extern int Root;
  *	作れなかったらNILをかえす.
  */
 
+int search_least(void);
+
 int make_tree(void) {
-	int search_least(void);
 	int left, right;
 
 	left = search_least();

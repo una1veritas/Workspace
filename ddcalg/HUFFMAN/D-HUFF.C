@@ -6,8 +6,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "c-huff.h"
 #include "bitio.h"
+#include "c-huff.h"
 
 NODE Nodes[LEAF_SIZE * 2];
 int Node_size = LEAF_SIZE;
