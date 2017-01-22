@@ -389,5 +389,5 @@ int main(int argc, char *argv[]) {
 	printf("SET_TREE: \t%.3f, \n", sw_value(SET_TREE)/(double)CLOCKS_PER_SEC);
 	printf("  ALLOC: \t%.3f, \n", sw_value(ALLOC)/(double)CLOCKS_PER_SEC);
 	printf("ENCODE: \t%.3f, \n", sw_value(ENCODE)/(double)CLOCKS_PER_SEC);
-	printf("SEARCH: \t%.3f, \n", sw_value(SEARCH)/(double)CLOCKS_PER_SEC);
+	printf("  SEARCH: \t%.3f, \n", sw_value(SEARCH)/(double)CLOCKS_PER_SEC);
 }
