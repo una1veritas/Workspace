@@ -21,5 +21,8 @@ uint32 clz(uint32 x);
 /* smallest 2 to the nth power that is no less than x */
 uint32 ceil2pow(uint32 x);
 
+int popc_s(uint32 bits);
+
+int popc_h(uint32 bits);
 
 #endif /* CUTILS_H_ */

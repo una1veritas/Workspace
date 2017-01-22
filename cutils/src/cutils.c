@@ -14,26 +14,12 @@
 
 #include "cutils.h"
 
-uint32 clz0(uint32 x) {
-	int count;
-	uint32_t bit = 0x80000000;
-	for(count = 0; bit != 0; ++count, bit >>= 1) {
-		if ( (x & bit) != 0 )
-			break;
-	}
-	return count;
-}
-
 uint32 clz(uint32 x) {
 	double d = x;
 	uint32 *p = ((uint32*) &d) + 1;
 	if ( x == 0 )
 		return 32;
 	return 0x41e - (*p>>20);  // 31 - ((*(p+1)>>20) - 0x3FF)
-}
-
-uint32 dummy(uint32 x) {
-	return x;
 }
 
 uint32 ceil2pow(uint32 x) {
@@ -43,49 +29,20 @@ uint32 ceil2pow(uint32 x) {
 
 }
 
-int main(void) {
-	uint32 r[1000000];
-	time_t lap;
-	long dummysum;
 
-	for(int i = 0; i < 1000000; i++)
-		r[i] = random();
+int popc_s(uint32_t bits)
+{
+    bits = (bits & 0x55555555) + (bits >> 1 & 0x55555555);
+    bits = (bits & 0x33333333) + (bits >> 2 & 0x33333333);
+    bits = (bits & 0x0f0f0f0f) + (bits >> 4 & 0x0f0f0f0f);
+    bits = (bits & 0x00ff00ff) + (bits >> 8 & 0x00ff00ff);
+    return (bits & 0x0000ffff) + (bits >>16 & 0x0000ffff);
+}
 
-	dummysum = 0;
-	lap = clock();
-	for(int i = 0; i < 1000000; i++) {
-		dummysum += dummy(r[i]);
-	}
-	lap = clock() - lap;
-	printf("dummy\n");
-	printf("lap = %ld, sum = %ld\n",lap, dummysum);
 
-	dummysum = 0;
-	lap = clock();
-	for(int i = 0; i < 1000000; i++) {
-		dummysum += clz(r[i]);
-	}
-	lap = clock() - lap;
-	printf("clz:\n");
-	printf("lap = %ld, sum = %ld\n",lap, dummysum);
-
-	dummysum = 0;
-	lap = clock();
-	for(int i = 0; i < 1000000; i++) {
-		dummysum += clz0(r[i]);
-	}
-	lap = clock() - lap;
-	printf("clz0\n");
-	printf("lap = %ld, sum = %ld\n",lap, dummysum);
-
-	dummysum = 0;
-	lap = clock();
-	for(int i = 0; i < 1000000; i++) {
-		dummysum += ceil2pow(r[i]);
-	}
-	lap = clock() - lap;
-	printf("ceil2pow:\n");
-	printf("lap = %ld, sum = %ld\n",lap, dummysum);
-
-	return EXIT_SUCCESS;
+int popc_h(uint32_t bits)
+{
+    int ret;
+    __asm__ ("popcntl %[input], %[output]" : [output] "=r"(ret) : [input] "r"(bits));
+    return ret;
 }

@@ -16,13 +16,11 @@ all: enlzb delzb
 
 enlzb:  e-lzb.o $(LZBLIBOBJS)
 	$(CC) $(CCFLAGS) $(INCLUDES) -o enlzb e-lzb.o $(LZBLIBOBJS)
-	
+
 delzb: d-lzb.o $(LZBLIBOBJS)
 	$(CC) $(CCFLAGS) $(INCLUDES) -o delzb d-lzb.o $(LZBLIBOBJS)
 
 
 clean: 
-	\rm *.o #*#
-	\rm delzb enlzb
-	
-
+	\rm *.o delzb enlzb
+	\rm *.dSYM
