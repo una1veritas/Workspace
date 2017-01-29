@@ -36,61 +36,61 @@ int main(void) {
 	}
 	lap = clock() - lap;
 	printf("dummy\n");
-	printf("lap = %ld, sum = %ld\n", (long) lap, dummysum);
+	printf("lap = %ld, sum = %ld\n\n", (long) lap, dummysum);
 
 	dummysum = 0;
 	lap = clock();
 	for(int i = 0; i < NUM; i++) {
-		dummysum += clz(r[i]);
+		dummysum += nlz32_(r[i]);
 	}
 	lap = clock() - lap;
-	printf("clz:\n");
-	printf("lap = %ld, sum = %ld\n", (long)lap, dummysum);
+	printf("nlz32_:\n");
+	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
 
 	dummysum = 0;
 	lap = clock();
 	for(int i = 0; i < NUM; i++) {
-		dummysum += clz0(r[i]);
+		dummysum += nlz32_IEEE(r[i]);
 	}
 	lap = clock() - lap;
-	printf("clz0\n");
-	printf("lap = %ld, sum = %ld\n", (long) lap, dummysum);
+	printf("nlz32_IEEE\n");
+	printf("lap = %ld, sum = %ld\n\n", (long) lap, dummysum);
 
 	dummysum = 0;
 	lap = clock();
 	for(int i = 0; i < NUM; i++) {
-		dummysum += ceil2pow(r[i]);
+		dummysum += ceil2pow32(r[i]);
 	}
 	lap = clock() - lap;
-	printf("ceil2pow:\n");
-	printf("lap = %ld, sum = %ld\n", (long)lap, dummysum);
+	printf("ceil2pow32:\n");
+	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
 
 	dummysum = 0;
 	lap = clock();
 	for(int i = 0; i < NUM; i++) {
-		dummysum += popc0(r[i]);
+		dummysum += pop32_(r[i]);
 	}
 	lap = clock() - lap;
-	printf("popc0:\n");
-	printf("lap = %ld, sum = %ld\n", (long)lap, dummysum);
+	printf("pop32_:\n");
+	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
 
 	dummysum = 0;
 	lap = clock();
 	for(int i = 0; i < NUM; i++) {
-		dummysum += popc(r[i]);
+		dummysum += pop32_SSE42(r[i]);
 	}
 	lap = clock() - lap;
-	printf("popc:\n");
-	printf("lap = %ld, sum = %ld\n", (long)lap, dummysum);
+	printf("pop32_SSE42:\n");
+	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
 
 	dummysum = 0;
 	lap = clock();
 	for(int i = 0; i < NUM; i++) {
-		dummysum += ctz(r[i]);
+		dummysum += ntz32(r[i]);
 	}
 	lap = clock() - lap;
-	printf("ctz:\n");
-	printf("lap = %ld, sum = %ld\n", (long)lap, dummysum);
+	printf("ntz32:\n");
+	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
 
 	return EXIT_SUCCESS;
 }

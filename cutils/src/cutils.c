@@ -14,8 +14,16 @@
 
 #include "cutils.h"
 
-int popc0(uint32 bits)
+int pop32_SSE42(uint32 bits)
 {
+    int ret;
+    __asm__ ("popcntl %[input], %[output]" : [output] "=r"(ret) : [input] "r"(bits));
+    return ret;
+}
+
+int pop32_(uint32 bits)
+{
+	/* Hacker's Delight 2nd by H. S. Warren Jr., p. 81 -- */
     bits = (bits & 0x55555555) + (bits >> 1 & 0x55555555);
     bits = (bits & 0x33333333) + (bits >> 2 & 0x33333333);
     bits = (bits & 0x0f0f0f0f) + (bits >> 4 & 0x0f0f0f0f);
@@ -23,22 +31,17 @@ int popc0(uint32 bits)
     return (bits & 0x0000ffff) + (bits >>16 & 0x0000ffff);
 }
 
-int popc(uint32 bits)
-{
-    int ret;
-    __asm__ ("popcntl %[input], %[output]" : [output] "=r"(ret) : [input] "r"(bits));
-    return ret;
-}
 
-uint32 clz(uint32 x) {
+uint32 nlz32_IEEE(uint32 x)
+{
+	/* Hacker's Delight 2nd by H. S. Warren Jr., 5.3, p. 104 -- */
 	double d = x;
+	d += 0.5;
 	uint32 *p = ((uint32*) &d) + 1;
-	if ( x == 0 )
-		return 32;
 	return 0x41e - (*p>>20);  // 31 - ((*(p+1)>>20) - 0x3FF)
 }
 
-uint32 clz0(uint32 x) {
+uint32 nlz32_(uint32 x) {
 	int count;
 	uint32_t bit = 0x80000000;
 	for(count = 0; bit != 0; ++count, bit >>= 1) {
@@ -48,16 +51,30 @@ uint32 clz0(uint32 x) {
 	return count;
 }
 
-uint32 ceil2pow(uint32 x) {
-	if (x == 0)
-		return 0;
-	return 1<<(32 - clz(x-1));
-
-}
-
-uint32 ctz(uint32 x) {
+uint32 ntz32_(uint32 x) {
 	int32 y = (int32) x;
 	if ( (x & 0x800000) != 0 )
 		return 32;
-	return popc((y & (-y))-1);
+	return pop32((y & (-y))-1);
+}
+
+uint32 ceil2pow32(uint32 x) {
+	if (x == 0)
+		return 0;
+	return 1<<(32 - nlz32(x-1));
+
+}
+
+uint32 floorlog32(uint32 x) {
+	if (x == 0)
+		return 0;
+	return 31 - nlz(x);
+
+}
+
+uint32 ceillog32(uint32 x) {
+	if (x == 0)
+		return 0;
+	return 32 - nlz(x - 1);
+
 }

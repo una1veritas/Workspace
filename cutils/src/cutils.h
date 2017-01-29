@@ -8,6 +8,20 @@
 #ifndef CUTILS_H_
 #define CUTILS_H_
 
+/* --------------------- */
+#define INTEL_SSE42
+
+#ifdef INTEL_SSE42
+#define pop32 pop32_SSE42
+#define nlz32 nlz32_IEEE
+#define ntz32 ntz32_
+#else
+#define pop32 pop32_
+#define nlz32 nlz32_IEEE
+#define ntz32 ntz32_
+#endif
+/* --------------------- */
+
 #include <stdint.h>
 
 typedef uint32_t 	uint32;
@@ -15,18 +29,21 @@ typedef int32_t 	int32;
 typedef uint64_t 	uint64;
 typedef int64_t		int64;
 
-/* count leading zero */
-uint32 clz0(uint32 x);
-uint32 clz(uint32 x);
-
-/* smallest 2 to the nth power that is no less than x */
-uint32 ceil2pow(uint32 x);
-
 /* popularity (1 bits) count */
-int popc0(uint32 bits);
-int popc(uint32 bits);
+int pop32_(uint32 bits);
+int pop32_SSE42(uint32 bits);
+
+/* count leading zero */
+uint32 nlz32_(uint32 x);
+uint32 nlz32_IEEE(uint32 x);
 
 /* count trailing zeros */
-uint32 ctz(uint32 x);
+uint32 ntz32_(uint32 x);
+
+/* smallest 2 to the nth power that is no less than x */
+uint32 ceil2pow32(uint32 x);
+
+uint32 floorlog32(uint32 x);
+uint32 ceillog32(uint32 x);
 
 #endif /* CUTILS_H_ */
