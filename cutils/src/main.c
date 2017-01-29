@@ -23,7 +23,7 @@ int main(void) {
 	long dummysum;
 
 	int32 x = 2;
-	printf("Hello. %04x, %04ux\n", -x, x);
+	printf("Hello. %08x, %08x\n", -x, x);
 
 	srand(113);
 	for(int i = 0; i < NUM; i++)
@@ -90,6 +90,75 @@ int main(void) {
 	}
 	lap = clock() - lap;
 	printf("ntz32:\n");
+	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
+
+	dummysum = 0;
+	lap = clock();
+	for(int i = 0; i < NUM-1; i++) {
+		dummysum += (r[i] >= r[i+1] ? r[i] : r[i+1] );
+	}
+	lap = clock() - lap;
+	printf("max ( ? : ):\n");
+	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
+
+	dummysum = 0;
+	lap = clock();
+	for(int i = 0; i < NUM-1; i++) {
+		dummysum += min32(r[i], r[i+1]);
+	}
+	lap = clock() - lap;
+	printf("min32:\n");
+	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
+
+	dummysum = 0;
+	lap = clock();
+	for(int i = 0; i < NUM-1; i++) {
+		dummysum += MIN(r[i], r[i+1]);
+	}
+	lap = clock() - lap;
+	printf("MIN:\n");
+	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
+
+	int32 a, b, t;
+	dummysum = 0;
+	lap = clock();
+	for(int i = 0; i < NUM-1; i++) {
+		a = r[i];
+		b = r[i+1];
+		//
+		t = a;
+		a = b;
+		b = t;
+		dummysum += b;
+	}
+	lap = clock() - lap;
+	printf("swap by temp:\n");
+	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
+
+	dummysum = 0;
+	lap = clock();
+	for(int i = 0; i < NUM-1; i++) {
+		a = r[i];
+		b = r[i+1];
+		//
+		SWAP(a,b);
+		dummysum += b;
+	}
+	lap = clock() - lap;
+	printf("SWAP:\n");
+	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
+
+	dummysum = 0;
+	lap = clock();
+	for(int i = 0; i < NUM-1; i++) {
+		a = r[i];
+		b = r[i+1];
+		//
+		swap32(&a, &b);
+		dummysum += b;
+	}
+	lap = clock() - lap;
+	printf("swap32:\n");
 	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
 
 	return EXIT_SUCCESS;

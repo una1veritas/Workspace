@@ -68,13 +68,31 @@ uint32 ceil2pow32(uint32 x) {
 uint32 floorlog32(uint32 x) {
 	if (x == 0)
 		return 0;
-	return 31 - nlz(x);
+	return 31 - nlz32(x);
 
 }
 
 uint32 ceillog32(uint32 x) {
 	if (x == 0)
 		return 0;
-	return 32 - nlz(x - 1);
+	return 32 - nlz32(x - 1);
 
+}
+
+int32 doz32(int32 x, int32 y) {
+	return (x-y)&-(x>=y);
+}
+
+int32 min32(int32 x, int32 y) {
+	return ((x^y)&-(x<=y))^y;
+}
+
+int32 max32(int32 x, int32 y) {
+	return ((x^y)&-(x>=y))^y;
+}
+
+void swap32(int32 * x, int32 * y) {
+	int32 t = *x;
+	*x = *y;
+	*y = t;
 }

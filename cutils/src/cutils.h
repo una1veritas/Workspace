@@ -46,4 +46,18 @@ uint32 ceil2pow32(uint32 x);
 uint32 floorlog32(uint32 x);
 uint32 ceillog32(uint32 x);
 
+/* difference or zero */
+#define DOZ(x, y) (((x)-(y))&-((x)>=(y)))
+#define MIN(x, y) ((x) - DOZ(x,y))
+#define MAX(x, y) ((y) + DOZ(x,y))
+
+int32 doz32(int32 x, int32 y);
+int32 min32(int32 x, int32 y);
+int32 max32(int32 x, int32 y);
+
+/* swap values in two variables */
+#define SWAP(x, y) { x ^= y; y ^= x; x ^= y; }
+
+void swap32(int32 * x, int32 * y);
+
 #endif /* CUTILS_H_ */
