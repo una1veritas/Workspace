@@ -91,7 +91,7 @@ int32 max32(int32 x, int32 y) {
 	return ((x^y)&-(x>=y))^y;
 }
 
-void swap32(int32 * x, int32 * y) {
+void swap32_(int32 * x, int32 * y) {
 	int32 t = *x;
 	*x = *y;
 	*y = t;
