@@ -4,14 +4,15 @@
 
 #include <stdio.h>
 
-static __device__ __forceinline__ unsigned int nlz32_cuda(unsigned int x)
+
+static __device__ __forceinline__ unsigned int bfind32_cuda(unsigned int x)
 {
 	unsigned int ret;
 	asm volatile("bfind.u32 %0, %1;" : "=r"(ret) : "r"(x));
 	return 31 - ret;
 }
 
-unsigned int nlz32_IEEE(unsigned int x)
+__device__ __host__ unsigned int nlz32_IEEE(unsigned int x)
 {
 	/* Hacker's Delight 2nd by H. S. Warren Jr., 5.3, p. 104 -- */
 	double d = x;
@@ -20,34 +21,18 @@ unsigned int nlz32_IEEE(unsigned int x)
 	return 0x41e - (*p >> 20);  // 31 - ((*(p+1)>>20) - 0x3FF)
 }
 
-__device__ unsigned int __device__ceil2pow32(unsigned int x) {
-	if (x == 0)
-		return 0;
-	return 1 << (32 - nlz32_cuda(x - 1));
-
-}
-
-unsigned int ceil2pow32(unsigned int x) {
-	if (x == 0)
-		return 0;
-	return 1 << (32 - nlz32_IEEE(x - 1));
-
+__device__ __host__ unsigned int ceil2pow32(unsigned int x) {
+	return (-(x != 0)) & (1 << (32 - nlz32_IEEE(x - 1)));
 }
 
 cudaError_t prefixScan(int *a, unsigned const int nsize);
 
-__global__ void prefscan(int *a, const int width, const int nsize)
+__global__ void prefscan(int *a, const int width)
 {
     int thidx = threadIdx.x;
-	int pow2 = __device__ceil2pow32(width); // 2^k - 1
 	if ( !(thidx < (width>>1)) ) {
-		a[thidx] = a[thidx - (pow2 >> 1)] + a[thidx];	
+		a[thidx] = a[thidx - (width >> 1)] + a[thidx];	
 	}
-	/*
-	else {
-		a[thidx] = a[thidx];
-	}
-	*/
 }
 
 int main()
@@ -88,7 +73,7 @@ int main()
 cudaError_t prefixScan(int *a, unsigned const int nsize) 
 {
     int *dev_a = 0;
-	int arraySize = ceil2pow32(nsize);
+	unsigned int arraySize = ceil2pow32(nsize);
     cudaError_t cudaStatus;
 
     // Choose which GPU to run on, change this on a multi-GPU system.
@@ -116,7 +101,7 @@ cudaError_t prefixScan(int *a, unsigned const int nsize)
 
     // Launch a kernel on the GPU with one thread for each element.
 	for(int width = 2; width <= arraySize; width <<= 1)
-	    prefscan<<<1, arraySize>>>(dev_a, width, arraySize);
+	    prefscan<<<1, arraySize>>>(dev_a, width);
 
     // Check for any errors launching the kernel
     cudaStatus = cudaGetLastError();
