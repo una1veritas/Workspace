@@ -4,55 +4,75 @@
 
 #include <stdio.h>
 
-static __device__ __forceinline__ unsigned int ntz32_cuda(unsigned int x)
+static __device__ __forceinline__ unsigned int nlz32_cuda(unsigned int x)
 {
 	unsigned int ret;
 	asm volatile("bfind.u32 %0, %1;" : "=r"(ret) : "r"(x));
 	return 31 - ret;
 }
 
-__device__ unsigned int ceil2pow32(unsigned int x) {
+unsigned int nlz32_IEEE(unsigned int x)
+{
+	/* Hacker's Delight 2nd by H. S. Warren Jr., 5.3, p. 104 -- */
+	double d = x;
+	d += 0.5;
+	unsigned int *p = ((unsigned int*)&d) + 1;
+	return 0x41e - (*p >> 20);  // 31 - ((*(p+1)>>20) - 0x3FF)
+}
+
+__device__ unsigned int __device__ceil2pow32(unsigned int x) {
 	if (x == 0)
 		return 0;
-	return 1 << (32 - ntz32_cuda(x - 1));
+	return 1 << (32 - nlz32_cuda(x - 1));
+
+}
+
+unsigned int ceil2pow32(unsigned int x) {
+	if (x == 0)
+		return 0;
+	return 1 << (32 - nlz32_IEEE(x - 1));
 
 }
 
 cudaError_t prefixScan(int *a, unsigned const int nsize);
 
-__global__ void prefixKernel(int *a, const int width, const int nsize)
+__global__ void prefscan(int *a, const int width, const int nsize)
 {
-    int tidx = threadIdx.x;
-	int pow2 = ceil2pow32(width); // 2^k - 1
-	if (tidx == 0) {
-		printf("pow2 = %d\n", pow2);
+    int thidx = threadIdx.x;
+	int pow2 = __device__ceil2pow32(width); // 2^k - 1
+	if ( !(thidx < (width>>1)) ) {
+		a[thidx] = a[thidx - (pow2 >> 1)] + a[thidx];	
 	}
-	if (tidx < nsize) {
-		a[tidx] = a[tidx];
-		if ( ((tidx+1) & (pow2 - 1)) == 0) {
-			a[tidx] = a[tidx - (pow2 >> 1)] + a[tidx];
-		}
-		
-	}
+	/*
 	else {
-		printf("I'm %d, stymied.\n", tidx);
+		a[thidx] = a[thidx];
 	}
+	*/
 }
 
 int main()
 {
-    int a[] = { 11, 21, 13, 24, 5 };
+    int a[] = { 11, 21, 13, 24, 8, -3, 15, 31 };
 	const unsigned int arraySize = sizeof(a)/sizeof(int);
 
-    // Add vectors in parallel.
+	printf("{ ");
+	for (int i = 0; i < arraySize; i++) {
+		printf("%3d, ", a[i]);
+	}
+	printf("} = \n");
+	// Add vectors in parallel.
     cudaError_t cudaStatus = prefixScan(a, arraySize);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "prefscan failed!");
         return 1;
     }
 
-    printf("{ 11, 21, 13, 24, 5 } = {%d,%d,%d,%d,%d}\n",
-        a[0], a[1], a[2], a[3], a[4]);
+	
+	printf("{ ");
+	for (int i = 0; i < arraySize; i++) {
+		printf("%3d, ", a[i]);
+	}
+	printf("}\n");
 
     // cudaDeviceReset must be called before exiting in order for profiling and
     // tracing tools such as Nsight and Visual Profiler to show complete traces.
@@ -68,6 +88,7 @@ int main()
 cudaError_t prefixScan(int *a, unsigned const int nsize) 
 {
     int *dev_a = 0;
+	int arraySize = ceil2pow32(nsize);
     cudaError_t cudaStatus;
 
     // Choose which GPU to run on, change this on a multi-GPU system.
@@ -78,22 +99,24 @@ cudaError_t prefixScan(int *a, unsigned const int nsize)
     }
 
     // Allocate GPU buffers for vectors a and b.
-	cudaStatus = cudaMalloc((void**)&dev_a, nsize * sizeof(int));
+	cudaStatus = cudaMalloc((void**)&dev_a, arraySize * sizeof(int));
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaMalloc failed!");
         goto Error;
     }
 
     // Copy input vectors from host memory to GPU buffers.
-    cudaStatus = cudaMemcpy(dev_a, a, nsize * sizeof(int), cudaMemcpyHostToDevice);
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMemcpy failed!");
+	cudaStatus = cudaMemcpy(dev_a, a, nsize * sizeof(int), cudaMemcpyHostToDevice);
+	if ( nsize < arraySize)
+		cudaStatus = cudaMemset(dev_a + nsize, 0, arraySize - nsize);
+	if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "cudaMemcpy/Memset failed!");
         goto Error;
     }
 
     // Launch a kernel on the GPU with one thread for each element.
-	for(int width = 2; width < nsize; width <<= 1)
-	    prefixKernel<<<1, nsize>>>(dev_a, width, nsize);
+	for(int width = 2; width <= arraySize; width <<= 1)
+	    prefscan<<<1, arraySize>>>(dev_a, width, arraySize);
 
     // Check for any errors launching the kernel
     cudaStatus = cudaGetLastError();
