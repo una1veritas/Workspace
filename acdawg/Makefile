@@ -10,18 +10,18 @@ INCLUDES = -I./
 	$(CC) $(CCFLAGS) $(INCLUDES) -c $<
 
 %.o: %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDES) -c $<
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $<
 
 #
 LIBOBJS = 
 
-all: acdawg ac
+all: acdawg 
 
 acdawg:  acdawg.o $(LIBOBJS)
-	$(CC) $(CCFLAGS) $(INCLUDES) -o acdawg acdawg.o $(LIBOBJS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o acdawg acdawg.o $(LIBOBJS)
 	
 ac: ac.o $(LIBOBJS)
-	$(CC) $(CCFLAGS) $(INCLUDES) -o ac ac.o $(LIBOBJS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o ac ac.o $(LIBOBJS)
 
 
 clean: 

@@ -38,17 +38,17 @@ Trie *troot = new Trie();
 
 struct Node {
 	Node *edges[SIGMA_SIZE];
-	//edge_num[i]  0 = edge‚È‚µ 1 = primary-edge‚ ‚è 2 = secondary-edge‚ ‚è
+	//edge_num[i]  0 = edgeãªã— 1 = primary-edgeã‚ã‚Š 2 = secondary-edgeã‚ã‚Š
 	int edge_num[SIGMA_SIZE];
 	Node *suff;
 	Trie *dtoc;
 	set<string> out;
 	set<Node*> ine;
-	//dawg‚É‚¨‚¯‚éƒm[ƒh‚Ì”Ô†
+	//dawgã«ãŠã‘ã‚‹ãƒãƒ¼ãƒ‰ã®ç•ªå·
 	int nodenum;
-	//AC‚Ìƒm[ƒh‚Ædawg‚Ìƒm[ƒh‚Ì”Ô†‚ğˆê’v‚³‚¹‚é‚½‚ß‚Ì•Ï”
+	//ACã®ãƒãƒ¼ãƒ‰ã¨dawgã®ãƒãƒ¼ãƒ‰ã®ç•ªå·ã‚’ä¸€è‡´ã•ã›ã‚‹ãŸã‚ã®å¤‰æ•°
 	int dawgtoac;
-	//trunkƒm[ƒh‚©branchƒm[ƒh‚©‚Ì”»’è 1‚È‚çtrunkA0‚È‚çbranch ‰Šú’l‚Í0
+	//trunkãƒãƒ¼ãƒ‰ã‹branchãƒãƒ¼ãƒ‰ã‹ã®åˆ¤å®š 1ãªã‚‰trunkã€0ãªã‚‰branch åˆæœŸå€¤ã¯0
 	int torb;
 	//
 	int mark;
@@ -82,7 +82,7 @@ Node *split(Node *parentnode, Node *childnode, char a) {
 	parentnode->edges[charnum] = newchildnode;
 	parentnode->edge_num[charnum] = 1;
 
-	//child‚Ìedge‚ğ‚·‚×‚Änewchild‚Ìsecondary-edge‚ÉƒRƒs[‚·‚é
+	//childã®edgeã‚’ã™ã¹ã¦newchildã®secondary-edgeã«ã‚³ãƒ”ãƒ¼ã™ã‚‹
 	for (int i = 0; i < SIGMA_SIZE; i++) {
 		newchildnode->edges[i] = childnode->edges[i];
 		newchildnode->edge_num[i] = 2;
@@ -314,61 +314,62 @@ vector<Trie *> getfailstates(string &string, int depth) {
 
 
 
-int main(void) {
+int main(const int argc, const char * argv[]) {
 
-	//ƒL[ƒ[ƒhi‚ÌW‡j‚ª“ü—Í‚Æ‚µ‚Ä—^‚¦‚ç‚ê‚é
-	//ƒL[ƒ[ƒh‚ğ—p‚¢‚ÄA’Êí‚Ì•û–@‚ÅACƒ}ƒVƒ“‚ÆDAWG‚ğì‚é
-
+	//ã‚­ãƒ¼ãƒ¯ãƒ¼ãƒ‰ï¼ˆã®é›†åˆï¼‰ãŒå…¥åŠ›ã¨ã—ã¦ä¸ãˆã‚‰ã‚Œã‚‹
+	//ã‚­ãƒ¼ãƒ¯ãƒ¼ãƒ‰ã‚’ç”¨ã„ã¦ã€é€šå¸¸ã®æ–¹æ³•ã§ACãƒã‚·ãƒ³ã¨DAWGã‚’ä½œã‚‹
 
 	//
-	//ACƒ}ƒVƒ“‚Ì\¬
+	//ACãƒã‚·ãƒ³ã®æ§‹æˆ
 	//
 
-	// root‚Ì‰Šú‰»
+	// rootã®åˆæœŸåŒ–
 	for (int i = 0; i < SIGMA_SIZE; i++) {
 		troot->edges[i] = troot;
 		troot->fail = troot;
 	}
 
-	//gotoŠÖ”‚Ì\¬
+	//gotoé–¢æ•°ã®æ§‹æˆ
 	char check = 'y';
 	std::ifstream reading_file;
-	//cout << "ƒtƒ@ƒCƒ‹‚©‚ç‚Ì“Ç‚İ‚İ‚ğs‚¢‚Ü‚·‚©H y/n" << endl;
+	//cout << "ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰ã®èª­ã¿è¾¼ã¿ã‚’è¡Œã„ã¾ã™ã‹ï¼Ÿ y/n" << endl;
 	//cin >> check;
 	if (check == 'y') {
-		string ward_num;
+		//string ward_num;
 		int ward_num_i;
 		string ward_string;
 		string file_name;
 
-		//cout << "ƒtƒ@ƒCƒ‹–¼‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢" << endl;
-		//cin >> file_name;
+		if ( argc <= 1 ) {
+			//cout << "ãƒ•ã‚¡ã‚¤ãƒ«åã‚’å…¥åŠ›ã—ã¦ãã ã•ã„" << endl;
+			//cin >> file_name;
 
-		//file_name = "word_2000.txt";
-		//file_name = "test5.txt";
-		//file_name = "word_list3.txt";
-		file_name = "word_list2.txt";
-		//file_name = "aho_check_in.txt";
-
+			//file_name = "word_2000.txt";
+			//file_name = "test5.txt";
+			//file_name = "word_list3.txt";
+			file_name = "word_list2.txt";
+			//file_name = "aho_check_in.txt";
+		} else {
+			file_name = argv[1];
+		}
 		//std::ifstream reading_file;
 		string reading_line;
 
 		reading_file.open(file_name, std::ios::in);
 		if (reading_file.fail())
 		{
-			std::cerr << "¸”s" << std::endl;
+			std::cerr << "reading file failed." << std::endl;
 			return -1;
 		}
-		std::getline(reading_file, reading_line);
-		ward_num = reading_line;
-
-		ward_num_i = atoi(ward_num.c_str());
+		reading_file >> reading_line; //std::getline(reading_file, reading_line);
+		//ward_num = reading_line;
+		ward_num_i = atoi(reading_line.c_str());
+		std::cout << "word num = " << ward_num_i << std::endl;
 
 		for (int i = 0; i < ward_num_i; i++) {
-
-			std::getline(reading_file, reading_line);
-
-			//cout << reading_line << " " << i << endl;
+			//std::getline(reading_file, reading_line);
+			reading_file >> reading_line;
+			std::cout << "line " << i << ": '" << reading_line << "'" << std::endl;
 
 			Goto(troot, reading_line);
 		}
@@ -392,7 +393,7 @@ int main(void) {
 	}
 
 
-	// failureŠÖ”‚Ì\¬
+	// failureé–¢æ•°ã®æ§‹æˆ
 	queue<Trie*> q;
 
 	// Must to this before, because of the fact that every edge out of the root is
@@ -450,7 +451,7 @@ int main(void) {
 
 
 	//
-	//dawg‚Ì\¬
+	//dawgã®æ§‹æˆ
 	//
 
 	nroot->dawgtoac = DAWGTOAC_NUM;
@@ -459,7 +460,7 @@ int main(void) {
 
 
 	char check2 = 'y';
-	//cout << "ƒtƒ@ƒCƒ‹‚©‚ç‚Ì“Ç‚İ‚İ‚ğs‚¢‚Ü‚·‚©H y/n" << endl;
+	//cout << "ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰ã®èª­ã¿è¾¼ã¿ã‚’è¡Œã„ã¾ã™ã‹ï¼Ÿ y/n" << endl;
 	//cin >> check2;
 	if (check2 == 'y') {
 		string ward_num;
@@ -474,7 +475,7 @@ int main(void) {
 		Trie *trienode;
 		Trie *tmptrie;
 
-		//cout << "ƒtƒ@ƒCƒ‹–¼‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢" << endl;
+		//cout << "ãƒ•ã‚¡ã‚¤ãƒ«åã‚’å…¥åŠ›ã—ã¦ãã ã•ã„" << endl;
 		//cin >> file_name;
 
 		//file_name = "word_2000.txt";
@@ -489,7 +490,7 @@ int main(void) {
 		reading_file2.open(file_name, std::ios::in);
 		if (reading_file2.fail())
 		{
-			std::cerr << "¸”s" << std::endl;
+			std::cerr << "å¤±æ•—" << std::endl;
 			return -1;
 		}
 		std::getline(reading_file2, reading_line);
@@ -543,12 +544,12 @@ int main(void) {
 	}
 	else if (check2 == 'n') {
 
-		cout << "“ü—Í‚·‚éƒL[ƒ[ƒh‚Ì”" << endl;
+		cout << "å…¥åŠ›ã™ã‚‹ã‚­ãƒ¼ãƒ¯ãƒ¼ãƒ‰ã®æ•°" << endl;
 		int nrStrings;
 		cin >> nrStrings;
 
 		for (int i = 0; i < nrStrings; i++) {
-			cout << "ƒL[ƒ[ƒh‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢   ";
+			cout << "ã‚­ãƒ¼ãƒ¯ãƒ¼ãƒ‰ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„   ";
 			string curString;
 
 			Node *activenode;
@@ -581,15 +582,15 @@ int main(void) {
 	cout << "dawg struct finish" << endl;
 
 
-	//i“®ìŠm”Fj
+	//ï¼ˆå‹•ä½œç¢ºèªï¼‰
 
-	// ƒeƒLƒXƒg‚©‚çƒL[ƒ[ƒh‚ğŒŸo
+	// ãƒ†ã‚­ã‚¹ãƒˆã‹ã‚‰ã‚­ãƒ¼ãƒ¯ãƒ¼ãƒ‰ã‚’æ¤œå‡º
 	string bigString;
 	std::ifstream ifs("test4.txt");
 	//std::ifstream ifs("aho_check_out.txt");
 	if (ifs.fail())
 	{
-		std::cerr << "¸”s" << std::endl;
+		std::cerr << "å¤±æ•—" << std::endl;
 		return -1;
 	}
 	getline(ifs, bigString);
@@ -615,9 +616,9 @@ int main(void) {
 
 
 	//
-	//ƒL[ƒ[ƒh‚ğV‚½‚É—^‚¦‚éiˆêŒê‚¸‚Âj
-	//DAWG‚ğ“®“I‚É\¬
-	//DAWG‚ğ‚à‚Æ‚ÉACƒ}ƒVƒ“‚ğXV
+	//ã‚­ãƒ¼ãƒ¯ãƒ¼ãƒ‰ã‚’æ–°ãŸã«ä¸ãˆã‚‹ï¼ˆä¸€èªãšã¤ï¼‰
+	//DAWGã‚’å‹•çš„ã«æ§‹æˆ
+	//DAWGã‚’ã‚‚ã¨ã«ACãƒã‚·ãƒ³ã‚’æ›´æ–°
 	//
 
 
@@ -628,7 +629,7 @@ int main(void) {
 
 
 		//cin >> curString2;
-		cout << "ƒL[ƒ[ƒh‚ğ‚¢‚­‚Â’Ç‰Á‚µ‚Ü‚·‚©H" << endl;
+		cout << "ã‚­ãƒ¼ãƒ¯ãƒ¼ãƒ‰ã‚’ã„ãã¤è¿½åŠ ã—ã¾ã™ã‹ï¼Ÿ" << endl;
 		cin >> key_num;
 
 		//std::ifstream readline2("word_list3.txt");
@@ -657,7 +658,7 @@ int main(void) {
 			Node *tnode = nroot;
 
 
-			//ƒL[ƒ[ƒh‚Ì“Ç‚İ‚İ
+			//ã‚­ãƒ¼ãƒ¯ãƒ¼ãƒ‰ã®èª­ã¿è¾¼ã¿
 
 			//getline(readline2, curString2);
 			getline(reading_file, curString2);
@@ -668,7 +669,7 @@ int main(void) {
 
 			/*
 
-			//dawg‚ğ“®“I‚É’Ç‰Á
+			//dawgã‚’å‹•çš„ã«è¿½åŠ 
 
 			for (int i = 0; i < size2; i++)
 				activenode = update(activenode, curString2[i]);
@@ -921,7 +922,7 @@ int main(void) {
 
 			int cur = bigString2[i] - ' ';
 
-			//‚±‚±‚Ü‚Åok
+			//ã“ã“ã¾ã§ok
 			for (; node3->edges[cur] == NULL; node3 = node3->fail)
 			{
 				cout << "failure now... node number " << node3->fail->nodenum << endl;
