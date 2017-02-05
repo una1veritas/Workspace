@@ -15,7 +15,7 @@ INCLUDES = -I./
 #
 LIBOBJS = 
 
-all: acdawg 
+all: ac 
 
 acdawg:  acdawg.o $(LIBOBJS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o acdawg acdawg.o $(LIBOBJS)
