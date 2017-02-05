@@ -59,7 +59,7 @@ int main(void) {
 	dummysum = 0;
 	lap = clock();
 	for(int i = 0; i < NUM; i++) {
-		dummysum += ceil2pow32(r[i]);
+		dummysum += c2pow32(r[i]);
 	}
 	lap = clock() - lap;
 	printf("ceil2pow32:\n");
@@ -154,7 +154,7 @@ int main(void) {
 		a = r[i];
 		b = r[i+1];
 		//
-		swap32(&a, &b);
+		swap32_(&a, &b);
 		dummysum += b;
 	}
 	lap = clock() - lap;

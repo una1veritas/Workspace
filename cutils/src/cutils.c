@@ -58,25 +58,23 @@ uint32 ntz32_(uint32 x) {
 	return pop32((y & (-y))-1);
 }
 
-uint32 ceil2pow32(uint32 x) {
-	if (x == 0)
-		return 0;
-	return 1<<(32 - nlz32(x-1));
+uint32 c2pow32(uint32 x) {
+	return (x != 0) * ( 1<<(32 - nlz32(x-1)) );
 
 }
 
-uint32 floorlog32(uint32 x) {
-	if (x == 0)
-		return 0;
+uint32 flog32(uint32 x) {
 	return 31 - nlz32(x);
 
 }
 
-uint32 ceillog32(uint32 x) {
-	if (x == 0)
-		return 0;
+uint32 clog32(uint32 x) {
 	return 32 - nlz32(x - 1);
+}
 
+uint32 bitsize32(int32 x) {
+	x = x^(x>>31);
+	return 33 - nlz32(x);
 }
 
 int32 doz32(int32 x, int32 y) {

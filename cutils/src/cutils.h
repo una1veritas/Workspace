@@ -11,13 +11,13 @@
 /* --------------------- */
 #define INTEL_SSE42
 
+#define nlz32 nlz32_IEEE
+
 #ifdef INTEL_SSE42
 #define pop32 pop32_SSE42
-#define nlz32 nlz32_IEEE
 #define ntz32 ntz32_
 #else
 #define pop32 pop32_
-#define nlz32 nlz32_IEEE
 #define ntz32 ntz32_
 #endif
 /* --------------------- */
@@ -41,10 +41,11 @@ uint32 nlz32_IEEE(uint32 x);
 uint32 ntz32_(uint32 x);
 
 /* smallest 2 to the nth power that is no less than x */
-uint32 ceil2pow32(uint32 x);
+uint32 c2pow32(uint32 x);
 
-uint32 floorlog32(uint32 x);
-uint32 ceillog32(uint32 x);
+uint32 flog32(uint32 x);
+uint32 clog32(uint32 x);
+uint32 bitsize32(int32 x);
 
 /* difference or zero */
 #define DOZ(x, y) (((x)-(y))&-((x)>=(y)))
@@ -58,6 +59,6 @@ int32 max32(int32 x, int32 y);
 /* swap values in two variables */
 #define SWAP(x, y) { x ^= y; y ^= x; x ^= y; }
 
-void swap32(int32 * x, int32 * y);
+void swap32_(int32 * x, int32 * y);
 
 #endif /* CUTILS_H_ */
