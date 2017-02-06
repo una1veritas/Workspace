@@ -5,10 +5,15 @@
  *      Author: http://www.geeksforgeeks.org/aho-corasick-algorithm-pattern-searching/
  */
 
+#include <iostream>
+#include <queue>
+//#include <bits/stdc++.h>
+
+#include "ACMachine.h"
+
 // C++ program for implementation of Aho Corasick algorithm
 // for string matching
 using namespace std;
-//#include <bits/stdc++.h>
 
 // Max number of states in the matching machine.
 // Should be equal to the sum of the length of all keywords.
@@ -80,7 +85,7 @@ int buildMatchingMachine(string arr[], int k) {
 
 	// Failure function is computed in breadth first order
 	// using a queue
-	queue<int> q;
+	std::queue<int> q;
 
 	// Iterate over every possible input
 	for (int ch = 0; ch < MAXC; ++ch) {
