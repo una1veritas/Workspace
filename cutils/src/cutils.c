@@ -10,7 +10,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 #include "cutils.h"
 
@@ -52,10 +51,24 @@ uint32 nlz32_(uint32 x) {
 }
 
 uint32 ntz32_(uint32 x) {
-	int32 y = (int32) x;
-	if ( (x & 0x800000) != 0 )
-		return 32;
-	return pop32((y & (-y))-1);
+	/* Hacker's Delight 2nd by H. S. Warren Jr. */
+	uint32 y, bz, b4, b3, b2, b1, b0;
+	y = x & -x;
+	bz = y ? 0 : 1;
+	b4 = (y & 0x0000ffff) ? 0 : 16;
+	b3 = (y & 0x00ff00ff) ? 0 : 8;
+	b2 = (y & 0x0f0f0f0f) ? 0 : 4;
+	b1 = (y & 0x33333333) ? 0 : 2;
+	b0 = (y & 0x55555555) ? 0 : 1;
+	return bz + b4 + b3 + b2 + b1 + b0;
+}
+
+uint32 ntz32_pop32(uint32 x) {
+	return 32 - pop32( x | -x);
+}
+
+uint32 ntz32_nlz32(uint32 x) {
+	return 32 - nlz32((~x) & (x-1));
 }
 
 uint32 c2pow32(uint32 x) {

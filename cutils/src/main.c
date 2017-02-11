@@ -62,7 +62,7 @@ int main(void) {
 		dummysum += c2pow32(r[i]);
 	}
 	lap = clock() - lap;
-	printf("ceil2pow32:\n");
+	printf("c2pow32:\n");
 	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
 
 	dummysum = 0;
@@ -86,19 +86,37 @@ int main(void) {
 	dummysum = 0;
 	lap = clock();
 	for(int i = 0; i < NUM; i++) {
-		dummysum += ntz32(r[i]);
+		dummysum += ntz32_(r[i]);
 	}
 	lap = clock() - lap;
-	printf("ntz32:\n");
+	printf("ntz32_:\n");
+	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
+
+	dummysum = 0;
+	lap = clock();
+	for(int i = 0; i < NUM; i++) {
+		dummysum += ntz32_pop32(r[i]);
+	}
+	lap = clock() - lap;
+	printf("ntz32_pop32:\n");
+	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
+
+	dummysum = 0;
+	lap = clock();
+	for(int i = 0; i < NUM; i++) {
+		dummysum += ntz32_nlz32(r[i]);
+	}
+	lap = clock() - lap;
+	printf("ntz32_nlz32:\n");
 	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
 
 	dummysum = 0;
 	lap = clock();
 	for(int i = 0; i < NUM-1; i++) {
-		dummysum += (r[i] >= r[i+1] ? r[i] : r[i+1] );
+		dummysum += (r[i] <= r[i+1] ? r[i] : r[i+1] );
 	}
 	lap = clock() - lap;
-	printf("max ( ? : ):\n");
+	printf("min ( ? : ):\n");
 	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
 
 	dummysum = 0;
