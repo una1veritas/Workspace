@@ -8,25 +8,22 @@
 #include <helper_functions.h> // helper functions for SDK examples
 #include <helper_timer.h>
 
+#include "cutils.h"
+
 #define ARRAY_ELEMENTS_MAX 0x7fffffff
 //262144
-#define THREADS_IN_BLOCK_MAX 1024
-
-#define min(x,y)  ((y) > (x) ? (x) : (y))
-#define align(val,base)  ( (((val)/(base)) + ((val)%(base) != 0) )*(base) )
 
 __global__ void exchEven(unsigned int *A, const unsigned int n);
 __global__ void exchOdd(unsigned int *A, const unsigned int n);
 
+__global__ void exchEven32(unsigned int *A, const unsigned int n);
+__global__ void exchOdd32(unsigned int *A, const unsigned int n);
+
 int main(const int argc, const char * argv[]) {
 	int elemCount = 0;
-	int blockSize = THREADS_IN_BLOCK_MAX;
 
 	if (argc == 2) {
 		elemCount = atoi(argv[1]);
-	} else if ( argc == 3 ) {
-		elemCount = atoi(argv[1]);
-		blockSize = atoi(argv[2]);
 	} else {
 		printf("incorrect argument number.n");
 		return EXIT_FAILURE;
@@ -51,18 +48,20 @@ int main(const int argc, const char * argv[]) {
 	// setup dummy input 
 	srand(time(NULL));
 	for (unsigned int i = 0; i < elemCount; i++) {
-		A[i] = rand() % 10000;
+		A[i] = rand() % 1000;
 	}
 
-	for (unsigned int i = 0; i < elemCount; i++) {
-		if (i < 100 || i == elemCount - 1) {
-			printf("%4u ", i);
+	if (elemCount <= 16) {
+		for (unsigned int i = 0; i < elemCount; i++) {
+			if (i < 100 || i == elemCount - 1) {
+				printf("%4u ", i);
+			}
+			else if (i == elemCount - 2) {
+				printf("... ");
+			}
 		}
-		else if (i == elemCount - 2) {
-			printf("... ");
-		}
+		printf("\n");
 	}
-	printf("\n");
 	for (unsigned int i = 0; i < elemCount; i++) {
 		if (i < 100 || i == elemCount - 1) {
 			printf("%4u ", A[i]);
@@ -73,17 +72,18 @@ int main(const int argc, const char * argv[]) {
 	}
 	printf("\n");
 	printf("generated %u elements.\n\n", elemCount);
+
 	fflush(stdout);
 
 	// setup input copy on device mem
-	unsigned int *devA;
-	unsigned devACapa = align(elemCount,32);
-	blockSize = min(blockSize, devACapa / 2);
-	unsigned int gridSize = align(devACapa / 2, blockSize)/blockSize;
+	unsigned int *devArray;
+	unsigned int blockSize = 32;
+	unsigned devACapa = 64 * MAX(cdiv32(elemCount,64),1);
+	unsigned int gridSize = (devACapa >> 1) / blockSize;
 	cudaMalloc((void**)&devA, sizeof(unsigned int) * devACapa);
-	cudaMemcpy(devA, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
+	cudaMemcpy(devArray, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
 
-	printf("Going to use %d blocks, %d threas per block for array capacity %d.\n\n", gridSize, blockSize, devACapa);
+	printf("Going to use %d blocks of %d threads for array capacity %d.\n\n", gridSize, blockSize, devACapa);
 	fflush(stdout);
 
 	dim3 grids(gridSize), blocks(blockSize);
@@ -94,13 +94,30 @@ int main(const int argc, const char * argv[]) {
 	sdkStartTimer(&timer);
 
 	for (unsigned int i = 0; i < (elemCount>>1); i++) {
-		exchEven << < grids, blocks >> > (devA, elemCount);
-		exchOdd << < grids, blocks >> > (devA, elemCount); // possibly the last call is redundant
+		exchEven << < grids, blocks >> > (devArray, elemCount);
+		exchOdd << < grids, blocks >> > (devArray, elemCount); // possibly the last call is redundant
 	}
 	
-	cudaMemcpy(A, devA, sizeof(unsigned int) * devACapa, cudaMemcpyDeviceToHost);
+	sdkStopTimer(&timer);
+	printf("Elapsed time %f msec.\n", (float)((int)(sdkGetTimerValue(&timer) * 1000)) / 1000);
+	sdkDeleteTimer(&timer);
+
+
+	cudaMemcpy(devArray, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
+
+	sdkResetTimer(&timer);
+	sdkStartTimer(&timer);
+
+	for (unsigned int i = 0; i < (elemCount >> 1); i++) {
+		exchEven64 << < grids, blocks, 64*sizeof(int) >> > (devArray, elemCount);
+		exchOdd64 << < grids, blocks, 64 * sizeof(int) >> > (devArray, elemCount); // possibly the last call is redundant
+	}
 
 	sdkStopTimer(&timer);
+	printf("Elapsed time %f msec.\n", (float)((int)(sdkGetTimerValue(&timer) * 1000)) / 1000);
+	sdkDeleteTimer(&timer);
+
+	cudaMemcpy(A, devArray, sizeof(unsigned int) * devACapa, cudaMemcpyDeviceToHost);
 
 	int firstFailure = elemCount;
 	for (unsigned int i = 0; i < elemCount; i++) {
@@ -160,6 +177,37 @@ __global__ void exchOdd(unsigned int *a, const unsigned int n) {
 			tmp = a[left];
 			a[left] = a[left+1];
 			a[left+1] = tmp;
+		}
+	}
+	__syncthreads();
+}
+
+
+__global__ void exchEven32(unsigned int *a, const unsigned int n) {
+	unsigned int thix = blockIdx.x * blockDim.x + threadIdx.x;
+	unsigned int left = thix << 1;
+	unsigned int tmp;
+
+	if (left + 1 < n) {
+		if (a[left] > a[left + 1]) {
+			tmp = a[left];
+			a[left] = a[left + 1];
+			a[left + 1] = tmp;
+		}
+	}
+	__syncthreads();
+}
+
+__global__ void exchOdd32(unsigned int *a, const unsigned int n) {
+	unsigned int thix = blockIdx.x * blockDim.x + threadIdx.x;
+	unsigned int left = (thix << 1) + 1;
+	unsigned int tmp;
+
+	if (left + 1 < n) {
+		if (a[left] > a[left + 1]) {
+			tmp = a[left];
+			a[left] = a[left + 1];
+			a[left + 1] = tmp;
 		}
 	}
 	__syncthreads();

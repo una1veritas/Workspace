@@ -48,7 +48,7 @@
     <CodeAnalysisRuleAssemblies />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)'=='x64'">
-    <OutDir>./$(Configuration)/</OutDir>
+    <OutDir>./bin</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -100,6 +100,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <CudaCompile Include="bubble.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cutils.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cutils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
