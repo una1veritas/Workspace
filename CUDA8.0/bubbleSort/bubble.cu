@@ -8,19 +8,31 @@
 #include <helper_functions.h> // helper functions for SDK examples
 #include <helper_timer.h>
 
-#include "cutils.h"
+#include "cuutils.h"
 
 #define ARRAY_ELEMENTS_MAX 0x7fffffff
 //262144
 
-__global__ void exchEven(unsigned int *A, const unsigned int n);
-__global__ void exchOdd(unsigned int *A, const unsigned int n);
+////////////////////////////////////////////////////////////////////////////////
+// Inline PTX call to return index of highest non-zero bit in a word
+////////////////////////////////////////////////////////////////////////////////
+static __device__ __forceinline__ unsigned int bfind32(unsigned int ui32)
+{
+	unsigned int ret;
+	asm volatile("bfind.u32 %0, %1;" : "=r"(ret) : "r"(ui32));
+	return ret;
+}
 
-__global__ void exchEven32(unsigned int *A, const unsigned int n);
-__global__ void exchOdd32(unsigned int *A, const unsigned int n);
+__global__ void qsflo(unsigned int * x);
+
+__global__ void exchEven(int *A, const unsigned int n);
+__global__ void exchOdd(int *A, const unsigned int n);
+
+__global__ void exch64Even(int *A, const unsigned int n);
+__global__ void exch64Odd(int *A, const unsigned int n);
 
 int main(const int argc, const char * argv[]) {
-	int elemCount = 0;
+	unsigned int elemCount = 0;
 
 	if (argc == 2) {
 		elemCount = atoi(argv[1]);
@@ -38,8 +50,8 @@ int main(const int argc, const char * argv[]) {
 	// device(1) : GTX 750Ti
 	cudaSetDevice(0);
 	
-	unsigned int *A;
-	A = (unsigned int*) malloc(sizeof(unsigned int) * elemCount );
+	int *A;
+	A = (int*) malloc(sizeof(unsigned int) * elemCount );
 	if (A == NULL) {
 		printf("malloc failed.\n");
 		fflush(stdout);
@@ -48,7 +60,7 @@ int main(const int argc, const char * argv[]) {
 	// setup dummy input 
 	srand(time(NULL));
 	for (unsigned int i = 0; i < elemCount; i++) {
-		A[i] = rand() % 1000;
+		A[i] = rand() % 10;
 	}
 
 	if (elemCount <= 16) {
@@ -71,16 +83,31 @@ int main(const int argc, const char * argv[]) {
 		}
 	}
 	printf("\n");
+	unsigned int * tp;
+	cudaMalloc((void**)&tp, sizeof(unsigned int));
+	for (unsigned int i = 0; i < elemCount; i++) {
+		if (i < 100 || i == elemCount - 1) {
+			unsigned int t = A[i];
+			cudaMemcpy(tp, &A[i], sizeof(unsigned int), cudaMemcpyHostToDevice);
+			qsflo<<<1,1>>>(tp);
+			cudaMemcpy(&t, tp, sizeof(unsigned int), cudaMemcpyDeviceToHost);
+			printf("%1u %1d,", t, nlz32_IEEE(A[i]));
+		}
+		else if (i == elemCount - 2) {
+			printf("... ");
+		}
+	}
+	printf("\n");
 	printf("generated %u elements.\n\n", elemCount);
 
 	fflush(stdout);
 
 	// setup input copy on device mem
-	unsigned int *devArray;
+	int *devArray;
 	unsigned int blockSize = 32;
 	unsigned devACapa = 64 * MAX(cdiv32(elemCount,64),1);
 	unsigned int gridSize = (devACapa >> 1) / blockSize;
-	cudaMalloc((void**)&devA, sizeof(unsigned int) * devACapa);
+	cudaMalloc((void**)&devArray, sizeof(unsigned int) * devACapa);
 	cudaMemcpy(devArray, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
 
 	printf("Going to use %d blocks of %d threads for array capacity %d.\n\n", gridSize, blockSize, devACapa);
@@ -99,22 +126,22 @@ int main(const int argc, const char * argv[]) {
 	}
 	
 	sdkStopTimer(&timer);
-	printf("Elapsed time %f msec.\n", (float)((int)(sdkGetTimerValue(&timer) * 1000)) / 1000);
-	sdkDeleteTimer(&timer);
+	printf("Elapsed time %f msec.\n\n", (float)((int)(sdkGetTimerValue(&timer) * 1000)) / 1000);
 
 
+	printf("exch64\n");
 	cudaMemcpy(devArray, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
 
 	sdkResetTimer(&timer);
 	sdkStartTimer(&timer);
 
 	for (unsigned int i = 0; i < (elemCount >> 1); i++) {
-		exchEven64 << < grids, blocks, 64*sizeof(int) >> > (devArray, elemCount);
-		exchOdd64 << < grids, blocks, 64 * sizeof(int) >> > (devArray, elemCount); // possibly the last call is redundant
+		exch64Even << < grids, blocks >> > (devArray, elemCount);
+		exch64Odd << < grids, blocks >> > (devArray, elemCount); // possibly the last call is redundant
 	}
 
 	sdkStopTimer(&timer);
-	printf("Elapsed time %f msec.\n", (float)((int)(sdkGetTimerValue(&timer) * 1000)) / 1000);
+	printf("Elapsed time %f msec.\n\n", (float)((int)(sdkGetTimerValue(&timer) * 1000)) / 1000);
 	sdkDeleteTimer(&timer);
 
 	cudaMemcpy(A, devArray, sizeof(unsigned int) * devACapa, cudaMemcpyDeviceToHost);
@@ -141,18 +168,19 @@ int main(const int argc, const char * argv[]) {
 	}
 	printf("[%u] = %u\n", elemCount - 1, A[elemCount - 1]);
 
-	printf("Elapsed time %f msec.\n", (float)((int)(sdkGetTimerValue(&timer)*1000))/1000 );
-	sdkDeleteTimer(&timer);
 
-	cudaFree(devA);
+	cudaFree(devArray);
 	free(A);
 
 	cudaDeviceReset();
 
 }
 
+__global__ void qsflo(unsigned int * x) {
+	*x = bfind32(*x);
+}
 
-__global__ void exchEven(unsigned int *a, const unsigned int n) {
+__global__ void exchEven(int *a, const unsigned int n) {
 	unsigned int thix = blockIdx.x * blockDim.x + threadIdx.x;
 	unsigned int left = thix << 1;
 	unsigned int tmp;
@@ -167,7 +195,7 @@ __global__ void exchEven(unsigned int *a, const unsigned int n) {
 	__syncthreads();
 }
 
-__global__ void exchOdd(unsigned int *a, const unsigned int n) {
+__global__ void exchOdd(int *a, const unsigned int n) {
 	unsigned int thix = blockIdx.x * blockDim.x + threadIdx.x;
 	unsigned int left = (thix << 1) + 1;
 	unsigned int tmp;
@@ -183,9 +211,11 @@ __global__ void exchOdd(unsigned int *a, const unsigned int n) {
 }
 
 
-__global__ void exchEven32(unsigned int *a, const unsigned int n) {
-	unsigned int thix = blockIdx.x * blockDim.x + threadIdx.x;
-	unsigned int left = thix << 1;
+__global__ void exch64Even(int *a, const unsigned int n) {
+	__shared__ int sa[64];
+	unsigned int bid = blockIdx.x;
+	unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
+	unsigned int left = tid << 1;
 	unsigned int tmp;
 
 	if (left + 1 < n) {
@@ -198,9 +228,11 @@ __global__ void exchEven32(unsigned int *a, const unsigned int n) {
 	__syncthreads();
 }
 
-__global__ void exchOdd32(unsigned int *a, const unsigned int n) {
-	unsigned int thix = blockIdx.x * blockDim.x + threadIdx.x;
-	unsigned int left = (thix << 1) + 1;
+__global__ void exch64Odd(int *a, const unsigned int n) {
+	__shared__ int sa[64];
+	unsigned int bid = blockIdx.x;
+	unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
+	unsigned int left = (tid << 1) + 1;
 	unsigned int tmp;
 
 	if (left + 1 < n) {
