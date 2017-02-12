@@ -8,22 +8,20 @@
 #include <helper_functions.h> // helper functions for SDK examples
 #include <helper_timer.h>
 
-#include "cuutils.h"
+#include "cu_utils.h"
 
 #define ARRAY_ELEMENTS_MAX 0x7fffffff
 //262144
 
-////////////////////////////////////////////////////////////////////////////////
-// Inline PTX call to return index of highest non-zero bit in a word
-////////////////////////////////////////////////////////////////////////////////
-static __device__ __forceinline__ unsigned int bfind32(unsigned int ui32)
+// NVIDIA CUDA PTX
+__device__ static __forceinline__ unsigned int bfind32(unsigned int ui32)
 {
 	unsigned int ret;
 	asm volatile("bfind.u32 %0, %1;" : "=r"(ret) : "r"(ui32));
 	return ret;
 }
 
-__global__ void qsflo(unsigned int * x);
+__global__ void nlz(unsigned int * x);
 
 __global__ void exchEven(int *A, const unsigned int n);
 __global__ void exchOdd(int *A, const unsigned int n);
@@ -60,7 +58,7 @@ int main(const int argc, const char * argv[]) {
 	// setup dummy input 
 	srand(time(NULL));
 	for (unsigned int i = 0; i < elemCount; i++) {
-		A[i] = rand() % 10;
+		A[i] = rand() % 1000;
 	}
 
 	if (elemCount <= 16) {
@@ -76,22 +74,7 @@ int main(const int argc, const char * argv[]) {
 	}
 	for (unsigned int i = 0; i < elemCount; i++) {
 		if (i < 100 || i == elemCount - 1) {
-			printf("%4u ", A[i]);
-		}
-		else if (i == elemCount - 2) {
-			printf("... ");
-		}
-	}
-	printf("\n");
-	unsigned int * tp;
-	cudaMalloc((void**)&tp, sizeof(unsigned int));
-	for (unsigned int i = 0; i < elemCount; i++) {
-		if (i < 100 || i == elemCount - 1) {
-			unsigned int t = A[i];
-			cudaMemcpy(tp, &A[i], sizeof(unsigned int), cudaMemcpyHostToDevice);
-			qsflo<<<1,1>>>(tp);
-			cudaMemcpy(&t, tp, sizeof(unsigned int), cudaMemcpyDeviceToHost);
-			printf("%1u %1d,", t, nlz32_IEEE(A[i]));
+			printf("%4d ", A[i]);
 		}
 		else if (i == elemCount - 2) {
 			printf("... ");
@@ -105,7 +88,7 @@ int main(const int argc, const char * argv[]) {
 	// setup input copy on device mem
 	int *devArray;
 	unsigned int blockSize = 32;
-	unsigned devACapa = 64 * MAX(cdiv32(elemCount,64),1);
+	unsigned devACapa = 64 * MAX(CDIV(elemCount,64),1);
 	unsigned int gridSize = (devACapa >> 1) / blockSize;
 	cudaMalloc((void**)&devArray, sizeof(unsigned int) * devACapa);
 	cudaMemcpy(devArray, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
@@ -176,8 +159,8 @@ int main(const int argc, const char * argv[]) {
 
 }
 
-__global__ void qsflo(unsigned int * x) {
-	*x = bfind32(*x);
+__global__ void nlz(unsigned int * x) {
+	*x = 31 - bfind32(*x);
 }
 
 __global__ void exchEven(int *a, const unsigned int n) {
