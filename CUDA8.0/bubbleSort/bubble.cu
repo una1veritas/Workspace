@@ -13,21 +13,10 @@
 #define ARRAY_ELEMENTS_MAX 0x7fffffff
 //262144
 
-// NVIDIA CUDA PTX
-__device__ static __forceinline__ unsigned int bfind32(unsigned int ui32)
-{
-	unsigned int ret;
-	asm volatile("bfind.u32 %0, %1;" : "=r"(ret) : "r"(ui32));
-	return ret;
-}
-
-__global__ void nlz(unsigned int * x);
-
 __global__ void exchEven(int *A, const unsigned int n);
 __global__ void exchOdd(int *A, const unsigned int n);
 
-__global__ void exch64Even(int *A, const unsigned int n);
-__global__ void exch64Odd(int *A, const unsigned int n);
+__global__ void exch64(int *A, const unsigned int n, const unsigned int offset);
 
 int main(const int argc, const char * argv[]) {
 	unsigned int elemCount = 0;
@@ -58,7 +47,7 @@ int main(const int argc, const char * argv[]) {
 	// setup dummy input 
 	srand(time(NULL));
 	for (unsigned int i = 0; i < elemCount; i++) {
-		A[i] = rand() % 1000;
+		A[i] = rand() % 10000;
 	}
 
 	if (elemCount <= 16) {
@@ -87,16 +76,16 @@ int main(const int argc, const char * argv[]) {
 
 	// setup input copy on device mem
 	int *devArray;
-	unsigned int blockSize = 32;
+	unsigned int block_size = 32;
 	unsigned devACapa = 64 * MAX(CDIV(elemCount,64),1);
-	unsigned int gridSize = (devACapa >> 1) / blockSize;
+	unsigned int grid_size = (devACapa >> 1) / block_size;
 	cudaMalloc((void**)&devArray, sizeof(unsigned int) * devACapa);
 	cudaMemcpy(devArray, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
 
-	printf("Going to use %d blocks of %d threads for array capacity %d.\n\n", gridSize, blockSize, devACapa);
+	printf("Going to use %d blocks of %d threads for array capacity %d.\n\n", grid_size, block_size, devACapa);
 	fflush(stdout);
 
-	dim3 grids(gridSize), blocks(blockSize);
+	dim3 gdim(grid_size), bdim(block_size);
 
 	StopWatchInterface *timer = NULL;
 	sdkCreateTimer(&timer);
@@ -104,23 +93,25 @@ int main(const int argc, const char * argv[]) {
 	sdkStartTimer(&timer);
 
 	for (unsigned int i = 0; i < (elemCount>>1); i++) {
-		exchEven << < grids, blocks >> > (devArray, elemCount);
-		exchOdd << < grids, blocks >> > (devArray, elemCount); // possibly the last call is redundant
+		exchEven << < gdim, bdim >> > (devArray, elemCount);
+		exchOdd << < gdim, bdim >> > (devArray, elemCount); // possibly the last call is redundant
 	}
-	
+
+	cudaDeviceSynchronize();
+
 	sdkStopTimer(&timer);
 	printf("Elapsed time %f msec.\n\n", (float)((int)(sdkGetTimerValue(&timer) * 1000)) / 1000);
 
 
-	printf("exch64\n");
+	printf("Sort by exch64...\n");
 	cudaMemcpy(devArray, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
 
 	sdkResetTimer(&timer);
 	sdkStartTimer(&timer);
 
-	for (unsigned int i = 0; i < (elemCount >> 1); i++) {
-		exch64Even << < grids, blocks >> > (devArray, elemCount);
-		exch64Odd << < grids, blocks >> > (devArray, elemCount); // possibly the last call is redundant
+	for (unsigned int i = 0; i < CDIV(elemCount, 64); i++) {
+		//printf("exch64 %d (%d)\n", (i & 1) * 32, i);
+		exch64<<< gdim, bdim >>>(devArray, elemCount, (i & 1) * 32);
 	}
 
 	sdkStopTimer(&timer);
@@ -159,10 +150,6 @@ int main(const int argc, const char * argv[]) {
 
 }
 
-__global__ void nlz(unsigned int * x) {
-	*x = 31 - bfind32(*x);
-}
-
 __global__ void exchEven(int *a, const unsigned int n) {
 	unsigned int thix = blockIdx.x * blockDim.x + threadIdx.x;
 	unsigned int left = thix << 1;
@@ -194,36 +181,44 @@ __global__ void exchOdd(int *a, const unsigned int n) {
 }
 
 
-__global__ void exch64Even(int *a, const unsigned int n) {
+__global__ void exch64(int *a, const unsigned int n, const unsigned int offset) {
 	__shared__ int sa[64];
-	unsigned int bid = blockIdx.x;
 	unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
-	unsigned int left = tid << 1;
+	unsigned int left = (tid << 1) + offset;
+	unsigned int sleft = threadIdx.x << 1;
 	unsigned int tmp;
 
-	if (left + 1 < n) {
-		if (a[left] > a[left + 1]) {
-			tmp = a[left];
-			a[left] = a[left + 1];
-			a[left + 1] = tmp;
-		}
+	if (left < n) {
+		sa[sleft] = a[left];
 	}
-	__syncthreads();
-}
-
-__global__ void exch64Odd(int *a, const unsigned int n) {
-	__shared__ int sa[64];
-	unsigned int bid = blockIdx.x;
-	unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
-	unsigned int left = (tid << 1) + 1;
-	unsigned int tmp;
-
 	if (left + 1 < n) {
-		if (a[left] > a[left + 1]) {
-			tmp = a[left];
-			a[left] = a[left + 1];
-			a[left + 1] = tmp;
-		}
+		sa[sleft + 1] = a[left + 1];
 	}
+
 	__syncthreads();
+	for (int i = 0; i < 32; i++) {
+		if (left + 1 < n) {
+			if (sa[sleft] > sa[sleft + 1]) {
+				tmp = sa[sleft];
+				sa[sleft] = sa[sleft + 1];
+				sa[sleft + 1] = tmp;
+			}
+		}
+		__syncthreads();
+		if (left + 2 < n && sleft + 2 < 64) {
+			if (sa[sleft + 1] > sa[sleft + 2]) {
+				tmp = sa[sleft + 1];
+				sa[sleft + 1] = sa[sleft + 2];
+				sa[sleft + 2] = tmp;
+			}
+		}
+		__syncthreads();
+	}
+
+	if (left < n) {
+		a[left] = sa[sleft];
+	}
+	if (left + 1 < n) {
+		a[left + 1] = sa[sleft + 1];
+	}
 }
