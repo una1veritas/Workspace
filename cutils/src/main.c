@@ -22,8 +22,9 @@ int main(void) {
 	time_t lap;
 	long dummysum;
 
-	int32 x = 2;
-	printf("Hello. %08x, %08x\n", -x, x);
+	for(int i = 0; i < 100; ++i) {
+		printf("nlz32(%d) = %d\n", i, nlz32_IEEE(i));
+	}
 
 	srand(113);
 	for(int i = 0; i < NUM; i++)
@@ -45,6 +46,15 @@ int main(void) {
 	}
 	lap = clock() - lap;
 	printf("nlz32_:\n");
+	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
+
+	dummysum = 0;
+	lap = clock();
+	for(int i = 0; i < NUM; i++) {
+		dummysum += nlz32_Harley(r[i]);
+	}
+	lap = clock() - lap;
+	printf("nlz32_Harley:\n");
 	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
 
 	dummysum = 0;

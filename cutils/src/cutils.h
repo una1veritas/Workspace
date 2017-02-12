@@ -36,6 +36,7 @@ int pop32_SSE42(uint32 bits);
 
 /* count leading zero */
 uint32 nlz32_(uint32 x);
+uint32 nlz32_Harley(uint32 x);
 uint32 nlz32_IEEE(uint32 x);
 
 /* count trailing zeros */
