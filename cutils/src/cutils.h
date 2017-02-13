@@ -23,17 +23,25 @@ typedef uint64_t 	uint64;
 typedef int64_t		int64;
 
 /* popularity (1 bits) count */
-int pop32(uint32 bits); /* int pop32_SSE42(uint32 bits); */
-int pop32_HD(uint32 bits);
+uint32 pop32_SSE42(uint32 bits); /* int pop32_SSE42(uint32 bits); */
+uint32 pop32_HD(uint32 bits);
+
+#define POP32(x) pop32_SSE42(x)
 
 /* count leading zero */
-uint32 nlz32(uint32 x); /* uint32 nlz32_IEEE(uint32 x); */
+uint32 nlz32_IEEEFP(uint32 x); /* uint32 nlz32_IEEE(uint32 x); */
+uint32 nlz32_ABM(uint32 x);
 uint32 nlz32_Harley(uint32 x);
 
+#define NLZ32(x) nlz32_ABM(x)
+
 /* count trailing zeros */
-uint32 ntz32(uint32 x); /* uint32 ntz32_pop32(uint32 x); */
+uint32 ntz32_pop32(uint32 x); /* uint32 ntz32_pop32(uint32 x); */
 uint32 ntz32_nlz32(uint32 x);
 uint32 ntz32_HD(uint32 x);
+uint32 ntz32_BMI1(uint32 x);
+
+#define NTZ32(x) ntz32_BMI1(x)
 
 /* smallest 2 to the nth power that is no less than x */
 uint32 c2pow32(uint32 x);

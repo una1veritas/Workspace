@@ -38,10 +38,19 @@ int main(void) {
 	dummysum = 0;
 	lap = clock();
 	for(int i = 0; i < NUM; i++) {
-		dummysum += nlz32(r[i]);
+		dummysum += nlz32_IEEEFP(r[i]);
 	}
 	lap = clock() - lap;
-	printf("nlz32 IEEE:\n");
+	printf("nlz32 IEEEFP:\n");
+	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
+
+	dummysum = 0;
+	lap = clock();
+	for(int i = 0; i < NUM; i++) {
+		dummysum += nlz32_ABM(r[i]);
+	}
+	lap = clock() - lap;
+	printf("nlz32 ABM:\n");
 	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
 
 	dummysum = 0;
@@ -74,7 +83,7 @@ int main(void) {
 	dummysum = 0;
 	lap = clock();
 	for(int i = 0; i < NUM; i++) {
-		dummysum += pop32(r[i]);
+		dummysum += pop32_SSE42(r[i]);
 	}
 	lap = clock() - lap;
 	printf("pop32 SSE42:\n");
@@ -92,7 +101,16 @@ int main(void) {
 	dummysum = 0;
 	lap = clock();
 	for(int i = 0; i < NUM; i++) {
-		dummysum += ntz32(r[i]);
+		dummysum += ntz32_BMI1(r[i]);
+	}
+	lap = clock() - lap;
+	printf("ntz32_BMI1:\n");
+	printf("lap = %ld, sum = %ld\n\n", (long)lap, dummysum);
+
+	dummysum = 0;
+	lap = clock();
+	for(int i = 0; i < NUM; i++) {
+		dummysum += ntz32_pop32(r[i]);
 	}
 	lap = clock() - lap;
 	printf("ntz32_pop32:\n");
