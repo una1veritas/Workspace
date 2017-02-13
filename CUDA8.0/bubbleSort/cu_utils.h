@@ -19,10 +19,19 @@
 }
 
 #define CDIV(x, y) ( ((x) != 0)*(1 + (((x) - 1) / (y))) )
+
 /* difference or zero */
 #define DOZ(x, y) (((x)-(y))&-((x)>=(y)))
-#define MIN(x, y) ((x) - DOZ(x,y))
-#define MAX(x, y) ((y) + DOZ(x,y))
+
+__device__ __forceinline__ unsigned int bfind32(unsigned int x)
+{
+	unsigned int ret;
+	asm volatile("bfind.u32 %0, %1;" : "=r"(ret) : "r"(x));
+	return ret;
+}
+
+#define NLZ32_DEV(x) __clz(x)
+#define NLZ32(x) nlz32(x)
 
 unsigned int nlz32(unsigned int x);
 
