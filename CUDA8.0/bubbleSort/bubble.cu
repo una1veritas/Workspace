@@ -47,12 +47,12 @@ int main(const int argc, const char * argv[]) {
 	// setup dummy input 
 	srand(time(NULL));
 	for (unsigned int i = 0; i < elemCount; i++) {
-		A[i] = (rand() % 10)*100 + i;
+		A[i] = (rand() % 1000);
 	}
 
 	if (elemCount <= 16) {
 		for (unsigned int i = 0; i < elemCount; i++) {
-			if (i < 100 || i == elemCount - 1) {
+			if (i < 70 || i == elemCount - 1) {
 				printf("%4u ", i);
 			}
 			else if (i == elemCount - 2) {
@@ -62,7 +62,7 @@ int main(const int argc, const char * argv[]) {
 		printf("\n");
 	}
 	for (unsigned int i = 0; i < elemCount; i++) {
-		if (i < 100 || i == elemCount - 1) {
+		if (i < 70 || i == elemCount - 1) {
 			printf("%4d ", A[i]);
 		}
 		else if (i == elemCount - 2) {
@@ -129,7 +129,7 @@ int main(const int argc, const char * argv[]) {
 				firstFailure = i;
 			}
 		}
-		if (i < 100 || i == elemCount - 1) {
+		if (i < 70 || i == elemCount - 1) {
 			printf("%4u ", A[i]);
 		}
 		else if (i == elemCount - 2) {
