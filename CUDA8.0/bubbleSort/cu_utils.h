@@ -30,8 +30,7 @@ __device__ __forceinline__ unsigned int bfind32(unsigned int x)
 	return ret;
 }
 
-#define NLZ32_DEV(x) __clz(x)
-#define NLZ32(x) nlz32(x)
+__device__ __forceinline__ unsigned int nlz32_dev(unsigned int x) { return __clz(x);  }
 
 unsigned int nlz32(unsigned int x);
 

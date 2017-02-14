@@ -47,7 +47,7 @@ int main(const int argc, const char * argv[]) {
 	// setup dummy input 
 	srand(time(NULL));
 	for (unsigned int i = 0; i < elemCount; i++) {
-		A[i] = rand() % 10000;
+		A[i] = (rand() % 10)*100 + i;
 	}
 
 	if (elemCount <= 16) {
@@ -76,16 +76,15 @@ int main(const int argc, const char * argv[]) {
 
 	// setup input copy on device mem
 	int *devArray;
-	unsigned int block_size = 32;
-	unsigned devACapa = 64 * MAX(CDIV(elemCount,64),1);
-	unsigned int grid_size = (devACapa >> 1) / block_size;
+	unsigned int threadsperblock = 192;
+	unsigned devACapa = 192 * MAX(CDIV(elemCount,192),1);
+	unsigned int blockspergrid = CDIV(devACapa, threadsperblock *2);
 	cudaMalloc((void**)&devArray, sizeof(unsigned int) * devACapa);
 	cudaMemcpy(devArray, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
 
-	printf("Going to use %d blocks of %d threads for array capacity %d.\n\n", grid_size, block_size, devACapa);
+	printf("Going to use %d blocks of %d threads for array capacity %d.\n\n", blockspergrid, threadsperblock, devACapa);
 	fflush(stdout);
 
-	dim3 gdim(grid_size), bdim(block_size);
 
 	StopWatchInterface *timer = NULL;
 	sdkCreateTimer(&timer);
@@ -93,8 +92,8 @@ int main(const int argc, const char * argv[]) {
 	sdkStartTimer(&timer);
 
 	for (unsigned int i = 0; i < (elemCount>>1); i++) {
-		exchEven << < gdim, bdim >> > (devArray, elemCount);
-		exchOdd << < gdim, bdim >> > (devArray, elemCount); // possibly the last call is redundant
+		exchEven << < blockspergrid, threadsperblock >> > (devArray, elemCount);
+		exchOdd << < blockspergrid, threadsperblock >> > (devArray, elemCount); // possibly the last call is redundant
 	}
 
 	cudaDeviceSynchronize();
@@ -106,12 +105,15 @@ int main(const int argc, const char * argv[]) {
 	printf("Sort by exch64...\n");
 	cudaMemcpy(devArray, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
 
+	printf("Going to use %d blocks of %d threads for array capacity %d.\n\n", CDIV(devACapa, 32 * 2), 32, devACapa);
+	fflush(stdout);
+
 	sdkResetTimer(&timer);
 	sdkStartTimer(&timer);
 
-	for (unsigned int i = 0; i < CDIV(elemCount, 64); i++) {
+	for (unsigned int i = 0; i < CDIV(elemCount, 32); i++) {
 		//printf("exch64 %d (%d)\n", (i & 1) * 32, i);
-		exch64<<< gdim, bdim >>>(devArray, elemCount, (i & 1) * 32);
+		exch64<<< CDIV(devACapa, 32*2), 32 >>>(devArray, elemCount, (i & 1) * 32);
 	}
 
 	sdkStopTimer(&timer);

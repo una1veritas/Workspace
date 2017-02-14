@@ -8,3 +8,4 @@ unsigned int nlz32(unsigned int x)
 	unsigned int *p = ((unsigned int*)&d) + 1;
 	return 0x41e - (*p >> 20);  // 31 - ((*(p+1)>>20) - 0x3FF)
 }
+
