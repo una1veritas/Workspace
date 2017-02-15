@@ -1,3 +1,47 @@
+C:\Users\Sin\Documents\Workspace\CUDA8.0\deviceQuery\Debug\deviceQuery.exe Starting...
+
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+
+Detected 1 CUDA Capable device(s)
+
+Device 0: "GeForce GTX 750 Ti"
+  CUDA Driver Version / Runtime Version          8.0 / 8.0
+  CUDA Capability Major/Minor version number:    5.0
+  Total amount of global memory:                 2048 MBytes (2147483648 bytes)
+  ( 5) Multiprocessors, (128) CUDA Cores/MP:     640 CUDA Cores
+  GPU Max Clock rate:                            1085 MHz (1.08 GHz)
+  Memory Clock rate:                             2700 Mhz
+  Memory Bus Width:                              128-bit
+  L2 Cache Size:                                 2097152 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65536), 3D=(4096, 4096, 4096)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of register
+  s available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 1 copy engine(s)
+  Run time limit on kernels:                     Yes
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Disabled
+  CUDA Device Driver Mode (TCC or WDDM):         WDDM (Windows Display Driver Model)
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 1 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 8.0, CUDA Runtime Version = 8.0, NumDevs = 1, Device0 = GeForce GTX 750 Ti
+Result = PASS
+
 $ ./bin/bubble.exe 250
  921  966  560  695  541  616  529  546  320  531  198  830  986   70  901  561   46  885  881  851   33  478  439  398  592  239  502  334  186  583   28  898  327   50  551  404  774  961  464  502  837  985   47  285  316  802  483  234  827  451  137  558  734  333  271  158   45  901  753  368  209  173  619  717  604  709  704  872  825  262 ...  344
 generated 250 elements.
@@ -84,6 +128,29 @@ Elapsed time 9974.185547 msec.
 
 Sin@Phoenix-9 MINGW64 /c/Users/Sin/Documents/Workspace/CUDA8.0/bubbleSort
 $
+
+Sin@Phoenix-9 MINGW64 /c/Users/Sin/Documents/Workspace/CUDA8.0/bubbleSort
+$ ./bin/bubble.exe 64000
+2905 1343 3705 2026 7643 2264 6080 7053 9204 5398  621  225  665 5529 2673 2178 1572 9875 2163 2441 3926  607 1844 1971 9582 6355 6245 5712 4683 4466  679  954  207 9845 5443 6295 6404 1051 7323  544 8052 1631 6752 8339 1059 9689 5510 6902 4607 6439 1781 7501 5948 8876 1314 5853 1593 3482 1933 8434  791 9485 4172 6782 4555 9048 4023 8291 8913 7364 ... 2295
+generated 64000 elements.
+
+Going to use 167 blocks of 192 threads for array capacity 64128.
+
+Elapsed time 2103.202881 msec.
+
+Sort by exch64...
+Going to use 501 blocks of 64 threads for array capacity 64128.
+
+Elapsed time 5.738000 msec.
+
+Going to sort array of 64000 int's by qsort in stdlib.
+
+Elapsed time 12.100000 msec.
+
+   0    0    0    1    1    1    1    1    1    1    1    2    2    2    2    2    2    2    2    2    2    3    3    3    3    3    3    3    3    3    4    4    4    4    4    4    4    4    4    4    5    5    5    5    5    5    5    6    6    6    6    6    7    7    7    7    7    7    7    7    7    8    8    8    8    8    8    8    8    9 ... 9999
+
+Sin@Phoenix-9 MINGW64 /c/Users/Sin/Documents/Workspace/CUDA8.0/bubbleSort
+
 
 =======================================================================
 $ ./Debug/deviceQuery.exe

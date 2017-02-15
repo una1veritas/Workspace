@@ -18,6 +18,10 @@ __global__ void exchOdd(int *A, const unsigned int n);
 
 __global__ void exch128(int *A, const unsigned int n, const unsigned int offset);
 
+int comp_int(const void *a, const void *b) {
+	return *(int*)a - *(int*)b;
+}
+
 int main(const int argc, const char * argv[]) {
 	unsigned int elemCount = 0;
 
@@ -47,7 +51,7 @@ int main(const int argc, const char * argv[]) {
 	// setup dummy input 
 	srand(time(NULL));
 	for (unsigned int i = 0; i < elemCount; i++) {
-		A[i] = (rand() % 1000);
+		A[i] = (rand() % 10000);
 	}
 
 	if (elemCount <= 16) {
@@ -105,16 +109,28 @@ int main(const int argc, const char * argv[]) {
 	printf("Sort by exch64...\n");
 	cudaMemcpy(devArray, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
 
-	printf("Going to use %d blocks of %d threads for array capacity %d.\n\n", CDIV(devACapa, 32 * 2), 32, devACapa);
+	threadsperblock = 64;
+	blockspergrid = CDIV(devACapa, threadsperblock * 2);
+	printf("Going to use %d blocks of %d threads for array capacity %d.\n\n", blockspergrid, threadsperblock, devACapa);
 	fflush(stdout);
 
 	sdkResetTimer(&timer);
 	sdkStartTimer(&timer);
 
-	for (unsigned int i = 0; i < CDIV(elemCount, 64); i++) {
-		//printf("exch64 %d (%d)\n", (i & 1) * 64, i);
-		exch128<<< CDIV(devACapa, 128), 64 >>>(devArray, elemCount, (i & 1) * 64);
+	for (unsigned int i = 0; i < blockspergrid << 1; i++) {
+		//printf("exch128 %d (%d)\n", (i & 1) * threadsperblock, i);
+		exch128<<< blockspergrid, threadsperblock >>>(devArray, elemCount, (i & 1) * threadsperblock);
 	}
+
+	sdkStopTimer(&timer);
+	printf("Elapsed time %f msec.\n\n", (float)((int)(sdkGetTimerValue(&timer) * 1000)) / 1000);
+
+	printf("Going to sort array of %d int's by qsort in stdlib.\n\n", elemCount);
+	fflush(stdout);
+	sdkResetTimer(&timer);
+	sdkStartTimer(&timer);
+
+	qsort(A, elemCount, sizeof(int), comp_int);
 
 	sdkStopTimer(&timer);
 	printf("Elapsed time %f msec.\n\n", (float)((int)(sdkGetTimerValue(&timer) * 1000)) / 1000);
@@ -142,8 +158,6 @@ int main(const int argc, const char * argv[]) {
 		printf("!!!Sort failure deteced at A[%d] = %d and A[%d] = %d!!!\n", 
 			firstFailure, A[firstFailure], firstFailure+1, A[firstFailure+1]);
 	}
-	printf("[%u] = %u\n", elemCount - 1, A[elemCount - 1]);
-
 
 	cudaFree(devArray);
 	free(A);
