@@ -16,7 +16,7 @@
 __global__ void exchEven(int *A, const unsigned int n);
 __global__ void exchOdd(int *A, const unsigned int n);
 
-__global__ void exch64(int *A, const unsigned int n, const unsigned int offset);
+__global__ void exch128(int *A, const unsigned int n, const unsigned int offset);
 
 int main(const int argc, const char * argv[]) {
 	unsigned int elemCount = 0;
@@ -111,9 +111,9 @@ int main(const int argc, const char * argv[]) {
 	sdkResetTimer(&timer);
 	sdkStartTimer(&timer);
 
-	for (unsigned int i = 0; i < CDIV(elemCount, 32); i++) {
-		//printf("exch64 %d (%d)\n", (i & 1) * 32, i);
-		exch64<<< CDIV(devACapa, 32*2), 32 >>>(devArray, elemCount, (i & 1) * 32);
+	for (unsigned int i = 0; i < CDIV(elemCount, 64); i++) {
+		//printf("exch64 %d (%d)\n", (i & 1) * 64, i);
+		exch128<<< CDIV(devACapa, 128), 64 >>>(devArray, elemCount, (i & 1) * 64);
 	}
 
 	sdkStopTimer(&timer);
@@ -183,8 +183,8 @@ __global__ void exchOdd(int *a, const unsigned int n) {
 }
 
 
-__global__ void exch64(int *a, const unsigned int n, const unsigned int offset) {
-	__shared__ int sa[64];
+__global__ void exch128(int *a, const unsigned int n, const unsigned int offset) {
+	__shared__ int sa[128];
 	unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
 	unsigned int left = (tid << 1) + offset;
 	unsigned int sleft = threadIdx.x << 1;
@@ -198,7 +198,7 @@ __global__ void exch64(int *a, const unsigned int n, const unsigned int offset) 
 	}
 
 	__syncthreads();
-	for (int i = 0; i < 32; i++) {
+	for (int i = 0; i < 64; i++) {
 		if (left + 1 < n) {
 			if (sa[sleft] > sa[sleft + 1]) {
 				tmp = sa[sleft];
@@ -207,7 +207,7 @@ __global__ void exch64(int *a, const unsigned int n, const unsigned int offset) 
 			}
 		}
 		__syncthreads();
-		if (left + 2 < n && sleft + 2 < 64) {
+		if (left + 2 < n && sleft + 2 < 128) {
 			if (sa[sleft + 1] > sa[sleft + 2]) {
 				tmp = sa[sleft + 1];
 				sa[sleft + 1] = sa[sleft + 2];

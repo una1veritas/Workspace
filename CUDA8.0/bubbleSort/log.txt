@@ -84,3 +84,83 @@ Elapsed time 9974.185547 msec.
 
 Sin@Phoenix-9 MINGW64 /c/Users/Sin/Documents/Workspace/CUDA8.0/bubbleSort
 $
+
+=======================================================================
+$ ./Debug/deviceQuery.exe
+C:\Users\sin\Documents\Workspace\CUDA8.0\deviceQuery\Debug\deviceQuery.exe Starting...
+
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+
+Detected 1 CUDA Capable device(s)
+
+Device 0: "GeForce GTX 1060 6GB"
+  CUDA Driver Version / Runtime Version          8.0 / 8.0
+  CUDA Capability Major/Minor version number:    6.1
+  Total amount of global memory:                 6144 MBytes (6442450944 bytes)
+  (10) Multiprocessors, (128) CUDA Cores/MP:     1280 CUDA Cores
+  GPU Max Clock rate:                            1772 MHz (1.77 GHz)
+  Memory Clock rate:                             4004 Mhz
+  Memory Bus Width:                              192-bit
+  L2 Cache Size:                                 1572864 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(131072), 2D=(131072, 65536), 3D=(16384, 16384, 16384)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(32768), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(32768, 32768), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 2 copy engine(s)
+  Run time limit on kernels:                     Yes
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Disabled
+  CUDA Device Driver Mode (TCC or WDDM):         WDDM (Windows Display Driver Model)
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 1 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 8.0, CUDA Runtime Version = 8.0, NumDevs = 1, Device0 = GeForce GTX 1060 6GB
+Result = PASS
+
+$ ./bin/bubble.exe 128000
+ 764  554  488  960   20  125  647  951  822  923   68  774  456  240   87  748  825  802  778  308   44  224  885  523  459  809  531  227  646  361   36  657  836  447  213  523  634   42  157   14  490  285  378  599  157  808  363  577  227  394   23  463  354  708  958  106  782  559  781  613   48  601  968  503  234  676  980  192   74  263 ...  978
+generated 128000 elements.
+
+Going to use 334 blocks of 192 threads for array capacity 128064.
+
+Elapsed time 1873.048950 msec.
+
+Sort by exch64...
+Going to use 2001 blocks of 32 threads for array capacity 128064.
+
+Elapsed time 1405.531982 msec.
+
+   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0 ...  999
+[127999] = 999
+
+sin@DESKTOP-HOFQNRF MINGW64 /c/Users/sin/Documents/Workspace/CUDA8.0/bubbleSort
+$ ./bin/bubble.exe 64000
+ 823  417  131  347   74  270  135  797  118  330  405  567  740  162  330  922   29  776  962  768  915  737    8  482  169  259  637  877  680  844  517  902  219  639  674  452  869  160   44  661  330  394  638  267  675  390  559  360  150  671  871  552  806  556  176  887  422  973  592  307  508  386  220   50  131   96  782  422  921  798 ...  352
+generated 64000 elements.
+
+Going to use 167 blocks of 192 threads for array capacity 64128.
+
+Elapsed time 644.192993 msec.
+
+Sort by exch64...
+Going to use 1002 blocks of 32 threads for array capacity 64128.
+
+Elapsed time 6.215000 msec.
+
+   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0 ...  999
+[63999] = 999
+
+sin@DESKTOP-HOFQNRF MINGW64 /c
