@@ -19,6 +19,10 @@ int comp_int(const void *a, const void *b) {
 #define ARRAY_ELEMENTS_MAX 0x7fffffff
 //262144
 
+int comp_int(const void *a, const void *b) {
+	return *(int*)a - *(int*)b;
+}
+
 int main(const int argc, const char * argv[]) {
 	unsigned int elemCount = 0;
 
@@ -48,7 +52,7 @@ int main(const int argc, const char * argv[]) {
 	// setup dummy input 
 	srand(time(NULL));
 	for (unsigned int i = 0; i < elemCount; i++) {
-		A[i] = (rand() % 1000);
+		A[i] = (rand() % 10000);
 	}
 
 	if (elemCount <= 16) {
@@ -142,8 +146,6 @@ int main(const int argc, const char * argv[]) {
 		printf("!!!Sort failure deteced at A[%d] = %d and A[%d] = %d!!!\n", 
 			firstFailure, A[firstFailure], firstFailure+1, A[firstFailure+1]);
 	}
-	printf("[%u] = %u\n", elemCount - 1, A[elemCount - 1]);
-
 
 	cudaFree(devArray);
 	free(A);

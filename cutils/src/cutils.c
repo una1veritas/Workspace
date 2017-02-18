@@ -13,10 +13,10 @@
 
 #include "cutils.h"
 
-uint32 pop32_SSE42(uint32 bits)
+uint32 pop32_SSE42(uint32 xu32)
 {
     int ret;
-    __asm__ ("popcntl %[input], %[output]" : [output] "=r"(ret) : [input] "r"(bits));
+    __asm__ volatile ("popcntl %1, %0" : "=r"(ret) : "r"(xu32) );
     return ret;
 }
 
@@ -42,7 +42,7 @@ uint32 nlz32_IEEEFP(uint32 x)
 uint32 nlz32_ABM(uint32 x)
 {
     int ret;
-    asm volatile ("lzcnt %[input], %[output]" : [output] "=r" (ret) : [input] "r" (x));
+    __asm__ volatile ("lzcnt %1, %0" : "=r" (ret) : "r" (x) );
     return ret;
 }
 
@@ -63,7 +63,6 @@ uint32 nlz32_Harley(uint32 x) {
 }
 
 
-
 uint32 ntz32_pop32(uint32 x) {
 	return 32 - POP32( x | -x);
 }
@@ -75,7 +74,7 @@ uint32 ntz32_nlz32(uint32 x) {
 
 uint32 ntz32_BMI1(uint32 x) {
     int ret;
-    asm volatile ("tzcnt %[input], %[output]" : [output] "=r" (ret) : [input] "r" (x));
+    __asm__ volatile ("tzcnt %1, %0" : "=r" (ret) : "r" (x));
     return ret;
 }
 
