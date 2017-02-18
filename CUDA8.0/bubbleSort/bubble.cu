@@ -10,13 +10,14 @@
 
 #include "cu_utils.h"
 
+#include "oddevensort.h"
+
+int comp_int(const void *a, const void *b) {
+	return *(int*)a - *(int*)b;
+}
+
 #define ARRAY_ELEMENTS_MAX 0x7fffffff
 //262144
-
-__global__ void exchEven(int *A, const unsigned int n);
-__global__ void exchOdd(int *A, const unsigned int n);
-
-__global__ void exch128(int *A, const unsigned int n, const unsigned int offset);
 
 int main(const int argc, const char * argv[]) {
 	unsigned int elemCount = 0;
@@ -76,25 +77,18 @@ int main(const int argc, const char * argv[]) {
 
 	// setup input copy on device mem
 	int *devArray;
-	unsigned int threadsperblock = 192;
-	unsigned devACapa = 192 * MAX(CDIV(elemCount,192),1);
-	unsigned int blockspergrid = CDIV(devACapa, threadsperblock *2);
+	unsigned devACapa = 128 * MAX(CDIV(elemCount,128),1);
 	cudaMalloc((void**)&devArray, sizeof(unsigned int) * devACapa);
 	cudaMemcpy(devArray, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
 
-	printf("Going to use %d blocks of %d threads for array capacity %d.\n\n", blockspergrid, threadsperblock, devACapa);
-	fflush(stdout);
-
+	printf("Sort by oddevensort_gmem..\n");
 
 	StopWatchInterface *timer = NULL;
 	sdkCreateTimer(&timer);
 	sdkResetTimer(&timer);
 	sdkStartTimer(&timer);
 
-	for (unsigned int i = 0; i < (elemCount>>1); i++) {
-		exchEven << < blockspergrid, threadsperblock >> > (devArray, elemCount);
-		exchOdd << < blockspergrid, threadsperblock >> > (devArray, elemCount); // possibly the last call is redundant
-	}
+	oddevensort_gmem(devArray, elemCount);
 
 	cudaDeviceSynchronize();
 
@@ -102,22 +96,28 @@ int main(const int argc, const char * argv[]) {
 	printf("Elapsed time %f msec.\n\n", (float)((int)(sdkGetTimerValue(&timer) * 1000)) / 1000);
 
 
-	printf("Sort by exch64...\n");
 	cudaMemcpy(devArray, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
 
-	printf("Going to use %d blocks of %d threads for array capacity %d.\n\n", CDIV(devACapa, 32 * 2), 32, devACapa);
-	fflush(stdout);
+	printf("Sort by oddevensort_smem...\n");
 
 	sdkResetTimer(&timer);
 	sdkStartTimer(&timer);
 
-	for (unsigned int i = 0; i < CDIV(elemCount, 64); i++) {
-		//printf("exch64 %d (%d)\n", (i & 1) * 64, i);
-		exch128<<< CDIV(devACapa, 128), 64 >>>(devArray, elemCount, (i & 1) * 64);
-	}
+	oddevensort_smem(devArray, elemCount);
 
 	sdkStopTimer(&timer);
 	printf("Elapsed time %f msec.\n\n", (float)((int)(sdkGetTimerValue(&timer) * 1000)) / 1000);
+
+	printf("Sort by qsort in stdlib...\n");
+
+	sdkResetTimer(&timer);
+	sdkStartTimer(&timer);
+
+	qsort(A, elemCount, sizeof(int), comp_int);
+
+	sdkStopTimer(&timer);
+	printf("Elapsed time %f msec.\n\n", (float)((int)(sdkGetTimerValue(&timer) * 1000)) / 1000);
+
 	sdkDeleteTimer(&timer);
 
 	cudaMemcpy(A, devArray, sizeof(unsigned int) * devACapa, cudaMemcpyDeviceToHost);
@@ -150,77 +150,4 @@ int main(const int argc, const char * argv[]) {
 
 	cudaDeviceReset();
 
-}
-
-__global__ void exchEven(int *a, const unsigned int n) {
-	unsigned int thix = blockIdx.x * blockDim.x + threadIdx.x;
-	unsigned int left = thix << 1;
-	unsigned int tmp;
-
-	if ( left + 1 < n ) {
-		if (a[left] > a[left+1]) {
-			tmp = a[left];
-			a[left] = a[left+1];
-			a[left+1] = tmp;
-		}
-	}
-	__syncthreads();
-}
-
-__global__ void exchOdd(int *a, const unsigned int n) {
-	unsigned int thix = blockIdx.x * blockDim.x + threadIdx.x;
-	unsigned int left = (thix << 1) + 1;
-	unsigned int tmp;
-
-	if (left + 1 < n) {
-		if (a[left] > a[left+1]) {
-			tmp = a[left];
-			a[left] = a[left+1];
-			a[left+1] = tmp;
-		}
-	}
-	__syncthreads();
-}
-
-
-__global__ void exch128(int *a, const unsigned int n, const unsigned int offset) {
-	__shared__ int sa[128];
-	unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
-	unsigned int left = (tid << 1) + offset;
-	unsigned int sleft = threadIdx.x << 1;
-	unsigned int tmp;
-
-	if (left < n) {
-		sa[sleft] = a[left];
-	}
-	if (left + 1 < n) {
-		sa[sleft + 1] = a[left + 1];
-	}
-
-	__syncthreads();
-	for (int i = 0; i < 64; i++) {
-		if (left + 1 < n) {
-			if (sa[sleft] > sa[sleft + 1]) {
-				tmp = sa[sleft];
-				sa[sleft] = sa[sleft + 1];
-				sa[sleft + 1] = tmp;
-			}
-		}
-		__syncthreads();
-		if (left + 2 < n && sleft + 2 < 128) {
-			if (sa[sleft + 1] > sa[sleft + 2]) {
-				tmp = sa[sleft + 1];
-				sa[sleft + 1] = sa[sleft + 2];
-				sa[sleft + 2] = tmp;
-			}
-		}
-		__syncthreads();
-	}
-
-	if (left < n) {
-		a[left] = sa[sleft];
-	}
-	if (left + 1 < n) {
-		a[left + 1] = sa[sleft + 1];
-	}
 }
