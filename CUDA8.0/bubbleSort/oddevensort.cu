@@ -10,7 +10,7 @@
 
 #include "oddevensort.h"
 
-void oddevensort_gmem(int *devArray, const unsigned int nsize) {
+void cu_oddevensort_gmem(int *devArray, const unsigned int nsize) {
 	unsigned int threadsperblock = 192;
 	unsigned devACapa = 192 * MAX(CDIV(nsize, 192), 1);
 	unsigned int blockspergrid = CDIV(devACapa, threadsperblock * 2);
@@ -22,7 +22,7 @@ void oddevensort_gmem(int *devArray, const unsigned int nsize) {
 	//cudaDeviceSynchronize();
 }
 
-void oddevensort_smem(int *devArray, const unsigned int nsize) {
+void cu_oddevensort(int *devArray, const unsigned int nsize) {
 	unsigned devACapa = 256 * MAX(CDIV(nsize, 256), 1);
 	for (unsigned int i = 0; i < CDIV(nsize, 128); i++) {
 		//printf("exch64 %d (%d)\n", (i & 1) * 64, i);

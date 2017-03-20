@@ -12,6 +12,7 @@ typedef int64_t		int64;
 /* */
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
+#include <helper_functions.h> // helper functions for SDK examples
 
 
 #define cuCheckErrors(call)										\
@@ -58,5 +59,43 @@ uint32 clog32(uint32 x);
 
 /* the number of digits including the single leading 0 at msb. */
 uint32 bitsize32(int32 x);
+
+
+struct cuStopWatch {
+	StopWatchInterface *timer = NULL;
+
+	cuStopWatch(void) {
+		timer = NULL;
+		sdkCreateTimer(&timer);
+	}
+
+	~cuStopWatch(void) {
+		sdkDeleteTimer(&timer);
+	}
+
+	void reset(void) {
+		sdkResetTimer(&timer);
+	}
+
+	void start(void) {
+		sdkStartTimer(&timer);
+	}
+
+	void stop(void) {
+		sdkStopTimer(&timer);
+	}
+
+	float timerValue(void) {
+		return sdkGetTimerValue(&timer);
+	}
+	
+	uint32 millis(void) {
+		return (uint32)(1000 * sdkGetTimerValue(&timer));
+	}
+
+	uint32 micros(void) {
+		return (uint32)(1000000 * sdkGetTimerValue(&timer));
+	}
+};
 
 #endif /* __CU_UTILS_H__ */

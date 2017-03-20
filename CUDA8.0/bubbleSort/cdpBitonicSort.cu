@@ -28,7 +28,7 @@ static __device__ __forceinline__ unsigned int __btflo(unsigned int word)
 //  Perhaps it requires a class?
 //
 ////////////////////////////////////////////////////////////////////////////////
-__device__ __forceinline__ int qcompare(unsigned &val1, unsigned &val2)
+__device__ __forceinline__ int qcompare(int &val1, int &val2)
 {
     return (val1 > val2) ? 1 : (val1 == val2) ? 0 : -1;
 }
@@ -54,7 +54,7 @@ __device__ __forceinline__ int qcompare(unsigned &val1, unsigned &val2)
 //  how much data we can sort per block.
 //
 ////////////////////////////////////////////////////////////////////////////////
-static __device__ __forceinline__ void bitonicsort_kernel(unsigned *indata, unsigned *outdata, unsigned int offset, unsigned int len)
+static __device__ __forceinline__ void bitonicsort_kernel(int *indata, int *outdata, unsigned int offset, unsigned int len)
 {
     __shared__ unsigned sortbuf[1024];     // Max of 1024 elements - TODO: make this dynamic
 
@@ -130,7 +130,7 @@ static __device__ __forceinline__ void bitonicsort_kernel(unsigned *indata, unsi
 //  type. It must be a directly-comparable (i.e. with max value) type.
 //
 ////////////////////////////////////////////////////////////////////////////////
-static __device__ __forceinline__ void big_bitonicsort_kernel(unsigned *indata, unsigned *outdata, unsigned *backbuf, unsigned int offset, unsigned int len)
+static __device__ __forceinline__ void big_bitonicsort_kernel(int *indata, int *outdata, int *backbuf, unsigned int offset, unsigned int len)
 {
     unsigned int len2 = 1 << (__btflo(len-1U)+1);   // Round up len to nearest power-of-2
 
@@ -237,12 +237,12 @@ static __device__ __forceinline__ void big_bitonicsort_kernel(unsigned *indata, 
 // KERNELS
 ////////////////////////////////////////////////////////////////////////////////
 
-__global__ void bitonicsort(unsigned *indata, unsigned *outdata, unsigned int offset, unsigned int len)
+__global__ void bitonicsort(int *indata, int *outdata, unsigned int offset, unsigned int len)
 {
     bitonicsort_kernel(indata, outdata, offset, len);
 }
 
-__global__ void big_bitonicsort(unsigned *indata, unsigned *outdata, unsigned *backbuf, unsigned int offset, unsigned int len)
+__global__ void big_bitonicsort(int *indata, int *outdata, int *backbuf, unsigned int offset, unsigned int len)
 {
     big_bitonicsort_kernel(indata, outdata, backbuf, offset, len);
 }

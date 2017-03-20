@@ -35,8 +35,10 @@ typedef struct qsortRingbuf_t
 // Stack elem count must be power of 2!
 #define QSORT_STACK_ELEMS   1*1024*1024 // One million stack elements is a HUGE number.
 
-__global__ void qsort_warp(unsigned *indata, unsigned *outdata, unsigned int len, qsortAtomicData *atomicData, qsortRingbuf *ringbuf, unsigned int source_is_indata, unsigned int depth);
-__global__ void bitonicsort(unsigned *indata, unsigned *outdata, unsigned int offset, unsigned int len);
-__global__ void big_bitonicsort(unsigned *indata, unsigned *outdata, unsigned *backbuf, unsigned int offset, unsigned int len);
+__global__ void qsort_warp(int *indata, int *outdata, unsigned int len, qsortAtomicData *atomicData, qsortRingbuf *ringbuf, unsigned int source_is_indata, unsigned int depth);
+__global__ void bitonicsort(int *indata, int *outdata, unsigned int offset, unsigned int len);
+__global__ void big_bitonicsort(int *indata, int *outdata, int *backbuf, unsigned int offset, unsigned int len);
+
+void cdp_qsort(int * devArray, const unsigned int size);
 
 #endif // QUICKSORT_H

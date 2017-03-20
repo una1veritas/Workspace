@@ -11,10 +11,7 @@
 #include "cu_utils.h"
 
 #include "oddevensort.h"
-
-int comp_int(const void *a, const void *b) {
-	return *(int*)a - *(int*)b;
-}
+#include "cdpQuickSort.h"
 
 #define ARRAY_ELEMENTS_MAX 0x7fffffff
 //262144
@@ -42,8 +39,8 @@ int main(const int argc, const char * argv[]) {
 	// device(1) : GTX 750Ti
 	cudaSetDevice(0);
 	
-	int *A;
-	A = (int*) malloc(sizeof(unsigned int) * elemCount );
+	int * A = new int[elemCount];
+	//	A = (int*) malloc(sizeof(unsigned int) * elemCount );
 	if (A == NULL) {
 		printf("malloc failed.\n");
 		fflush(stdout);
@@ -52,7 +49,7 @@ int main(const int argc, const char * argv[]) {
 	// setup dummy input 
 	srand(time(NULL));
 	for (unsigned int i = 0; i < elemCount; i++) {
-		A[i] = (rand() % 10000);
+		A[i] = rand();
 	}
 
 	if (elemCount <= 16) {
@@ -85,44 +82,54 @@ int main(const int argc, const char * argv[]) {
 	cudaMalloc((void**)&devArray, sizeof(unsigned int) * devACapa);
 	cudaMemcpy(devArray, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
 
+	cuStopWatch sw;
+	
 	printf("Sort by oddevensort_gmem..\n");
 
-	StopWatchInterface *timer = NULL;
-	sdkCreateTimer(&timer);
-	sdkResetTimer(&timer);
-	sdkStartTimer(&timer);
-
-	oddevensort_gmem(devArray, elemCount);
+	sw.reset();
+	sw.start();
+	
+	cu_oddevensort_gmem(devArray, elemCount);
 
 	cudaDeviceSynchronize();
 
-	sdkStopTimer(&timer);
-	printf("Elapsed time %f msec.\n\n", (float)((int)(sdkGetTimerValue(&timer) * 1000)) / 1000);
+	sw.stop();
+	printf("Elapsed time %f msec.\n\n", (float)((int)(sw.timerValue() * 1000)) / 1000);
 
 
 	cudaMemcpy(devArray, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
 
 	printf("Sort by oddevensort_smem...\n");
 
-	sdkResetTimer(&timer);
-	sdkStartTimer(&timer);
+	sw.reset();
+	sw.start();
 
-	oddevensort_smem(devArray, elemCount);
+	cu_oddevensort(devArray, elemCount);
 
-	sdkStopTimer(&timer);
-	printf("Elapsed time %f msec.\n\n", (float)((int)(sdkGetTimerValue(&timer) * 1000)) / 1000);
+	sw.stop();
+	printf("Elapsed time %f msec.\n\n", (float)((int)(sw.timerValue() * 1000)) / 1000);
 
 	printf("Sort by qsort in stdlib...\n");
 
-	sdkResetTimer(&timer);
-	sdkStartTimer(&timer);
+	sw.reset();
+	sw.start();
 
 	qsort(A, elemCount, sizeof(int), comp_int);
 
-	sdkStopTimer(&timer);
-	printf("Elapsed time %f msec.\n\n", (float)((int)(sdkGetTimerValue(&timer) * 1000)) / 1000);
+	sw.stop();
+	printf("Elapsed time %f msec.\n\n", (float)((int)(sw.timerValue() * 1000)) / 1000);
 
-	sdkDeleteTimer(&timer);
+	printf("Sort by cdp_qsort...\n");
+	cudaMemcpy(devArray, A, sizeof(unsigned int) * devACapa, cudaMemcpyHostToDevice);
+
+	sw.reset();
+	sw.start();
+
+	cdp_qsort(devArray, elemCount);
+
+	sw.stop();
+	printf("Elapsed time %f msec.\n\n", (float)((int)(sw.timerValue() * 1000)) / 1000);
+
 
 	cudaMemcpy(A, devArray, sizeof(unsigned int) * devACapa, cudaMemcpyDeviceToHost);
 
@@ -148,7 +155,8 @@ int main(const int argc, const char * argv[]) {
 	}
 
 	cudaFree(devArray);
-	free(A);
+	
+	delete [] A;
 
 	cudaDeviceReset();
 

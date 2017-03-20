@@ -6,7 +6,7 @@ __global__ void exchEven(int *A, const unsigned int n);
 __global__ void exchOdd(int *A, const unsigned int n);
 __global__ void exch256(int *A, const unsigned int n, const unsigned int offset);
 
-void oddevensort_gmem(int *devArray, const unsigned int nsize);
-void oddevensort_smem(int *devArray, const unsigned int nsize);
+void cu_oddevensort_gmem(int *devArray, const unsigned int nsize);
+void cu_oddevensort(int *devArray, const unsigned int nsize);
 
 #endif

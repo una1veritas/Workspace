@@ -26,6 +26,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include <thrust/random.h>
 #include <thrust/device_vector.h>
+
 #include <helper_cuda.h>
 #include <helper_string.h>
 #include "cdpQuicksort.h"
@@ -111,8 +112,8 @@ static __device__ void ringbufFree(qsortRingbuf *ringbuf, T *data)
 //  and cover the instruction overhead.
 //
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void qsort_warp(unsigned *indata,
-                           unsigned *outdata,
+__global__ void qsort_warp(int *indata,
+                           int *outdata,
                            unsigned int offset,
                            unsigned int len,
                            qsortAtomicData *atomicData,
@@ -137,8 +138,8 @@ __global__ void qsort_warp(unsigned *indata,
     //
 
     // Read in the data and the pivot. Arbitrary pivot selection for now.
-    unsigned pivot = indata[offset + len/2];
-    unsigned data  = indata[offset + thread_id];
+    int pivot = indata[offset + len/2];
+    int data  = indata[offset + thread_id];
 
     // Count how many are <= and how many are > pivot.
     // If all are <= pivot then we adjust the comparison
@@ -306,7 +307,7 @@ __global__ void qsort_warp(unsigned *indata,
 //  Returns the time elapsed for the sort.
 //
 ////////////////////////////////////////////////////////////////////////////////
-float run_quicksort_cdp(unsigned *gpudata, unsigned *scratchdata, unsigned int count, cudaStream_t stream)
+void run_quicksort_cdp(int *gpudata, int *scratchdata, unsigned int count, cudaStream_t stream)
 {
     unsigned int stacksize = QSORT_STACK_ELEMS;
 
@@ -350,7 +351,7 @@ float run_quicksort_cdp(unsigned *gpudata, unsigned *scratchdata, unsigned int c
     checkCudaErrors(cudaEventRecord(ev2));
     checkCudaErrors(cudaDeviceSynchronize());
 
-    float elapse=0.0f;
+	float elapse = 0.0f;
 
     if (cudaPeekAtLastError() != cudaSuccess)
         printf("Launch failure: %s\n", cudaGetErrorString(cudaGetLastError()));
@@ -373,128 +374,34 @@ float run_quicksort_cdp(unsigned *gpudata, unsigned *scratchdata, unsigned int c
     checkCudaErrors(cudaFree(ringbuf));
     checkCudaErrors(cudaFree(gpustack));
 
-    return elapse;
+    return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-int run_qsort(unsigned int size, int seed, int debug, int loop, int verbose)
+void cdp_qsort(int * devArray, const unsigned int nsize)
 {
-    if (seed > 0)
-        srand(seed);
 
-    // Create and set up our test
-    unsigned *gpudata, *scratchdata;
-    checkCudaErrors(cudaMalloc((void **)&gpudata, size*sizeof(unsigned)));
-    checkCudaErrors(cudaMalloc((void **)&scratchdata, size*sizeof(unsigned)));
+    int *scratchdata;
+    checkCudaErrors(cudaMalloc((void **)&scratchdata, nsize*sizeof(int)));
 
     // Create CPU data.
-    unsigned *data = new unsigned[size];
-    unsigned int min = loop ? loop : size;
-    unsigned int max = size;
-    loop = (loop == 0) ? 1 : loop;
 
-    for (size=min; size<=max; size+=loop)
-    {
-        if (verbose)
-            printf(" Input: ");
+    // So we're now populated and ready to go! We size our launch as
+    // blocks of up to BLOCKSIZE threads, and appropriate grid size.
+    // One thread is launched per element.
+	run_quicksort_cdp(devArray, scratchdata, nsize, NULL);
 
-        for (unsigned int i=0; i<size; i++)
-        {
-            // Build data 8 bits at a time
-            data[i] = 0;
-            char *ptr = (char *)&(data[i]);
-
-            for (unsigned j=0; j<sizeof(unsigned); j++)
-            {
-                // Easy-to-read data in debug mode
-                if (debug)
-                {
-                    *ptr++ = (char)(rand() % 10);
-                    break;
-                }
-
-                *ptr++ = (char)(rand() & 255);
-            }
-
-            if (verbose)
-            {
-                if (i && !(i%32))
-                    printf("\n        ");
-
-                printf("%u ", data[i]);
-            }
-        }
-
-        if (verbose)
-            printf("\n");
-
-        checkCudaErrors(cudaMemcpy(gpudata, data, size*sizeof(unsigned), cudaMemcpyHostToDevice));
-
-        // So we're now populated and ready to go! We size our launch as
-        // blocks of up to BLOCKSIZE threads, and appropriate grid size.
-        // One thread is launched per element.
-        float elapse;
-        elapse = run_quicksort_cdp(gpudata, scratchdata, size, NULL);
-
-        //run_bitonicsort<SORTTYPE>(gpudata, scratchdata, size, verbose);
-        checkCudaErrors(cudaDeviceSynchronize());
-
-        // Copy back the data and verify correct sort
-        checkCudaErrors(cudaMemcpy(data, gpudata, size*sizeof(unsigned), cudaMemcpyDeviceToHost));
-
-        if (verbose)
-        {
-            printf("Output: ");
-
-            for (unsigned int i=0; i<size; i++)
-            {
-                if (i && !(i%32)) printf("\n        ");
-
-                printf("%u ", data[i]);
-            }
-
-            printf("\n");
-        }
-
-        unsigned int check;
-
-        for (check=1; check<size; check++)
-        {
-            if (data[check] < data[check-1])
-            {
-                printf("FAILED at element: %d\n", check);
-                break;
-            }
-        }
-
-        if (check != size)
-        {
-            printf("    cdpAdvancedQuicksort FAILED\n");
-            exit(EXIT_FAILURE);
-        }
-        else
-            printf("    cdpAdvancedQuicksort PASSED\n");
-
-        // Display the time between event recordings
-        printf("Sorted %u elems in %.3f ms (%.3f Melems/sec)\n", size, elapse, (float)size/(elapse*1000.0f));
-        fflush(stdout);
-    }
+    //run_bitonicsort<SORTTYPE>(gpudata, scratchdata, size, verbose);
+    checkCudaErrors(cudaDeviceSynchronize());
 
     // Release everything and we're done
     checkCudaErrors(cudaFree(scratchdata));
-    checkCudaErrors(cudaFree(gpudata));
-    delete(data);
-    return 0;
+
+	return;
 }
 
-static void usage()
-{
-    printf("Syntax: qsort [-size=<num>] [-seed=<num>] [-debug] [-loop-step=<num>] [-verbose]\n");
-    printf("If loop_step is non-zero, will run from 1->array_len in steps of loop_step\n");
-}
-
-
+/*
 // Host side entry
 int dcpAdvancedQuickSort_main(int argc, char *argv[])
 {
@@ -558,6 +465,6 @@ int dcpAdvancedQuickSort_main(int argc, char *argv[])
     exit(EXIT_SUCCESS);
 }
 
-
+*/
 
 
