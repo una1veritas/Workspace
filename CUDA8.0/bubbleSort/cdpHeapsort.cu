@@ -24,10 +24,10 @@ void cu_makeheap(int *devArray, const unsigned int nsize) {
 	int *t = new int[nsize];
 	unsigned int maxparid = (nsize >> 1) - 1;
 	printf("size = %d, maxparid = %d\n", nsize, maxparid);
-	for (int i = 0; i < clog32(nsize); ++i) {
+	for (int i = 0; i < 2*clog32(nsize); ++i) {
 		printf("iteration %d\n", i);
 		dev_makeheap << <1, maxparid + 1 >> > (devArray, nsize, i);
-		cudaMemcpy(&t,&devArray, nsize*sizeof(int), cudaMemcpyDeviceToHost);
+		cudaMemcpy(t,devArray, nsize*sizeof(int), cudaMemcpyDeviceToHost);
 		for (int j = 0; j < nsize; ++j) {
 			printf("%d, ", t[j]);
 		}
