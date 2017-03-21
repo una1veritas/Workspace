@@ -10,9 +10,9 @@ typedef uint64_t 	uint64;
 typedef int64_t		int64;
 
 /* */
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
+#include <cuda_runtime.h>
 #include <helper_functions.h> // helper functions for SDK examples
+#include "device_launch_parameters.h"
 
 
 #define cuCheckErrors(call)										\
@@ -42,6 +42,7 @@ __device__ __forceinline__ unsigned int bfind32(unsigned int x)
 #define NLZ64DEV(x) __clzll(x)
 #define POPC32DEV(x) __popc(x)
 #define POPC64DEV(x) __popcll(x)
+
 
 unsigned int nlz32_IEEEFP(unsigned int x);
 
