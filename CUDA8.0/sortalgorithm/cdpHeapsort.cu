@@ -22,28 +22,30 @@ __device__ uint32 clog32dev(uint32 x) {
 
 void cu_makeheap(int *devArray, const unsigned int nsize) {
 	int *t = new int[nsize];
-	unsigned int maxparid = (nsize >> 1) - 1;
-	printf("size = %d, maxparid = %d\n", nsize, maxparid);
-	for (int i = 0; i < 2*clog32(nsize); ++i) {
-		printf("iteration %d\n", i);
-		dev_makeheap << <1, maxparid + 1 >> > (devArray, nsize, i);
+	unsigned int maxparentid = (nsize >> 1) - 1;
+	printf("size = %d, maxparentid = %d\n", nsize, maxparentid);
+	for (int i = 0; i < clog32(nsize) + 1; ++i) {
+		//printf("iteration %d\n", i);
+		dev_shakeheap << <1, maxparentid + 1 >> > (devArray, nsize, i);
+		/*
 		cudaMemcpy(t,devArray, nsize*sizeof(int), cudaMemcpyDeviceToHost);
 		for (int j = 0; j < nsize; ++j) {
 			printf("%d, ", t[j]);
 		}
 		printf("\n\n");
+		*/
 	}
 	delete[] t;
 }
 
-__global__ void dev_makeheap(int *a, const unsigned int n, const unsigned int parity) {
+__global__ void dev_shakeheap(int *a, const unsigned int n, const unsigned int parity) {
 	const unsigned int thrid = blockIdx.x * blockDim.x + threadIdx.x;
 	const unsigned int level = clog32dev(thrid + 2) - 1;
 	unsigned int chid;
 	int t;
 
 	if (((level^parity) & 1) == 0) {
-		printf("a[%d] @ level %d -> a[%d], a[%d]\n", thrid, level, ((thrid + 1) << 1) - 1, ((thrid + 1) << 1));
+		//printf("a[%d] @ level %d -> a[%d], a[%d]\n", thrid, level, ((thrid + 1) << 1) - 1, ((thrid + 1) << 1));
 		if (a[((thrid + 1) << 1) - 1] > a[((thrid + 1) << 1)])
 			chid = ((thrid + 1) << 1) - 1;
 		else
@@ -54,6 +56,7 @@ __global__ void dev_makeheap(int *a, const unsigned int n, const unsigned int pa
 			a[chid] = t;
 		}
 	}
+
 	__syncthreads();
 }
 
