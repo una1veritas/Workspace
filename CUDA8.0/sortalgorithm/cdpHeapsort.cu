@@ -12,7 +12,6 @@
 
 __device__ uint32 c2pow32dev(uint32 x) {
 	return (x != 0) * (1 << (32 - __clz(x - 1)));
-
 }
 
 __device__ uint32 clog32dev(uint32 x) {
