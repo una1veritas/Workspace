@@ -10,14 +10,6 @@
 
 #include "cdpHeapsort.h"
 
-__device__ uint32 c2pow32dev(uint32 x) {
-	return (x != 0) * (1 << (32 - __clz(x - 1)));
-}
-
-__device__ uint32 clog32dev(uint32 x) {
-	return (x != 0) * (32 - __clz(x - 1));
-}
-
 __global__ void checkHeap(int * a, const unsigned int n) {
 	bool result = true;
 	printf("heap size = %d\n",n);
@@ -56,7 +48,7 @@ __global__ void showHeap(int * a, const unsigned int heapsize, const unsigned in
 
 void cu_heapsort(int * devArray, const unsigned int nsize) {
 	unsigned int heapsize = nsize;
-	unsigned int blksize = 32;
+	unsigned int blksize = 255;
 	unsigned int blkcount;
 
 	cu_makeheap(devArray, heapsize);
@@ -82,7 +74,7 @@ __global__ void dev_swapheaptop(int * a, const unsigned int heapsize) {
 void cu_makeheap(int *devArray, const unsigned int nsize) {
 //	int *t = new int[nsize];
 	unsigned int parents = (nsize >> 1);
-	unsigned int blksize = 32;
+	unsigned int blksize = 255;
 	unsigned int blkcount = CDIV(parents,blksize);
 	//printf("make heap size = %d, parents = %d, block size = %d, num of blocks = %d\n", nsize, parents, blksize, blkcount);
 	for (unsigned int i = 0; i < clog32(nsize) ; ++i) {
@@ -109,13 +101,13 @@ __global__ void dev_shakeheap(int *a, const unsigned int n, const unsigned int p
 	if ( ((level^parity) & 1) == 0 ) { 
 		if ( chid < n ) {
 			// if a[thrid] has, at least, the left child
-			if ( chid + 1 < n && a[chid + 1] > a[chid] ) {
-				// if a[thrid] has the right child and the right child is greater than the left 
-				chid = chid + 1;
-			} // else {
-				//chid = lchild;
-			//}
-			if (a[chid] > a[thrid]) {
+			if ( chid + 1 < n) {
+				if ( a[chid + 1] > a[chid]) {
+					// if a[thrid] has the right child and the right child is greater than the left 
+					chid = chid + 1;
+				}
+			} 
+			if ( a[chid] > a[thrid] ) {
 				t = a[thrid];
 				a[thrid] = a[chid];
 				a[chid] = t;

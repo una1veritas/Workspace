@@ -26,6 +26,7 @@ typedef int64_t		int64;
 	}														\
 }
 
+
 #define CDIV(x, y) ( ((x) != 0)*(1 + (((x) - 1) / (y))) )
 
 /* difference or zero */
@@ -43,6 +44,18 @@ __device__ __forceinline__ unsigned int bfind32(unsigned int x)
 #define POPC32DEV(x) __popc(x)
 #define POPC64DEV(x) __popcll(x)
 
+__device__ uint32 c2pow32dev(uint32 x) {
+	return (x == 0) ? 0 : (1 << (32 - __clz(x - 1)));
+}
+
+__device__ uint32 clog32dev(uint32 x) {
+	return (x == 0) ? 0 : (32 - __clz(x - 1));
+}
+
+__device__ uint32 bitsize32dev(int32 x) {
+	x = x ^ (x >> 31);
+	return 33 - __clz(x);
+}
 
 unsigned int nlz32_IEEEFP(unsigned int x);
 
