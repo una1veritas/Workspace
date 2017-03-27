@@ -39,23 +39,9 @@ __device__ __forceinline__ unsigned int bfind32(unsigned int x)
 	return ret;
 }
 
-#define NLZ32DEV(x) __clz(x)
-#define NLZ64DEV(x) __clzll(x)
-#define POPC32DEV(x) __popc(x)
-#define POPC64DEV(x) __popcll(x)
-
-__device__ uint32 c2pow32dev(uint32 x) {
-	return (x == 0) ? 0 : (1 << (32 - __clz(x - 1)));
-}
-
-__device__ uint32 clog32dev(uint32 x) {
-	return (x == 0) ? 0 : (32 - __clz(x - 1));
-}
-
-__device__ uint32 bitsize32dev(int32 x) {
-	x = x ^ (x >> 31);
-	return 33 - __clz(x);
-}
+__device__ uint32 c2pow32dev(uint32 x);
+__device__ uint32 clog32dev(uint32 x);
+__device__ uint32 bitsize32dev(int32 x);
 
 unsigned int nlz32_IEEEFP(unsigned int x);
 

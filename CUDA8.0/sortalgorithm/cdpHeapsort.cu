@@ -117,3 +117,28 @@ __global__ void dev_shakeheap(int *a, const unsigned int n, const unsigned int p
 	__syncthreads();
 }
 
+__global__ void dev_shakeheap255(int *a, const unsigned int n, const unsigned int parity) {
+	const unsigned int thrid = blockIdx.x * blockDim.x + threadIdx.x;
+	const unsigned int level = clog32dev(thrid + 2) - 1;
+	unsigned int chid = (thrid << 1) + 1; // firstly, chid is the left child
+	int t;
+
+	if (((level^parity) & 1) == 0) {
+		if (chid < n) {
+			// if a[thrid] has, at least, the left child
+			if (chid + 1 < n) {
+				if (a[chid + 1] > a[chid]) {
+					// if a[thrid] has the right child and the right child is greater than the left 
+					chid = chid + 1;
+				}
+			}
+			if (a[chid] > a[thrid]) {
+				t = a[thrid];
+				a[thrid] = a[chid];
+				a[chid] = t;
+			}
+		}
+	}
+	__syncthreads();
+}
+
