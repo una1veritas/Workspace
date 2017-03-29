@@ -140,7 +140,7 @@ int main(const int argc, const char * argv[]) {
 	sw.reset();
 	sw.start();
 
-	cu_heapsort(devArray, elemCount);
+	adv_heapsort(devArray, elemCount);
 
 	sw.stop();
 	printf("Elapsed time %f msec.\n\n", (float)((int)(sw.timerValue() * 1000)) / 1000);

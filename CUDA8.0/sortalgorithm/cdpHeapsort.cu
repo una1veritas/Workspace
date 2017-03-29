@@ -64,6 +64,26 @@ void cu_heapsort(int * devArray, const unsigned int nsize) {
 	}
 }
 
+void adv_heapsort(int * devArray, const unsigned int nsize) {
+	unsigned int heapsize = nsize;
+	unsigned int blksize = 31;
+	unsigned int blkcount = CDIV(nsize, blksize);
+
+	dev_miniheap31<<<blkcount, blksize>>>(devArray, heapsize);
+}
+
+__global__ void dev_miniheap31(int * a, const unsigned int n) {
+	const unsigned int blkid = blockIdx.x;
+	const unsigned int thrid = blockIdx.x * blockDim.x + threadIdx.x;
+	const unsigned int level = clog32dev(thrid + 2) - 1;
+
+	const unsigned int rootidx = blkid * 31;
+
+	if ( threadIdx.x == 0 )
+		printf("block id = %d, root index = %d\n", blkid, rootidx);
+}
+
+
 __global__ void dev_swapheaptop(int * a, const unsigned int heapsize) {
 	//printf("swap a[%d] = %d <-> a[%d] = %d\n", 0, a[0], heapsize - 1, a[heapsize - 1]);
 	int t = a[0];
@@ -80,13 +100,6 @@ void cu_makeheap(int *devArray, const unsigned int nsize) {
 	for (unsigned int i = 0; i < clog32(nsize) ; ++i) {
 		//printf("iteration %d\n", i);
 		dev_shakeheap <<<blkcount, blksize >> > (devArray, nsize, i+1);
-		/*
-		cudaMemcpy(t,devArray, nsize*sizeof(int), cudaMemcpyDeviceToHost);
-		for (int j = 0; j < nsize; ++j) {
-			printf("%d, ", t[j]);
-		}
-		printf("\n\n");
-		*/
 		dev_shakeheap << <blkcount, blksize >> > (devArray, nsize, i);
 	}
 //	delete[] t;
@@ -117,28 +130,5 @@ __global__ void dev_shakeheap(int *a, const unsigned int n, const unsigned int p
 	__syncthreads();
 }
 
-__global__ void dev_shakeheap255(int *a, const unsigned int n, const unsigned int parity) {
-	const unsigned int thrid = blockIdx.x * blockDim.x + threadIdx.x;
-	const unsigned int level = clog32dev(thrid + 2) - 1;
-	unsigned int chid = (thrid << 1) + 1; // firstly, chid is the left child
-	int t;
 
-	if (((level^parity) & 1) == 0) {
-		if (chid < n) {
-			// if a[thrid] has, at least, the left child
-			if (chid + 1 < n) {
-				if (a[chid + 1] > a[chid]) {
-					// if a[thrid] has the right child and the right child is greater than the left 
-					chid = chid + 1;
-				}
-			}
-			if (a[chid] > a[thrid]) {
-				t = a[thrid];
-				a[thrid] = a[chid];
-				a[chid] = t;
-			}
-		}
-	}
-	__syncthreads();
-}
 
