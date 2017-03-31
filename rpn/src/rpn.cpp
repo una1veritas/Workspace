@@ -19,33 +19,39 @@
 using namespace std;
 
 class RPN {
-
-private:
 	typedef double (*(unary_fp))(const double);
-	static map<const string, unary_fp> funcdict;
+	static map<const string, unary_fp> ufuncdict;
 	static map<const string, double> constdict;
 
 	deque<double> stack;
 
 private:
+	static double uf_pow2(const double x);
+
 	static double uf_inv(const double x);
 	static double uf_int(const double x);
 	static double uf_round(const double x);
 
 	static void init_funcdict() {
-		funcdict.clear();
+		ufuncdict.clear();
 
-		funcdict["log2"] = &log2;
-		funcdict["lg"] = &log2;
-		funcdict["sin"] = &sin;
-		funcdict["cos"] = &cos;
-		funcdict["tan"] = &tan;
+		ufuncdict["log2"] = &log2;
+		ufuncdict["lg"] = &log2;
+		ufuncdict["exp"] = &exp;
+		ufuncdict["pow2"] = &uf_pow2;
 
-		funcdict["inv"] = &uf_inv;
-		funcdict["//"] = &uf_inv;
-		funcdict["int"] = &uf_int;
-		funcdict["trunc"] = &uf_int;
-		funcdict["round"] = &uf_round;
+		ufuncdict["sin"] = &sin;
+		ufuncdict["cos"] = &cos;
+		ufuncdict["tan"] = &tan;
+		ufuncdict["asin"] = &asin;
+		ufuncdict["acos"] = &acos;
+		ufuncdict["atan"] = &atan;
+
+		ufuncdict["inv"] = &uf_inv;
+		ufuncdict["//"] = &uf_inv;
+		ufuncdict["int"] = &uf_int;
+		ufuncdict["trunc"] = &uf_int;
+		ufuncdict["round"] = &uf_round;
 	}
 
 	static void init_constdict() {
@@ -57,7 +63,7 @@ private:
 public:
 	static void initialize() { init_constdict(); init_funcdict(); }
 	static bool hasUnaryFunction(const string & str) {
-		return funcdict.find(str) != funcdict.end();
+		return ufuncdict.find(str) != ufuncdict.end();
 	}
 	static bool hasConstant(const string & str) {
 		return constdict.find(str) != constdict.end();
@@ -70,7 +76,7 @@ public:
 	unsigned int size() const { return stack.size(); }
 	bool empty() const { return stack.size() == 0; }
 
-	void push(const double & d);
+	double push(const double & d);
 	double pop(void);
 	double swap();
 	double peek() const { return stack.back(); }
@@ -82,8 +88,14 @@ public:
 
 };
 
+/*
+ * class variable
+ */
+map<const string, RPN::unary_fp> RPN::ufuncdict;
+map<const string, double> RPN::constdict;
 
 /*
+ * class functions
  * unary function library
  */
 double RPN::uf_inv(const double x) {
@@ -98,8 +110,16 @@ double RPN::uf_round(const double x) {
 	return (double)((int) (x + 0.5));
 }
 
-void RPN::push(const double & d) {
-	stack.push_back(d);
+double RPN::uf_pow2(const double x) {
+	return (double) pow(2,x);
+}
+
+/*
+ * instance functions
+ */
+double RPN::push(const double & val) {
+	stack.push_back(val);
+	return val;
 }
 
 double RPN::pop() {
@@ -119,7 +139,7 @@ double RPN::swap() {
 double RPN::perform(const string & func) {
 	double val;
 	val = pop();
-	val = (*funcdict[func])(val);
+	val = (*ufuncdict[func])(val);
 	push(val);
 	return val;
 }
@@ -187,7 +207,8 @@ int main() {
 					}
 				}
 				else if ( rpn.hasConstant(word) ) {
-					rpn.push(rpn.referConstant(word));
+					val = rpn.referConstant(word);
+					rpn.push(val);
 					cout << val << endl;
 				}
 				else if ( rpn.hasUnaryFunction(word) ) {
