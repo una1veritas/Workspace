@@ -20,8 +20,10 @@ using namespace std;
 
 class RPN {
 	typedef double (*(unary_fp))(const double);
+	typedef double (*(binary_fp))(const double, const double);
 	static map<const string, unary_fp> ufuncdict;
 	static map<const string, double> constdict;
+	static map<const string, binary_fp> bfuncdict;
 
 	deque<double> stack;
 
@@ -31,6 +33,14 @@ private:
 	static double uf_inv(const double x);
 	static double uf_int(const double x);
 	static double uf_round(const double x);
+	static double uf_neg(const double x);
+
+
+	static double bf_add(const double x, const double y);
+	static double bf_sub(const double x, const double y);
+	static double bf_mul(const double x, const double y);
+	static double bf_div(const double x, const double y);
+	static double bf_pow(const double x, const double y);
 
 	static void init_funcdict() {
 		ufuncdict.clear();
@@ -52,6 +62,17 @@ private:
 		ufuncdict["int"] = &uf_int;
 		ufuncdict["trunc"] = &uf_int;
 		ufuncdict["round"] = &uf_round;
+
+		ufuncdict["neg"] = &uf_neg;
+
+		bfuncdict.clear();
+
+		bfuncdict["+"] = & bf_add;
+		bfuncdict["-"] = & bf_sub;
+		bfuncdict["*"] = & bf_mul;
+		bfuncdict["/"] = & bf_div;
+		bfuncdict["power"] = & bf_pow;
+		bfuncdict["pow"] = & bf_pow;
 	}
 
 	static void init_constdict() {
@@ -67,6 +88,9 @@ public:
 	}
 	static bool hasConstant(const string & str) {
 		return constdict.find(str) != constdict.end();
+	}
+	static bool hasBinaryFunction(const string & str) {
+		return bfuncdict.find(str) != bfuncdict.end();
 	}
 	static double referConstant(const string & name);
 
@@ -85,6 +109,7 @@ public:
 	const double & operator[](unsigned int i) const { return stack[i]; }
 
 	double perform(const string & func);
+	double performBinary(const string & func);
 
 };
 
@@ -92,6 +117,7 @@ public:
  * class variable
  */
 map<const string, RPN::unary_fp> RPN::ufuncdict;
+map<const string, RPN::binary_fp> RPN::bfuncdict;
 map<const string, double> RPN::constdict;
 
 /*
@@ -100,6 +126,10 @@ map<const string, double> RPN::constdict;
  */
 double RPN::uf_inv(const double x) {
 	return 1.0/x;
+}
+
+double RPN::uf_neg(const double x) {
+	return -x;
 }
 
 double RPN::uf_int(const double x) {
@@ -113,6 +143,28 @@ double RPN::uf_round(const double x) {
 double RPN::uf_pow2(const double x) {
 	return (double) pow(2,x);
 }
+
+
+double RPN::bf_add(const double x, const double y) {
+	return x + y;
+}
+
+double RPN::bf_sub(const double x, const double y) {
+	return x - y;
+}
+
+double RPN::bf_mul(const double x, const double y) {
+	return x * y;
+}
+
+double RPN::bf_div(const double x, const double y) {
+	return x / y;
+}
+
+double RPN::bf_pow(const double x, const double y) {
+	return pow(x,y);
+}
+
 
 /*
  * instance functions
@@ -142,6 +194,15 @@ double RPN::perform(const string & func) {
 	val = (*ufuncdict[func])(val);
 	push(val);
 	return val;
+}
+
+double RPN::performBinary(const string & func) {
+	double val1, val2;
+	val2 = pop();
+	val1 = pop();
+	val1 = (*bfuncdict[func])(val1, val2);
+	push(val1);
+	return val1;
 }
 
 double RPN::referConstant(const string & name) {
@@ -178,31 +239,11 @@ int main() {
 			char * rptr;
 			val = strtod(word.c_str(), &rptr);
 			if ( rptr == word.c_str() ) {
-				if ( word == "+" || word == "-" || word == "*" || word == "/" ) {
+				if ( rpn.hasBinaryFunction(word) ) {
 					if ( !(rpn.size() >= 2) ) {
 						cout << "Error: requires two arguments." << endl;
 					} else {
-						val = rpn.pop();
-						switch (*word.c_str()) {
-						case '+':
-							val = rpn.pop() + val;
-							break;
-						case '-':
-							val = rpn.pop() - val;
-							break;
-						case '*':
-							val = rpn.pop() * val;
-							break;
-						case '/':
-							if ( val == 0 ) {
-								cout << "Error: divide by zero." << endl;
-								rpn.push(val);
-							} else {
-								val = rpn.pop() / val;
-							}
-							break;
-						}
-						rpn.push(val);
+						val = rpn.performBinary(word);
 						cout << val << endl;
 					}
 				}
