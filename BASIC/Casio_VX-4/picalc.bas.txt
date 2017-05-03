@@ -1,0 +1,1 @@
+SAVE "COM0:2,E,8,1,N,N,N,B,Nspeed 2, even, 8bit, 1 stop bit,Xonspeed : baud rate2: 300 baud3: 600 baud4: 12005: 24006: 4800 baud (highest)100 p=2110 s=-1120 INPUT "n=";n130 FOR i=1 TO n140 q=p150 p=p+s*2/(2*i+1)160 IF FRAC(i/1000)=0 THEN PRINT "i=";i;" pi=";p+q170 s=-s180 NEXT i190 PRINT "i=";i200 PRINT "pi=";p+q210 BEEP220 END.
