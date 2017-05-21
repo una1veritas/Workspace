@@ -1,0 +1,123 @@
+Wfile - Batch Tool Ver. 1.5 (c) 2008-2013, Horst Schaeffer
+----------------------------------------------------------
+
+Wfile includes two programs: 
+
++       "FileToOpen"      for source files
++       "FileToSave"      for target files
+
+The programs offer an "Open file" or "Save as" dialog window to select a file
+or enter a file name, and makes the user's input available in the batch process. 
+Multi file selection is optional (FileToOpen).
+
+The programs can be used to set an environment variable or to run a
+program or command with the selected file(s). 
+
+The filename with full path will be appended to a user defined command
+string and sendt to STDOUT. 
+This output must be redirected to a temporary batch file, which is CALLed 
+to execute the command. Alternatively, you can use a FOR /F construct as
+described in "GetOutput.txt".
+
+By default the file path(s) will be returned in quote marks. 
+See option /noquote.
+
++++ General syntax (in square brackets: optional):
+
+    FileToOpen "CommandString" "PathAndFilters" ["WindowTitle"] [Options]
+    FileToSave "CommandString" "PathAndFilters" "WindowTitle" ["DefaultName"] [Options]
+
+CommandString
+    will be prepended to the returnd file name(s)
+
+PathAndFilters 
+    is the initial path with one or more file pattern(s),
+    which must be separated by semicolon. Do not insert any space. 
+    Examples:
+         C:\some\where\*.*    offer all files  
+         \*.doc               from root of current drive: all DOC files 
+         .\*.jpg;*.png;*.gif  in current dir: JPG,PNG,GIF image files
+
+WindowTitle
+    whatever you want to show in the title bar 
+
+DefaultName
+    to initialize the SaveAs name input box (without path!)
+    
+Each of the string parameters should be enclosed in quote marks, 
+to make sure that they are interpreted as entities.
+
+General options:
+    
+/noquote        Returned file path(s) will not be enclosed in quote marks.
+/noCRLF         No CR+LF will be appended to the output line.
+
+FileToOpen options:
+
+/maynotexist    The selected file may not exist, i.e. it is possible 
+                to specify a new file name. 
+
+/multiselect    The user may select more that one file. The file names
+                are returned as a sequence, separated by blank space. 
+                Each file name enclosed in quote marks by default.
+
+FileToSave option:
+
+/overwritePrompt    ask permission if file already exists
+
+
++++ Example to set a variable:
+
+    FileToOpen "SET fname=" ".\*.txt;*.doc" "Select file" > temp.bat
+    call temp.bat
+
+    (fname is a variable name of your choice)
+    This may produce a command like this in temp.bat:
+
+    SET fname="C:\selected\dir\myfile.txt"
+
++++ Example to run a program (Notepad) with the selected file:
+
+    FileToOpen Notepad ".\*.txt;*.ini" "Open Text File" > temp.bat 
+    call temp.bat
+
+    This may produce a command like this in temp.bat:
+
+    Notepad "C:\selected\dir\MyFile.txt"
+
+To test the output at the command prompt just omit the redirection. 
+
+
+Notes:
+
+    Command arguments must be separated by space (no commas!). 
+
+    Remember to delete temporary batch files after use. A temporary file
+    in the %temp% directory is recommended.
+
+Exit Code:
+
+    Errorlevel 0: ok (selection by user)
+               1: cancelled
+             255: syntax error
+
+History:
+    ver. 1.5  2013/07/18  64bit version; bugfix: /multiselect now w/ Explorer interface, LFN's
+    ver. 1.4  2013/01/10  two separate programs: FileToOpen, FileToSave 
+    ver. 1.31 2011/03/24  bugfix: CommandString no longer converted to lower case
+    ver. 1.3  2009/06/24  update (compiler version 4.31); GetOutput.txt
+    ver. 1.2, 2009/02/14  new options /multiselect /noCRLF
+    ver. 1.1, 2008/05/18  new option /maynotexist
+    ver. 1.0, 2008/02/01  first public release
+
+Disclaimer:
+
+This program is freeware (c) Horst Schaeffer. No warranty, no liability 
+of any kind.
+
+Source:   http://www.horstmuc.de/source/wfile15.zip 
+
+mailto:horst.schaeffer@gmx.net
+http://www.horstmuc.de/
+
+18 Jul 2013
