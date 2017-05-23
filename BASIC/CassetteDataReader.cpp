@@ -13,74 +13,39 @@ int main(const int argc, const char * argv[]) {
 	int * data;
 	unsigned int count;
 	std::string buf;
+
+	data = new int[DATA_MAXSIZE];
+	count = 0;
 	char pulse;
-
-	if ( !(argc > 1) ) {
-		data = new int[DATA_MAXSIZE];
-		count = 0;
-		while ( ! std::cin.eof() ) {
-			std::cin >> buf;
-			data[count++] = std::strtol(buf.c_str(), NULL, 16);
-		}
-	} else if ( std::string(argv[1]) == "-pc1500") {
-		std::cout << "PC-1500" << std::endl;
-		data = new int[DATA_MAXSIZE];
-		count = 0;
-		unsigned int qbits = 0;
-		unsigned int bitCount = 0;
-		unsigned int pulseCount = 0;
-		while ( !std::cin.eof() ) {
-			std::cin >> pulse;
-
-			if ( pulseCount == 0 ) {
-				if ( pulse == '0' )
-					pulseCount = 1;
-				else
-					pulseCount = 0x11;
+	int bits = 0;
+	unsigned int val;
+	unsigned int hilo = 0;
+	while ( ! std::cin.eof() ) {
+		std::cin >> pulse;
+		if ( pulse == '0' || pulse == '1' ) {
+			if ( bits == 0 && pulse == '0') { // start bit
+				val = 0;
+				bits = 1;
+			} else if ( bits == 0 && pulse == '1' ) {
+				// start bit is continuing...
+				continue;
+			} else if ( bits >= 1 && bits <= 4 ) {
+				val >>= 1;
+				if ( pulse == '1') {
+					val |= 0x08;
+				}
+				bits++;
+			} else if ( bits >= 5 && pulse == '1' ) { // the first stop bit
+				std::cout << std::hex << val;
+				bits = 0;
+				std::cout << " ";
 			} else {
-				if ( pulse == '0' && (pulseCount & 0x10) == 0 ) {
-					pulseCount++;
-				} else if ( pulse == '1' && (pulseCount & 0x10) != 0 ) {
-					pulseCount++;
-				} else {
-					std::cout << "error " << std::hex << pulseCount << std::endl;
-					if ( pulse == '0' )
-						pulseCount = 1;
-					else if ( pulse == '1' )
-						pulseCount = 0x11;
-				}
-			}
-
-			if ( (pulseCount == 0x04) || (pulseCount == 0x18) ) {
-				if ( pulseCount == 0x04 ) {
-					// bit 0 out
-					qbits = (qbits>>1);
-					std::cout << "0 ";
-				} else if ( pulseCount == 0x18 ) {
-					// bit 1 out
-					qbits = (qbits>>1) | 0x40;
-					std::cout << "1 ";
-				}
-				/*
-				bitCount++;
-				if ( bitCount >= 7 ) {
-					if ((qbits & 0x61) == 0x60) {
-						std::cout << std::hex << ((qbits>>1) & 0x0f) << " ";
-					} else {
-						std::cout << std::hex << qbits << " ";
-					}
-					bitCount = 0;
-					qbits = 0;
-				}
-				*/
-				pulseCount = 0;
+				std::cout << "error ";
 			}
 		}
-		std::cout << std::endl;
-	} else {
-		return 0;
 	}
 
+	std::cout << std::endl;
 	std::cout << "Data " << count << " bytes." << std::endl;
 	for(int i = 0; i < count; i++) {
 		if ( (i & 0x0f) == 0 )
