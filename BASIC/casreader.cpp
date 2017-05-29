@@ -1,0 +1,103 @@
+/*
+ * main.cpp
+ *
+ *  Created on: 2017/05/22
+ *      Author: sin
+ */
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+
+#include <iomanip>
+
+#define MIN(x,y) ((x) <= (y) ? (x) : (y))
+
+int main(const int argc, const char * argv[]) {
+	unsigned int data[1024];
+	unsigned int dcount;
+
+	if ( argc < 2 || strlen(argv[1]) == 0 ) {
+		std::cerr << "Requires file name." << std::endl;
+		return -1;
+	}
+
+	std::ifstream file(argv[1]);
+	if ( !file ) {
+		std::cerr << "File open failed." << std::endl;
+		return -1;
+	} else {
+		std::cout << "File " << argv[1] << " opened." << std::endl;
+	}
+
+	dcount = 0;
+	std::string str, tmp;
+	std::stringstream lbuf;
+	while ( !file.eof() ) {
+		std::getline(file, str);
+		if ( str.length() == 0 )
+			break;
+		//std::cout << "'" << str << "'" << std::endl;
+		lbuf.str(str);
+		lbuf.clear();
+		while ( !lbuf.eof() ) {
+			tmp.clear();
+			lbuf >> tmp;
+			if ( tmp.length() == 0 )
+				continue;
+			unsigned int val = std::stoi(tmp, 0, 16);
+			data[dcount] = val;
+			//std::cout << dcount << ": " << val << " " << "'" << tmp << "' ";
+			++dcount;
+		}
+		//std::cout << std::endl;
+	}
+	file.close();
+
+	std::cout << std::endl <<  "Header " << std::dec << 40 << " bytes (fixed size);" << std::endl;
+	unsigned int chksum = 0;
+	for(int i = 0; i < MIN(40, dcount) ; ++i) {
+		if ( i == 0 || (i & 0x07) == 0 )
+			std::cout << std::endl << std::setfill('0') << std::setw(2) << std::hex << i << ": ";
+		chksum += data[i];
+		std::cout << std::setfill('0') << std::setw(2) <<std::hex << data[i] << " ";
+	}
+	std::cout << std::endl;
+
+	std::cout << std::endl <<  "checksum: " << std::setfill('0') << std::setw(4) <<std::hex << chksum << std::endl;
+
+	std::cout << std::endl <<  "Check sum for header, 2 bytes (the higher byte first)" << std::endl;
+
+	for(int i = 40; i < MIN(42, dcount) ; ++i) {
+		if ( i == 40 || (i & 0x07) == 0 )
+			std::cout << std::endl << std::setfill('0') << std::setw(2) << std::hex << i << ": ";
+		std::cout << std::setfill('0') << std::setw(2) <<std::hex << data[i] << " ";
+	}
+	std::cout << std::endl;
+
+	std::cout << std::endl << "Body " << std::dec << dcount << " - 42 = " << std::dec << (dcount - 42) << " bytes, ending by 0xff;" << std::endl;
+	// line number (2 bytes), length (from the next to the last CR), content, CR (0x0D)
+	chksum = 0;
+	for(int i = 42; i < dcount - 3 ; ++i) {
+		if ( i == 42 || (i & 0x07) == 0 )
+			std::cout << std::endl << std::setfill('0') << std::setw(2) << std::hex << i << ": ";
+		chksum += data[i];
+		std::cout << std::setfill('0') << std::setw(2) <<std::hex << data[i] << " ";
+	}
+	std::cout << std::endl;
+
+	std::cout << std::endl << "checksum: " << std::setfill('0') << std::setw(4) <<std::hex << chksum << std::endl;
+
+	std::cout << std::endl <<  "Check sum for body, 2 bytes (the higher byte first), and the ending code 0x55 'U'." << std::endl;
+	for(int i = dcount - 3; i < dcount ; ++i) {
+		if ( i == dcount - 3 || (i & 0x07) == 0 )
+			std::cout << std::endl << std::setfill('0') << std::setw(2) << std::hex << i << ": ";
+		std::cout << std::setfill('0') << std::setw(2) <<std::hex << data[i] << " ";
+	}
+	std::cout << std::endl;
+
+	return 0;
+}
+
+
