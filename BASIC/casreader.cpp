@@ -17,13 +17,21 @@
 int main(const int argc, const char * argv[]) {
 	unsigned int data[1024];
 	unsigned int dcount;
+	bool binary = false;
+	std::ifstream file;
 
 	if ( argc < 2 || strlen(argv[1]) == 0 ) {
 		std::cerr << "Requires file name." << std::endl;
 		return -1;
 	}
 
-	std::ifstream file(argv[1]);
+	if (argc == 2 ) {
+		file.open(argv[1]);
+	} else if (argc == 3 && strcmp(argv[1],"-b") == 0) {
+		binary = true;
+		file.open(argv[2], std::ios::in | std::ios::binary);
+	}
+
 	if ( !file ) {
 		std::cerr << "File open failed." << std::endl;
 		return -1;
@@ -32,26 +40,42 @@ int main(const int argc, const char * argv[]) {
 	}
 
 	dcount = 0;
-	std::string str, tmp;
-	std::stringstream lbuf;
-	while ( !file.eof() ) {
-		std::getline(file, str);
-		if ( str.length() == 0 )
-			break;
-		//std::cout << "'" << str << "'" << std::endl;
-		lbuf.str(str);
-		lbuf.clear();
-		while ( !lbuf.eof() ) {
-			tmp.clear();
-			lbuf >> tmp;
-			if ( tmp.length() == 0 )
-				continue;
-			unsigned int val = std::stoi(tmp, 0, 16);
-			data[dcount] = val;
+	if ( !binary) {
+		std::string str, tmp;
+		std::stringstream linebuf;
+		while ( !file.eof() ) {
+			std::getline(file, str);
+			if ( str.length() == 0 )
+				break;
+			//std::cout << "'" << str << "'" << std::endl;
+			linebuf.str(str);
+			linebuf.clear();
+			while ( true ) {
+				tmp.clear();
+				linebuf >> tmp;
+				if ( linebuf.eof() )
+					break;
+				if ( tmp.length() == 0 )
+					continue;
+				unsigned int val = std::stoi(tmp, 0, 16);
+				data[dcount] = val;
+				//std::cout << dcount << ": " << val << " " << "'" << tmp << "' ";
+				++dcount;
+			}
+			//std::cout << std::endl;
+		}
+	} else {
+		while (true) {
+			char val;
+			file.read(&val,1);
+			if ( file.eof() )
+				break;
+			data[dcount] = (unsigned char) val;
 			//std::cout << dcount << ": " << val << " " << "'" << tmp << "' ";
 			++dcount;
+			//std::cout << std::endl;
 		}
-		//std::cout << std::endl;
+
 	}
 	file.close();
 
@@ -64,6 +88,14 @@ int main(const int argc, const char * argv[]) {
 		std::cout << std::setfill('0') << std::setw(2) <<std::hex << data[i] << " ";
 	}
 	std::cout << std::endl;
+
+	std::cout << std::endl << "Program name = '";
+	for(int i = 0; i < 16; ++i) {
+		if ( data[0x09+i] == 0 )
+			break;
+		std::cout << (char) data[0x09+i];
+	}
+	std::cout << "'" << std::endl;
 
 	std::cout << std::endl <<  "checksum: " << std::setfill('0') << std::setw(4) <<std::hex << chksum << std::endl;
 
