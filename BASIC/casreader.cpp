@@ -15,8 +15,9 @@
 #define MIN(x,y) ((x) <= (y) ? (x) : (y))
 
 int main(const int argc, const char * argv[]) {
-	unsigned int data[1024];
-	unsigned int dcount;
+	unsigned int data[8*1024];
+	unsigned int bytecount;
+	unsigned int codelength;
 	bool binary = false;
 	std::ifstream file;
 
@@ -39,7 +40,7 @@ int main(const int argc, const char * argv[]) {
 		std::cout << "File " << argv[1] << " opened." << std::endl;
 	}
 
-	dcount = 0;
+	bytecount = 0;
 	if ( !binary) {
 		std::string str, tmp;
 		std::stringstream linebuf;
@@ -58,9 +59,9 @@ int main(const int argc, const char * argv[]) {
 				if ( tmp.length() == 0 )
 					continue;
 				unsigned int val = std::stoi(tmp, 0, 16);
-				data[dcount] = val;
+				data[bytecount] = val;
 				//std::cout << dcount << ": " << val << " " << "'" << tmp << "' ";
-				++dcount;
+				++bytecount;
 			}
 			//std::cout << std::endl;
 		}
@@ -70,9 +71,9 @@ int main(const int argc, const char * argv[]) {
 			file.read(&val,1);
 			if ( file.eof() )
 				break;
-			data[dcount] = (unsigned char) val;
+			data[bytecount] = (unsigned char) val;
 			//std::cout << dcount << ": " << val << " " << "'" << tmp << "' ";
-			++dcount;
+			++bytecount;
 			//std::cout << std::endl;
 		}
 
@@ -81,7 +82,7 @@ int main(const int argc, const char * argv[]) {
 
 	std::cout << std::endl <<  "Header " << std::dec << 40 << " bytes (fixed size);" << std::endl;
 	unsigned int chksum = 0;
-	for(int i = 0; i < MIN(40, dcount) ; ++i) {
+	for(int i = 0; i < MIN(40, bytecount) ; ++i) {
 		if ( i == 0 || (i & 0x07) == 0 )
 			std::cout << std::endl << std::setfill('0') << std::setw(2) << std::hex << i << ": ";
 		chksum += data[i];
@@ -101,17 +102,18 @@ int main(const int argc, const char * argv[]) {
 
 	std::cout << std::endl <<  "Check sum for header, 2 bytes (the higher byte first)" << std::endl;
 
-	for(int i = 40; i < MIN(42, dcount) ; ++i) {
+	for(int i = 40; i < MIN(42, bytecount) ; ++i) {
 		if ( i == 40 || (i & 0x07) == 0 )
 			std::cout << std::endl << std::setfill('0') << std::setw(2) << std::hex << i << ": ";
 		std::cout << std::setfill('0') << std::setw(2) <<std::hex << data[i] << " ";
 	}
 	std::cout << std::endl;
 
-	std::cout << std::endl << "Body " << std::dec << dcount << " - 42 = " << std::dec << (dcount - 42) << " bytes, ending by 0xff;" << std::endl;
+	codelength = (data[0x24]<<8) + data[0x25];
+	std::cout << std::endl << "Body " << std::dec << codelength << "(0x" << std::hex << codelength<< ") bytes" << std::endl;
 	// line number (2 bytes), length (from the next to the last CR), content, CR (0x0D)
 	chksum = 0;
-	for(int i = 42; i < dcount - 3 ; ++i) {
+	for(int i = 42; i < 42 + codelength ; ++i) {
 		if ( i == 42 || (i & 0x07) == 0 )
 			std::cout << std::endl << std::setfill('0') << std::setw(2) << std::hex << i << ": ";
 		chksum += data[i];
@@ -119,15 +121,22 @@ int main(const int argc, const char * argv[]) {
 	}
 	std::cout << std::endl;
 
+	std::cout << std::endl << "Tail" << std::endl;
+
+	std::cout << std::endl << std::setfill('0') << std::setw(2) << std::hex << (42+codelength) << ": ";
+	std::cout << std::setfill('0') << std::setw(2) <<std::hex << data[42+codelength] << " ";
+
+	chksum += data[42+codelength];
 	std::cout << std::endl << "checksum: " << std::setfill('0') << std::setw(4) <<std::hex << chksum << std::endl;
 
-	std::cout << std::endl <<  "Check sum for body, 2 bytes (the higher byte first), and the ending code 0x55 'U'." << std::endl;
-	for(int i = dcount - 3; i < dcount ; ++i) {
-		if ( i == dcount - 3 || (i & 0x07) == 0 )
+	std::cout << std::endl <<  "Check sum for body 2 bytes, and the ending code 0x55 'U'." << std::endl;
+	for(int i = 42 + codelength + 1; i < bytecount ; ++i) {
+		if ( i == 42 + codelength + 1 || (i & 0x07) == 0 )
 			std::cout << std::endl << std::setfill('0') << std::setw(2) << std::hex << i << ": ";
 		std::cout << std::setfill('0') << std::setw(2) <<std::hex << data[i] << " ";
 	}
 	std::cout << std::endl;
+
 
 	return 0;
 }
