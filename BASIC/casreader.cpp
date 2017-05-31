@@ -84,7 +84,7 @@ int main(const int argc, const char * argv[]) {
 	unsigned int chksum = 0;
 	for(int i = 0; i < MIN(40, bytecount) ; ++i) {
 		if ( i == 0 || (i & 0x07) == 0 )
-			std::cout << std::endl << std::setfill('0') << std::setw(2) << std::hex << i << ": ";
+			std::cout << std::endl << std::setfill('0') << std::setw(4) << std::hex << i << ": ";
 		chksum += data[i];
 		std::cout << std::setfill('0') << std::setw(2) <<std::hex << data[i] << " ";
 	}
@@ -104,7 +104,7 @@ int main(const int argc, const char * argv[]) {
 
 	for(int i = 40; i < MIN(42, bytecount) ; ++i) {
 		if ( i == 40 || (i & 0x07) == 0 )
-			std::cout << std::endl << std::setfill('0') << std::setw(2) << std::hex << i << ": ";
+			std::cout << std::endl << std::setfill('0') << std::setw(4) << std::hex << i << ": ";
 		std::cout << std::setfill('0') << std::setw(2) <<std::hex << data[i] << " ";
 	}
 	std::cout << std::endl;
@@ -115,7 +115,7 @@ int main(const int argc, const char * argv[]) {
 	chksum = 0;
 	for(int i = 42; i < 42 + codelength ; ++i) {
 		if ( i == 42 || (i & 0x07) == 0 )
-			std::cout << std::endl << std::setfill('0') << std::setw(2) << std::hex << i << ": ";
+			std::cout << std::endl << std::setfill('0') << std::setw(4) << std::hex << i << ": ";
 		chksum += data[i];
 		std::cout << std::setfill('0') << std::setw(2) <<std::hex << data[i] << " ";
 	}
@@ -123,7 +123,7 @@ int main(const int argc, const char * argv[]) {
 
 	std::cout << std::endl << "Tail" << std::endl;
 
-	std::cout << std::endl << std::setfill('0') << std::setw(2) << std::hex << (42+codelength) << ": ";
+	std::cout << std::endl << std::setfill('0') << std::setw(4) << std::hex << (42+codelength) << ": ";
 	std::cout << std::setfill('0') << std::setw(2) <<std::hex << data[42+codelength] << " ";
 
 	chksum += data[42+codelength];
@@ -132,7 +132,7 @@ int main(const int argc, const char * argv[]) {
 	std::cout << std::endl <<  "Check sum for body 2 bytes, and the ending code 0x55 'U'." << std::endl;
 	for(int i = 42 + codelength + 1; i < bytecount ; ++i) {
 		if ( i == 42 + codelength + 1 || (i & 0x07) == 0 )
-			std::cout << std::endl << std::setfill('0') << std::setw(2) << std::hex << i << ": ";
+			std::cout << std::endl << std::setfill('0') << std::setw(4) << std::hex << i << ": ";
 		std::cout << std::setfill('0') << std::setw(2) <<std::hex << data[i] << " ";
 	}
 	std::cout << std::endl;
