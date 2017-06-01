@@ -512,6 +512,7 @@ int ReadFileLength ( uchar  type,
      int  error ;
      /* SHCc is the length of a SHC header or zero,
         set in global and ReadHeadFromShc */
+     fprintf(stderr,"entered ReadFileLength.\n");
 
     do {
         *ptrLen = 0 ;
@@ -526,6 +527,7 @@ int ReadFileLength ( uchar  type,
 
         /* Get the length of the source file */
         nbByte = ftell (*ptrFd) ;
+        fprintf(stderr,"Got the length of the source file: %ld.\n", nbByte);
         if (nbByte == ERR_NOK) {
             printf ("%s: Can't ftell the file\n", argP) ;
             error = ERR_FILE ;
@@ -547,6 +549,8 @@ int ReadFileLength ( uchar  type,
             }
             else if (inVal == BAS_1500_EOF) ++SHCe ; /* mark was included in old Bas2IMG */
         }
+        fprintf(stderr,"nbByte = %ld.\n", nbByte);
+        fprintf(stderr,"SHCe = %d.\n", SHCe);
 
         /* Seek to the beginning of the source file or
            after a SHC-Header, if type SHC was used */
@@ -1460,9 +1464,9 @@ int WriteByteSumToDataWav (ulong  value, uchar  mode,
 /* File name and header for PC-1500 */
 /*  WriteHeadToB22Wav */
 int WriteHeadTo15Wav (char*  ptrName,
-                       ulong  addr,
-                       ulong  eaddr,
-                       ulong  size,
+                       ulong  addr,		// address == 0x40C5 ?
+                       ulong  eaddr, 	// entry address
+                       ulong  size,  	// buffer size
                        uchar  type,
                        FileInfo*  ptrFile)
 {
@@ -1539,6 +1543,8 @@ int WriteHeadTo15Wav (char*  ptrName,
             len = size - 1 ;
         else
             len = size ;
+
+        fprintf(stderr,"wonder buffer size = %ld\n", size);
 
         tmpL = (len >> 8) & 0xFF ;
         error = WriteByteSumTo15Wav (tmpL, ptrFile) ;
