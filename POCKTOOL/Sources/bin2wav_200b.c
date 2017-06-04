@@ -95,6 +95,7 @@ bin2wav.c
 
                         /* delete "//" in next line to activate debug modus by default */
 /* #define DEBUG           1    should be commented for final releases */
+//#define DEBUG 1
 #ifdef DEBUG
    #define DEBUG_ARG    "0x00C0"   /* Set to 0xC0 for more output with data variable blocks  */
 #else
