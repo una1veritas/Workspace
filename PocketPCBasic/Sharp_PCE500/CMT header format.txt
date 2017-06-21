@@ -1,1 +1,48 @@
-Sharp PC-E5x0 CMT recording header 50 bytes formatType 0x01, Machine language binaryCSAVE M "filename", &Hsaddr, &Headdr, &HcaddrAddress: value0x00: type 0x010x01 --- 0x10: file name 16 bytes filled with space 0x200x11: 0x0D0x12, 0x13: length low 8, mid 80x14, 0x15: start addr. low 8, mid 80x16, 0x17: call addr. low 8, mid 80x1D: length high 80x1E: start addr. high 80x1F: call addr. high 80x31: check sum (popl. count)Type 0x02, BASIC imageCSAVE "filename" 0x00: type 0x040x01 --- 0x10: file name 16 bytes filled with space 0x200x11: 0x0D0x12, 0x13: length low 8, high 80x18: 0x010x31: check sum (popl. count)Type 0x04, 256 byte block ASCII (BASIC ASCII, BASIC DATA)SAVE "CAS:filename" (, A) 0x00: type 0x040x01 --- 0x1D: file name 16 bytes filled with space 0x200x0E --- 0x10: file type extension "BAS"0x11: 0x0D0x18: 0x040x31: check sum (popl. count)PC-E5x0 RAM file machine language binary format
+Sharp PC-E5x0 CMT recording header 50 bytes format
+
+Type 0x01, Machine language binary
+CSAVE M "filename", &Hsaddr, &Headdr, &Hcaddr
+Address: value
+0x00: type 0x01
+0x01 --- 0x10: file name 16 bytes filled with space 0x20
+0x11: 0x0D
+0x12, 0x13: length low 8, mid 8
+0x14, 0x15: load addr. low 8, mid 8
+0x16, 0x17: call addr. low 8, mid 8
+0x1D: length high 8
+0x1E: load addr. high 8
+0x1F: call addr. high 8
+0x31: check sum (popl. count)
+
+
+Type 0x02, BASIC image
+CSAVE "filename" 
+0x00: type 0x04
+0x01 --- 0x10: file name 16 bytes filled with space 0x20
+0x11: 0x0D
+0x12, 0x13: length low 8, high 8
+0x18: 0x01
+0x31: check sum (popl. count)
+
+
+Type 0x04, 256 byte block ASCII (BASIC ASCII, BASIC DATA)
+SAVE "CAS:filename" (, A) 
+0x00: type 0x04
+0x01 --- 0x1D: file name 16 bytes filled with space 0x20
+0x0E --- 0x10: file type extension "BAS"
+0x11: 0x0D
+0x18: 0x04
+0x31: check sum (popl. count)
+
+
+PC-E5x0 downloaded file .BAS format (in RAM Disk?)
+file ends with 0x1A
+
+PC-E5x0 downloaded machine language file format (in RAM Disk?)
+0x00, 0x01: ff 00
+0x02, 0x03, 0x04: ? low, mid, high (06 01 10 0x100106)
+0x05, 0x06, 0x07: length low, mid, high (69 06 00 0x00669)
+0x08, 0x09, 0x0a: call address low, mid, high (00 f0 0b 0x0bf000) 
+0x0B: ff ff ff 00 0f 
+0x10 -- :
+contents
