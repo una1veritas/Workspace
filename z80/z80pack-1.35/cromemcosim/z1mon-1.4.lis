@@ -1,0 +1,1153 @@
+Z80-Assembler		Release 1.7				Page 1
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+                       1      1 ;
+                       2      2 ;	OCR'ed by Larry Kraemer
+                       3      3 ;	Corrected typos and modified for z80asm by Udo Munk
+                       4      4 ;	January 2016
+                       5      5 ;
+                       6      6 ;	Use z80asm 1.7, version 1.6 would require more braces
+                       7      7 ;	in some of the expressions for correct results
+                       8      8 ;
+0000                   9      9 STAT	EQU	0			;STATUS PORT, DEVICE A
+0001                  10     10 DATA	EQU	1			;DATA PORT, DEVICE A
+0002                  11     11 ACMNDP	EQU	2			;COMMAND PORT, DEV. A
+0000                  12     12 ABAUDP	EQU	0			;BAUD PORT, DEVICE A
+0004                  13     13 APARLP	EQU	4			;PARALLEL PORT, DEV. A
+0052                  14     14 BCMNDP	EQU	52H			;COMMAND PORT, DEV. B
+0054                  15     15 BPARLP	EQU	54H			;PARALLEL PORT, DEV. B
+0040                  16     16 DAV	EQU	40H			;DATA-AVLAILABLE MASK
+0080                  17     17 TBE	EQU	80H			;XMITTER-BUF-EMPTY MASK
+                      18     18 ;
+0005                  19     19 NBRKPT	EQU	5			;ALLOW ROOM FOR
+0016                  20     20 BPSTOR	EQU	NBRKPT*4+2		;BREAKPOINT STORAGE
+0016                  21     21 TEMPS	EQU	BPSTOR
+000b                  22     22 BPMRK	EQU	0BH			;USED TO MARK THE SET-
+                      23     23 ;					;TING OF A BP IN BPSTOR.
+0030                  24     24 RSTLC	EQU	30H			;RST LOCATION
+0000                  25     25 CASE	EQU	0			;(REQUIRES UPPER-CASE)
+0005                  26     26 B2F	EQU	5			;2-BYTE FLAG
+0006                  27     27 PF	EQU	6			;PRIME-ABLE REG FLAG
+0007                  28     28 CRF	EQU	7			;CRLF FLAG
+                      29     29 ;
+000d                  30     30 CR	EQU	0DH
+000a                  31     31 LF	EQU	0AH
+001b                  32     32 ESC	EQU	1BH
+007d                  33     33 ALT	EQU	7DH
+                      34     34 ;
+                      35     35 ;  DISPLACEMENTS FROM IX OF HI BYTE OF REG PAIRS
+                      36     36 ;
+                      37     37 ;
+ffff                  38     38 DUPC	EQU	-1			;(FFFF)
+fffd                  39     39 DUAF	EQU	-3			;(FFFD)
+fffb                  40     40 DUBC	EQU	-5			;(FFFB)
+fff9                  41     41 DUDE	EQU	-7			;(FFF9)
+fff7                  42     42 DUHL	EQU	-9			;(FFF7)
+fff5                  43     43 DUSP	EQU	-11			;(FFF5)
+fff3                  44     44 DUIX	EQU	-13			;(FFF3)	
+fff1                  45     45 DUIY	EQU	-15			;(FFF1)
+ffef                  46     46 DUIN	EQU	-17			;(FFEF)        I & THE INTERRUPT FF
+ffed                  47     47 DUAF2	EQU	-19			;(FFED)
+ffeb                  48     48 DUBC2	EQU	-21			;(FFEB)
+ffe9                  49     49 DUDE2	EQU	-23			;(FFE9)
+ffe7                  50     50 DUHL2	EQU	-25			;(FFE7)
+                      51     51 ;
+0016                  52     52 LENRGS	EQU	DUPC-DUHL2+2
+                      53     53 ;
+                      54     54 ;
+                      55     55 ;
+                      56     56 ;
+                      57     57 
+                      58     58 	ORG	0E000H
+                      59     59 ;
+                      60     60 ; ENTER THE MONITOR FROM RESET.
+Z80-Assembler		Release 1.7				Page 2
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+                      61     61 ; COLD START ENTRY. INITIALIZES THE UART
+                      62     62 ; AND ZEROES THE BREAKPOINT STACK POINTER.
+                      63     63 ; ALTERS THE A-REGISTER. SAVES ALL OTHER
+                      64     64 ; REGISTERS EXCEPT THE PROGRAM COUNTER,
+                      65     65 ; BUT DOES NOT DISPLAY THEM.
+                      66     66 
+e000  3e 01           67     67 CSTART: LD  	A,1
+e002  d3 40           68     68 	OUT 	(40H),A			;SELECT BANK B
+e004  f5              69     69 	PUSH	AF			;SIMULATE UPC
+e005  f5              70     70 	PUSH	AF			;USER-F-REGISTER
+e006  18 42           71     71 	JR	COMMON
+                      72     72 ; WARM START ENTRY.  INITIALIZES THE BREAKPOINT
+                      73     73 ; STORAGE POINTER.  SAVES ALL REGISTERS EXCEPT
+                      74     74 ; THE PROGRAM COUNTER, BUT DOES NOT DISPLAY THEM.
+                      75     75 
+e008  f5              76     76 WSTART:	PUSH	AF			;SIMULATE UPC
+e009  f5              77     77 	PUSH	AF			;UAF
+e00a  3e 80           78     78 	LD	A,80H			;FLAG:
+e00c  18 3c           79     79 	JR	COMMON			;WARM-START ENTRY
+                      80     80 ;
+                      81     81 ; CHECK INPUT & RETURN WITH DATA IF READY.
+                      82     82 ;
+e00e  db 00           83     83 CHKIN:	IN	A,(STAT)
+e010  e6 40           84     84 	AND	DAV
+e012  c8              85     85 	RET	Z
+e013  db 01           86     86 	IN	A,(DATA)
+e015  c9              87     87 	RET
+                      88     88 ;
+                      89     89 ;
+                      90     90 ; GET CHARACTER FROM INPUT.
+                      91     91 ;
+e016  cd 0e e0        92     92 GBYTE:	CALL	CHKIN
+e019  28 fb           93     93 	JR	Z,GBYTE
+e01b  e6 7f           94     94 	AND	7FH
+e01d  c9              95     95 	RET
+                      96     96 ;
+                      97     97 ;
+                      98     98 ; PRINT CHARACTER.
+                      99     99 ;
+e01e  f5             100    100 PBYTE:	PUSH	AF
+e01f  db 00          101    101 PBY1:	IN	A,(STAT)
+e021  e6 80          102    102 	AND	TBE
+e023  28 fa          103    103 	JR	Z,PBY1
+e025  f1             104    104 	POP	AF
+e026  d3 01          105    105 	OUT	(DATA),A
+e028  c9             106    106 	RET
+                     107    107 ;
+                     108    108 ;
+                     109    109 ; SELECT DEVICE A & INITIALIZE ITS BAUD RATE.
+                     110    110 ; ENTER WITH A=1.
+                     111    111 ;
+e029  d3 54          112    112 INIT:	OUT	(BPARLP),A		;SELECT DEVICE A
+e02b  d3 52          113    113 	OUT	(BCMNDP),A		;RESET DEVICE B
+                     114    114 ;					;[CONTINUE BELOW]
+                     115    115 ;
+                     116    116 ;
+                     117    117 ; INITIALIZE BAUD RATE OF THE CURRENT DEVICE.
+                     118    118 ;
+                     119    119 ; PUSH CARRIAGE-RETURN TO SELECT THE PROPER BAUD
+                     120    120 ; RATE FOR THE CURRENT TERMINAL. (THE MAXIMUM
+Z80-Assembler		Release 1.7				Page 3
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+                     121    121 ; NUMBER OF CARRIAGE-RETURNS REQUIRED IS FOUR.)
+                     122    122 ;
+                     123    123 ; WITH THE CROMEMCO TUART ANY OF THE FOLLOWING
+                     124    124 ; BAUD RATES CAN BE SELECTED:
+                     125    125 ; 19200, 9600, 4800, 2400, 1200, 300, 150, 110.
+                     126    126 ;
+                     127    127 ; WITH THE 3P+S:	2400, 300, 110.
+                     128    128 ;
+                     129    129 ; TWO CARRIAGE-RETURNS ARE REQUIRED FOR
+                     130    130 ; ANY UART WITH A FIXED BAUD RATE.
+                     131    131 ;
+e02d  21 a3 e3       132    132 INITBAUD: LD	HL,BAUDRS
+e030  0e 00          133    133 	LD	C,ABAUDP
+e032  3e 11          134    134 	LD	A,11H			;OCTUPLE THE CLOCK
+e034  d3 02          135    135 IT1:	OUT	(ACMNDP),A		;& RESET CURRENT DEVICE
+e036  ed a3          136    136 	OUTI
+e038  cd 16 e0       137    137 	CALL	GBYTE
+e03b  cd 16 e0       138    138 	CALL	GBYTE
+e03e  fe 0d          139    139 	CP	CR
+e040  3e 01          140    140 	LD	A,1			;SLOW THE CLOCK
+e042  20 f0          141    141 	JR	NZ,IT1
+e044  c9             142    142 	RET
+                     143    143 ;
+                     144    144 ;
+                     145    145 ; BREAKPOINT ENTRY. INITIALIZES	NOTHING.
+                     146    146 ; SAVES	ALL REGISTERS AND DISPLAYS THEM.
+                     147    147 ;
+e045  e3             148    148 SVMS:	EX	(SP),HL			;ADJUST BRKPT
+e046  2b             149    149 	DEC	HL			;RET ADDR
+e047  e3             150    150 	EX	(SP),HL
+e048  f5             151    151 	PUSH	AF			;UAF
+e049  97             152    152 	SUB	A			;FLAG:
+                     153    153 					;BREAKPOINT ENTRY;
+                     154    154 ;
+                     155    155 ;
+e04a  c5             156    156 COMMON:	PUSH	BC			;UBC
+e04b  47             157    157 	LD	B,A			;ENTRY FLAG
+e04c  d5             158    158 	PUSH	DE			;UDE
+e04d  e5             159    159 	PUSH	HL			;UHL
+                     160    160 ;
+                     161    161 ; PLACE SYS STACK AT HIGHEST PAGE OF
+                     162    162 ; AVAILABLE RAM.
+                     163    163 ; ALLOW	ROOM FOR TEMP STORAGE.
+                     164    164 ;
+e04e  21 e9 00       165    165 	LD	HL,00FFH-TEMPS
+e051  25             166    166 COM1:	DEC	H
+e052  7e             167    167 	LD	A,(HL)
+e053  34             168    168 	INC	(HL)
+e054  be             169    169 	CP	(HL)			;DID IT CHANGE?
+e055  28 fa          170    170 	JR	Z,COM1
+e057  35             171    171 	DEC	(HL)			;YES. RESTORE IT.
+                     172    172 ;
+e058  78             173    173 	LD	A,B			;ENTRY FLAG
+e059  eb             174    174 	EX	DE,HL
+e05a  21 09 00       175    175 	LD	HL,9
+e05d  39             176    176 	ADD	HL,SP			; -> UPC, HI BYTE
+e05e  01 0a 00       177    177 	LD	BC,10
+e061  ed b8          178    178 	LDDR
+                     179    179 ;
+e063  13             180    180 	INC	DE			;-> UHL,LO ON SYS STK
+Z80-Assembler		Release 1.7				Page 4
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+e064  eb             181    181 	EX	DE,HL
+e065  f9             182    182 	LD	SP,HL			;CURRENT SYS SP
+e066  eb             183    183 	EX	DE,HL
+e067  01 05 00       184    184 	LD	BC,DUPC-DUHL+3
+e06a  09             185    185 	ADD	HL,BC			;HL = USER SP
+e06b  e5             186    186 	PUSH	HL			;USP
+e06c  dd e5          187    187 	PUSH	IX			;UIX
+e06e  fd e5          188    188 	PUSH	IY			;UIY
+e070  eb             189    189 	EX	DE,HL
+e071  09             190    190 	ADD	HL,BC
+e072  4d             191    191 	LD	C,L			;SAVE
+e073  2b             192    192 	DEC	HL
+e074  e5             193    193 	PUSH	HL
+e075  dd e1          194    194 	POP	IX
+e077  fe 01          195    195 	CP	1			;ENTRY?
+e079  38 07          196    196 	JR	C,COM3			;SKIP IF VIA BP.
+e07b  71             197    197 	LD	(HL),C			;BP PNTR, LO BYTE
+e07c  23             198    198 	INC	HL
+e07d  36 00          199    199 	LD	(HL),0			;BP-STACK ENDMARK
+                     200    200 ; INITIALIZE THE TUART IF ENTRY WAS VIA RESET.
+                     201    201 ; (A CONTAINS 1.)
+                     202    202 ;
+e07f  cc 29 e0       203    203 	CALL	Z,INIT
+                     204    204 ;
+e082  ed 57          205    205 COM3:	LD	A,I
+e084  67             206    206 	LD	H,A
+e085  2e 00          207    207 	LD	L,0
+e087  e2 8b e0       208    208 	JP	PO,COM4
+e08a  2c             209    209 	INC	L
+e08b  e5             210    210 COM4:	PUSH	HL			;UIN
+e08c  08             211    211 	EX	AF,AF'
+e08d  f5             212    212 	PUSH	AF			;UAF'
+e08e  08             213    213 	EX	AF,AF'
+e08f  d9             214    214 	EXX
+e090  c5             215    215 	PUSH	BC			;UBC'
+e091  d5             216    216 	PUSH	DE			;UDE'
+e092  e5             217    217 	PUSH	HL			;UHL'
+e093  d9             218    218 	EXX
+                     219    219 ;
+                     220    220 ;IF CY IS SET, ENTRY WAS VIA A BREAKPOINT
+e094  21 f0 e3       221    221 	LD	HL,HEAD
+e097  d4 0f e2       222    222 	CALL	NC,PMSG
+e09a  01 86 50       223    223 	LD	BC,(('P'+CASE) < 8)+86H ;IF BP ENTRY,
+e09d  dc 23 e3       224    224 	CALL	C,SUBR3			;DISPLAY THE PC.
+                     225    225 ;
+                     226    226 ;
+                     227    227 ;CLEAR ALL BREAKPOINTS
+                     228    228 ;
+e0a0  dd e5          229    229 CLBP:	PUSH	IX
+e0a2  e1             230    230 	POP	HL			;POINTS TO BPSP,LO
+e0a3  6e             231    231 	LD	L,(HL)			;BPSP NOW IN HL
+                     232    232 ;
+e0a4  7e             233    233 CL1:	LD	A,(HL)			;BP STK EMPTY?
+e0a5  fe 0b          234    234 	CP	BPMRK			;IF BPMRK, BP IS SET
+e0a7  20 0a          235    235 	JR	NZ,CL2
+                     236    236 ;
+e0a9  34             237    237 	INC	(HL)			;BP-ERASED MARK
+e0aa  2b             238    238 	DEC	HL
+e0ab  56             239    239 	LD	D,(HL)
+e0ac  2b             240    240 	DEC	HL
+Z80-Assembler		Release 1.7				Page 5
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+e0ad  5e             241    241 	LD	E,(HL)
+e0ae  2b             242    242 	DEC	HL
+e0af  ed a8          243    243 	LDD				;RESTORE MEM CONTENTS
+e0b1  18 f1          244    244 	JR	CL1
+                     245    245 ;
+e0b3  7d             246    246 CL2:	LD	A,L
+e0b4  2b             247    247 	DEC	HL
+e0b5  77             248    248 	LD	(HL),A			;ADJUST BPSP
+                     249    249 ;
+e0b6  11 ea ff       250    250 	LD	DE,-LENRGS		;FOR THE BENEFIT
+e0b9  19             251    251 	ADD	HL,DE			;OF ERROR & ESCPE
+e0ba  f9             252    252 	LD	SP,HL			;RE-INITIALIZE SP
+                     253    253 ;
+                     254    254 ;
+                     255    255 ;GET 1-BYTE COMMAND.
+                     256    256 ;RETURNS VALUE IN HL & JUMPS TO THAT ADDR.
+                     257    257 ;
+e0bb  cd 4d e1       258    258 	CALL	CRLF
+e0be  11 be e0       259    259 CMND:	LD	DE,CMND			;SET-UP RETURN
+e0c1  d5             260    260 	PUSH	DE
+e0c2  21 ae e3       261    261 CMND1:	LD	HL,PRMPT		;RE-ENTRY POINT
+e0c5  cd 0f e2       262    262 	CALL	PMSG			;FOR RECURSION
+                     263    263 ;HL NOW PNTS TO THE COMMAND TABLE.
+                     264    264 ;
+                     265    265 ;GET THE COMMAND.
+                     266    266 ;DE GETS THE FIRST ALPHA CHAR LESS 'D'.
+                     267    267 
+e0c8  cd dd e1       268    268 	CALL	SKSG0			;GET NON-SPACE
+e0cb  c8             269    269 	RET	Z			;IF CR, IGNORE.
+e0cc  d6 44          270    270 	SUB	'D'+CASE		; < 'D'?
+e0ce  38 15          271    271 	JR	C,ERROR
+e0d0  fe 12          272    272 	CP	'W'-'D'+1		; > 'W'?
+e0d2  30 11          273    273 	JR	NC,ERROR
+e0d4  5f             274    274 	LD	E,A
+e0d5  16 00          275    275 	LD	D,0
+                     276    276 ;
+e0d7  4a             277    277 	LD	C,D			;INITIALIZE FOR SUBR
+e0d8  eb             278    278 	EX	DE,HL
+e0d9  29             279    279 	ADD	HL,HL			;TIMES 2
+e0da  19             280    280 	ADD	HL,DE			; + TBL ADDR
+e0db  5e             281    281 	LD	E,(HL)
+e0dc  23             282    282 	INC	HL
+e0dd  56             283    283 	LD	D,(HL)
+e0de  eb             284    284 	EX	DE,HL
+e0df  cd dd e1       285    285 	CALL	SKSG0			;NEXT CMND GHAR
+e0e2  fe 4d          286    286 	CP	'M'+CASE		; (USED IN SUBST & DISPL)
+e0e4  e9             287    287 	JP	(HL)
+                     288    288 ;
+                     289    289 ;
+                     290    290 ; ERROR & ESCAPE. RETURNS TO CMND WITH SP
+                     291    291 ; POINTING TO SAVED-REG AREA (UHL').
+                     292    292 
+e0e5  3e 3f          293    293 ERROR:	LD	A,'?'
+e0e7  cd 12 e1       294    294 	CALL	PCHR
+e0ea  18 b4          295    295 ESCPE:	JR	CLBP			;CLEAR ANY BRKPTS
+                     296    296 ;
+                     297    297 ;
+                     298    298 ; PROGRAM PROMS. ABORTS IF DESTINATION
+                     299    299 ; IS NOT ON A 1K (400H) BOUNDARY, OR IF SWATH
+                     300    300 ; WIDTH IS NOT A MULTIPLE OF 1K.
+Z80-Assembler		Release 1.7				Page 6
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+                     301    301 ;
+                     302    302 ;
+e0ec  cd a5 e1       303    303 PROG:	CALL	L3NCR
+e0ef  78             304    304 	LD	A,B			;ARE INCREMENT &
+e0f0  b2             305    305 	OR	D			;DESTINATION BOTH
+e0f1  e6 03          306    306 	AND	3			;MULTIPLES OF
+e0f3  b1             307    307 	OR	C			;1024?
+e0f4  b3             308    308 	OR	E	
+e0f5  20 ee          309    309 ERRV1:	JR	NZ,ERROR		;ERROR VECTOR
+                     310    310 ;
+e0f7  e5             311    311 	PUSH	HL			;SOURCE
+e0f8  21 40 01       312    312 	LD	HL,320			;# OF ITERATIONS
+e0fb  e3             313    313 PR1:	EX	(SP),HL
+e0fc  cd 1a e2       314    314 	CALL	MVE			;MOVE IT
+e0ff  e3             315    315 	EX	(SP),HL
+e100  2b             316    316 	DEC	HL			;ITERATION CT
+e101  7c             317    317 	LD	A,H
+e102  b5             318    318 	OR	L
+e103  20 f6          319    319 	JR	NZ,PR1
+e105  e1             320    320 	POP	HL
+e106  18 61          321    321 	JR	VRFY			;VERIFY IT
+                     322    322 ;
+                     323    323 ;
+                     324    324 ;PRINT THE 2 BYTES IN (HL) & (HL-1)
+                     325    325 ;DECREMENTS HL BY 2. ALTERS A.
+                     326    326 ;PRESERVES OTHER REGS.
+                     327    327 ;
+e108  cd ec e1       328    328 P2NMS:	CALL    PNM
+e10b  2b             329    329 	DEC     HL
+e10c  cd ec e1       330    330 	CALL    PNM
+e10f  2b             331    331 	DEC     HL	  		; (CONTINUE BELOW)
+                     332    332 ;
+                     333    333 ;
+                     334    334 ;PRINT	SPACE. ALTERS A.
+                     335    335 ;
+e110  3e 20          336    336 SPACE:	LD A,20H	  		; (CONTINUE BELOW)
+                     337    337 ;
+                     338    338 ;
+                     339    339 ;PRINT THE CHARACTER IN THE A-REGISTER.
+                     340    340 ;(CHKS INPUT FOR ESC.)	PRESERVES ALL REGS.
+                     341    341 ;
+e112  f5             342    342 PCHR:	PUSH	AF	         	;SAVE THE CHAR
+e113  e6 7f          343    343 PC1:	AND	7FH
+e115  fe 1b          344    344 	CP	ESC
+e117  28 d1          345    345 	JR	Z,ESCPE
+e119  fe 7d          346    346 	CP	ALT			;ALT MODE?
+e11b  28 cd          347    347 	JR	Z,ESCPE
+e11d  cd 0e e0       348    348 	CALL	CHKIN
+e120  20 f1          349    349 	JR	NZ,PC1
+                     350    350 ;
+e122  f1             351    351 PC2:	POP	AF
+e123  e5             352    352 	PUSH	HL
+e124  f5             353    353 	PUSH	AF
+e125  e6 7f          354    354 	AND	7FH
+e127  cd 1e e0       355    355 	CALL	PBYTE
+e12a  21 ab e3       356    356 	LD	HL,LFNN
+e12d  fe 0d          357    357 	CP	CR
+e12f  cc 0f e2       358    358 	CALL	Z,PMSG
+e132  fe 3c          359    359 	CP	'<'			;RECURSIVE CALL
+e134  20 0b          360    360 	JR	NZ,PC3			;ON CMND?
+Z80-Assembler		Release 1.7				Page 7
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+e136  f1             361    361 	POP	AF
+e137  3e 0d          362    362 	LD	A,CR			;YES. CONVERT
+e139  f5             363    363 	PUSH	AF			;'<' TO A CR.
+e13a  d5             364    364 	PUSH	DE
+e13b  c5             365    365 	PUSH	BC
+e13c  cd c2 e0       366    366 	CALL	CMND1
+e13f  c1             367    367 	POP	BC
+e140  d1             368    368 	POP	DE
+e141  f1             369    369 PC3:	POP	AF
+e142  e1             370    370 	POP	HL
+e143  c9             371    371 	RET
+                     372    372 ;
+                     373    373 ;
+                     374    374 ; GET CHARACTER. RETURNS IT IN A.
+                     375    375 ; ALTERS F.
+                     376    376 ;
+e144  cd 16 e0       377    377 GCHR:	CALL	GBYTE
+e147  cd 12 e1       378    378 	CALL	PCHR
+e14a  28 f8          379    379 	JR	Z,GCHR			;IF NULL DON'T RETURN
+e14c  c9             380    380 	RET
+                     381    381 ;
+                     382    382 ;
+                     383    383 ; CRLF.	ALTERS A ONLY.
+                     384    384 ;
+e14d  3e 0d          385    385 CRLF:	LD	A,CR
+e14f  18 c1          386    386 	JR	PCHR
+                     387    387 ;
+                     388    388 ;
+                     389    389 ; LOADS	HL WITH	SOURCE ADDR, BC	& DE
+                     390    390 ; WITH THE INCREMENT. ENDS WITH A CRLF.
+                     391    391 ;
+e151  97             392    392 L2NCR0:	SUB	A
+                     393    393 
+e152  cd 8b e1       394    394 L2NCR:	CALL	LD2N
+                     395    395 ;
+                     396    396 ; SKIP INITIAL SPACES.
+                     397    397 ; IF DELIMITER NOT A CR, ERROR
+                     398    398 ;
+e155  cd de e1       399    399 SKSGCR:	CALL	SKSG			;WAIT FOR NON-SPACE
+e158  20 9b          400    400 	JR	NZ,ERRV1		;IF NOT CR, ERROR
+e15a  eb             401    401 	EX	DE,HL
+e15b  c9             402    402 	RET
+                     403    403 ;
+                     404    404 ;
+                     405    405 ; PRINT THE NUMBER IN HL, FOLLOWED BY A COLON.
+                     406    406 ; PRESERVES ALL REGISTERS EXCEPT A.
+                     407    407 ;
+e15c  cd 4d e1       408    408 PCADDR:	CALL	CRLF
+                     409    409 ;
+e15f  cd f2 e1       410    410 PADDR:	CALL	PNHL
+e162  3e 3a          411    411 	LD	A,':'
+e164  18 ac          412    412 	JR	PCHR
+                     413    413 ;
+                     414    414 ;
+                     415    415 ; COMMAND
+                     416    416 ;
+e166  cd a5 e1       417    417 VERIF:	CALL	L3NCR			;GET 3	OPERANDS
+                     418    418 ;
+                     419    419 ; COMPARES TWO AREAS OF MEMORY. ENTER WITH
+                     420    420 ; SOURCE IN HL, DESTINATION IN DE & COUNT
+Z80-Assembler		Release 1.7				Page 8
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+                     421    421 ; IN BC. ALTERS ALL REGISTERS.
+                     422    422 ;
+e169  1a             423    423 VRFY:	LD	A,(DE)
+e16a  ed a1          424    424 	CPI				;COMPARE TO SOURCE
+e16c  2b             425    425 	DEC	HL
+e16d  c4 f2 e1       426    426 	CALL	NZ,PNHL			;PRINT SOURCE ADDR
+e170  c4 e9 e1       427    427 	CALL	NZ,PSNM	  		; & CONTENTS
+e173  eb             428    428 	EX	DE,HL
+e174  c4 e9 e1       429    429 	CALL	NZ,PSNM	  		; & DEBT CONTENTS
+e177  c4 ef e1       430    430 	CALL	NZ,PSNHL	  	; & DEBT ADDR
+e17a  c4 4d e1       431    431 	CALL 	NZ,CRLF
+e17d  eb             432    432 	EX 	DE,HL
+e17e  23             433    433 	INC 	HL
+e17f  13             434    434 	INC 	DE
+e180  e0             435    435 	RET 	PO 			;IF BC=0, DONE.
+e181  18 e6          436    436 	JR VRFY
+                     437    437 ;
+                     438    438 ;
+                     439    439 ; COMMAND
+                     440    440 ;
+e183  cd a5 e1       441    441 MOVE:	CALL	L3NCR			;OPERANDS
+e186  cd 1a e2       442    442 	CALL	MVE			;MOVE IT
+e189  18 de          443    443 	JR	VRFY
+                     444    444 ;
+                     445    445 ;
+                     446    446 ; LOAD TWO NUMBERS. LOADS DE WITH THE BEGINNING
+                     447    447 ; ADDR, N1. LOADS BC & HL WITH THE INCREMENT
+                     448    448 ; N2-Ni+1 (OR WITH N2 IF THE OPR IS 'S').
+                     449    449 ; RETURNS WITH LAST DELIMITER IN A.
+                     450    450 ;
+e18b  cd ae e1       451    451 LD2N: 	CALL	GNHL			;N1 TO HL, DELIM TO A
+e18e  eb             452    452 	EX  	DE,HL			;SAVE N1 IN DE
+e18f  cd de e1       453    453 	CALL	SKSG			;GET NEXT NON-SPACE
+e192  fe 53          454    454 	CP  	'S'+CASE		;SWATH?
+e194  20 05          455    455 	JR  	NZ,L2N1
+                     456    456 ;
+e196  cd ad e1       457    457 	CALL	GNHL0			;YES. INCREMENT TO HL.
+e199  18 07          458    458 	JR	L2N2
+                     459    459 
+e19b  cd ae e1       460    460 L2N1:	CALL	GNHL	        	;INCREMENT
+e19e  b7             461    461 	OR  	A  	         	;CLEAR CY
+e19f  ed 52          462    462 	SBC 	HL,DE 	        	;N2-N1
+e1a1  23             463    463 	INC 	HL 	         	;INCLUDE END POINT
+e1a2  44             464    464 L2N2:	LD	B,H
+e1a3  4d             465    465 	LD  	C,L  	         	;BC GETS THE INCRM
+e1a4  c9             466    466 	RET
+                     467    467 ;
+                     468    468 ;
+                     469    469 ; LOAD 3 OPERANDS. HL GETS THE SOURCE, BC
+                     470    470 ; THE INCREMENT, AND DE	THE 3RD OPERAND.
+                     471    471 ;
+e1a5  cd 8b e1       472    472 L3NCR: CALL	LD2N
+                     473    473 ; (CONTINUE BELOW)
+                     474    474 ;
+                     475    475 ;
+                     476    476 ; ENTER WITH SPACE OR THE FIRST DIGIT
+                     477    477 ; OF A NUMBER IN A. LOADS HL WITH
+                     478    478 ; WITH A NEW NUMBER & THEN EXCHANGES
+                     479    479 ; DE & HL. FINISHES WITH A CRLF.
+                     480    480 ;
+Z80-Assembler		Release 1.7				Page 9
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+e1a8  cd ae e1       481    481 L1NCR: CALL	GNHL	        	 ;SKIP SPACES, LOAD HL
+e1ab  18 a8          482    482 	JR  	SKSGCR  	         ;WAIT FOR A CR
+                     483    483 ;
+                     484    484 ;
+                     485    485 ; CLEARS HL. IF	ENTERED	WITH HEX CHAR IN A,
+                     486    486 ; SHIFTS IT INTO HL. O/W, IGNORES LEADING
+                     487    487 ; SPACES. FIRST	CHAR MUST BE HEX. CONTINUES
+                     488    488 ; SHIFT UNTIL A	NON-HEX	CHAR RECEIVED & THEN
+                     489    489 ; RETURNS WITH THE LATTER IN A.
+                     490    490 ; PRESERVES B,C,D,E.
+                     491    491 ;
+                     492    492 ;
+e1ad  97             493    493 GNHL0: SUB	A
+                     494    494 ;
+e1ae  c5             495    495 GNHL: PUSH	BC	         	;SAVE
+e1af  21 00 00       496    496 	LD  	HL,0  	         	;CLR BUFFER
+                     497    497 ; STRIP LEADING	SPACES & GET CHAR
+e1b2  cd de e1       498    498 	CALL	SKSG
+                     499    499 ; FIRST CHAR MUST BE HEX
+e1b5  cd c6 e1       500    500 	CALL	HEXSH	         	;IF HEX, SHIFT INTO HL
+e1b8  da e5 e0       501    501 	JP  	C,ERROR  	        ;O/W, ERROR
+e1bb  cd 44 e1       502    502 GN1: CALL	GCHR
+e1be  cd c6 e1       503    503 	CALL	HEXSH			;IF HEX SHIFT INTO HL
+e1c1  78             504    504 	LD  	A,B  			;RESTORE CHAR
+e1c2  30 f7          505    505 	JR  	NC,GN1			;IF HEX, CONTINUE
+e1c4  c1             506    506 	POP 	BC			;IF NON-HEX, DONE
+e1c5  c9             507    507 	RET
+                     508    508 ;
+                     509    509 ;
+                     510    510 ; IF A CONTAINS	HEX CHAR, SHIFTS BINARY EQUIVALENT
+                     511    511 ; INTO HL. IF NOT HEX, RET WITH CY SET. SAVES
+                     512    512 ; ORIGINAL CHAR	IN B
+                     513    513 ;
+e1c6  47             514    514 HEXSH:	LD	B,A
+e1c7  d6 30          515    515 	SUB	'0'			; < '0'?
+e1c9  d8             516    516 	RET	C
+e1ca  c6 e9          517    517 	ADD	A,'0'-('G'+CASE)
+e1cc  d8             518    518 	RET	C
+e1cd  d6 fa          519    519 	SUB	'A'-'G'
+e1cf  30 03          520    520 	JR	NC,HX1 			;OK IF >= 'A'
+e1d1  c6 07          521    521 	ADD	A,('A'+CASE)-('9'+1)
+e1d3  d8             522    522 	RET	C
+e1d4  c6 0a          523    523 HX1:	ADD	A,'9'+1-'0'
+                     524    524 ; THE A-REG NOW CONTAINS THE HEX DIGIT IN BINARY.
+                     525    525 ; (THE HIGH-ORDER NIBBLE OF A IS 0.)
+e1d6  29             526    526 HXSH4:	ADD	HL,HL 			;SHIFT 4 BITS INTO HL
+e1d7  29             527    527 	ADD	HL,HL
+e1d8  29             528    528 	ADD	HL,HL
+e1d9  29             529    529 	ADD	HL,HL
+e1da  b5             530    530 	OR	L
+e1db  6f             531    531 	LD	L,A
+e1dc  c9             532    532 	RET
+                     533    533 ;
+                     534    534 ;
+                     535    535 ; RETURNS WITH A NON-SPACE IN THE A-REG.
+                     536    536 ; IF ENTERED WITH A-REG CONTAINING A NULL
+                     537    537 ; OR A SPACE, GETS NEW CHARS UNTIL FIRST
+                     538    538 ; NON-SPACE OCCURS. ALTERS AF.
+                     539    539 ;
+e1dd  97             540    540 SKSG0:	SUB	A
+Z80-Assembler		Release 1.7				Page 10
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+                     541    541 ;
+e1de  b7             542    542 SKSG:	OR	A			;DOES A CONTAIN NULL?
+e1df  cc 44 e1       543    543 SK1:	CALL	Z,GCHR
+e1e2  fe 20          544    544 	CP	20H			;SPACE?
+e1e4  28 f9          545    545 	JR	Z,SK1
+e1e6  fe 0d          546    546 	CP	CR
+e1e8  c9             547    547 	RET
+                     548    548 ;
+                     549    549 ;
+                     550    550 ; PRINT SPACE FOLLOWED BY THE NUMBER POINTED
+                     551    551 ; TO BY HL. ALTERS A ONLY.
+                     552    552 ;
+e1e9  cd 10 e1       553    553 PSNM:	CALL	SPACE
+                     554    554 ;	(CONTINUE BELOW)
+                     555    555 
+                     556    556 ; PRINTS THE NUMBER POINTED TO BY HL.
+                     557    557 ; PRESERVES ALL REGISTERS BUT A.
+                     558    558 
+e1ec  7e             559    559 PNM:	LD	A,(HL)
+e1ed  18 08          560    560 	JR	P2HEX
+                     561    561 ;
+                     562    562 ;
+                     563    563 ; PRINT THE NUMBER IN HL.
+                     564    564 ; PRESERVES ALL BUT A.
+                     565    565 ;
+e1ef  cd 10 e1       566    566 PSNHL:	CALL	SPACE
+                     567    567 ;
+e1f2  7c             568    568 PNHL:	LD	A,H
+e1f3  cd f7 e1       569    569 	CALL	P2HEX
+e1f6  7d             570    570 	LD	A,L
+                     571    571 ;					; (CONTINUE BELOW)
+                     572    572 ;
+                     573    573 ;PRINT THE NUMBER IN THE A-REGISTER.
+                     574    574 ;PRESERVES ALL REGISTERS.
+                     575    575 ;
+e1f7  cd fb e1       576    576 P2HEX:	CALL	P1HEX
+e1fa  1f             577    577 	RRA
+e1fb  1f             578    578 P1HEX:	RRA
+e1fc  1f             579    579 	RRA
+e1fd  1f             580    580 	RRA
+e1fe  1f             581    581 	RRA
+e1ff  f5             582    582 	PUSH	AF
+e200  e6 0f          583    583 	AND	0FH			;MASK
+e202  fe 0a          584    584 	CP	10			; < 9?
+e204  38 02          585    585 	JR	C,PH1
+e206  c6 07          586    586 	ADD	A,7			;A THRU F
+e208  c6 30          587    587 PH1:	ADD	A,30H			;ASCII BIAS
+e20a  cd 12 e1       588    588 	CALL	PCHR			;PRINT IT
+e20d  f1             589    589 	POP	AF
+e20e  c9             590    590 	RET
+                     591    591 ;
+                     592    592 ;
+                     593    593 ;PRINT	MESSAGE. ENTER WITH ADDR OF MSG
+                     594    594 ;IN HL. THE MESSAGE IS TERMINATED
+                     595    595 ;AFTER PRINTING A CHARACTER WHOSE
+                     596    596 ;PARITY BIT WAS SET.
+                     597    597 ;PRESERVES FLAGS, INCREMENTS HL.
+                     598    598 ;
+e20f  f5             599    599 PMSG:	PUSH	AF			;SAVE
+e210  7e             600    600 PS1:	LD	A,(HL)
+Z80-Assembler		Release 1.7				Page 11
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+e211  23             601    601 	INC	HL
+e212  cd 12 e1       602    602 	CALL	PCHR
+e215  17             603    603 	RLA				;LAST CHARACTER?
+e216  30 f8          604    604 	JR	NC,PS1			;IF NOT, LOOP
+e218  f1             605    605 	POP	AF
+e219  c9             606    606 	RET
+                     607    607 ;
+                     608    608 ;
+                     609    609 ;MOVE FROM ONE LOCATION TO ANOTHER. ENTER
+                     610    610 ;WITH SOURCE ADDR IN HL, DEST IN DE, BYTE
+                     611    611 ;COUNT IN BC.  PRESERVES ALL REGISTERS.
+                     612    612 ;
+e21a  e5             613    613 MVE:	PUSH	HL			;SOURCE
+e21b  d5             614    614 	PUSH	DE			;DEST
+e21c  c5             615    615 	PUSH	BC			;BYTE COUNT
+e21d  ed b0          616    616 	LDIR
+e21f  c1             617    617 	POP	BC
+e220  d1             618    618 	POP	DE
+e221  e1             619    619 	POP	HL
+e222  c9             620    620 	RET
+                     621    621 ;
+                     622    622 ;
+                     623    623 ; COMMAND
+                     624    624 ;
+                     625    625 ; GO <CR> EXECUTION BEGINS AT USER PC.
+                     626    626 ;
+                     627    627 ; COMMAND
+                     628    628 ;
+                     629    629 ; GO (ADDR1>/(ADDR2> ... <ADDRN>
+                     630    630 ; EXECUTION BEGINS AT ADDR1 WITH BREAKPOINTS SET
+                     631    631 ; AT ADDR2,... ,ADDRN.
+                     632    632 
+                     633    633 GO:
+                     634    634 ; B GETS NBRKPT+1 (MAX. NUMBER OF BP + 1)
+                     635    635 ; C, THE BREAKPOINT FLAG, GETS 0 (NO HP SET)
+e223  01 00 06       636    636 	LD   	BC,((NBRKPT+1) < 8)+0
+e226  cd de e1       637    637 GO1:	CALL 	SKSG 	 		;WAIT FOR NON-SPACE
+e229  28 3a          638    638 	JR   	Z,RETN   	 	;RETN IF CR
+e22b  fe 2f          639    639 	CP	'/'	 		;BP?
+e22d  20 0d          640    640 	JR   	NZ,GO3
+e22f  4f             641    641 	LD   	C,A   	 		;SET BRKPT FLAG (2FH)
+e230  21 30 00       642    642 	LD   	HL,RSTLC   	 	;TRANSFER
+e233  36 c3          643    643 	LD   	(HL),0C3H   	 	;'JP SVMS' TO
+e235  21 45 e0       644    644 	LD   	HL,SVMS
+e238  22 31 00       645    645 	LD   	(RSTLC+1),HL   	 	;RST LOC
+e23b  97             646    646 	SUB  	A
+e23c  cd ae e1       647    647 GO3:	CALL 	GNHL 	 		;GET ADDR
+e23f  cb 69          648    648 	BIT  	5,C  	 		; FLAG SET?
+e241  eb             649    649 	EX   	DE,HL
+e242  dd e5          650    650 	PUSH 	IX
+e244  e1             651    651 	POP  	HL
+e245  28 18          652    652 	JR   	Z,GO5   	 	;JUMP IF NO BP
+                     653    653 ;
+e247  05             654    654 	DEC  	B  	 		;IF TOO MANY BP,
+e248  ca e5 e0       655    655 	JP   	Z,ERROR   	 	;ERROR.
+e24b  6e             656    656 	LD   	L,(HL)   	 	;HL = BPSP
+                     657    657 ;
+e24c  23             658    658 	INC  	HL  	 		;BUMP BPSP
+e24d  eb             659    659 	EX   	DE,HL   	 	;DE = BPSP, HL= BP ADDR
+e24e  ed a0          660    660 	LDI
+Z80-Assembler		Release 1.7				Page 12
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+e250  2b             661    661 	DEC  	HL
+e251  36 f7          662    662 	LD   	(HL),0C7H+RSTLC 	;RST INSTRUCTION
+e253  eb             663    663 	EX   	DE,HL   	 	;HL = BPSP
+e254  73             664    664 	LD   	(HL),E   	 	;BP ADDR TO STACK
+e255  23             665    665 	INC  	HL
+e256  72             666    666 	LD   	(HL),D
+e257  23             667    667 	INC  	HL
+e258  36 0b          668    668 	LD   	(HL),BPMRK   	 	;PUNCTUATION (BP SET)
+e25a  dd 75 00       669    669 	LD   	(IX+0),L
+e25d  18 c7          670    670 	JR   	GO1
+                     671    671 ; CHANGE USER PC
+e25f  2b             672    672 GO5:	DEC  	HL
+e260  72             673    673 	LD   	(HL),D
+e261  2b             674    674 	DEC  	HL
+e262  73             675    675 	LD   	(HL),E
+e263  18 c1          676    676 	JR   	GO1   		 	;BACK FOR MORE
+                     677    677 ;
+e265  e1             678    678 RETN:	POP  	HL  	 		;STRIP ADDR FROM STK
+e266  e1             679    679 	POP  	HL  	 		;UHL'
+e267  d1             680    680 	POP  	DE  	 		;UDE'
+e268  c1             681    681 	POP	BC			;UBC'
+e269  f1             682    682 	POP	AF			;UAF'
+e26a  d9             683    683 	EXX
+e26b  08             684    684 	EX 	AF,AF'
+                     685    685 ;
+e26c  f1             686    686 	POP	AF			;UIN
+e26d  ed 47          687    687 	LD 	I,A 			; UI
+e26f  f3             688    688 	DI
+e270  30 01          689    689 	JR 	NC,RT1
+e272  fb             690    690 	EI
+                     691    691 ;IFF NOW RESTORED
+e273  fd e1          692    692 RT1:	POP	IY			;UIY
+e275  dd e1          693    693 	POP	IX			;UIX
+e277  d1             694    694 	POP	DE			;USP
+                     695    695 ;
+                     696    696 ;COPY THE REMAINDER OF THE SYS STACK
+                     697    697 ;TO THE USER STACK. IF THIS TRANSFER
+                     698    698 ;IS MADE WITHOUT ERROR, SWITCH TO THE
+                     699    699 ;USER STACK. OTHERWISE, RETAIN THE
+                     700    700 ;SYSTEM STACK.
+                     701    701 ;
+e278  21 0a 00       702    702 	LD	HL,10
+e27b  45             703    703 	LD 	B,L
+e27c  39             704    704 	ADD	HL,SP
+e27d  eb             705    705 	EX 	DE,HL
+e27e  1b             706    706 RT2:	DEC	DE
+e27f  2b             707    707 	DEC	HL
+e280  1a             708    708 	LD 	A,(DE)
+e281  77             709    709 	LD 	(HL),A
+e282  be             710    710 	CP 	(HL)
+e283  20 03          711    711 	JR 	NZ,RT3
+e285  10 f7          712    712 	DJNZ	RT2
+e287  f9             713    713 	LD 	SP,HL
+                     714    714 ;
+e288  e1             715    715 RT3:	POP	HL
+e289  d1             716    716 	POP	DE
+e28a  c1             717    717 	POP	BC
+e28b  f1             718    718 	POP	AF
+e28c  c9             719    719 	RET
+                     720    720 
+Z80-Assembler		Release 1.7				Page 13
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+                     721    721 
+                     722    722 ;	COMMAND.  DISPLAY REGISTERS.
+                     723    723 ;
+                     724    724 ;	DR
+                     725    725 ;
+                     726    726 ; COMMAND.  DISPLAY MEMORY.
+                     727    727 ;
+                     728    728 ; DM <STARTING ADDR> <ENDING ADDR OR SWATH>
+                     729    729 ;
+e28d  01 80 41       730    730 DISPL:	LD	BC,(('A'+CASE) < 8)+80H ;[FOR DR]
+e290  20 3f          731    731 	JR	NZ,SUBR2	 	;IF NOT 'M', DR
+                     732    732 ;
+                     733    733 ;
+e292  cd 51 e1       734    734 DSPM:	CALL	L2NCR0	 		;GET OPERANDS
+e295  16 10          735    735 DSPM1:	LD	D,16	 		;BYTE COUNT
+e297  cd 5c e1       736    736 	CALL	PCADDR	 		;ADDRESS
+e29a  cd e9 e1       737    737 DM2:	CALL	PSNM			;MEM CONTENTS
+e29d  ed a1          738    738 	CPI				;INC HL & DEC BC
+e29f  e2 4d e1       739    739 	JP	PO,CRLF
+e2a2  15             740    740 	DEC	D
+e2a3  28 f0          741    741 	JR	Z,DSPM1
+e2a5  7a             742    742 	LD	A,D
+e2a6  e6 03          743    743 	AND	3
+e2a8  cc 10 e1       744    744 	CALL	Z,SPACE
+e2ab  cc 10 e1       745    745 	CALL	Z,SPACE
+e2ae  18 ea          746    746 	JR	DM2
+                     747    747 ;
+                     748    748 ;
+                     749    749 ; COMMAND. SUBSTITUTE MEMORY LOCATION.
+                     750    750 ;
+                     751    751 ; SM <ADDR>
+                     752    752 ;
+                     753    753 ; COMMAND. SUBSTITUTE USER-REGISTER.
+                     754    754 ;
+                     755    755 ; S<REGISTER NAME>
+                     756    756 ;
+                     757    757 ; REGISTER NAMES: P [PC] , S [SP]
+                     758    758 ; A, F, B, C, D, E, H [HL]
+                     759    759 ; I, N [1FF], X [IX], Y [IY]
+                     760    760 ; A',F',B',C',D',E',H' [HL'].
+                     761    761 ;
+e2b0  20 16          762    762 SUBST:	JR	NZ,SUBR			;IN NOT 'M', SR
+                     763    763 
+e2b2  97             764    764 SUBM:	SUB	A
+e2b3  47             765    765 	LD	B,A			;1-BYTE MASK
+e2b4  cd a8 e1       766    766 	CALL	L1NCR
+e2b7  eb             767    767 	EX	DE,HL			;HL GETS ADDR
+e2b8  cc 5c e1       768    768 SM1:	CALL	Z,PCADDR
+e2bb  cc 10 e1       769    769 	CALL	Z,SPACE
+                     770    770 ; PRINT CURRENT VALUE, REQUEST NEW VALUE &
+                     771    771 ; PRINT IT IF GIVEN
+e2be  cd 32 e3       772    772 	CALL	GSUBV
+e2c1  c8             773    773 	RET	Z			;IF CR, DONE.
+e2c2  23             774    774 	INC	HL
+e2c3  3e 07          775    775 	LD	A,7			;PRINT ADDRESS IF IT
+e2c5  a5             776    776 	AND	L			;IS A MULTIPLE OF 8
+e2c6  18 f0          777    777 	JR	SM1
+                     778    778 ;
+                     779    779 ;
+e2c8  47             780    780 SUBR:	LD	B,A
+Z80-Assembler		Release 1.7				Page 14
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+e2c9  cd 44 e1       781    781 	CALL	GCHR
+e2cc  fe 00          782    782 	CP	''''
+e2ce  20 02          783    783 	JR	NZ,SR2
+e2d0  0c             784    784 	INC	C			;TURN ON THE PRIME-FLAG
+e2d1  97             785    785 SUBR2:	SUB	A
+e2d2  cd 55 e1       786    786 SR2:	CALL	SKSGCR			;WAIT FOR CR
+e2d5  78             787    787 SR3:	LD	A,B
+e2d6  d6 41          788    788 	SUB	'A'+CASE		;CHECK THE RANGE
+e2d8  da e5 e0       789    789 	JP	C,ERROR
+e2db  fe 17          790    790 	CP	'Y'-'A'+1
+e2dd  d2 e5 e0       791    791 	JP	NC,ERROR
+e2e0  5f             792    792 	LD	E,A
+e2e1  16 00          793    793 	LD	D,0
+e2e3  21 d7 e3       794    794 	LD	HL,RGTBL
+e2e6  19             795    795 	ADD	HL,DE
+e2e7  7e             796    796 	LD	A,(HL)
+e2e8  b7             797    797 	OR	A
+e2e9  28 33          798    798 	JR	Z,SR6	    		;IF ENTRY = 0, SKIP
+e2eb  1e 00          799    799 	LD	E,0
+e2ed  cb 41          800    800 	BIT	0,C	    		;PRIME?
+e2ef  28 06          801    801 	JR	Z,SR4
+e2f1  cb 76          802    802 	BIT	PF,(HL)			;YES. PRIMEABLE REG?
+e2f3  28 29          803    803 	JR	Z,SR6	    		;IF NOT, SKIP.
+e2f5  1e 10          804    804 	LD	E,DUAF-DUAF2
+e2f7  e6 1f          805    805 SR4:	AND	1FH	    		;STRIP FLAGS FROM ENTRY
+e2f9  83             806    806 	ADD	A,E
+e2fa  5f             807    807 	LD	E,A
+e2fb  c5             808    808 	PUSH	BC	    		;SAVE
+e2fc  78             809    809 	LD	A,B	    		;PRINT REG NAME
+e2fd  cd 12 e1       810    810 	CALL	PCHR
+e300  fe 48          811    811 	CP	'H'+CASE
+e302  3e 4c          812    812 	LD	A,'L'+CASE
+e304  cc 12 e1       813    813 	CALL	Z,PCHR
+e307  ee 71          814    814 	XOR	'L'+CASE ^ '='		;CLEAR CY, A = '='.
+e309  cb 41          815    815 	BIT	0,C	    		; PRIME?
+e30b  28 02          816    816 	JR	Z,SR5
+e30d  3e 00          817    817 	LD	A,''''
+e30f  cd 12 e1       818    818 SR5:	CALL	PCHR
+e312  46             819    819 	LD	B,(HL)	    		;SAVE ORIGINAL ENTRY
+e313  dd e5          820    820 	PUSH	IX
+e315  e1             821    821 	POP	HL	   	 	;STACK FRAME
+e316  ed 52          822    822 	SBC	HL,DE	    		;HL -> USER REG
+e318  cd 32 e3       823    823 	CALL	GSUBV	    		;PRINT VALUE, REQUEST NEW
+e31b  78             824    824 	LD	A,B	    		;SAVE
+e31c  c1             825    825 	POP	BC
+e31d  c8             826    826 	RET	Z	    		;DONE IF CR
+                     827    827 ;
+e31e  04             828    828 SR6:	INC	B	    		;NEXT REG
+e31f  07             829    829 	RLCA		    		;Y OR H?
+e320  30 b3          830    830 	JR	NC,SR3	    		;IF NEITHER, LOOP
+e322  07             831    831 	RLCA		    		;YES, IS IT Y?
+e323  cd 4d e1       832    832 SUBR3:	CALL	CRLF	    		; [ENTRY FOR DISPLAYING PC
+e326  38 05          833    833 	JR	C,SR8
+e328  06 41          834    834 	LD	B,'A'+CASE		;YES, IT IS Y.
+e32a  0c             835    835 	INC	C	    		;TURN ON PRIME-FLAG
+e32b  18 a8          836    836 	JR	SR3
+e32d  cb 41          837    837 SR8:	BIT	0,C	    		;NO. H OR H'?
+e32f  28 a4          838    838 	JR	Z,SR3	   		;IF H, LOOP.
+e331  c9             839    839 	RET		    		;IT IS H'. DONE.
+                     840    840 
+Z80-Assembler		Release 1.7				Page 15
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+                     841    841 
+                     842    842 ; ENTER WITH HL POINTING TO MEMORY &
+                     843    843 ; B CONTAINING THE 1-BYTE OR 2-BYTE FLAG.
+                     844    844 ; PRINTS SPACE, CONTENTS OF (HL), & ALSO (HL-1) FOR
+                     845    845 ; 2-BYTE REGS, GETS SUBSTITUTION VALUE & LOADS IT.
+                     846    846 ; RETURNS WITH Z-FLAG SET 1FF THE DELIMITER IS
+                     847    847 ; A CARRIAGE-RETURN.
+                     848    848 ; PRESERVES BC & HL.
+                     849    849 ;
+e332  cd ec e1       850    850 GSUBV:	CALL	PNM	 		;PRINT (HL)
+e335  cb 68          851    851 	BIT	B2F,B	 		;2-BYTE REG?
+e337  28 04          852    852 	JR	Z,GS1
+e339  2b             853    853 	DEC	HL
+e33a  cd ec e1       854    854 	CALL	PNM	 		;LO BYTE
+e33d  79             855    855 GS1:	LD	A,C	 		;SUBST-OR-DISPLAY FLAG
+e33e  07             856    856 	RLCA
+e33f  38 0a          857    857 	JR	C,GS2			;IF DISPLAY, EXIT.
+e341  3e 2e          858    858 	LD	A,'.'
+e343  cd 12 e1       859    859 	CALL	PCHR
+e346  cd 44 e1       860    860 	CALL	GCHR
+e349  fe 2f          861    861 	CP	'.'+1			;SUBSTITUTION?
+e34b  dc 12 e1       862    862 GS2:	CALL	C,PCHR			;IF NOT, PRINT ANOTHER.
+e34e  38 0c          863    863 	JR	C,GS3
+e350  eb             864    864 	EX	DE,HL
+e351  cd ae e1       865    865 	CALL	GNHL			;NEW VALUE
+e354  eb             866    866 	EX	DE,HL
+e355  73             867    867 	LD	(HL),E
+e356  cb 68          868    868 	BIT	B2F,B
+e358  28 02          869    869 	JR	Z,GS3
+e35a  23             870    870 	INC	HL
+e35b  72             871    871 	LD	(HL),D
+e35c  fe 0d          872    872 GS3:	CP	CR
+e35e  c4 10 e1       873    873 	CALL	NZ,SPACE
+e361  c9             874    874 	RET
+                     875    875 ;
+                     876    876 ;
+                     877    877 ;...SUBDM 00 7E 5 585 BY 5 100 DBE++
+                     878    878 ;
+                     879    879 ;
+                     880    880 ; COMMAND
+                     881    881 ; SELECT UART-A OR UART-B.
+                     882    882 ;
+                     883    883 ; UA
+                     884    884 ; UB
+                     885    885 ;
+e362  cd a8 e1       886    886 UART:	CALL	L1NCR			;A OR B?
+e365  7b             887    887 	LD	A,E
+e366  fe 0b          888    888 	CP	0BH
+e368  20 05          889    889 	JR	NZ,UARTA
+e36a  3e 80          890    890 	LD	A,80H
+e36c  d3 04          891    891 	OUT	(APARLP),A
+e36e  c9             892    892 	RET
+                     893    893 ;
+e36f  97             894    894 UARTA:	SUB	A
+e370  d3 54          895    895 	OUT	(BPARLP),A
+e372  c9             896    896 	RET
+                     897    897 ;
+                     898    898 ;
+                     899    899 ; COMMAND
+                     900    900 ; READ BINARY INPUT FROM DATA PORT
+Z80-Assembler		Release 1.7				Page 16
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+                     901    901 ;
+e373  cd 52 e1       902    902 READB:	CALL	L2NCR			;GET MEM ADDRS
+e376  cd 0e e0       903    903 RB1:	CALL	CHKIN			;GET INPUT
+e379  28 fb          904    904 	JR	Z,RB1
+e37b  77             905    905 	LD	(HL),A			;TO MEM
+e37c  ed a1          906    906 	CPI
+e37e  e0             907    907 	RET	PO
+e37f  18 f5          908    908 	JR	RB1
+                     909    909 ;
+                     910    910 ;
+                     911    911 ; COMMAND
+                     912    912 ; WRITE BINARY OUTPUT TO DATA PORT
+                     913    913 
+e381  cd 52 e1       914    914 WRITB:	CALL	L2NCR			;GET MEM ADDRS
+e384  7e             915    915 WB1:	LD	A,(HL)
+e385  cd 1e e0       916    916 	CALL	PBYTE
+e388  ed a1          917    917 	CPI
+e38a  e0             918    918 	RET	PO
+e38b  18 f7          919    919 	JR	WB1
+                     920    920 ;
+                     921    921 ;
+                     922    922 ; COMMAND
+                     923    923 ; PRINT NULLS ON THE CURRENT DEVICE.
+                     924    924 ;
+                     925    925 ; N <NUMBER-OF-NULLS>
+                     926    926 ;
+e38d  cd a8 e1       927    927 NULLS:	CALL	L1NCR
+e390  43             928    928 	LD	B,E
+e391  97             929    929 	SUB	A
+e392  cd 12 e1       930    930 N2:	CALL	PCHR
+e395  10 fb          931    931 	DJNZ	N2
+e397  c9             932    932 	RET
+                     933    933 ;
+                     934    934 ;
+                     935    935 ; COMMAND
+                     936    936 ; OUT <DATA-BYTE> <PORT NUMBER>
+                     937    937 ;
+e398  cd ae e1       938    938 OUTP:	CALL	GNHL
+e39b  eb             939    939 	EX	DE,HL			;E GETS DATA
+e39c  cd a8 e1       940    940 	CALL	L1NCR			;GET PORT NUMBER
+                     941    941 ;
+e39f  4b             942    942 	LD	C,E			; TO C
+e3a0  ed 69          943    943 	OUT	(C),L
+e3a2  c9             944    944 	RET
+                     945    945 ;
+                     946    946 
+                     947    947 ; BAUD RATES.
+                     948    948 ; WITH THE CROMEMCO TUART:  19200, 9600, 4800,
+                     949    949 ; 			2400, 1200, 300, 150, 110.
+                     950    950 ;
+                     951    951 ; WITH THE 3P+S: 2400, 300, 110.
+                     952    952 ;
+                     953    953 ;
+e3a3  94 ce a2 92    954    954 BAUDRS:	DEFB	94H,0CEH,0A2H,92H,88H,84H,82H,1
+e3a7  88 84 82 01    954    955
+                     955    956 ;
+                     956    957 ;
+e3ab  0a 00 80       957    958 LFNN:	DEFB	LF,0,0 | 80H
+                     958    959 ;
+                     959    960 ;
+Z80-Assembler		Release 1.7				Page 17
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+e3ae  ba             960    961 PRMPT:	DEFB	(':' | 80H)
+                     961    962 ; THE COMMAND TBL MUST IMMEDIATELY FOLLOW
+                     962    963 ;
+                     963    964 ;  THE	PROMPT MESSAGE
+e3af  8d e2          964    965 	DEFW	DISPL			;DISPLAY: DM, DR
+e3b1  e5 e0          965    966 	DEFW	ERROR			;E
+e3b3  e5 e0          966    967 	DEFW	ERROR
+e3b5  23 e2          967    968 	DEFW	GO			;GO; GO/WITH BREAKPOINTS
+e3b7  e5 e0          968    969 	DEFW	ERROR
+e3b9  2d e0          969    970 	DEFW	INITBAUD		;INITIALIZE BAUD RATE
+e3bb  e5 e0          970    971 	DEFW	ERROR			;J
+e3bd  e5 e0          971    972 	DEFW	ERROR			;K
+e3bf  e5 e0          972    973 	DEFW	ERROR			;L
+e3c1  83 e1          973    974 	DEFW	MOVE			;MOVE A BLOCK OF MEMORY
+e3c3  8d e3          974    975 	DEFW	NULLS			;NULLS
+e3c5  98 e3          975    976 	DEFW	OUTP			;OUTPUT
+e3c7  ec e0          976    977 	DEFW	PROG			;PROGRAM
+e3c9  e5 e0          977    978 	DEFW	ERROR			;Q
+e3cb  73 e3          978    979 	DEFW	READB			;READ BINARY OR ASCII
+e3cd  b0 e2          979    980 	DEFW	SUBST			;SUBSTITUTE: SM, SA, SB.
+e3cf  e5 e0          980    981 	DEFW	ERROR			;T
+e3d1  62 e3          981    982 	DEFW	UART			;UART: UA, UB
+e3d3  66 e1          982    983 	DEFW	VERIF			;VERIFY BLOCKS OF MEMORY
+e3d5  81 e3          983    984 	DEFW	WRITB			;WRITE BINARY OR ASCII
+                     984    985 ;
+0040                 985    986 PM	EQU	1 < PF			;PRIMEABLE-REG MASK
+0000                 986    987 B1M	EQU	0			;1-BYTE REG MASK
+0020                 987    988 B2M	EQU	1 < B2F			;2-BYTE REG MASK
+0080                 988    989 CRM	EQU	1 < CRF			;CARRIAGE-RETURN MASK
+                     989    990 
+e3d7  43             990    991 RGTBL:	DEFB	-DUAF | PM		;A
+e3d8  45             991    992 	DEFB	-DUBC | PM		;B
+e3d9  46             992    993 	DEFB	-DUBC+1 | PM		;C
+e3da  47             993    994 	DEFB	-DUDE | PM		;D
+e3db  48             994    995 	DEFB	-DUDE+1 | PM		;E
+e3dc  44             995    996 	DEFB	-DUAF+1 | PM		;F
+e3dd  00             996    997 	DEFB	0
+e3de  e9             997    998 	DEFB	-DUHL | PM | B2M | CRM	;H [HL]
+e3df  11             998    999 	DEFB	-DUIN | B1M		;I
+e3e0  00             999   1000 	DEFB	0
+e3e1  00            1000   1001 	DEFB	0
+e3e2  00            1001   1002 	DEFB	0
+e3e3  00            1002   1003 	DEFB	0
+e3e4  12            1003   1004 	DEFB	-DUIN+1 | B1M		;N [INTERRUPT FF]
+e3e5  00            1004   1005 	DEFB	0
+e3e6  21            1005   1006 	DEFB	-DUPC | B2M		;PC
+e3e7  00            1006   1007 	DEFB	0
+e3e8  00            1007   1008 	DEFB	0
+e3e9  2b            1008   1009 	DEFB	-DUSP | B2M		;SP
+e3ea  00            1009   1010 	DEFB	0
+e3eb  00            1010   1011 	DEFB	0
+e3ec  00            1011   1012 	DEFB	0
+e3ed  00            1012   1013 	DEFB	0
+e3ee  2d            1013   1014 	DEFB	-DUIX | B2M		;X [IX]
+e3ef  af            1014   1015 	DEFB	-DUIY | B2M | CRM 	;Y [IY]
+                    1015   1016 ;
+                    1016   1017 ;
+e3f0  0d 0d 43 52   1017   1018 HEAD:	DEFB	CR,CR, 'CROMEMCO ZM1.',('4' | 80H)
+e3f4  4f 4d 45 4d   1017   1019
+e3f8  43 4f 20 5a   1017   1020
+Z80-Assembler		Release 1.7				Page 18
+Source file: z1mon-1.4.asm
+Title:       
+
+LOC   OBJECT CODE   LINE   STMT SOURCE CODE
+e3fc  4d 31 2e b4   1017   1021
+e400                1018   1022 	END	CSTART
+Z80-Assembler		Release 1.7				Page 19
+Source file: z1mon-1.4.asm
+Title:       Symboltable
+
+ABAUDP   0000	ACMNDP   0002	ALT      007d	APARLP   0004	
+B1M      0000	B2F      0005	B2M      0020	BAUDRS   e3a3	
+BCMNDP   0052	BPARLP   0054	BPMRK    000b	BPSTOR   0016	
+CASE     0000	CHKIN    e00e	CL1      e0a4	CL2      e0b3	
+CLBP     e0a0	CMND     e0be	CMND1    e0c2	COM1     e051	
+COM3     e082	COM4     e08b	COMMON   e04a	CR       000d	
+CRF      0007	CRLF     e14d	CRM      0080	CSTART   e000	
+DATA     0001	DAV      0040	DISPL    e28d	DM2      e29a	
+DSPM     e292	DSPM1    e295	DUAF     fffd	DUAF2    ffed	
+DUBC     fffb	DUBC2    ffeb	DUDE     fff9	DUDE2    ffe9	
+DUHL     fff7	DUHL2    ffe7	DUIN     ffef	DUIX     fff3	
+DUIY     fff1	DUPC     ffff	DUSP     fff5	ERROR    e0e5	
+ERRV1    e0f5	ESC      001b	ESCPE    e0ea	GBYTE    e016	
+GCHR     e144	GN1      e1bb	GNHL     e1ae	GNHL0    e1ad	
+GO       e223	GO1      e226	GO3      e23c	GO5      e25f	
+GS1      e33d	GS2      e34b	GS3      e35c	GSUBV    e332	
+HEAD     e3f0	HEXSH    e1c6	HX1      e1d4	HXSH4    e1d6	
+INIT     e029	INITBAUD e02d	IT1      e034	L1NCR    e1a8	
+L2N1     e19b	L2N2     e1a2	L2NCR    e152	L2NCR0   e151	
+L3NCR    e1a5	LD2N     e18b	LENRGS   0016	LF       000a	
+LFNN     e3ab	MOVE     e183	MVE      e21a	N2       e392	
+NBRKPT   0005	NULLS    e38d	OUTP     e398	P1HEX    e1fb	
+P2HEX    e1f7	P2NMS    e108	PADDR    e15f	PBY1     e01f	
+PBYTE    e01e	PC1      e113	PC2      e122	PC3      e141	
+PCADDR   e15c	PCHR     e112	PF       0006	PH1      e208	
+PM       0040	PMSG     e20f	PNHL     e1f2	PNM      e1ec	
+PR1      e0fb	PRMPT    e3ae	PROG     e0ec	PS1      e210	
+PSNHL    e1ef	PSNM     e1e9	RB1      e376	READB    e373	
+RETN     e265	RGTBL    e3d7	RSTLC    0030	RT1      e273	
+RT2      e27e	RT3      e288	SK1      e1df	SKSG     e1de	
+SKSG0    e1dd	SKSGCR   e155	SM1      e2b8	SPACE    e110	
+SR2      e2d2	SR3      e2d5	SR4      e2f7	SR5      e30f	
+SR6      e31e	SR8      e32d	STAT     0000	SUBM     e2b2	
+SUBR     e2c8	SUBR2    e2d1	SUBR3    e323	SUBST    e2b0	
+SVMS     e045	TBE      0080	TEMPS    0016	UART     e362	
+UARTA    e36f	VERIF    e166	VRFY     e169	WB1      e384	
+WRITB    e381	WSTART   e008	

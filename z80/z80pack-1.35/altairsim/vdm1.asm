@@ -1,0 +1,10 @@
+;
+; TEST PROGRAM FOR THE VDM STATUS PORT
+;
+; ENTER STATUS VIA SENSE SWITCHES 0-7
+;
+LOOP:   IN      0FFH
+        OUT     0C8H
+        JMP     LOOP
+
+        END

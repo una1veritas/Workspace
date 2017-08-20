@@ -1,0 +1,33 @@
+1
+ 8080 MACRO ASSEMBLER, VER 3.0        ERRORS = 0      
++                                                      21:22  01/28/2017
++                                                                                      PAGE 1
+      
+
+
+                   ;
+                   ; TEST PROGRAM FOR THE VDM STATUS PORT
+                   ;
+                   ; ENTER STATUS VIA SENSE SWITCHES 0-7
+                   ;
+   0000   DBFF     LOOP:   IN      0FFH
+   0002   D3C8             OUT     0C8H
+   0004   C30000           JMP     LOOP
+                    
+                           END
+ NO PROGRAM ERRORS
+1
+ 8080 MACRO ASSEMBLER, VER 3.0        ERRORS = 0      
++                                                      21:22  01/28/2017
++                                                                                      PAGE 2
+      
+
+
+                        SYMBOL TABLE
+
+  * 01
+
+  A      0007      B      0000      C      0001      D      0002      
+  E      0003      H      0004      L      0005      LOOP   0000      
+  M      0006      PSW    0006      SP     0006      
+
