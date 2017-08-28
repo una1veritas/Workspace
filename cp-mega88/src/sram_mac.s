@@ -29,6 +29,15 @@
  * DAMAGE.
  */
 
+  /* Original:
+   * PB0: /W
+   * PB1: E2
+   * PB2: A16
+   * PB3: N/A (input)
+   * PB4: CLK for FF on Address Low
+   * PB5: CLK for FF on Address High
+   * PD*: Address / Data
+
 .equ	DOUT,11
 .equ	DDIR,10
 .equ	DIN,9
@@ -47,9 +56,52 @@
 
 .equ	DATA_IN,0
 .equ	DATA_OUT,0xff
+   */
+
+  /*
+   * PB1: SRAM WE
+   * PB2: SRAM CS
+   * PD3: SRAM A16
+   * PB3: SRAM OE
+   * PB4: LATCH_CLK for Address Low
+   * PB5: LATCH_CLK for Address High
+   * PC0-3: Address / Data
+   * PD4-7: Address / Data
+   */
+
+.equ 	DOUT,   0x08
+.equ	DOUT_H, 0x0B
+.equ 	DDIR, 	0x07
+.equ	DDIR_H,	0x0A
+.equ 	DIN, 	0x06
+.equ 	DIN_H,	0x09
+.equ 	CTRL,	0x05
+
+.equ	W_X, 1
+.equ	SEL, 2
+.equ 	O_X, 3
+.equ	A16,3
+.equ	C_L,4
+.equ	C_H,5
+
+.equ	C1,(1 << C_L)
+.equ	C2,(1 << C_H)
+.equ	RD,((1 << O_X) | (1 << SEL))
+.equ	WR,((1 << W_X) | (1 << SEL))
+.equ 	CS, (1<<SEL)
+
+.equ	DATA_IN,0
+.equ	DATA_OUT,0xff
+.equ 	DATA_HIGH, 0xf0
+.equ 	DATA_LOW, 0x0f
 
 .macro _sram_read adr_l=r24, adr_h=r25, ret=r24, work=r23
 	out DOUT, \adr_l/* output address low   */
+	in	\work, DOUT_H
+	andi \work, 0x0f
+	andi \adr_l, 0xf0
+	or 	\adr_l, \work
+	out DOUT_H, \adr_l
 	ldi \work, C1
 	out CTRL, \work	/* assert CLK for Latch */
 	out DOUT, \adr_h/* output address high  */

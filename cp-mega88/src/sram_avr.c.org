@@ -38,22 +38,18 @@ sram_init
 (void)
 {
   /*
-   * PB1: SRAM WE
-   * PB2: SRAM CS
-   * PD3: SRAM A16
-   * PB3: SRAM OE
-   * PB4: LATCH_CLK for Address Low
-   * PB5: LATCH_CLK for Address High
-   * PC0-3: Address / Data
-   * PD4-7: Address / Data
+   * PB0: /W
+   * PB1: E2
+   * PB2: A16
+   * PB3: N/A (input)
+   * PB4: CLK for FF on Address Low
+   * PB5: CLK for FF on Address High
+   * PD*: Address / Data
    */
   // Port Settings
-  //   All ports are output
-  DDRB    =  (_BV(DDB1) | _BV(DDB2) | _BV(DDB3) | _BV(DDB4) | _BV(DDB5));
-  PORTB   = 0xff;
-  DDRC    = ( _BV(DDB0) | _BV(DDB1) | _BV(DDB2) | _BV(DDB3) | _BV(DDB4) );
-  PORTC   = 0; // &= ~( _BV(DDB0) | _BV(DDB1) | _BV(DDB2) | _BV(DDB3) | _BV(DDB4) )
-  DDRD    = (_BV(DDB3) | _BV(DDB4) | _BV(DDB5) | _BV(DDB6) |_BV(DD7) );
+  //   All ports are Output excepr for PB3
+  DDRB    =  (_BV(DDB0) | _BV(DDB1) | _BV(DDB2) | _BV(DDB4) | _BV(DDB5));
+  PORTB   = 0;
+  DDRD    = 0xff;
   PORTD   = 0;
-
 }
