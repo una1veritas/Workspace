@@ -8,6 +8,9 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <avr/interrupt.h>
 
 volatile int i=0;
@@ -124,20 +127,19 @@ uint8_t serial0_rx(void) {
 	return UDR0;
 }
 
-void serial0_puts(char* StringPtr)
+void serial0_puts(char* StringPtr) {
 // sends the characters from the string one at a time to the USART
-{
-    while(*StringPtr != 0x00)
-    {
+    while(*StringPtr != 0x00) {
         serial0_tx(*StringPtr);
         StringPtr++;
     }
 }
 
 int main(void) {
-
+	uint16_t count = 0;
+	char buf[32];
 	sram_init();
-	serial0_init(9600);
+	serial0_init(19200);
 
 	serial0_puts("Hello there.\n");
 
@@ -146,6 +148,9 @@ int main(void) {
 		_delay_ms(500);
 		sram_deselect();
 		_delay_ms(500);
+		sram_addr_out(count++);
+		sprintf(buf,"%d\n",count);
+		serial0_puts(buf);
 	}
 	return 0;
 }
