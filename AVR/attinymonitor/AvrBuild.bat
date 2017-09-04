@@ -1,0 +1,2 @@
+@ECHO OFF
+"C:\Program Files\Atmel\AVR Tools\AvrAssembler2\avrasm2.exe" -S "F:\Development\AVR\attinymonitor\labels.tmp" -fI -W+ie -C V2 -o "F:\Development\AVR\attinymonitor\attinymonitor.hex" -d "F:\Development\AVR\attinymonitor\attinymonitor.obj" -e "F:\Development\AVR\attinymonitor\attinymonitor.eep" -m "F:\Development\AVR\attinymonitor\attinymonitor.map" "F:\Development\AVR\attinymonitor\attinymonitor.asm"

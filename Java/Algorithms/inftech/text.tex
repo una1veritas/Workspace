@@ -1,0 +1,2558 @@
+\documentclass[11pt,twoside]{jarticle}
+%\input{A4}
+%\setlength{\topmargin}{0pt}
+\setlength{\oddsidemargin}{30pt}
+\setlength{\evensidemargin}{0pt}
+\setlength{\textwidth}{420pt}
+%\setlength{\textheight}{630pt}
+\def\linesparpage#1{\baselineskip=\textheight\divide\baselineskip#1}
+
+\usepackage{theorem}
+\newtheorem{exercise}{演習}
+
+\newcounter{proglistctr}
+%\refstepcounter{proglistctr}
+%{\bf 操作例 \arabic{section}-\arabic{tsmplnumber}}
+\newenvironment{proglist}
+{\begin{quote} \linesparpage{44} \refstepcounter{proglistctr} \trivlist \item}
+  {\endtrivlist {\bf リスト \theproglistctr} \\
+ \end{quote}}
+
+
+\title{{\normalsize \bf 九州工業大学情報技術セミナー 企業情報講座} \\
+{\bf Java 入門コース}\\[-6pt]
+{\large --- C から Java へのクイックツアー ---}}
+\author{{\normalsize 九州工業大学 情報工学部 知能情報工学科}	\\
+下薗 \ 真一}
+\date{2003 年 4 月 10 日}
+
+\begin{document}
+\maketitle
+
+\linesparpage{36}
+
+このコースでは C 言語, もしくは他の手続き型言語を使ったプログラミングに
+ある程度親しんでいることを前提に Java 言語とオブジェクト指向プログラミン
+グの初歩をマスターします. 
+したがって変数や式, 代入, 繰り返しやサブルーチンといったプログラミングの
+基礎概念に関する学習は行いません. 
+
+\subsubsection*{注意事項}
+このテキストは, Sun Java 2 SDK バージョン 1.4, またはそれと同等の開発環
+境を適切に設定された UNIX 等のコマンドオペレーション環境で使用することを
+前提に書かれています. 
+使用するシェルにおいて \verb/javac/, \verb/java/, \verb/appletviewer/ へ
+のコマンドパスが設定されていることが必要です. 
+バージョン 1.4 以外の Java を使う場合, プログラムに修正が必要になること
+があります. 
+
+%\newpage
+\vspace{2ex}
+\tableofcontents
+
+\newpage
+\section{Java プログラムの記述, コンパイル, そして実行}
+\subsection{ソースコード記述の作法}
+C 言語や Pascal などと同様に, Java 言語プログラムのソースコードもテキス
+トエディタを利用しテキストファイルとして書きます. 
+また, ファイルの名前にもやはり規則があります. 
+
+Java 言語では密接に関係するデータとプログラムの一揃を「クラス」と呼んで
+一まとめで扱い, プログラムはすべてクラス単位で構成します. 
+ソースコードのファイルの名前は \verb/.java/ で終わるものでなければなりま
+せん\footnote{クラスが他のクラスからも利用される公開クラス(後述)の場合,
+ファイル名は {\tt クラス名.java} でなければなりません. }. 
+混乱を避けるため, ファイル一つにクラスを一つ記述し, ファイルの名前はクラ
+ス名\verb/.java/にするとよいでしょう. 
+
+それでは, 最初に ``Hello, there!'' とテキストメッセージを出力するプログ
+ラムを作ってみましょう. 
+まず下のリスト \ref{list:1} の内容を \verb/Hello.java/ という名前のテキ
+ストファイルとして保存し, プログラムのソースコードを完成させましょう. 
+
+\begin{proglist}\label{list:1}
+%\begin{quote}
+%\linesparpage{44}
+\begin{verbatim}
+/* Hello.java */
+class Hello {
+   public static void main(String args[]) {
+      System.out.println("Hello, there!");
+   }
+}
+\end{verbatim}
+%{\bf リスト 1}
+%\end{quote}
+\end{proglist}
+
+\verb$Hello$ は, このプログラムで使うクラスにつけた「とりあえずの」名前です. 
+他の名前でもかまいません. 
+Java では, クラス\verb$Hello$のプログラムを実行すると, まず \verb$Hello$
+に備わっている \verb$main$ 関数が呼び出されることになっています. 
+もし \verb$main$ 関数がないと, エラーメッセージが出力され終了します. 
+
+クラスは, C 言語での構造体 \verb$struct$ を拡張したものです. 
+クラスとその書き方については次の節以降で詳しく説明しますが, ここではほん
+の少しだけプログラムの内容を説明します. 
+\verb/public static void/ は \verb/main/ が何も返さない(\verb/void/ 型の)
+関数で, データのあるなしには関係なく(\verb/static/), どこからでも呼び出せ
+る (\verb/public/)ことを表します. 
+また {\tt main} 関数の引数は, 文字列を表す {\tt String} 型の配列になって
+います. 
+これら \verb/main/ 関数の型は決めらており, 変更することはできません. 
+\verb$System.out$ は標準出力,つまり C 言語での \verb$stdout$ のことで, 
+\verb/System.out.println( )/ は C 言語の \verb/printf( )/ に相当します.
+この他詳しいことは後回しにして, まずはソースコードを作ってみましょう. 
+\begin{exercise}
+テキストエディタを使って, リスト 1 の内容を持つファイル \verb/Hello.java/
+ を作成しなさい. 
+\end{exercise}
+
+次に, このソースコードを実行可能なプログラムにしましょう. 
+
+\subsection{Java プログラムにするには}
+
+ソースコードのファイルができたら, コンパイルして実行可能なファイルを作り
+ます. 
+コンパイルは \verb/javac/ コマンドを使い
+\begin{quote}
+ \verb/javac/ \,ファイル名\, [改行]
+\end{quote}
+で行います. 
+ファイル名は, \verb/.java/ を含む完全なものでなければなりません. 
+コンパイルが成功すると, 名前が「クラス名 {\tt .class}」のファイルができ
+ます. 
+これが Java プログラムを実行するためのファイルです. 
+
+\begin{exercise}
+先に作成した {\tt Hello.java} をコンパイルし, {\tt Hello.class} ができて
+いることを確認しなさい. 
+\end{exercise}
+
+\subsection{Java プログラムを実行するには}
+
+コンパイルしてできた {\tt .class} ファイルは,  C 言語でコンパイルして作っ
+た実行ファイルとは異なり直接コンピュータのハードウェアが実行することはで
+きません. 
+Java プログラムの実行は, {\tt .class} ファイルを {\tt java} コマンドに解
+釈させることで行います. 
+\begin{quote}
+ \verb/java/ \,クラス名 \, [改行]
+\end{quote}
+クラス名として {\tt main} 関数を持つクラスを与えます. 
+実際に, さきほどのプログラムを動作させてみましょう. 
+\begin{exercise}
+コンパイルした {\tt Hello.class} を {\tt java} コマンドで実行し, メッセー
+ ジが出力されることを確認しなさい. 
+\end{exercise}
+
+Java 言語の特徴の一つは, コンパイルされたプログラムが直接コンピュータに
+解釈され実行される「ネイティブコード」ではなく, 
+解釈と実行を行う \verb/java/ コマンドのための中間的なコードになっている
+ということにあります. 
+このような仕組みだと手間が増え, また実行が間接的になってスピードも犠牲に
+なることがありますが, そのかわり \verb/java/ コマンドさえ用意できればど
+のような種類のハードウェア, OSであってもプログラムを動作させることができ
+る, というメリットがあります. 
+(「独習 Java」1.2 章 p.~3. )
+これは, たとえばネットワークでプログラムを配布するのに大変つごうがいいの
+です. 
+
+
+\newpage
+\section{基本となるデータ型と制御の流れの型}
+
+Java はオブジェクト指向言語であるが，C 言語のようにコンピューターハード
+ウェアの動作に基づくデータ型とその演算を扱うことができます. 
+またほぼ C 言語と同等の抽象化された制御ステートメントを持っています. 
+この節では，オブジェクト指向言語ならではの手法を学ぶ前に，そういった C
+言語と同様な基礎の部分を概観していきます. 
+
+
+\subsection{プリミティブ(原初的)なデータ型と演算子}
+C 言語などと同様に，Java 言語でも整数, 文字, 浮動小数点表現の実数といっ
+た型のデータを自然に使うことができます. 
+論理値, すなわち論理演算の結果は, 整数で表す C 言語とは異なり
+\verb/boolean/ 型という専用の型を持っています. 
+これらはプリミティブなデータ型\footnote{計算機ハードウェア(CPU)が直接扱
+える型に相当します. }とよばれ, 主に以下の型があります. 
+(「独習 Java」1.9章 p.~12 〜. )
+
+\begin{center}
+\begin{tabular}{|p{1in}|p{3in}|}
+\hline
+{\tt char} & 文字 (漢字など 2 バイト文字も含む) \\
+\hline
+{\tt boolean} & 真偽値(論理値)\\
+\hline
+{\tt int} & 整数 (32ビット符合付き) \\
+{\tt long} & 整数 (64ビット符合付き)\\
+\hline
+{\tt float} & 浮動小数点数 \\
+{\tt double} & 倍精度浮動小数点数\\
+\hline
+\end{tabular}
+\end{center}
+
+これらの型のデータの演算も，ほぼ C 言語と同様のものが用意されています. 
+算術演算子には, 演算と代入を一つにまとめた代入演算子を含め以下のものがあ
+ります. 
+(「独習 Java」1.11章 p.~20 〜. )
+
+\begin{center}
+\begin{tabular}{|p{1in}|p{3in}|}
+\hline
+{\tt *, /, \%} & 乗算，除算，剰余算 \\
+{\tt +, -} & 加算, 減算, 正負の反転 \\
+\hline
+{\tt *=, /=, +=, -=, \%=} & 左辺の変数と右辺の値で{\tt =}の左の演算を行
+ い，結果を左辺の変数に代入 \\
+\hline
+{\tt ++, --} & 変数のインクリメント，デクリメント\\
+\hline
+\end{tabular}
+\end{center}
+優先順序は表の上のものほど先となります. 
+不確かな場合は, カッコ {\tt ( )} ではっきりくくる方が間違いが生じないの
+でよいでしょう. 
+
+また, 等号や不等号といった関係演算子によって条件を書き論理値を求めること
+ができます. 
+(「独習 Java」3.1章 p.~85. )
+
+\begin{center}
+\begin{tabular}{|p{1in}|p{3in}|}
+\hline
+{\tt >, >=} & より大きい，より大きいか等しい \\
+{\tt <, <=} & より小さい，より小さいか等しい  \\
+{\tt ==} & 等しい \\
+{\tt !=} & 等しくない \\
+\hline
+\end{tabular}
+\end{center}
+これらの演算の結果は必ず \verb/true/ (真)または \verb/false/ (偽)のどち
+らかになります. 
+
+プリミティブなデータ型の変数やデータは，C 言語とほぼ同様に扱うことができ
+ます. 
+九九の表を計算するプログラム \verb/Table.java/ を作り, 動かしてみましょう.
+
+\begin{proglist}
+%\begin{quote}
+%\linesparpage{44}
+\begin{verbatim}
+/* Table.java */
+class Table {
+   public static void main(String args[]) {
+      int x, y;
+      for(x = 1; x < 10; x++) {
+         for(y = 1; y < 10; y++) {
+            System.out.print(x*y);
+            System.out.print(" ");
+         }
+         System.out.println();
+      }
+   }
+}
+\end{verbatim}
+%{\bf リスト 2}
+%\end{quote}
+\end{proglist}
+\verb/System.out.print( )/ は, 文字列の後に改行を出力しません. 
+ここでは表らしくするために, 改行をする \verb/System.out.println( )/ と使
+い分けています. 
+
+\begin{exercise}
+\verb/Table.java/ を書いてコンパイルし, 実行して結果を確かめなさい. 
+\end{exercise}
+
+
+\subsection{配列}
+
+Java は配列も C 言語と見かけがそっくりで使い方もほぼ同じになっています. 
+(「独習 Java」1.15章 p.~30 〜. )
+ただし Java の配列は長さ(アクセスできる添字の最大値+1)を \verb$.length$
+というフィールドに持っており, その値は配列が作られるときに設定されるよう
+になっています. 
+たとえば, \verb$main(String args[])$ 関数の引数はクラス \verb$String$ 型
+の配列です. 
+配列の要素はプログラムの実行時に引数として与えた文字列で, 配列の長さ
+\verb$args.length$ は引数の数を表します. 
+
+以下の例をみてみましょう. 
+\begin{proglist}\label{proglist:ArrayTest}
+%\begin{quote}
+%\linesparpage{44}
+\begin{verbatim}
+/* ArrayTest.java */
+class ArrayTest {
+   public static void main(String args[]) {
+      String temp = "";
+      int i;
+      for (i = 0; i < args.length; i++) {
+         System.out.println(args[i]);
+         temp = temp + args[i];
+      }
+      System.out.println(temp);
+   }
+}
+\end{verbatim}
+%{\bf リスト 3}
+%\end{quote}
+\end{proglist}
+
+このプログラムは一時的な変数としてクラス\verb$String$ 型の変数
+\verb$temp$ を使っています. 
+\verb$String$ 型は標準ライブラリで用意されているクラス型で, 文字列を表す
+のに Java の中で利用されています. 
+また特別に用意された \verb$+$ 演算子で連結した文字列を作ったり, アルファ
+ベット順に基づく比較が用意されているなど, 便利です. 
+
+\begin{exercise}
+リスト~\ref{proglist:ArrayTest} の内容でソースファイル
+ \verb$ArrayTest.java$ を作成し, コンパイルして引数を与えて実行し動作を
+ 確認しなさい. 
+たとえば, 
+\begin{quote}
+ \verb$java ArrayTest Another cup of tea$ \,[改行]
+\end{quote}
+ と引数を与え実行すると, 出力はどうなりますか. 
+\end{exercise}
+
+配列の宣言は, C 言語とやや異なります. 
+長さが定数で与えられる配列は, 
+\begin{quote}
+\verb/int a[] = new int[5];/
+\end{quote}
+のように宣言します. 
+この例で, もし配列に代入する 5 個の整数がきまっているなら, 次のように宣
+言と同時に値を与えて(初期化)できます. 
+\begin{quote}
+\verb/int a[] = {0, 1, -3, 8, 100};/
+\end{quote}
+
+長さが実行時に決まる配列は, \verb/new/ 演算子を使って用意します. 
+たとえば, 引数 \verb/args[]/ と同じ長さの \verb/int/ 型配列
+\verb/numbers/ を用意するためには, 次のようにして配列を確保します. 
+\begin{quote}
+\linesparpage{44}
+~~~\verb/int numbers[];/ \\
+~~~~~~ $\vdots$ \\
+~~~\verb/numbers = new int[args.length];/ \\
+\end{quote}
+変数宣言の時に長さがわかるなら
+\begin{quote}
+~~~\verb/int numbers[] = new int[args.length];/ 
+\end{quote}
+と一度にすませてもかまいません. 
+
+なお, {\tt new} による割り付けはあくまでも配列に必要な変数の場所を確保す
+るだけなので, 配列の要素それぞれの値は使う前に自分で初期化する必要がある
+ことを忘れないでください. 
+
+
+\subsection{制御構造}
+
+プログラムの流れ，繰り返しを制御する制御文もほぼ C 言語と同様です. 
+ただし，Java に {\tt goto} 文はありません. 
+(「独習 Java」3章, 4章. )
+
+\subsubsection*{if ... else 条件分岐}
+
+\noindent
+{\tt if (条件式) 文1; }\\
+{\tt if (条件式) 文1; else 文2; }
+
+条件式の計算結果が {\tt true} ならば 文1 を，{\tt false} ならば 文2 を実
+行します. 
+C 言語と同様に, 「文;」のかわりに複数の文を \{ \} で囲んだ{\bf プログラ
+ムブロック}を使うことができますし, 
+\verb/else/ に続く文として \verb/if/ 条件分岐を連ねることで場合分けを表
+現することもできます. 
+
+\subsubsection*{switch ... case 分岐}
+
+\noindent
+\verb/switch (式) { case 定数A: 文A; ... case 定数B: 文B; ... }/\\
+\verb/switch (式) { case 定数A: 文A; ... default: 文Z; }/
+
+式の値を計算し，{\tt case} の次に書かれた定数と一致する箇所があれば, そ
+の直後から実行を始めます. 
+式の値がどの定数とも一致しないときは, {\tt default: }の直後から実行を始
+めます. 
+「{\tt case 値:}」は，{\tt switch (式)} に続くブロックの中の, 実行開始位
+置のラベルのようなものといえます. 
+ある値の {\tt case} で始まった文の実行は，その後もずっと続きます. 
+もし次につづく {\tt case} ラベルの直前で実行をやめたければ, 後で述べる
+\verb/break;/ 制御文を使って {\tt switch } ブロックを終了しなければなり
+ません. 
+
+
+\subsubsection*{for ループ}
+
+\noindent
+{\tt for (式1 ; 条件式 ; 式2) 文; }
+
+繰り返しの制御構造は, ループと呼ばれます. 
+ループには, 計算の進行状況や繰り返し回数を表す制御変数を使って, 開始と終
+了の条件をはっきり記述できるものが少なくありません. 
+このようなループは, {\tt for } ループを使えば
+\begin{enumerate}
+\item[(1)] 式1 で制御変数の繰り返し前の初期化を行い, 
+\item[(2)] 条件式が真ならば 文 (またはブロック) を実行し, 
+\item[(3)] 式2 で制御変数の更新を行い, (2) へ戻る, 
+\end{enumerate}
+という構造をわかりやすく記述できます. 
+あえて 式1 や 式2 を空にして, {\tt while} ループのかわりに使うことも可能
+です. 
+
+\subsubsection*{while ループ}
+
+\noindent
+{\tt while (条件式) 文;}
+
+繰り返しの制御変数がすでに使われており初期化する必要がない場合や, 条件の
+更新が一度の繰り返しの中で必ずしも起きない場合などには, 条件式のみを明示
+する {\tt while} ループを用いるとわかりやすくなります. 
+繰り返し条件の更新が明示されないために, 繰り返しが終わらないバグ「無限ルー
+プ」の原因になることも少なくありません. 
+逆に, 条件式と制御変数, 制御変数の更新と条件式の両方の間に文を書く必要が
+ある場合, \verb/while/ の条件式には定数 \verb/true/ を与え, ブロックの中
+の \verb/break/ により終了するループとして書くと, すっきりします. 
+
+
+\subsubsection*{do ... while ループ}
+
+\noindent
+{\tt do 文; while (条件式); }
+
+\verb/for/ ループと \verb/while/ ループはどちらもまず条件式の評価が行わ
+れ, その後に繰り返される文またはブロックを実行します. 
+\verb/do ... while/ ループは, これを逆に書きたいときに使用します. 
+つまり, 
+\begin{enumerate}
+\item[(1)] 文(またはブロック)の実行が行われ, 
+\item[(2)] 条件式が評価され，{\tt true} の場合には (1) に戻り繰り返す, 
+\end{enumerate}
+というループを書くことができます. 
+
+\verb/while/ または \verb/for/ ループを使うか, \verb/do ... while/ ルー
+プを使うかは, どちらがすっきりするかによって選びます. 
+基本的にはどれを使っても書けるはずです. 
+
+\subsubsection*{break と continue}
+
+ループで繰り返されるブロックの途中で, それ以降の実行はスキップして次の回
+の繰り返しに進みたい場合があります. 
+このような場合は, \verb/continue/ ステートメントを条件分岐と組み合わせて
+使います. 
+\verb/continue/ は, その場所からブロックの最後の文の直後({\tt \}}の直前)
+までジャンプする, と理解すればよいでしょう. 
+たとえば, 
+\begin{tabbing}
+~~~\= \verb/for (i = 0; i < n; i++) {/ \\
+ \>~~~\= \framebox[.75in][c]{A} \\
+ \>  \>  \verb/if (1 < i) continue;/ \\
+ \>  \>  \framebox[.75in][c]{B} \\
+ \>  \verb/}/
+\end{tabbing}
+であれば, 
+\framebox[0.4in][c]{A} $\to$ \framebox[0.4in][c]{B} $\to$
+\framebox[0.4in][c]{A} $\to$ \framebox[0.4in][c]{B} $\to$ 
+\framebox[0.4in][c]{A} $\to$ \framebox[0.4in][c]{A} $\cdots$
+と繰り返されることになります. 
+
+繰り返されるブロックの途中で, 繰り返しの条件にかかわらず直ちにループを終
+了したい場合があります. 
+このような場合 {\tt break} ステートメントを使うとループをただちに抜ける
+ことができます. 
+\verb/break/ で抜けることができるのは, その\verb/break/ステートメントを
+含む一番内側のループ, あるいは {\tt switch} のブロックだけです. 
+二重, 三重のループを一度に抜けることはできません. 
+
+
+\begin{exercise}\rm
+\verb/for/ ループを使って, 次の 2 つのプログラムを作成しなさい. 
+\begin{enumerate}
+\item[(1)] 1 から 100 までの数を 1 度ずつ表示するプログラム. 
+\item[(2)] 1 から 100 までの数のうち, 17 で割りきれるものすべてを表示す
+ るプログラム. 
+\end{enumerate}
+\end{exercise}
+
+制御構造で用いる条件式には, 論理演算によって条件式を組み合わせたものを使
+うことができます. 
+論理演算子には，次の表にあげるものがあります. 
+なお, 表の上にあるものほど先に評価されます. 
+(「独習 Java」3.7章 p.~100 〜 参照. )
+
+\begin{center}
+\begin{tabular}{|p{1in}|p{3in}|}
+\hline
+{\tt !} & 否定 \\
+\hline
+{\tt \&} & 論理積 \\
+\verb/^/ & 排他的論理和 \\
+{\tt |} & 論理和 \\
+\hline
+{\tt \&\&} & 論理積(ショートカット) \\
+{\tt ||} & 論理和(ショートカット) \\
+\hline
+\end{tabular}
+\end{center}
+
+ショートカット演算子 {\tt \&\&} と {\tt ||} は, それぞれ論理積と論理和の
+演算であることには変わりありません. 
+ただし, 左辺の論理値によって式の値が決まるときには, 右辺の計算をスキップ
+します. 
+これは無駄な計算を省いたり, 右辺が場合によっては実行時エラーになるような
+とき, 右辺の実行を避けるために使用します. 
+
+なお, 関係演算子と論理演算子は, 共に算術演算子よりも優先順位が低くなります. 
+\begin{exercise}
+1 から 100 までの数の中で, 3 で割りきれるが 2 で割りきれないものをすべて
+ 表示するプログラムを作成しなさい. 
+\end{exercise}
+
+\begin{exercise}
+1900 年から 2104 年までのうち, うるう年をすべて表示するプログラムを作成
+ しなさい. 
+ただし, うるう年でない年であるためには, 以下の 2 つの条件どちらかを満た
+ す必要がある. 
+\begin{enumerate}
+\item[(1)] 4 で割りきれない年は, うるう年ではない. 
+\item[(2)] 100 で割りきれかつ 400 で割りきれない年は, うるう年ではない. 
+\end{enumerate}
+\end{exercise}
+
+
+\newpage
+\section{「クラス」＝プログラムとデータのパッケージ}
+
+Java 言語では, データをプリミティブな型やクラス型の単独あるいは組み合わ
+せて表現し, さらにそのデータを扱うための関数一式と一まとめにしてクラスと
+して記述します. 
+ですから, Java のプログラミング＝クラスの記述ということになります. 
+そして, データを構成する変数や関数は, 他のクラスから使えるよう「公開」し
+たり, 使えないように隠したり, クラスを拡張した場合に暗黙のうちに引き継い
+だりすることができます. 
+このような仕組みを生かして行うプログラミングを, オブジェクト指向プログラ
+ミングとよびます. 
+
+この節では, まずクラスの記述をするために必要なことや考え方を学びましょう. 
+
+\subsection{クラスメソッド (静的メソッド) とクラス変数 (静的変数)}
+
+クラス \verb/Hello/ は関数 \verb/main/ だけからなっており, 他の関数や
+\verb/main/ の中で一時的に使われる以外の変数は, 一切持っていませんでした. 
+この \verb/main/ 関数のようにクラスに用意された機能として働く関数を静的
+メソッドまたはクラスメソッドと呼び, ソースコードでは
+\begin{quote}
+\verb$修飾キーワード static 返り値の型 関数名(引数宣言) ... $ 
+\end{quote}
+と書いて宣言します. 
+修飾キーワードとは \verb$public$ などのことで, これは後の節で詳しく説明します. 
+関数の呼び出しは, 
+\begin{quote}
+\verb$クラス名.関数名(引数)$
+\end{quote}
+で行います. 
+なお, 自分のクラスのクラスメソッドを呼び出す場合はクラス名を省略できます. 
+(「独習 Java」2.2章 p.~50 〜. )
+
+C 言語や他の言語と同様に, Java でも必要な関数を, たとえば下のリスト~
+\ref{proglist:factorial} の関数 {\tt factorial( )} のように, サブルーチ
+ンとして用いることができます. 
+\begin{proglist}\label{proglist:factorial}
+%\begin{quote}
+%\linesparpage{44}
+\begin{verbatim}
+  public static void main(String args[]) {
+     System.out.println(factorial(5));
+  }
+
+  static long factorial(int n) {
+     int i;
+     long result = 1;
+     for (i = 1; i <= n; i++) {
+        result = result * i;
+     }
+     return result;
+  }
+\end{verbatim}
+%{\bf リスト 4}
+%\end{quote}
+\end{proglist}
+
+\begin{exercise}
+リスト~\ref{proglist:factorial} にならって階乗を求めるクラスメソッド
+ {\tt factorial( )} を持つクラスを作り, さまざまな値の階乗を求めて確かめ
+ なさい. 
+\end{exercise}
+
+C 言語では, ファイルごとにすべての関数で共有できる「グローバル変数」が利
+用できました. 
+Java でも, クラスの中や他のクラスと共有できる変数を利用できます. 
+これは静的変数またはクラス変数とよばれ, 型の前に {\tt static} と書いて宣
+言します. 
+先に作った {\tt factorial( )} 関数の, クラス変数を使う変種を作ってみましょ
+う. 
+\begin{proglist}\label{proglist:Function}
+%\begin{quote}
+%\linesparpage{48}
+\begin{verbatim}
+/* Function.java */
+class Function {
+  static int target;
+
+  public static void main(String args[]) {
+     target = 6;
+     System.out.println(factorial());
+                             //  ^^ ココを変える
+   }
+
+/*
+  static long factorial(int n) は, そのままにして
+  新たに以下のクラスメソッドを作る. 
+  */
+
+  static long factorial( ) {
+     return factorial(target);
+  }
+\end{verbatim}
+%{\bf リスト 5}
+%\end{quote}
+\end{proglist}
+
+\begin{exercise}
+\verb$Function.java$ をリスト~\ref{proglist:Function} で示すよう
+ に作成し, 関数の間でクラス変数 \verb$target$ が共有されていることを確か
+ めなさい. 
+\end{exercise}
+
+さて, このリスト~\ref{proglist:Function} では \verb$factorial$ という引
+数が違う同じ名前の関数が使われていますが, C 言語ではこのような同名の関数
+の宣言は許されていなかったはずです. 
+オブジェクト指向プログラミングでは, 対象となるデータが異なっていて
+も同じあるいは似た働きをする関数には同じ名前がつけられるようにしようとい
+う考え方があり, Java はこれを実現しているのです. 
+異なるクラスなら名前も引数も同じ関数を宣言し利用することができます. 
+このようなしくみは{\bf ポリモルフィズム}と呼ばれています. 
+
+
+\subsection{インスタンス, インスタンス変数とインスタンスメソッド}
+
+いよいよここで, オブジェクトが登場します. 
+プログラミングの考え方を大きく変えなければなりませんから, 注意深く進みま
+しょう. 
+
+クラスにクラス変数でない変数, つまり {\tt static} でない変数を宣言すると
+どのような働きを持つのでしょうか. 
+たとえばクラス \verb/Hello/ でさまざまな \verb$static$ でない変数を宣言
+すると, C 言語で同じ変数群を持つ構造体 \verb/Hello/ を宣言したのと同様の
+意味を持ちます. 
+つまり \verb/Hello/ 型の変数を宣言してデータを用意すると, そのデータそれ
+ぞれが独立してクラス変数でない変数を持つことになります. 
+クラス型を持つデータのことを {\bf オブジェクト}と呼び, またそのオブジェ
+クトはそのクラスの{\bf インスタンスである}といいます\footnote{つまりプリ
+ミティブデータはオブジェクトではありません. }. 
+(「独習 Java」 2.3章 p.~53 〜. )
+
+たとえば, クラス \verb/Hello/ のオブジェクトで次のような``メッセンジャー''
+を実現することにしましょう. 
+\begin{enumerate}
+\item \verb/Hello/ 型のオブジェクトは, 一つひとつが特定のだれかへの挨拶
+      を表現する. 
+\item \verb/Hello/ 型のオブジェクトを新しくつくるとき, 誰へのメッセージ
+      かを \verb/String/ 型で表した名前で指定する. 
+\item \verb/Hello/ 型のオブジェクトは, ある操作をすると挨拶メッセージを
+      出力する. 
+\end{enumerate}
+あたかも \verb/Hello/ 型のオブジェクト一つひとつを, 挨拶を申し上げる機能
+を持ったロボットであるかのように考えるわけです. 
+
+C 言語をはじめとした手続き型プログラミング言語では, プログラムの流れが主
+役で, 変数に蓄えるデータはそれをサポートするわき役のように感じられます. 
+しかしオブジェクト指向言語では, まるでオブジェクトが性質を持ったり行動し
+たりするかのようにプログラムを書くことができます. 
+
+この目的のために, クラス \verb/Hello/ には次のような関数を用意する必要が
+あります. 
+\begin{enumerate}
+\item 挨拶を言う相手の名前を \verb/String/ 型で与えると, それを情報とし
+      て持ったオブジェクトをつくる関数. 
+\item オブジェクトにある操作をすると, 相手向けの挨拶を生成する関数. 
+      その名前は \verb/sayHello/ で返り値は \verb$String$ 型ということに
+      する. 
+\end{enumerate}
+では, さっそくクラス \verb/Hello/ をそのように作ってみましょう. 
+
+まず, 挨拶をいう相手の名前を覚えておくために, \verb/Hello/ 型のオブジェ
+クトは \verb/String/ 型で名前を持つということにします. 
+\begin{quote}
+\linesparpage{44}
+\begin{verbatim}
+class Hello {
+   String name;
+\end{verbatim}
+\end{quote}
+次に, 挨拶をいう相手の名前を引数にとり, オブジェクトを新しく生成し変数
+{\tt name} に名前をセットする関数を用意します. 
+オブジェクトを新しく生成する関数は{\bf コンストラクタ}とよばれ, クラスと
+同じ名前を持ち, 返り値は書きません. 
+オブジェクトの生成は, 常にコンストラクタを \verb$new$ 演算子で呼び出すこ
+とで行います. 
+(「独習 Java」2.5章 p.~59 〜. )
+次のように書きます. 
+\begin{quote}
+\linesparpage{44}
+\begin{verbatim}
+   Hello(String who) {
+      name = who;
+   }
+\end{verbatim}
+\end{quote}
+コンストラクタは {\tt new} 演算子によって呼び出され, メモリにオブジェク
+ト用の領域を確保すると共に, 新しく生成されたオブジェクトを初期化する役目
+を担います. 
+たとえば, 上のコンストラクタを使って ``John'' へのメッセンジャーを作るには
+\begin{quote}
+\linesparpage{44}
+\begin{verbatim}
+   Hello deputy;
+   deputy = new Hello("John");
+\end{verbatim}
+\end{quote}
+とします. 
+プログラムには, さらにメッセージを作る関数 {\tt sayHello( )} と,
+\verb/main/ 関数を用意すれば完成です. 
+\verb/Hello,/ の後に相手の名前を入れたものをメッセージにすることにしましょ
+う. 
+\begin{proglist}\label{proglist:Hello}
+%\begin{quote}
+%\linesparpage{44}
+\begin{verbatim}
+class Hello {
+   String name;
+
+   Hello(String who) {
+      name = who;
+   }
+
+   String sayHello() {
+      return "Hello, " + name + "!";
+   }
+
+   public static void main(String args[]) {
+      Hello h;
+      h = new Hello("あなたの名前をローマ字で");
+
+      System.out.println(h.sayHello());
+   }
+}
+\end{verbatim}
+%{\bf リスト 6}
+%\end{quote}
+\end{proglist}
+
+クラス({\tt static})変数はクラスの中でただ一つの共有される変数ですが, そ
+うではない変数はオブジェクト一つひとつが全く別に変数を持っており, {\bf
+インスタンス変数}と呼ばれます. 
+リスト~\ref{proglist:Hello} では, \verb/String/ 型の変数 \verb/name/ は
+インスタンス変数ですから, オブジェクト一つひとつが誰へのメッセンジャーか,
+名前を持つことができます. 
+インスタンス変数は構造体のメンバ変数にあたるのです. 
+この \verb/Hello/ 型オブジェクトの場合は, 一つひとつが \verb/String/ 型の
+変数 \verb/name/ を持つデータということになります. 
+
+\verb/main/関数のようにクラス(\verb/static/)メソッドはオブジェクトのある
+なしに関係なく使われることがありますが, \verb/static/ でない関数は
+\begin{quote}
+ \verb/オブジェクト変数.メソッド(引数列)/
+\end{quote}
+の形で呼び出して, いずれかのオブジェクトに関して使う形をとります
+\footnote{後で学ぶ {\tt this}オブジェクトはプログラム中で省略できます.}. 
+これらの関数を{\bf インスタンスメソッド}と呼びます. 
+インスタンスメソッドの中では, どのオブジェクトのものか指定することなくイ
+ンスタンス変数を使用できます. 
+つまり, ピリオド {\tt .} の前のオブジェクト変数は, インスタンスメソッドの
+第一の引数と見なされているのです. 
+
+
+このプログラムで, メッセージを用意する関数をクラスメソッドとして書くこと
+ももちろん可能です. 
+しかし「メッセージを述べるのは, 一つひとつのオブジェクトの振る舞いである」
+と考えるならば, インスタンスメソッドにするほうが自然です. 
+実際, メッセージを用意するには名前が必要ですから, もしクラスメソッドとし
+て \verb/sayHello( )/ と同じ働きをする関数を書けば, いちいち引数でその名
+前を与えなければならなくなります. 
+そうすると, \verb/sayHello/ という動作は {\tt Hello} 型オブジェクトの特
+徴でもなんでもなくなってしまいます. 
+
+\begin{exercise}
+まずリスト~\ref{proglist:Hello} のソースファイルを完成させ, コンパイルし
+ て動作を確かめなさい. 
+次にこのプログラムを拡張して, 引数で人名をいくつか与えるとそのすべてに対
+ するメッセンジャーを作成し, すべてのメッセンジャーの挨拶を出力するプロ
+ グラムを作りなさい. 
+引数と同じだけの数のメッセンジャーを作るには, たとえば
+\begin{quote}
+\begin{verbatim}
+   Hello messengers[] = new Hello[args.length];
+\end{verbatim}
+\end{quote}
+で配列を用意して, 各要素として
+\begin{quote}
+\linesparpage{48}
+\begin{verbatim}
+   for (i = 0; i < args.length; i++) {
+      messengers[i] = new Hello(args[i]);
+    }
+\end{verbatim}
+\end{quote}
+のように \verb/Hello/ オブジェクトを作成します. 
+\end{exercise}
+
+\subsection{クラスの設計のしかた}
+
+オブジェクト指向に基づく Java 言語の特徴をフルに使うためには, まだいくつ
+かの考え方を学ぶ必要があります. 
+それは次の節以降で学習します. 
+ここでは, プログラミングをする上での大まかな考え方を説明します. 
+
+まずとりあえずプログラミングをはじめる前に, {\bf プログラムの中でどのような
+データが必要か}を考えるとよいでしょう. 
+つづいて, 以下のように考えていきます. 
+\begin{enumerate}
+\item[(1)] もしプリミティブなデータ型しか使わないのであれば, クラスメソッ
+	   ドとクラス変数だけでプログラミングする. 
+\item[(2)] もし複雑なデータ型(C言語で構造体を用意するようなデータ型)を一
+      種類以上使うなら, その種類ごとにクラスを作る. 
+
+	   データを表現するのにどのようなデータや値を組み合わせる必要が
+	   あるかを整理し, それにしたがってクラスとそのインスタンス変数
+	   を用意していきます. 
+\item[(3)] 続いて, そのクラスのオブジェクトに必要な手続きを用意する. 
+
+	   これらはインスタンス変数を参照したり, インスタンス変数に変化
+	   を与えたりするはずです. 
+	   したがってコンストラクタあるいはインスタンスメソッドとして定
+	   義します. 
+	   これらをすべてそろえれば, そのクラスはほぼ完成です. 
+\item[(4)] クラスに典型的なオブジェクトとして用意しておきたいもの, オブ
+	   ジェクトの間で共有したい値, クラスのオブジェクト全体に影響を
+	   与える値, そういった値はクラス変数で表現する. 
+
+	   同様に, オブジェクトの属するクラスによらず利用したい関数, ユー
+	   ティリティ関数はクラスメソッドにします. 
+	   
+	   関数を束ねるライブラリを作る場合は, すべての関数をクラスメソッ
+	   ドとして作ります. 
+\end{enumerate}
+
+実際のプログラミングにおいて必ずしもこれらの方針にしたがう必要はありませ
+んが, これらを頭においてプログラムを書けば, すっきりとした読みやすいプロ
+グラムになることでしょう. 
+
+\begin{exercise}
+ クラス \verb/String/ と \verb/Integer/ は, どちらも標準で使えるクラスで
+ す. (「独習 Java」p.~55 表 2--2 と 2.4章 p.~56 を参照. )
+ \verb/Interger/ のクラスメソッド \verb/int parseInt(String s)/ は,
+ 文字列 \verb/s/ を整数の10進数表記とみなして解釈し, その値を持つ
+ \verb/int/ 型を返します. 
+ \verb/String/ のインスタンスメソッド 
+ \verb/String substring(int s, int e)/ は \verb/String/ 型オブジェクトの
+ \verb/s/ 文字目から始まり \verb/e/ 文字目の前で終わる部分文字列を作成し
+ 返します. 
+
+この二つを使って, 第1引数として文字列を, 第2引数と第3引数として10進表記
+ の正整数を受取り, 第1引数の, 第2引数目から始まり第3引数目の前で終わる部
+ 分文字列を出力するプログラムを作り, 動作させ確認しなさい. 
+ そして, \verb/parseInt( )/ はなぜクラスメソッドとして作られているのか,
+ \verb/substring( )/はなぜインスタンスメソッドとして作られているのかを答え
+ なさい. 
+\end{exercise}
+
+
+\newpage
+\section{クラス継承，公開と隠蔽}
+
+オブジェクト指向プログラミングは, 複数のクラスを使うプログラミングにおい
+てはじめてその本領を発揮します. 
+この節ではオブジェクト指向の手法を生かして, 既存のクラスを拡張してほんの
+すこしのプログラミングで必要なクラスを得る方法と, 複雑なプログラムを作っ
+たり複数のプログラマで共同作業する時に有効な方法を学びます. 
+
+
+\subsection{継承を使ったプログラミング : アプレットの作成}
+
+既存のデータ型, あるいは関数とはほんの少ししか違わない. 
+こんな場合でも C 言語では全く別のプログラムを書く必要がありました. 
+これでは, 既存のプログラムやライブラリの機能をほんの少し拡張するのにも非
+効率的です. 
+また大規模なプログラムや大人数での開発では, 仕様のチェックが大変になります. 
+このような状況は, 特にグラフィカルユーザーインターフェース(GUI)のための
+プログラムで顕著に現れます. 
+
+そこでオブジェクト指向型言語では, 既存のクラスに似たクラス, 既存のクラス
+を拡張したクラスを書くときは{\bf 違う部分だけを新たに記述すればよい}とい
+う仕組みが導入されました. 
+これが{\bf 継承}と呼ばれる機能です. 
+拡張するクラスを書くときは, 元になる親クラスを{\bf スーパークラス}として
+指定し, 違う部分だけを記述するのです. 
+拡張されたクラスは, 元のクラスの{\bf サブクラス}とよばれ, 基本的にスーパー
+クラスのすべての変数とメソッド(関数)を受け継ぎます．
+サブクラスでは, 新しい変数やメソッド, 作り替えたいメソッドだけを書きます．
+
+それでは, 継承によるプログラミングのパワーをアプレットを作って実感してみ
+ましょう. 
+アプレットは Web ページに埋め込むことのできる Java プログラムで, HTML ファ
+イルと同様にネットワークを通してダウンロードされ，Web ブラウザによって起
+動されます. 
+ボタンやフィールドといった GUI 部品を使用したりグラフィクス表示を行うこ
+とができます. 
+本来ウインドウ環境で GUI やグラフィクスを使用するプログラミングを行うに
+は, 覚えきれないほど多くの事項をふまえる必要があります. 
+しかし Java では, 標準ライブラリクラスとして用意されている \verb/Applet/
+クラスを継承すれば, 最低限必要なことや標準的なことのプログラミングはせずに
+すみ, GUI を備えたアプレットが簡単にできあがります. 
+
+ここではHTML による Web ページの記述を省略するため, Java ソースコードファ
+イルに起動アプレットの情報を記述し \verb/appletviewer/ プログラムでアプ
+レットを起動することにします．
+以下のソースコードをみてみましょう．
+\begin{proglist}\label{proglist:MyApplet}
+%\linesparpage{48}
+\begin{verbatim}
+/* MyApplet.java */
+import java.applet.Applet;
+import java.awt.Graphics;
+/*
+  <applet code="MyApplet" width=200 height=200>
+  </applet>
+ */
+public class MyApplet extends Applet {
+   public void paint(Graphics g) {
+      g.drawString("This is my applet.", 20, 100);
+   }
+}
+\end{verbatim}
+%{\bf リスト 7} \, \verb/MyApplet.java/
+\end{proglist}
+これだけで，アプレットが完成します．
+
+Java では，継承を \verb/extends/ というキーワードでスーパークラスを指定
+して行います．
+ですから, このクラスは \verb/java.awt.Applet/ というクラスを拡張(extend)
+したサブクラスで, 明示的には表示内容を描く \verb/paint/というインスタン
+スメソッドのみを持っています. 
+スーパークラスにも \verb$paint$ メソッドがありますが, それは何も表示しま
+せん. 
+\verb/MyApplet/クラスでこれを{\bf オーバーライド}(上書き)して自分の表示
+したいものを描いているのです. 
+\verb$paint$メソッドは, アプレットを含む Web ページのウィンドウに再表示の
+必要が出たときには呼ばれます. 
+
+クラス \verb/Graphics/ はJava であつかうビットマップスクリーンを表すデー
+タ型で, ここでは文字列を描く \verb/drawString/ メソッドでメッセージを描
+いています. 
+(詳しくは「独習 Java」13.4章 p.~379〜, または \verb$http://java.sun.com/j2se/1.4/ja/docs/ja/api/java/awt/Graphics.html$ を参照. )
+キーワード \verb/import/ は, 既存のライブラリクラスを省略名で使うために
+行うコンパイラへの指示で, C 言語の \verb/#include/ のようなものと思えば
+よいでしょう. 
+\verb/java.awt.Applet/ というクラス名は長いので何度も記述するにはめんど
+うです. 
+ライブラリとして準備されているクラスはプログラムの最初で \verb/import/
+キーワードで宣言するとピリオド $.$ で区切られた最後の部分だけで参照でき
+るようになります．
+このピリオド $.$ は, {\bf パッケージ}と呼ばれるライブラリクラスの分類におけ
+る区切りを表しています．
+
+\begin{exercise}
+リスト~\ref{proglist:MyApplet} の通りに \verb/MyApplet.java/ を完成させ,
+ コンパイルしなさい. 
+\end{exercise}
+
+
+\subsection{アプレットの実行}
+アプレットは Web のページに埋め込まれ Web ブラウザで見るものなので実行方
+法が通常の Java プログラムと異なります. 
+まず, 通常のプログラムのように \verb/javac/でコンパイルして
+\verb$.class$ ファイルを得ます. 
+そして \verb/appletviewer/コマンドにソースファイルを引数に渡して実行しま
+す. 
+\begin{quote}
+ \verb/appletviewer MyApplet.java/ \, [改行]
+\end{quote}
+すると, アプレットが起動します. 
+\verb/appletviewer/コマンドは, 本来 Web の \verb/.html/ファイルを引数に
+渡すものなのですが, ここではソースファイル\verb/MyApplet.java/で代用して
+います. 
+\verb$MyApplet.java$ のコメント \verb$/* */$ の中には HTML の決まりにし
+たがって起動するアプレットクラスの名前, アプレットウィンドウの幅
+\verb$width$ と高さ \verb$height$ が書かれています. 
+\verb/appletviewer/ はこれを解釈してアプレットを表示します. 
+
+\begin{exercise}
+アプレット \verb$MyApplet$ を \verb/appletviewer/ で実行しなさい. 
+また \verb/paint/ メソッドの表示する文字列を変更して, プログラミングした
+ 通りになることを確認しなさい. 
+アプレットを終了するには, ウインドウの「アプレット」メニューから「終了」
+ (Quit)アイテムを選択します. 
+\end{exercise}
+
+アプレットクラスには, \verb$main( )$ 関数を書きません. 
+\verb$main( )$ 関数にあたるプログラムの起動は, Web ブラウザや
+\verb$appletviewer$ が内部で行います. 
+
+\subsection{公開と隠蔽}
+
+アプレットのクラス \verb/MyApplet/ の宣言には, これまで出てこなかったキー
+ワード \verb/public/ が付加されています. 
+クラス宣言で \verb/public/ キーワードを付加すると, そのクラスは他のどの
+クラスからも「見える」, つまり使用することができるようになります. 
+これを, クラスを{\bf 公開する}といいます. 
+\verb/MyApplet/ クラスは, アプレットの実行の際には \verb/appletviewer/
+や Web のブラウザから呼び出される仕組みになっているので, 公開されている
+必要があります. 
+公開していないクラスは, {\bf 隠蔽されている}, といいます. 
+ためしに, \verb/MyApplet/ クラスを隠蔽してアプレットが動作するかどうか見
+てみましょう. 
+キーワード \verb/public/ なしで宣言したクラスは, 他のクラスからは隠蔽さ
+れます. 
+\footnote{正確には, 他のパッケージのクラスから隠蔽される. 
+パッケージとは, 省略しないクラス名のうち, 最後のピリオド $.$ の前までの
+部分のこと. }
+\begin{exercise}
+\verb/MyApplet/ クラスの宣言部分からキーワード \verb/public/ を削除して
+ コンパイルし, コンパイルが成功するかどうか確認しなさい. 
+次に, \verb/appletviewer/ で実行し, どのようになるかを確認しなさい. 
+\end{exercise}
+
+詳細は省きますが, Java ではクラスや変数, メソッドの公開と隠蔽のために
+\verb$public$ を含め次のような修飾子があります. 
+(詳細は「独習 Java」6.6章 p.~190〜, および 6.7〜6.9 章 p.~193〜 を参照. )
+
+\subsubsection*{クラスの修飾子}
+\begin{center}
+\begin{tabular}{p{1in}p{3in}}
+\hline
+(修飾子なし) & 同じパッケージ内のからのみ利用できる \\
+\hline
+\verb$public$ & すべてのクラスから利用できる \\
+\hline
+\end{tabular}
+\end{center}
+またクラスに修飾子 \verb$final$ が指定されると, サブクラスを作ることが禁
+止されます. 
+
+\subsubsection*{変数およびメソッドの修飾子}
+\begin{center}
+\begin{tabular}{p{1in}p{3in}}
+\hline
+(修飾子なし) & 同じパッケージ内のからのみ利用できる \\
+\hline
+\verb$public$ & すべてのクラスから利用できる \\
+\hline
+\verb$protected$ & サブクラス, または同じパッケージ内からのみ利用できる \\
+\hline
+\verb$private$ & 同じクラス内でのみ利用できる \\
+\hline
+\end{tabular}
+\end{center}
+メソッドの修飾子として \verb$final$ が指定された場合, そのメソッドはサ
+ブクラスにおけるオーバーライドが禁止されます. 
+また変数の修飾子 {\tt final} は \verb$static$ 変数が定数として使われ値の
+変更ができないことを意味します. 
+
+
+\subsection{継承の利用のしかた}
+
+アプレットにグラフィクスとして表示できる図形のクラス \verb/Polygon/ (多
+角形)を作ってみましょう. 
+クラス \verb/Polygon/ のインスタンスは, 頂点の X 座標と Y 座標をそれぞれ
+\verb/int/ 型の配列として持つとします. 
+\begin{quote}
+\linesparpage{48}
+\begin{verbatim}
+public class Polygon {
+   int xpoints[];
+   int ypoints[];
+\end{verbatim}
+\end{quote}
+
+多角形は, 頂点がいくつあるものか決まりはありません. 
+そこでコンストラクタとして, 頂点の X 座標の配列と Y 座標の配列を受け
+取ってオブジェクトを作るものをとりあえず作りましょう. 
+\begin{quote}
+\linesparpage{48}
+\begin{verbatim}
+   public Polygon(int[] x, int[] y) {
+      xpoints = new int[x.length];
+      for (int i = 0; i < x.length; i++)
+         xpoints[i] = x[i];
+      ypoints = new int[y.length];
+      for (int i = 0; i < y.length; i++)
+         ypoints[i] = y[i];
+   }
+\end{verbatim}
+\end{quote}
+
+また, 頂点の数(何角形であるか)を返すインスタンスメソッドを持つとします. 
+\begin{quote}
+\linesparpage{48}
+\begin{verbatim}
+   public int size() {
+      return xpoints.length;
+   }
+\end{verbatim}
+\end{quote}
+
+さて \verb/Polygon/ オブジェクトを \verb$Graphics$ に描画するには, 頂点
+のX座標と Y 座標それぞれの配列と点の数を引数に取り, 連続する頂点間に直線
+を引き閉じる, クラス \verb$Graphics$ のメソッド 
+\begin{quote}
+ \verb/drawPolygon(int[] xarray, int[] yarray, int num)/ 
+\end{quote}
+を利用すると都合よさそうです(「独習 Java」 p.~379). 
+これを使って \verb/Graphics g/ にオブジェクトを描画する \verb/Polygon/
+のインスタンスメソッド 
+\begin{quote}
+\verb/void drawOn(Graphics g)/
+\end{quote}
+を作りましょう. 
+第1, 第2 引数にはそのまま \verb/xpoints/, \verb/ypoints/ を与えればよい
+わけです. 
+頂点数は \verb/size()/ メソッドで計算できますから, \verb/drawPolygon( )/
+の第3引数にはその結果を使いましょう. 
+インスタンスメソッドを呼び出す対象となったオブジェクトは本来 \verb/this/
+で参照しますが, この \verb$this$ オブジェクトは省略できます. 
+したがって \verb/this.size()/ と書く必要はなく, 
+\begin{quote}
+\linesparpage{48}
+\begin{verbatim}
+   public void drawOn(Graphics g) {
+      g.drawPolygon(xpoints, ypoints, size());
+   }
+\end{verbatim}
+\end{quote}
+ですみます. 
+
+\begin{exercise}
+クラス \verb/Polygon/ を完成させ, 
+\begin{enumerate}
+\item[(1)] \verb/MyApplet/ を修正して多角形を表示させなさい. 
+\item[(2)] 多角形の頂点すべてを X 軸方向 Y 軸方向それぞれに (x,y) だけ
+	   平行移動するインスタンスメソッド
+	   \verb/public void move(int x, int y)/ を作り, 
+	   (1)で作ったプログラムの \verb/paint/ メソッド中でたとえば
+{\linesparpage{44}
+\begin{verbatim}
+   p.drawOn(g);
+   p.move(20, -15);
+   p.drawOn(g);
+\end{verbatim}}
+のように移動と移動後の表示を加えて, 正しく平行移動しているか確認しなさい. 
+\end{enumerate}
+\end{exercise}
+
+さて, クラス \verb/Polygon/ はどんな多角形でも表せますが, 正方形, 長方形
+や正三角形を表現する場合はすべての頂点の座標を自分で計算し与えねばならず
+大変めんどうです. 
+たとえば正方形ならば, 辺が X 軸や Y 軸に平行な場合は頂点1つの座標と辺の
+長さだけで図形が決まります. 
+
+そこで, 辺が座標軸に平行な正方形専用のクラス \verb/Square/ を作ることに
+しましょう. 
+ただし, 正方形も多角形には違いありません. 
+クラス \verb/Polygon/ と共通する部分も多いでしょうから, \verb/Polygon/
+のサブクラスとして作ることにします. 
+コンストラクタには, 左端の X 座標 \verb/left/, 上端の Y 座標 \verb/top/,
+そして辺の長さ \verb/length/ を与えて頂点の座標を計算することにします. 
+\begin{proglist}
+\begin{verbatim}
+public class Square extends Polygon {
+   public Square(int left, int top, int length) {
+      xpoints = new int[4];
+      ypoints = new int[4];
+      xpoints[0] = left;
+      ypoints[0] = top;
+      xpoints[1] = left + length;
+      ypoints[1] = top;
+      xpoints[2] = left + length;
+      ypoints[2] = top + length;
+      xpoints[3] = left;
+      ypoints[3] = top + length;
+   }
+}
+\end{verbatim}
+\end{proglist}
+
+これで, とりあえず \verb/Square/ クラスは完成しました. 
+では上記の内容をファイル \verb/Square.java/ としてコンパイルしてみましょ
+う. 
+どうでしょうか. 
+エラーメッセージが出力され, コンパイルがうまく行きませんね. 
+「シンボルを解決できません. シンボル： コンストラクタ Polygon()」
+というようなメッセージが出るはずです. 
+なぜでしょうか. 
+
+実は, {\bf サブクラスのコンストラクタは最初に必ずスーパークラスのコンス
+トラクタを呼び出す}という約束があるのです. 
+これは, サブクラスのコンストラクタがスーパークラスのインスタンス変数を初
+期化するかどうかの保証がないので, 安全策として採り入れられています. 
+そのためスーパークラスのコンストラクタを明示的に呼び出さない場合には, 暗
+黙のうちに引数なしのスーパークラスのコンストラクタを呼び出す, ということ
+になっています. 
+しかし \verb/Polygon/ クラスには \verb/Polygon()/ という引数なしのコンス
+トラクタが用意されていませんから, \verb/Polygon()/ というコンストラクタ
+が不明である, というコンパイルエラーが出るのです. 
+
+この解決のためには, 例えばクラス \verb/Polygon/ と \verb/Square/ 両方で
+最初に使用するコンストラクタを定義し使用するように作り直せばよいのです. 
+ただここでは特に最初に必要な作業もありませんので, クラス \verb/Polygon/
+に何も行わない以下のコンストラクタを追加することにします. 
+\begin{quote}
+\begin{verbatim}
+   Polygon() {
+   }
+\end{verbatim}
+\end{quote}
+これで, コンパイルエラーが起きなくなるはずです. 
+
+\begin{exercise}
+クラス \verb/Square/ と \verb/Polygon/ を完成させ, 
+\begin{enumerate}
+\item[(1)] \verb/MyApplet/ に正方形の表示を追加しなさい. 
+\item[(2)] また \verb/move(x, y)/ メソッドにより正方形の平行移動を試み,
+	   \verb$move$ メソッドが \verb/Square/ クラスに継承され正しく動
+	   作することを確認しなさい. 
+\item[(3)] 底辺が X 座標に平行な正三角形のクラス \verb/RegularTriangle/
+	   を, 正方形のクラスを参考に \verb/Polygon/ のサブクラスとして
+	   作りなさい. 
+	   コンストラクタには, 底辺の左の頂点の X 座標と Y 座標, そして
+	   底辺の長さを取るものを作り, 上の (1) と (2) と同様に, 描画と
+	   移動の確認を行いなさい. 
+\end{enumerate}
+\end{exercise}
+
+この例では継承によってプログラミングを省略できたのは \verb/move( )/ メソッ
+ドのみでしたが, スーパークラスには一般的なクラスを, サブクラスには特化も
+しくは機能の追加・拡張がなされたクラスを置くことで, 「ほとんど同じ」ソー
+スコードを何度も書く手間を省くことができます. 
+これがオブジェクト指向プログラミングの概念の一つ, 継承による{\bf プログ
+ラムの再利用}なのです. 
+
+
+\subsection{サブクラス／スーパークラスの参照切り替えとクラス変数の初期化}
+
+継承ができるということは, オーバーライドによってスーパークラスの関数や変
+数と同名で異なる関数や変数が自分のクラスに存在する, ということになります. 
+当然, 必要なときにはそれらを区別して呼び出すことができなければなりません. 
+この目的のために, Java ではキーワード \verb/this/ と \verb/super/ を使用
+します. 
+
+\subsubsection*{キーワード {\tt this}}
+
+キーワード \verb/this/ は, インスタンスメソッドにおいてはそのメソッドが
+呼び出される対象となったオブジェクトまたはそのオブジェクトのクラスを表します. 
+つまり「このオブジェクト」または「このクラス」を意味します. 
+\footnote{Java は同じ名前のクラスメソッド(変数)とインスタンスメソッド(変
+数)を持つことはできません. }
+したがって
+\begin{quote}
+\verb$this.変数名$
+\end{quote}
+と記述してオブジェクトのインスタンス変数を参照します. 
+コンストラクタ以外のメソッドも同様に
+\begin{quote}
+\verb$this.メソッド名(引数)$
+\end{quote}
+で呼び出します. 
+この \verb$this.$ は省略可能ですので, 変数がインスタンス変数でどのオブジェ
+クトのものかはっきりさせたいとき, あるいはメソッドの引数とインスタンス変
+数を区別したい時に使うとよいでしょう. 
+スーパークラスで定義された変数はそのまま継承されるので, そのクラスで新た
+に導入した変数と区別する場合以外にこのキーワードが必要な機会はないでしょう
+\footnote{ インスタンス変数が{\tt private} 宣言されるとサブクラスではア
+クセス(読み書き)することができなくなりますが, その場合は区別する必要もな
+くなります. }.
+
+コンストラクタにおいては, キーワード \verb/this/ はそのメソッドの属する
+クラスのコンストラクタを呼び出すのに使用されます. 
+つまりコンストラクタ関数の名前として, 先頭行で
+\begin{quote}
+\verb/this(引数);/
+\end{quote}
+の形で使います. 
+これにより, たとえば引数がより多く詳しいコンストラクタを書く場合には,
+よりシンプルなコンストラクタをあらかじめ呼び出して拡張した部分だけ書けば
+すむようになります. 
+
+
+\subsubsection*{キーワード {\tt super}}
+
+キーワード \verb/super/ は, オーバーライドした変数あるいは関数がある場合
+に, スーパークラスの変数もしくは関数を呼び出すのに使用します. 
+つまり, 「スーパークラスのインスタンスとみなして」あるい
+は「スーパークラスの」といった意味を持ちます. 
+\verb$this$ と同様に, 
+\begin{quote}
+\verb$super.変数名$ \\
+\verb$super.メソッド名(引数)$
+\end{quote}
+の書式で用います. 
+
+コンストラクタにおいては, 最初の行で
+\begin{quote}
+\verb/super(引数);/
+\end{quote}
+の形で使います. 
+すでに述べたように, 引数なしのスーパークラスのコンストラクタは暗黙のうち
+に呼び出されますので, 引数なし \verb/super()/ の呼び出しは特に書く必要は
+ありません. 
+
+
+\subsubsection*{クラス初期化コードのキーワード {\tt static}}
+
+インスタンス変数の値はオブジェクトの生成と同時に適切に初期化されているこ
+とが保証されるています. 
+では, クラス変数の値はどうなのでしょうか. 
+
+クラス変数で初期化が必要なものは, プログラムの実行時に一度だけ実行される
+{\bf \verb/static/ 初期化ブロック}にプログラムコードを書いて初期化します. 
+たとえば, 
+\begin{quote}
+\linesparpage{48}
+\begin{verbatim}
+public class Test {
+   static int test;
+
+   static {
+      test = 1;
+   }
+\end{verbatim}
+~~~~~$\vdots$
+\end{quote}
+のように使用します. 
+
+\begin{exercise}
+クラス \verb$Hello$ (リスト~\ref{proglist:Hello}) のサブクラスとして, メッ
+ セージの差出人名を \verb$String$ 型のインスタンス変数で持つクラス
+ \verb$Messenger$ を以下にしたがって作りなさい. 
+\begin{enumerate}
+\item[(1)]
+	  コンストラクタは宛名と差出人名の2つの \verb$String$ 型引数を取
+	  るとします. 
+	  宛名はスーパークラスのコンストラクタを利用して設定しなさい. 
+\item[(2)]
+	  \verb$Messenger$ のインスタンスメソッド \verb$sayHello()$ が返
+	  すメッセージに, 差出人名も含むとします. 
+	  \verb$super$ キーワードで \verb$Hello$ クラスの
+	  \verb$sayHello()$ メソッドを利用して, 挨拶の後に差出人名を付け
+	  加えるようにしなさい. 
+\end{enumerate}
+以上が正しくできているか, あるいはどのように動作するかをアプレット
+ \verb$MyApplet$ の中で使用して確かめなさい. 
+\end{exercise}
+
+
+\newpage
+\section{入出力と例外処理}
+
+\subsection{{\tt System.out} 出力}
+
+これまでプログラムの出力を \verb$System.out.println( )$ などのメソッドを
+呼び出して行ってきました. 
+Java では UNIX など多くの OS が備える標準入出力に手軽にアクセスできるよ
+う, コンピュータシステムを表すクラス \verb$System$ を持っており, 標準出
+力はクラス変数 \verb$out$, 標準エラー出力は \verb$err$, 標準入力は
+\verb$in$ として利用可能になっています. 
+\verb$System.out$ は値表示のために \verb$println( )$ をはじめとしたさま
+ざまなメソッドを備えたクラス \verb$PrintStream$ のインスタンスとして定義
+されています. 
+
+メソッド \verb$print( )$ や \verb$println( )$ は, 引数としてプリミティブ
+データ型を引数に取るもの, \verb$String$ クラス型を取るもの, および
+\verb$Object$ クラス型を取るもの, などが用意されています.  
+したがって, 引数で与えるデータの型を気にする必要がないのです. 
+
+ところで自分で作成したクラスのオブジェクトを \verb$println( )$ によって
+出力すると, 
+\begin{quote}
+\verb$クラス名@16進コード$ 
+\end{quote}
+のフォーマットで印字されます. 
+これではどのクラスのオブジェクトかはわかっても, その内容についての情報が
+ありません. 
+
+実は, Java では{\bf すべてのクラスはクラス \verb$Object$ のサブクラスで
+ある}と定義されており, \verb$println( )$ の出力文字列はオブジェクトに対
+して \verb$toString()$ メソッドを呼び出して得られたものを使用する仕組み
+になっています. 
+ですから, オーバーライドされない限り \verb$Object$ クラスの
+\verb$toString()$ メソッドが呼び出され, その結果上記のフォーマットになる
+のです. 
+自分で作成したクラスのオブジェクトが \verb$println( )$ でわかりやすくな
+るよう, \verb$toString()$ メソッドを定義してみましょう. 
+
+\begin{exercise}
+\verb$toString()$ メソッドのカスタマイズ
+\begin{enumerate}
+\item[(1)]
+	  過去の演習で作成したクラス \verb$Hello$ のオブジェクトが
+	  \verb$println( )$ メソッドでどのように印字出力されるか, プログ
+	  ラムを修正して確かめなさい. 
+\item[(2)]
+	  クラス \verb$Hello$ にインスタンスメソッド 
+	  \verb$public String toString()$ を作りなさい. 
+	  そして \verb$Hello$ オブジェクトが持つ宛名がわかるような表示形
+	  式を考えて作り, 実際に 
+	  \begin{quote}
+	   \verb$System.out.println( )$ 
+	  \end{quote} 
+	  による表示がどのように変化するか確認しなさい. 
+ \item[(3)]
+	  \verb$Hello$ のサブクラス \verb$Messenger$ のオブジェクトを標
+	  準出力に印字して, \verb$Hello$ のメソッドを継承していることを
+	  確かめなさい. 
+	  また, そのままで不十分な点は何か考えなさい. 
+\end{enumerate}
+\end{exercise}
+
+
+\subsection{{\tt System.in} 入力と例外 Exception}
+
+標準出力 \verb$System.out$ と同様に, 標準入力も \verb$System.in$ として
+アクセスできます. 
+ただ \verb$System.in$ は \verb$InputStream$ オブジェクトで, そのままで
+はプリミティブデータのバイト \verb$byte$ 型を指定した数だけ読む, といっ
+たことしかできません. 
+漢字など多バイト文字は, 変換されないのです. 
+そこでまず, 文字や文字列を読むことのできるストリーム
+\verb$java.io.InputStreamReader$ に変換します. 
+すると, インスタンスメソッド \verb$int read()$ で \verb$int$ 型として一
+文字ずつ読み出して, 型キャストにより文字 \verb$char$ 型に変換できるよう
+になります. 
+
+ただ, これでも一文字ずつ読む必要があり使いにくいので, 文字列として一行ず
+つ読むことができるストリーム \verb$java.io.BufferedReader$ に変換します. 
+このクラスはインスタンスメソッド \verb$String readLine()$ を備えており,
+標準入力の内容を改行記号を区切りとして \verb$String$ 型で得ることができ
+ます. 
+ただし得られる \verb$String$ から改行は取り除かれます. 
+(詳細は「独習 Java」11.3 章 p.321 等を参照. )
+\verb$readLine()$ はストリームを終わりまで読むと \verb$null$ を返します. 
+キーボードからの入力であれば, 空行に \verb$Ctrl-D$ を入力するとストリー
+ムの終わりとなります. 
+以下のように使用します. 
+\begin{proglist}\label{proglist:StandardInputDemo}
+\begin{verbatim}
+/* StandardInputDemo.java */
+import java.io.*;
+
+class StandardInputDemo {
+  public static void main(String args[]) throws Exception {
+     InputStreamReader stream = new InputStreamReader(System.in);
+     BufferedReader buffered = new BufferedReader(stream);
+ 
+     String s;
+     while ((s = buffered.readLine()) != null) {
+        System.out.println("Got: " + s);
+     }
+  }
+}
+\end{verbatim}
+\end{proglist}
+さて, このプログラムでは \verb$main$ 関数の後ろに
+\begin{quote}
+\verb$throws Exception$ 
+\end{quote}
+という記述があります. 
+これは何でしょうか. 
+
+一般に入出力はコンピュータの外部とのやり取りが行われるため, たとえばディ
+スクが一杯だ, 指定されたファイルがない, ファイルが読めなくなった, などの
+予期しない事態が起こり得ます. 
+Java では, プログラムとして予期しない例外的に扱いたい出来事を{\bf 例外}
+Exception と呼び, 例外オブジェクト(クラス \verb$Exception$ またはそのサ
+ブクラスのオブジェクト)として表現します. 
+(詳細は「独習 Java」8章を参照. )
+通常のメソッド(関数)の出力とは区別して, プログラム中のエラー処理をわかり
+やすくしているのです. 
+実行中に例外が生じることを{\bf 例外を投げる}といい, プログラム中ではメソッ
+ドのプログラムブロック \verb${ }$ の前に 
+\begin{quote}
+\verb$throws 例外の型$
+\end{quote}
+と記述して, 明示するのです. 
+例外を投げる関数を呼び出す場合, 以下のどちらかの手段をとらなければ, コン
+パイルエラーとなります. 
+\begin{enumerate}
+\item[i)] 例外を \verb$try ... catch$ 文で捕らえ, 例外処理を書く. 
+	書式は 
+\begin{quote}
+\linesparpage{44}
+\begin{verbatim}
+try { 
+   例外を投げる関数を含むプログラムブロック
+} 
+catch (例外変数1) { 
+   例外変数1と同じクラスまたはサブクラスの例外についてのプログラムブロック 
+}
+catch (例外変数2) { 
+   例外変数2と同じクラスまたはサブクラスの例外についてのプログラムブロック
+}
+\end{verbatim}
+$\vdots$
+\begin{verbatim}
+finally {
+   例外が起きた場合必ず実行されるブロック
+}
+\end{verbatim}
+\end{quote}
+ただし \verb$finally$ ブロックは不要なら省略してよい. 
+\item[ii)]
+	投げられた例外をスルーして外に投げる. 
+	メソッドの宣言に
+\begin{verbatim}
+throws 例外の型
+\end{verbatim}
+	の例外スロー宣言が必要. 
+\end{enumerate}
+例外処理する例外の種類は例外のクラス型によって選ばれますから, 例外の種類
+によって \verb$catch$ するものとスルーするものをわけることもできます. 
+
+例外のもっとも一般的な型は, \verb$Exception$ 型として定義されています. 
+上記の \verb$main$ 関数の中には, 例外を投げるコンストラクタ
+\verb$InputStreamReader(InputStream)$ と \verb$BufferedReadre(Reader)$
+が使われています. 
+そこで上記の方法 ii) を取って, \verb$main$関数が例外を投げうることを宣言
+しているのです. 
+
+\begin{exercise}
+リスト~\ref{proglist:StandardInputDemo} を参考にして, 
+\begin{enumerate}
+\item[(1)]
+\verb$main$ に \verb$throws Exception$ の宣言をつけずに
+ \verb$StandardInputDemo$ クラスのプログラムを作成し, どのようなコンパイ
+	  ルエラーがでるのか確認しなさい. 
+\item[(2)]
+	  \verb$throws Exception$ の宣言をつけてコンパイルし, 実行して標
+	  準入力から文字列が読み取れていることを確かめなさい. 
+\end{enumerate}
+\end{exercise}
+
+
+\subsection{文字列とのデータ変換}
+
+引数変数, 標準入出力, ファイルやネットワークのストリームから読み取るデー
+タは文字列が基本となります. 
+したがって, 他のデータ型は文字列に表現されたものから変換する手続きが必要
+になります. 
+標準入出力以外のストリームを扱う前に, 文字列とプリミティブデータ型との間
+の変換方法を学んでおきましょう. 
+
+クラス \verb$Integer$ や \verb$Boolean$ などには, クラス(static)メソッド
+として文字列から \verb$int$ や\verb$long$ を得る関数が用意されています. 
+また, 逆にデータから文字列の表現に直す関数も用意されています. 
+主なものを下の表にあげています. 
+これら変換関数はフォーマットに従っていない文字列を受け取った場合, 例外を
+投げることが多いので注意しましょう. 
+(詳細は「独習 Java」 2.7 章 p.~63 〜 参考. )
+
+\begin{center}
+\begin{tabular}{|p{3in}|p{2.5in}|}
+\hline
+\multicolumn{2}{|l|}{{\tt Boolean クラス}} \\
+\hline
+{\tt static boolean getBoolean(String s)} & \verb$s$ が ``true''(大文字
+ 小文字の区別なし)のとき \verb$true$, そうでないとき \verb$false$ を返す. \\
+\hline
+{\tt static String toString(boolean b)} & \verb$b$ の文字列表現を返す. \\
+\hline\hline
+\multicolumn{2}{|l|}{{\tt Integer クラス}} \\
+\hline
+{\tt static int parseInt(String s) \par
+throws NumberFormatException} & \verb$s$ を 10進の整数表現とみなして
+ 変換し \verb$int$ 型整数を返す. \\
+\hline
+{\tt static int parseInt(String s, int r) \par
+throws NumberFormatException} & \verb$s$ を \verb$r$進の整
+ 数表現とみなして変換し \verb$int$ 型整数を返す. \\
+\hline
+{\tt static String toString(int i)} & \verb$i$ の文字列表現を返す. \\
+\hline
+\hline
+\multicolumn{2}{|l|}{{\tt Float} クラス} \\
+\hline
+{\tt static float parseFloat(String s)} & \verb$s$ が表す \verb$float$
+ 値を返す. \\
+\hline
+{\tt static String toString(Float f)} & \verb$f$ の文字列表現を返す. \\
+\hline\hline
+\multicolumn{2}{|l|}{{\tt Double} クラス} \\
+\hline
+{\tt static double parseDouble(String s)} & \verb$s$ が表す
+ \verb$double$ 値を返す. \\
+\hline
+{\tt static String toString(Double d)} & \verb$d$ の文字列表現を返す. \\
+\hline
+\end{tabular}
+\end{center}
+
+
+\subsection{ファイル入出力}
+
+ファイルからの文字列の入力も, 標準入力と同様に文字の読み取りストリームを
+バッファつきストリーム \verb$BufferedReader$ に変換して行います. 
+ただし, 実際のファイルパスを指示してストリームを開く, また使用後には閉じ
+る, といった作業が必要になります. 
+
+まず \verb$String$型でファイル名を与えて文字の読み取りストリーム
+\verb$FileReader$ のインスタンスを作成します. 
+これは標準入力での \verb$InputStreamReader$ に相当するものです. 
+\verb$fname$ がファイル名ならば
+\begin{quote}
+\verb$new FileReader(filename)$
+\end{quote}
+で文字の読み取りストリームとしてファイルがオープンされます. 
+一般には, 以下のようにさらに \verb$BufferedReader$ に変換して文字列の読
+み取りができるストリームに変換し利用します. 
+使用例は以下のようになります. 
+\begin{proglist}
+\begin{verbatim}
+  try {
+     FileReader reader = new FileReader(fname);
+     BufferedReader buffered = new BufferedReader(reader);
+     
+     String s;
+     while ( (s = buffered.readLine()) != null )
+        System.out.println(s);
+
+     reader.close();
+  } catch (Exception e) {
+     System.out.println("Exception " + e + " occurred.");
+  }
+\end{verbatim}
+\end{proglist}
+標準入力の場合と違い, 
+(i) ファイルの終りまで読み取った (\verb$buffered.readLine() == null$ に
+なった) あと, \verb$reader.close()$ でストリームを閉じていること, そして
+(ii) \verb$try ... catch$ 文で例外を捕まえていることに注意しましょう. 
+ストリームとしてファイルを開く場合, ファイル名が間違っていて, そのような
+ファイルが見つからないかもしれません. 
+こういった予測できる例外は, 実行時にプログラムの中で対処した方が親切です. 
+ですから, ここでは \verb$try ... catch$ で例外を捕まえています. 
+積極的に例外を捕まえて, たとえば「ファイルが見つからない」例外
+\verb$FileNotFoundException$ の時は, ファイル名の修正を要求するエラーメッ
+セージを出す, といった例外処理をするのが望ましいのです. 
+
+\begin{exercise}
+上記のリストや \verb$StandardInputDemo$クラスを参考にして, クラス
+ \verb$FileInputDemo$ の \verb$main$ 関数を次のようにプログラミングし正
+ しく動作するか確認しなさい. 
+\begin{enumerate}
+\item[(1)]
+	  第1 (配列の添字は 0) 引数としてファイル名を与えると, そのファ
+	  イルの内容を各行の先頭に \verb$>$ を付加して標準出力にプリント
+	  する. 
+\item[(2)]
+	  例外 \verb$FileNotFoundException$ が投げられた場合は 「〇〇というファイルがみつからない」という意味のメッセージを出力する. 
+\end{enumerate}
+\end{exercise}
+
+ファイルを出力ストリームにするには，\verb$FileReader$ のかわりに
+\verb$FileWriter$ を，\verb$BufferedReader$ のかわりに
+\verb$BufferedWriter$ を使用します. 
+\verb$BufferedWriter$ ストリームの主なメソッドを, 以下の表に示します. 
+(詳細は「独習 Java」11.2 章 p.~314〜 を参照. )
+\begin{center}
+\begin{tabular}{|p{2.25in}|p{2.75in}|}
+\hline
+\multicolumn{2}{|l|}{コンストラクタ}\\
+\hline
+{\tt FileWriter(String s) 
+throws IOException} & ファイル名 \verb$s$ のストリームを作成する. \\
+\hline
+{\tt FileWriter(String s, boolean b) 
+throws IOException} &  \verb$b$ が \verb$true$ ならファイル末尾から追加
+ するファイル名 \verb$s$ のストリームを作成する. \\
+\hline
+\hline
+\multicolumn{2}{|l|}{インスタントメソッド}\\
+\hline
+{\tt void write(String s) \par
+throws IOException} & 文字列 \verb$s$ を書き出す. \\
+\hline
+{\tt void newLine() \par
+throws IOException} & 改行文字を書き出す. \\
+\hline
+{\tt void close() \par
+throws IOException} & ストリームを閉じる. \\
+\hline
+\end{tabular}
+\end{center}
+入力ストリームと同様に, 書き込み終了後にはストリームを閉じます.
+
+
+
+\subsection{ネットワークストリーム}
+
+Java の特徴の一つに, ネットワークを利用するプログラムが比較的容易に行え
+ることがあげられます. 
+ここではその例として, ネットワーク上の Web サーバへアクセスしてその出力
+を入力ストリームとして読みとる方法を学びましょう.
+
+ネットワーク上のサービスを利用する際には, URL とよばれるアドレスとプロト
+コルの表現形式が使われます. 
+たとえば Web ページのアドレス \verb$http://www.kyutech.ac.jp/$ は HTTP
+プロトコルでアドレスにアクセスすることを表します.
+
+Java では, ファイルストリームのファイル名に相当するものとしてまずクラス
+URL のオブジェクトを作成します. 
+\verb$String$ 型変数 \verb$s$ で表現して
+\begin{quote}
+\begin{verbatim}
+new URL(s)
+\end{verbatim}
+\end{quote}
+として作成できます.
+さらに \verb$URL$ オブジェクトに対して \verb$openStream()$ メソッドを呼
+び出すと, その URL への接続を確立し, その接続から読み込みを行うための
+\verb$InputStream$ を返します.
+これを \verb$System.in$ と同様にまず \verb$InputStreamReader$ に, さらに
+\verb$BufferedReader$ へ変換すれば, 文字列の読みとりに便利です.
+
+たとえば \verb$main$ 関数の第1引数に URL を与えた場合,
+\begin{quote}
+\linesparpage{48}
+\begin{verbatim}
+  try {
+     URL url = new URL(args[0]);
+     InputStream in = url.openStream();
+     InputStreamReader sr = new InputStreamReader(in);
+     BufferedReader br = new BufferedReader(sr);
+\end{verbatim}
+~~~~~$\vdots$
+\end{quote}
+でストリームを開くことができます. 
+あとは, \verb$System.in$ やファイル入力ストリームの場合と同様です.
+
+\begin{exercise}
+Web ページの URL アドレスを引数で与えると, その内容を表示するプログラム
+ \verb$URLDemo$ クラスを作りなさい. 
+さらにそのプログラムに手を加え, 引数で与えた英単語を検索キーワードとして,
+ サーチエンジンにアクセスしその結果を表示するプログラムを作りなさい. 
+サーチエンジンとして \verb$www.google.co.jp$ を利用するなら, URL アドレ
+ スとして
+\begin{quote}
+\verb$http//www.google.co.jp/search?q=$ 
+\end{quote}
+の後に英単語を結合したものへアクセスすれば検索結果が得られる. 
+\end{exercise}
+
+
+\newpage
+\section{イベント駆動とユーザーインターフェイス}
+
+GUI を備えたソフトウェアは, ユーザーがマウスやキーボードによって出した要
+求に答えて動作します. 
+つまり, プログラムは常にユーザーの操作を待って待機状態にあり, 要求が得ら
+れてはじめてなにか処理を行う, という仕組みになっています. 
+このユーザーからの要求に対して反応する構造を持ったプログラムを, イベント
+駆動のプログラムとよびます. 
+イベント駆動のプログラムは, プログラムに引数を与えて実行し結果が出て計算
+が終了するのを待つ, といったいわゆるシェルで動作する CUI プログラムとは
+全く考え方が異なるのです. 
+
+この節では, イベント駆動によるプログラミングの初歩としてアプレットにおけ
+る GUI の使用法を学びましょう.  
+
+\subsection{アプレットのライフサイクルとイベント処理}
+
+前々節でアプレットを作ったときには, \verb$paint( )$ メソッドのみを実装し
+ました. 
+実際には, アプレットの実行開始, 中断, 再開, そして終了に関わるメソッドに
+は以下のものがあります. 
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\verb$public void init()$ & アプレットの実行開始時に一度だけ \\
+\hline
+\verb$public void start()$ & \verb$init()$ の後, またはアプレットの再開時 \\
+\hline
+\verb$public void stop()$ & アプレットの中断時 \\
+\hline
+\verb$public void destory()$ & アプレットの終了時 \\
+\hline
+\verb$public void paint(Graphics g)$ & アプレットウィンドウの表示時 \\
+\hline
+\end{tabular}
+\end{center}
+
+イベント駆動のプログラムを作るためには, イベントを捕まえるための準備をし
+なければなりません. 
+まずアプレットがイベントを捕まえるプログラムであることを, イベントの種類
+ごとに登録します. 
+これは \verb$init()$ メソッド中で, たとえば
+\begin{quote}
+\begin{verbatim}
+  addMouseListerner(this);
+\end{verbatim}
+\end{quote}
+とすることで行います. 
+詳細については後で説明しますが, \verb$this$ つまり「このアプレット」が,
+マウスのイベントを捕まえるもの (リスナー) であることを登録しているわけです. 
+そして, 個々のイベントごとに呼び出されるメソッドを用意して, イベントに対
+応した処理を行います. 
+
+イベントに対応して何か行った場合, アプレットウィンドウの内容が変化するこ
+とがあります. 
+この場合アプレットウィンドウの再表示をしたいわけですが, \verb$paint( )$
+メソッドはこの目的のためには使えません. 
+Web ブラウザや \verb$appletviewer$ にウインドウ内容を再描画する必要が生
+じたことを伝えて, 再描画される機会を待たねばなりません. 
+これは \verb$void repaint()$ メソッドの呼び出しで行います. 
+
+
+\subsection{マウスのイベント処理}
+
+クラスが備えなければならない定数やメソッドのリストを記述したクラスのテン
+プレートを{\bf インターフェイス}といいます. 
+スーパークラスは継承によってメソッドを暗に提供しますが, インターフェイス
+はメソッドのプログラムは一切提供せず, プログラムすることを陽に要求するの
+です. 
+インターフェイスが要求するメソッドを備えたクラスであることを明示するため
+には, クラス宣言においてキーワード \verb$implements$ を使います. 
+インターフェイスを実装するクラスであると宣言することにより, そのインター
+フェイスが要求されるさまざまな用途にクラスやオブジェクトを使用することが
+できるようになります. 
+
+マウスを通してユーザから与えられるイベントは, クラス \verb$MouseEvent$
+で表されます. 
+このクラスのオブジェクトは, イベントの起きたときのマウスカーソルの座標を
+持っており, \verb$int getX()$, \verb$int getY()$ 等のメソッドで座標値を
+得ることができます. 
+アプレットでマウスのクリックなどのイベントを捕まえるには, アプレットを
+\verb$MouseListener$ インターフェイスの実装クラスとして宣言します. 
+必要となるメソッドと, そのメソッドを呼び出すイベントは以下のとおりです. 
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\verb$void mouseClicked(MouseEvent e)$ & マウスのボタンがクリックされた \\
+\hline
+\verb$mouseEntered(MouseEvent e)$ & ポインタがウィンドウ内に入った \\
+\hline
+\verb$mouseExited(MouseEvent e)$ & ポインタがウインドウの外に出た \\
+\hline
+\verb$mousePressed(MouseEvent e)$ & マウスボタンが押された \\
+\hline
+\verb$mouseReleased(MouseEvent e)$ & マウスボタンが離された \\
+\hline
+\end{tabular}
+\end{center}
+
+マウスが移動したことをイベントとして捕らえたければ,
+\verb$MouseMotionLister$ インターフェイスを実装します. 
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\verb$void mouseDragged(MouseEvent e)$ & マウスのボタンがクリックされた \\
+\hline
+\verb$mouseMoved(MouseEvent e)$ & ポインタがウィンドウ内に入った \\
+\hline
+\end{tabular}
+\end{center}
+
+反応する必要のないイベントには, 空のメソッドをつくります. 
+
+インターフェイス \verb$MouseListener$ を使ったアプレットを以下に示します. 
+アプレットのインスタンスメソッド \verb$setBackground(Color c)$ によって,
+アプレットのバックグラウンドの色を変えて, イベントへの反応を表しています. 
+\begin{proglist}\label{proglist:MouseDemoApplet}
+\begin{verbatim}
+/* MouseDemoApplet.java */
+import java.applet.Applet;
+import java.awt.*;
+import java.awt.event.*;
+
+/*
+  <applet code="MouseDemoApplet" width=200 height=200>
+  </applet>
+ */
+
+public class MouseDemoApplet extends Applet 
+  implements MouseListener {
+
+  public void init() {
+     addMouseListener(this);
+  }
+
+  public void mouseClicked(MouseEvent e) {
+     System.out.println("Clicked.");
+     setBackground(Color.blue);
+     repaint();
+  }
+
+  public void mouseEntered(MouseEvent e) {
+     System.out.println("Mouse enterd.");
+     setBackground(Color.green);
+     repaint();
+  }
+
+  public void mouseExited(MouseEvent e) {
+     System.out.println("Mouse exited.");
+     setBackground(Color.red);
+     repaint();
+  }
+
+  public void mousePressed(MouseEvent e) {
+     System.out.println("Button pressed.");
+     setBackground(Color.white);
+     repaint();
+  }
+
+  public void mouseReleased(MouseEvent e) {
+     System.out.println("Button released.");
+     setBackground(Color.yellow);
+     repaint();
+  }
+}
+\end{verbatim}
+\end{proglist}
+\verb$Color$ はグラフィクスで色を扱うためのクラスです. 
+(詳細は「独習 Java」13.5 章参照.  )
+
+\begin{exercise}
+リスト~\ref{proglist:MouseDemoApplet} \verb$MouseDemoApplet.java$ を完成
+ させ, アプレットを実行してマウスの動きやクリックに反応することを確かめなさい. 
+そして, \verb$mouseClicked$ と \verb$mousePressed$ の違いを説明しなさい. 
+\end{exercise}
+
+次のアプレット \verb$MouseDragApplet$では, さらにマウスドラッグイベント
+を処理しています. 
+ユーザーがマウスボタンを押すと, 座標 \verb$(20, 20)$ からマウスポインタ
+の位置まで直線を描きます. 
+そしてマウスをドラッグすると, 直線も移動します. 
+マウスボタンを離すと, 直線は消えます. 
+
+\begin{proglist}\label{proglist:MouseDragApplet}
+\begin{verbatim}
+/* MouseDragApplet.java */
+import java.applet.Applet;
+import java.awt.*;
+import java.awt.event.*;
+
+/*
+  <applet code="MouseDragApplet" width=200 height=200>
+  </applet>
+ */
+
+public class MouseDragApplet extends Applet 
+  implements MouseListener, MouseMotionListener {
+
+  int x, y;
+  boolean pressed = false;
+
+  public void init() {
+     addMouseListener(this);
+     addMouseMotionListener(this);
+  }
+
+  public void mouseClicked(MouseEvent e) {
+  }
+
+  public void mouseEntered(MouseEvent e) {
+  }
+
+  public void mouseExited(MouseEvent e) {
+  }
+
+  public void mousePressed(MouseEvent e) {
+     System.out.println("Button pressed.");
+     x = e.getX();
+     y = e.getY();
+     pressed = true;
+     repaint();
+  }
+
+  public void mouseReleased(MouseEvent e) {
+     System.out.println("Button released.");
+     pressed = false;
+     repaint();
+  }
+
+  public void mouseDragged(MouseEvent e) {
+     x = e.getX();
+     y = e.getY();
+     repaint();
+  }
+
+  public void mouseMoved(MouseEvent e) {
+  }
+
+  public void paint(Graphics g) {
+     if (pressed) {
+        g.drawLine(20,20,x,y);
+     }
+  }
+}
+\end{verbatim}
+\end{proglist}
+
+\begin{exercise}
+リスト~\ref{proglist:MouseDragApplet} を参考に, ドラッグを開始した場所か
+ ら現在のポインタの位置まで線が描かれるようアプレットをプログラミングしなさい. 
+\end{exercise}
+
+
+\subsection{GUI コンポーネント(部品) の追加とイベント処理}
+
+グラフィクスの描画などを行うような場合を除き, マウスのイベントを直接捕ま
+えることはあまりないでしょう. 
+通常は, ボタンやテキストボックス, チェックボックスなど, いわゆる GUI 部
+品と呼ばれるグラフィカルなインターフェース用の部品でユーザーからのイベン
+トを受け付けます. 
+この GUI 部品は, Java ではすべてクラス \verb$Component$ のサブクラスとし
+て表現されています. 
+
+ここでは, 代表的な GUI 部品とその使い方について, 体験してみることにしま
+す. 
+(詳細は「独習 Java」14 章および 15 章を参照. )
+
+\subsection{ラベル Label}
+
+ラベル \verb$Label$ はボタンやフィールドの名前やコメントなど．通常は短く
+て頻繁に変化しないテキストを表示するために用います．
+テキストの内容をユーザーが書き換えることはできません．
+
+次のプログラムは，ラベルオブジェクトを 3 つ生成して
+アプレットに付加します．
+まずプログラムをコンパイルして実行し，ラベルがどんな GUI 部品か確認しま
+しょう．
+\begin{proglist}\label{proglist:Labels}
+\begin{verbatim}
+/* Labels.java */
+import java.applet.*;
+import java.awt.*;
+/*
+  <applet code="Labels" width=200 height=120>
+  </applet>
+*/
+public class Labels extends Applet {
+
+   public void init() {
+      Label label1 = new Label("Default alignment.");
+      add(label1);
+      Label label2 = new Label("A center aligned label.", Label.CENTER);
+      add(label2);
+      Label label3 = new Label("Algined right:", Label.RIGHT);
+      add(label3);
+   }
+}
+\end{verbatim}
+\end{proglist}
+
+\begin{exercise}
+リスト~\ref{proglist:Labels} の \verb$Labels.java$ を完成させ，アプレッ
+ トを表示させてラベルを確認しなさい．
+またラベルの文字列を変えて，結果を確認しなさい．
+\end{exercise}
+
+このアプレットでは，デフォルトのアレンジ規則に従ってラベルの表示位置が決
+められています．
+ラベルの表示位置は，さまざまなアレンジ規則の中から選んで利用したり，座標
+値を使って自分で細かく調整することができます．
+
+
+\subsection{ボタン Button}
+
+マウスカーソルの位置をあわせてマウスボタンを押すと，反応する GUI 部品です. 
+スタート, セーブ, ストップ, キャンセルといった動作のきっかけや選択結果を
+ユーザーから得るのに使います. 
+すべてのボタンには \verb$String$ 型で名前を付けて区別できるようにします．
+これがボタンのトップに表示され，ユーザーに押すとなにが起きるかの情報を提
+供します．
+
+まず，実際にボタンを作って表示させてみましょう．
+\begin{proglist}\label{proglist:Buttons}
+\begin{verbatim}
+/* Buttons.java */
+import java.applet.*;
+import java.awt.*;
+import java.awt.event.*;
+/*
+  <applet code="Buttons" width=400 height=80>
+  </applet>
+ */
+
+public class Buttons extends Applet {
+   Label label;
+
+   public void init() {
+      Button bttn1 = new Button("Apple");
+      add(bttn1);
+      Button bttn2 = new Button("Banana");
+      add(bttn2);
+      Button bttn3 = new Button("Orange");
+      add(bttn3);
+
+      label = new Label("No fruits");
+      add(label);
+   }
+}
+\end{verbatim}
+\end{proglist}
+
+\begin{exercise}
+リスト~\ref{proglist:Buttons} の \verb$Buttons.java$ を完成させ, コンパ
+ イルしてアプレットを実行しなさい. 
+またアプレットのボタンを押して, なにが起こるか観察しなさい．
+\end{exercise}
+
+ボタンを押すと, ユーザーに対してボタンが押されたことを知らせるためにグラ
+フィクス表示の変化が起きます. 
+しかしボタンが押されたというイベントに対してなにもプログラムされていない
+ため, それ以上なにも起きません. 
+
+ボタンが押されたことを知らせるイベントをアプレットが受け取るには, アプレッ
+トをインターフェイス \verb$ActionListener$ の実装 (\verb$implements$) と
+して宣言します. 
+そしてそれぞれのボタンオブジェクトに 
+\begin{quote}
+\verb$ボタン.addActionListener(this);$ 
+\end{quote}
+でイベント待ちオブジェクトとしてアプレット(\verb$this$)を登録します. 
+これでボタンが押されるとイベントが生成され, 
+\verb$actionPerformed(ActionEvent event)$ メソッドが呼び出されるようにな
+ります. 
+この \verb$actionPerformed$ メソッドは \verb$ActionListener$ の実装とし
+て必要不可欠です．
+ボタンが複数ある時に押されたボタンを(あるいは他の部品のイベントと)区別す
+るには，
+\verb$ActionEvent$ のインスタンスメソッド 
+\verb$String getActionCommand()$ を使ってイベントからボタン名を取得して
+判別するのが便利です. 
+
+\begin{exercise}
+\verb$Buttons.java$ のクラス \verb$Buttons$ を \verb$implements ActionListener$ と変更し, \verb$init()$ メソッド中にボタンそれぞれにアプレット(\verb$this$)をイベント待ちオブジェクトとして登録するコードを追加しなさい. 
+そして, \verb$actionPerformed$ メソッド内で押されたボタンの名前をラベル
+ \verb$label$ に \verb$setText(String string)$ メソッドで設定するよう
+ にプログラムを書きなさい. 
+完成したら，実行させて動作を確認しなさい. 
+\end{exercise}
+
+
+
+\subsection{チェックボックス Checkbox}
+
+ラベルとチェックマークをつける小さい箱を組み合わせた部品です. 
+チェックされた状態と, チェックされない状態を維持するトグルスイッチのよう
+な動作をします. 
+ある／なしなど, 二値のうちどちらかの値をオプションとしてユーザーに選択し
+てもらうのに使用します. 
+
+まず次のプログラムでチェックマークを実際に生成し表示させてみましょう. 
+\begin{proglist}\label{proglist:Checkboxes}
+\begin{verbatim}
+/* Checkboxes.java */
+import java.applet.*;
+import java.awt.*;
+import java.awt.event.*;
+/*
+  <applet code="Checkboxes" width=400 height=80>
+  </applet>
+ */
+
+public class Checkboxes extends Applet {
+   Label label;
+
+   public void init() {
+      Checkbox chkbox1 = new Checkbox("Apple");
+      add(chkbox1);
+      Checkbox chkbox2 = new Checkbox("Grapefruit");
+      add(chkbox2);
+      Checkbox chkbox3 = new Checkbox("Orange");
+      add(chkbox3);
+
+      label = new Label("No fruits.");
+      add(label);
+   }
+}
+\end{verbatim}
+\end{proglist}
+
+\begin{exercise}
+リスト~\ref{proglist:Checkboxes} の \verb$Checkboxes.java$ を完成させて
+ コンパイルし, アプレットを実行しなさい. 
+\end{exercise}
+
+チェックボックスそれぞれのチェックの有無は, 必要なときに
+\verb$boolean getState()$ メソッドで調べることができます. 
+ラベルは \verb$String getLabel()$ で知ることができます. 
+また, チェックの有無に変更が起きたことをイベントとして知らせてもらうこと
+もできます. 
+チェックボックスの変更イベントを知るためにはアプレットを
+\verb$ItemListener$ の実装として宣言し, \verb$addItemListener(this)$ に
+よってアプレットを登録します. 
+このときアプレットには, 変更イベントを受け取るためのメソッド
+\verb$itemStateChanged(ItemEvent event)$ を実装しなければなりません. 
+その中で \verb$getItemSelectable()$ メソッドを使って変更のあった
+\verb$Checkbox$ を取り出します. 
+たとえば 
+\begin{quote}
+\verb$Checkbox chkbox = (Checkbox) event.getItemSelectable();$
+\end{quote}
+とします．
+型の変換 \verb$(Checkbox)$ を行っているのは, このメソッドが他の部品の変
+更イベントも扱うためです. 
+
+\begin{exercise}
+プログラム \verb$Checkboxes.java$ にボタンを一つ追加し, ボタンを
+ 押すと選ばれているチェックボックスすべてのラベルを結合してラベル
+ \verb$label$ の文字列に設定するようにしなさい. 
+
+\noindent
+※ヒント：ボタンのイベントだけ考えるので, アプレットは
+ \verb$ActionListener$ を実装すればよい. 
+\end{exercise}
+
+\begin{exercise}
+プログラム \verb$Checkboxes.java$ を上と同じだがチェックボックスの選択状
+ 況に変化が起きるたびにラベル \verb$label$ の文字列に設定するようにしな
+ さい. 
+
+\noindent
+※ヒント：チェックボックスの選択の変化でアクションを起こすために, 
+ \verb$ActionListener$ ではなく \verb$ItemListener$ を \verb$implement$
+ する. 
+各チェックボックスのイベント利用オブジェクトとしてアプレットを登録
+ (\verb$addItemListener$メソッド)するのを忘れないこと. 
+\end{exercise}
+
+\subsection{チェックボックスグループ CheckboxGroup}
+
+ラジオボタンとも呼ばれる GUI 部品で, 選局ボタンのようにグループ
+になったボタンの中の一つだけがいつも「オン」になります. 
+複数ある選択枝から, ユーザーに必ずどれか一つを選ばせるために使います. 
+
+プログラムでは, チェックボックスグループ \verb$CheckboxGroup$ はその名の
+とおり「いずれか一つ」を選ばせたいチェックボックスを登録するオブジェクト
+として使用します. 
+登録には, グループと初期選択の有無を引数にとるチェックボックスのコンスト
+ラクタを用います. 
+まずは, アプレットに表示させてみましょう. 
+\begin{proglist}\label{proglist:CheckboxGroups}
+\begin{verbatim}
+/* CheckboxGroups.java */
+import java.applet.*;
+import java.awt.*;
+import java.awt.event.*;
+/* 
+  <applet code="CheckboxGroups" width=400 height=80>
+  </applet>
+ */
+public class CheckboxGroups extends Applet {
+   Label label;
+
+   public void init() {
+      CheckboxGroup grp = new CheckboxGroup();
+      Checkbox cbox1 = new Checkbox("Sedan", grp, true);
+      add(cbox1);
+      Checkbox cbox2 = new Checkbox("Wagon", grp, false);
+      add(cbox2);
+      Checkbox cbox3 = new Checkbox("Coupe", grp, false);
+      add(cbox3);
+      Checkbox cbox4 = new Checkbox("Compact", grp, false);
+      add(cbox4);
+
+      label = new Label("                     ");
+      add(label);
+   }
+}
+\end{verbatim}
+\end{proglist}
+
+\begin{exercise}
+リスト~\ref{proglist:CheckboxGroups} のプログラム
+ \verb$CheckboxGroups.java$ をコンパイルして実行し, 操作してみなさい.
+\end{exercise}
+
+グループとなっていていずれか一つだけが \verb$true$ になっているチェック
+ボックスなので, 基本的にプログラムでの利用はチェックボックスと同様です. 
+どのチェックボックスが \verb$true$ なのかはメソッド \verb$getState()$ で
+調べます. 
+また, 直接状態の変化をイベントとして利用したいときは \verb$ItemListener$
+を実装して \verb$itemStateChanged(ItemEvent event)$ メソッドでイベント処
+理するのも同じです. 
+
+
+\subsection{チョイス Choice}
+
+ポップアップ式のメニューで, チェックボックスグループ同様, 複数の項目から
+ユーザーにいずれかを選ばせるのに用います. 
+どの選択肢を選んだかは, 表示されており確認できます. 
+チェックボックスグループよりも選択肢が多い, あるいはどのような選択肢があ
+るのかを提示する必要性が低い場合に使用します. 
+
+チョイス \verb$Choice$ は, まず選択肢のない空のオブジェクトをコンストラ
+クタ \verb$Choice$ で生成し, これに選択項目を \verb$addItem(String s)$
+メソッドで登録することで作成します. 
+まずアプレットでチョイスを表示させてみましょう. 
+\begin{proglist}\label{proglist:Choices}
+\begin{verbatim}
+/* Choices.java */
+import java.applet.*;
+import java.awt.*;
+import java.awt.event.*;
+/* 
+  <applet code="Choices" width=400 height=80>
+  </applet>
+ */
+public class Choices extends Applet {
+   Label label;
+
+   public void init() {
+      Choice choice1 = new Choice();
+      choice1.addItem("Kitakyushu");
+      choice1.addItem("Fukuoka");
+      choice1.addItem("Iizuka");
+      choice1.addItem("Yukuhashi");
+      add(choice1);
+      Choice choice2 = new Choice();
+      choice2.addItem("JR");
+      choice2.addItem("Nishitetsu Bus");
+      choice2.addItem("TAXI");
+      add(choice2);
+
+      label = new Label("Kitakyushu, Nishitetsu Bus");
+      add(label);
+   }
+}
+\end{verbatim}
+\end{proglist}
+
+\begin{exercise}
+リスト~\ref{proglist:Choices} のプログラム \verb$Choices.java$ を完成さ
+ せコンパイルし, アプレットを実行してチョイスがどのようなものか, 項目が
+ 登録されているかどうかなどを確認しなさい. 
+\end{exercise}
+
+チョイスの選択項目の変更をイベントとしてアプレットで利用するには,
+チェックボックスと同様に \verb$ItemListener$ インターフェイスを実装し, 
+メソッド \verb$addItemListener(this)$ でアプレットがイベントを利用するこ
+とを登録します. 
+そして \verb$public void itemStateChanged(ItemEvent event)$ メソッドを実
+装し, \verb$ItemEvent$ オブジェクトから \verb$getItemSelectable()$ メソッ
+ドでオブジェクトを取り出し, \verb$Choice$ にキャストしてチョイスオブジェ
+クトを取り出します. 
+選択項目の取りだしは, 項目名や項目の番号などで行えます. 
+たとえば \verb$String getSelectedItem()$ メソッドを使えば, 選択した項目
+の名前を取得できます. 
+
+\begin{exercise}
+上のプログラム \verb$Choices.java$ を, 選択項目が変化するとただちに選択
+ された項目が \verb$label$ の内容として表示されるように変更しなさい. 
+\end{exercise}
+
+\subsection{テキストフィールド TextField とテキストエリア TextArea}
+
+テキストエリア \verb$TextArea$ は，ユーザーにキーボードを使ったテキスト
+入力をしてもらうために使います. 
+複数の表示行を使って内容の表示と編集ができ, マウスやキーボードによる簡単
+なテキスト編集機能を提供します．
+テキストを出力するために使用することもできます．
+テキストフィールドはテキストエリアの行数を 1 行に限定したもので, ファイ
+ル名やキーワードなどユーザーに 1 行あるいは短い記述ですむテキストを入力
+してもらうのに適しています. 
+
+\verb$TextField$ のコンストラクタには引数なし, 初期内容の文字列を与える
+もの, カラムサイズ(幅)を整数で指定するもの, 両方与えるものがあります. 
+\verb$TextArea$ のコンストラクタは, 行数を引数に取るものが用意されていま
+す. 
+テキスト内容を参照するには \verb$String getText()$ メソッドを, 設定する
+には \verb$void setText()$ メソッドを使います. 
+そのほか, 内容の末尾に追加したり, 位置を整数で指定して挿入するメソッドな
+どが用意されています. 
+(詳細は「独習 Java」15.8 章 p.~470〜 を参照. )
+
+\begin{proglist}\label{proglist:TextFields}
+\begin{verbatim}
+/* TextFields.java */
+import java.applet.*;
+import java.awt.*;
+import java.awt.event.*;
+/* 
+  <applet code="TextFields" width=400 height=200>
+  </applet>
+ */
+public class TextFields extends Applet {
+   TextField tfield;
+   TextArea  tarea;
+
+   public void init() {
+      tfield = new TextField(20);
+      add(tfield);
+      tarea = new TextArea(8,20);
+      add(tarea);
+   }
+}
+\end{verbatim}
+\end{proglist}
+
+\begin{exercise}
+リスト~\ref{proglist:TextFields} のプログラム \verb$TextFields.java$ を
+ コンパイルし, アプレットを実行してテキストフィールドとテキストエリアそ
+ れぞれでテキストの入力と編集を行い, その違いを確認しなさい. 
+\end{exercise}
+
+テキストフィールド, テキストエリアはユーザーに比較的自由に入力してもらう
+ためのものなので, これらに対するイベントを捕まえて利用することはあまり多
+くありません. 
+しかし, もしクリックの発生やテキスト内容の変更をイベントとしてアクション
+を起こしたいときは, \verb$ActionListener$ と \verb$TextListener$ インター
+フェイス, どちらかまたは両方必要なものを実装します. 
+テキスト内容の変更イベントはメソッド 
+\verb$void textValueChanged(TextEvent event)$ で処理します. 
+
+通常, テキストフィールドにはタイプ入力された文字がそのまま表示されます. 
+しかしパスワードの入力など, 文字が入力されたことはユーザーにフィードバッ
+クしたいが内容を表示するのは不適切な場合は, 文字を
+\verb$void setEchoChar(char c)$ メソッドを使って, たとえば \verb$'*'$ に
+置き換えることができます. 
+このタイプに反応して表示される文字をエコー文字といいます. 
+
+\begin{exercise}
+ラベル ``Name: '' とその入力用の 20 文字の幅を持つテキストフィールド, お
+ よびラベル ``Password: '' とその入力用の 12 文字の幅を持つテキストフィー
+ ルドを持つアプレット \verb$LoginPrompt$ を作りなさい. 
+ただし, Name の入力用フィールドには初期文字列 \verb$guest$ を設定し, ま
+ た Password の入力用フィールドのエコー文字はアスタリスク \verb$*$ とし
+ なさい. 
+\end{exercise}
+
+\subsection{その他の GUI 部品, レイアウトマネージャ}
+
+このほかに, グラフィクスを描画することができるキャンバス \verb$Canvas$
+や, チョイスと同様に項目の選択を提供するリスト \verb$List$, スライドボ
+リュームのように使えるスクロールバー \verb$Scrollbar$ などがあります. 
+
+いずれの GUI 部品も, アプレットで使用するにあたっては以下のステップを踏
+みます. 
+\begin{enumerate}
+\item  \verb$init()$ メソッドで生成する. 
+       必要なら状態や内容, 項目についての設定をする. 
+\item  イベントを捕まえる必要がある場合は, イベントのリスナとしてアプレッ
+       トの登録をする. 
+\item  アプレットに追加し使用されるようにする. 
+\item  イベントを捕まえる場合はリスナの適切なイベント処理メソッドを実装
+       する. 
+       どの GUI 部品にどのようなイベントが送られたかの情報は, イベントオ
+       ブジェクトから取り出す. 
+\end{enumerate}
+GUI プログラミングの細かいことは覚える事柄が大変多く, また過去もそうであっ
+たように, 将来大幅な変更がある可能性もあります. 
+ですから, 大まかな概念を理解するのにとどめ, 細かいことは実際にプログラミ
+ングするときに確認しながら行ったほうがよいでしょう. 
+
+さて, これまでのプログラムでは, GUI 部品の配置については何も気にしていま
+せんでした. 
+ウィンドウの大きさによらず GUI 部品の配置を自動的に決める仕組みとして
+Java ではレイアウトマネージャ \verb$LayoutManager$ が用意されています. 
+アプレットは, プログラムで指定をしないと \verb$FlowLayout$ が採用され
+アプレットに追加された順に部品が上左からならびます. 
+その他に, \verb$BorderLayout$, \verb$GridLayout$ などが用意されています
+がここでは説明を省きます. 
+
+現実的には, GUI 部品の配置は座標で細かく指定するほうが思い通りにするのが
+簡単でしょう. 
+座標を決めるのはめんどうですが, 市販の Java RAD 環境には GUI 部品の配置
+をマウスを使って決めることができるエディタが組み込まれているのが普通です
+ので, 実際には座標で配置する場合のほうが多いでしょう. 
+
+座標を設定して配置するには, アプレットの \verb$init()$ メソッドで部品を
+追加する前に
+\begin{quote}
+ \verb$setLayout(null);$
+\end{quote}
+でレイアウトマネージャを不使用にします. 
+そして, 各部品オブジェクトに対してメソッド 
+\begin{quote}
+\verb$部品オブジェクト.setBounds(左上のx座標, 左上のy座標, 幅, 高さ);$
+\end{quote}
+で表示位置と大きさを指定します. 
+
+\begin{exercise}
+プログラム \verb$LoginPrompt.java$ のラベルとテキストフィールドを, レイ
+ アウトマネージャを使用せず座標で適切に配置するよう変更しアプレットを
+ 実行して配置を確かめなさい. 
+\end{exercise}
+
+
+\newpage
+\section{その他の Java テクノロジー}
+
+Java は現代的なプログラミングの概念に基づいて設計された新しい言語であり,
+現在も進化を続けています. 
+このコースではカバーしきれなかった, しかし重要な機能としては, たとえば以
+下のものをあげることができるでしょう. 
+
+\subsection*{さまざまなクラスライブラリ}
+
+日付や時間を扱うためのクラスとメソッド群, 乱数その他ユーティリティとして
+利用できるクラスやメソッド群が豊富に用意されています. 
+またスタックやベクトル, ハッシュテーブルなど, データの集合を扱うための抽
+象データ型を表すクラスも豊富にそろっています. 
+
+\subsection*{継承を実現する機構}
+
+理想的なオブジェクト指向プログラミング環境に近づくための, さまざまな宣言
+修飾キーワード, 抽象クラス, \verb$Object$ クラスや \verb$Class$ クラス. 
+
+\subsection*{マルチスレッドプログラミングによる並列実行機能}
+
+アニメーションのようなリアルタイム処理が必要な作業, 時間のかかる計算と
+GUI の両立のような, プログラムの流れが複数必要な場合に威力を発揮します. 
+
+\subsection*{バイナリストリームなど}
+
+ネットワークやファイルに対して, プリミティブデータやオブジェクトを直接読
+み書きするためのストリーム. 
+また, ネットワーク上の離れたオブジェクトのメソッドを呼び出す RMI 機構. 
+
+\subsection*{GUI アプリケーション}
+
+ウィンドウやメニューを持つアプリケーションの構造と作り方. 
+また, Swing などの GUI ライブラリ. 
+
+\subsection*{マルチメディア機能}
+
+サンプリングサウンドや MIDI データ, ビットマップイメージ, 3D グラフィク
+スなどの利用や操作. 
+
+\subsection*{さまざまな実行形態}
+
+Web サーバに組み込まれて動作する Servlet や, 自由なプログラムの組み立て
+をサポートする Java Beans など, 用途や目的に応じたさまざまな実行形態. 
+
+
+このコースでは Java になれること, また基本的な考え方をマスターすることを
+主な目的としてきましたが, ここにあげたような機能は実用的なプログラミング
+を行うにあたっては欠かすことのできないものです. 
+これらの内容にも, 機会があればぜひ接してみてください. 
+
+
+\newpage
+\section*{参考書など}
+
+\begin{enumerate}
+\item ジョゼフ・オニール著／トップスタジオ 訳 「独習 Java 第2版」, 翔泳
+      社
+\item 日本サン・マイクロシステムズ 「Java プログラミング講座」, アスキー
+      出版局
+\item Sun Microsystems Java 2 SDK Standard Edition ドキュメント
+      Ver. 1.4.0 (オンラインドキュメント), \verb$http://java.sun.com/j2se/1.4/ja/docs/ja/index.html$
+\end{enumerate}
+
+\end{document}

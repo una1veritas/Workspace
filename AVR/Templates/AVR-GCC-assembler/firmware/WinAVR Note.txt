@@ -1,0 +1,20 @@
+
+F_CPU = 16000000
+
+
+# MCU name
+MCU = atmega328p
+
+
+#---------------- Programming Options (avrdude) ----------------
+
+# Programming hardware
+# Type: avrdude -c ?
+# to get a full listing.
+#
+AVRDUDE_PROGRAMMER = stk500v1 -b 57600
+
+# com1 = serial port. Use lpt1 to connect to parallel port.
+AVRDUDE_PORT = com3
+
+#	$(REMOVE) $(SRC:.c=.s)

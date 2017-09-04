@@ -1,0 +1,29 @@
+#!/usr/local/bin/perl
+#
+
+$flag = 0;
+
+while ($line = <>) {
+    chop($line);
+    if ($line eq "") {
+	next; 
+    }
+    $line = $line . " ";
+    $line =~ s/ +/ /g;
+    
+    if ($line =~ /<BODY>/i) {
+	$flag = 1;
+	$contents = $';
+	next;
+    }
+    if ($line =~ /<\/BODY>/i) {
+	$flag = 0;
+	$contents = $contents . $`;
+	print $contents , "\n";
+	next;
+    }
+    if ($flag == 1) {
+	$contents = $contents . $line;
+    }
+    
+}

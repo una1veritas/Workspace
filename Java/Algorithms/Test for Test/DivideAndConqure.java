@@ -1,0 +1,1 @@
+class DivideAndConqure {		static public void main(String arg[]) {		int A[] = {1, 3, 4, 6, 8, 9, 9, 11, 12};		int b = 0, e = 8, t;				int i = 10;		while (A[b] <= i && i <= A[e]) {			t = (b+e) / 2;			if (A[t] == i) {				System.out.println(t);				return;			}			if (A[t] < i) {				b = t + 1;			} else {				e = t;			}		}		System.out.println(0);		return;	}}

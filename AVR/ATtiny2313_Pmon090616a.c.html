@@ -1,0 +1,459 @@
+<html>
+<head>
+<meta http-equiv="Content-Type"
+content="text/html;charset=Shift_JIS">
+<meta name="GENERATOR" content="C2HTMLX (c)2001, 2006 AOK">
+<title>ATtiny2313_Pmon090616a.c</title>
+<style type="text/css">
+<!--
+span.color_comment { color:green; }
+span.color_string { color:teal; }
+span.color_keyword { color:blue; }
+-->
+</style>
+</head>
+<body>
+<pre><span class='color_comment'>// --------------------------------------------------------------------</span>
+<span class='color_comment'>//  ATtiny2313モニター  WinAVR版 ATtiny2313</span>
+<span class='color_comment'>//  ATtiny2313_Pmon090616a.c    SIOとI2C入出力対応７segLED表示可能に成りました</span>
+<span class='color_comment'>//</span>
+<span class='color_comment'>//      09/06/03 プログラム開始</span>
+<span class='color_comment'>//               シリアル入力-&gt;LCD表示OK   </span>
+<span class='color_comment'>//            04 受信割込み OK タイマー１割込みOK</span>
+<span class='color_comment'>//               LCD表示はOKなので7segLEDのダイナミック点灯にハードを変更してソフトの作成</span>
+<span class='color_comment'>//               ターミナルからシリアルで数字を送信して表示する</span>
+<span class='color_comment'>//            09 7segLEDx4 ダイナミック表示OK　メインループ内で処理　OK</span>
+<span class='color_comment'>//            13 6桁表示 PORTB,PORD OK b7:x100000 に使用</span>
+<span class='color_comment'>//               6桁表示 I2C のためb5,b7をa0,a1に変更OK</span>
+<span class='color_comment'>//               SIOとI2C入出力対応７segLED表示可能に成りました。</span>
+<span class='color_comment'>//</span>
+<span class='color_comment'>// --------------------------------------------------------------------</span>
+<span class='color_comment'>// ヘッダファイルのインクルード</span>
+<span class='color_keyword'>#define</span> F_CPU 8000000UL                     <span class='color_comment'>// 8MHz</span>
+
+<span class='color_keyword'>#include</span> &lt;avr/io.h&gt;
+<span class='color_keyword'>#include</span> &lt;avr/interrupt.h&gt;
+
+<span class='color_comment'>// --------------------------------------------------------------------</span>
+<span class='color_comment'>// データ・タイプの定義</span>
+<span class='color_keyword'>typedef</span> <span class='color_keyword'>unsigned</span> <span class='color_keyword'>char</span> BYTE;                 <span class='color_comment'>// unsigned 8bit</span>
+<span class='color_keyword'>typedef</span> <span class='color_keyword'>unsigned</span> <span class='color_keyword'>int</span> WORD;                  <span class='color_comment'>// unsigned 16bit</span>
+<span class='color_keyword'>typedef</span> <span class='color_keyword'>signed</span> <span class='color_keyword'>char</span> <span class='color_keyword'>bool</span>;                   <span class='color_comment'>// unsigned 8bit</span>
+<span class='color_keyword'>typedef</span> <span class='color_keyword'>int</span> INT;                            <span class='color_comment'>// signed 16bit</span>
+
+<span class='color_keyword'>#define</span> <span class='color_keyword'>true</span>  1
+<span class='color_keyword'>#define</span> <span class='color_keyword'>false</span> 0
+<span class='color_keyword'>#define</span> sbi(BYTE,BIT) BYTE |= _BV(BIT)      <span class='color_comment'>// BYTEの指定BITに1をセット</span>
+<span class='color_keyword'>#define</span> cbi(BYTE,BIT) BYTE &amp;= ~_BV(BIT)     <span class='color_comment'>// BYTEの指定BITをクリア</span>
+
+<span class='color_comment'>// --------------------------------------------------------------------</span>
+<span class='color_comment'>// シリアル</span>
+<span class='color_keyword'>#define</span> UART_BAUD 9600
+<span class='color_keyword'>#define</span> UARTKbHit() (UCSRA &amp; (1&lt;&lt;RXC))      <span class='color_comment'>// 受信チェック</span>
+<span class='color_keyword'>#define</span> UARTRead()  UDR                     <span class='color_comment'>// 受信データ取得</span>
+<span class='color_keyword'>#define</span> BUF_SIZE 12                         <span class='color_comment'>// バッファサイズ</span>
+<span class='color_keyword'>#define</span> PUTCH(x) UARTWrite(x)               <span class='color_comment'>// シリアル1文字出力</span>
+<span class='color_keyword'>#define</span> GETC() UARTRead()
+<span class='color_keyword'>#define</span> KBHIT() UARTKbHit()
+
+<span class='color_keyword'>#define</span> UART_BUFSIZE 12
+<span class='color_keyword'>volatile</span> <span class='color_keyword'>unsigned</span> <span class='color_keyword'>char</span> UART_buff[UART_BUFSIZE];
+<span class='color_keyword'>volatile</span> <span class='color_keyword'>unsigned</span> <span class='color_keyword'>char</span> UART0Count;
+<span class='color_keyword'>volatile</span> <span class='color_keyword'>unsigned</span> <span class='color_keyword'>char</span> usart_recvData;      <span class='color_comment'>// USARTで受信したデータ</span>
+
+<span class='color_comment'>// --------------------------------------------------------------------</span>
+<span class='color_comment'>// ＬＣＤ</span>
+<span class='color_keyword'>#define</span> LCD_CTL_PORT        PORTB
+<span class='color_keyword'>#define</span> LCD_DATA_PORT       PORTB
+<span class='color_keyword'>#define</span> LCD_CTL_PORT_DDR    DDRB
+<span class='color_keyword'>#define</span> LCD_DATA_PORT_DDR   DDRB
+<span class='color_keyword'>#define</span> LCD_D4  0
+<span class='color_keyword'>#define</span> LCD_D5  1
+<span class='color_keyword'>#define</span> LCD_D6  2
+<span class='color_keyword'>#define</span> LCD_D7  3
+<span class='color_keyword'>#define</span> LCD_RS  4
+<span class='color_keyword'>#define</span> LCD_E   5
+<span class='color_keyword'>#define</span> LCD_COL 16
+
+<span class='color_comment'>// --------------------------------------------------------------------</span>
+<span class='color_comment'>// タイマー割込み</span>
+<span class='color_keyword'>#define</span> CYCLES_PER_US ((F_CPU)/1000000)     <span class='color_comment'>// cpu cycles per microsecond</span>
+<span class='color_keyword'>#define</span> TCNT1_InitVal   (65536-80)          <span class='color_comment'>// 10ms (128usX80=10.24ms)</span>
+<span class='color_keyword'>volatile</span> <span class='color_keyword'>unsigned</span> <span class='color_keyword'>int</span>  count1;              <span class='color_comment'>// 割込みカウンタ１</span>
+BYTE flg =0;
+
+<span class='color_comment'>// --------------------------------------------------------------------</span>
+<span class='color_comment'>// 配列、変数</span>
+<span class='color_keyword'>char</span> buff[BUF_SIZE];
+<span class='color_comment'>//　　　　　　　0    1    2    3    4    5    6    7    8    9</span>
+<span class='color_comment'>//BYTE moji[]={0x5f,0x44,0x3E,0x76,0x65,0x73,0x7B,0x46,0x7F,0x77};  </span>
+<span class='color_comment'>//   PORTB b0:f b1:a b2:b b3:e b4:d b5:g b6:c           7segの割り当て</span>
+<span class='color_comment'>//   PORTD b2:x1 b3:x10 b4:x100 b5:x1000 b6:x10000      5桁のドライブ </span>
+<span class='color_comment'>//----------------------------------------------------------------------</span>
+<span class='color_comment'>//　　　　　　　0    1    2    3    4    5    6    7    8    9</span>
+BYTE moji[]={0x5f,0x44,0x3E,0x76,0x65,0x73,0x7B,0x46,0x7F,0x77};  
+<span class='color_comment'>//   PORTB b0:f b1:a b2:b b3:e b4:d a0:g b6:c           7segの割り当て</span>
+<span class='color_comment'>//   PORTD b2:x1 b3:x10 b4:x100 b5:x1000 a0:x10000      6桁のドライブ </span>
+
+
+
+<span class='color_comment'>//  Initialize Timer/Counter1</span>
+<span class='color_keyword'>void</span> init_Timer1()
+{
+    TCCR1B = 0x00;              <span class='color_comment'>// Stop Timer/Counter1</span>
+    TCNT1  = TCNT1_InitVal;     <span class='color_comment'>// Initial Value of Timer/Counter1</span>
+<span class='color_comment'>//    TIMSK = _BV(TOIE1);           // Timer/Counter1 Overflow Interrupt Enable</span>
+    TCCR1B = 0x05;              <span class='color_comment'>// Start Timer/Counter1 clk/1024 125nsX1024=128us</span>
+    count1 = 0;
+
+<span class='color_comment'>//    TIMSK |= _BV(TOIE1);      // Timer/Counter1 Overflow Interrupt Enable</span>
+<span class='color_comment'>//    TIMSK &amp;= ~_BV(TOIE1);     // Timer/Counter1 Overflow Interrupt Enable</span>
+
+}
+
+<span class='color_comment'>//-----------------------------------------------------------------------------</span>
+<span class='color_comment'>//  Timer/Counter1 Overflow Handler</span>
+ISR(TIMER1_OVF_vect)
+{
+    TCNT1 = TCNT1_InitVal;
+    count1++;
+<span class='color_comment'>/*
+    if(count1 &lt; 50) cbi(PORTD,2);   // PD2 debug
+    if(count1 &gt; 50) sbi(PORTD,2);
+*/</span>
+    <span class='color_keyword'>if</span>(count1 &lt; 50) cbi(PORTA,1);   <span class='color_comment'>// PA1 debug</span>
+    <span class='color_keyword'>if</span>(count1 &gt; 50) sbi(PORTA,1);
+
+    <span class='color_keyword'>if</span>(count1 &gt;= 100){
+        flg=1;
+        count1=0;
+    }
+}
+
+<span class='color_comment'>// ----------------------------</span>
+<span class='color_comment'>// USART初期化 ATtiny2313</span>
+<span class='color_keyword'>void</span> UARTInit(<span class='color_keyword'>void</span>) {
+    <span class='color_comment'>// ボーレート (U2X = &quot;0&quot;)</span>
+    UBRRL = (F_CPU / (16UL * UART_BAUD)) - 1;
+    UBRRH = 0;
+<span class='color_comment'>//  UCSRB = (1&lt;&lt;TXEN) | (1&lt;&lt;RXEN);              // tx/rx enable</span>
+    UCSRB = (1&lt;&lt;TXEN) | (1&lt;&lt;RXEN) | (1&lt;&lt;RXCIE);     <span class='color_comment'>// 送受信許可、受信完了割り込み許可</span>
+    UCSRC = (1&lt;&lt;UCSZ1) | (1&lt;&lt;UCSZ0);            <span class='color_comment'>// 8bit Stop1 パリティなし</span>
+}
+
+<span class='color_comment'>//-----------------------------------------------------------------------------</span>
+<span class='color_comment'>/** UART受信割り込み **/</span>
+ISR(USART_RX_vect){
+
+    <span class='color_keyword'>if</span>(bit_is_clear(UCSRA,FE)){     <span class='color_comment'>// フレーミングエラー</span>
+        usart_recvData = UDR;       <span class='color_comment'>// 受信データ</span>
+        UART_buff[UART0Count] = usart_recvData;
+        UART0Count++;
+        <span class='color_keyword'>if</span>(UART0Count == UART_BUFSIZE) UART0Count = 0;    <span class='color_comment'>// buffer overflow</span>
+    }
+}
+
+<span class='color_comment'>// ----------------------------</span>
+<span class='color_comment'>// USART 1バイトシリアル送信</span>
+<span class='color_keyword'>void</span> UARTWrite(BYTE dat) {
+    
+    <span class='color_keyword'>while</span> ( !( UCSRA &amp; (1&lt;&lt;UDRE)) ) {}; <span class='color_comment'>// 送信バッファが空になるまで待つ</span>
+    UDR = dat;                          <span class='color_comment'>// 送信データをセット</span>
+}
+
+<span class='color_comment'>// ---------------------------------</span>
+<span class='color_comment'>// シリアルへ文字列を送信</span>
+<span class='color_keyword'>void</span> UARTstr(){
+    BYTE i;
+
+    <span class='color_keyword'>for</span>(i=0; i&lt;BUF_SIZE; i++){
+        <span class='color_keyword'>if</span>(buff[i]==0){
+            <span class='color_keyword'>break</span>;
+        } <span class='color_keyword'>else</span> {
+            PUTCH(buff[i]);
+        }
+    }
+    PUTCH(<span class='color_string'>'\r'</span>);
+    PUTCH(<span class='color_string'>'\n'</span>);
+}
+
+<span class='color_comment'>// ---------------------------------</span>
+<span class='color_comment'>// シリアルへ文字列を送信</span>
+<span class='color_keyword'>static</span> <span class='color_keyword'>void</span> send_text(<span class='color_keyword'>char</span> *text)
+{
+<span class='color_comment'>//char ch;</span>
+    <span class='color_keyword'>while</span>(*text)
+    {
+      UARTWrite(*text++);
+    }
+}
+
+<span class='color_comment'>//----------------------------------</span>
+<span class='color_comment'>// 遅延タイマー</span>
+<span class='color_keyword'>void</span> delay_us(uint32_t time_us) 
+{
+    uint32_t delay_loops;
+    <span class='color_keyword'>register</span> uint32_t i;
+
+    delay_loops = (time_us+3)/5*CYCLES_PER_US;      <span class='color_comment'>// +3 for rounding up (dirty) </span>
+
+    <span class='color_comment'>// one loop takes 5 cpu cycles </span>
+    <span class='color_keyword'>for</span> (i=0; i &lt; delay_loops; i++) {
+        asm <span class='color_keyword'>volatile</span> (<span class='color_string'>&quot;nop\n&quot;</span>);
+    };
+}
+
+<span class='color_comment'>//----------------------------------------------------------</span>
+<span class='color_comment'>// LCD EnableフラグをON, OFF</span>
+<span class='color_keyword'>void</span> lcd_e(<span class='color_keyword'>void</span>)
+{
+    LCD_CTL_PORT |= _BV(LCD_E);
+    LCD_CTL_PORT &amp;= ~_BV(LCD_E);
+}
+
+<span class='color_comment'>//----------------------------------------------------------</span>
+<span class='color_comment'>// LCDにコマンド(RS=0)を送信。</span>
+<span class='color_keyword'>void</span> lcd_cmdout_s(<span class='color_keyword'>char</span> cmd)
+{
+    LCD_CTL_PORT &amp;= ~_BV(LCD_RS);
+    LCD_DATA_PORT = (LCD_DATA_PORT &amp; 0xF0) | cmd;
+    lcd_e();
+}
+
+<span class='color_comment'>//----------------------------------------------------------</span>
+<span class='color_comment'>// LCDにコマンドを送信</span>
+<span class='color_keyword'>void</span> lcd_putcmd(<span class='color_keyword'>char</span> cmd)
+{
+    lcd_cmdout_s(cmd &gt;&gt; 4);
+    lcd_cmdout_s(cmd &amp; 0x0F);
+    delay_us(10000);
+}
+
+<span class='color_comment'>//----------------------------------------------------------</span>
+<span class='color_comment'>// LCDにデータ(RS=1)送信</span>
+<span class='color_keyword'>void</span> lcd_dataout_s(<span class='color_keyword'>char</span> ch)
+{
+    LCD_CTL_PORT |= _BV(LCD_RS);
+    LCD_DATA_PORT = (LCD_DATA_PORT &amp; 0xF0) | ch;
+    lcd_e();
+}
+
+<span class='color_comment'>//----------------------------------------------------------</span>
+<span class='color_comment'>//  LCDに文字を表示</span>
+<span class='color_keyword'>void</span> lcd_putch(<span class='color_keyword'>char</span> ch)
+{
+    lcd_dataout_s(ch &gt;&gt; 4);
+    lcd_dataout_s(ch &amp; 0x0F);
+    delay_us(4);
+}
+
+<span class='color_comment'>//----------------------------------------------------------</span>
+<span class='color_comment'>//  LCDに文字列を表示</span>
+<span class='color_keyword'>void</span> lcd_putstr(<span class='color_keyword'>char</span> *str)
+{
+    <span class='color_keyword'>while</span>(*str != <span class='color_string'>'\0'</span>)
+    {       
+        lcd_putch(*str);
+        str++;
+    }
+}
+
+<span class='color_comment'>//----------------------------------------------------------</span>
+<span class='color_comment'>// LCDの表示クリア</span>
+<span class='color_keyword'>void</span> lcd_cls(<span class='color_keyword'>void</span>)
+{
+  lcd_putcmd(0x01);
+}
+
+<span class='color_comment'>//----------------------------------------------------------</span>
+<span class='color_comment'>// 引数で指定した場所にLCDのカーソルを移動します。</span>
+<span class='color_comment'>// lineは0基準となります。</span>
+<span class='color_comment'>// 1行目の1文字目をさす場合には、lcd_gotopos(1,0);と指定します。</span>
+<span class='color_keyword'>void</span> lcd_gotopos(<span class='color_keyword'>char</span> line, <span class='color_keyword'>char</span> column)
+{
+    <span class='color_keyword'>if</span> (line == 0)
+    {
+        lcd_putcmd(0x80 + column);
+    }<span class='color_keyword'>else</span>{
+        lcd_putcmd(0xC0 + column); 
+    }
+}
+
+<span class='color_comment'>//----------------------------------------------------------</span>
+<span class='color_comment'>// LCDの初期化処理</span>
+<span class='color_keyword'>void</span> lcd_init(<span class='color_keyword'>void</span>)
+{
+    delay_us(16000);
+    LCD_CTL_PORT &amp;= (~_BV(LCD_RS) | ~_BV(LCD_E));
+
+    <span class='color_comment'>//初期化  </span>
+    lcd_cmdout_s(0x03); delay_us(5000);
+    lcd_cmdout_s(0x03); delay_us(120);
+    lcd_cmdout_s(0x03); delay_us(120);
+    lcd_cmdout_s(0x02); delay_us(120);
+    lcd_putcmd(0x28);
+    lcd_putcmd(0x08);
+    lcd_putcmd(0x01);
+    lcd_putcmd(0x0C);
+}
+
+<span class='color_comment'>// ---------------------</span>
+<span class='color_comment'>// 数値-&gt;文字列変換</span>
+<span class='color_keyword'>void</span> TempToStr(WORD val) {
+    BYTE d;
+
+    <span class='color_keyword'>if</span>(val &amp; 0x8000) {
+        buff[0] = <span class='color_string'>'-'</span>;                  <span class='color_comment'>// 負数のとき</span>
+        val &amp;= ~0x8000;                 <span class='color_comment'>// MSBをクリア</span>
+    } <span class='color_keyword'>else</span> {
+        <span class='color_comment'>//buff[0] = '+';                // 正数のとき</span>
+        buff[0] = <span class='color_string'>' '</span>;
+    }
+
+    d = val / 1000;                     <span class='color_comment'>// 1000の桁</span>
+    <span class='color_keyword'>if</span>(d!=0){
+        buff[1] = (val / 1000) + <span class='color_string'>'0'</span>;   <span class='color_comment'>// 1000の桁</span>
+    }<span class='color_keyword'>else</span>{
+        buff[1] = <span class='color_string'>' '</span>;                  <span class='color_comment'>// 1000の桁</span>
+    }
+    val = val % 1000;
+    buff[2] = (val / 100) + <span class='color_string'>'0'</span>;        <span class='color_comment'>// 100の桁</span>
+
+    val = val % 100;
+    buff[3] = (val / 10) + <span class='color_string'>'0'</span>;         <span class='color_comment'>// 10の桁</span>
+
+    buff[4] = <span class='color_string'>'.'</span>;                      <span class='color_comment'>// 少数点</span>
+    buff[5] = val % 10 + <span class='color_string'>'0'</span>;           <span class='color_comment'>// 1の桁</span>
+    buff[6] = <span class='color_string'>'\0'</span>;                     <span class='color_comment'>// デリミタ</span>
+}
+
+<span class='color_comment'>// ------------------------------------------------</span>
+<span class='color_comment'>// MAIN</span>
+<span class='color_comment'>// ------------------------------------------------</span>
+<span class='color_keyword'>int</span> main(<span class='color_keyword'>void</span>) {
+    BYTE ch;
+    <span class='color_keyword'>int</span> i=0;
+    <span class='color_keyword'>int</span> j=0;
+
+    PORTA = 0x00;
+    DDRA  = 0x0F;           <span class='color_comment'>// 7segLED a0:5桁ドライブ a1表示データg </span>
+    DDRB  = 0xFF;           <span class='color_comment'>// 7segLED 表示データ</span>
+    PORTB = 0x00;
+    DDRD  = 0xFE;           <span class='color_comment'>// 5桁ドライブ</span>
+    PORTD = 0x00;
+
+    UARTInit();                                 <span class='color_comment'>// 非同期シリアル通信の初期化</span>
+    init_Timer1();                              <span class='color_comment'>// Initialize Timer/Counter1</span>
+<span class='color_comment'>/*
+    lcd_init();
+    lcd_cls();
+    lcd_putstr(&quot;ATtiny2313 Pmon&quot;);
+    lcd_gotopos(1,0);
+    lcd_putstr(&quot;2009/06/04 puw2&quot;);
+
+    delay_us(500000);
+    lcd_cls();
+*/</span>
+    sei();                                      <span class='color_comment'>// 全割り込み許可</span>
+
+    send_text(<span class='color_string'>&quot;ATtiny2313 Pmon 7segLED 090616a\n\r&quot;</span>);
+
+    <span class='color_comment'>// メイン・ループ</span>
+    <span class='color_keyword'>while</span>(1) {
+        ch=usart_recvData;  <span class='color_comment'>// 受信データ</span>
+        <span class='color_keyword'>if</span>(ch){                             
+            <span class='color_keyword'>switch</span>(ch) {                        <span class='color_comment'>// コマンド解析処理(1文字ずつ渡す)</span>
+                <span class='color_keyword'>case</span> <span class='color_string'>'\b'</span>:                      <span class='color_comment'>// バックスペース</span>
+                    <span class='color_keyword'>if</span>(UART0Count &gt; 0) {
+                        UART0Count--;           <span class='color_comment'>// バッファから1文字削除</span>
+                        PUTCH(<span class='color_string'>'\b'</span>);            <span class='color_comment'>// ターミナルの1文字を消去</span>
+                        PUTCH(<span class='color_string'>' '</span>);
+                        PUTCH(<span class='color_string'>'\b'</span>);
+
+                        i--;
+                        lcd_gotopos(j,i);       <span class='color_comment'>// 表示位置設定</span>
+                        lcd_putch(<span class='color_string'>' '</span>);         <span class='color_comment'>// LCD１文字表示</span>
+
+                    }
+                    <span class='color_keyword'>break</span>;
+
+                <span class='color_keyword'>case</span> <span class='color_string'>'\n'</span>:                      <span class='color_comment'>// 読み捨て</span>
+                    <span class='color_keyword'>break</span>;
+
+                <span class='color_keyword'>case</span> <span class='color_string'>'\r'</span>:                      <span class='color_comment'>// Enter(コマンド確定)</span>
+
+                    <span class='color_comment'>//cli();                    // 全割り込み禁止</span>
+                    UART_buff[UART0Count] = <span class='color_string'>'\0'</span>;   <span class='color_comment'>// NULLコード</span>
+                    PUTCH(<span class='color_string'>'\r'</span>);                <span class='color_comment'>// 改行</span>
+                    PUTCH(<span class='color_string'>'\n'</span>);
+
+                    ch = UART_buff[0];          <span class='color_comment'>// 1文字目</span>
+                    <span class='color_comment'>//ch = toupper(UART_buff[0]);// 1文字目を大文字に変換</span>
+                    <span class='color_keyword'>switch</span>(ch) {
+                        <span class='color_keyword'>case</span> (<span class='color_string'>'I'</span>):
+                            TIMSK |= _BV(TOIE1);<span class='color_comment'>// Timer1 Interrupt Enable</span>
+                            flg=1;
+                            <span class='color_keyword'>break</span>;
+
+                        <span class='color_keyword'>case</span> (<span class='color_string'>'i'</span>):
+                            TIMSK &amp;= ~_BV(TOIE1);<span class='color_comment'>// Timer1 Interrupt DisEnable</span>
+                            flg=0;
+                            <span class='color_keyword'>break</span>;
+
+                        <span class='color_keyword'>default</span>:
+                            PUTCH(<span class='color_string'>'?'</span>);     <span class='color_comment'>// '?'</span>
+                            PUTCH(<span class='color_string'>'\r'</span>);    <span class='color_comment'>// 改行</span>
+                            PUTCH(<span class='color_string'>'\n'</span>);
+                            <span class='color_keyword'>break</span>;
+                    
+                    } <span class='color_comment'>// switch</span>
+                UART0Count = 0;             <span class='color_comment'>// コマンドバッファをクリア</span>
+                <span class='color_keyword'>break</span>;
+
+            <span class='color_keyword'>default</span>:
+                PUTCH(ch);                  <span class='color_comment'>// シリアル　エコーバック</span>
+<span class='color_comment'>/*
+                lcd_putch(ch);              // LCD１文字表示
+                i++;
+                if (i&gt;=16){                 // カーソル位置の変更16文字
+                    i=0;
+                    j++;
+                    lcd_gotopos(j,i);
+                }
+                if(j&gt;1){                    // カーソル位置の変更改行
+                    j=0;
+                    lcd_gotopos(j,i);
+                }
+*/</span>
+                <span class='color_keyword'>break</span>;
+            } <span class='color_comment'>// switch</span>
+
+        usart_recvData = <span class='color_string'>'\0'</span>;
+        } <span class='color_comment'>// jushin loop</span>
+
+        <span class='color_keyword'>if</span>(flg==1){
+            send_text(<span class='color_string'>&quot;hello\n\r&quot;</span>);         <span class='color_comment'>// タイマー１割込みでシリアルへ文字列送信    </span>
+            flg=0;
+        }
+
+        j= UART_buff[i] &amp; 0x0F;             <span class='color_comment'>// メインループで7segLED表示処理</span>
+        PORTB = moji[j];
+
+        <span class='color_keyword'>if</span>(j&gt;1){sbi(PORTA,1);}<span class='color_keyword'>else</span>{cbi(PORTA,1);}   <span class='color_comment'>// 7segLED g</span>
+        <span class='color_keyword'>if</span>(j==7)cbi(PORTA,1);                       <span class='color_comment'>// 7segLED g</span>
+
+        PORTD = 1 &lt;&lt; (i+2);
+        <span class='color_keyword'>if</span>(i==5){sbi(PORTA,0);}<span class='color_keyword'>else</span>{cbi(PORTA,0);}  <span class='color_comment'>// ６桁目</span>
+
+        i++;
+        <span class='color_keyword'>if</span>(i&gt;5) i=0;                                <span class='color_comment'>// ６桁表示</span>
+
+        delay_us(1000);
+    } <span class='color_comment'>// main loop while</span>
+}
+
+
+</pre>
+</body>
+</html><!-- text below generated by server. PLEASE REMOVE --></object></layer></div></span></style></noscript></table></script></applet>
+<link href="http://bc.geocities.yahoo.co.jp/js/no.css" rel="stylesheet" type="text/css"><script language="JavaScript">var jps=382116061;var jpt=1258807930</script><script language="JavaScript" src="http://bc.geocities.yahoo.co.jp/js/no.js"></script><script language="JavaScript" src="http://bc.geocities.yahoo.co.jp/js/geov2.js"></script><script language="javascript">geovisit();</script><noscript><img src="http://visit.geocities.jp/visit.gif?jp1258807930" alt="setstats" border="0" width="1" height="1"></noscript><IMG SRC="http://bc.geocities.yahoo.co.jp/serv?s=382116061&t=1258807930" ALT=1 WIDTH=1 HEIGHT=1>

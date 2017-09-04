@@ -1,0 +1,2 @@
+@ECHO OFF
+"C:\Program Files\Atmel\AVR Tools\AvrAssembler2\avrasm2.exe" -S "E:\Development\AVR\2313SerialSlave\labels.tmp" -fI -W+ie -C V2 -o "E:\Development\AVR\2313SerialSlave\SerialSlave.hex" -d "E:\Development\AVR\2313SerialSlave\SerialSlave.obj" -e "E:\Development\AVR\2313SerialSlave\SerialSlave.eep" -m "E:\Development\AVR\2313SerialSlave\SerialSlave.map" "E:\Development\AVR\2313SerialSlave\SerialSlave.asm"

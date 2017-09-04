@@ -1,0 +1,26 @@
+%
+% レイアウト
+%
+%\setlength{\voffset}{-15mm}
+\setlength{\textheight}{220mm}
+\setlength{\textwidth}{150mm}
+\setlength{\oddsidemargin}{10mm}
+\setlength{\baselineskip}{8mm}
+\setlength{\topmargin}{6mm}
+\setlength{\headheight}{0mm}
+\setlength{\headsep}{0mm}
+\setlength{\footskip}{20mm}
+%
+% キャプションの変更
+%
+\long\def\@makecaption#1#2{
+ \vskip 10pt 
+ \setbox\@tempboxa\hbox{#1 #2}
+ \ifdim \wd\@tempboxa >\hsize #1 #2\par \else \hbox
+to\hsize{\hfil\box\@tempboxa\hfil} 
+ \fi}
+%
+%
+%
+
+%% end of AIthesis.sty

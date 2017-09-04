@@ -1,0 +1,162 @@
+\documentclass{AIabst}
+
+\usepackage{graphicx}
+% 論文概要
+\input personal
+\begin{document}
+\makeAbstHeader
+%
+%
+%
+\section{はじめに}
+% 本研究の背景
+事務管理業務では，
+運用のための規則が定められている．
+業務の従事者は，これを運用し続けるため，
+規則を修正・維持する必要があり，
+それを利用者に対し理解を促す作業が重要となる．
+しかし現実には，規則法規は規模が大きく，
+複雑かつ難解であり，様々な新制度や技術に対応するため
+変更も多く，利用者の理解を促す業務は後回しとなりがちである．
+その結果，運用が困難になり生じた問題を業務改善に
+生かすことが出来ず，業務効率の低下を引き起こす．\\
+% 本研究の目的
+　本研究では，従事者が規則や経験から抽象的な事例を作成し，
+C4.5の情報利得比基準\cite{quinlan}に基づく
+コンパクトな判別ダイヤグラムを作成する
+手法を提案する．これにより利用者にとって難解な手続きの
+内容を理解しやすくし，業務効率の向上に貢献する．
+
+%決定木と利得比基準の説明
+\section{決定木とC4.5の情報利得比基準}
+%決定木について
+本研究では，分類モデルを「決定木(Decision Tree)」\cite{BTree}
+%決定木学習はデータマイニングで良く用いられる方法でもある。
+%その場合、決定木は、葉が分類を表し、
+%枝がその分類に至るまでの特徴の集まりを
+%表すような木構造を示す.
+とよばれる形式で表現する手法を用いる．
+構造として，親ノードはテスト，
+子ノードはテストに対する答え，
+葉は各々クラス名を持つ．
+構造を決める重要な点は，どのテストから行えば，
+木の高さが小さくなるかということで，そのテストの
+選択に用いるのが「情報利得比基準」である．
+%利得比基準について
+これは，各属性をテストとして選んだときの情報量を計算し，
+テスト結果を伝えるメッセージの情報量について
+利得が最大になるものを選ぶ，という基準である\cite{quinlan}．
+
+%抽象事例設定から具体事例
+\section{抽象事例設定からC4.5決定木を作成}
+抽象事例とは，一部の属性値が任意である事例である．
+任意の属性に属性値を代入することで，
+全属性値が定まっている事例を得られる．
+これを具体事例という．
+まず抽象事例の作成方法は，\\[-7mm]
+\begin{enumerate}
+\item
+特に重視したい属性だけ値を代入したYes,Noの事例を作る．
+値を代入していない属性にはすべて'*'(任意)が入る．\\[-7mm]
+\item
+クラスの異なる抽象事例から，
+全属性値の同じ具体事例が得られる場合は，
+適切な属性値を代入し，矛盾を解消する．\\[-7mm]
+\end{enumerate}
+%抽象事例から具体事例へ
+となる．次に具体事例の作成で，
+属性は，t0=(OK,NG), t1=(1,2)とし，
+クラスは，C=(yes,no)をとる．
+表\ref{table:a}のような抽象事例を与えると，
+t0="OK"となる場合，Cは"yes"になる．
+また，t1="2"となる場合，Cは"no"となるが，
+矛盾が起きないようt0="NG"を代入している．
+この抽象事例から具体事例を生成すると，
+表\ref{table:b}のような３つの事例が生成されることになる．\\[-10mm]
+\begin{table}[htbp]
+\begin{minipage}{0.48\hsize}
+\begin{center}
+\caption{抽象事例}
+\begin{tabular}{|c|c|c|}
+\hline
+t0&t1&C\\ \hline
+OK&*&yes\\ \hline
+NG&2&no\\ \hline
+\end{tabular}
+\label{table:a}
+\end{center}
+\end{minipage}
+\begin{minipage}{0.48\hsize}
+\begin{center}
+\caption{具体事例}
+\begin{tabular}{|c|c|c|}
+\hline
+t0&t1&C\\ \hline
+OK&1&yes\\ \hline
+OK&2&yes\\ \hline
+NG&2&no\\ \hline
+\end{tabular}
+\label{table:b}
+\end{center}
+\end{minipage}
+\end{table}
+　\\[-10mm]
+%実験考察
+\section{実験と考察}
+授業料免除申請の受付を例として，抽象事例が
+出力された決定木に表れるか調べる．
+Yes事例を２つ，No事例をt3,4について値を入れ，
+５つの抽象事例から作成した結果が図1である．
+図1を見ると，抽象事例で与えたテストはより上位
+の質問になりやすいといえる．
+よって，抽象事例を作成した人の意図を反映した
+決定木を作成できるといえる．\\[-7mm]
+\begin{figure}[htbp]
+ \begin{center}
+  \includegraphics[width=80mm]{tree1.eps}
+ \end{center}
+ \label{fig:one}
+\end{figure}\\[-15mm]
+\begin{center}
+図1: 授業料免除申請の受付判定木
+\end{center}
+
+%まとめ
+\section{まとめ}
+本研究では，情報利得比基準を用いたテスト選択によって，
+与えた抽象事例を反映させた決定木を
+作成するシステムの開発を行った．
+実験により，その有用性も確かめられた．
+ただし，情報利得比基準では一つのテストの利得のみで，
+その部分木の大きさや重複は考えていない．
+よりコンパクトな図にするには，
+テストの組合せによるテストも考慮するべきであろう．
+
+%参考文献
+{\small
+\baselineskip 12pt
+\begin{thebibliography}{9}
+
+\bibitem{quinlan}
+{J.R.Quinlan 著, 
+\newblock 
+古川 康一 訳, 
+\newblock 
+AIによるデータ解析 (初版), 
+\newblock 
+株式会社トッパン, (1995).}
+
+\bibitem{BTree}
+{T. Menzies, Y. Hu, 
+\newblock
+Data Mining For Very Busy People. 
+\newblock
+IEEE Computer,
+\newblock
+pp. 18--25, 
+\newblock
+(2003).}
+\end{thebibliography}
+}
+\end{document}
+

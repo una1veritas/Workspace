@@ -1,0 +1,1 @@
+"C:\Program Files (x86)\Arduino-0022\hardware\tools\avr\bin\avrdude.exe" -C "C:\Program Files (x86)\Arduino-0022\hardware\tools\avr\etc\avrdude.conf" -cstk500v1 -b57600 -D -p %1 -P\\.\%2 -U flash:w:%3:i
