@@ -1,0 +1,72 @@
+#!/bin/bash
+
+echo -e "\nWindows binaries generator\n"
+
+(uname | grep -i "cygwin") || { echo -e "This script runs only under the cygwin environment\n(unix-like environment for windows) !!!\n"; exit 1; }
+
+echo
+echo "running"
+
+dest=winbinaries
+
+echo -e "\nremove directory $dest"
+rm -rf $dest
+echo "create $dest"
+mkdir $dest
+
+echo -e "\ncopy exe-files to $dest"
+strip cdm.exe
+cp -v cdm.exe $dest
+strip yaze_bin.exe
+cp -v yaze_bin.exe $dest
+
+echo -e "\ncopy cygwin1.dll"
+cp -v /bin/cygwin1.dll $dest
+
+echo -e "\ncopy batch and boot files to $dest"
+cp -v yaze.bat yaze-cpm3.boot yaze.boot $dest
+
+echo -e "\ncopy keytranslation files to $dest"
+cp -v *.ktt $dest
+
+echo -e "\nBegin copy disks to winbinaries"
+for ydsk in `cat doc_ydskfiles.txt` ; do
+   cp -v $ydsk $dest/$ydsk
+done
+rm disks_to_install
+
+echo "copy disksort"
+cp -av disksort $dest
+
+echo "copy .yazerc to $dest"
+cp .yazerc $dest
+
+echo "End copy disks"
+
+
+echo -e "\nBegin copy documentation"
+mkdir $dest/doc
+for dfile in `cat docfiles.txt` ; do
+   cp -v $dfile $dest/doc
+done
+echo "End copy documentation"
+
+echo -e "\nBegin copy HTML documentation"
+mkdir $dest/doc_html
+for dfile in `cat docfiles_html.txt` ; do
+   cp -v $dfile $dest/doc_html
+done
+
+echo -e "\nBegin copy HTML version of HELP.HLP"
+mkdir $dest/doc_html/cpmhelp
+for dfile in `cat doc_cpmhelp_html.txt` ; do
+   cp -v $dfile $dest/doc_html/cpmhelp
+done
+echo "End copy HTML documentation"
+
+echo -e "\ngenerate md5 checksumms"
+cp md5summer.exe $dest
+cd $dest
+find . -type f -exec md5sum -b {} >>../yaze.md5 \;
+cd ..
+mv yaze.md5 $dest
