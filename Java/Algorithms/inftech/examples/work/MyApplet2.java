@@ -1,0 +1,35 @@
+import java.applet.Applet;
+import java.awt.Graphics;
+
+/*
+  <applet code="MyApplet2" width=200 height=200>
+  </applet>
+  */
+public class MyApplet2 extends Applet {
+  int[] x = {50, 100, 150};
+  int[] y = {50, 100, 50};
+  Polygon p = new Polygon(x, y);
+  Square s = new Square(25, 25, 100);
+  RegularTriangle rt = new RegularTriangle(50, 50, 80);
+  Messenger m = new Messenger("receiver", "sender");
+  
+  public void paint(Graphics g) {
+    // Polygon
+    p.drawOn(g);
+    p.move(20, -15);
+    p.drawOn(g);
+
+    // Square
+    s.drawOn(g);
+    s.move(-15, 20);
+    s.drawOn(g);
+
+    // RegularTriangle
+    rt.drawOn(g);
+    rt.move(20, -10);
+    rt.drawOn(g);
+
+    // Messenger
+    g.drawString(m.sayHello(), 20, 100);
+  }
+}

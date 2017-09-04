@@ -1,0 +1,140 @@
+
+TLC5940Tiny.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         0000008c  00000000  00000000  00000054  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .debug_aranges 00000020  00000000  00000000  000000e0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  2 .debug_pubnames 0000002a  00000000  00000000  00000100  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  3 .debug_info   00000089  00000000  00000000  0000012a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_abbrev 00000054  00000000  00000000  000001b3  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_line   000000ed  00000000  00000000  00000207  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_frame  00000030  00000000  00000000  000002f4  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_str    0000009f  00000000  00000000  00000324  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	12 c0       	rjmp	.+36     	; 0x26 <__ctors_end>
+   2:	17 c0       	rjmp	.+46     	; 0x32 <__bad_interrupt>
+   4:	16 c0       	rjmp	.+44     	; 0x32 <__bad_interrupt>
+   6:	15 c0       	rjmp	.+42     	; 0x32 <__bad_interrupt>
+   8:	15 c0       	rjmp	.+42     	; 0x34 <__vector_4>
+   a:	13 c0       	rjmp	.+38     	; 0x32 <__bad_interrupt>
+   c:	12 c0       	rjmp	.+36     	; 0x32 <__bad_interrupt>
+   e:	11 c0       	rjmp	.+34     	; 0x32 <__bad_interrupt>
+  10:	10 c0       	rjmp	.+32     	; 0x32 <__bad_interrupt>
+  12:	0f c0       	rjmp	.+30     	; 0x32 <__bad_interrupt>
+  14:	0e c0       	rjmp	.+28     	; 0x32 <__bad_interrupt>
+  16:	0d c0       	rjmp	.+26     	; 0x32 <__bad_interrupt>
+  18:	0c c0       	rjmp	.+24     	; 0x32 <__bad_interrupt>
+  1a:	0b c0       	rjmp	.+22     	; 0x32 <__bad_interrupt>
+  1c:	0a c0       	rjmp	.+20     	; 0x32 <__bad_interrupt>
+  1e:	09 c0       	rjmp	.+18     	; 0x32 <__bad_interrupt>
+  20:	08 c0       	rjmp	.+16     	; 0x32 <__bad_interrupt>
+  22:	07 c0       	rjmp	.+14     	; 0x32 <__bad_interrupt>
+  24:	06 c0       	rjmp	.+12     	; 0x32 <__bad_interrupt>
+
+00000026 <__ctors_end>:
+  26:	11 24       	eor	r1, r1
+  28:	1f be       	out	0x3f, r1	; 63
+  2a:	cf ed       	ldi	r28, 0xDF	; 223
+  2c:	cd bf       	out	0x3d, r28	; 61
+  2e:	0f d0       	rcall	.+30     	; 0x4e <main>
+  30:	2b c0       	rjmp	.+86     	; 0x88 <_exit>
+
+00000032 <__bad_interrupt>:
+  32:	e6 cf       	rjmp	.-52     	; 0x0 <__vectors>
+
+00000034 <__vector_4>:
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+#include "wiring.h"
+
+ISR(TIMER1_COMPA_vect) {
+  34:	1f 92       	push	r1
+  36:	0f 92       	push	r0
+  38:	0f b6       	in	r0, 0x3f	; 63
+  3a:	0f 92       	push	r0
+  3c:	11 24       	eor	r1, r1
+	bitSet(PORTB,PB3);
+  3e:	c3 9a       	sbi	0x18, 3	; 24
+	asm("nop");
+  40:	00 00       	nop
+	bitClear(PORTB,PB3);
+  42:	c3 98       	cbi	0x18, 3	; 24
+}
+  44:	0f 90       	pop	r0
+  46:	0f be       	out	0x3f, r0	; 63
+  48:	0f 90       	pop	r0
+  4a:	1f 90       	pop	r1
+  4c:	18 95       	reti
+
+0000004e <main>:
+
+int main() {
+	//init
+	DDRD = 0x7f; // there is no pd7
+  4e:	8f e7       	ldi	r24, 0x7F	; 127
+  50:	81 bb       	out	0x11, r24	; 17
+	DDRB = 0xff;
+  52:	8f ef       	ldi	r24, 0xFF	; 255
+  54:	87 bb       	out	0x17, r24	; 23
+
+	TCCR0A |= 0b01<<COM0A0;
+  56:	80 b7       	in	r24, 0x30	; 48
+  58:	80 64       	ori	r24, 0x40	; 64
+  5a:	80 bf       	out	0x30, r24	; 48
+	bitSet(TCCR0A,WGM01);
+  5c:	80 b7       	in	r24, 0x30	; 48
+  5e:	82 60       	ori	r24, 0x02	; 2
+  60:	80 bf       	out	0x30, r24	; 48
+	TCCR0B = 0b001<<CS00;
+  62:	81 e0       	ldi	r24, 0x01	; 1
+  64:	83 bf       	out	0x33, r24	; 51
+	OCR0A = 4;
+  66:	84 e0       	ldi	r24, 0x04	; 4
+  68:	86 bf       	out	0x36, r24	; 54
+
+//	TCCR1A = (TCCR1A & ~(0b11<<COM1A0)) | (0b01 << COM1A0);
+	TCCR1B |= (1<<WGM12);
+  6a:	8e b5       	in	r24, 0x2e	; 46
+  6c:	88 60       	ori	r24, 0x08	; 8
+  6e:	8e bd       	out	0x2e, r24	; 46
+	TCCR1B |= (0b010<<CS10);
+  70:	8e b5       	in	r24, 0x2e	; 46
+  72:	82 60       	ori	r24, 0x02	; 2
+  74:	8e bd       	out	0x2e, r24	; 46
+	
+	OCR1AH = highByte(4096);
+  76:	80 e1       	ldi	r24, 0x10	; 16
+  78:	8b bd       	out	0x2b, r24	; 43
+	OCR1AL = lowByte(4096);
+  7a:	1a bc       	out	0x2a, r1	; 42
+
+	bitSet(TIMSK,OCIE1A);
+  7c:	89 b7       	in	r24, 0x39	; 57
+  7e:	80 64       	ori	r24, 0x40	; 64
+  80:	89 bf       	out	0x39, r24	; 57
+
+	sei();
+  82:	78 94       	sei
+	for (;;) {
+		asm("nop");
+  84:	00 00       	nop
+  86:	fe cf       	rjmp	.-4      	; 0x84 <main+0x36>
+
+00000088 <_exit>:
+  88:	f8 94       	cli
+
+0000008a <__stop_program>:
+  8a:	ff cf       	rjmp	.-2      	; 0x8a <__stop_program>

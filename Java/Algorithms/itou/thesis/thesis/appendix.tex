@@ -1,0 +1,251 @@
+%付録
+\documentclass[a4paper,12pt]{jreport}
+
+\usepackage{graphicx}
+\usepackage{AIthesis}
+
+\begin{document}
+
+\chapter*{システム使用書}
+本システムを使って，規則から決定木作成までに行う手順を
+「授業料免除制度の申請判定木」を例に説明する．
+プログラムの実行する際には，準備するものが２つあり，
+ひとつは文章で書かれた規則から抽出した抽象事例，
+もうひとつは，属性と属性値とクラスの関係を表した
+関係図である．
+%抽象事例の与え方
+\section*{抽象事例の設定方法}
+抽象事例を記述するためには，文章で書かれた規則から
+特徴を抽出しなければならない．
+用意するものが特徴として与える抽象事例で，
+これはテキストデータ(*.txt)で与えます．
+表4をテキストデータで書くと，表5になる．\\
+\begin{table}[htbp]
+\begin{center}
+表4 抽象事例\\
+\begin{tabular}{|c||c|c|c|c|}
+\hline
+&出席&課題&試験&クラス\\ \hline
+事例１&2/3以上&提出&60以上&合格\\ \hline
+事例２&2/3以上&提出&60未満&不合格\\ \hline
+事例３&2/3以上&不提出&*&不合格\\ \hline
+事例４&2/3未満&*&*&不合格\\ \hline
+\end{tabular}
+\end{center}
+\end{table}
+\begin{table}[htbp]
+\begin{center}
+表5 抽象事例を表したテキスト\\
+\begin{tabular}{|l|}
+\hline
+2/3以上　提出　60以上　合格\\
+2/3以上　提出　60未満　不合格\\
+2/3以上　不提出　*　不合格\\
+2/3未満　*　*　不合格\\ \hline
+\end{tabular}
+\end{center}
+\end{table}\\
+
+　まず属性と属性値とクラスの関係をmysqlを使用し，データベースに与える．
+表2のような属性と属性値とクラスの関係をデータベースに表したものが
+表3である．\\
+\begin{table}[htbp]
+\begin{minipage}{0.48\hsize}
+\begin{center}
+表2 属性と属性値とクラスの関係\\
+\begin{tabular}{|c||c|c|}
+\hline
+属性&出席&2/3未満，2/3以上\\ \hline
+属性&課題&不提出，提出\\ \hline
+属性&試験&60未満，60以上\\ \hline
+クラス&合否&合格，不合格\\ \hline
+\end{tabular}
+\end{center}
+\end{minipage}
+\begin{minipage}{0.48\hsize}
+\begin{center}
+表3 データベース化\\
+\begin{tabular}{|c||c|}
+\hline
+属性&属性値\\ \hline
+test0&2/3未満\\ \hline
+test0&2/3以上\\ \hline
+test1&不提出\\ \hline
+test1&提出\\ \hline
+test2&60未満\\ \hline
+test2&60以上\\ \hline
+test3&合格\\ \hline
+test3&不合格\\ \hline
+\end{tabular}
+\end{center}
+\end{minipage}
+\end{table}\\
+　以上のようなデータベースに格納した表3と，
+テキストデータの表5を与え，下記のようにプログラムを実行する．
+すると，自動的に決定木を作成する．
+\newpage
+\section*{実行例}
+表6の属性値の関係と，表7の抽象事例をについて実際に実行する．\\
+\begin{table}[htbp]
+\begin{center}
+実行コマンド\\
+\begin{tabular}{|c|}
+\hline
+$\gg$ java BTree [データベース名] [テキストファイル名]\\ \hline
+\end{tabular}
+\end{center}
+\end{table}\\[-10mm]
+\begin{table}[htbp]
+\begin{center}
+表6 属性と属性値とクラス\\
+\begin{tabular}{|c||l|}
+\hline
+休学(test0)&はい，いいえ\\ \hline
+回生(test1)&4以下，5以上\\ \hline
+理由(test2)&半年以内，1年以内，数年，なし\\ \hline
+留年(test3)&はい，いいえ\\ \hline
+新入生(test4)&はい，いいえ\\ \hline
+申請(test5)&[ 申請可，申請不可 ]\\ \hline
+\end{tabular}
+\end{center}
+\end{table}\\[-10mm]
+\begin{table}[htbp]
+\begin{center}
+表7 抽象事例\\
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+休学&回生&理由&留年&新入生&クラス\\ \hline \hline
+*&*&1年以内&*&はい&申請可\\ \hline
+いいえ&4以内&半年以内&いいえ&*&申請可\\ \hline
+はい&*&*&*&*&申請不可\\ \hline
+*&5以上&*&*&いいえ&申請不可\\ \hline
+*&*&なし&*&*&申請不可\\ \hline
+*&*&*&はい&いいえ&申請不可\\ \hline
+\end{tabular}
+\end{center}
+\end{table}\\
+実行例\\
+$\gg$ java BTree db11 Rule11-3.txt\\
+　①DBより事例集合を読み込みます。\\
+Arr-0:no Under-4 Under-Half no yes yes\\
+Arr-1:no Under-4 Under-Half no no yes\\
+Arr-2:yes Under-4 Under-Year yes yes yes\\
+Arr-3:yes Under-4 Under-Year no yes yes\\
+Arr-4:yes Over-5 Under-Year yes yes yes\\
+Arr-5:yes Over-5 Under-Year no yes yes\\
+Arr-6:no Under-4 Under-Year yes yes yes\\
+Arr-7:no Under-4 Under-Year no yes yes\\
+Arr-8:no Over-5 Under-Year yes yes yes\\
+Arr-9:no Over-5 Under-Year no yes yes\\
+Arr-10:yes Over-5 Under-Half yes no no\\
+Arr-11:yes Over-5 Under-Half no no no\\
+Arr-12:yes Over-5 Under-Year yes no no\\
+Arr-13:yes Over-5 Under-Year no no no\\
+Arr-14:yes Over-5 Over-Year yes no no\\
+Arr-15:yes Over-5 Over-Year no no no\\
+Arr-16:yes Over-5 Not-happen yes no no\\
+Arr-17:yes Over-5 Not-happen no no no\\
+Arr-18:no Over-5 Under-Half yes no no\\
+Arr-19:no Over-5 Under-Half no no no\\
+Arr-20:no Over-5 Under-Year yes no no\\
+Arr-21:no Over-5 Under-Year no no no\\
+Arr-22:no Over-5 Over-Year yes no no\\
+Arr-23:no Over-5 Over-Year no no no\\
+Arr-24:no Over-5 Not-happen yes no no\\
+Arr-25:no Over-5 Not-happen no no no\\
+Arr-26:yes Under-4 Under-Half yes no no\\
+Arr-27:yes Under-4 Under-Year yes no no\\
+Arr-28:yes Under-4 Over-Year yes no no\\
+Arr-29:yes Under-4 Not-happen yes no no\\
+Arr-30:yes Over-5 Under-Half yes no no\\
+Arr-31:yes Over-5 Under-Year yes no no\\
+Arr-32:yes Over-5 Over-Year yes no no\\
+Arr-33:yes Over-5 Not-happen yes no no\\
+Arr-34:no Under-4 Under-Half yes no no\\
+Arr-35:no Under-4 Under-Year yes no no\\
+Arr-36:no Under-4 Over-Year yes no no\\
+Arr-37:no Under-4 Not-happen yes no no\\
+Arr-38:no Over-5 Under-Half yes no no\\
+Arr-39:no Over-5 Under-Year yes no no\\
+Arr-40:no Over-5 Over-Year yes no no\\
+Arr-41:no Over-5 Not-happen yes no no\\
+Arr-42:yes Under-4 Under-Half yes yes no\\
+Arr-43:yes Under-4 Under-Half yes no no\\
+Arr-44:yes Under-4 Under-Half no yes no\\
+Arr-45:yes Under-4 Under-Half no no no\\
+Arr-46:yes Under-4 Under-Year yes yes no\\
+Arr-47:yes Under-4 Under-Year yes no no\\
+Arr-48:yes Under-4 Under-Year no yes no\\
+Arr-49:yes Under-4 Under-Year no no no\\
+Arr-50:yes Under-4 Over-Year yes yes no\\
+Arr-51:yes Under-4 Over-Year yes no no\\
+Arr-52:yes Under-4 Over-Year no yes no\\
+Arr-53:yes Under-4 Over-Year no no no\\
+Arr-54:yes Under-4 Not-happen yes yes no\\
+Arr-55:yes Under-4 Not-happen yes no no\\
+Arr-56:yes Under-4 Not-happen no yes no\\
+Arr-57:yes Under-4 Not-happen no no no\\
+Arr-58:yes Over-5 Under-Half yes yes no\\
+Arr-59:yes Over-5 Under-Half yes no no\\
+Arr-60:yes Over-5 Under-Half no yes no\\
+Arr-61:yes Over-5 Under-Half no no no\\
+Arr-62:yes Over-5 Under-Year yes yes no\\
+Arr-63:yes Over-5 Under-Year yes no no\\
+Arr-64:yes Over-5 Under-Year no yes no\\
+Arr-65:yes Over-5 Under-Year no no no\\
+Arr-66:yes Over-5 Over-Year yes yes no\\
+Arr-67:yes Over-5 Over-Year yes no no\\
+Arr-68:yes Over-5 Over-Year no yes no\\
+Arr-69:yes Over-5 Over-Year no no no\\
+Arr-70:yes Over-5 Not-happen yes yes no\\
+Arr-71:yes Over-5 Not-happen yes no no\\
+Arr-72:yes Over-5 Not-happen no yes no\\
+Arr-73:yes Over-5 Not-happen no no no\\
+Arr-74:yes Under-4 Not-happen yes yes no\\
+Arr-75:yes Under-4 Not-happen yes no no\\
+Arr-76:yes Under-4 Not-happen no yes no\\
+Arr-77:yes Under-4 Not-happen no no no\\
+Arr-78:yes Over-5 Not-happen yes yes no\\
+Arr-79:yes Over-5 Not-happen yes no no\\
+Arr-80:yes Over-5 Not-happen no yes no\\
+Arr-81:yes Over-5 Not-happen no no no\\
+Arr-82:no Under-4 Not-happen yes yes no\\
+Arr-83:no Under-4 Not-happen yes no no\\
+Arr-84:no Under-4 Not-happen no yes no\\
+Arr-85:no Under-4 Not-happen no no no\\
+Arr-86:no Over-5 Not-happen yes yes no\\
+Arr-87:no Over-5 Not-happen yes no no\\
+Arr-88:no Over-5 Not-happen no yes no\\
+Arr-89:no Over-5 Not-happen no no no\\ \\
+(0)の種類と数: yes(60)  no(30)\\
+(1)の種類と数: Under-4(38)  Over-5(52)\\
+(2)の種類と数: Under-Half(18)  Under-Year(24)  Over-Year(16)  Not-happen(32)\\
+(3)の種類と数: yes(52)  no(38)\\
+(4)の種類と数: yes(33)  no(57)\\
+(5)の種類と数: yes(10)  no(80)\\
+
+②事例集合より木を作成します。\\
+ ((( 中略 )))
+③決定木を表示します。\\
+\hspace{3em}(Decition Tree!) \\ \\
+Root-(test4:node:90)\\
+\hspace{4em}Ｌyes(test2:node:33)\\
+\hspace{8em}ＬUnder-Half(test0:node:5)\\
+\hspace{12em}Ｌyes(no:4)\\
+\hspace{12em}Ｌno(yes:1)\\
+\hspace{8em}ＬUnder-Year(test0:node:12)\\
+\hspace{12em}Ｌyes(no:8)\\
+\hspace{12em}Ｌno(yes:4)\\
+\hspace{8em}ＬOver-Year(no:4)\\
+\hspace{8em}ＬNot-happen(no:12)\\
+\hspace{4em}Ｌno(test0:node:57)\\
+\hspace{8em}Ｌyes(no:36)\\
+\hspace{8em}Ｌno(test1:node:21)\\
+\hspace{12em}ＬUnder-4(test3:node:7)\\
+\hspace{16em}Ｌyes(no:5)\\
+\hspace{16em}Ｌno(test2:node:2)\\
+\hspace{20em}ＬUnder-Half(yes:1)\\
+\hspace{20em}ＬNot-happen(no:1)\\
+\hspace{12em}ＬOver-5(no:14)\\
+
+\end{document}

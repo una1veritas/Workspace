@@ -1,0 +1,77 @@
+count_offence:0
+valuate:757
+
+•]‰¿SQL
+select sum(num) as penalties from (select a.processor_id,b.employment,count(*),b.project_id,b.total_periods_lb,IF(a.processor_id is null,b.total_periods_lb, (CAST(b.total_periods_lb AS SIGNED) - count(*))) as num from timetablesql a right join processor_properties b on a.processor_id = b.processor_id group by a.processor_id ,b.processor_id, b.total_periods_lb having b.project_id = 1 and (((CAST(b.total_periods_lb AS SIGNED) - count(*)) > 0) or a.processor_id IS NULL)) as t where t.employment = 1
+•]‰¿’l:0
+
+•]‰¿SQL
+select sum(num) as penalties from (select a.processor_id,b.employment,count(*),b.project_id,b.total_periods_lb,IF(a.processor_id is null,b.total_periods_lb, (CAST(b.total_periods_lb AS SIGNED) - count(*))) as num from timetablesql a right join processor_properties b on a.processor_id = b.processor_id group by a.processor_id ,b.processor_id, b.total_periods_lb having b.project_id = 1 and (((CAST(b.total_periods_lb AS SIGNED) - count(*)) > 0) or a.processor_id IS NULL)) as t where t.employment = 2
+•]‰¿’l:600
+
+•]‰¿SQL
+select sum(num) as penalties from (select a.processor_id,b.employment,count(a.processor_id),b.total_periods_ub,(count(a.processor_id) - CAST(b.total_periods_ub AS SIGNED)) as num from timetablesql a, processor_properties b where a.processor_id = b.processor_id group by a.processor_id,b.total_periods_ub having count(a.processor_id) - CAST(b.total_periods_ub AS SIGNED) > 0) as t where t.employment = 2
+•]‰¿’l:0
+
+•]‰¿SQL
+select (count(a.task_id)-40) as penalties from timetablesql a,processor_properties b where b.employment = 2 and a.processor_id = b.processor_id having count(a.processor_id) > 40
+•]‰¿’l:0
+
+•]‰¿SQL
+select sum(over) as penalties from (select processor_id,employment,total_days_ub,count(processor_id) as days , count(processor_id) - CAST(total_days_ub AS SIGNED) as over from (select a.processor_id ,c.employment,c.total_days_ub , b.day_id , count(a.processor_id) from timetablesql a , period_properties b , processor_properties c where a.period_id = b.period_id and a.processor_id = c.processor_id group by a.processor_id ,c.employment, c.total_days_ub , b.day_id) as t group by processor_id,total_days_ub having count(processor_id) - CAST(total_days_ub AS SIGNED) > 0) as a where a.employment = 2
+•]‰¿’l:50
+
+•]‰¿SQL
+set @m:=(select count(processor_id) from timetablesql)
+select (@m-count(a.processor_id)) as penalties from timetablesql a , processor_qualification b , task_properties c where c.qualification_id = b.qualification_id and a.processor_id = b.processor_id and a.task_id = c.task_id
+•]‰¿’l:0
+
+•]‰¿SQL
+create temporary table a  select a.task_id , a.period_id , a.processor_id , c.employment , b.day_id ,b.hour_id, d.number from timetablesql a , period_properties b , processor_properties c ,hours d where b.hour_id = d.hour_id and a.period_id = b.period_id and a.processor_id = c.processor_id
+create temporary table b  select * from a
+create temporary table t  select * from a
+•]‰¿’l:0
+
+•]‰¿SQL
+select count(*) as penalties from (select a.processor_id , a.employment from a , b  where not exists(select period_id from t where a.number = t.number-1 and a.day_id = t.day_id and a.processor_id = t.processor_id) and a.processor_id = b.processor_id and a.number = b.number - 2 and a.day_id = b.day_id) as c where c.employment = 1
+select count(*)*2 as penalties from (select a.processor_id , a.employment from a , b  where not exists(select period_id from t where (a.number = t.number-1 or a.number = t.number-2) and a.day_id = t.day_id and a.processor_id = t.processor_id) and a.processor_id = b.processor_id and a.number = b.number - 3 and a.day_id = b.day_id) as c where c.employment = 1
+select count(*)*3 as penalties from (select a.processor_id , a.employment from a , b  where not exists(select period_id from t where (a.number = t.number-1 or a.number = t.number-2 or a.number = t.number-3) and a.day_id = t.day_id and a.processor_id = t.processor_id) and a.processor_id = b.processor_id and a.number = b.number - 4 and a.day_id = b.day_id) as c where c.employment = 1
+•]‰¿’l:5
+
+•]‰¿SQL
+select count(*) as penalties from (select a.processor_id , a.employment from a , b  where not exists(select period_id from t where a.number = t.number-1 and a.day_id = t.day_id and a.processor_id = t.processor_id) and a.processor_id = b.processor_id and a.number = b.number - 2 and a.day_id = b.day_id) as c where c.employment = 2
+select count(*)*2 as penalties from (select a.processor_id , a.employment from a , b  where not exists(select period_id from t where (a.number = t.number-1 or a.number = t.number-2) and a.day_id = t.day_id and a.processor_id = t.processor_id) and a.processor_id = b.processor_id and a.number = b.number - 3 and a.day_id = b.day_id) as c where c.employment = 2
+select count(*)*3 as penalties from (select a.processor_id , a.employment from a , b  where not exists(select period_id from t where (a.number = t.number-1 or a.number = t.number-2 or a.number = t.number-3) and a.day_id = t.day_id and a.processor_id = t.processor_id) and a.processor_id = b.processor_id and a.number = b.number - 4 and a.day_id = b.day_id) as c where c.employment = 2
+•]‰¿’l:0
+
+•]‰¿SQL
+drop table a
+drop table b
+drop table t
+•]‰¿’l:0
+
+•]‰¿SQL
+select sum(num) as penalties from (select b.required_processors_ub,a.period_id,count(a.task_id)-CAST(b.required_processors_ub AS SIGNED) as num from timetablesql a, task_properties b where a.task_id = b.task_id group by a.task_id,b.required_processors_ub,a.period_id having count(a.task_id) > CAST(b.required_processors_ub AS SIGNED)) as t
+•]‰¿’l:0
+
+•]‰¿SQL
+select sum(num) as penalties from (select b.required_processors_lb,a.period_id,CAST(b.required_processors_lb AS SIGNED)-count(a.task_id) as num from timetablesql a, task_properties b where a.task_id = b.task_id group by a.task_id,b.required_processors_lb,a.period_id having CAST(b.required_processors_lb AS SIGNED) > count(a.task_id)) as t
+•]‰¿’l:0
+
+•]‰¿SQL
+select sum(num) as penalties from (select b.total_periods_ub,(count(a.processor_id) - CAST(b.total_periods_ub AS SIGNED)) as num from timetablesql a, processor_properties b where a.processor_id = b.processor_id and b.employment = 1 group by a.processor_id,b.total_periods_ub having count(a.processor_id) > CAST(b.total_periods_ub AS SIGNED)) as t
+•]‰¿’l:0
+
+•]‰¿SQL
+select sum(over) as penalties from (select total_days_ub,(count(processor_id) - CAST(total_days_ub AS SIGNED)) as over from (select a.processor_id ,c.total_days_ub , b.day_id from timetablesql a , period_properties b , processor_properties c where a.period_id = b.period_id and a.processor_id = c.processor_id and c.employment = 1 group by a.processor_id , c.total_days_ub , b.day_id) as t group by processor_id,total_days_ub having count(processor_id) > CAST(total_days_ub AS SIGNED)) as a
+•]‰¿’l:0
+
+•]‰¿SQL
+select sum(5) as penalties from timetablesql a,processor_schedules b where a.period_id = b.period_id and a.processor_id = b.processor_id and b.preferred_level_proc = 1
+select sum(2) as penalties from timetablesql a,processor_schedules b where a.period_id = b.period_id and a.processor_id = b.processor_id and b.preferred_level_proc = 2
+•]‰¿’l:102
+
+•]‰¿SQL
+select sum(num) as penalties from (select (count(*)-1) as num from (select a.task_id ,a.period_id, b.group_id from timetablesql a, task_exclusion_group b where a.task_id = b.task_id group by a.task_id,a.period_id) as t group by group_id,period_id having count(*) > 1) as t2
+•]‰¿’l:0
+

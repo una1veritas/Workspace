@@ -1,0 +1,60 @@
+#include <iostream.h>
+#include "Behavior.h"
+#include "String.h"
+//#include "Set.h"
+
+main() {
+  behavior * o;
+  String s, t, u("a test.");
+  char c;
+  const String cs("This is a constant!");
+  int i;
+  Set * set;
+
+  t = (s = "That's a good idea.").copyFrom_to(3,12);
+
+  cerr << s << "\t" << t << "\n";
+  cerr << s + t << "\n";
+
+  u += "Is there any spaces? ";
+  u += cs;
+  u[0] = '*';
+
+  cerr << cs << '\n';
+  cerr << cs.hash() << '\n';
+  cerr << u << '\n';
+  cerr << (cs == u) << "\n";
+  u = "This is a constant!";
+  cerr << (cs == u) << "\n";
+
+//  while (!u.contains("end")) {
+//    cin >> u;
+//    cin.get(c);
+//    cerr << "hash(\"" << u << "\") = " << u.hash() << "\n";
+//  }
+
+  o = new String("Is there?");
+  cerr << *o << "\n";
+  u = "Is there?";
+  cerr << (String(*o) == (String) u) << "\n";
+/*
+  set = new Set();
+
+  set->add(*o);
+  set->add(cs);
+  set->add(s);
+  set->add(t);
+  set->add(u);
+  set->add(*(new String("Zooo!")));
+  set->add(*(new String("Zooo!")));
+  set->add(u);
+  set->add(s);
+  set->add(*(new String("Zooo!")));
+  set->add(*(new String("Zooo!")));
+
+  cerr << set->size() << "\n";
+  cerr << set->includes(*(new String("This is a constant!"))) << "\n";
+
+  cerr << *set << "\n";
+*/
+}

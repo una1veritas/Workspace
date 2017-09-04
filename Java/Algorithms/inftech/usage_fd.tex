@@ -1,0 +1,47 @@
+\documentclass[11pt]{jarticle}
+\setlength{\oddsidemargin}{20pt}
+\setlength{\textwidth}{420pt}
+
+\begin{document}
+
+\section*{Linux ファイルを DOS/V で読み書きできるフロッピーディスクに保存するには}
+
+\begin{enumerate}
+\item
+DOS/V フォーマット済の 1.44MB フロッピーディスクをディスクドライブに挿入します。
+(空のディスクでなくてもかまいません。)
+なければ、Linux のコマンドを使ってまず物理フォーマットをします。
+ディスクをドライブに挿入し、
+\begin{quote}
+\verb$fdformat /dev/fd0$ \ \fbox{Return}
+\end{quote}
+を実行します。
+物理フォーマットが終ったら、DOS/V で読み書きできるように論理フォーマットをコマンド
+\begin{quote}
+\verb$mkdosfs /dev/df0$ \ \fbox{Return}
+\end{quote}
+で行います。
+物理フォーマットと論理フォーマットが行われたディスクは、内容がすべて消去されたフォーマット済ディスクとなります。
+\item
+フロッピーディスクをディレクトリ \verb$/mnt/floppy$ として使えるよう Linux のファイルシステムとしてマウントします。
+コマンド
+\begin{quote}
+\verb$mount /mnt/floppy$ \ \fbox{Return}
+\end{quote}
+を実行します。
+エラーメッセージが出なければ、フロッピーディスクが \verb$/mnt/floppy$ として使えるようになっているはずです。
+普通に \verb$cp$ や \verb$mv$ などでファイルを移動できます。
+
+※マウントが成功していれば、\verb$df$ コマンド得られるファイルシステムのリストに \verb$/dev/fd0$ とそのマウント先 \verb$/mnt/floppy$ のエントリーがあるはずです。
+\item
+フロッピーディスクを取り出すには、まず
+\begin{quote}
+\verb$umount /mnt/floppy$ \ \fbox{Return}
+\end{quote}
+コマンドを実行して、ディスクを Linux ファイルシステムからはずします。
+その後、ディスクドライブのイジェクトボタンを押してディスクを取り出します。
+このディスクは、DOS/V パソコン (Windows) で読み書きすることができます。
+
+※アンマウント(ファイルシステムからとりはずすこと)が成功していれば、\verb$df$ コマンド得られるリストから \verb$/dev/fd0$ とそのマウント先 \verb$/mnt/floppy$ のエントリーがなくなっているずです。
+\end{enumerate}
+\end{document}

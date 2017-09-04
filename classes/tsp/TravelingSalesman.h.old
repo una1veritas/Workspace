@@ -1,0 +1,351 @@
+#ifndef header_TravelingSalesman
+#define header_TravelingSalesman
+
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
+
+#include "Generic.h"
+#include "Point.h"
+#include "Graph.h"
+
+class TravelingSalesman : public Generic {
+  
+ protected:
+  Point * cities;
+  int count; 
+  
+ public:
+  TravelingSalesman(int n) {
+    cities = new Point[n];
+    basic_size = n;
+    count = 0;
+  }
+  
+  TravelingSalesman(int n, Point lowleft, Point upright) {
+    int i, x, y;
+    time_t currtime;
+    cities = new Point[n];
+    basic_size = n;
+    count = 0;
+    time(&currtime);
+    srand(currtime);
+    i = 0;
+    while (i < n) {
+      x = lowleft.x + rand() % (upright.x - lowleft.x);
+      y = lowleft.y + rand() % (upright.y - lowleft.y);
+      // cerr << i << ": " << x << ", " << y << '\n';
+      // cerr.flush();
+      appendCity(x,y);
+      i++;
+    }
+  }
+  
+ public:
+  // accessing;
+  int appendCity(int x,int y) {
+    int i; 
+    if (!( count < basic_size)) return 0;
+    for (i = 0; i++; i < count) 
+      if (cities[i].x == x && cities[i].y == y) return 0;
+    cities[count].x = x;
+    cities[count].y = y;
+    count++;
+    return 1;
+  }
+
+  int size(void) {
+    return count;
+  }
+
+  Point city(int i) {
+    return cities[i];
+  }
+
+  float tourLength(int * tour) {
+    int i;
+    float sum = 0;
+    for (i=0; i < count-1; i++) 
+      sum += cities[tour[i]].distanceTo(cities[tour[i+1]]);
+    return sum + cities[tour[count-1]].distanceTo(cities[tour[0]]);
+  }
+  
+  // finding tour; 
+
+  void divide_and_sort(int * tour, float factor = 2.0) {
+    Point ll, ur, rectll, rectur;
+    int i, j, swap, * lx, * ly;
+    int divnum, ww, wh, tw, th, direction;
+    float tmp;
+    struct {
+      float x, y; 
+    } fll, fur;
+
+    // find the bounding box; 
+    ll = cities[0]; ur = cities[0]; 
+    for (i=0; i < count; i++) {
+      ll.x = (cities[i].x > ll.x)? ll.x : cities[i].x;
+      ll.y = (cities[i].y > ll.y)? ll.y : cities[i].y;
+      ur.x = (cities[i].x > ur.x)? cities[i].x : ur.x;
+      ur.y = (cities[i].y > ur.y)? cities[i].y : ur.y;
+    }
+    // cerr << "Bounding box: " << ll.x << ", " << ll.y << " <-> " 
+      // << ur.x << ", " << ur.y << '\n';
+
+    // sort the lists; 
+    lx = new int[count]; ly = new int[count];
+    for (i = 0; i < count; i++) {
+      lx[i] = i; ly[i] = i;
+    }
+    regulateLists(lx,ly,count);
+    for (i = count-1; i > 0; i--) {
+      swap = lx[i]; lx[i] = lx[0]; lx[0] = swap;
+      swap = ly[i]; ly[i] = ly[0]; ly[0] = swap;
+      regulateLists(lx,ly,i,0);
+    }
+    /*
+       cerr << "X-axis: ";
+       for (i=0; i < count; i++) cerr << cities[lx[i]].x << ", ";
+       cerr << "\nY-axis: ";
+       for (i=0; i < count; i++) cerr << cities[ly[i]].y << ", ";
+       cerr << "\n";
+       */
+    // find the patition number; 
+    tmp = (float) sqrt(count) / factor; 
+    divnum = ( tmp > ((float) (int) tmp) )? (int) (tmp+1) : (int) tmp;
+    // cerr << "partition num.: " << divnum << "\n";
+
+    // make the tour;
+    wh = (ur.y - ll.y) / (2*divnum) 
+      + ( ((ur.y - ll.y) % (2*divnum) > 0)? 1 : 0 ); 
+    tw = (ur.x - ll.x) / (2*divnum)
+      + ( ((ur.x - ll.x) % (2*divnum) > 0)? 1 : 0) ;
+    ww = (ur.x - ll.x) - tw;
+    th = (ur.y - ll.y);
+
+    rectur.y = ur.y ;
+    rectur.x = ll.x + ww;
+    rectll.y = ur.y - wh;
+    rectll.x = ll.x;
+    for (i = 0; i < 2*divnum ; i++) {
+      // R_i;
+      // cerr << i << "th rect: " << rectll << " - " << rectur << "\n";
+      // make right-to-left path in rectll - rectur;
+      if ( i % 2 ) {
+	j = 0; direction = 1;
+      } else {
+	j = count - 1; direction = -1;
+      }
+      for ( ; 0 <= j && j < count; j = j+direction) {
+	if ( cities[lx[j]] <= rectur &&
+	    rectll <= cities[lx[j]] ) {
+	  *tour = lx[j];
+	  tour++;
+	}
+      }
+      rectur.y = rectll.y - 1; 
+      rectll.y = rectll.y - wh;
+    }
+    // R_2k+1;
+    rectur.y = ur.y;
+    rectur.x = ur.x;
+    rectll.y = ll.y;
+    rectll.x = ll.x + ww + 1;
+    // cerr << ++i << "th rect: " << rectll << " - " << rectur << "\n";
+    // make bottom-to-top path in rectll - rectur;
+    for (j=0; j < count; j++) {
+      if ( cities[ly[j]] <= rectur &&
+	  rectll <= cities[ly[j]] ) {
+	*tour = ly[j];
+	tour++;
+      }
+    }
+    return;
+  }
+
+  void nearest_neighbor(int * tour) {
+    int curr, nearest, i, j;
+    float distance; 
+    Set * visited;
+
+    visited = new Set(count+1);
+    curr = 0; 
+    visited->add(curr);
+    *tour = curr;
+    tour++;
+    while ( visited->size() < count) {
+      nearest = -1; distance = 0;
+      for (i = 0; i < count; i++) {
+	if (! visited->includes(i) )
+	  if ( (nearest == -1) ||
+	      distance > cities[curr].distanceTo(cities[i]) ) {
+	    nearest = i;
+	    distance = cities[curr].distanceTo(cities[i]);
+	  }
+      }
+      *tour = nearest;
+      tour++;
+      visited->add(nearest);
+      curr = nearest;
+    }
+
+    delete visited;
+    return;
+  }
+
+  void doubleSpanningTree(int * tour) {
+    int * closest;
+    Graph tree(count);
+    float min;
+    int i, j, next, current, returning;
+    
+    // find min. spanning tree;
+    closest = new int [count];
+    for (i=0; i < count; i++) 
+      closest[i] = 0;
+
+    tree.addNode(0);
+    while ( true ) {
+      if ( tree.nodeSize() == count ) break;
+      min = -1;
+      for (i = 0; i < count; i++) {
+	if (! tree.hasNode(i) )
+	  if ( min == -1 ||
+	      cities[i].distanceTo(cities[closest[i]]) < min ) {
+	    min = cities[i].distanceTo(cities[closest[i]]);
+	    next = i;
+	  }
+      }
+      tree.addNode(next);
+      tree.addEdge(next,closest[next]);
+      tree.addEdge(closest[next],next);
+      for (i = 0; i < count; i++) {
+	if (! tree.hasNode(i) ) {
+	  if ( cities[i].distanceTo(cities[closest[i]]) 
+	      > cities[i].distanceTo(cities[next]) ) {
+	    closest[i] = next;
+	  }
+	}
+      }
+    }
+    //cerr << tree << "\n";
+    //cerr.flush();
+    current = 0;
+    for (i=0; i < count; i++) 
+      closest[i] = false;
+    *tour = current;
+    tour++;
+    while ( tree.edgeSize() > 0 ) {
+      min = -1;
+      returning = true;
+      for (i = 0; i < tree.nodeSize() ; i++) {
+	if (! tree.hasEdge(current, i) )
+	  continue;
+	if ( returning && tree.hasEdge(i, current) ) {
+	  returning = false;
+	  next = i;
+	  min = cities[current].distanceTo(cities[i]);
+	  continue;
+	}
+	if ( min == -1 ) {
+	  next = i;
+	  min = cities[current].distanceTo(cities[i]);
+	  continue;
+	}
+	if ( min > cities[current].distanceTo(cities[i]) ) {
+	  if (returning) {
+	    next = i;
+	    min = cities[current].distanceTo(cities[i]);
+	  } else {
+	    if ( tree.hasEdge(i,current) ) {
+	      next = i;
+	      min = cities[current].distanceTo(cities[i]);
+	    }
+	  }
+	}
+      }
+      if ( !returning ) {
+	*tour = next;
+	tour++;
+	// cout << current << " -> " << next << ", "; 
+	// cout.flush();
+      } else {
+	// cout << "(" << current << " -> " << next << "), "; 
+	// cout.flush();
+      }
+      tree.removeEdge(current,next);
+      current = next;
+    }    
+    //    cerr << "\n";
+    delete closest;
+    return;
+  }
+  
+  
+ private:
+  // support for finding tour;
+  void regulateLists(int * lx, int * ly, int bound) {
+    int startoff, swap, i;
+    
+    for (startoff  = 0; startoff*2 < bound; startoff = startoff*2+1) ; 
+    // if ( startoff == 0 ) return;
+    // cerr << "bound: " << bound << ", start: " << startoff << ".\n";
+    do {
+      startoff = startoff/2;
+      for (i = startoff; i*2+1 < bound ; i++) 
+	regulateLists(lx,ly,bound,i);
+    } while(startoff != 0); 
+    return;
+  }
+
+  void regulateLists(int * lx, int * ly, int bound, int root) {
+    int i, tc, swap;
+    
+    i = root; 
+    while( i*2+1 < bound ) {
+      if ( i*2+1 < bound && i*2+2 < bound ) {
+	if (cities[lx[i*2+1]].x < cities[lx[i*2+2]].x)
+	  tc = i*2+2;
+	else
+	  tc = i*2+1;
+      } else {
+	tc = i*2+1;
+      }
+      if ( cities[lx[i]].x >= cities[lx[tc]].x )
+	break;
+      swap = lx[i]; lx[i] = lx[tc] ; lx[tc] = swap;
+      i = tc;
+    }
+    i = root; 
+    while( i*2+1 < bound ) {
+      if ( i*2+1 < bound && i*2+2 < bound ) {
+	if (cities[ly[i*2+1]].y < cities[ly[i*2+2]].y)
+	  tc = i*2+2;
+	else
+	  tc = i*2+1;
+      } else {
+	tc = i*2+1;
+      }
+      if ( cities[ly[i]].y >= cities[ly[tc]].y )
+	break;
+      swap = ly[i]; ly[i] = ly[tc] ; ly[tc] = swap;
+      i = tc;
+    }
+    return;
+  }
+  
+  
+ public:
+  // printing;
+  ostream& printOn(ostream& stream) const {
+    int i;
+    stream << "totally " << count << " cities;\n";
+    for (i=0; i < count; i++) {
+      stream << i << ", " << cities[i] << '\n';
+    }
+    return stream; 
+  }
+  
+};
+
+#endif

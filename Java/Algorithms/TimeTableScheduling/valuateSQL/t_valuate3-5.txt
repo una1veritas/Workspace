@@ -1,0 +1,10 @@
+1;create temporary table type=heap a  select a.task_id,a.period_id,a.processor_id,c.employment,b.day_id from timetableSQL a,period_properties b ,processor_properties c where a.period_id = b.period_id and a.processor_id = c.processor_id;
+1;create temporary table b  select * from a;
+1;create temporary table t  select * from a;
+
+2;select sum(weight) as penalties from (select a.processor_id,a.employment from a , b  where not exists(select period_id from t where a.processor_id = t.processor_id and a.period_id = t.period_id-1) and a.processor_id = b.processor_id and a.period_id = b.period_id - 2 and a.day_id = b.day_id) as c , penalties p where (c.employment = 1 and p.name='R_HOLE') or (c.employment = 2 and p.name='N_HOLE');
+2;select sum(weight*2) as penalties from (select a.processor_id,a.employment from a , b  where not exists(select period_id from  t where a.processor_id = t.processor_id and (a.period_id = t.period_id-1 or a.period_id = t.period_id-2)) and a.processor_id = b.processor_id and a.period_id = b.period_id - 3 and a.day_id = b.day_id) as c , penalties p where (c.employment = 1 and p.name='R_HOLE') or (c.employment = 2 and p.name='N_HOLE');
+2;select sum(weight*3) as penalties from (select a.processor_id,a.employment from a , b  where not exists(select period_id from t where a.processor_id = t.processor_id and (a.period_id = t.period_id-1 or a.period_id = t.period_id-2 or a.period_id = t.period_id-3)) and a.processor_id = b.processor_id and a.period_id = b.period_id - 4 and a.day_id = b.day_id) as c , penalties p where (c.employment = 1 and p.name='R_HOLE') or (c.employment = 2 and p.name='N_HOLE');
+1;drop table a;
+1;drop table b;
+1;drop table t;
