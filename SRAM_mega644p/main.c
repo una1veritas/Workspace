@@ -12,6 +12,7 @@
 #include <stdlib.h>
 
 #include <avr/interrupt.h>
+#include "uart_serial.h"
 
 volatile int i=0;
 volatile uint8_t buffer[20];
@@ -29,128 +30,136 @@ ISR(USART0_RX_vect)
     }
 }
 
-#define ADDRL PORTA
-#define ADDRL_DDR DDRA
-#define ADDRH PORTC
-#define ADDRH_DDR DDRC
-#define ADDRX_DDR DDRB
-#define ADDRX PORTB
-#define ADDRX_MASK (1<<0)
+static int uart_putchar(char c, FILE *stream)
+{
+  uart_tx(c);
+  return 0;
+}
+static FILE uartout = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
 
-#define DATA_OUT  PORTA
-#define DATA_IN  PINA
-#define DATA_DDR DDRA
 
-#define CONTROL PORTB
-#define CONTROL_DDR DDRB
-#define SRAM_CS (1<<3)
-#define SRAM_OE (1<<2)
-#define SRAM_WE (1<<1)
-#define LATCH_L (1<<7)
+#define ADDR PORTA
+#define ADDR_DDR DDRA
+
+#define DATA_OUT  PORTC
+#define DATA_IN  PINC
+#define DATA_DDR DDRC
+
+#define BUS_CONTROL_PORT PORTB
+#define BUS_CONTROL_DIR  DDRB
+#define BUS_RESET 	(1<<0)
+#define BUS_AVRWAIT (1<<1)
+#define BUS_BUSREQ  (1<<2)
+
+#define SRAM_CONTROL_PORT PORTD
+#define SRAM_CONTROL_DDR  DDRD
+// A16
+#define SRAM_A16  (1<<2)
+// WR
+#define SRAM_WE (1<<3)
+// RD
+#define SRAM_OE (1<<4)
+#define RD 		(1<<4)
+
+#define LATCH_OE (1<<5)
+#define BUSAK 	(1<<5)
+// E2 IOREQ
+#define SRAM_EN (1<<6)
+#define IOREQ 	(1<<6)
+// HC574 CLK
+#define LATCH_CLK (1<<7)
 
 void sram_init(void) {
-	ADDRL_DDR = 0xff;
-	ADDRH_DDR = 0xff;
-	ADDRX_DDR = ADDRX_MASK;
-
-	CONTROL_DDR = ( SRAM_CS | SRAM_OE | SRAM_WE | LATCH_L );
-	CONTROL |=  ( SRAM_CS | SRAM_OE | SRAM_WE | LATCH_L );
+	SRAM_CONTROL_DDR  |= ( SRAM_A16 | SRAM_EN | SRAM_OE | SRAM_WE | LATCH_CLK );
+	SRAM_CONTROL_PORT |= ( SRAM_OE | SRAM_WE | LATCH_CLK );
+	SRAM_CONTROL_PORT &= ~(SRAM_A16 | SRAM_EN );
+	ADDR_DDR = 0xff;
+	DATA_DDR = 0xff;
 }
 
 void sram_select(void) {
-	CONTROL &= ~SRAM_CS;
+	SRAM_CONTROL_PORT |= SRAM_EN;  // E2
+	// STAM_CONTROL_PORT &= ~SRAM_OE;  // ~E1 (G)
 }
 
 void sram_deselect(void) {
-	CONTROL |= SRAM_CS;
+	SRAM_CONTROL_PORT &= ~SRAM_EN; // E2
 }
 
 void sram_addr_out(uint32_t addr) {
-	ADDRL_DDR = 0xff;
-	ADDRL = addr;
-	CONTROL &= ~LATCH_L;
-	CONTROL |= LATCH_L;
-	addr >>= 8;
-	ADDRH = addr;
-	addr >>= 8;
-	ADDRX = (addr & ADDRX_MASK) | (ADDRX & ~ADDRX_MASK);
+	ADDR = addr>>8 & 0xff;
+	SRAM_CONTROL_PORT &= ~LATCH_CLK;
+	SRAM_CONTROL_PORT |= LATCH_CLK;
+	ADDR = addr & 0xff;
+	SRAM_CONTROL_PORT &= ~SRAM_A16;
+	SRAM_CONTROL_PORT |= (addr>>16 & 1) <<2;
 }
 
 void sram_data_out(uint8_t val) {
+	DATA_DDR = 0xff;
 	DATA_OUT = val;
-	CONTROL &= ~SRAM_WE;
-	CONTROL |= SRAM_WE;
+	SRAM_CONTROL_PORT &= ~SRAM_WE;
+	SRAM_CONTROL_PORT |= SRAM_WE;
 }
 
 uint8_t sram_data_in(void) {
 	uint8_t val;
 	DATA_DDR = 0x00;
-	CONTROL &= ~SRAM_OE;
-	__asm__ __volatile__ (
-			"nop" "\n\t"
-			"nop");
+	SRAM_CONTROL_PORT &= ~SRAM_OE;
+	SRAM_CONTROL_PORT |= SRAM_OE;
 	val = DATA_IN;
-	CONTROL |= SRAM_OE;
 	return val;
 }
 
-void serial0_init(uint32_t baud) {
-    cli();
-    // Macro to determine the baud prescale rate see table 22.1 in the Mega datasheet
-
-    UBRR0 = (((F_CPU / (baud * 16UL))) - 1);                 // Set the baud rate prescale rate register
-    UCSR0B = ((1<<RXEN0)|(1<<TXEN0)|(1 << RXCIE0));       // Enable receiver and transmitter and Rx interrupt
-    UCSR0C = ((0<<USBS0)|(1 << UCSZ01)|(1<<UCSZ00));  // Set frame format: 8data, 1 stop bit. See Table 22-7 for details
-    sei();
-}
-/*
-void serial0_init(uint32_t baud) {
-	// Macro to determine the baud prescale rate see table 22.1 in the Mega datasheet
-	UBRR0 = (((F_CPU / (baud * 16UL))) - 1);         // Set the baud rate prescale rate register
-
-	UCSR0C = ((0<<USBS0)|(1 << UCSZ01)|(1<<UCSZ00));   // Set frame format: 8data, 1 stop bit. See Table 22-7 for details
-	UCSR0B = ((1<<RXEN0)|(1<<TXEN0));       // Enable receiver and transmitter
-}
-*/
-void serial0_tx(uint8_t data) {
-    //while the transmit buffer is not empty loop
-    while(!(UCSR0A & (1<<UDRE0)));
-
-    //when the buffer is empty write data to the transmitted
-    UDR0 = data;
+uint8_t sram_read(uint32_t addr) {
+	uint8_t val;
+	sram_select();
+	sram_addr_out(addr);
+	val = sram_data_in();
+	sram_deselect();
+	return val;
 }
 
-uint8_t serial0_rx(void) {
-	/* Wait for data to be received */
-	while (!(UCSR0A & (1<<RXC0)));
-	/* Get and return received data from buffer */
-	return UDR0;
+void sram_write(uint32_t addr, uint8_t val) {
+	sram_select();
+	sram_addr_out(addr);
+	sram_data_out(val);
+	sram_deselect();
+
 }
 
-void serial0_puts(char* StringPtr) {
-// sends the characters from the string one at a time to the USART
-    while(*StringPtr != 0x00) {
-        serial0_tx(*StringPtr);
-        StringPtr++;
-    }
-}
 
 int main(void) {
-	uint16_t count = 0;
-	char buf[32];
-	sram_init();
-	serial0_init(19200);
+	uint32_t addr = 0;
+	uint8_t val;
 
-	serial0_puts("Hello there.\n");
+	sram_init();
+	uart_init(19200);
+	stdout = &uartout;
+
+	printf("Hello there.\n");
+
+	//test();
+	srand(10);
 
 	for(;;) {
-		sram_select();
-		_delay_ms(500);
-		sram_deselect();
-		_delay_ms(500);
-		sram_addr_out(count++);
-		sprintf(buf,"%d\n",count);
-		serial0_puts(buf);
+		addr = rand() & 0x1ffff;
+		printf("address %05lx, \n",addr);
+
+		for(uint32_t i = 0; i < 24; i++) {
+			val = rand() & 0xff;
+			sram_write(addr+i, val);
+			printf("%02x ",val);
+		}
+		printf("\n");
+
+		for(uint32_t i = 0; i < 24; i++) {
+			val = sram_read(addr+i);
+			printf("%02x ",val);
+		}
+		printf("\n\n");
+
+		_delay_ms(1000);
 	}
 	return 0;
 }
