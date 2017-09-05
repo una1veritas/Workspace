@@ -18,17 +18,17 @@ org $2000
 	; IPL for the CP/M-emu in an AVR. Loads CPM from the 'disk' from
 	; track 0 sector 2 to track 1 sector 26.
 
-;READ_FUNC:  equ	7
-;WRITE_FUNC: equ	6
-;BOOT_FUNC:  equ 5
-;HOME_FUNC:  equ 4
+READ_FUNC:  equ	7
+WRITE_FUNC: equ	6
+BOOT_FUNC:  equ 5
+HOME_FUNC:  equ 4
 
 	ld sp,$1000
 	
 	call printipl
 
 
-	ld b, 55 ;51
+	ld b,51
 	ld de,$0001
 	ld hl,$3400+$A800
 loadloop:
@@ -40,7 +40,7 @@ loadloop:
 	out (20),a
 	ld a,h ;dma H
 	out (21),a
-	ld a,1 ; execute DMA READ ;1<<READ_FUNC
+	ld a,1<<READ_FUNC
 	out (22),a
 
 	push bc
@@ -50,7 +50,7 @@ loadloop:
 
 	inc e
 	ld a,e
-	cp 64 ; sectors per track; 26
+	cp 26
 	jp nz,noNextTrack
 
 	inc d
