@@ -1,5 +1,4 @@
 .include "m88def.inc"
-.device = ATmega88
 
 .org  0x0000
 
