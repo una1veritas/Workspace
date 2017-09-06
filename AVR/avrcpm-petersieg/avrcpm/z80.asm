@@ -37,7 +37,7 @@
 
 
 #ifndef F_CPU
-	#define F_CPU  30000000        /* system clock in Hz; defaults to 20MHz */
+	#define F_CPU  20000000        /* system clock in Hz; defaults to 20MHz */
 #endif
 #ifndef BAUD
 	#define BAUD   38400           /* console baud rate */
