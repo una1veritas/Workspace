@@ -32,7 +32,10 @@
 #if !defined(__uart_h__)
 # define __uart_h__
 
-void uart_init(void);
+void uart_init(unsigned long baud);
+unsigned char uart_tx(unsigned char);
+unsigned char uart_rx(void);
+
 void uart_putchar(unsigned char c);
 int uart_getchar(void);
 int uart_peek(void);

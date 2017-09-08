@@ -818,7 +818,7 @@ int
 machine_boot
 (void)
 {
-  uart_init();
+  uart_init(19200UL);
   sram_init();
   sdcard_init();
 #if defined(MSG_MIN)

@@ -33,7 +33,7 @@ ISR(USART0_RX_vect)
 static int uart_putchar(char c, FILE *stream)
 {
   uart_tx(c);
-  return 0;
+  return c;
 }
 static FILE uartout = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
 

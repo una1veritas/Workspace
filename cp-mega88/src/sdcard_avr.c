@@ -33,6 +33,7 @@
 
 #include <avr/io.h>
 
+/* must be redefined...
 #define PORT PORTC
 #define DDR  DDRC
 #define PIN  PINC
@@ -41,6 +42,7 @@
 #define P_PU _BV(PC4)
 #define P_DO _BV(PC4)
 #define P_CS _BV(PC5)
+*/
 
 static unsigned char
 buffer[512];
