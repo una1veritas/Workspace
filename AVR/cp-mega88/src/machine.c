@@ -101,8 +101,8 @@ boot
     for (j = 0; j < 512; j++) sram_write(addr + j, sdcard_read(j));
   }
   for (i = 0; i < 0x100; i++) sram_write(i, 0);
-  sram_write(0x0000, 0xc3);
-  sram_write(0x0001, 0x00);
+  sram_write(0x0000, 0xc3); //
+  sram_write(0x0001, 0x00); //
   sram_write(0x0002, 0xFA);	// jump bios (cold boot)  sram_write(0x0005, 0xc3);
   sram_write(0x0006, 0x06);
   sram_write(0x0007, 0x3c + 0xb0);
@@ -814,17 +814,15 @@ in
   return 0;
 }
 
-int
-machine_boot
-(void)
-{
-  uart_init(19200UL);
+int machine_boot(void){
+
+  uart_init();
   sram_init();
   sdcard_init();
 #if defined(MSG_MIN)
   uart_putsln("\r\nCP/Mega88");
 #else // defined(MSG_MIN)
-  uart_putsln("\r\nbooting CP/Mega88 done.");
+  uart_putsln("\r\ninitializations done.");
 #endif // defined(MSG_MIN)
 #if defined(CLR_MEM)
   mem_clr();
@@ -833,26 +831,35 @@ machine_boot
   mem_chk();
 #endif // defined(MON_MEM) || defined(CHK_MEM)
   char rc = sdcard_open();
-  if (rc >= 0) uart_putsln("SDC: ok");
-#if !defined(MSG_MIN)
+  if (rc >= 0)
+#if defined(MSG_MIN)
+	  uart_putsln("SDC: ok");
+#else
+  	  uart_putsln("SDC opened.");
+#endif
   else {
-    uart_puts("SDC: err(");
+    uart_puts("SDC open err");
+#if !defined(MSG_MIN)
+    uart_puts("(");
     uart_puthex(-rc);
     uart_putsln(")");
+#endif
   }
-#endif // !defined(MSG_MIN);
 #if defined(USE_FAT)
   rc = fat_init();
   if (rc >= 0) {
-    uart_puts("FAT: ");
+    uart_puts("using FAT: ");
     if ((4 == rc) || (6 == rc)) uart_puts("FAT16");
     else if (0xb == rc) uart_puts("FAT32");
-    else uart_puthex(rc);
+    else {
+    	uart_puts("unknown format ");
+    	uart_puthex(rc);
+    }
     uart_putsln("");
     sd_fat = 1;
   } else {
 #if !defined(MSG_MIN)
-    uart_puts("FAT: ");
+    uart_puts("FAT init failed: ");
     uart_puthex(-rc);
     uart_putsln("");
     sd_fat = 0;
