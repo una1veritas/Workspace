@@ -32,7 +32,7 @@
 #if !defined(__config_h__)
 # define __config_h__
 
-# if defined(TEST)
+# ifndef USE_AVR_ASM
 #  define CPU_EMU_C
 #  define USE_FAT
 //#  define MSG_MIN
@@ -45,7 +45,7 @@
 #  define  MON_FAT
 #  define  MON_CON
 #  define  MON_HELP
-# else // defined(TEST)
+# else // defined(USE_AVR_ASM)
 #  define CPU_EMU_A
 //#  define CPM_DEBUG
 #  define USE_FAT

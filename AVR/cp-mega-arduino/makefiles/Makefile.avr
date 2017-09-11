@@ -29,12 +29,13 @@
 # DAMAGE.
 #
 
-CC	= avr-gcc
-OBJCOPY	= avr-objcopy
+CROSSPATH = /usr/local/CrossPack-AVR/bin/
+CC	= $(CROSSPATH)avr-gcc
+OBJCOPY	= $(CROSSPATH)avr-objcopy
 HIDSPX	= hidspx
 MCU	= atmega328p
 AFLAGS	= -Xassembler -I../src -mmcu=$(MCU)
-CFLAGS	= -Os -Wall -mmcu=$(MCU) -mtiny-stack -DF_CPU=16000000 -DTEST
+CFLAGS	= -Os -Wall -mmcu=$(MCU) -mtiny-stack -DF_CPU=16000000 
 SFLAGS	= -mmcu=$(MCU)
 HFLAGS	= -d2
 TARGET	= cpmega-arduino
