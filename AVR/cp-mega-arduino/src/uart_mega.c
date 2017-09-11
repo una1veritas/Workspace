@@ -33,7 +33,7 @@ unsigned char * debug_rxfifo() {
 #endif
 
 void uart_init(void) {
-	unsigned long baud = 38400;
+	unsigned long baud = 19200;
     cli();
     // Macro to determine the baud prescale rate see table 22.1 in the Mega datasheet
 

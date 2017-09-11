@@ -615,6 +615,10 @@ mem_chk
     unsigned char c;
     unsigned char err = 0;
     if (0 == test) {
+    	uart_puts("RW test ");
+    	uart_puthex(addr);
+    	uart_puthex(addr);
+    	uart_puts("\n");
       sram_write(addr, 0xaa);
       c = sram_read(addr);
       if (0xaa != c) err |= 1;
@@ -623,8 +627,11 @@ mem_chk
       c = sram_read(addr);
       if (0x55 != c) err |= 2;
 #endif // !defined(CHK_MIN)
-      if (0 == (addr & 1)) sram_write(addr, addr);
-      else sram_write(addr, addr >> 8);
+      uart_puts("addr test.\n");
+      if (0 == (addr & 1))
+    	  sram_write(addr, addr);
+      else
+    	  sram_write(addr, addr >> 8);
 #if !defined(CHK_MIN)
       c = sram_read(addr);
       if ((0 == (addr & 1)) & ((addr & 0xff) != c)) err |= 4;
@@ -816,12 +823,13 @@ int
 machine_boot
 (void)
 {
+  uart_puts("\nboot initializing...\n");
   uart_init();
-  uart_puts("uart_init()\n");
+  uart_puts("uart\n");
   sram_init();
-  uart_puts("sram_init()\n");
+  uart_puts("sram\n");
   sdcard_init();
-  uart_puts("sdcard_init()\n");
+  uart_puts("sdcard\n");
 #if defined(MSG_MIN)
   uart_putsln("\r\nCP/Mega88");
 #else // defined(MSG_MIN)
