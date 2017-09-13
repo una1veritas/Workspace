@@ -29,27 +29,21 @@
  * DAMAGE.
  */
 
-#include "sram.h"
+#include "machine.h"
 
-static unsigned char
-sram[64 * 1024];
-
-unsigned char
-sram_read
-(unsigned short addr)
+int
+main
+(int argc, char **argv)
 {
-  return sram[addr];
+  machine_boot();
+  return 0;
 }
 
 void
-sram_write
-(unsigned short addr, unsigned char data)
-{
-  sram[addr] = data;
-}
-
-void
-sram_init
+platform_reset
 (void)
 {
+  asm ("mov r30, r1");
+  asm ("mov r31, r1");
+  asm ("ijmp");
 }

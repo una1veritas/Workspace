@@ -29,21 +29,20 @@
 # DAMAGE.
 #
 
-CROSSPATH = /usr/local/CrossPack-AVR/bin/
-CC	= $(CROSSPATH)avr-gcc
-OBJCOPY	= $(CROSSPATH)avr-objcopy
+CC	= /usr/local/CrossPack-AVR/bin/avr-gcc
+OBJCOPY	= /usr/local/CrossPack-AVR/bin/avr-objcopy
 HIDSPX	= hidspx
-MCU	= atmega328p
+MCU	= atmega2560
 AFLAGS	= -Xassembler -I../src -mmcu=$(MCU)
-CFLAGS	= -Os -Wall -mmcu=$(MCU) -mtiny-stack -DF_CPU=16000000 
-SFLAGS	= -mmcu=$(MCU)
+CFLAGS	= -Os -Wall -mmcu=$(MCU) -mtiny-stack -DF_CPU=16000000UL
+SFLAGS	= --mcu=$(MCU)
 HFLAGS	= -d2
-TARGET	= cpmega-arduino
+TARGET	= cpmegaxxx0
 #OBJS	= platform_avr.o machine.o uart_base.o uart_avr.o uart_asm.o \
 #	  sram_avr.o sram_asm.o sdcard_base.o sdcard_avr.o fat.o eeprom_base.o \
 #	  eeprom_avr.o i8080.o
 OBJS	= platform_avr.o machine.o uart_base.o uart_mega.o \
-	  sram_mega.o sdcard_base.o sdcard_avr.o fat.o eeprom_base.o \
+	  sram_megaxxx0_hc573.o sdcard_base.o sdcard_avr.o fat.o eeprom_base.o \
 	  eeprom_avr.o cpu_8080.o
 
 all: $(TARGET).hex

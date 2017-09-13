@@ -29,115 +29,30 @@
  * DAMAGE.
  */
 
-#include "uart.h"
-
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
-extern unsigned short uart_tx(unsigned char);
-extern unsigned char uart_rx(void);
-
-static void
-reset_int
-(void)
-{
-  PCIFR |= _BV(PCIF1);	// Reset PCINT1 Flag
-}
-
-static void
-enable_int
-(void)
-{
-  PCICR |= _BV(PCIE1);	// Enable PCINT1
-}
-
-static void
-disable_int
-(void)
-{
-  PCICR &= ~_BV(PCIE1);	// Disable PCINT1
-}
+#include "sram.h"
 
 static unsigned char
-fifo[8];
+sram[64 * 1024];
 
-static unsigned char
-fifo_rdptr = 0;
-
-static unsigned char
-fifo_wrptr = 0;
-
-static void
-uart_push
-(unsigned char c)
+unsigned char
+sram_read
+(unsigned short addr)
 {
-  if (fifo_rdptr != (fifo_wrptr + 1)) {
-    fifo[fifo_wrptr++] = c;
-    fifo_wrptr &= 7;
-  }
-}
-
-static void
-uart_int
-(void)
-{
-  disable_int();
-  uart_push(uart_rx());
-  reset_int();
-  enable_int();
-}
-
-ISR
-(PCINT1_vect)
-{
-  uart_int();
+  return sram[addr];
 }
 
 void
-uart_init
-(void)
+sram_write
+(unsigned short addr, unsigned char data)
 {
-  /*
-   * PC0: RXD
-   * PC1: TXD
-   */
-  // Port Settings
-  DDRC   &= ~_BV(DDC0);		// PC0: Input
-  PORTC  |=  _BV(DDC0);		//      Pull-up
-  DDRC   |=  _BV(DDC1);		// PC1: Output
-
-  PCMSK1 |=  _BV(PCINT8);	// PC0 cause PCINT1
-
-  SREG   |=  _BV(SREG_I);	// Enable Interrupt
-
-  enable_int();
+  sram[addr] = data;
 }
 
 void
-uart_putchar
-(unsigned char c)
-{
-  disable_int();
-  unsigned short rc = uart_tx(c);
-  if (0 != rc) uart_push(rc);
-  reset_int();
-  enable_int();
-  if (0 == (PINC & _BV(DDC0))) uart_int();
-}
-
-int
-uart_getchar
+sram_init
 (void)
 {
-  if (fifo_rdptr == fifo_wrptr) return -1;
-  int rc = fifo[fifo_rdptr++];
-  fifo_rdptr &= 7;
-  return rc;
 }
 
-int
-uart_peek
-(void)
-{
-  return (fifo_wrptr - fifo_rdptr) & 7;
+void sram_bank(unsigned char bk) {
 }

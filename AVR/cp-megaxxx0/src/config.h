@@ -29,26 +29,46 @@
  * DAMAGE.
  */
 
+#if !defined(__config_h__)
+# define __config_h__
 
-#include <avr/io.h>
-#include <util/delay.h>
+/*
+# if defined(TEST)
+*/
+//#  define CPU_EMU_A
+#  define USE_FAT
+//#  define MSG_MIN
+//#  define CLR_MEM
+#  define CHK_MEM
+//#  define CHK_MIN
+#  define MONITOR
+#  define  MON_MEM
+#  define  MON_SDC
+#  define  MON_FAT
+#  define  MON_CON
+#  define  MON_HELP
+/*
+# else // defined(TEST)
+#  define CPU_EMU_A
+//#  define CPM_DEBUG
+#  define USE_FAT
+#  define MSG_MIN
+//#  define CLR_MEM
+#  define CHK_MEM
+#  define CHK_MIN
+#  define MONITOR
+//#  define  MON_MEM
+//#  define  MON_SDC
+#  define  MON_FAT
+#  define  MON_CON
+#  define  MON_HELP
+# endif // defined(TEST)
+*/
 
-#include "machine.h"
-#include "uart.h"
+# define MAX_PROMPT 16
 
-int
-main
-(int argc, char **argv)
-{
-  machine_boot();
-  return 0;
-}
+# if !defined(NULL)
+#  define NULL ((void*)0)
+# endif // !defined(NULL)
 
-void
-platform_reset
-(void)
-{
-  asm ("mov r30, r1");
-  asm ("mov r31, r1");
-  asm ("ijmp");
-}
+#endif // !defined(__config_h__)

@@ -91,7 +91,7 @@ uart_term
 
 void
 uart_init
-(void)
+(unsigned long baud)
 {
 #if defined(HAVE_TERMIOS_H)
   tcgetattr(0, &org_to);

@@ -29,9 +29,9 @@
  * DAMAGE.
  */
 
-#if __AVR__
+#if !defined(TEST)
 # include <avr/io.h>
-#endif
+#endif // !defined(TEST)
 #if defined(EFI)
 # include <efi/efi.h>
 # include <efi/efilib.h>
@@ -44,7 +44,7 @@
 #include "config.h"
 #include "platform.h"
 
-#if defined(CPU_EMU_C)
+#ifndef CPU_EMU_A
 # include "cpu_8080.h"
 #else // if defined(CPU_EMU_A)
 # include "i8080.h"
@@ -58,7 +58,7 @@ static char vt_cnv = 1;
 #endif
 static char sd_fat = 0;
 
-#if defined(CPU_EMU_C)
+#ifndef CPU_EMU_A
 static cpu_8080_work work;
 #endif // defined(CPU_EMU_C)
 
@@ -67,10 +67,8 @@ extern EFI_HANDLE *efi_image;
 extern EFI_SYSTEM_TABLE *efi_systab;
 #endif // defined(EFI)
 
-#ifdef __AVR__
 extern uint8_t _end;
 extern uint8_t __stack;
-#endif
 
 void
 disk_read
@@ -89,7 +87,7 @@ void
 boot
 (void)
 {
-#if defined(CPU_EMU_C)
+#ifndef CPU_EMU_A
   cpu_8080_reset(&work);
 #else // if defined(CPU_EMU_A)
   i8080_reset();
@@ -104,7 +102,7 @@ boot
   sram_write(0x0005, 0xc3);
   sram_write(0x0006, 0x06);
   sram_write(0x0007, 0x3c + 0xb0);
-#if defined(CPU_EMU_C)
+#ifndef CPU_EMU_A
   do {
 # if defined(CPM_DEBUG)
     unsigned char op = sram_read(work.pc);
@@ -168,7 +166,7 @@ boot
 #endif // defined(CPU_EMU_C)
 #if !defined(MSG_MIN)
   uart_putsln("quit vm");
-#if defined(CPU_EMU_C)
+#ifndef CPU_EMU_A
   unsigned char op = sram_read(work.pc);
   uart_puts("pc: ");
   uart_puthex(work.pc >> 8);
@@ -605,93 +603,60 @@ mem_clr
 #endif // defined(CLR_MEM)
 
 #if defined(MON_MEM) | defined(CHK_MEM)
-void
-mem_chk
-(void)
-{
-  unsigned char test;
-  unsigned short addr = 0;
-  for (test = 0; test < 2; addr++) {
-    unsigned char c;
-    unsigned char err = 0;
-    if (0 == test) {
-    	uart_puts("RW test ");
-    	uart_puthex(addr);
-    	uart_puthex(addr);
-    	uart_puts("\n");
-      sram_write(addr, 0xaa);
-      c = sram_read(addr);
-      if (0xaa != c) err |= 1;
-#if !defined(CHK_MIN)
-      sram_write(addr, 0x55);
-      c = sram_read(addr);
-      if (0x55 != c) err |= 2;
-#endif // !defined(CHK_MIN)
-      uart_puts("addr test.\n");
-      if (0 == (addr & 1))
-    	  sram_write(addr, addr);
-      else
-    	  sram_write(addr, addr >> 8);
-#if !defined(CHK_MIN)
-      c = sram_read(addr);
-      if ((0 == (addr & 1)) & ((addr & 0xff) != c)) err |= 4;
-      if ((0 != (addr & 1)) & ((addr >> 8) != c)) err |= 4;
-#endif // !defined(CHK_MIN)
-    } else {
-      c = sram_read(addr);
-      if ((0 == (addr & 1)) & ((addr & 0xff) != c)) err |= 4;
-      if ((0 != (addr & 1)) & ((addr >> 8) != c)) err |= 4;
-    }
-    if (0 != err) {
-#if defined(CHK_MIN)
-      uart_puts("ERR: ");
-#else // defined(CHK_MIN)
-      if (0 == test) uart_puts("write failed at 0x");
-      else uart_puts("address failed at 0x");
-#endif // defined(CHK_MIN)
-      uart_puthex(addr >> 8);
-      uart_puthex(addr);
-#if defined(CHK_MIN)
-      uart_putsln("");
-#else // defined(CHK_MIN)
-      uart_puts(" (");
-      if (0 == test) uart_puthex(err);
-      else uart_puthex(c);
-      uart_putsln(")");
-#endif // defined(CHK_MIN)
-      return;
-    }
-    if (0xfff == (addr & 0xfff)) {
-#if defined(MSG_MIN)
-# if defined(CHK_MIN)
-      if (0 != test) uart_puts("MEM: ");
-# else // defined(CHK_MIN)
-      if (0 == test) uart_puts("mem wrt: ");
-      else uart_puts("mem adr: ");
-# endif // defined(CHK_MIN)
-#else // defined(MSG_MIN)
-      if (0 == test) uart_puts("memory write test: ");
-      else uart_puts("memory address test: ");
-#endif // defined(MSG_MIN)
-#if defined(CHK_MIN)
-      if (0 != test) {
-        uart_putnum_u16(addr, 5);
-        uart_puts("/65535\r");
-      }
-#else // defined(CHK_MIN)
-      uart_putnum_u16(addr, 5);
-      uart_puts("/65535\r");
-#endif // defined(CHK_MIN)
-    }
-    if (0xffff == addr) {
-      test++;
-#if defined(CHK_MIN)
-      if (0 != test) uart_puts("\n");
-#else // !defined(CHK_MIN)
-      uart_puts("\n");
-#endif // !defined(CHK_MIN)
-    }
-  }
+int mem_chk(void) {
+	//unsigned char test;
+	unsigned long addr = 0;
+	unsigned short i;
+	unsigned char buf[13] = {
+			0xaa, 0x55, 0xfe, 0xff, 0xef, 0xaf, 0x7c, 0xde, 0xce, 0x6d, 0x99, 0xa5, 0x5a,
+	};
+	unsigned short errcount = 0;
+
+	uart_puts("checking memory...\n");
+	uart_puts("writing.\n");
+	for(addr = 0; addr < 0x100; addr += 13) {
+		for(i = 0; i < 13; i++) {
+			if ( !(addr + i < 0x10000) )
+				break;
+			sram_write(addr+i, buf[i]);
+			if ( (addr + i) > 0 && ((addr+i) & 0xfff) == 0 ) {
+				uart_puthex(addr>>16);
+				uart_puthex(addr>>8);
+				uart_puthex(addr);
+				uart_puts("\n");
+			}
+		}
+	}
+	uart_puts("reading.\n");
+	for(addr = 0; addr < 0x100; addr += 13) {
+		for(i = 0; i < 13; i++) {
+			if ( !(addr + i < 0x10000) )
+				break;
+			if ( buf[i] != sram_read(addr+i) ) {
+				errcount++;
+				uart_puts("error at ");
+				uart_puthex(addr>>16);
+				uart_puthex(addr>>8);
+				uart_puthex(addr);
+				uart_puts("\n");
+			}
+			if ( (addr + i) > 0 && ((addr+i) & 0xfff) == 0 ) {
+				uart_puthex(addr>>16);
+				uart_puthex(addr>>8);
+				uart_puthex(addr);
+				uart_puts("\n");
+			}
+		}
+	}
+	if ( errcount != 0 ) {
+		uart_puts("occurred ");
+		uart_putnum_u16(errcount, 5);
+		uart_puts(" errors.\n");
+		return 0;
+	} else {
+		uart_puts("mem check passed.\n");
+		return 1;
+	}
 }
 #endif // defined(MON_MEM) | defined(CHK_MEM)
 
@@ -823,13 +788,12 @@ int
 machine_boot
 (void)
 {
-  uart_puts("\nboot initializing...\n");
-  uart_init();
-  uart_puts("uart\n");
+  uart_init(38400);
+  uart_puts("\n\ninitializing uart, sram, ");
   sram_init();
-  uart_puts("sram\n");
+  uart_puts("sdcard, ");
   sdcard_init();
-  uart_puts("sdcard\n");
+  uart_puts("done.\n");
 #if defined(MSG_MIN)
   uart_putsln("\r\nCP/Mega88");
 #else // defined(MSG_MIN)
@@ -868,7 +832,7 @@ machine_boot
 #endif // !defined(MSG_MIN);
   }
 #endif // defined(USE_FAT)
-#if defined(CPU_EMU_C)
+#ifndef CPU_EMU_A
   work.load_8 = &sram_read;
   work.store_8 = &sram_write;
   work.in = &in;

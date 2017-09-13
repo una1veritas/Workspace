@@ -29,31 +29,15 @@
  * DAMAGE.
  */
 
-	.arch atmega88
-	.include "sram_mac.s"
-	.text
+#if !defined(__sram_h__)
+# define __sram_h__
 
-.global sram_read
-	.type	sram_read, @function
-sram_read:
-	/*
-	 * r25: address high
-	 * r24: address low
-	 *   18 cycles + rcall(3 cycles)
-	 */
-	_sram_read
-	ret
-	.size sram_read, .-sram_read
+#include <inttypes.h>
 
-.global sram_write
-	.type	sram_write, @function
-sram_write:
-	/*
-	 * r25: address high
-	 * r24: address low
-	 * r22: data
-	 *   14 cycles + rcall(3 cycles)
-	 */
-	_sram_write
-	ret
-	.size sram_write, .-sram_write
+void sram_init(void);
+unsigned char sram_read(unsigned short  addr);
+void sram_write(unsigned short  addr, unsigned char data);
+
+void sram_bank(unsigned char bk);
+
+#endif // !defined(__sram_h__)

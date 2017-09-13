@@ -29,7 +29,7 @@
  * DAMAGE.
  */
 
-//	.arch atmega88
+/*	.arch atmega88 */
 	.include "sram_mac.s"
 //	.include "sram_test.s"
 

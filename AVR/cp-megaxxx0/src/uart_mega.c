@@ -4,36 +4,18 @@
 
 #include "uart.h"
 
-#define FIFO_SIZE (1<<4)
-
-#if defined(USART_RX_vect)
-#define USARTn_RX_vect USART_RX_vect
-#elif defined(USART0_RX_vect)
-#define USARTn_RX_vect USART0_RX_vect
+#ifndef USART0_RX_vect
+/* for atmega xx8 */
+#define USART0_RX_vect USART_RX_vect
 #endif
+
+#define FIFO_SIZE (1<<4)
 
 static unsigned char rxfifo[FIFO_SIZE];
 static unsigned char rxenq = 0;
 static unsigned char rxdeq = 0;
 
-#ifdef USE_INTERRUPT_TX
-static USART_FIFO txfifo = { "", 0, 0 };
-#endif
-
-#ifdef UART_DEBUG
-int debug_rxenq() {
-	return rxenq;
-}
-int debug_rxdeq() {
-	return rxdeq;
-}
-unsigned char * debug_rxfifo() {
-	return rxfifo;
-}
-#endif
-
-void uart_init(void) {
-	unsigned long baud = 19200;
+void uart_init(unsigned long baud) {
     cli();
     // Macro to determine the baud prescale rate see table 22.1 in the Mega datasheet
 
@@ -42,9 +24,9 @@ void uart_init(void) {
     UCSR0C = ((0<<USBS0)|(1 << UCSZ01)|(1<<UCSZ00));  // Set frame format: 8data, 1 stop bit. See Table 22-7 for details
 
     UCSR0B |= (1 << RXCIE0);
-#ifdef USE_INTERRUPT_TX
+    /*
     UCSR0B |= (1 << TXCIE0);
-#endif
+     */
     sei();
 }
 
@@ -65,7 +47,7 @@ unsigned char uart_rx(void) {
 }
 
 
-ISR(USARTn_RX_vect)
+ISR(USART0_RX_vect)
 {
 	rxfifo[rxenq++] = UDR0;
 	rxenq &= (FIFO_SIZE-1);

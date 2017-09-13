@@ -30,9 +30,9 @@
 #
 
 CC	= gcc
-CFLAGS	= -O0 -Wall 
-TARGET	= cpmega88.exe
-OBJS	= platform_posix.o machine.o uart_base.o uart_posix.o sram_base.o \
+CFLAGS	= -O0 -Wall -DTEST
+TARGET	= cpmega88
+OBJS	= platform_posix.o machine.o uart_base.o uart_posix.o sram_dummy.o \
 	  sdcard_base.o sdcard_posix.o fat.o eeprom_base.o eeprom_image.o \
 	  eeprom_posix.o cpu_8080.o
 

@@ -48,8 +48,8 @@ usage:
 	@echo "    clean          ... delete all generated files"
 	@echo "    distclean      ... delete all generated and downloaded files"
 
-#all: avr posix nacl32 nacl64 uboot_ac100 uboot_qemu_arm uboot_rpi uefi
 all: avr posix
+# nacl32 nacl64 uboot_ac100 uboot_qemu_arm uboot_rpi uefi
 
 nacl: nacl32 nacl64
 

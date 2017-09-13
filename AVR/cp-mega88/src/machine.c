@@ -44,7 +44,7 @@
 #include "config.h"
 #include "platform.h"
 
-#if defined(CPU_EMU_C)
+#ifndef CPU_EMU_A
 # include "cpu_8080.h"
 #else // if defined(CPU_EMU_A)
 # include "i8080.h"
@@ -58,7 +58,7 @@ static char vt_cnv = 1;
 #endif
 static char sd_fat = 0;
 
-#if defined(CPU_EMU_C)
+#ifndef CPU_EMU_A
 static cpu_8080_work work;
 #endif // defined(CPU_EMU_C)
 
@@ -67,10 +67,8 @@ extern EFI_HANDLE *efi_image;
 extern EFI_SYSTEM_TABLE *efi_systab;
 #endif // defined(EFI)
 
-#if !defined(TEST)
 extern uint8_t _end;
 extern uint8_t __stack;
-#endif // defined(TEST)
 
 void
 disk_read
@@ -89,7 +87,7 @@ void
 boot
 (void)
 {
-#if defined(CPU_EMU_C)
+#ifndef CPU_EMU_A
   cpu_8080_reset(&work);
 #else // if defined(CPU_EMU_A)
   i8080_reset();
@@ -106,7 +104,7 @@ boot
   sram_write(0x0002, 0xFA);	// jump bios (cold boot)  sram_write(0x0005, 0xc3);
   sram_write(0x0006, 0x06);
   sram_write(0x0007, 0x3c + 0xb0);
-#if defined(CPU_EMU_C)
+#ifndef CPU_EMU_A
   do {
 # if defined(CPM_DEBUG)
     unsigned char op = sram_read(work.pc);
@@ -170,7 +168,7 @@ boot
 #endif // defined(CPU_EMU_C)
 #if !defined(MSG_MIN)
   uart_putsln("quit vm");
-#if defined(CPU_EMU_C)
+#ifndef CPU_EMU_A
   unsigned char op = sram_read(work.pc);
   uart_puts("pc: ");
   uart_puthex(work.pc >> 8);
@@ -866,7 +864,7 @@ int machine_boot(void){
 #endif // !defined(MSG_MIN);
   }
 #endif // defined(USE_FAT)
-#if defined(CPU_EMU_C)
+#ifndef CPU_EMU_A
   work.load_8 = &sram_read;
   work.store_8 = &sram_write;
   work.in = &in;

@@ -29,42 +29,52 @@
  * DAMAGE.
  */
 
-#if !defined(__config_h__)
-# define __config_h__
+#include "uart.h"
 
-# ifndef USE_AVR_ASM
-#  define CPU_EMU_C
-#  define USE_FAT
-//#  define MSG_MIN
-//#  define CLR_MEM
-#  define CHK_MEM
-//#  define CHK_MIN
-#  define MONITOR
-#  define  MON_MEM
-#  define  MON_SDC
-#  define  MON_FAT
-#  define  MON_CON
-#  define  MON_HELP
-# else // defined(USE_AVR_ASM)
-#  define CPU_EMU_A
-//#  define CPM_DEBUG
-#  define USE_FAT
-#  define MSG_MIN
-//#  define CLR_MEM
-#  define CHK_MEM
-#  define CHK_MIN
-#  define MONITOR
-//#  define  MON_MEM
-//#  define  MON_SDC
-#  define  MON_FAT
-#  define  MON_CON
-#  define  MON_HELP
-# endif // defined(TEST)
+static void
+halfhex
+(unsigned char c)
+{
+  if (c < 10) uart_putchar('0' + c);
+  else uart_putchar('A' - 10 + c);
+}
 
-# define MAX_PROMPT 16
+void
+uart_puthex
+(unsigned char c)
+{
+  halfhex(c >> 4);
+  halfhex(c & 15);
+}
 
-# if !defined(NULL)
-#  define NULL ((void*)0)
-# endif // !defined(NULL)
+void
+uart_putnum_u16
+(unsigned short n, int digit)
+{
+  unsigned short d = 10000;
+  if (digit > 0) {
+    d = 1;
+    for (digit--; digit > 0; digit--) d *= 10;
+  }
+  do {
+    int num = n / d;
+    n = n % d;
+    d /= 10;
+    uart_putchar('0' + num);
+  } while (0 != d);
+}
 
-#endif // !defined(__config_h__)
+void
+uart_puts
+(char *s)
+{
+  while (0 != *s) uart_putchar(*s++);
+}
+
+void
+uart_putsln
+(char *s)
+{
+  uart_puts(s);
+  uart_puts("\r\n");
+}

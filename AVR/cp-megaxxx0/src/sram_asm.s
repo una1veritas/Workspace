@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Takashi TOYOSHIMA <toyoshim@gmail.com>
+ * Copyright (c) 2010, Takashi TOYOSHIMA <toyoshim@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,42 +29,31 @@
  * DAMAGE.
  */
 
-#if !defined(__config_h__)
-# define __config_h__
+/*	.arch atmega88 */
+	.include "sram_mac.s"
+	.text
 
-//#  define CPU_EMU_A
-#  define USE_FAT
-//#  define MSG_MIN
-//#  define CLR_MEM
-#  define CHK_MEM
-//#  define CHK_MIN
-#  define MONITOR
-#  define  MON_MEM
-#  define  MON_SDC
-#  define  MON_FAT
-#  define  MON_CON
-#  define  MON_HELP
-/*
-#if !defined(TEST)
-#  define CPU_EMU_A
-//#  define CPM_DEBUG
-#  define USE_FAT
-#  define MSG_MIN
-//#  define CLR_MEM
-#  define CHK_MEM
-#  define CHK_MIN
-#  define MONITOR
-//#  define  MON_MEM
-//#  define  MON_SDC
-#  define  MON_FAT
-#  define  MON_CON
-#  define  MON_HELP
-# endif // defined(TEST)
-*/
-# define MAX_PROMPT 16
+.global sram_read
+	.type	sram_read, @function
+sram_read:
+	/*
+	 * r25: address high
+	 * r24: address low
+	 *   18 cycles + rcall(3 cycles)
+	 */
+	_sram_read
+	ret
+	.size sram_read, .-sram_read
 
-# if !defined(NULL)
-#  define NULL ((void*)0)
-# endif // !defined(NULL)
-
-#endif // !defined(__config_h__)
+.global sram_write
+	.type	sram_write, @function
+sram_write:
+	/*
+	 * r25: address high
+	 * r24: address low
+	 * r22: data
+	 *   14 cycles + rcall(3 cycles)
+	 */
+	_sram_write
+	ret
+	.size sram_write, .-sram_write

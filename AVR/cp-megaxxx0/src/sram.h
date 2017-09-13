@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Takashi TOYOSHIMA <toyoshim@gmail.com>
+ * Copyright (c) 2010, Takashi TOYOSHIMA <toyoshim@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,27 +29,15 @@
  * DAMAGE.
  */
 
-#include "sram.h"
+#if !defined(__sram_h__)
+# define __sram_h__
 
-#include <avr/io.h>
+#include <inttypes.h>
 
-void
-sram_init
-(void)
-{
-  /*
-   * PB0: /W
-   * PB1: E2
-   * PB2: A16
-   * PB3: N/A (input)
-   * PB4: CLK for FF on Address Low
-   * PB5: CLK for FF on Address High
-   * PD*: Address / Data
-   */
-  // Port Settings
-  //   All ports are Output excepr for PB3
-  DDRB    =  (_BV(DDB0) | _BV(DDB1) | _BV(DDB2) | _BV(DDB4) | _BV(DDB5));
-  PORTB   = 0;
-  DDRD    = 0xff;
-  PORTD   = 0;
-}
+void sram_init(void);
+unsigned char sram_read(unsigned short  addr);
+void sram_write(unsigned short  addr, unsigned char data);
+
+void sram_bank(unsigned char bk);
+
+#endif // !defined(__sram_h__)

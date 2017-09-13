@@ -29,11 +29,19 @@
  * DAMAGE.
  */
 
-#if !defined(__sram_h__)
-# define __sram_h__
+#if !defined(__uart_h__)
+# define __uart_h__
 
-void sram_init(void);
-unsigned char sram_read(unsigned short addr);
-void sram_write(unsigned short addr, unsigned char data);
+void uart_init(unsigned long baud);
+unsigned char uart_tx(unsigned char data);
+unsigned char uart_rx(void);
 
-#endif // !defined(__sram_h__)
+void uart_putchar(unsigned char c);
+int uart_getchar(void);
+int uart_peek(void);
+void uart_puthex(unsigned char c);
+void uart_putnum_u16(unsigned short n, int digit);
+void uart_puts(char *s);
+void uart_putsln(char *s);
+
+#endif // !defined(__uart_h__)

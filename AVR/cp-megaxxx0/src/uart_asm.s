@@ -29,7 +29,7 @@
  * DAMAGE.
  */
 
-	.arch atmega88
+/*	.arch atmega88 */
 	.text
 
 .equ	PORT,8
