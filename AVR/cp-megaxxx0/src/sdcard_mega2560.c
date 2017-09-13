@@ -33,14 +33,14 @@
 
 #include <avr/io.h>
 
-#define PORT PORTC
-#define DDR  DDRC
-#define PIN  PINC
-#define P_CK _BV(PC2)
-#define P_DI _BV(PC3)
-#define P_PU _BV(PC4)
-#define P_DO _BV(PC4)
-#define P_CS _BV(PC5)
+#define PORT PORTB
+#define DDR  DDRB
+#define PIN  PINB
+#define P_CS _BV(PB0)
+#define P_CK _BV(PB1)
+#define P_DI _BV(PB2)
+//#define P_PU _BV(PC4)
+#define P_DO _BV(PB3)
 
 static unsigned char
 buffer[512];
@@ -125,7 +125,7 @@ sdcard_init
   DDR  &= ~P_DO;
   DDR  |=  (P_CK | P_DI | P_CS);
   PORT &= ~(P_CK | P_DI | P_CS);
-  PORT |=  P_PU;
+//  PORT |=  P_PU;
   cur_blk = 0;
 }
 
@@ -133,17 +133,30 @@ int
 sdcard_open
 (void)
 {
-  // initial clock
+	// native mode to SPI mode
+	// at least 1ms after the power-on
+
+	// hold DI, CS high and send at least 74 clocks,
   PORT |= P_DI | P_CS;
   int i;
   for (i = 0; i < 80; i++) {
     PORT &= ~P_CK;
     PORT |=  P_CK;
   }
+
+  // now card is waiting for commands (but not in SPI mode)
   char rc;
-  // cmd0
+  // CS low, CMD0 (software reset), CRC is required
   rc = sd_cmd(0x40, 0x00, 0x00, 0x00, 0x00, 0x95);
   if (1 != rc) return -1;
+
+  // now card is in SPI mode (CRC off in default)
+  // in idle state, returns R1 response
+
+  // initializing card
+  // in-idle-state of the response will be cleared
+  // if initialization has been finished.
+  // it takes up to hundreds milli secs.
   // cmd1
   unsigned short timeout = 0xffff;
   for (; timeout != 0; timeout--) {
