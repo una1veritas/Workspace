@@ -29,9 +29,9 @@
  * DAMAGE.
  */
 
-#if !defined(TEST)
+#ifdef __AVR__
 # include <avr/io.h>
-#endif // !defined(TEST)
+#endif
 #if defined(EFI)
 # include <efi/efi.h>
 # include <efi/efilib.h>
@@ -67,8 +67,10 @@ extern EFI_HANDLE *efi_image;
 extern EFI_SYSTEM_TABLE *efi_systab;
 #endif // defined(EFI)
 
+/*
 extern uint8_t _end;
 extern uint8_t __stack;
+*/
 
 void
 disk_read
@@ -606,55 +608,43 @@ mem_clr
 int mem_chk(void) {
 	//unsigned char test;
 	unsigned long addr = 0;
-	unsigned short i;
-	unsigned char buf[13] = {
-			0xaa, 0x55, 0xfe, 0xff, 0xef, 0xaf, 0x7c, 0xde, 0xce, 0x6d, 0x99, 0xa5, 0x5a,
+	unsigned char buf[7] = {
+			0xaa, 0xfe, 0x55, 0xff, 0xa5, 0xef, 0x5a,
 	};
-	unsigned short errcount = 0;
+	unsigned short errorcount = 0;
 
-	uart_puts("checking memory...\n");
-	uart_puts("writing.\n");
-	for(addr = 0; addr < 0x100; addr += 13) {
-		for(i = 0; i < 13; i++) {
-			if ( !(addr + i < 0x10000) )
-				break;
-			sram_write(addr+i, buf[i]);
-			if ( (addr + i) > 0 && ((addr+i) & 0xfff) == 0 ) {
-				uart_puthex(addr>>16);
-				uart_puthex(addr>>8);
-				uart_puthex(addr);
-				uart_puts("\n");
-			}
+	uart_puts("mem_chk: ");
+	uart_puts("writing...\n");
+	for(addr = 0; addr < 0x10000; addr++) {
+		sram_write(addr, buf[addr % 7]);
+		if ( (addr & 0xfff) == 0xfff ) {
+			uart_puthex(addr>>8);
+			uart_puthex(addr);
+			uart_puts(", ");
 		}
 	}
-	uart_puts("reading.\n");
-	for(addr = 0; addr < 0x100; addr += 13) {
-		for(i = 0; i < 13; i++) {
-			if ( !(addr + i < 0x10000) )
-				break;
-			if ( buf[i] != sram_read(addr+i) ) {
-				errcount++;
-				uart_puts("error at ");
-				uart_puthex(addr>>16);
-				uart_puthex(addr>>8);
-				uart_puthex(addr);
-				uart_puts("\n");
-			}
-			if ( (addr + i) > 0 && ((addr+i) & 0xfff) == 0 ) {
-				uart_puthex(addr>>16);
-				uart_puthex(addr>>8);
-				uart_puthex(addr);
-				uart_puts("\n");
-			}
+	uart_puts("\nreading...\n");
+	for(addr = 0; addr < 0x10000; addr++) {
+		unsigned char val = sram_read(addr);
+		if ( (addr & 0xfff) == 0xfff ) {
+			uart_puthex(addr>>8);
+			uart_puthex(addr);
+			uart_puts(", ");
+		}
+		if ( val != buf[addr % 7] ) {
+			uart_puts("error at ");
+			uart_puthex(addr>>8);
+			uart_puthex(addr);
+			uart_puts(", ");
+			errorcount++;
 		}
 	}
-	if ( errcount != 0 ) {
-		uart_puts("occurred ");
-		uart_putnum_u16(errcount, 5);
+	if ( errorcount != 0 ) {
+		uart_puts("total ");
+		uart_putnum_u16(errorcount, 5);
 		uart_puts(" errors.\n");
 		return 0;
 	} else {
-		uart_puts("mem check passed.\n");
 		return 1;
 	}
 }
@@ -789,21 +779,20 @@ machine_boot
 (void)
 {
   uart_init(38400);
-  uart_puts("\n\ninitializing uart, sram, ");
   sram_init();
-  uart_puts("sdcard, ");
   sdcard_init();
-  uart_puts("done.\n");
 #if defined(MSG_MIN)
   uart_putsln("\r\nCP/Mega88");
 #else // defined(MSG_MIN)
-  uart_putsln("\r\nbooting CP/Mega88 done.");
+  uart_putsln("\r\ninitializing CP/Mega88 done.");
 #endif // defined(MSG_MIN)
 #if defined(CLR_MEM)
   mem_clr();
 #endif // defined(CLR_MEM)
 #if defined(MON_MEM) || defined(CHK_MEM)
-  mem_chk();
+  if ( mem_chk() ) {
+	  uart_puts("memory check passed.\n");
+  }
 #endif // defined(MON_MEM) || defined(CHK_MEM)
   char rc = sdcard_open();
   if (rc >= 0) uart_putsln("SDC: ok");

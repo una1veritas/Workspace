@@ -29,9 +29,16 @@
  * DAMAGE.
  */
 
-#include "sdcard.h"
-
 #include <avr/io.h>
+
+#include "sdcard.h"
+#include "uart.h"
+
+#ifdef SDCARD_DEBUG
+#define DEBUGMSG(x) uart_puts(x)
+#else
+#define DEBUGMSG(x)
+#endif
 
 #define PORT PORTB
 #define DDR  DDRB
@@ -129,10 +136,10 @@ sdcard_init
   cur_blk = 0;
 }
 
-int
-sdcard_open
-(void)
+int sdcard_open(void)
 {
+	DEBUGMSG("sdcard_open: send 80 clocks\n");
+
 	// native mode to SPI mode
 	// at least 1ms after the power-on
 
@@ -144,6 +151,8 @@ sdcard_open
     PORT |=  P_CK;
   }
 
+  DEBUGMSG("sdcard_open: issue CMD0\n");
+
   // now card is waiting for commands (but not in SPI mode)
   char rc;
   // CS low, CMD0 (software reset), CRC is required
@@ -152,6 +161,8 @@ sdcard_open
 
   // now card is in SPI mode (CRC off in default)
   // in idle state, returns R1 response
+
+  DEBUGMSG("sdcard_open: initializing card CMD41\n");
 
   // initializing card
   // in-idle-state of the response will be cleared
@@ -165,6 +176,8 @@ sdcard_open
     if (-1 == rc) return -2;
   }
   if (0 != rc) return -3;
+
+  DEBUGMSG("sdcard_open: finished.\n");
 
   PORT &= ~P_CK;
   return 0;
