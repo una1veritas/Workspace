@@ -5,7 +5,7 @@ BINDIR=         ${exec_prefix}/bin
 MANDIR=         ${datarootdir}/man
 includedir=     ${prefix}/include
 exec_prefix=    ${prefix}
-prefix=         /usr/local
+prefix=         /Users/sin
 datarootdir=	${prefix}/share
 
 INSTALL=        /usr/bin/install -c
