@@ -47,9 +47,9 @@
 #define ADDRH_DIR DDRC
 #define ADDRH PORTC
 #define ADDRH_MASK 0xff
-#define ADDRX_DIR DDRD
-#define ADDRX PORTD
-#define ADDRX_MASK (1<<PD7)
+#define ADDRX_DIR DDRL
+#define ADDRX PORTL
+#define ADDRX_MASK (1<<PL0)
 
 #define DATA_DIR DDRA
 #define DATA_OUT  PORTA
@@ -78,6 +78,7 @@ void sram_init() {
 }
 
 inline void addr_out(unsigned short addr) {
+	sram_bank(1);
   CONTROL |= SRAM_ALE;    // transparent
   ADDRL_DIR = ADDRL_MASK;  // set to OUTPUT
   ADDRL = addr & ADDRL_MASK;
@@ -88,8 +89,7 @@ inline void addr_out(unsigned short addr) {
 
 inline void sram_bank(uint8_t bk) {
   ADDRX &= ~ADDRX_MASK;
-  if ( bk & 1 )
-    ADDRX |= ADDRX_MASK;
+  ADDRX |= (ADDRX_MASK & bk);
 }
 
 unsigned char sram_read(unsigned short addr) {

@@ -29,46 +29,88 @@
  * DAMAGE.
  */
 
-#if !defined(__config_h__)
-# define __config_h__
+#include <inttypes.h>
+#include "sram.h"
+
+#include <avr/io.h>
 
 /*
-# if defined(TEST)
-*/
-#  define CPU_EMU_A
-#  define USE_FAT
-//#  define MSG_MIN
-//#  define CLR_MEM
-#  define CHK_MEM
-//#  define CHK_MIN
-#  define MONITOR
-#  define  MON_MEM
-#  define  MON_SDC
-#  define  MON_FAT
-#  define  MON_CON
-#  define  MON_HELP
+ * 128k x 8bit (A0 -- A16)
+ * M68AF127B
+ * AS6C1008
+ *
+ * AD0-AD8 address latch HC573
+ *
+ */
+
+/* SRAM I/F Port/Pin definitions */
 /*
-# else // defined(TEST)
-#  define CPU_EMU_A
-//#  define CPM_DEBUG
-#  define USE_FAT
-#  define MSG_MIN
-//#  define CLR_MEM
-#  define CHK_MEM
-#  define CHK_MIN
-#  define MONITOR
-//#  define  MON_MEM
-//#  define  MON_SDC
-#  define  MON_FAT
-#  define  MON_CON
-#  define  MON_HELP
-# endif // defined(TEST)
+#define ADDRL_DIR DDRA
+#define ADDRL PORTA
+#define ADDRL_MASK 0xff
+#define ADDRH_DIR DDRC
+#define ADDRH PORTC
+#define ADDRH_MASK 0xff
+
+#define DATA_DIR DDRA
+#define DATA_OUT  PORTA
+#define DATA_IN  PINA
+
+#define CONTROL_DIR DDRG
+#define CONTROL PORTG
+#define SRAM_OE (1<<PG1)
+#define SRAM_WE (1<<PG0)
+#define SRAM_ALE (1<<PG2)
 */
+#define ADDRX_DIR DDRD
+#define ADDRX PORTD
+#define ADDRX_MASK (1<<PD7)
 
-# define MAX_PROMPT 16
+#define CONTROL_CS_DIR DDRL
+#define CONTROL_CS PORTL
+#define SRAM_CS (1<<PL6)
 
-# if !defined(NULL)
-#  define NULL ((void*)0)
-# endif // !defined(NULL)
 
-#endif // !defined(__config_h__)
+#define bitset(port, bv)   (port) |= (bv)
+#define bitclear(port, bv) (port) &= ~(bv)
+
+uint16_t * wordptr = ((uint16_t *) 0x2200);
+uint8_t * byteptr = ((uint8_t *) 0x2200);
+
+void sram_init() {
+
+	XMCRB=0; // need all 64K. no pins released
+	XMCRA=1<<SRE; // enable xmem, no wait states
+
+	CONTROL_CS_DIR |= SRAM_CS;
+	CONTROL_CS &= ~SRAM_CS;
+
+	ADDRX_DIR |= ADDRX_MASK;
+	ADDRX &= ~ADDRX_MASK;
+}
+
+inline void sram_bank(uint8_t bk) {
+  ADDRX &= ~ADDRX_MASK;
+  if ( bk & 1 )
+    ADDRX |= ADDRX_MASK;
+}
+
+unsigned char sram_read(unsigned short addr) {
+	unsigned char val;
+	if ( addr < 0x4000 )
+		sram_bank(1);
+	else
+		sram_bank(0);
+	val = byteptr[addr];
+	return val;
+}
+
+void sram_write(unsigned short addr, unsigned char data) {
+	if ( addr < 0x4000 )
+		sram_bank(1);
+	else
+		sram_bank(0);
+	byteptr[addr] = data;
+}
+
+/* sram_avr.c end */

@@ -33,9 +33,11 @@
 # define __uart_h__
 
 void uart_init(unsigned long baud);
-void uart_putchar(unsigned char c);
 int uart_getchar(void);
+unsigned int uart_available (void);
+void uart_putchar(unsigned char c);
 int uart_peek(void);
+
 void uart_puthex(unsigned char c);
 void uart_putnum_u16(unsigned short n, int digit);
 void uart_puts(char *s);

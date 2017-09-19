@@ -32,10 +32,7 @@
 #ifdef __AVR__
 # include <avr/io.h>
 #endif
-#if defined(EFI)
-# include <efi/efi.h>
-# include <efi/efilib.h>
-#endif // defined(EFI)
+
 #include "uart.h"
 #include "sram.h"
 #include "sdcard.h"
@@ -51,22 +48,20 @@
 #endif // defined(CPU_EMU_C)
 
 static char wr_prt = 0;
+/*
 #if defined(EFI)
 static char vt_cnv = 2;
 #else
 static char vt_cnv = 1;
 #endif
+*/
 static char sd_fat = 0;
 
 #ifndef CPU_EMU_A
 static cpu_8080_work work;
 #endif // defined(CPU_EMU_C)
 
-#if defined(EFI)
-extern EFI_HANDLE *efi_image;
-extern EFI_SYSTEM_TABLE *efi_systab;
-#endif // defined(EFI)
-
+#include <stdlib.h>
 /*
 extern uint8_t _end;
 extern uint8_t __stack;
@@ -283,7 +278,7 @@ prompt
 {
   char buffer[MAX_PROMPT + 1];
   unsigned char size = 0;
-  uart_puts("CP/Mega88>");
+  uart_puts("CP/Mega2560>");
   for (;;) {
     int c;
     do {
@@ -468,11 +463,9 @@ prompt
       fat_name(name);
       uart_putchar(' ');
       uart_putchar((0 != (0x10 & attr))? 'd': '-');
-# if !defined(MSG_MIN)
       uart_putchar((0 == (0x04 & attr))? 'r': '-');
       uart_putchar((0 == (0x01 & attr))? 'w': '-');
       uart_putchar((0 != (0x10 & attr))? 'x': '-');
-# endif // !defined(MSG_MIN)
       uart_putchar(' ');
       uart_puts(name);
       uart_putsln("");
@@ -500,46 +493,6 @@ prompt
     mount(arg);
     return;
 #endif // defined(MON_FAT)
-#if defined(MON_CON)
-  } else if (0 == strdcmp("vt", cmd, ' ')) {
-    if (NULL == arg) goto usage;
-# if !defined(MSG_MIN)
-    uart_puts("<vt100 compatible mode");
-# endif // !defined(MSG_MIN)
-    if (0 == strdcmp("on", arg, 0)) {
-      uart_puts(" on");
-      vt_cnv = 1;
-    } else {
-      uart_puts(" off");
-      vt_cnv = 0;
-    }
-# if defined(MSG_MIN)
-    uart_putsln("");
-# else // defined(MSG_MIN)
-    uart_putsln(">");
-# endif // defined(MSG_MIN)
-    return;
-# if defined(EFI)
-  } else if (0 == strdcmp("efi", cmd, ' ')) {
-    if (NULL == arg) goto usage;
-#  if !defined(MSG_MIN)
-    uart_puts("<EFI terminal mode");
-#  endif // !defined(MSG_MIN)
-    if (0 == strdcmp("on", arg, 0)) {
-      uart_puts(" on");
-      vt_cnv = 2;
-    } else {
-      uart_puts(" off");
-      vt_cnv = 0;
-    }
-#  if defined(MSG_MIN)
-    uart_putsln("");
-#  else // defined(MSG_MIN)
-    uart_putsln(">");
-#  endif // defined(MSG_MIN)
-    return;
-# endif // defined(EFI)
-#endif // defined(MON_CON)
   }
  usage:
 #if defined(MON_HELP)
@@ -566,9 +519,6 @@ prompt
 #  endif // defined(MON_FAT)
 #  if defined(MON_CON)
   uart_putsln(" vt <on/off>      : vt100 compatible mode");
-#   if defined(EFI)
-  uart_putsln(" efi <on/off>     : EFI terminal mode");
-#   endif // defined(EFI)
 #  endif // defined(MON_CON)
 # else // !defined(MSG_MIN)
   uart_puts("  CMD R;B;WP t;A t");
@@ -591,7 +541,6 @@ prompt
 }
 #endif // defined(MONITOR)
 
-#if defined(CLR_MEM)
 void
 mem_clr
 (void)
@@ -602,43 +551,76 @@ mem_clr
     sram_write(addr++, 0);
   } while (0 != addr);
 }
-#endif // defined(CLR_MEM)
 
 #if defined(MON_MEM) | defined(CHK_MEM)
 int mem_chk(void) {
 	//unsigned char test;
-	unsigned long addr = 0;
-	unsigned char buf[7] = {
-			0xaa, 0xfe, 0x55, 0xff, 0xa5, 0xef, 0x5a,
-	};
+	unsigned long addr, offset;
+	unsigned char val;
 	unsigned short errorcount = 0;
+	const unsigned long blocksize = 0x2000;
 
-	uart_puts("mem_chk: ");
-	uart_puts("writing...\n");
-	for(addr = 0; addr < 0x10000; addr++) {
-		sram_write(addr, buf[addr % 7]);
-		if ( (addr & 0xfff) == 0xfff ) {
-			uart_puthex(addr>>8);
-			uart_puthex(addr);
-			uart_puts(", ");
+	uart_puts("mem_chk:\n");
+	for(addr = 0; addr < 0x10000; addr += blocksize ) {
+		uart_puthex(addr>>8);
+		uart_puthex(addr);
+		uart_puts(" - ");
+		uart_puthex((addr+blocksize-1)>>8);
+		uart_puthex((addr+blocksize-1));
+		uart_puts("0x00 w");
+		for(offset = 0; offset < blocksize; offset++) {
+			sram_write(addr+offset, 0x00);
 		}
+		uart_puts("/r");
+		srand(addr);
+		for(offset = 0; offset < blocksize; offset++) {
+			val = sram_read(addr+offset);
+			if ( val != 0x00 ) {
+				uart_puts("error at ");
+				uart_puthex((addr+offset)>>8);
+				uart_puthex(addr+offset);
+				uart_puts(", ");
+				errorcount++;
+			}
+		}
+
+		uart_puts(", 0xff w");
+		for(offset = 0; offset < blocksize; offset++) {
+			sram_write(addr+offset, 0xff);
+		}
+		uart_puts("/r");
+		srand(addr);
+		for(offset = 0; offset < blocksize; offset++) {
+			val = sram_read(addr+offset);
+			if ( val != 0xff ) {
+				uart_puts("error at ");
+				uart_puthex((addr+offset)>>8);
+				uart_puthex(addr+offset);
+				uart_puts(", ");
+				errorcount++;
+			}
+		}
+
+		uart_puts(", random w");
+		srand(addr);
+		for(offset = 0; offset < blocksize; offset++) {
+			sram_write(addr+offset, (rand() & 0xff) );
+		}
+		uart_puts("/r");
+		srand(addr);
+		for(offset = 0; offset < blocksize; offset++) {
+			val = sram_read(addr+offset);
+			if ( val != (rand() & 0xff) ) {
+				uart_puts("error at ");
+				uart_puthex((addr+offset)>>8);
+				uart_puthex(addr+offset);
+				uart_puts(", ");
+				errorcount++;
+			}
+		}
+		uart_puts(".\n");
 	}
-	uart_puts("\nreading...\n");
-	for(addr = 0; addr < 0x10000; addr++) {
-		unsigned char val = sram_read(addr);
-		if ( (addr & 0xfff) == 0xfff ) {
-			uart_puthex(addr>>8);
-			uart_puthex(addr);
-			uart_puts(", ");
-		}
-		if ( val != buf[addr % 7] ) {
-			uart_puts("error at ");
-			uart_puthex(addr>>8);
-			uart_puthex(addr);
-			uart_puts(", ");
-			errorcount++;
-		}
-	}
+
 	if ( errorcount != 0 ) {
 		uart_puts("total ");
 		uart_putnum_u16(errorcount, 5);
@@ -659,69 +641,10 @@ out
   static unsigned char sect = 0;
   static unsigned char dma_lo = 0;
   static unsigned char dma_hi = 0;
-  static unsigned char esc = 0;
-#if defined(EFI)
-  static INT64 row;
-#endif // defined(EFI)
 
   switch(port) {
   case 1:
-    switch (esc) {
-    case 1:
-      if ('=' == val) esc = 2;
-      else if (';' == val) {
-        if (vt_cnv == 1) {
-          uart_puts("\e[2J");
-#if defined(EFI)
-        } else {
-          uefi_call_wrapper(efi_systab->ConOut->ClearScreen, 1,
-                            efi_systab->ConOut);
-#endif // defined(EFI)
-        }
-        esc = 0;
-      } else esc = 0;
-      break;
-    case 2:
-      if (vt_cnv == 1) {
-        uart_puts("\e[");
-        uart_putnum_u16(val - 0x20 + 1, -1);
-#if defined(EFI)
-      } else {
-        row = val - 0x20;
-#endif // defined(EFI)
-      }
-      esc = 3;
-      break;
-    case 3:
-      if (vt_cnv == 1) {
-        uart_putchar(';');
-        uart_putnum_u16(val - 0x20 + 1, -1);
-        uart_putchar('H');
-#if defined(EFI)
-      } else {
-        INT64 column = val - 0x20;
-        uefi_call_wrapper(efi_systab->ConOut->SetCursorPosition, 3,
-                          efi_systab->ConOut, column, row);
-#endif // defined(EFI)
-      }
-      esc = 0;
-      break;
-    default:
-      if (0 == vt_cnv) uart_putchar(val);
-      else {
-        if (0x1a == val) {
-          if (vt_cnv == 1) {
-            uart_puts("\e[2J");
-#if defined(EFI)
-          } else {
-            uefi_call_wrapper(efi_systab->ConOut->ClearScreen, 1,
-                              efi_systab->ConOut);
-#endif // defined(EFI)
-          }
-        } else if (0x1b == val) esc = 1;
-        else uart_putchar(val);
-      }
-    }
+	  uart_putchar(val);
     break;
   case 10:
     drive = val;
@@ -755,23 +678,27 @@ out
   }
 }
 
-unsigned char
-in
-(unsigned char port)
-{
-  if (0 == port) {
-    if (0 != uart_peek()) return 0xff;
-    return 0;
-  } else if (1 == port) {
-    int c;
-    do {
-      c = uart_getchar();
-    } while (-1 == c);
-    return c;
-  } else if (14 == port) {
-    return 0;
+unsigned char in(unsigned char port) {
+	int c;
+	switch(port) {
+	case 0:
+		if (0 != uart_peek())
+			return 0xff;
+		return 0;
+		break;
+	case 1:
+		do {
+			c = uart_getchar();
+		} while (-1 == c);
+		return c;
+		break;
+	case 14:
+		return 0;
+		break;
+	default:
+		return 0;
+		break;
   }
-  return 0;
 }
 
 int
@@ -791,7 +718,7 @@ machine_boot
 #endif // defined(CLR_MEM)
 #if defined(MON_MEM) || defined(CHK_MEM)
   if ( mem_chk() ) {
-	  uart_puts("memory check passed.\n");
+	  uart_puts("\nmemory check passed.\n");
   }
 #endif // defined(MON_MEM) || defined(CHK_MEM)
   char rc = sdcard_open();

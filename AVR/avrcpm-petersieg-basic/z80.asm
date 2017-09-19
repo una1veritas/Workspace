@@ -20,24 +20,26 @@
 ;
 
 ;.nolist
+
+
 #if defined atmega8
 	.include "m8def.inc"
 #elif defined atmega168
 	.include "m168def.inc"
-#elif defined atmega328P
-	.include "m328Pdef.inc"
-#else                               /* default */
+#elif defined atmega88
 	.include "m88def.inc"
 	;FUSE_H=0xDF
 	;FUSE_L=0xF7
+#elif defined atmega328p
+                               /* default */
+	.include "m328Pdef.inc"
 #endif
 .list
 .listmac
 
 
-
 #ifndef F_CPU
-	#define F_CPU  20000000        /* system clock in Hz; defaults to 20MHz */
+	#define F_CPU  16000000        /* system clock in Hz; defaults to 20MHz */
 #endif
 #ifndef BAUD
 	#define BAUD   38400           /* console baud rate */
@@ -356,9 +358,9 @@ clr_l:
 	ldi temp, (1<<UCSZ01) | (1<<UCSZ00)
 .endif
 	outm8 UCSR0C,temp
-	ldi temp, HIGH(UBRR_VAL)
+	ldi temp, high(UBRR_VAL)
 	outm8 UBRR0H,temp
-	ldi temp, LOW(UBRR_VAL)
+	ldi temp, low(UBRR_VAL)
 	outm8 UBRR0L,temp
 
 ; Init clock/timer system

@@ -30,7 +30,7 @@
  */
 
 /*	.arch atmega88 */
-	.include "sram_mac.s"
+//	.include "sram_mac.s"
 //	.include "sram_test.s"
 
 #define reg_a r17
