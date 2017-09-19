@@ -1,0 +1,11 @@
+	ORG	0
+	LD A, 01H
+LOOP_ENTRY:	
+	INC A
+	INC A
+	LD B, A
+	OUT (01H), A
+	IN A, (01H)
+	JR LOOP_ENTRY
+	END
+	
