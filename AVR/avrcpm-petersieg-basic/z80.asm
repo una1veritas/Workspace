@@ -21,7 +21,6 @@
 
 ;.nolist
 
-
 #if defined atmega8
 	.include "m8def.inc"
 #elif defined atmega168
@@ -31,7 +30,6 @@
 	;FUSE_H=0xDF
 	;FUSE_L=0xF7
 #elif defined atmega328p
-                               /* default */
 	.include "m328Pdef.inc"
 #endif
 .list
@@ -39,7 +37,7 @@
 
 
 #ifndef F_CPU
-	#define F_CPU  16000000        /* system clock in Hz; defaults to 20MHz */
+	#define F_CPU  20000000        /* system clock in Hz; defaults to 20MHz */
 #endif
 #ifndef BAUD
 	#define BAUD   38400           /* console baud rate */

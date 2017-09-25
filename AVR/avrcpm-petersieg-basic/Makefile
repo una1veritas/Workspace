@@ -99,7 +99,7 @@ clean:
 
 # file targets:
 z80.hex: 	z80.asm
-	/opt/local/bin/wine /usr/local/AVR2/avrasm2.exe -I /usr/local/AVR2 -fI -DF_CPU=$(CLOCK) -DATmega328P z80.asm
+	/opt/local/bin/wine /usr/local/AVR2/avrasm2.exe -I /usr/local/AVR2 -fI -DF_CPU=$(CLOCK) -Datmega328p z80.asm
 
 main.elf: $(OBJECTS)
 	$(COMPILE) -o main.elf $(OBJECTS)
