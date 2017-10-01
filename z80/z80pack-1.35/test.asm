@@ -1,13 +1,17 @@
 	ORG 0000h
 init:
-	LD A,(count)
+	LD A, $0e
+	LD (tmp),A
 loop:
-	DEC A
-	LD (count),A
-	JP NZ,loop
+	LD A,(tmp)
+	out ($01),A
+	JP loop
 stop:
 	HALT
-count:	
-	db 5
+
+tmp:
+	db $0E
+const_mess:
+	dm "Hello.",13,0
 	
 	END
