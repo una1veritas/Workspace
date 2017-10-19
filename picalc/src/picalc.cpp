@@ -5,14 +5,15 @@
 // Copyright   : Your copyright notice
 // Description : Hello World in C++, Ansi-style
 //============================================================================
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
 #include <iostream>
 #include <iomanip>
 using namespace std;
 
-int main(const int argc, const char * const argv[]) {
+int main(const int argc, const char * argv[]) {
 	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
 
 	long n = 1000; // default
