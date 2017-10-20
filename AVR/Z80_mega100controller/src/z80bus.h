@@ -13,14 +13,13 @@
 #include "z80_iodef.h"
 #include "types.h"
 
-void busmode_z80(void);
+uint8 z80_bus_init(void);
 uint8 z80_busreq(void);
-uint8 z80_busfree(void);
 
 void z80_reset(void);
 uint8 z80_rd();
 uint8 z80_wr();
-uint8 z80_m1();
+uint8 z80_m1rd();
 uint8 z80_in();
 uint8 z80_out();
 

@@ -34,10 +34,12 @@
 #define Z80_M1 			(1<<PB4)
 #define Z80_M1_PIN 		10
 
+/*
 #define ALLOW_Z80_MREQ_PORT	PORTH
 #define ALLOW_Z80_MREQ_DDR	DDRH
 #define ALLOW_Z80_MREQ 		(1<<PH4)
 #define ALLOW_Z80_MREQ_PIN 	7
+*/
 
 #define Z80_RD_PORT 	PORTG
 #define Z80_RD 			(1<<PG1)
@@ -54,5 +56,14 @@
 #define Z80_IORQ_PORT 	PORTE
 #define Z80_IORQ 		(1<<PE3)
 #define Z80_IORQ_PIN 	5
+
+#define Z80_ADDRL_PORT 	PORTA
+#define Z80_ADDRH_PORT 	PORTC
+#define Z80_ADDRX_PORT 	PORTL
+#define Z80_ADDRL_MASK 	0xff
+#define Z80_ADDRH_MASK 	0xff
+#define Z80_ADDRX_MASK 	(1<<PL0)
+#define Z80_DATA_PORT 	PORTF
+#define Z80_DATA_MASK	0xff
 
 #endif /* SRC_Z80_IODEF_H_ */

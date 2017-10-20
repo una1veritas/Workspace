@@ -1,4 +1,3 @@
-
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
@@ -10,82 +9,114 @@
 #define USART0_RX_vect USART_RX_vect
 #endif
 
-#define FIFO_SIZE (1<<4)
+#define	UART_BUFF_SIZE		(1<<6)
 
-static unsigned char rxfifo[FIFO_SIZE];
-static unsigned char rxenq = 0;
-static unsigned char rxdeq = 0;
+typedef struct {
+	uint16_t	wi, ri, ct;
+	uint8_t buff[UART_BUFF_SIZE];
+} FIFO;
 
-static int uart_putc(char c, FILE *stream)
-{
-  uart_tx(c);
-  return c;
-}
-static FILE uartout = FDEV_SETUP_STREAM(uart_putc, NULL, _FDEV_SETUP_WRITE);
+static volatile FIFO TxFifo, RxFifo;
+
+static int uart_putchar(char c, FILE *stream);
+static FILE uartout = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
 
 void uart_init(unsigned long baud) {
-    cli();
+	cli();
+
+	RxFifo.ct = 0; RxFifo.ri = 0; RxFifo.wi = 0;
+	TxFifo.ct = 0; TxFifo.ri = 0; TxFifo.wi = 0;
+
     // Macro to determine the baud prescale rate see table 22.1 in the Mega datasheet
 
     UBRR0 = (((F_CPU / (baud * 16UL))) - 1);         // Set the baud rate prescale rate register
-    UCSR0B = ((1<<RXEN0)|(1<<TXEN0));  // Enable receiver and transmitter and Rx interrupt
-    UCSR0C = ((0<<USBS0)|(1 << UCSZ01)|(1<<UCSZ00));  // Set frame format: 8data, 1 stop bit. See Table 22-7 for details
+    UCSR0C = ( (0<<USBS0) | (1 << UCSZ01) | (1<<UCSZ00));  // Set frame format: 8data, 1 stop bit. See Table 22-7 for details
+    UCSR0B = ( (1<<RXEN0) | (1<<TXEN0) | (1<<RXCIE0));  // Enable receiver and transmitter
 
-    UCSR0B |= (1 << RXCIE0);
-    /*
-    UCSR0B |= (1 << TXCIE0);
-     */
-    sei();
+	sei();
 
 	stdout = &uartout;
 }
 
-unsigned char uart_tx(unsigned char data) {
-    //while the transmit buffer is not empty loop
-    while(!(UCSR0A & (1<<UDRE0)));
-    //when the buffer is empty write data to the transmitted
-    UDR0 = data;
-    return data;
+
+unsigned int uart_available (void) {
+	return RxFifo.ct;
 }
 
-/* this function is no use */
-unsigned char uart_rx(void) {
-	/* Wait for data to be received */
-	while (!(UCSR0A & (1<<RXC0)));
-	/* Get and return received data from buffer */
-	return UDR0;
+uint8_t uart_rx (void) {
+	uint8_t d, i;
+
+	while (RxFifo.ct == 0) ;
+
+	i = RxFifo.ri;
+	d = RxFifo.buff[i];
+	cli();
+	RxFifo.ct--;
+	sei();
+	RxFifo.ri = (i + 1) & (UART_BUFF_SIZE-1);
+
+	return d;
+}
+
+void uart_tx (uint8_t d) {
+	uint8_t i;
+
+	while (TxFifo.ct >= UART_BUFF_SIZE ) ;
+
+	i = TxFifo.wi;
+	TxFifo.buff[i] = d;
+	cli();
+	TxFifo.ct++;
+	UCSR0B |= (1<<UDRIE0);
+	sei();
+	TxFifo.wi = (i + 1) & (UART_BUFF_SIZE-1);
 }
 
 
 ISR(USART0_RX_vect)
 {
-	rxfifo[rxenq++] = UDR0;
-	rxenq &= (FIFO_SIZE-1);
-	if ( rxenq == rxdeq ) {
-		// waste the oldest data
-		rxdeq++;
-		rxdeq &= (FIFO_SIZE-1);
+	uint8_t d, n, i;
+
+	d = UDR0;
+	n = RxFifo.ct;
+	if (n < UART_BUFF_SIZE) {
+		RxFifo.ct = ++n;
+		i = RxFifo.wi;
+		RxFifo.buff[i] = d;
+		RxFifo.wi = (i + 1) & (UART_BUFF_SIZE-1);
 	}
 }
 
-void uart_putchar(unsigned char c) {
-	uart_tx(c);
+ISR(USART0_UDRE_vect)
+{
+	uint8_t n, i;
+
+
+	n = TxFifo.ct;
+	if (n) {
+		TxFifo.ct = --n;
+		i = TxFifo.ri;
+		UDR0 = TxFifo.buff[i];
+		TxFifo.ri = (i + 1) & (UART_BUFF_SIZE-1);
+	}
+	if (n == 0)
+		UCSR0B &= ~(1<<UDRIE0);
 }
 
 int uart_getchar() {
-	if ( rxdeq == rxenq ) // empty
+	if ( uart_available() == 0 ) // empty
 		return -1;
-	char c = rxfifo[rxdeq++];
-	rxdeq &= (FIFO_SIZE-1);
-	return c;
+	return uart_rx();
+}
+
+static int uart_putchar(char c, FILE *stream)
+{
+  uart_tx(c);
+  return c;
 }
 
 int uart_peek() {
-	if ( rxenq == rxdeq )
+	if ( uart_available() == 0 ) // empty
 		return -1;
-	return rxfifo[rxdeq];
-}
-
-unsigned int uart_available() {
-	return (rxenq + FIFO_SIZE - rxdeq) & (FIFO_SIZE-1);
+	return RxFifo.buff[RxFifo.ri];
 }

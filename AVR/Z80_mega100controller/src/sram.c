@@ -8,8 +8,8 @@
 #include "types.h"
 #include "sram.h"
 
-#define READ_AFTER_OE
-#undef READ_AFTER_NOP
+#undef READ_AFTER_OE
+#define READ_AFTER_NOP
 
 void sram_bus_init() {
   ADDRL_DIR = ADDRL_MASK; // fixed to be OUTPUT
@@ -18,6 +18,15 @@ void sram_bus_init() {
   DATA_DIR = DATA_MASK;
   CONTROL_DIR |= ( SRAM_WE | SRAM_OE | SRAM_CS | SRAM_ALE );
   CONTROL |= ( SRAM_WE | SRAM_OE | SRAM_CS | SRAM_ALE);
+}
+
+void sram_bus_release() {
+  ADDRL_DIR = 0x00l;
+  ADDRH_DIR = 0x00;
+  ADDRX_DIR &= ~ADDRX_MASK;
+  DATA_DIR = 0x00;
+  CONTROL_DIR &= ~( SRAM_WE | SRAM_OE | SRAM_CS | SRAM_ALE );
+  CONTROL |= ( SRAM_CS ); // pull-up to avoid unexpected data change
 }
 
 void sram_enable() {

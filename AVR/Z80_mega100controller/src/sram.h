@@ -18,6 +18,7 @@
 */
 
 void sram_bus_init(void);
+void sram_bus_release(void);
 void sram_enable(void);
 void sram_disable(void);
 uint8 sram_read(uint32 addr);

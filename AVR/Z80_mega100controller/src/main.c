@@ -8,6 +8,7 @@
 #include <stdlib.h>
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include <util/delay.h>
 
 #include "types.h"
@@ -16,7 +17,6 @@
 #include "sram.h"
 
 int mem_check(uint32 addr_end) {
-	//const char text[] = "If I speak in the tongues of men or of angels, but do not have love, I am only a resounding gong or a clanging cymbal. If I have the gift of prophecy and can fathom all mysteries and all knowledge, and if I have a faith that can move mountains, but do not have love, I am nothing. If I give all I possess to the poor and give over my body to hardship that I may boast, but do not have love, I gain nothing.\n\nLove is patient, love is kind. It does not envy, it does not boast, it is not proud. It does not dishonor others, it is not self-seeking, it is not easily angered, it keeps no record of wrongs. Love does not delight in evil but rejoices with the truth. It always protects, always trusts, always hopes, always perseveres.\n\nLove never fails. But where there are prophecies, they will cease; where there are tongues, they will be stilled; where there is knowledge, it will pass away. For we know in part and we prophesy in part, but when completeness comes, what is in part disappears. When I was a child, I talked like a child, I thought like a child, I reasoned like a child. When I became a man, I put the ways of childhood behind me. For now we see only a reflection as in a mirror; then we shall see face to face. Now I know in part; then I shall know fully, even as I am fully known.\n\nAnd now these three remain: faith, hope and love. But the greatest of these is love.\n";
 	const uint16 blocksize = (1<<13); // 8kb
 	const uint16 datasize = 127;
 	uint8 data[datasize];
@@ -45,7 +45,7 @@ int mem_check(uint32 addr_end) {
 	    for(uint16 i = 0; i < blocksize; i++) {
 	      readout = sram_read(addr+i);
 	      if ( readout != data[i % datasize] ) {
-	    	  printf(" error @ %04lx [%02x/%02x]\n",addr+i,data[ i % datasize],readout);
+	    	  printf(" error @ %04lx [%02x/%02x]\r\n",addr+i,data[ i % datasize],readout);
 	    	  errs++;
 	      } else {
 	    	  sram_write(addr+i, 0x00);
@@ -55,11 +55,12 @@ int mem_check(uint32 addr_end) {
 	    	totalerrs += errs;
 	    } else {
 	    	blockcount++;
+	    	printf(" ok");
 	    }
-	    printf("\n");
+	    printf("\r\n");
 	}
-    printf("\n");
-    printf("Finished %lu bytes with %lu errors.\n", blockcount*(uint32_t)blocksize, totalerrs);
+    printf("\r\n");
+    printf("Finished %lu bytes with %lu errors.\r\n", blockcount*(uint32_t)blocksize, totalerrs);
 
     sram_disable();
 
@@ -68,7 +69,9 @@ int mem_check(uint32 addr_end) {
 
 void start_OC1A(uint8 presc, uint16 top) {
   const uint8 MODE = 4;
-//  noInterrupts();
+
+  cli();
+
   TIMSK1 = 0;
 
   TCCR1A = 0;
@@ -81,17 +84,19 @@ void start_OC1A(uint8 presc, uint16 top) {
   TCCR1B |= ((MODE >> 2 & 0x03) << 3) | ((presc&0x07) << CS10);
   TCCR1C |= (1 << FOC1A);
 
-//  interrupts();
+  sei();
 }
 
 void loop();
 
-uint8 mem[] = {
-		0x3e, 0x0e, 0x32, 0x0e, 0x00, 0x3a, 0x0e, 0x00,
-		0xd3, 0x01, 0xc3, 0x05, 0x00, 0x76, 0x0e, 0x48,
-		0x65, 0x6c, 0x6c, 0x6f, 0x2e, 0x0d, 0x00,
+const uint16 mem_size = 1<<8;
+uint8 mem[256] = {
+		0xd3, 0xd3, 0xd3, 0xd3, 0xd3, 0xd3, 0xd3, 0xd3,
+		0xd3, 0xd3, 0xd3, 0xd3, 0xd3, 0xd3, 0xd3, 0xd3,
+		0xd3, 0xd3, 0xd3, 0xd3, 0xd3, 0xd3, 0xd3, 0xd3,
+		0xd3, 0xd3, 0xd3, 0xd3, 0xd3, 0xd3, 0xd3, 0xd3,
+		0xc3, 0x00, 0x00,
 };
-const uint16 mem_size = sizeof mem;
 
 void mem_load(uint8 * mem, uint16 saddr, uint16 length) {
 	sram_enable();
@@ -102,37 +107,49 @@ void mem_load(uint8 * mem, uint16 saddr, uint16 length) {
 	sram_disable();
 }
 
-uint16 bus_address() {
+uint16 addressbus() {
 	return (((uint16) PINC)<<8 | PINA);
 }
-uint8 bus_data() {
+
+void databus_readmode() {
+	DDRF = 0x00;
+}
+
+void databus_writemode() {
+	DDRF = 0xff;
+}
+
+uint8 databus_read(void) {
 	return PINF;
+}
+
+uint8 databus_write(uint8_t data) {
+	return PORTF = data;
 }
 
 int main(void) {
 	uart_init(57600);
-	printf("\n\nHello there.\n");
+	printf("\r\n\r\nHello there.\r\n");
 
-	printf("start Z80 clock osc.\n");
-	start_OC1A(5,400);
-
-	printf("reseting Z80.\n");
-	z80_reset();
+	printf("start Z80 clock osc.\r\n");
+	start_OC1A(5,800);
+	_delay_ms(500);
 	printf("busreq to z80 ");
 	if ( z80_busreq() ) {
-		printf("ok.\n");
+		printf("ok.\r\n");
 	} else {
-		printf("failed! stop.\n");
+		printf("failed! stop.\r\n");
 		while(1);
 	}
+	INPUTMODE(Z80_CLK_PORT, Z80_CLK);
 
 	sram_bus_init();
-	mem_check(0x20000 - 1);
-	mem_load(mem, 0x000, mem_size);
+//	mem_check(0x20000 - 1);
+//	mem_load(mem, 0x000, mem_size);
+	sram_bus_release();
 
-	busmode_z80();
-	z80_busfree();
-	printf("z80 gained bus. reseting Z80.\n");
+	z80_bus_init();
+	printf("z80 gained bus. reseting Z80.\r\n");
 	z80_reset();
 
 	for(;;)
@@ -140,20 +157,45 @@ int main(void) {
 }
 
 void loop() {
-	if ( !z80_m1() ) {
-		printf("M1 R [%04x] %02x\n", bus_address(), bus_data() );
+	uint8 data;
+	uint16 addr;
+
+	if ( !z80_m1rd() ) {
+		databus_writemode();
+		addr = addressbus();
+		data = mem[addr & (mem_size-1)];
+		databus_write(data);
 		while ( !z80_rd());
+		databus_readmode();
+		printf("M1 R [%04x] %02x\r\n", addr, data );
 	} else if ( !z80_rd() ) {
-		printf("   R [%04x] %02x\n", bus_address(), bus_data() );
-		while ( !z80_rd());
+		databus_writemode();
+		addr = addressbus();
+		data = mem[addr & (mem_size-1)];
+		databus_write(data);
+		while ( !z80_rd() );
+		databus_readmode();
+		printf("   R [%04x] %02x\r\n", addr, data );
 	} else if ( !z80_wr() ) {
-		printf("   W [%04x] %02x\n", bus_address(), bus_data() );
+		databus_readmode();
+		addr = addressbus();
+		data = databus_read();
+		mem[addr] = data;
 		while (!z80_wr());
+		printf("   W [%04x] %02x\r\n", addr, data );
 	} else if ( !z80_in() ) {
-		printf("   I [%04x] %02x\n", bus_address(), bus_data() );
-		while (!z80_in());
+		databus_writemode();
+		addr = addressbus();
+		data = 0xff;
+		databus_write(data);
+		while ( !z80_in());
+		databus_readmode();
+		printf("   I [%04x] %02x\r\n", addr, data );
 	} else if ( !z80_out() ) {
-		printf("   O [%04x] %02x\n", bus_address(), bus_data() );
+		databus_readmode();
+		addr = addressbus();
+		data = databus_read();
 		while (!z80_out());
+		printf("   O [%04x] %02x\r\n", addr, data );
 	}
 }
