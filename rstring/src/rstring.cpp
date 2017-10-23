@@ -9,35 +9,62 @@
 #include <iostream>
 #include <random>
 
-void get_alphabet(unsigned char alphabet[], const char * ptr);
+#include <cstdlib>
+#include <cctype>
 
-int main(const int argc, char * const argv[]) {
-	unsigned char alphabet[256];
-	get_alphabet(alphabet, argv[1]);
-	unsigned int alphabet_size = strlen((const char*)alphabet);
+#include <math.h>
+
+unsigned int get_alphabet(unsigned char alphabet[], const int argc, char * ptr[]);
+
+int main(const int argc, char * argv[]) {
+	unsigned char alphabet[256+1];
+	unsigned int alph_size;
+	unsigned int max_length;
+	alph_size = get_alphabet(alphabet, argc, argv);
 	std::random_device rdev;
-	std::mt19937 mt(rdev()), mt_len(rdev());
-	std::uniform_int_distribution<unsigned char> ascode(0,alphabet_size);
-	std::uniform_int_distribution<double> lenrand(0,1.0f);
+	std::mt19937 mt(rdev()), mt_len(rdev()), mt_rand(rdev());
+	std::uniform_int_distribution<unsigned char> ralph(0,alph_size);
+	std::uniform_int_distribution<unsigned int> rlength(1,32);
+	std::uniform_real_distribution<double> random(0,1.0);
 
-	for(int i = 0; i < 100; i++) {
-		for(int l = 0; l < 32; l++) {
-			std::cout << alphabet[ascode(mt)];
-			if ( lenrand(mt_len) < 0.1 )
-				break;
+	for(int i = 0; i < 1000; ) {
+		int len = rlength(mt_len);
+		if ( random(mt_rand) > pow((double)len/32,3)/(exp( len/(double)32)-1) )
+			continue;
+		for(int l = 0; l < len; l++) {
+			std::cout << alphabet[ralph(mt)];
 		}
+		++i;
 		std::cout << std::endl;
 	}
 	return 0;
 }
 
-void get_alphabet(unsigned char alph[], const char *argv) {
+unsigned int get_alphabet(unsigned char alph[], const int argc, char *argv[]) {
 	unsigned char * ptr = alph;
-	if ( argv == NULL || *argv == '\0' ) {
-		for (unsigned int i = 0x20; i < 0x7f; i++) {
-			*ptr++ = (unsigned char) i;
+	char * argptr = NULL;
+	unsigned int argpos;
+	for(argpos = 1; argpos < argc; argpos++) {
+		if ( strncmp(argv[argpos], "-a", 2) )
+			continue;
+		if ( strlen(argv[argpos]+2) == 0 ) {
+			if ( (argpos+1 < argc) && (argv[argpos+1] != NULL) )
+				argptr = argv[++argpos];
+		} else {
+			std::cout << "here2" << std::endl;
+			argptr = argv[argpos]+2;
+		}
+		break;
+	}
+	if ( argptr == NULL ) {
+		for (unsigned int i = 0x30; i < 0x7f; i++) {
+			if ( isalnum((char)i) )
+				*ptr++ = (unsigned char) i;
 		}
 		*ptr = '\0';
+	} else {
+		strncpy((char *)alph, argptr, 256);
+		alph[256] = '\0';
 	}
-	return;
+	return strlen((char*)alph);
 }
