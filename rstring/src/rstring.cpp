@@ -23,7 +23,7 @@ int main(const int argc, char * argv[]) {
 	unsigned int max_length, mode_length, outnum;
 	alph_size = get_alphabet(alphabet, argc, argv);
 	max_length = get_int(argc, argv, "-l", 32);
-	mode_length = get_int(argc, argv, "-l", max_length*3/5);
+	mode_length = get_int(argc, argv, "-m", max_length*3/5);
 	outnum = get_int(argc, argv, "-n", 1000);
 
 	std::random_device rdev;
