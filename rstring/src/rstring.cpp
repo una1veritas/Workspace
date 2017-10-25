@@ -34,7 +34,7 @@ int main(const int argc, char * argv[]) {
 
 	for(int i = 0; i < outnum; ) {
 		int rlen = rlength(mt_len);
-		double sg = 12.0;
+		double sg = 8.0;
 		double pr = 1/(2.5f*sg)*exp(-pow((double)rlen - (double)mode_length,2)/pow(2*sg,2));
 		if ( random(mt_rand) > pr )
 			continue;
