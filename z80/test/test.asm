@@ -1,13 +1,36 @@
-	ORG 0000h
-init:
-	LD A, 0
-	LD HL, $aa55
-loop_entry:
-	LD (result),A
-	INC A
-	OUT ($aa),A
-	JP loop_entry
+COUT 	.equ	$02
 	
+	org $0000
+init:
+	ld hl, buff
+	ld sp, hl
+	jp progstart
 
-result:
-	db 0
+	defs $31,0
+	org $0038
+rst38h:
+	ret
+
+	defs $c7, 0
+	org $0100
+buff:
+	
+	org $1000
+progstart:
+	ld hl, str_msg
+	call printmsg
+
+progend:
+	halt
+
+printmsg:
+	ld a,(hl)
+	and a
+	ret z
+	out (COUT),a
+	inc hl
+	jr printmsg
+	
+str_msg:
+	db "Hi, there!",13,10,0
+	

@@ -1,13 +1,13 @@
-; *** Z80 ƒTƒ“ƒvƒ‹ƒvƒƒOƒ‰ƒ€ ***
+; *** Z80 ã‚µãƒ³ãƒ—ãƒ«ãƒ—ãƒ­ã‚°ãƒ©ãƒ  ***
 ; 
-; –{‹@‚Í‹N“®Žž‚ÉSDƒJ[ƒh‚ª“Çž‚ß‚È‚¢‚Æ‚«AVR‚ÌEEPROM‚ðZ80‚Ìƒƒ‚ƒŠ‚É”z’u‚µ‚Ä
-; ƒXƒ^[ƒg‚·‚é‚æ‚¤‚É‚µ‚Ä‚ ‚è‚Ü‚·B
-; EEPROM‚ÌƒTƒCƒYˆÈ“à‚Ì”CˆÓ‚ÌZ80ƒvƒƒOƒ‰ƒ€‚ð“®‚©‚·‚±‚Æ‚ª‚Å‚«‚Ü‚·B
-; ‚±‚Ìƒfƒ‚ƒvƒƒOƒ‰ƒ€‚ÍAƒfƒBƒXƒN‚ÌÄ‘}“ü‚ð‘£‚·ƒƒbƒZ[ƒW‚ð•\Ž¦‚µA
-; IPL‚ðÄƒ[ƒh‚·‚é‚¾‚¯‚Ì’Pƒ‚È‚à‚Ì‚Å‚·B
-; ƒR[ƒh‚ðƒCƒ“ƒeƒ‹HEXŒ`Ž®‚Å¶¬‚Å‚«‚éƒAƒZƒ“ƒuƒ‰‚ðŽg‚Á‚Ä‚­‚¾‚³‚¢B
+; æœ¬æ©Ÿã¯èµ·å‹•æ™‚ã«SDã‚«ãƒ¼ãƒ‰ãŒèª­è¾¼ã‚ãªã„ã¨ãAVRã®EEPROMã‚’Z80ã®ãƒ¡ãƒ¢ãƒªã«é…ç½®ã—ã¦
+; ã‚¹ã‚¿ãƒ¼ãƒˆã™ã‚‹ã‚ˆã†ã«ã—ã¦ã‚ã‚Šã¾ã™ã€‚
+; EEPROMã®ã‚µã‚¤ã‚ºä»¥å†…ã®ä»»æ„ã®Z80ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚’å‹•ã‹ã™ã“ã¨ãŒã§ãã¾ã™ã€‚
+; ã“ã®ãƒ‡ãƒ¢ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã¯ã€ãƒ‡ã‚£ã‚¹ã‚¯ã®å†æŒ¿å…¥ã‚’ä¿ƒã™ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’è¡¨ç¤ºã—ã€
+; IPLã‚’å†ãƒ­ãƒ¼ãƒ‰ã™ã‚‹ã ã‘ã®å˜ç´”ãªã‚‚ã®ã§ã™ã€‚
+; ã‚³ãƒ¼ãƒ‰ã‚’ã‚¤ãƒ³ãƒ†ãƒ«HEXå½¢å¼ã§ç”Ÿæˆã§ãã‚‹ã‚¢ã‚»ãƒ³ãƒ–ãƒ©ã‚’ä½¿ã£ã¦ãã ã•ã„ã€‚
 ; ZASM http://www.vector.co.jp/soft/dos/prog/se010314.html
-; ƒtƒ@ƒCƒ‹Šg’£Žq‚ð.hex‚©‚ç.eep‚É•Ï‚¦‚ÄAVRƒvƒƒOƒ‰ƒ}‚Å“o˜^‚µ‚Ä‚­‚¾‚³‚¢B
+; ãƒ•ã‚¡ã‚¤ãƒ«æ‹¡å¼µå­ã‚’.hexã‹ã‚‰.eepã«å¤‰ãˆã¦AVRãƒ—ãƒ­ã‚°ãƒ©ãƒžã§ç™»éŒ²ã—ã¦ãã ã•ã„ã€‚
 ;
 
 cr:	equ	13
