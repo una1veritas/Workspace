@@ -12,6 +12,22 @@
 #include <cstdlib>
 #include <cctype>
 
+int strhex(char * str) {
+	unsigned char c;
+	unsigned char val = 0;
+	for (int i = 0; i < 2; i++) {
+		c = toupper(str[i]);
+		if ( c > '9' )
+			c -= 7;
+		c -= '0';
+		if ( c > 15 )
+			return -1;
+		val <<= 4;
+		val |= c;
+	}
+	return val;
+}
+
 int main(const int argc, const char * argv[]) {
 
 	if ( !(argc >= 2) ) {
@@ -45,6 +61,7 @@ int main(const int argc, const char * argv[]) {
 	unsigned int address = 0;
 	char buf[256];
 	unsigned char bytes[256];
+	unsigned char hexhead[4];
 	unsigned int byteindex, bytecount;
 	unsigned char xsum, recordtype;
 
@@ -64,52 +81,36 @@ int main(const int argc, const char * argv[]) {
 				break;
 			}
 		} else if ( sta == BYTECOUNT ) {
-			if ( fgets(buf,2+1,fp) == NULL ) {
+			if ( fgets(buf,8+1,fp) == NULL ) {
 				sta = FILEREADERROR;
 				break;
 			} else {
-				bytecount = strtol(buf, &ptr, 16);
-				if ( *ptr != (char)0 ) {
-					sta = SYNTAXERROR;
-					break;
+				for(int i = 0; i < 4; ++i) {
+					int val = strhex(buf+(i<<1));
+					if ( val == -1 ) {
+						sta = SYNTAXERROR;
+						break;
+					}
+					hexhead[i] = val;
 				}
-				xsum += bytecount;
-				sta = ADDRESS;
-				//printf("byte count %d, ",bytecount);
-			}
-		} else if ( sta == ADDRESS ) {
-			if ( fgets(buf,4+1,fp) == NULL ) {
-				sta = FILEREADERROR;
-				break;
-			} else {
-				address = strtol(buf, &ptr, 16);
-				if ( *ptr != (char)0 ) {
-					sta = SYNTAXERROR;
+				if ( sta == SYNTAXERROR )
 					break;
-				}
-				//printf("address %04X, ",address);
-				xsum += address>>8 & 0xff;
-				xsum += address & 0xff;
-				sta = RECORDTYPE;
-			}
-		} else if ( sta == RECORDTYPE ) {
-			if ( fgets(buf,2+1,fp) == NULL ) {
-				sta = FILEREADERROR;
-				break;
-			} else {
-				recordtype = strtol(buf, &ptr, 16);
-				if ( *ptr != (char)0 ) {
-					sta = SYNTAXERROR;
-					break;
-				}
-				xsum += recordtype;
+				bytecount = hexhead[0];
+				xsum += hexhead[0];
+				address = hexhead[1];
+				xsum += hexhead[1];
+				address <<= 8;
+				address |= hexhead[2];
+				xsum += hexhead[2];
+				recordtype = hexhead[3];
+				xsum += hexhead[3];
 				if ( bytecount ) {
 					sta = DATA;
 					byteindex = 0;
 				} else {
 					sta = CHECKSUM;
 				}
-				//printf("type %02X, ", recordtype);
+				//printf("byte count %d, ",bytecount);
 			}
 		} else if ( sta == DATA ) {
 			if ( fgets(buf,2+1,fp) == NULL ) {

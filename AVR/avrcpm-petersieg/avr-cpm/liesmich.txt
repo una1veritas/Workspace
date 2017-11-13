@@ -1,0 +1,127 @@
+AVR CP/M
+========
+
+You probably know what an emulator is. An emulator is a computer program which emulates (duh) another computer system. 
+For example, you can download a GameBoy emulator, rip your old cartridges to a computer file and play the games without needing 
+a real GameBoy. Usually, the system a platform is emulated on (in this case: a PC) is (much) more powerful and capable than the 
+machine it emulates: seemingly, it takes at least a 32-bit machine running at some 30MHz to emulate the puny 8-bit Gameboy running 
+on 4MHz.
+
+There is, however, nothing stating that the emulated machine has to be less powerfull than the one running the emulator. 
+In computer science, the concept of being Turing-complete illustrates that. Turing-complete means that a certain machine can 
+emulate a Turing-machine, and it is proven that a Turing-machine can emulate any Turing-complete machine, given enough storage. 
+Thus, in theory, the Gameboy could just as well emulate the PC as the other way around, given enough storage. Ofcourse, a 
+real-time emulation would be out of the question with the speeds involved, but if you'd wait long enough, you should get the 
+same results.
+
+All that is nice in theory, but I wanted to try it out once. (Besides: I had not written emulator code for a long time and I 
+remember it as being fun to see someone elses binaries running merrily on hardware for which it wasn't intended.) But what to 
+emulate with what? Theoretically, I could emulate a PC with a 4004, but that would take a hellovalot of development time and I 
+didn't want to prove myself that badly.
+
+In the end, I decided on emulating a CP/M machine on an AVR. CP/M is an OS which runs on the Intel 8080-platform or compatible chips, 
+the most known of those being the Z80. The AVR is a machine of which I know the architecture quite well by now. Comparing these 
+cpus is a bit hairy: while the Z80-machines are CISC, have more 16-bit oriented instructions and usually have a heap of RAM 
+connected to them, the AVR runs much quicker with its 20MHz and 1MIPS/MHz. Even with the CPUs being this close, for the purpose 
+of a proof-of-concept it was good enough. 
+
+For your information: the device we're trying to emulate has to be able to run the CP/M operating system. The minimum specs for 
+CP/M are: 20K of RAM, an 8080-type processor and some kind of storage, for example a floppy diskette drive. As said before: all 
+that's needed to emulate a certain machine is a Turing-complete device with enough storage. The role of the Turing-complete machine, 
+in this case, is fulfilled by an ATMega88, an AVR with 8K of flash and a bit more than 1K of SRAM. 1K isn't enough for the emulated 
+machine by a long shot, so I chose an antique GM71C4256A 128KB, 4bit DRAM chip to do that bit. The AVR doesn't have a DRAM-controller 
+on board, but that can be emulated too. The 128K the chip can store is more than enough for CPM to run in: the 8080 can't address 
+more than 64K without bank-switching schemes anyway. In theory, this setup could already emulate the desired machine, but a bit of 
+non-volatile storage would be nice too. Floppy-disks are a bit out-of-date, so a MMC/SD-card got to stand in for that. CP/M only 
+needs a character-based terminal as its input and output, so I decided I'd just use the built-in UART for that and be done with it. 
+In theory, I could've chosen a bigger AVR and emulate a video card and keyboard controller too, though.
+
+All in all, I arrived at this schematic. The chips run at 3.3V: this way no level-shifters are needed to talk to the SD-card. The 
+downside is that both the DRAM and the ATMega88 are running out-of-spec (they'd need 5V) but in practice, both handle the lowered 
+voltage without giving trouble.
+
+As you can see, the wiring all is fairly standard: the RAM is controlled via I/O-pins, which are partially shared with the MMC which 
+is controlled over the built-in SPI hardware. I connected the RxD/TxD-pins to a FT232-board, but you could use a MAX3232-like device 
+too. Everything you see here is DIP (apart from the SD-card-socket) so I could build everything quick&dirty on a piece of 
+prototyping board:
+
+Ok, the hardware was no biggie, but the software was a bit more of a problem. I needed a Z80 or 8080 emulator which could fit into 
+the ATMega88. The AVR series does support C using GCC, so my first try was to get an open-source z80 emulation core and feed it into 
+avr-gcc. The resulting binary ended up occupying 48K, and that was only the emulator core. That was never going to fit, so I had 
+to move to assembly.
+
+Ofcourse, I wasn't the only one with the idea to write a Z80 emulator in assembly. The project to put a Z80 in a Propeller was the 
+most interesting: while the propeller is much more powerful than an AVR, the amount of program memory a cog can directly address is 
+less than the AVR can. While the code of that project wasn't of any use to me, the way they structured their emulator was of use: 
+divide each instruction into a load, process and store action and put references to these functions into a huge lookup-table. if 
+you download the sources, you can see that my emulator is structured exactly like that, and it ends up using a bit more than 2K 
+of program memory. That's 12 times less than the C solution!
+
+The Z80 emulator (well, actually, 8080 emulator because none of the Z80-specific instructions are implemented yet...) is the largest 
+piece of the puzzle, but not the only one. The machine also needs I/O, memory and disk interfaces.
+
+The I/O-interface was the easiest: just initialize the UART at 38400/n81 and create a pair of Z80 ports that read or write from that. 
+Memory was not too difficult too: while I took the DRAM chip from the garbage box, it had a nice datasheet available on the Internet 
+and I just took over the examples from there. The RAM needs to be refreshed too, or else it goes blank after a while: I used an AVR 
+timer for that.
+
+The MMC/SD-card was another story. First of all, talking to an SD-card isn't that hard, but you need to know what you're doing. 
+Luckily, I still had some assembly code to read sectors lying around; I could just copy/paste that. Then there was problem 2: 
+the sectors on a SD-card are 512 bytes, but CP/M expects a storage media which has 128 byte sectors... I decided on implementing 
+this in the most ugly way possible: for example writing a sector means reading the 512 bytes from SD-card, changing the 128 bytes 
+requested (which are obtained via emulated DMA from the DRAM chip) and writing the 512 bytes back. This means that the SD-card will 
+erase and re-write its flash 4 times as much as normally... hope the wear-leveling it does is good. Still, it's longevity is 
+probably longer than the floppies CP/M used to work from.
+
+CP/M needs a few things to work with the hardware it's running on. First of all, it needs to be loaded. For that purpose, the 
+emulator will load the first sector of the SD-card to the DRAM before starting the emulation. This is the same as what the original 
+hardware CP/M ran on used to do. The first sector contains an Initial Program Loader, aka IPL, which then loads the rest of the OS. 
+Secondly, CP/M requires a BIOS, which is a small bit of code that the CP/M core can call on to do hardware-specific stuff, like 
+reading or writing a sector and inputting and outputting characters. Both things weren't too hard to write: my Z80 assembly still 
+is relatively fluent and being able to control the 'hardware' too is a big help. One of the more interesting things I encountered 
+on the way is that to implement the BIOS, you need to follow a book called the 'CP/M System Alteration Manual'. The copy I used 
+was written in 1979, which means I was implementing specifications thought up 2 years before I was even born!
+
+In the end it took quite some hacking, but the result is nice enough: I can play Zork on an AVR!
+
+It's... not really quick, though. The time from bootup to where I took this screenshot is about 30 seconds. Ofcourse, stuff like 
+memory and SD-card-access could be optimized a bit more by e.g. adding a bit of cache, but I'll never get the same speed as the 
+original: the AVR is just too slow to handle the realtime emulation needed, just as expected.
+
+The emulation isn't completely 100% either: some programs tend to crash or act up, most of the Z80-specific instructions aren't 
+emulated yet and the BIOS still bugs now and then. I was actually thinking of solving these problems and including more functionality 
+like an integrated VGA-out and keyboard in, and maybe using disk-images instead of raw SD-cards... but then I stepped back and 
+remembered I was writing a proof-of-concept emulator for a system that's already emulated a hundred times better and faster on 
+a random PC.
+
+Anyway, in case you want to build this curiosity by yourself or just want to see the sources: as usual, it's all licensed under the 
+GPLv3 and downloadable here. I'd, as always, appreciate a message or email if you actually manage to do something useful with them. 
+
+---
+
+name:         TC514256
+function:     dram
+package:      DIP-20,20
+manufacturer: Toshiba
+added-by:     
+comment:      256k x 4
+
+       +--()--+
+ I/O 1 | 1  20| VSS
+ I/O 2 | 2  19| I/O 4
+/write | 3  18| I/O 3
+  /ras | 4  17| /cas
+    nc | 5  16| /oe
+    a0 | 6  15| a8
+    a1 | 7  14| a7
+    a2 | 8  13| a6
+    a3 | 9  12| a5
+   VCC |10  11| a4
+       +------+
+
+This information was added by a third party and may be incorrect.
+
+This pinout came from the Chipdir:
+http://www.chipdir.org/
+
+
