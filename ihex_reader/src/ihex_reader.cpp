@@ -12,15 +12,15 @@
 #include <cstdlib>
 #include <cctype>
 
-int strhex(char * str) {
+int str2byte(char * str) {
 	unsigned char c;
-	unsigned char val = 0;
+	int val = 0;
 	for (int i = 0; i < 2; i++) {
 		c = toupper(str[i]);
 		if ( c > '9' )
 			c -= 7;
 		c -= '0';
-		if ( c > 15 )
+		if ( c & 0xf0 )
 			return -1;
 		val <<= 4;
 		val |= c;
