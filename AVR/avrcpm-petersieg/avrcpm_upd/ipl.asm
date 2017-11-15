@@ -14,7 +14,7 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-org $2000
+	org $2000
 	; IPL for the CP/M-emu in an AVR. Loads CPM from the 'disk' from
 	; track 0 sector 2 to track 1 sector 26.
 
