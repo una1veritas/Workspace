@@ -1,4 +1,4 @@
-CC = gcc
+ｈCC = gcc
 
 CFLAGS= -O -s -Wall
 
