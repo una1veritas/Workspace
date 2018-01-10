@@ -27,7 +27,7 @@ if len(sys.argv) == 5:
         
 filepath = ''
 tstamp = datetime.now().strftime("%Y%m%d-%H%M")
-print "current time stamp: ", tstamp
+print ("current time stamp: ", tstamp)
 # 1カラム目に時間を挿入します
 #rowlist.append(timestamp)
 
@@ -43,14 +43,14 @@ def yahooFinanceRanking(kind=1, timespan='d', market=1, lastpage=1):
         bsoup = BeautifulSoup(requests.get(url).content, "html.parser")
         if target_page == 1:
             div_ttl = bsoup.find("div", {"class" : "ttl"})
-            datestr = unicode(str(div_ttl.find("div")),"utf-8")
+            datestr = str(div_ttl.find("div"))#,"utf-8"
             datestr = datestr.split(u'：')[1].split('</div>')[0]
             datestr = datestr.replace(u'年','/')
             datestr = datestr.replace(u'月','/')
             datestr = datestr.replace(u'日','-')
             datestr = datestr.replace(u'時',':')
             datestr = datestr.replace(u'分','')
-            print "time stamp of the ranking: ",datestr
+            print ("time stamp of the ranking: ",datestr)
             tmp_date = datestr.split('-')[0].split('/')
             tmp_time = datestr.split('-')[1].split(':')
             ranking[0] = ["{0:02d}{1}{2:02d}".format(kind,timespan,market),
@@ -77,9 +77,9 @@ def yahooFinanceRanking(kind=1, timespan='d', market=1, lastpage=1):
                                  #float(tds[5].string.replace(',','')), 
                                  float(tds[6].string.replace(',','')), float(tds[7].string.replace(',','')) ]
             elif kind == 33:
-                print rank, ": ", tds[1].string,"; ", tds[2].string,"; ", tds[3].string,"; ", tds[4],"; ", tds[5],"; ", tds[6],"; ", tds[7]
+                print (rank, ": ", tds[1].string,"; ", tds[2].string,"; ", tds[3].string,"; ", tds[4],"; ", tds[5],"; ", tds[6],"; ", tds[7] )
             else:
-                print 'ranking kind error'
+                print ('ranking kind error')
                 return ranking
         #output
         target_page = target_page + 1
@@ -114,8 +114,8 @@ if not os.path.exists(filepath+f_name):
             csv_file.write('\n')
     csv_file.close()
 else:
-    print 'file ' + f_name + ' already exists.'
-print 'done.'
+    print ('file ' + f_name + ' already exists.')
+print ('done.')
 #table_stocksTable = divtmp.find("table")
 #divtmp = bsoup.find_all("div",{"class":"lineFi clearfix"})
 #<div class="lineFi clearfix">
