@@ -95,7 +95,7 @@ f_name = 'yfr' + ranking[0][0]+'-'+ranking[0][1]+ranking[0][2] + '.csv'
 
 f_encode = 'sjis'
 if not os.path.exists(filepath+f_name):
-    with open(f_name,'wb') as csv_file:
+    with open(f_name,'w') as csv_file:
         for rank in ranking:
             #if rank == 0: continue
             rowlist = [ rank ] + ranking[rank]
