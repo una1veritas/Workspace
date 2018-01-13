@@ -15,12 +15,15 @@ from pyquery import PyQuery
 kd=1
 mk=2
 tm='d'
+vl='a'
 fpath='./'
 # from argv
-if len(sys.argv) == 4:
+if len(sys.argv) == 5:
     kd = int(sys.argv[1])
-    tm=sys.argv[2]
+    tm = str(sys.argv[2])
     mk = int(sys.argv[3])
+    vl=sys.argv[4]
+print([kd, tm, mk, vl])
 
 def yahooFinanceRanking(kind=1,timespan='d',market=2,volume='a',pages=5):
     ranking = []
@@ -54,9 +57,9 @@ def yahooFinanceRanking(kind=1,timespan='d',market=2,volume='a',pages=5):
             ranking.append(rowlist)
     return ranking
 
-ranking = yahooFinanceRanking(kind=kd,timespan=tm,market=mk,pages=5)
+ranking = yahooFinanceRanking(kind=kd,timespan=tm,market=mk,volume=vl,pages=10)
 print( '{0} ranking {1} on {2} updated at {3}'.format(ranking[0][0],ranking[0][1],ranking[0][2],ranking[0][3]))
-f_name = ranking[0][0]+ranking[0][1]+'-'+ranking[0][2]+ranking[0][3]+'.csv'
+f_name = 'yfr'+ranking[0][1]+'-'+ranking[0][2]+ranking[0][3]+'.csv'
 #yahooFinanceRanking(ranking, timespan='w',page=2)
 
 f_encode = 'sjis'

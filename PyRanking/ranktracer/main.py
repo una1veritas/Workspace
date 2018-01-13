@@ -1,16 +1,45 @@
 
 import glob
-import pandas
+import csv
 
-file_list = glob.glob('../yfranking/yfr1d2a-*.csv')
-sorted(file_list,reverse=True)
-print(file_list)
+files_list = glob.glob('../yfranking/yfr1d2a-*.csv')
 
-dtable = pandas.read_csv('../yfranking/yfr1d2a-201801121740.csv',skiprows=1, header=None)
-dtable = dtable.drop(9, axis=1)
-print(dtable.columns) # = ['rank', 'code', 'market', 'name', 'date', 'price', 'ratio', 'diff', 'volume' ]
-dtable.columns = ['rank', 'code', 'market', 'name', 'date', 'price', 'ratio', 'diff', 'volume' ]
+ranking = { }
+codedict = { }
+file_name = files_list[-1]
+print('initialize ranking with codes in file ',file_name)
+with open(file_name, 'r') as file:
+    csv_reader = csv.reader(file)
+    header = next(csv_reader)  # ヘッダーを読み飛ばしたい時
+    for row in csv_reader:
+        ranking[row[1]] = [ ]
+        codedict[row[1]] = row[3]
 
-ranking = dtable.ix[:,['rank','code']]
+print('slice')
+pcount = 1
+for file_name in files_list[-3:]:
+    with open(file_name, 'r') as file:
+        print(file_name)
+        csv_reader = csv.reader(file)
+        header = next(csv_reader)
+        for row in csv_reader:
+            if row[1] in ranking:
+#                print(row[1],', ',row[0])
+                ranking[row[1]].append(int(row[0]))
+#                print(ranking[row[1]])
+    for code in ranking:
+        if len(ranking[code]) < pcount:
+            ranking[code].append('NA')
+    pcount = pcount + 1
     
-print(ranking.info())
+print('histories of ranking:')
+for code in ranking:
+    print(code,': ',ranking[code],'  ',codedict[code])
+
+#    tbl = pandas.read_csv(file,skiprows=1,header=None)
+#    tbl = tbl.drop(9,axis=1)
+#    tbl.columns = ['rank', 'code', 'market', 'name', 'date', 'price', 'ratio', 'diff', 'volume' ]
+#    if count == 1 :
+#        ranking = tbl.ix[:,['code', 'rank']]
+#        ranking = ranking.sort_values(by='code')
+
