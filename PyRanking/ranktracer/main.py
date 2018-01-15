@@ -3,11 +3,13 @@ import glob
 import csv
 
 files_list = glob.glob('../yfranking/yfr1d2a-*.csv')
+files_list.sort(reverse=False)
+print(files_list)
 
 ranking = { }
 codedict = { }
 file_name = files_list[-1]
-print('initialize ranking with codes in file ',file_name)
+print('initialize stock codes by the latest ranking in file ',file_name)
 with open(file_name, 'r') as file:
     csv_reader = csv.reader(file)
     header = next(csv_reader)  # ヘッダーを読み飛ばしたい時
@@ -19,7 +21,7 @@ print('slice')
 pcount = 1
 for file_name in files_list[-3:]:
     with open(file_name, 'r') as file:
-        print(file_name)
+        print('reading ', file_name)
         csv_reader = csv.reader(file)
         header = next(csv_reader)
         for row in csv_reader:
