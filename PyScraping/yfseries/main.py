@@ -6,7 +6,7 @@ Created on 2017/12/24
 '''
 import sys
 import math
-import os
+#import os
 from datetime import datetime
 from pyquery import PyQuery
 
@@ -73,7 +73,7 @@ def yahooFinanceTimeSeries(code,pdstart,pdend,timespan='d'):
     url = 'https://info.finance.yahoo.co.jp/history/?code={0}&sy={1}&sm={2}&sd={3}&ey={4}&em={5}&ed={6}&tm={7}'
     url = url.format(code,pdstart//10000,pdstart // 100 % 100, pdstart % 100,
                      pdend//10000,pdend//100 % 100, pdend % 100,timespan)
-    rows = []
+    rows = [ ]
     pyquery = PyQuery(url)
     for table in pyquery('div.padT12')('table'):
         pytable = pyquery(table)
@@ -83,9 +83,14 @@ def yahooFinanceTimeSeries(code,pdstart,pdend,timespan='d'):
             if len(row('td')) == 0: 
                 continue
             columns = []
+            colnum = 0
             for td in row('td'):
                 td_str = row(td).text()
+                if colnum == 0 : 
+                    td_date = td_str.replace(u'年','/').replace(u'月','/').replace(u'日','').split('/')
+                    td_str = str(td_date[0]).zfill(4)+'/'+str(td_date[1]).zfill(2)+'/'+str(td_date[2]).zfill(2)
                 columns.append(td_str)
+                colnum = colnum + 1
             rows.append(columns)
     return rows
 #    for key in ranking:
@@ -94,7 +99,7 @@ def yahooFinanceTimeSeries(code,pdstart,pdend,timespan='d'):
 
 jpstart = int(0.5+JulianDay(pdstart//10000,pdstart//100%100,pdstart%100))
 jpend = int(0.5+JulianDay(pdend//10000,pdend//100%100,pdend%100))
-table = []
+table = [ [u'日付',u'始値',u'高値',u'安値',u'終値',u'出来高',u'修正後終値'] ]
 for jd in range(jpstart, jpend+1, 32):
     if jd+31 > jpend:
         je = jpend
@@ -104,7 +109,8 @@ for jd in range(jpstart, jpend+1, 32):
     pjend = int(CalDate(je))
     table = table + yahooFinanceTimeSeries(code,pjstart,pjend,tmspan)
 
-table.sort(reverse=True)
+table[1:] = sorted(table[1:], reverse=False)
+
 for row in table:
     for index in range(0,len(row)):
         print(row[index].replace(',',''), end='')
