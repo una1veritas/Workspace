@@ -1,8 +1,11 @@
 
 import glob
 import csv
+import sys
 
-files_list = glob.glob('../yfranking/yfr1d2a-*.csv')
+rankingname = '1d2a'
+if len(sys.argv) > 1 : rankingname = sys.argv[1]
+files_list = glob.glob('../yfranking/yfr'+rankingname+'-*.csv')
 files_list.sort(reverse=False)
 print(files_list)
 
@@ -15,7 +18,7 @@ with open(file_name, 'r') as file:
     header = next(csv_reader)  # ヘッダーを読み飛ばしたい時
     for row in csv_reader:
         ranking[row[1]] = [ ]
-        codedict[row[1]] = row[3]
+        codedict[row[1]] = [row[2], row[3], float(row[6].replace('%',''))]
 
 print('slice')
 pcount = 1

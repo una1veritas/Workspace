@@ -23,7 +23,7 @@ if len(sys.argv) == 5:
     tm = str(sys.argv[2])
     mk = int(sys.argv[3])
     vl=sys.argv[4]
-print([kd, tm, mk, vl])
+#print([kd, tm, mk, vl])
 
 def yahooFinanceRanking(kind=1,timespan='d',market=2,volume='a',pages=5):
     ranking = []
