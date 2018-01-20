@@ -2,6 +2,9 @@
 import glob
 import csv
 import sys
+import math
+from collections import deque
+from statistics import stdev
 
 if len(sys.argv) < 2:
     exit
@@ -25,20 +28,74 @@ for fname in files_list:
                 row[index] = int(row[index])
             tseries.append(row)
 
-print (header)
 tseries.sort()
 
 #moving average
 avrspans = [ 5, 21, 55 ]
-for span in avrspans:
-    for d in range(span - 1, len(tseries)) :
+spanqs = [ deque([ ]), deque([ ]), deque([ ]) ]
+header = header + ['m.avr.5', 'm.avr.21', 'm.avr.55']
+for i in range(0,len(tseries)) :
+    mavrs = [ 0, 0, 0 ]
+    for sindex in range(0, len(avrspans)) :
+        spanqs[sindex].append(tseries[i][4])
+        if len(spanqs[sindex]) >= avrspans[sindex] :
+            spanqs[sindex].popleft()
+        mavrs[sindex] = round(sum(spanqs[sindex])/len(spanqs[sindex]),1)
+    tseries[i] = tseries[i] + mavrs
+    if len(spanqs[2]) > 1 :
+        tseries[i].append(round(stdev(spanqs[2]),1))
+    else:
+        tseries[i].append(0)
+
+#moving volume weighted average
+avrspans = [ 5, 21, 55 ]
+spanqs = [ deque([ ]), deque([ ]), deque([ ]) ]
+volqs  = [ deque([ ]), deque([ ]), deque([ ]) ]
+header = header + ['m.vwavr.5', 'm.vwavr.21', 'm.vwavr.55']
+for i in range(0,len(tseries)) :
+    vwmavrs = [ 0, 0, 0 ]
+    for sindex in range(0, len(avrspans)) :
+        spanqs[sindex].append(tseries[i][4])
+        volqs[sindex].append(tseries[i][5]/100)
+        if len(spanqs[sindex]) >= avrspans[sindex] : 
+            spanqs[sindex].popleft()
+            volqs[sindex].popleft()
         psum = 0
         vsum = 0
-        for i in range(d - span + 1, d) :
-            psum = psum + tseries[i][4]*tseries[i][5]
-            vsum = vsum + tseries[i][5]
+        for j in range(0,len(spanqs[sindex])) :
+            psum = psum + spanqs[sindex][j]*volqs[sindex][j]
+            vsum = vsum + volqs[sindex][j]
+        vwmavrs[sindex] = round(psum/vsum, 1)
+    tseries[i] = tseries[i] + vwmavrs
+#    if len(spanqs[2]) > 1 :
+#                
+#    else:
+#        tseries[i].append(0)
+
+#Bollinger band, volume weighted
+span = 21
+header = header + ['vw.stddev. 21']
+for i in range(0,len(tseries)) :
+    newrow = [ '' ]
+    if i < span - 1:
+        continue
+    else:
+        psum = 0
+        vsum = 0
+        for j in range(i-span+1, i+1) :
+            psum = psum + tseries[j][4] * (tseries[j][5]/100)
+            vsum = vsum + (tseries[j][5]/100)
         avr = round(psum / vsum, 1)
-        tseries[d].append(avr)
+        dev2sum = 0
+        for j in range(i-span+1, i+1) :
+            dev2sum = dev2sum + (tseries[j][5]/100) * ((tseries[j][4] - avr)** 2)
+        s = math.sqrt(dev2sum/(vsum-1))
+        newrow[0] = round(s,1)
+    tseries[i] = tseries[i] + newrow
+
+for colname in header:
+    print(str(colname)+',',end='')
+print()
 
 for row in tseries:
     print(row[0], end='')
