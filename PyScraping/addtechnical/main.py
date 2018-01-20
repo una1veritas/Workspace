@@ -41,7 +41,11 @@ for span in avrspans:
         tseries[d].append(avr)
 
 for row in tseries:
-    print(row)
+    print(row[0], end='')
+    for col in row[1:] :
+        print(',' + str(col), end='')
+    print()
+
 #for code in ranking:
 #    print(code,': ',ranking[code],'  ',codedict[code])
 
