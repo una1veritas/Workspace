@@ -6,9 +6,8 @@ Created on 2017/12/24
 '''
 import sys
 import math
-#import os
-from datetime import datetime
 from pyquery import PyQuery
+import pandas as pd
 
 #import csv
 
@@ -27,8 +26,8 @@ if len(sys.argv) >= 4:
         tmspan = sys.argv[4]
         
 filepath = './'
-timestamp = datetime.now().strftime("%Y%m%d-%H%M")
-print ("current time stamp: ", timestamp)
+#timestamp = datetime.now().strftime("%Y%m%d-%H%M")
+#print ("current time stamp: ", timestamp)
 # 1カラム目に時間を挿入します
 #rowlist.append(timestamp)
 
@@ -89,7 +88,13 @@ def yahooFinanceTimeSeries(code,pdstart,pdend,timespan='d'):
                 if colnum == 0 : 
                     td_date = td_str.replace(u'年','/').replace(u'月','/').replace(u'日','').split('/')
                     td_str = str(td_date[0]).zfill(4)+'/'+str(td_date[1]).zfill(2)+'/'+str(td_date[2]).zfill(2)
-                columns.append(td_str)
+                    columns.append(td_str)
+                else:
+                    td_str = td_str.replace(',','')
+                    if '.' in td_str :
+                        columns.append(float(td_str))
+                    else:
+                        columns.append(int(td_str))
                 colnum = colnum + 1
             rows.append(columns)
     return rows
@@ -99,7 +104,8 @@ def yahooFinanceTimeSeries(code,pdstart,pdend,timespan='d'):
 
 jpstart = int(0.5+JulianDay(pdstart//10000,pdstart//100%100,pdstart%100))
 jpend = int(0.5+JulianDay(pdend//10000,pdend//100%100,pdend%100))
-table = [ [u'日付',u'始値',u'高値',u'安値',u'終値',u'出来高',u'修正後終値'] ]
+table = [ ]
+header = ['date','open','high','low','close','volume','adj.close'] 
 for jd in range(jpstart, jpend+1, 32):
     if jd+31 > jpend:
         je = jpend
@@ -109,14 +115,19 @@ for jd in range(jpstart, jpend+1, 32):
     pjend = int(CalDate(je))
     table = table + yahooFinanceTimeSeries(code,pjstart,pjend,tmspan)
 
-table[1:] = sorted(table[1:], reverse=False)
+table = sorted(table, reverse=False)
 
-for row in table:
-    for index in range(0,len(row)):
-        print(row[index].replace(',',''), end='')
-        if index+1 < len(row): 
-            print(',', end='')
-        else:
-            print()
+df = pd.DataFrame(table,columns=header)
+df = df.set_index('date')
+df.to_csv(code+'-'+str(pdstart)+'-'+str(pdend)+'.csv')
+#dframe = pd.DataFrame[table, ]
+
+#for row in table:
+#    for index in range(0,len(row)):
+#        print(row[index].replace(',',''), end='')
+#        if index+1 < len(row): 
+#            print(',', end='')
+#        else:
+#            print()
 #yahooFinanceRanking(ranking, timespan='w',page=2)
 

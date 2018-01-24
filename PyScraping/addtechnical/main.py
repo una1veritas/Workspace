@@ -5,6 +5,7 @@ import sys
 import math
 from collections import deque
 from statistics import stdev
+import pandas as pd
 
 # default values for options
 params = { 'mavr' : [5, 25, 50] }
@@ -28,23 +29,29 @@ if not ('code' in params) :
     
 print (params)
 
-files_list = glob.glob('../yfseries/'+params['code']+'-*-*.csv')
+files_list = glob.glob(params['code']+'-*-*.csv')
 print(files_list)
 
-tseries = []
-header = ['date', 'open', 'high', 'low', 'close', 'volume', 'adj.close' ]
-for fname in files_list:
-    with open(fname, 'r') as file:
-        csv_reader = csv.reader(file)
-        next(csv_reader)  # ヘッダーを読み飛ばしたい時
-        next(csv_reader)
-        for row in csv_reader:
-            for index in range(1,len(row)):
-                row[index] = int(row[index])
-            tseries.append(row)
+# tseries = []
+# header = ['date', 'open', 'high', 'low', 'close', 'volume', 'adj.close' ]
+# for fname in files_list:
+#     with open(fname, 'r') as file:
+#         csv_reader = csv.reader(file)
+#         next(csv_reader)  # ヘッダーを読み飛ばしたい時
+#         next(csv_reader)
+#         for row in csv_reader:
+#             for index in range(1,len(row)):
+#                 row[index] = int(row[index])
+#             tseries.append(row)
+# 
+# tseries.sort()
+tseries = pd.read_csv(files_list[0], index_col= 0)
+for fname in files_list[1:]:
+    tseries = tseries.append(pd.read_csv(fname, index_col = 0))
 
-tseries.sort()
+print(tseries)
 
+header = []
 avrspans = params['mavr']
 spanqs = [ deque([ ]), deque([ ]), deque([ ]) ]
 header = header + ['m.avr.'+str(avrspans[0]), 'm.avr.'+str(avrspans[1]), 'm.avr.'+str(avrspans[2]), 'm.stddev']
