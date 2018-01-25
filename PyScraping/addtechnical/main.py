@@ -51,28 +51,36 @@ for fname in files_list[1:]:
 
 print(tseries)
 
-header = []
 avrspans = params['mavr']
 spanqs = [ deque([ ]), deque([ ]), deque([ ]) ]
-header = header + ['m.avr.'+str(avrspans[0]), 'm.avr.'+str(avrspans[1]), 'm.avr.'+str(avrspans[2]), 'm.stddev']
+header = ['m.avr.'+str(avrspans[0]), 'm.avr.'+str(avrspans[1]), 'm.avr.'+str(avrspans[2]), 'm.stddev']
 if not ('volweighted' in params) :
     # moving average and std. deviations
-    for i in range(0,len(tseries)) :
+    mavrframe = pd.DataFrame(columns=header)
+    print(mavrframe)
+    for i in range(0,len(tseries.index)) :
         mavrs = [ 0, 0, 0 ]
         for sindex in range(0, len(avrspans)) :
             if 'ohlc' in params :
-                price = round(sum(tseries[i][1:4])/4,1)
+                price = round(sum(tseries.iloc[[i],['open','high','low','close']])/4,1)
             else:
-                price = tseries[i][4]
+                price = tseries['close'].iloc[i]
+            print('i=',i)
             spanqs[sindex].append(price)
             if len(spanqs[sindex]) >= avrspans[sindex] :
                 spanqs[sindex].popleft()
             mavrs[sindex] = round(sum(spanqs[sindex])/len(spanqs[sindex]),1)
-        tseries[i] = tseries[i] + mavrs
         if len(spanqs[2]) > 1 :
-            tseries[i].append(round(stdev(spanqs[2]),1))
+            print('>1')
+            mavrs.append(round(stdev(spanqs[2]),1))
+            print('fin.')
         else:
-            tseries[i].append(0)
+            print('not >1')
+            mavrs.append(0)
+            print('fin.')
+        mavrframe.append(mavrs)
+        print('appended.')
+    print(mavrframe)
 else:
     # moving volume weighted average, and std. dev.
     volqs  = [ deque([ ]), deque([ ]), deque([ ]) ]
@@ -106,16 +114,12 @@ else:
                 vsum = vsum + volqs[1][j]
             sigma = math.sqrt(dev2sum / (vsum - 1))
         tseries[i].append(round(sigma,1))
-        
-for colname in header:
-    print(str(colname)+',',end='')
-print()
 
-for row in tseries:
-    print(row[0], end='')
-    for col in row[1:] :
-        print(',' + str(col), end='')
-    print()
+# for row in tseries:
+#     print(row[0], end='')
+#     for col in row[1:] :
+#         print(',' + str(col), end='')
+#     print()
 
 #for code in ranking:
 #    print(code,': ',ranking[code],'  ',codedict[code])
