@@ -49,38 +49,34 @@ tseries = pd.read_csv(files_list[0], index_col= 0)
 for fname in files_list[1:]:
     tseries = tseries.append(pd.read_csv(fname, index_col = 0))
 
-print(tseries)
+tseries.sort_index()
+#print(tseries)
 
 avrspans = params['mavr']
 spanqs = [ deque([ ]), deque([ ]), deque([ ]) ]
-header = ['m.avr.'+str(avrspans[0]), 'm.avr.'+str(avrspans[1]), 'm.avr.'+str(avrspans[2]), 'm.stddev']
+header = ['date', 'm.avr.'+str(avrspans[0]), 'm.avr.'+str(avrspans[1]), 'm.avr.'+str(avrspans[2]), 'm.stddev']
+mavrs = { }
+for colname in header[1:]:
+    mavrs[colname] = [ ]
 if not ('volweighted' in params) :
     # moving average and std. deviations
-    mavrframe = pd.DataFrame(columns=header)
-    print(mavrframe)
     for i in range(0,len(tseries.index)) :
-        mavrs = [ 0, 0, 0 ]
         for sindex in range(0, len(avrspans)) :
             if 'ohlc' in params :
-                price = round(sum(tseries.iloc[[i],['open','high','low','close']])/4,1)
+                price = round(sum(list(tseries.iloc[i][0:4]))/4,1)
             else:
                 price = tseries['close'].iloc[i]
-            print('i=',i)
             spanqs[sindex].append(price)
             if len(spanqs[sindex]) >= avrspans[sindex] :
                 spanqs[sindex].popleft()
-            mavrs[sindex] = round(sum(spanqs[sindex])/len(spanqs[sindex]),1)
+            mavrs[header[1+sindex]].append(round(sum(spanqs[sindex])/len(spanqs[sindex]),1))
         if len(spanqs[2]) > 1 :
-            print('>1')
-            mavrs.append(round(stdev(spanqs[2]),1))
-            print('fin.')
+            mavrs[header[4]].append(round(stdev(spanqs[2]),1))
         else:
-            print('not >1')
-            mavrs.append(0)
-            print('fin.')
-        mavrframe.append(mavrs)
-        print('appended.')
-    print(mavrframe)
+            mavrs[header[4]].append(0.0)
+    for colname in header[1:]:
+        tseries[colname] = mavrs[colname]
+    
 else:
     # moving volume weighted average, and std. dev.
     volqs  = [ deque([ ]), deque([ ]), deque([ ]) ]
@@ -131,3 +127,4 @@ else:
 #        ranking = tbl.ix[:,['code', 'rank']]
 #        ranking = ranking.sort_values(by='code')
 
+print(tseries)
