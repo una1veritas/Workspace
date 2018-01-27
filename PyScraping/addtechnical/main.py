@@ -1,6 +1,5 @@
 
 import glob
-import csv
 import sys
 import math
 from collections import deque
@@ -54,7 +53,7 @@ tseries.sort_index()
 
 avrspans = params['mavr']
 spanqs = [ deque([ ]), deque([ ]), deque([ ]) ]
-header = ['date', 'm.avr.'+str(avrspans[0]), 'm.avr.'+str(avrspans[1]), 'm.avr.'+str(avrspans[2]), 'm.stddev']
+header = ['date', 'avr.'+str(avrspans[0]), 'avr.'+str(avrspans[1]), 'avr.'+str(avrspans[2]), 'stddev']
 mavrs = { }
 for colname in header[1:]:
     mavrs[colname] = [ ]
@@ -128,3 +127,4 @@ else:
 #        ranking = ranking.sort_values(by='code')
 
 print(tseries)
+tseries.to_csv(params['code']+'-'+'anal'+'.csv')
