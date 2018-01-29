@@ -73,6 +73,7 @@ def yahooFinanceTimeSeries(code,pdstart,pdend,timespan='d'):
     url = url.format(code,pdstart//10000,pdstart // 100 % 100, pdstart % 100,
                      pdend//10000,pdend//100 % 100, pdend % 100,timespan)
     rows = [ ]
+    events = [ ]
     pyquery = PyQuery(url)
     for table in pyquery('div.padT12')('table'):
         pytable = pyquery(table)
@@ -89,6 +90,10 @@ def yahooFinanceTimeSeries(code,pdstart,pdend,timespan='d'):
                     td_date = td_str.replace(u'年','/').replace(u'月','/').replace(u'日','').split('/')
                     td_str = str(td_date[0]).zfill(4)+'/'+str(td_date[1]).zfill(2)+'/'+str(td_date[2]).zfill(2)
                     columns.append(td_str)
+                elif u'分割' in td_str : 
+                    events.append([ columns[0], td_str])
+                    columns.clear()
+                    break
                 else:
                     td_str = td_str.replace(',','')
                     if '.' in td_str :
@@ -96,7 +101,8 @@ def yahooFinanceTimeSeries(code,pdstart,pdend,timespan='d'):
                     else:
                         columns.append(int(td_str))
                 colnum = colnum + 1
-            rows.append(columns)
+            if len(columns) != 0 :
+                rows.append(columns)
     return rows
 #    for key in ranking:
 #        if ranking[key][1] != u'東証ETF':

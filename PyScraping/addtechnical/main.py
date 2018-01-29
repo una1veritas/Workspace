@@ -49,82 +49,78 @@ for fname in files_list[1:]:
     tseries = tseries.append(pd.read_csv(fname, index_col = 0))
 
 tseries.sort_index()
-#print(tseries)
 
 avrspans = params['mavr']
-spanqs = [ deque([ ]), deque([ ]), deque([ ]) ]
-header = ['date', 'avr.'+str(avrspans[0]), 'avr.'+str(avrspans[1]), 'avr.'+str(avrspans[2]), 'stddev']
+priceq = [ ]
+volumeq  = [ ]
+header = [ 'avr.'+str(avrspans[0]), 'avr.'+str(avrspans[1]), 'avr.'+str(avrspans[2])]
 mavrs = { }
-for colname in header[1:]:
-    mavrs[colname] = [ ]
-if not ('volweighted' in params) :
-    # moving average and std. deviations
-    for i in range(0,len(tseries.index)) :
-        for sindex in range(0, len(avrspans)) :
-            if 'ohlc' in params :
-                price = round(sum(list(tseries.iloc[i][0:4]))/4,1)
-            else:
-                price = tseries['close'].iloc[i]
-            spanqs[sindex].append(price)
-            if len(spanqs[sindex]) >= avrspans[sindex] :
-                spanqs[sindex].popleft()
-            mavrs[header[1+sindex]].append(round(sum(spanqs[sindex])/len(spanqs[sindex]),1))
-        if len(spanqs[2]) > 1 :
-            mavrs[header[4]].append(round(stdev(spanqs[2]),1))
-        else:
-            mavrs[header[4]].append(0.0)
-    for colname in header[1:]:
-        tseries[colname] = mavrs[colname]
+for spanname in header :
+    mavrs[spanname] = [ ]
+# moving average and std. deviations
+for i in range(0,len(tseries.index)) :
+    adjfact = tseries['adj.close'].iloc[i]/tseries['close'].iloc[i]
+    if adjfact != 1.0 :
+        tseries.iat[i, 0] = tseries.iat[i,0] * adjfact
+        tseries.iat[i, 1] = tseries.iat[i,1] * adjfact
+        tseries.iat[i, 2] = tseries.iat[i,2] * adjfact
+        tseries.iat[i, 3] = tseries.iat[i,3] * adjfact
+    if 'ohlc' in params :
+        price =  round(sum(list(tseries.iloc[i][0:4]))/4,1)
+    else:
+        price = tseries['close'].iloc[i]
+    priceq.append(price)
+    for span in avrspans:
+        mavr = sum(priceq[max(0,i+1-span):i+1])/(i + 1 - max(0, i+1-span))
+        mavrs['avr.'+str(span)].append(round(mavr,1))
+for colname in header :
+    tseries[colname] = mavrs[colname]    
+
+#print(tseries)
+#             psum = 0
+#             vsum = 0
+#             for j in range(0,len(spanqs[sindex])) :
+#                 psum = psum + spanqs[sindex][j]*volqs[sindex][j]
+#                 vsum = vsum + volqs[sindex][j]
+#             vwmavrs[sindex] = round(psum/vsum, 1)
+#         tseries[i] = tseries[i] + vwmavrs
+#         tseries[i].append(round(sigma,1))
+
+adjclose = list(tseries['adj.close'])
+mpv = list(tseries['avr.'+str(avrspans[1])])
+vol = list(tseries['volume'])
+stddev = [ 0 ]
+bollband = [ [mpv[0]], [mpv[0]], [mpv[0]], [mpv[0]], [mpv[0]], [mpv[0]] ]
+for i in range(1,len(mpv)) :
+    sigma = stdev(adjclose[max(0,i+1-avrspans[1]):i+1])
+    stddev.append(round(sigma,1))
+    bollband[0].append(round(mpv[i]-3*sigma,1))
+    bollband[1].append(round(mpv[i]-2*sigma,1))
+    bollband[2].append(round(mpv[i]-1*sigma,1))
+    bollband[3].append(round(mpv[i]+1*sigma,1))
+    bollband[4].append(round(mpv[i]+2*sigma,1))
+    bollband[5].append(round(mpv[i]+3*sigma,1))
     
-else:
-    # moving volume weighted average, and std. dev.
-    volqs  = [ deque([ ]), deque([ ]), deque([ ]) ]
-    for i in range(0,len(tseries)) :
-        vwmavrs = [ 0, 0, 0 ]
-        for sindex in range(0, len(avrspans)) :
-            if 'ohlc' in params :
-                price = round(sum(tseries[i][1:5])/4,1)
-            else:
-                price = tseries[i][4]
-            spanqs[sindex].append(price)
-            volqs[sindex].append(tseries[i][5]/100)
-            if len(spanqs[sindex]) >= avrspans[sindex] : 
-                spanqs[sindex].popleft()
-                volqs[sindex].popleft()
-            psum = 0
-            vsum = 0
-            for j in range(0,len(spanqs[sindex])) :
-                psum = psum + spanqs[sindex][j]*volqs[sindex][j]
-                vsum = vsum + volqs[sindex][j]
-            vwmavrs[sindex] = round(psum/vsum, 1)
-        tseries[i] = tseries[i] + vwmavrs
-        if len(spanqs[1]) == 1 :
-            sigma = 0
-        else:
-            vwmavr = vwmavrs[1]
-            dev2sum = 0
-            vsum = 0
-            for j in range(0, len(spanqs[1])) :
-                dev2sum = dev2sum + volqs[1][j] * ((spanqs[1][j] - vwmavr)**2) 
-                vsum = vsum + volqs[1][j]
-            sigma = math.sqrt(dev2sum / (vsum - 1))
-        tseries[i].append(round(sigma,1))
+tseries['stddev'] = stddev
+tseries['-3s'] = bollband[0]
+tseries['-2s'] = bollband[1]
+tseries['-1s'] = bollband[2]
+tseries['+1s'] = bollband[3]
+tseries['+2s'] = bollband[4]
+tseries['+3s'] = bollband[5]
+# if len(spanqs[2]) > 1 :
+#     mavrs[header[4]].append(round(stdev(spanqs[2]),1))
+# else:
+#     mavrs[header[4]].append(0.0)
+#         if len(spanqs[1]) == 1 :
+#             sigma = 0
+#         else:
+#             vwmavr = vwmavrs[1]
+#             dev2sum = 0
+#             vsum = 0
+#             for j in range(0, len(spanqs[1])) :
+#                 dev2sum = dev2sum + volqs[1][j] * ((spanqs[1][j] - vwmavr)**2) 
+#                 vsum = vsum + volqs[1][j]
+#             sigma = math.sqrt(dev2sum / (vsum - 1))
 
-# for row in tseries:
-#     print(row[0], end='')
-#     for col in row[1:] :
-#         print(',' + str(col), end='')
-#     print()
-
-#for code in ranking:
-#    print(code,': ',ranking[code],'  ',codedict[code])
-
-#    tbl = pandas.read_csv(file,skiprows=1,header=None)
-#    tbl = tbl.drop(9,axis=1)
-#    tbl.columns = ['rank', 'code', 'market', 'name', 'date', 'price', 'ratio', 'diff', 'volume' ]
-#    if count == 1 :
-#        ranking = tbl.ix[:,['code', 'rank']]
-#        ranking = ranking.sort_values(by='code')
-
-print(tseries)
 tseries.to_csv(params['code']+'-'+'anal'+'.csv')
