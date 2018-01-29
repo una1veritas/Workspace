@@ -2,7 +2,7 @@
 import glob
 import sys
 import math
-from collections import deque
+#from collections import deque
 from statistics import stdev
 import pandas as pd
 
@@ -11,7 +11,7 @@ params = { 'mavr' : [5, 25, 50] }
 
 for arg in sys.argv[1:] :
     if arg == '-vw' :
-        params['volweighted'] = True
+        params['volw'] = True
     elif arg[:2] == '-m' :
         t = arg.split('.')[1:]
         params['mavr'] = [ int(t[0]), int(t[1]), int(t[2]) ]
@@ -29,21 +29,9 @@ if not ('code' in params) :
 print (params)
 
 files_list = glob.glob(params['code']+'-*-*.csv')
+files_list.sort()
 print(files_list)
 
-# tseries = []
-# header = ['date', 'open', 'high', 'low', 'close', 'volume', 'adj.close' ]
-# for fname in files_list:
-#     with open(fname, 'r') as file:
-#         csv_reader = csv.reader(file)
-#         next(csv_reader)  # ヘッダーを読み飛ばしたい時
-#         next(csv_reader)
-#         for row in csv_reader:
-#             for index in range(1,len(row)):
-#                 row[index] = int(row[index])
-#             tseries.append(row)
-# 
-# tseries.sort()
 tseries = pd.read_csv(files_list[0], index_col= 0)
 for fname in files_list[1:]:
     tseries = tseries.append(pd.read_csv(fname, index_col = 0))
@@ -53,11 +41,10 @@ tseries.sort_index()
 avrspans = params['mavr']
 priceq = [ ]
 volumeq  = [ ]
-header = [ 'avr.'+str(avrspans[0]), 'avr.'+str(avrspans[1]), 'avr.'+str(avrspans[2])]
 mavrs = { }
-for spanname in header :
-    mavrs[spanname] = [ ]
-# moving average and std. deviations
+# moving averages
+for span in avrspans:
+    mavrs['avr.'+str(span)] = [ ]
 for i in range(0,len(tseries.index)) :
     adjfact = tseries['adj.close'].iloc[i]/tseries['close'].iloc[i]
     if adjfact != 1.0 :
@@ -68,31 +55,39 @@ for i in range(0,len(tseries.index)) :
     if 'ohlc' in params :
         price =  round(sum(list(tseries.iloc[i][0:4]))/4,1)
     else:
-        price = tseries['close'].iloc[i]
+        price = tseries['close'].iat[i]
     priceq.append(price)
     for span in avrspans:
-        mavr = sum(priceq[max(0,i+1-span):i+1])/(i + 1 - max(0, i+1-span))
+        if 'volw' in params :
+            psum = 0
+            vsum = 0
+            for idx in range(max(0,i+1-span), i+1) :
+                vol = tseries['volume'].iat[idx]
+                vsum = vsum + vol
+                psum = psum + priceq[idx] * vol
+            mavr = psum/vsum
+        else:
+            mavr = sum(priceq[max(0,i+1-span):i+1])/(i + 1 - max(0, i+1-span))
         mavrs['avr.'+str(span)].append(round(mavr,1))
-for colname in header :
-    tseries[colname] = mavrs[colname]    
+for span in avrspans :
+    tseries['avr.'+str(span)] = mavrs['avr.'+str(span)]    
 
-#print(tseries)
-#             psum = 0
-#             vsum = 0
-#             for j in range(0,len(spanqs[sindex])) :
-#                 psum = psum + spanqs[sindex][j]*volqs[sindex][j]
-#                 vsum = vsum + volqs[sindex][j]
-#             vwmavrs[sindex] = round(psum/vsum, 1)
-#         tseries[i] = tseries[i] + vwmavrs
-#         tseries[i].append(round(sigma,1))
-
+#Bollinger band
 adjclose = list(tseries['adj.close'])
 mpv = list(tseries['avr.'+str(avrspans[1])])
 vol = list(tseries['volume'])
 stddev = [ 0 ]
 bollband = [ [mpv[0]], [mpv[0]], [mpv[0]], [mpv[0]], [mpv[0]], [mpv[0]] ]
 for i in range(1,len(mpv)) :
-    sigma = stdev(adjclose[max(0,i+1-avrspans[1]):i+1])
+    if 'volw' in params :
+        dev2sum = 0
+        vsum = 0
+        for i in range(max(0,i+1-avrspans[1]), i+1) :
+            dev2sum = dev2sum + vol[i] * (adjclose[i] - mpv[i])**2
+            vsum = vsum + vol[i]
+        sigma = math.sqrt(dev2sum/(vsum-1))
+    else:
+        sigma = stdev(adjclose[max(0,i+1-avrspans[1]):i+1])
     stddev.append(round(sigma,1))
     bollband[0].append(round(mpv[i]-3*sigma,1))
     bollband[1].append(round(mpv[i]-2*sigma,1))
