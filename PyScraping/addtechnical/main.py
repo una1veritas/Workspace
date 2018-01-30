@@ -8,6 +8,45 @@ from statistics import stdev
 import pandas as pd
 from operator import itemgetter
 
+#
+import matplotlib.pyplot as plt
+import matplotlib.finance as mpf
+from matplotlib import ticker
+import matplotlib.dates as mdates
+
+def candlechart(ohlc, width=0.8):
+    """入力されたデータフレームに対してローソク足チャートを返す
+        引数:
+            * ohlc:
+                *データフレーム
+                * 列名に'open'", 'close', 'low', 'high'を入れること
+                * 順不同"
+            * widrh: ローソクの線幅
+        戻り値: ax: subplot"""
+    fig, ax = plt.subplots()
+    # ローソク足
+    mpf.candlestick2_ohlc(ax, opens=ohlc.open.values, closes=ohlc.close.values,
+                          lows=ohlc.low.values, highs=ohlc.high.values,
+                          width=width, colorup='w', colordown='k')
+
+    # x軸を時間にする
+    xdate = ohlc.index
+    ax.xaxis.set_major_locator(ticker.MaxNLocator(6))
+
+    def mydate(x, pos):
+        try:
+            return xdate[int(x)]
+        except IndexError:
+            return ''
+
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(mydate))
+    ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
+
+    fig.autofmt_xdate()
+    fig.tight_layout()
+
+    return fig, ax
+
 # default values for options
 params = { 'mavr' : [5, 25, 50] }
 
@@ -108,17 +147,26 @@ tseries['+2s'] = bollband[4]
 tseries['+3s'] = bollband[5]
 
 # add RCI oscillator
+rciq = []
 dateprice = list(zip(tseries.index.tolist(),tseries['adj.close'].tolist()))
-pricedate = list(zip(tseries.index.tolist(),tseries['adj.close'].tolist()))
-pricedate.sort(key=itemgetter(1))
-print(pricedate.index(dateprice[0]))
-for iend in range(0,len(dateprice)) :
-    ibegin = max(0,iend+1-avrspans[1])
-    print( (ibegin,iend+1) )
-    subdateprice = dateprice[ibegin:iend+1]
-    subpricedate = pricedate[]
-    for i in range(ibegin, iend+1) : 
-        rank = pricedate[ibegin:iend+1].index(subdateprice[i])
-        print(rank)
+span = avrspans[1]
+for ix in range(0, len(dateprice)) :
+    dprange = dateprice[max(0,ix+1-span):ix+1]
+    dprange.sort(key=itemgetter(1),reverse=True)
+    dev2sum = 0
+    for dx in range(0,len(dprange)):
+        drank = dx + 1
+        dp = dateprice[max(0,ix+1-span):ix+1][-drank]
+        prank = dprange.index(dp) + 1
+        dev2sum = dev2sum + (drank-prank)**2
+    rci = (1 - 6 * dev2sum / (span*(span - 1)*(span+1))) * 100
+#    print(round(rci,1))
+    rciq.append(round(rci,1))
+tseries['RCI'] = rciq
+
 #output
-#tseries.to_csv(params['code']+'-'+'anal'+'.csv')
+tseries.to_csv(params['code']+'-'+'anal'+'.csv')
+
+#plot
+candlechart(tseries[-120:],width=1.0)
+plt.show()
