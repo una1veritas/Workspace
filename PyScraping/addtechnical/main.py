@@ -116,8 +116,9 @@ for iend in range(0,len(dateprice)) :
     ibegin = max(0,iend+1-avrspans[1])
     print( (ibegin,iend+1) )
     subdateprice = dateprice[ibegin:iend+1]
+    subpricedate = pricedate[]
     for i in range(ibegin, iend+1) : 
-        rank = pricedate[ibegin:iend+1].index(dateprice[i])
+        rank = pricedate[ibegin:iend+1].index(subdateprice[i])
         print(rank)
 #output
 #tseries.to_csv(params['code']+'-'+'anal'+'.csv')
