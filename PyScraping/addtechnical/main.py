@@ -1,3 +1,4 @@
+# add technical indexes and oscillators 
 
 import glob
 import sys
@@ -5,6 +6,7 @@ import math
 #from collections import deque
 from statistics import stdev
 import pandas as pd
+from operator import itemgetter
 
 # default values for options
 params = { 'mavr' : [5, 25, 50] }
@@ -38,6 +40,7 @@ for fname in files_list[1:]:
 
 tseries.sort_index()
 
+#add moving averages
 avrspans = params['mavr']
 priceq = [ ]
 volumeq  = [ ]
@@ -46,7 +49,7 @@ mavrs = { }
 for span in avrspans:
     mavrs['avr.'+str(span)] = [ ]
 for i in range(0,len(tseries.index)) :
-    adjfact = tseries['adj.close'].iloc[i]/tseries['close'].iloc[i]
+    adjfact = tseries['adj.close'].iat[i]/tseries['close'].iat[i]
     if adjfact != 1.0 :
         tseries.iat[i, 0] = tseries.iat[i,0] * adjfact
         tseries.iat[i, 1] = tseries.iat[i,1] * adjfact
@@ -72,7 +75,7 @@ for i in range(0,len(tseries.index)) :
 for span in avrspans :
     tseries['avr.'+str(span)] = mavrs['avr.'+str(span)]    
 
-#Bollinger band
+#add Bollinger band lines
 adjclose = list(tseries['adj.close'])
 mpv = list(tseries['avr.'+str(avrspans[1])])
 vol = list(tseries['volume'])
@@ -103,19 +106,18 @@ tseries['-1s'] = bollband[2]
 tseries['+1s'] = bollband[3]
 tseries['+2s'] = bollband[4]
 tseries['+3s'] = bollband[5]
-# if len(spanqs[2]) > 1 :
-#     mavrs[header[4]].append(round(stdev(spanqs[2]),1))
-# else:
-#     mavrs[header[4]].append(0.0)
-#         if len(spanqs[1]) == 1 :
-#             sigma = 0
-#         else:
-#             vwmavr = vwmavrs[1]
-#             dev2sum = 0
-#             vsum = 0
-#             for j in range(0, len(spanqs[1])) :
-#                 dev2sum = dev2sum + volqs[1][j] * ((spanqs[1][j] - vwmavr)**2) 
-#                 vsum = vsum + volqs[1][j]
-#             sigma = math.sqrt(dev2sum / (vsum - 1))
 
-tseries.to_csv(params['code']+'-'+'anal'+'.csv')
+# add RCI oscillator
+dateprice = list(zip(tseries.index.tolist(),tseries['adj.close'].tolist()))
+pricedate = list(zip(tseries.index.tolist(),tseries['adj.close'].tolist()))
+pricedate.sort(key=itemgetter(1))
+print(pricedate.index(dateprice[0]))
+for iend in range(0,len(dateprice)) :
+    ibegin = max(0,iend+1-avrspans[1])
+    print( (ibegin,iend+1) )
+    subdateprice = dateprice[ibegin:iend+1]
+    for i in range(ibegin, iend+1) : 
+        rank = pricedate[ibegin:iend+1].index(dateprice[i])
+        print(rank)
+#output
+#tseries.to_csv(params['code']+'-'+'anal'+'.csv')
