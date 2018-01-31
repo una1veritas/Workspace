@@ -6,58 +6,30 @@ import math
 #from collections import deque
 from statistics import stdev
 import pandas as pd
+import numpy as np
 from operator import itemgetter
 
 #
 import matplotlib.pyplot as plt
-import matplotlib.finance as mpf
+import matplotlib.finance as mfinance
 from matplotlib import ticker
 import matplotlib.dates as mdates
-
-def candlechart(ohlc, width=0.8):
-    """入力されたデータフレームに対してローソク足チャートを返す
-        引数:
-            * ohlc:
-                *データフレーム
-                * 列名に'open'", 'close', 'low', 'high'を入れること
-                * 順不同"
-            * widrh: ローソクの線幅
-        戻り値: ax: subplot"""
-    fig, ax = plt.subplots()
-    # ローソク足
-    mpf.candlestick2_ohlc(ax, opens=ohlc.open.values, closes=ohlc.close.values,
-                          lows=ohlc.low.values, highs=ohlc.high.values,
-                          width=width, colorup='w', colordown='k')
-
-    # x軸を時間にする
-    xdate = ohlc.index
-    ax.xaxis.set_major_locator(ticker.MaxNLocator(6))
-
-    def mydate(x, pos):
-        try:
-            return xdate[int(x)]
-        except IndexError:
-            return ''
-
-    ax.xaxis.set_major_formatter(ticker.FuncFormatter(mydate))
-    ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
-
-    fig.autofmt_xdate()
-    fig.tight_layout()
-
-    return fig, ax
+from matplotlib.pyplot import tight_layout
+#
 
 # default values for options
-params = { 'mavr' : [5, 25, 50] }
+params = { 'sma' : [5, 25, 50] }
 
 for arg in sys.argv[1:] :
     if arg == '-vw' :
         params['volw'] = True
     elif arg[:2] == '-m' :
         t = arg.split('.')[1:]
-        params['mavr'] = [ int(t[0]), int(t[1]), int(t[2]) ]
+        params['sma'] = [ int(t[0]), int(t[1]), int(t[2]) ]
     elif arg == '-ohlc' :
         params['ohlc'] = True
+    elif arg == '-plot' :
+        params['plot'] = True
     else:
         if len(arg.split('.')) == 2 :
             params['code'] = arg
@@ -73,20 +45,20 @@ files_list = glob.glob(params['code']+'-*-*.csv')
 files_list.sort()
 print(files_list)
 
-tseries = pd.read_csv(files_list[0], index_col= 0)
+tseries = pd.read_csv(files_list[0], index_col='date', parse_dates=['date'])
 for fname in files_list[1:]:
-    tseries = tseries.append(pd.read_csv(fname, index_col = 0))
+    tseries = tseries.append(pd.read_csv(fname, index_col='date', parse_dates=['date']))
 
 tseries.sort_index()
 
 #add moving averages
-avrspans = params['mavr']
+avrspans = params['sma']
 priceq = [ ]
 volumeq  = [ ]
 mavrs = { }
 # moving averages
 for span in avrspans:
-    mavrs['avr.'+str(span)] = [ ]
+    mavrs['sma '+str(span)] = [ ]
 for i in range(0,len(tseries.index)) :
     adjfact = tseries['adj.close'].iat[i]/tseries['close'].iat[i]
     if adjfact != 1.0 :
@@ -108,18 +80,20 @@ for i in range(0,len(tseries.index)) :
                 vsum = vsum + vol
                 psum = psum + priceq[idx] * vol
             mavr = psum/vsum
+            mavrs['sma '+str(span)].append(round(mavr,1))
         else:
             mavr = sum(priceq[max(0,i+1-span):i+1])/(i + 1 - max(0, i+1-span))
-        mavrs['avr.'+str(span)].append(round(mavr,1))
+            mavrs['sma '+str(span)].append(round(mavr,1))
+        
 for span in avrspans :
-    tseries['avr.'+str(span)] = mavrs['avr.'+str(span)]    
+    tseries['sma '+str(span)] = mavrs['sma '+str(span)]    
 
 #add Bollinger band lines
 adjclose = list(tseries['adj.close'])
-mpv = list(tseries['avr.'+str(avrspans[1])])
+mpv = list(tseries['sma '+str(avrspans[1])])
 vol = list(tseries['volume'])
 stddev = [ 0 ]
-bollband = [ [mpv[0]], [mpv[0]], [mpv[0]], [mpv[0]], [mpv[0]], [mpv[0]] ]
+bollband = [ [mpv[0]], [mpv[0]], [mpv[0]], [mpv[0]] ]
 for i in range(1,len(mpv)) :
     if 'volw' in params :
         dev2sum = 0
@@ -133,18 +107,14 @@ for i in range(1,len(mpv)) :
     stddev.append(round(sigma,1))
     bollband[0].append(round(mpv[i]-3*sigma,1))
     bollband[1].append(round(mpv[i]-2*sigma,1))
-    bollband[2].append(round(mpv[i]-1*sigma,1))
-    bollband[3].append(round(mpv[i]+1*sigma,1))
-    bollband[4].append(round(mpv[i]+2*sigma,1))
-    bollband[5].append(round(mpv[i]+3*sigma,1))
+    bollband[2].append(round(mpv[i]+2*sigma,1))
+    bollband[3].append(round(mpv[i]+3*sigma,1))
     
 tseries['stddev'] = stddev
 tseries['-3s'] = bollband[0]
 tseries['-2s'] = bollband[1]
-tseries['-1s'] = bollband[2]
-tseries['+1s'] = bollband[3]
-tseries['+2s'] = bollband[4]
-tseries['+3s'] = bollband[5]
+tseries['+2s'] = bollband[2]
+tseries['+3s'] = bollband[3]
 
 # add RCI oscillator
 rciq = []
@@ -168,5 +138,34 @@ tseries['RCI'] = rciq
 tseries.to_csv(params['code']+'-'+'anal'+'.csv')
 
 #plot
-candlechart(tseries[-120:],width=1.0)
-plt.show()
+if 'plot' in params :
+    df = tseries[-75:][[ 'open', 'high', 'low', 'close']].reset_index()
+    #df.columns = ["Date","Open","High",'Low',"Close"]
+    df['date'] = df['date'].map(mdates.date2num)
+    print(df)
+    
+    #Making plot
+    fig, ax = plt.figure(), plt.subplot2grid((6,1), (0,0), rowspan=6, colspan=1)
+    
+    #Converts raw mdate numbers to dates
+    ax.xaxis_date()
+    plt.xlabel("Date")
+    
+    #Making candlestick plot
+    mfinance.candlestick_ohlc(ax,df.values,width=0.6, colorup='silver', colordown='k',alpha=1)
+    
+    #sma = df['close'].rolling(5).mean()
+    #vstack = np.vstack((range(len(sma)), sma.values.T)).T  # x軸データを整数に
+    #ax.plot(vstack[:, 0], vstack[:, 1])
+    
+    ax.grid(True) #グリッド表示
+    fig.autofmt_xdate()
+    #for label in ax1.xaxis.get_ticklabels():
+    #    label.set_rotation(90)
+    #fig,tight_layout()
+    plt.ylabel("Price")
+    #plt.legend()
+    
+    plt.show()
+
+
