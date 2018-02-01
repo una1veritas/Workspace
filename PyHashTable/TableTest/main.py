@@ -6,11 +6,21 @@ def hashCode(s):
         total = total*31 + ord(s[index])
     return total
 
+def init_hashtable(table, size_n):
+    table.clear()
+    for i in range(0, size_n) :
+        table.append( [ ] )
+    return table
+
+def in_hashtable(s, table) :
+    return s in table[ hashCode(s) % len(table) ]
+
 def add_to_hashtable(s, table):
-    table[ hashCode(s) % len(table) ].append(s)
+    if not in_hashtable(s,table):
+        table[ hashCode(s) % len(table) ].append(s)
 
 def remove_from_hashtable(s, table):
-    if s in table[ hashCode(s) % len(table) ] :
+    if in_hashtable(s,table) :
         table[ hashCode(s) % len(table) ].remove(s)
     
 if len(sys.argv) == 1 :
@@ -18,33 +28,31 @@ if len(sys.argv) == 1 :
     
 args = sys.argv[1:]
 
-table_size = 7
-hashtable = {}
-for ix in range(0, table_size):
-    hashtable[ix] = [ ]  # i,...,table_size-1 の各添え字にカラのリストを対応させる
+hashtable = [ ]
+init_hashtable(hashtable, 7)
 
 print('add inputs: '+str(args))
 for s in args:
-    add_to_hashtable(s, hashtable)    
-for keyindex in hashtable:
-    print(keyindex, hashtable[keyindex])
+    add_to_hashtable(s, hashtable)
+for i in range(0, len(hashtable)):
+    print(i, hashtable[i])
 print()
 
 print('add \'olive\' and \'fortune\'')
 add_to_hashtable('olive', hashtable)
 add_to_hashtable('fortune', hashtable)
-for keyindex in hashtable:
-    print(keyindex, hashtable[keyindex])
+for i in range(0, len(hashtable)):
+    print(i, hashtable[i])
 print()
 
 print('remove \'olive\'')
 remove_from_hashtable('olive', hashtable)
-for keyindex in hashtable:
-    print(keyindex, hashtable[keyindex])
+for i in range(0, len(hashtable)):
+    print(i, hashtable[i])
 print()
 
 '''
-Betelgeuse:PyHashTable sin$ python3 TableTest/main.py awake arise or be forever fallen
+$ python3 TableTest/main.py awake arise or be forever fallen
 add inputs: ['awake', 'arise', 'or', 'be', 'forever', 'fallen']
 0 ['forever']
 1 ['fallen']
