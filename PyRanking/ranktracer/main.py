@@ -2,49 +2,44 @@
 import glob
 import csv
 import sys
+from operator import itemgetter
 
 rankingname = '1d2a'
-if len(sys.argv) > 1 : rankingname = sys.argv[1]
-files_list = glob.glob('../yfranking/yfr'+rankingname+'-*.csv')
+basedirname = './data'
+if len(sys.argv) > 2 : 
+    basedirname = sys.argv[1]
+    rankingname = sys.argv[2]
+files_list = glob.glob(basedirname+'/'+'yfr'+rankingname+'-*.csv')
 files_list.sort(reverse=False)
-print(files_list)
+print(files_list[-7:])
 
-ranking = { }
+# collect codes 
+rankhist = { }
 codedict = { }
-file_name = files_list[-1]
-print('initialize stock codes by the latest ranking in file ',file_name)
-with open(file_name, 'r') as file:
-    csv_reader = csv.reader(file)
-    header = next(csv_reader)  # ヘッダーを読み飛ばしたい時
-    for row in csv_reader:
-        ranking[row[1]] = [ ]
-        codedict[row[1]] = [row[2], row[3], float(row[6].replace('%',''))]
-
-print('slice')
-pcount = 1
-for file_name in files_list[-3:]:
+dates = [ ]
+for file_name in files_list[-7:] :
     with open(file_name, 'r') as file:
-        print('reading ', file_name)
+        header = file.readline().split('\n')[0]
+        [dstr, tstr] = header.split(',')[2:4]
+        thisdate = (int(dstr[0:4]), int(dstr[4:6]), int(dstr[6:8]), int(tstr[0:2]), int(tstr[2:4]))
+        dates.append(thisdate)
         csv_reader = csv.reader(file)
-        header = next(csv_reader)
         for row in csv_reader:
-            if row[1] in ranking:
-#                print(row[1],', ',row[0])
-                ranking[row[1]].append(int(row[0]))
-#                print(ranking[row[1]])
-    for code in ranking:
-        if len(ranking[code]) < pcount:
-            ranking[code].append('NA')
-    pcount = pcount + 1
-    
-print('histories of ranking:')
-for code in ranking:
-    print(code,': ',ranking[code],'  ',codedict[code])
+            if not row[1] in rankhist:
+                codedict[row[1]] = ( row[2], row[3] )
+                rankhist[row[1]] = { }
+            mondate = (thisdate[0], int(row[4].split('/')[0]), int(row[4].split('/')[1]) )
+            rankhist[row[1]][mondate] = round(float(row[7])/(float(row[5]) - float(row[7])),3)
+#print(ranking)
+print(dates)
+#print(codedict)
 
-#    tbl = pandas.read_csv(file,skiprows=1,header=None)
-#    tbl = tbl.drop(9,axis=1)
-#    tbl.columns = ['rank', 'code', 'market', 'name', 'date', 'price', 'ratio', 'diff', 'volume' ]
-#    if count == 1 :
-#        ranking = tbl.ix[:,['code', 'rank']]
-#        ranking = ranking.sort_values(by='code')
+riseup = [ ]
+for code in rankhist:
+    riseup.append([code, len(rankhist[code]), list(rankhist[code].values())])
 
+riseup = sorted(riseup, key=itemgetter(1), reverse=True)
+for row in riseup:
+    if row[1] < len(dates)/2 :
+        break
+    print(row[0],',',row[1],',',row[2])

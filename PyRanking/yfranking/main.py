@@ -57,7 +57,7 @@ def yahooFinanceRanking(kind=1,timespan='d',market=2,volume='a',pages=5):
             ranking.append(rowlist)
     return ranking
 
-ranking = yahooFinanceRanking(kind=kd,timespan=tm,market=mk,volume=vl,pages=10)
+ranking = yahooFinanceRanking(kind=kd,timespan=tm,market=mk,volume=vl,pages=36)
 print( '{0} ranking {1} on {2} updated at {3}'.format(ranking[0][0],ranking[0][1],ranking[0][2],ranking[0][3]))
 f_name = 'yfr'+ranking[0][1]+'-'+ranking[0][2]+ranking[0][3]+'.csv'
 #yahooFinanceRanking(ranking, timespan='w',page=2)
