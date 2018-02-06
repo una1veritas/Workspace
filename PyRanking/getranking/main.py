@@ -1,4 +1,4 @@
-# coding: UTF-8
+# coding: utf-8
 '''
 Created on 2017/12/24
 
@@ -7,6 +7,18 @@ Created on 2017/12/24
 import sys
 import os
 from pyquery import PyQuery
+
+if __name__ == '__main__':
+    pass #特になし
+
+# from argv
+if len(sys.argv) <= 2:
+    print('usage: basedirname rankingcode')
+    exit()
+
+if tuple(sys.version_info)[0] != 3:
+    print('python 3.x required.')
+    exit()    
 
 def yahooFinanceRanking(kind=1,timespan='d',market=2,volume='a',pages=5):
     ranking = []
@@ -51,31 +63,22 @@ def save_ranking(basedir, kind, timespan, market, volume, pages):
     print( '{0} ranking {1} on {2} updated at {3}'.format(ranking[0][0],ranking[0][1],ranking[0][2],ranking[0][3]))
     f_name = basedir + '/'+'yfr'+ranking[0][1]+'-'+ranking[0][2]+ranking[0][3]+'.csv'
     #yahooFinanceRanking(ranking, timespan='w',page=2)
-    if not os.path.exists(f_name):
-        with open(f_name,'w') as csv_file:
-            for rowlist in ranking:
-                colnum = len(rowlist)
-                cnt = 0
-                for item in rowlist:
-                    csv_file.write(item)
-                    cnt = cnt + 1
-                    if cnt < colnum:
-                        csv_file.write(',')
-                csv_file.write('\n')
-        csv_file.close()
-    else:
-        print ('file ' + f_name + ' already exists.')
+    if os.path.exists(f_name):
+        print ('overwriting file ' + f_name + '.')
+    with open(f_name, mode='w', encoding='utf-8') as csv_file:
+        for rowlist in ranking:
+            colnum = len(rowlist)
+            cnt = 0
+            for item in rowlist:
+                csv_file.write(item)
+                cnt = cnt + 1
+                if cnt < colnum:
+                    csv_file.write(',')
+            csv_file.write('\n')
+    csv_file.close()
     return
 
 #
-
-if __name__ == '__main__':
-    pass #特になし
-
-# from argv
-if len(sys.argv) <= 2:
-    print('usage: basedirname rankingcode')
-    exit()
     
 basedir = sys.argv[1]
 if not os.path.exists(basedir):

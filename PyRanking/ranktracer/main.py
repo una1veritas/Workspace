@@ -37,9 +37,16 @@ print(dates)
 
 riseup = [ ]
 for code in rankhist:
-    riseup.append([code, len(rankhist[code]), list(rankhist[code].values())])
+    histlist = [ ]
+    for d in dates:
+        #print(d[0:3], rankhist[code])
+        if d[0:3] in rankhist[code] :
+            dateint = (d[0]%100)*10000+d[1]*100+d[2]
+            histlist.append([dateint, rankhist[code][d[0:3]]])
+    histlist.reverse()
+    riseup.append([code, len(rankhist[code]), histlist ])
 
-riseup = sorted(riseup, key=itemgetter(1), reverse=True)
+riseup = sorted(riseup, key=itemgetter(1,2), reverse=True)
 for row in riseup:
     if row[1] < len(dates)/2 :
         break
