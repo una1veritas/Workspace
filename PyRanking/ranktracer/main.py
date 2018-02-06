@@ -4,20 +4,21 @@ import csv
 import sys
 from operator import itemgetter
 
-rankingname = '1d2a'
 basedirname = './data'
+rankingname = '1d2a'
 if len(sys.argv) > 2 : 
     basedirname = sys.argv[1]
     rankingname = sys.argv[2]
+    backto = int(sys.argv[3])
 files_list = glob.glob(basedirname+'/'+'yfr'+rankingname+'-*.csv')
 files_list.sort(reverse=False)
-print(files_list[-7:])
+print(files_list[-backto:])
 
 # collect codes 
 rankhist = { }
 codedict = { }
 dates = [ ]
-for file_name in files_list[-7:] :
+for file_name in files_list[-backto:] :
     with open(file_name, 'r') as file:
         header = file.readline().split('\n')[0]
         [dstr, tstr] = header.split(',')[2:4]
@@ -28,8 +29,8 @@ for file_name in files_list[-7:] :
             if not row[1] in rankhist:
                 codedict[row[1]] = ( row[2], row[3] )
                 rankhist[row[1]] = { }
-            mondate = (thisdate[0], int(row[4].split('/')[0]), int(row[4].split('/')[1]) )
-            rankhist[row[1]][mondate] = round(float(row[7])/(float(row[5]) - float(row[7])),3)
+            mondate = thisdate[0:3]
+            rankhist[row[1]][mondate] = round(float(row[6])/(float(row[4]) - float(row[6])),3)
 #print(ranking)
 print(dates)
 #print(codedict)
