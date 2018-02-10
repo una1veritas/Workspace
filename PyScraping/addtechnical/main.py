@@ -6,23 +6,25 @@ import math
 #from collections import deque
 from statistics import stdev
 import pandas as pd
-import numpy as np
+#import numpy as np
 from operator import itemgetter
 
 #
 import matplotlib.pyplot as plt
 import matplotlib.finance as mfinance
-from matplotlib import ticker
+#from matplotlib import ticker
 import matplotlib.dates as mdates
-from matplotlib.pyplot import tight_layout
+#from matplotlib.pyplot import tight_layout
 #
 
 # default values for options
-params = { 'sma' : [5, 25, 50] }
+params = { 'sma' : [5, 25, 50], 'path' : '' }
 
 for arg in sys.argv[1:] :
     if arg == '-vw' :
         params['volw'] = True
+    elif arg[:6] == '-path=' :
+        params['path'] = arg[6:].rstrip('/')
     elif arg[:2] == '-m' :
         t = arg.split('.')[1:]
         params['sma'] = [ int(t[0]), int(t[1]), int(t[2]) ]
@@ -40,8 +42,8 @@ if not ('code' in params) :
     exit
     
 print (params)
-
-files_list = glob.glob(params['code']+'-*-*.csv')
+print(params['path'] + '/' + params['code']+'-*-*.csv')
+files_list = glob.glob(params['path'] + '/' + params['code']+'-*-*.csv')
 files_list.sort()
 print(files_list)
 
@@ -60,7 +62,10 @@ mavrs = { }
 for span in avrspans:
     mavrs['sma '+str(span)] = [ ]
 for i in range(0,len(tseries.index)) :
-    adjfact = tseries['adj.close'].iat[i]/tseries['close'].iat[i]
+    if 'adj.close' in tseries.columns :
+        adjfact = tseries['adj.close'].iat[i]/tseries['close'].iat[i]
+    else:
+        adjfact = 1.0
     if adjfact != 1.0 :
         tseries.iat[i, 0] = tseries.iat[i,0] * adjfact
         tseries.iat[i, 1] = tseries.iat[i,1] * adjfact
@@ -89,13 +94,19 @@ for span in avrspans :
     tseries['sma '+str(span)] = mavrs['sma '+str(span)]    
 
 #add Bollinger band lines
-adjclose = list(tseries['adj.close'])
+if 'adj.close' in tseries.columns :
+    adjclose = list(tseries['adj.close'])
+else:
+    adjclose = list(tseries['close'])
 mpv = list(tseries['sma '+str(avrspans[1])])
-vol = list(tseries['volume'])
+if 'volume' in tseries.columns :
+    vol = list(tseries['volume'])
+else:
+    vol = [ ]
 stddev = [ 0 ]
 bollband = [ [mpv[0]], [mpv[0]], [mpv[0]], [mpv[0]] ]
 for i in range(1,len(mpv)) :
-    if 'volw' in params :
+    if 'volw' in params and len(vol) > 0:
         dev2sum = 0
         vsum = 0
         for i in range(max(0,i+1-avrspans[1]), i+1) :
@@ -118,7 +129,10 @@ tseries['+3s'] = bollband[3]
 
 # add RCI oscillator
 rciq = []
-dateprice = list(zip(tseries.index.tolist(),tseries['adj.close'].tolist()))
+if 'adj.close' in tseries.columns :
+    dateprice = list(zip(tseries.index.tolist(),tseries['adj.close'].tolist()))
+else:
+    dateprice = list(zip(tseries.index.tolist(),tseries['close'].tolist()))    
 span = avrspans[1]
 for ix in range(0, len(dateprice)) :
     dprange = dateprice[max(0,ix+1-span):ix+1]

@@ -122,8 +122,8 @@ for jd in range(jpstart, jpend+1, 32):
     table = table + yahooFinanceTimeSeries(code,pjstart,pjend,tmspan)
 
 table = sorted(table, reverse=False)
-
-df = pd.DataFrame(table,columns=header)
+colnum = len(table[0])
+df = pd.DataFrame(table,columns=header[:colnum])
 df = df.set_index('date')
 df.to_csv(code+'-'+str(pdstart)+'-'+str(pdend)+'.csv')
 #dframe = pd.DataFrame[table, ]

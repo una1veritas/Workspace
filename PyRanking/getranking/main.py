@@ -24,9 +24,9 @@ def yahooFinanceRanking(kind=1,timespan='d',market=2,volume='a',pages=5):
     ranking = []
     if kind == 33 or kind == 36:
         timespan = 'd'
-    print('reading ranking page ', end='')
+    print('reading ranking page ', end='', flush=True)
     for page in range(1,pages+1):
-        print(str(page)+', ', end='')
+        print(str(page)+', ', end='', flush=True)
         url = "https://info.finance.yahoo.co.jp/ranking/?kd={0}&tm={1}&mk={2}&vl={3}&p={4}".format(kind,timespan,market,volume,page)
         pquery = PyQuery(url)
         if page == 1:
