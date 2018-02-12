@@ -18,7 +18,7 @@ import matplotlib.dates as mdates
 #
 
 # default values for options
-params = { 'sma' : [5, 25, 50], 'path' : '' }
+params = { 'sma' : [5, 25, 50], 'path' : './data' }
 
 for arg in sys.argv[1:] :
     if arg == '-vw' :

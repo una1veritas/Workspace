@@ -14,18 +14,31 @@ import pandas as pd
 if __name__ == '__main__':
     pass
 
-code = '5698.T'
-pdstart = int('20171210')
-pdend = int('20180112')
-tmspan = 'd'
-if len(sys.argv) >= 4:
-    code = sys.argv[1]
-    pdstart = int(sys.argv[2])
-    pdend = int(sys.argv[3])
-    if len(sys.argv) == 5:
-        tmspan = sys.argv[4]
+params = { 'path': './', 'tmspan': 'd'}
+#code = '5698.T'
+#pdstart = int('20171210')
+#pdend = int('20180112')
+#tmspan = 'd'
+for argv in sys.argv[1:] :
+    if argv[0] != '-' :
+        if not 'code' in params :
+            params['code'] = argv
+        elif not 'fromdate' in params:
+            params['fromdate'] = int(argv)
+        elif not 'todate' in params:
+            params['todate'] = int(argv)
+        elif not 'path' in params :
+            params['path'] = argv
+    else:
+        if argv[:6] == '-path=':
+            params['path'] = argv[6:]
+        elif argv[:6] == '-span=':
+            params['tmspan'] = argv[6:]
+
+if not 'code' in params or not 'fromdate' in params or not 'todate' in params:
+    print('code.m frmdate todate path')
+    exit()
         
-filepath = './'
 #timestamp = datetime.now().strftime("%Y%m%d-%H%M")
 #print ("current time stamp: ", timestamp)
 # 1カラム目に時間を挿入します
@@ -108,8 +121,8 @@ def yahooFinanceTimeSeries(code,pdstart,pdend,timespan='d'):
 #        if ranking[key][1] != u'東証ETF':
 #            print key,": ",ranking[key]
 
-jpstart = int(0.5+JulianDay(pdstart//10000,pdstart//100%100,pdstart%100))
-jpend = int(0.5+JulianDay(pdend//10000,pdend//100%100,pdend%100))
+jpstart = int(0.5+JulianDay(params['fromdate']//10000, params['fromdate']//100%100, params['fromdate']%100))
+jpend = int(0.5+JulianDay(params['todate']//10000, params['todate']//100%100, params['todate']%100))
 table = [ ]
 header = ['date','open','high','low','close','volume','adj.close'] 
 for jd in range(jpstart, jpend+1, 32):
@@ -119,13 +132,13 @@ for jd in range(jpstart, jpend+1, 32):
         je = jd+31
     pjstart = int(CalDate(jd))
     pjend = int(CalDate(je))
-    table = table + yahooFinanceTimeSeries(code,pjstart,pjend,tmspan)
+    table = table + yahooFinanceTimeSeries(params['code'], pjstart, pjend, params['tmspan'])
 
 table = sorted(table, reverse=False)
 colnum = len(table[0])
 df = pd.DataFrame(table,columns=header[:colnum])
 df = df.set_index('date')
-df.to_csv(code+'-'+str(pdstart)+'-'+str(pdend)+'.csv')
+df.to_csv(params['code']+'-'+str(params['fromdate'])+'-'+str(params['todate'])+'.csv')
 #dframe = pd.DataFrame[table, ]
 
 #for row in table:

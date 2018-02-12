@@ -3,6 +3,7 @@ import glob
 import csv
 import sys
 from operator import itemgetter
+import numpy as np
 
 basedirname = './data'
 rankingname = '1d2a'
@@ -19,7 +20,7 @@ rankhist = { }
 codedict = { }
 dates = [ ]
 for file_name in files_list[-backto:] :
-    with open(file_name, 'r') as file:
+    with open(file_name, 'r', encoding='utf-8') as file:
         header = file.readline().split('\n')[0]
         [dstr, tstr] = header.split(',')[2:4]
         thisdate = (int(dstr[0:4]), int(dstr[4:6]), int(dstr[6:8]), int(tstr[0:2]), int(tstr[2:4]))
@@ -30,7 +31,7 @@ for file_name in files_list[-backto:] :
                 codedict[row[1]] = ( row[2], row[3] )
                 rankhist[row[1]] = { }
             mondate = thisdate[0:3]
-            rankhist[row[1]][mondate] = round(float(row[6])/(float(row[4]) - float(row[6])),3)
+            rankhist[row[1]][mondate] = [ round(float(row[6])/(float(row[4]) - float(row[6])),3), float(row[4]) ]
 #print(ranking)
 print(dates)
 #print(codedict)
@@ -42,7 +43,7 @@ for code in rankhist:
         #print(d[0:3], rankhist[code])
         if d[0:3] in rankhist[code] :
             dateint = (d[0]%100)*10000+d[1]*100+d[2]
-            histlist.append([dateint, rankhist[code][d[0:3]]])
+            histlist.append([ dateint ] + rankhist[code][d[0:3]])
     histlist.reverse()
     riseup.append([code, len(rankhist[code]), histlist ])
 
@@ -50,4 +51,19 @@ riseup = sorted(riseup, key=itemgetter(1,2), reverse=True)
 for row in riseup:
     if row[1] < len(dates)/2 :
         break
-    print(row[0],',',row[1],',',row[2])
+    x = []
+    y = []
+    for ix in range(len(row[2])) :
+        x.append(len(row[2]) - ix - 1)
+        y.append(row[2][ix][2])
+    x = np.array(x)
+    y = np.array(y)
+    A = np.vstack([x, np.ones(len(x))]).T
+    a, c = np.linalg.lstsq(A,y,rcond=None)[0]
+    print(str(row[0])+ ' ' + codedict[row[0]][1])
+    print('\t'+str(row[1]) + ' ' + ' ('+str(round(a,1))+') ', end='')
+    for t in row[2]:
+        print('('+str(t[0])+' '+str(t[2])+')'+', ', end='')
+    print()
+    
+print('done.')
