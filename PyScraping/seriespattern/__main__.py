@@ -64,4 +64,7 @@ tsseq = tseries[['open','high','low','close','volume']].reset_index().values
 
 patseq = parsepattern(params[1])
 print(patseq)
-print(list(zip(tsseq[0], patseq[0])))
+for tup in tsseq :
+    for ix in range(0,len(patseq)) :
+        print(tup[ix], patseq[ix])
+    
