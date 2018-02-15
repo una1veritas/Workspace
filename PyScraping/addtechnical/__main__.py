@@ -16,7 +16,6 @@ import matplotlib.finance as mfinance
 import matplotlib.dates as mdates
 #from matplotlib.pyplot import tight_layout
 #
-
 # default values for options
 params = { 'sma' : [5, 25, 50], 'path' : './data' }
 
@@ -28,6 +27,13 @@ for arg in sys.argv[1:] :
     elif arg[:2] == '-m' :
         t = arg.split('.')[1:]
         params['sma'] = [ int(t[0]), int(t[1]), int(t[2]) ]
+    elif arg[:6] == '-bband' :
+        t = arg.split('.')[1:]
+        print(t)
+        params['bband'] = int(t.pop(0))
+    elif arg[:4] == '-rci' :
+        t = arg.split('.')[1:]
+        params['rci'] = int(t.pop(0))
     elif arg == '-ohlc' :
         params['ohlc'] = True
     elif arg == '-plot' :
@@ -93,60 +99,63 @@ for i in range(0,len(tseries.index)) :
 for span in avrspans :
     tseries['sma '+str(span)] = mavrs['sma '+str(span)]    
 
-#add Bollinger band lines
-if 'adj.close' in tseries.columns :
-    adjclose = list(tseries['adj.close'])
-else:
-    adjclose = list(tseries['close'])
-mpv = list(tseries['sma '+str(avrspans[1])])
-if 'volume' in tseries.columns :
-    vol = list(tseries['volume'])
-else:
-    vol = [ ]
-stddev = [ 0 ]
-bollband = [ [mpv[0]], [mpv[0]], [mpv[0]], [mpv[0]] ]
-for i in range(1,len(mpv)) :
-    if 'volw' in params and len(vol) > 0:
-        dev2sum = 0
-        vsum = 0
-        for i in range(max(0,i+1-avrspans[1]), i+1) :
-            dev2sum = dev2sum + vol[i] * (adjclose[i] - mpv[i])**2
-            vsum = vsum + vol[i]
-        sigma = math.sqrt(dev2sum/(vsum-1))
+if 'bband' in params:
+    #add Bollinger band lines
+    if 'adj.close' in tseries.columns :
+        adjclose = list(tseries['adj.close'])
     else:
-        sigma = stdev(adjclose[max(0,i+1-avrspans[1]):i+1])
-    stddev.append(round(sigma,1))
-    bollband[0].append(round(mpv[i]-3*sigma,1))
-    bollband[1].append(round(mpv[i]-2*sigma,1))
-    bollband[2].append(round(mpv[i]+2*sigma,1))
-    bollband[3].append(round(mpv[i]+3*sigma,1))
-    
-tseries['stddev'] = stddev
-tseries['-3s'] = bollband[0]
-tseries['-2s'] = bollband[1]
-tseries['+2s'] = bollband[2]
-tseries['+3s'] = bollband[3]
+        adjclose = list(tseries['close'])
+    span = int(params['bband'])
+    mpv = list(tseries['sma '+str(span)])
+    if 'volume' in tseries.columns :
+        vol = list(tseries['volume'])
+    else:
+        vol = [ ]
+    stddev = [ 0 ]
+    bollband = [ [mpv[0]], [mpv[0]], [mpv[0]], [mpv[0]] ]
+    for i in range(1,len(mpv)) :
+        if 'volw' in params and len(vol) > 0:
+            dev2sum = 0
+            vsum = 0
+            for i in range(max(0,i+1-avrspans[1]), i+1) :
+                dev2sum = dev2sum + vol[i] * (adjclose[i] - mpv[i])**2
+                vsum = vsum + vol[i]
+            sigma = math.sqrt(dev2sum/(vsum-1))
+        else:
+            sigma = stdev(adjclose[max(0,i+1-avrspans[1]):i+1])
+        stddev.append(round(sigma,1))
+        bollband[0].append(round(mpv[i]-3*sigma,1))
+        bollband[1].append(round(mpv[i]-2*sigma,1))
+        bollband[2].append(round(mpv[i]+2*sigma,1))
+        bollband[3].append(round(mpv[i]+3*sigma,1))
+        
+    tseries['stddev'] = stddev
+    tseries['-3s'] = bollband[0]
+    tseries['-2s'] = bollband[1]
+    tseries['+2s'] = bollband[2]
+    tseries['+3s'] = bollband[3]
 
-# add RCI oscillator
-rciq = []
-if 'adj.close' in tseries.columns :
-    dateprice = list(zip(tseries.index.tolist(),tseries['adj.close'].tolist()))
-else:
-    dateprice = list(zip(tseries.index.tolist(),tseries['close'].tolist()))    
-span = avrspans[1]
-for ix in range(0, len(dateprice)) :
-    dprange = dateprice[max(0,ix+1-span):ix+1]
-    dprange.sort(key=itemgetter(1),reverse=True)
-    dev2sum = 0
-    for dx in range(0,len(dprange)):
-        drank = dx + 1
-        dp = dateprice[max(0,ix+1-span):ix+1][-drank]
-        prank = dprange.index(dp) + 1
-        dev2sum = dev2sum + (drank-prank)**2
-    rci = (1 - 6 * dev2sum / (span*(span - 1)*(span+1))) * 100
-#    print(round(rci,1))
-    rciq.append(round(rci,1))
-tseries['RCI'] = rciq
+if 'rci' in params:
+    # add RCI oscillator
+    rciq = []
+    if 'adj.close' in tseries.columns :
+        dateprice = list(zip(tseries.index.tolist(),tseries['adj.close'].tolist()))
+    else:
+        dateprice = list(zip(tseries.index.tolist(),tseries['close'].tolist()))    
+    span = int(params['rci'])
+    for ix in range(0, len(dateprice)) :
+        dprange = dateprice[max(0,ix+1-span):ix+1]
+        dprange.sort(key=itemgetter(1),reverse=True)
+        dev2sum = 0
+        for dx in range(0,len(dprange)):
+            drank = dx + 1
+            dp = dateprice[max(0,ix+1-span):ix+1][-drank]
+            prank = dprange.index(dp) + 1
+            dev2sum = dev2sum + (drank-prank)**2
+        rci = (1 - 6 * dev2sum / (span*(span - 1)*(span+1))) * 100
+    #    print(round(rci,1))
+        rciq.append(round(rci,1))
+    tseries['RCI'] = rciq
 
 #output
 tseries.to_csv(params['code']+'-'+'anal'+'.csv')
