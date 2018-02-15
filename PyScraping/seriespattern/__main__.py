@@ -8,6 +8,20 @@ import glob
 import pandas as pd
 #
 
+def parsepattern(patstr):
+    patstr = patstr.lstrip().rstrip()
+    pattern = [ ]
+    ix = 0
+    while ix < len(patstr) :
+        leftix = patstr.find('[', ix)
+        if ix == -1 : break
+        rightix = patstr.find(']', ix + 1)
+        clausestr = patstr[leftix:rightix+1]
+        clauselist = clausestr[1:-1].split(',')
+        pattern.append(clauselist)
+        ix = rightix + 1
+    return pattern
+
 params = { 'path': ''}
 
 args = sys.argv
@@ -47,8 +61,7 @@ for fname in files:
 
 tseries.sort_index()
 tsseq = tseries[['open','high','low','close','volume']].reset_index().values
-print(tsseq)
 
-seqpatt = eval(params[1])
-print(seqpatt)
-
+patseq = parsepattern(params[1])
+print(patseq)
+print(list(zip(tsseq[0], patseq[0])))
