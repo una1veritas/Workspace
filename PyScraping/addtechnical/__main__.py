@@ -11,11 +11,18 @@ from operator import itemgetter
 
 #
 import matplotlib.pyplot as plt
-import matplotlib.finance as mfinance
+import matplotlib.finance as mf
 #from matplotlib import ticker
 import matplotlib.dates as mdates
 #from matplotlib.pyplot import tight_layout
-#
+
+def ExpMovingAverage(values, window):
+    weights = np.exp(np.linspace(-1., 0., window))
+    weights /= weights.sum()
+    a =  np.convolve(values, weights, mode='full')[:len(values)]
+    a[:window] = a[window]
+    return a
+
 # default values for options
 params = { 'sma' : [5, 25, 50], 'path' : './data' }
 
@@ -34,8 +41,8 @@ for arg in sys.argv[1:] :
     elif arg[:4] == '-rci' :
         t = arg.split('.')[1:]
         params['rci'] = int(t.pop(0))
-    elif arg == '-ohlc' :
-        params['ohlc'] = True
+#    elif arg == '-ohlc' :
+#        params['ohlc'] = True
     elif arg == '-plot' :
         params['plot'] = True
     else:
@@ -59,6 +66,16 @@ for fname in files_list[1:]:
 
 tseries.sort_index()
 
+# normalize the prices
+if 'adj.close' in tseries.columns:
+    for i in range(0,len(tseries.index)) :
+        adjfact = tseries['adj.close'].iat[i]/tseries['close'].iat[i]
+        if adjfact != 1.0 :
+            tseries.iat[i, 0] = tseries.iat[i,0] * adjfact
+            tseries.iat[i, 1] = tseries.iat[i,1] * adjfact
+            tseries.iat[i, 2] = tseries.iat[i,2] * adjfact
+            tseries.iat[i, 3] = tseries.iat[i,3] * adjfact
+
 #add moving averages
 avrspans = params['sma']
 priceq = [ ]
@@ -67,37 +84,13 @@ mavrs = { }
 # moving averages
 for span in avrspans:
     mavrs['sma '+str(span)] = [ ]
-for i in range(0,len(tseries.index)) :
-    if 'adj.close' in tseries.columns :
-        adjfact = tseries['adj.close'].iat[i]/tseries['close'].iat[i]
-    else:
-        adjfact = 1.0
-    if adjfact != 1.0 :
-        tseries.iat[i, 0] = tseries.iat[i,0] * adjfact
-        tseries.iat[i, 1] = tseries.iat[i,1] * adjfact
-        tseries.iat[i, 2] = tseries.iat[i,2] * adjfact
-        tseries.iat[i, 3] = tseries.iat[i,3] * adjfact
-    if 'ohlc' in params :
-        price =  round(sum(list(tseries.iloc[i][0:4]))/4,1)
-    else:
-        price = tseries['close'].iat[i]
-    priceq.append(price)
-    for span in avrspans:
-        if 'volw' in params :
-            psum = 0
-            vsum = 0
-            for idx in range(max(0,i+1-span), i+1) :
-                vol = tseries['volume'].iat[idx]
-                vsum = vsum + vol
-                psum = psum + priceq[idx] * vol
-            mavr = psum/vsum
-            mavrs['sma '+str(span)].append(round(mavr,1))
-        else:
-            mavr = sum(priceq[max(0,i+1-span):i+1])/(i + 1 - max(0, i+1-span))
-            mavrs['sma '+str(span)].append(round(mavr,1))
-        
-for span in avrspans :
-    tseries['sma '+str(span)] = mavrs['sma '+str(span)]    
+priceq = tseries['close']
+for span in avrspans:
+    mavr = pd.rolling_mean(priceq,window=span, min_periods=1)
+    mavrs['sma '+str(span)].append(round(mavr,1))
+
+for smaname in mavrs :
+    tseries[smaname] = mavrs[smaname][0]    
 
 if 'bband' in params:
     #add Bollinger band lines
@@ -162,26 +155,30 @@ tseries.to_csv(params['code']+'-'+'anal'+'.csv')
 
 #plot
 if 'plot' in params :
-    df = tseries[-75:][[ 'open', 'high', 'low', 'close']].reset_index()
+    df = tseries[-75:][[ 'open', 'high', 'low', 'close', 'volume']].reset_index()
     #df.columns = ["Date","Open","High",'Low',"Close"]
     df['date'] = df['date'].map(mdates.date2num)
     print(df)
     
     #Making plot
-    fig, ax = plt.figure(), plt.subplot2grid((6,1), (0,0), rowspan=6, colspan=1)
-    
+    fig = plt.figure(facecolor='#07000d')
+    ax1 = plt.subplot2grid((6,4), (1,0), rowspan=4, colspan=4, axisbg='#07000d')
+    #fig, ax = plt.figure(), plt.subplot2grid((6,1), (0,0), rowspan=6, colspan=1)
+    #fig, axes = plt.subplots(ncols=1,nrows=2, sharex=True, figsize=(4,6))
     #Converts raw mdate numbers to dates
-    ax.xaxis_date()
+    ax1.xaxis_date()
     plt.xlabel("Date")
     
     #Making candlestick plot
-    mfinance.candlestick_ohlc(ax,df.values,width=0.6, colorup='silver', colordown='k',alpha=1)
+    #mfinance.candlestick_ohlc(axes[0],df.values,width=0.6, colorup='red', colordown='blue',alpha=1)
+    mf.candlestick_ohlc(ax1, df, width=.6, colorup='#53c156', colordown='#ff1717')
     
     #sma = df['close'].rolling(5).mean()
     #vstack = np.vstack((range(len(sma)), sma.values.T)).T  # x軸データを整数に
     #ax.plot(vstack[:, 0], vstack[:, 1])
     
-    ax.grid(True) #グリッド表示
+    ax0 = plt.subplot2grid((6,4), (0,0), sharex=ax1, rowspan=1, colspan=4, axisbg='#07000d')
+    ax0.grid(True) #グリッド表示
     fig.autofmt_xdate()
     #for label in ax1.xaxis.get_ticklabels():
     #    label.set_rotation(90)
