@@ -76,21 +76,22 @@ if 'adj.close' in tseries.columns:
             tseries.iat[i, 2] = tseries.iat[i,2] * adjfact
             tseries.iat[i, 3] = tseries.iat[i,3] * adjfact
 
-#add moving averages
-avrspans = params['sma']
-priceq = [ ]
-volumeq  = [ ]
-mavrs = { }
 # moving averages
-for span in avrspans:
-    mavrs['sma '+str(span)] = [ ]
-priceq = tseries['close']
-for span in avrspans:
-    mavr = pd.rolling_mean(priceq,window=span, min_periods=1)
-    mavrs['sma '+str(span)].append(round(mavr,1))
+def SimpleMovingAverages(dframe, avrspans):
+    mavrs = { }
+    for span in avrspans:
+        mavrs['sma '+str(span)] = [ ]
+    priceq = dframe['close']
+    for span in avrspans:
+        mavr = pd.rolling_mean(priceq,window=span, min_periods=1)
+        mavrs['sma '+str(span)].append(round(mavr,1))
+    for smaname in mavrs :
+        dframe[smaname] = mavrs[smaname][0]
+    return
 
-for smaname in mavrs :
-    tseries[smaname] = mavrs[smaname][0]    
+#add moving averages
+if 'sma' in params:
+    SimpleMovingAverages(tseries, params['sma'])
 
 if 'bband' in params:
     #add Bollinger band lines
@@ -110,12 +111,12 @@ if 'bband' in params:
         if 'volw' in params and len(vol) > 0:
             dev2sum = 0
             vsum = 0
-            for i in range(max(0,i+1-avrspans[1]), i+1) :
+            for i in range(max(0,i+1-params['sma'][1]), i+1) :
                 dev2sum = dev2sum + vol[i] * (adjclose[i] - mpv[i])**2
                 vsum = vsum + vol[i]
             sigma = math.sqrt(dev2sum/(vsum-1))
         else:
-            sigma = stdev(adjclose[max(0,i+1-avrspans[1]):i+1])
+            sigma = stdev(adjclose[max(0,i+1-params['sma'][1]):i+1])
         stddev.append(round(sigma,1))
         bollband[0].append(round(mpv[i]-3*sigma,1))
         bollband[1].append(round(mpv[i]-2*sigma,1))
