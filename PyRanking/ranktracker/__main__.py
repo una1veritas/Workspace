@@ -10,16 +10,16 @@ rankingname = '1d2a'
 if len(sys.argv) > 2 : 
     basedirname = sys.argv[1]
     rankingname = sys.argv[2]
-    backto = int(sys.argv[3])
+    lastdays = int(sys.argv[3])
 files_list = glob.glob(basedirname+'/'+'yfr'+rankingname+'-*.csv')
 files_list.sort(reverse=False)
-print(files_list[-backto:])
+print(files_list[-lastdays:])
 
 # collect codes 
 rankhist = { }
 codedict = { }
 dates = [ ]
-for file_name in files_list[-backto:] :
+for file_name in files_list[-lastdays:] :
     with open(file_name, 'r', encoding='utf-8') as file:
         header = file.readline().split('\n')[0]
         [dstr, tstr] = header.split(',')[2:4]

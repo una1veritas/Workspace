@@ -62,9 +62,36 @@ for fname in files:
 tseries.sort_index()
 tsseq = tseries[['open','high','low','close','volume']].reset_index().values
 
-patseq = parsepattern(params[1])
-print(patseq)
-for tup in tsseq :
-    for ix in range(0,len(patseq)) :
-        print(tup[ix], patseq[ix])
-    
+pattseq = parsepattern(params[1])
+print(pattseq)
+print(tsseq[0:6])
+
+def match_clause(patclause, tuple, assigns):
+    result = True
+    subs = { }
+    for lit in range(len(patclause)):
+        if patclause[lit] == '*' : continue
+        if patclause[lit] in assigns:
+            if assigns[patclause[lit]] != tuple[lit] :
+                result = False
+                subs.clear()
+                break
+        elif patclause[lit] in subs:
+            if subs[patclause[lit]] != tuple[lit] :
+                result = False
+                subs.clear()
+                break
+        else:
+            subs[patclause[lit]] = tuple[lit]
+    return (result, subs)
+
+mstack = [ [-1, { }, True] ]
+
+while len(mstack) > 0:
+    if mstack[-1] == [-1, { }] :
+        mstack.append( [0, mstack[-1][1], False])
+        continue
+    else:
+        assigns = mstack[-1][1]
+        res, subs = match_clause(pattseq[len(mstack)-1],tsseq[mstack[-1]],assigns)
+        
