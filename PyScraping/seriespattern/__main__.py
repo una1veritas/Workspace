@@ -64,7 +64,6 @@ tsseq = tseries[['open','high','low','close','volume']].reset_index().values
 
 pattseq = parsepattern(params[1])
 print(pattseq)
-print(tsseq[0:6])
 
 def match_clause(patclause, tuple, assigns):
     result = True
@@ -85,13 +84,12 @@ def match_clause(patclause, tuple, assigns):
             subs[patclause[lit]] = tuple[lit]
     return (result, subs)
 
-mstack = [ [-1, { }, True] ]
-
-while len(mstack) > 0:
-    if mstack[-1] == [-1, { }] :
-        mstack.append( [0, mstack[-1][1], False])
-        continue
-    else:
-        assigns = mstack[-1][1]
-        res, subs = match_clause(pattseq[len(mstack)-1],tsseq[mstack[-1]],assigns)
-        
+assigns = { }
+correspos = [ ]
+for pos in range(0,min(5, len(tsseq))):
+    correspos.append(pos)
+    print(correspos)
+    res, subst = match_clause(pattseq[0], tsseq[correspos[0]], assigns)
+    if res :
+        print(correspos, subst)
+    correspos.clear()
