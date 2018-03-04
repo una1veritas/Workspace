@@ -14,6 +14,7 @@ import pandas as pd
 if __name__ == '__main__':
     pass
 
+print(sys.argv)
 params = { 'path': './', 'tmspan': 'd'}
 #code = '5698.T'
 #pdstart = int('20171210')
@@ -30,10 +31,8 @@ for argv in sys.argv[1:] :
         elif not 'path' in params :
             params['path'] = argv
     else:
-        if argv[:6] == '-path=':
-            params['path'] = argv[6:]
-        elif argv[:6] == '-span=':
-            params['tmspan'] = argv[6:]
+        paramname, paramvalue = argv[1:].split('=')
+        params[paramname] = paramvalue
 
 if not 'code' in params or not 'fromdate' in params or not 'todate' in params:
     print('code.m frmdate todate path')

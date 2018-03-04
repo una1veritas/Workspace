@@ -27,35 +27,23 @@ def ExpMovingAverage(values, window):
 params = { 'sma' : [5, 25, 50], 'path' : './data' }
 
 for arg in sys.argv[1:] :
-    if arg == '-vw' :
-        params['volw'] = True
-    elif arg[:6] == '-path=' :
-        params['path'] = arg[6:].rstrip('/')
-    elif arg[:2] == '-m' :
-        t = arg.split('.')[1:]
-        params['sma'] = [ int(t[0]), int(t[1]), int(t[2]) ]
-    elif arg[:6] == '-bband' :
-        t = arg.split('.')[1:]
-        print(t)
-        params['bband'] = int(t.pop(0))
-    elif arg[:4] == '-rci' :
-        t = arg.split('.')[1:]
-        params['rci'] = int(t.pop(0))
-#    elif arg == '-ohlc' :
-#        params['ohlc'] = True
-    elif arg == '-plot' :
-        params['plot'] = True
+    if arg[0] == '-' :
+        pname, pvalue = arg[1:].split('=')
+        if len(pvalue.split('.')) >= 2:
+            pvalue = pvalue.split('.')
+        params[pname] = pvalue
     else:
-        if len(arg.split('.')) == 2 :
-            params['code'] = arg
-        else:
-            params['code'] = arg + '.T'
+        if not 'code' in params:
+            if len(arg.split('.')) == 2 :
+                params['code'] = arg
+            else:
+                params['code'] = arg + '.T'
 
 if not ('code' in params) :
     exit
     
 print (params)
-print(params['path'] + '/' + params['code']+'-*-*.csv')
+#print(params['path'] + '/' + params['code']+'-*-*.csv')
 files_list = glob.glob(params['path'] + '/' + params['code']+'-*-*.csv')
 files_list.sort()
 print(files_list)
@@ -83,7 +71,7 @@ def SimpleMovingAverages(dframe, avrspans):
         mavrs['sma '+str(span)] = [ ]
     priceq = dframe['close']
     for span in avrspans:
-        mavr = pd.rolling_mean(priceq,window=span, min_periods=1)
+        mavr = pd.rolling_mean(priceq,window=int(span), min_periods=1)
         mavrs['sma '+str(span)].append(round(mavr,1))
     for smaname in mavrs :
         dframe[smaname] = mavrs[smaname][0]
@@ -95,10 +83,7 @@ if 'sma' in params:
 
 if 'bband' in params:
     #add Bollinger band lines
-    if 'adj.close' in tseries.columns :
-        adjclose = list(tseries['adj.close'])
-    else:
-        adjclose = list(tseries['close'])
+    adjclose = list(tseries['close'])
     span = int(params['bband'])
     mpv = list(tseries['sma '+str(span)])
     if 'volume' in tseries.columns :
@@ -111,12 +96,12 @@ if 'bband' in params:
         if 'volw' in params and len(vol) > 0:
             dev2sum = 0
             vsum = 0
-            for i in range(max(0,i+1-params['sma'][1]), i+1) :
+            for i in range(max(0,i+1-span), i+1) :
                 dev2sum = dev2sum + vol[i] * (adjclose[i] - mpv[i])**2
                 vsum = vsum + vol[i]
             sigma = math.sqrt(dev2sum/(vsum-1))
         else:
-            sigma = stdev(adjclose[max(0,i+1-params['sma'][1]):i+1])
+            sigma = stdev(adjclose[max(0,i+1-span):i+1])
         stddev.append(round(sigma,1))
         bollband[0].append(round(mpv[i]-3*sigma,1))
         bollband[1].append(round(mpv[i]-2*sigma,1))
@@ -132,11 +117,17 @@ if 'bband' in params:
 if 'rci' in params:
     # add RCI oscillator
     rciq = []
-    if 'adj.close' in tseries.columns :
-        dateprice = list(zip(tseries.index.tolist(),tseries['adj.close'].tolist()))
-    else:
-        dateprice = list(zip(tseries.index.tolist(),tseries['close'].tolist()))    
-    span = int(params['rci'])
+    dateprice = list(zip(tseries.index.tolist(),tseries['close'].tolist()))
+    baseprice = 0
+    scale = 100/100
+    if len(params['rci']) == 1 :
+        span = int(params['rci'])
+    elif len(params['rci']) > 1 :
+        span = int(params['rci'][0])
+    if len(params['rci']) >= 2 :
+        baseprice = int(params['rci'][1])
+    if len(params['rci']) >= 3 :
+        scale = int(params['rci'][2])/100
     for ix in range(0, len(dateprice)) :
         dprange = dateprice[max(0,ix+1-span):ix+1]
         dprange.sort(key=itemgetter(1),reverse=True)
@@ -148,10 +139,12 @@ if 'rci' in params:
             dev2sum = dev2sum + (drank-prank)**2
         rci = (1 - 6 * dev2sum / (span*(span - 1)*(span+1))) * 100
     #    print(round(rci,1))
-        rciq.append(round(rci,1))
+        rciq.append(baseprice+round(rci,1)*scale)
     tseries['RCI'] = rciq
 
 #output
+if 'adj.close' in tseries.columns :
+    tseries = tseries.drop(labels='adj.close', axis=1)
 tseries.to_csv(params['code']+'-'+'anal'+'.csv')
 
 #plot
