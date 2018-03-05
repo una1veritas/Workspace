@@ -85,11 +85,21 @@ def match_clause(patclause, tuple, assigns):
     return (result, subs)
 
 assigns = { }
-correspos = [ ]
+plist = [ ]
 for pos in range(0,min(5, len(tsseq))):
-    correspos.append(pos)
-    print(correspos)
-    res, subst = match_clause(pattseq[0], tsseq[correspos[0]], assigns)
-    if res :
-        print(correspos, subst)
-    correspos.clear()
+    plist.clear()
+    plist.append(pos)
+    cindex = 0
+    while True:
+        if cindex >= len(pattseq) :
+            break
+        res, subst = match_clause(pattseq[cindex], tsseq[plist[cindex]], assigns)
+        if res :
+            plist.append(plist[-1] + 1)
+            cindex = cindex + 1
+        else :
+            lastpos = plist.pop()
+            if len(plist) > 1 and lastpos + 1 < len(tsseq) :
+                plist.append(lastpos + 1)
+    if cindex == len(pattseq) :
+        print(plist)
