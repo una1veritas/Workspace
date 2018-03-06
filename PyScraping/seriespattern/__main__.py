@@ -65,41 +65,45 @@ tsseq = tseries[['open','high','low','close','volume']].reset_index().values
 pattseq = parsepattern(params[1])
 print(pattseq)
 
-def match_clause(patclause, tuple, assigns):
+def match_clause(pclause, stuple, assigns):
     result = True
     subs = { }
-    for lit in range(len(patclause)):
-        if patclause[lit] == '*' : continue
-        if patclause[lit] in assigns:
-            if assigns[patclause[lit]] != tuple[lit] :
+    for lit in range(len(pclause)):
+        if pclause[lit] == '*' : continue
+        if pclause[lit] in assigns:
+            if assigns[pclause[lit]] != stuple[lit] :
                 result = False
                 subs.clear()
                 break
-        elif patclause[lit] in subs:
-            if subs[patclause[lit]] != tuple[lit] :
+        elif pclause[lit] in subs:
+            if subs[pclause[lit]] != stuple[lit] :
                 result = False
                 subs.clear()
                 break
         else:
-            subs[patclause[lit]] = tuple[lit]
+            subs[pclause[lit]] = stuple[lit]
     return (result, subs)
 
 assigns = { }
-plist = [ ]
-for pos in range(0,min(5, len(tsseq))):
-    plist.clear()
-    plist.append(pos)
-    cindex = 0
+mlist = [ ]
+for rootpos in range(0,min(5, len(tsseq))):
+    mlist.clear()
+    assigns.clear()
+    mlist.append([rootpos, {}])
     while True:
-        if cindex >= len(pattseq) :
+        if len(mlist) > len(pattseq) :
             break
-        res, subst = match_clause(pattseq[cindex], tsseq[plist[cindex]], assigns)
+        lastpair = mlist[-1]
+        cindex = len(mlist) - 1
+        print(lastpair,cindex)
+        res, subst = match_clause(pattseq[cindex], tsseq[lastpair[0]], lastpair[1])
+        print(res, subst)
         if res :
-            plist.append(plist[-1] + 1)
-            cindex = cindex + 1
+            mlist[-1][1] = subst
+            assigns = assigns + subst
+            mlist.append([cindex+1, {}])
         else :
-            lastpos = plist.pop()
-            if len(plist) > 1 and lastpos + 1 < len(tsseq) :
-                plist.append(lastpos + 1)
-    if cindex == len(pattseq) :
-        print(plist)
+            mlist.pop()
+            break
+    if len(mlist) == len(pattseq) :
+        print(mlist)
