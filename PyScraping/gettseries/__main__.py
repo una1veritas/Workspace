@@ -1,81 +1,137 @@
-#!/usr/local/bin/python2.7
-# encoding: utf-8
 # coding: UTF-8
-import urllib2
-from bs4 import BeautifulSoup
-from datetime import datetime
-import csv
-import time
+'''
+Created on 2017/12/24
 
-time_flag = True
+@author: sin
+'''
+import sys
+import math
+from pyquery import PyQuery
+import pandas as pd
 
-# 永久に実行させます
-while True:
-    # 時間が59分以外の場合は58秒間時間を待機する
-    if datetime.now().second <= 30:
-        time.sleep(28)
-        continue
+#import csv
 
-    # csvを追記モードで開きます→ここでcsvを開くのはファイルが大きくなった時にcsvを開くのに時間がかかるためです
-    #f = open('nikkei_heikin.csv', 'a')
-    #writer = csv.writer(f, lineterminator='\n')
+if __name__ == '__main__':
+    pass
 
-    # 59分になりましたが正確な時間に測定をするために秒間隔で59秒になるまで抜け出せません
-    while datetime.now().second != 59:
-            # 00秒ではないので1秒待機
-            time.sleep(1)
-    # 処理が早く終わり二回繰り返してしまうのでここで一秒間待機します
-    time.sleep(1)
+#https://kabutan.jp/stock/kabuka?code=0000
+#https://kabutan.jp/stock/kabuka?code=0000&ashi=day&page=2
+params = { 'path': './', 'code' : '0000', 'url_base' : 'https://kabutan.jp/stock/kabuka?', 
+          'fromdate' : 20170101, 'todate' : 20181229, 'tmspan' : 'day'}
 
-    # csvに記述するレコードを作成します
-    csv_list = []
+print(params)
+        
+#timestamp = datetime.now().strftime("%Y%m%d-%H%M")
+#print ("current time stamp: ", timestamp)
+# 1カラム目に時間を挿入します
+#rowlist.append(timestamp)
 
-    # 現在の時刻を年、月、日、時、分、秒で取得します
-    time_ = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-    # 1カラム目に時間を挿入します
-    csv_list.append(time_)
+def CalDate(jd) :
+    jd = jd + 0.5
+    z = int(jd)
+    a = z
+    f = jd - int(jd)
+    if ( z >= 2299161 ) :
+        alpha = int( (z-1867216.25)/36524.25 )
+        a = a + 1 + alpha - int(alpha/4)
+    b = a + 1524
+    c = int( (b-122.1)/365.25 )
+    d = int(365.25 * c)
+    e = int( (b-d)/30.6001 )
+    date = b - d - int(30.6001 * e) + f
+    if ( e < 13.5 ) :
+        month = e - 1
+    else:
+        month = e-13
+    if ( month > 2.5) :
+        year = c - 4716
+    else:
+        year = c - 4715
+    return math.copysign(1,year)*(math.fabs(year)*10000 + month*100 + date)
 
-    # アクセスするURL
-    #url = "http://www.nikkei.com/markets/kabu/"
-    url = "https://stocks.finance.yahoo.co.jp/stocks/detail/?code=998407.O"
+def JulianDay(year, month, date):
+    if ( month <= 2 ) :
+        month = month + 12
+        year = year - 1
     
-    # URLにアクセスする htmlが帰ってくる → <html><head><title>経済、株価、ビジネス、政治のニュース:日経電子版</title></head><body....
-    html = urllib2.urlopen(url)
+    a = 0
+    b = 0
+    if ( year*10000+month*100+date >= 15821015 ) :
+        a = int(year/100)
+        b = 2-a+int(a/4)
+    return int(365.25 * year) + int(30.6001 * (month+1)) + date + b + 1720994.5;
 
-    # htmlをBeautifulSoupで扱う
-    soup = BeautifulSoup(html, "html.parser")
+def kabutanTimeSeries(code,pdstart,pdend,timespan='day'):
+    pdstart = int(pdstart)
+    pdend = int(pdend)
+    url = params['url_base'] + 'code={0}&ashi={1}&page={2}'
+    url = url.format(code,timespan,'2')
+    print(url)
+    return
 
-    # span要素全てを摘出する→全てのspan要素が配列に入ってかえされます→[<span class="m-wficon triDown"></span>, <span class="l-h...
-    #span = soup.find_all("span")
-    contents = soup.find_all("table");
+    rows = [ ]
+    events = [ ]
+    pyquery = PyQuery(url)
+    for table in pyquery('div.padT12')('table'):
+        pytable = pyquery(table)
+        for tr in pytable('tr'):
+            row = pytable(tr)
+            #skip header line
+            if len(row('td')) == 0: 
+                continue
+            columns = []
+            colnum = 0
+            for td in row('td'):
+                td_str = row(td).text()
+                if colnum == 0 : 
+                    td_date = td_str.replace(u'年','/').replace(u'月','/').replace(u'日','').split('/')
+                    td_str = str(td_date[0]).zfill(4)+'/'+str(td_date[1]).zfill(2)+'/'+str(td_date[2]).zfill(2)
+                    columns.append(td_str)
+                elif u'分割' in td_str : 
+                    events.append([ columns[0], td_str])
+                    columns.clear()
+                    break
+                else:
+                    td_str = td_str.replace(',','')
+                    if '.' in td_str :
+                        columns.append(float(td_str))
+                    else:
+                        columns.append(int(td_str))
+                colnum = colnum + 1
+            if len(columns) != 0 :
+                rows.append(columns)
+    return rows
+#    for key in ranking:
+#        if ranking[key][1] != u'東証ETF':
+#            print key,": ",ranking[key]
 
-    # print時のエラーとならないように最初に宣言しておきます。
-    nikkei_heikin = ""
-    # for分で全てのspan要素の中からClass="mkc-stock_prices"となっている物を探します
-    for table in contents:
-        # classの設定がされていない要素は、tag.get("class").pop(0)を行うことのできないでエラーとなるため、tryでエラーを回避する
-        try:
-            # tagの中からclass="n"のnの文字列を摘出します。複数classが設定されている場合があるので
-            # get関数では配列で帰ってくる。そのため配列の関数pop(0)により、配列の一番最初を摘出する
-            # <span class="hoge" class="foo">  →   ["hoge","foo"]  →   hoge
-            string_ = table.get("class").pop(0)
+jpstart = int(0.5+JulianDay(params['fromdate']//10000, params['fromdate']//100%100, params['fromdate']%100))
+jpend = int(0.5+JulianDay(params['todate']//10000, params['todate']//100%100, params['todate']%100))
+table = [ ]
+header = ['date','open','high','low','close','volume','adj.close'] 
+for jd in range(jpstart, jpend+1, 32):
+    if jd+31 > jpend:
+        je = jpend
+    else:
+        je = jd+31
+    pjstart = int(CalDate(jd))
+    pjend = int(CalDate(je))
+    # table = table + 
+    kabutanTimeSeries(params['code'], pjstart, pjend, params['tmspan'])
 
-            # 摘出したclassの文字列にmkc-stock_pricesと設定されているかを調べます
-            if string_ in "stocksTable":
-                # mkc-stock_pricesが設定されているのでtagで囲まれた文字列を.stringであぶり出します
-                nikkei_heikin = table.string
-                # 摘出が完了したのでfor分を抜けます
-                break
-        except:
-            # パス→何も処理を行わない
-            pass
+table = sorted(table, reverse=False)
+colnum = len(table[0])
+df = pd.DataFrame(table,columns=header[:colnum])
+df = df.set_index('date')
+df.to_csv(params['code']+'-'+str(params['fromdate'])+'-'+str(params['todate'])+'.csv')
+#dframe = pd.DataFrame[table, ]
 
-    # 摘出した日経平均株価を時間とともに出力します。
-    print time_, nikkei_heikin
-    # 2カラム目に日経平均を記録します
-    csv_list.append(nikkei_heikin)
-    # csvに追記敷きます
-    #writer.writerow(csv_list)
-    # ファイル破損防止のために閉じます
-    #f.close()
-    
+#for row in table:
+#    for index in range(0,len(row)):
+#        print(row[index].replace(',',''), end='')
+#        if index+1 < len(row): 
+#            print(',', end='')
+#        else:
+#            print()
+#yahooFinanceRanking(ranking, timespan='w',page=2)
+
