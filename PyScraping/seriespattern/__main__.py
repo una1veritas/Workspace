@@ -65,20 +65,6 @@ tsseq = tseries[['open','high','low','close','volume']].reset_index().values
 pattseq = parsepattern(params[1])
 print(pattseq)
 
-<<<<<<< Updated upstream
-def match_clause(pclause, stuple, assigns):
-    result = True
-    subs = { }
-    for lit in range(len(pclause)):
-        if pclause[lit] == '*' : continue
-        if pclause[lit] in assigns:
-            if assigns[pclause[lit]] != stuple[lit] :
-                result = False
-                subs.clear()
-                break
-        elif pclause[lit] in subs:
-            if subs[pclause[lit]] != stuple[lit] :
-=======
 def match_clause(patclause, seqtuple, assigns):
     result = True
     subs = { }
@@ -91,13 +77,11 @@ def match_clause(patclause, seqtuple, assigns):
                 break
         elif patclause[lit] in subs:
             if subs[patclause[lit]] != seqtuple[lit] :
->>>>>>> Stashed changes
                 result = False
                 subs.clear()
                 break
         else:
-<<<<<<< Updated upstream
-            subs[pclause[lit]] = stuple[lit]
+            subs[patclause[lit]] = seqtuple[lit]
     return (result, subs)
 
 assigns = { }
@@ -106,17 +90,6 @@ for rootpos in range(0,min(5, len(tsseq))):
     mlist.clear()
     assigns.clear()
     mlist.append([rootpos, {}])
-=======
-            subs[patclause[lit]] = seqtuple[lit]
-    return (result, subs)
-
-assigns = { }
-plist = [ ]
-for pos in range(0,min(5, len(tsseq))):
-    plist.clear()
-    plist.append([pos, {}])
-    cindex = 0
->>>>>>> Stashed changes
     while True:
         if len(mlist) > len(pattseq) :
             break
