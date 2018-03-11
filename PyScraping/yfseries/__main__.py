@@ -19,7 +19,7 @@ params = { 'path': './', 'tmspan': 'd'}
 #pdstart = int('20171210')
 #pdend = int('20180112')
 #tmspan = 'd'
-for argv in sys.argv[2:] :
+for argv in sys.argv[1:] :
     if argv[0] != '-' :
         if not 'code' in params :
             params['code'] = argv
@@ -137,7 +137,10 @@ table = sorted(table, reverse=False)
 colnum = len(table[0])
 df = pd.DataFrame(table,columns=header[:colnum])
 df = df.set_index('date')
-df.to_csv(params['code']+'-'+str(params['fromdate'])+'-'+str(params['todate'])+'.csv')
+basepath = params['path'].rstrip('/')
+if basepath != '' :
+    basepath = basepath + '/'
+df.to_csv(basepath + params['code']+'-'+str(params['fromdate'])+'-'+str(params['todate'])+'.csv')
 #dframe = pd.DataFrame[table, ]
 
 #for row in table:

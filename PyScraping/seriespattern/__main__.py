@@ -62,8 +62,8 @@ for fname in files:
 tseries.sort_index()
 tsseq = tseries[['open','high','low','close','volume']].reset_index().values
 
-pattseq = parsepattern(params[1])
-print(pattseq)
+seqpattern = parsepattern(params[1])
+print('sequence pattern = '+str(seqpattern))
 
 def match_clause(patclause, seqtuple, assigns):
     result = True
@@ -84,26 +84,32 @@ def match_clause(patclause, seqtuple, assigns):
             subs[patclause[lit]] = seqtuple[lit]
     return (result, subs)
 
-assigns = { }
-mlist = [ ]
-for rootpos in range(0,min(5, len(tsseq))):
-    mlist.clear()
-    assigns.clear()
-    mlist.append([rootpos, {}])
-    while True:
-        if len(mlist) > len(pattseq) :
+def do_opr(opr, var1, var2, assignments):
+    result = False
+    if opr == '<' :
+        result = (assignments[var1] < assignments[var2])
+    elif opr == '>' :
+        result = (assignments[var1] > assignments[var2])
+    return result, { }
+    
+for rootpos in range(max(0,len(tsseq)-200), len(tsseq)):
+    assignments = { }
+    flag = True
+    tuples = 0
+    for i in range(0,len(seqpattern)):
+        if seqpattern[i][0] == '<' or seqpattern[i][0] == '>':
+            res, subs = do_opr(seqpattern[i][0], seqpattern[i][1], seqpattern[i][2], assignments)
+        else:
+            if rootpos + tuples >= len(tsseq):
+                flag = False
+                break
+            res, subs = match_clause(seqpattern[i], tsseq[rootpos+tuples], assignments)
+            tuples = tuples + 1
+        if not res:
+            flag = False
             break
-        lastpair = mlist[-1]
-        cindex = len(mlist) - 1
-        print(lastpair,cindex)
-        res, subst = match_clause(pattseq[cindex], tsseq[lastpair[0]], lastpair[1])
-        print(res, subst)
-        if res :
-            mlist[-1][1] = subst
-            assigns = assigns + subst
-            mlist.append([cindex+1, {}])
-        else :
-            mlist.pop()
-            break
-    if len(mlist) == len(pattseq) :
-        print(mlist)
+        for k in subs:
+            assignments[k] = subs[k]
+    if flag:
+        print('pos at ' + str(rootpos))
+        print(tsseq[rootpos:min(rootpos+tuples+1,len(tsseq))])
