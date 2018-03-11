@@ -61,69 +61,62 @@ def JulianDay(year, month, date):
         b = 2-a+int(a/4)
     return int(365.25 * year) + int(30.6001 * (month+1)) + date + b + 1720994.5;
 
-def kabutanTimeSeries(code,pdstart,pdend,timespan='day'):
-    pdstart = int(pdstart)
-    pdend = int(pdend)
-    url = params['url_base'] + 'code={0}&ashi={1}&page={2}'
-    url = url.format(code,timespan,'2')
-    print(url)
-    return
-
-    rows = [ ]
-    events = [ ]
-    pyquery = PyQuery(url)
-    for table in pyquery('div.padT12')('table'):
-        pytable = pyquery(table)
-        for tr in pytable('tr'):
-            row = pytable(tr)
-            #skip header line
-            if len(row('td')) == 0: 
-                continue
-            columns = []
-            colnum = 0
+def kabutanTimeSeries(code,timespan='day'):
+    urltemplate = params['url_base'] + 'code={0}&ashi={1}&page={2}'
+    hist = [ ]
+    for i in range(10):
+        url = urltemplate.format(code,timespan,i+1)
+        print('url='+url)
+        pyquery = PyQuery(url)
+        if len(hist) == 0 :
+            table_today = pyquery('table.stock_kabuka0')
+            today = [ ]
+            col_index = 0
+            for td in pyquery(list(table_today('tr'))[1])('td'):
+                td_str = pyquery(td).text()
+                if len(today) == 0 :
+                    td_str = '20'+td_str
+                    today.append(td_str)
+                elif not (col_index == 5 or col_index == 6):
+                    td_str = td_str.lstrip('+').replace(',','')        
+                    today.append(float(td_str))
+                col_index = col_index + 1
+            hist.append(today)
+                    
+        table_history = pyquery('table.stock_kabuka1')
+        for tr in pyquery(table_history)('tr'):
+            row = table_history(tr)
+            col_list = []
+            col_index = 0
             for td in row('td'):
                 td_str = row(td).text()
-                if colnum == 0 : 
-                    td_date = td_str.replace(u'年','/').replace(u'月','/').replace(u'日','').split('/')
-                    td_str = str(td_date[0]).zfill(4)+'/'+str(td_date[1]).zfill(2)+'/'+str(td_date[2]).zfill(2)
-                    columns.append(td_str)
-                elif u'分割' in td_str : 
-                    events.append([ columns[0], td_str])
-                    columns.clear()
-                    break
-                else:
-                    td_str = td_str.replace(',','')
-                    if '.' in td_str :
-                        columns.append(float(td_str))
-                    else:
-                        columns.append(int(td_str))
-                colnum = colnum + 1
-            if len(columns) != 0 :
-                rows.append(columns)
-    return rows
+                if len(col_list) == 0 :
+                    td_str = '20'+ td_str
+                    col_list.append(td_str)
+                elif not (col_index == 5 or col_index == 6):
+                    td_str = td_str.lstrip('+').replace(',','')
+                    col_list.append(float(td_str))
+                col_index = col_index + 1
+            if len(col_list) == 0:
+                continue
+            hist.append(col_list)
+    return hist
 #    for key in ranking:
 #        if ranking[key][1] != u'東証ETF':
 #            print key,": ",ranking[key]
 
-jpstart = int(0.5+JulianDay(params['fromdate']//10000, params['fromdate']//100%100, params['fromdate']%100))
-jpend = int(0.5+JulianDay(params['todate']//10000, params['todate']//100%100, params['todate']%100))
-table = [ ]
-header = ['date','open','high','low','close','volume','adj.close'] 
-for jd in range(jpstart, jpend+1, 32):
-    if jd+31 > jpend:
-        je = jpend
-    else:
-        je = jd+31
-    pjstart = int(CalDate(jd))
-    pjend = int(CalDate(je))
-    # table = table + 
-    kabutanTimeSeries(params['code'], pjstart, pjend, params['tmspan'])
+header = ['date','open','high','low','close','volume'] 
+table = kabutanTimeSeries(params['code'])
 
 table = sorted(table, reverse=False)
+firstdate = table[0][0].replace('/','')
+lastdate = table[-1][0].replace('/','')
 colnum = len(table[0])
 df = pd.DataFrame(table,columns=header[:colnum])
 df = df.set_index('date')
-df.to_csv(params['code']+'-'+str(params['fromdate'])+'-'+str(params['todate'])+'.csv')
+fname = params['code']+'-'+firstdate+'-'+lastdate+'.csv'
+df.to_csv(fname)
+print('csv file ' + fname + ' has been written.')
 #dframe = pd.DataFrame[table, ]
 
 #for row in table:

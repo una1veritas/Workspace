@@ -34,10 +34,7 @@ for arg in sys.argv[1:] :
         params[pname] = pvalue
     else:
         if not 'code' in params:
-            if len(arg.split('.')) == 2 :
-                params['code'] = arg
-            else:
-                params['code'] = arg + '.T'
+            params['code'] = arg
 
 if not ('code' in params) :
     exit
