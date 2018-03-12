@@ -84,12 +84,22 @@ def match_clause(patclause, seqtuple, assigns):
             subs[patclause[lit]] = seqtuple[lit]
     return (result, subs)
 
-def do_opr(opr, var1, var2, assignments):
+def do_opr(opr, varlist, assignments):
     result = False
     if opr == '<' :
-        result = (assignments[var1] < assignments[var2])
+        result = (assignments[varlist[0]] < assignments[varlist[1]])
     elif opr == '>' :
-        result = (assignments[var1] > assignments[var2])
+        result = (assignments[varlist[0]] > assignments[varlist[1]])
+    elif opr == 'in' :
+        closedrange = [assignments[varlist[0]], assignments[varlist[1]]].sorted()
+        for varname in varlist[2:] :
+            if assignments[varname] >= closedrange[0] and assignments[varname] <= closedrange[1] :
+                continue
+            else :
+                break
+        else:
+            return True
+        return False
     return result, { }
     
 for rootpos in range(max(0,len(tsseq)-200), len(tsseq)):
@@ -98,7 +108,7 @@ for rootpos in range(max(0,len(tsseq)-200), len(tsseq)):
     tuples = 0
     for i in range(0,len(seqpattern)):
         if seqpattern[i][0] == '<' or seqpattern[i][0] == '>':
-            res, subs = do_opr(seqpattern[i][0], seqpattern[i][1], seqpattern[i][2], assignments)
+            res, subs = do_opr(seqpattern[i][0], seqpattern[i][1:], assignments)
         else:
             if rootpos + tuples >= len(tsseq):
                 flag = False

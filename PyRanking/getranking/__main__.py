@@ -81,13 +81,23 @@ def save_ranking(basedir, kind, timespan, market, volume, pages):
     return
 
 #
-    
-basedir = sys.argv[1]
-if not os.path.exists(basedir):
-    print('path \"'+ basedir + '\" does not exist.')
+
+params = { 'path' : '.', 'codes': [] }
+for arg in sys.argv[1:] :
+    if arg[0] == '-' :
+        values = arg[1:].split('=')
+        if len(values) == 1:
+            params[values[0]] = True
+        else:
+            params[values[0]] = values[1]
+    else:
+        params['codes'].append(arg)
+
+if not os.path.exists(params['path']) :
+    print('path \"' + params['path'] + '\" does not exist.')
     exit()
     
-for rkcode in sys.argv[2:]:
+for rkcode in params['codes']:
     print(rkcode)
     if rkcode == '1d2a' :
         kd = 1
@@ -121,7 +131,7 @@ for rkcode in sys.argv[2:]:
         vl = 'a'
     else:
         print('unknown code '+rkcode)
-    save_ranking(basedir,kd,tm,mk,vl,36)
+    save_ranking(params['path'],kd,tm,mk,vl,36)
 
 print ('done.')
 exit()
