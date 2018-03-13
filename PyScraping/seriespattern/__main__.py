@@ -84,22 +84,35 @@ def match_clause(patclause, seqtuple, assigns):
             subs[patclause[lit]] = seqtuple[lit]
     return (result, subs)
 
-def do_opr(opr, varlist, assignments):
+def eval_opr(opr, vvlist, assigns):
     result = False
-    if opr == '<' :
-        result = (assignments[varlist[0]] < assignments[varlist[1]])
-    elif opr == '>' :
-        result = (assignments[varlist[0]] > assignments[varlist[1]])
-    elif opr == 'in' :
-        closedrange = [assignments[varlist[0]], assignments[varlist[1]]].sorted()
-        for varname in varlist[2:] :
-            if assignments[varname] >= closedrange[0] and assignments[varname] <= closedrange[1] :
-                continue
-            else :
-                break
+    values = [ ]
+    for vname in vvlist:
+        if vname in assigns :
+            values.append(assigns[vname])
         else:
-            return True
-        return False
+            values.append(float(vname))
+    if opr == '<' or opr == '<=' or opr == '>' or opr == '>=' :
+        result = True
+        for val in values[1:] :
+            if opr == '<' :
+                result = result and (values[0] < val)
+            elif opr == '>' :
+                result = result and (values[0] > val)
+            elif opr == '<=' :
+                result = result and (values[0] <= val)
+            elif opr == '>=' :
+                result = result and (values[0] >= val)
+            if not result : break
+    elif opr == 'in' :
+        result = True
+        valrange = sorted([values[0], values[1]])
+#         print(valrange)
+        for val in values[2:] :
+            result = result and (valrange[0] <= val and val <= valrange[1]) 
+            if not result : break
+    else:
+        print('opr. err.')
     return result, { }
     
 for rootpos in range(max(0,len(tsseq)-200), len(tsseq)):
@@ -107,8 +120,9 @@ for rootpos in range(max(0,len(tsseq)-200), len(tsseq)):
     flag = True
     tuples = 0
     for i in range(0,len(seqpattern)):
-        if seqpattern[i][0] == '<' or seqpattern[i][0] == '>':
-            res, subs = do_opr(seqpattern[i][0], seqpattern[i][1:], assignments)
+        if seqpattern[i][0][:1] == '@' :
+            opr = seqpattern[i][0][1:]
+            res, subs = eval_opr(opr, seqpattern[i][1:], assignments)
         else:
             if rootpos + tuples >= len(tsseq):
                 flag = False
@@ -121,5 +135,5 @@ for rootpos in range(max(0,len(tsseq)-200), len(tsseq)):
         for k in subs:
             assignments[k] = subs[k]
     if flag:
-        print('pos at ' + str(rootpos))
+        print('pos at ' + str(rootpos) +', ' + str(assignments))
         print(tsseq[rootpos:min(rootpos+tuples+1,len(tsseq))])
