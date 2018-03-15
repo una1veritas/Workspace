@@ -106,11 +106,12 @@ def eval_opr(opr, vvlist, assigns):
             if not result : break
     elif opr == 'in' :
         result = True
-        valrange = sorted([values[0], values[1]])
-#         print(valrange)
+        valrange = [min(values[0], values[1]),max(values[0], values[1])]
         for val in values[2:] :
             result = result and (valrange[0] <= val and val <= valrange[1]) 
-            if not result : break
+            if not result : 
+                result = False
+                break
     else:
         print('opr. err.')
     return result, { }
