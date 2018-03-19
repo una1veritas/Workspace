@@ -124,14 +124,13 @@ jpstart = int(0.5+JulianDay(params['fromdate']//10000, params['fromdate']//100%1
 jpend = int(0.5+JulianDay(params['todate']//10000, params['todate']//100%100, params['todate']%100))
 table = [ ]
 header = ['date','open','high','low','close','volume','adj.close'] 
-for jd in range(jpstart, jpend+1, 32):
-    if jd+31 > jpend:
-        je = jpend
-    else:
-        je = jd+31
+for jd in range(jpstart, jpend+1, 30):
+    je = min(jpend, jd+31)
     pjstart = int(CalDate(jd))
     pjend = int(CalDate(je))
+    print(pjstart, pjend)
     table = table + yahooFinanceTimeSeries(params['code'], pjstart, pjend, params['tmspan'])
+
 
 table = sorted(table, reverse=False)
 colnum = len(table[0])

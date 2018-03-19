@@ -17,7 +17,9 @@ def parsepattern(patstr):
         if ix == -1 : break
         rightix = patstr.find(']', ix + 1)
         clausestr = patstr[leftix:rightix+1]
-        clauselist = clausestr[1:-1].split(',')
+        clauselist = []
+        for eqstr in clausestr[1:-1].split(','):
+            clauselist.append(eqstr.strip())
         pattern.append(clauselist)
         ix = rightix + 1
     return pattern
@@ -69,8 +71,9 @@ def match_clause(patclause, seqtuple, assigns):
     result = True
     subs = { }
     for lit in range(len(patclause)):
-        if patclause[lit] == '*' : continue
-        if patclause[lit] in assigns:
+        if patclause[lit] == '*' : 
+            continue
+        elif patclause[lit] in assigns:
             if assigns[patclause[lit]] != seqtuple[lit] :
                 result = False
                 subs.clear()
@@ -84,46 +87,30 @@ def match_clause(patclause, seqtuple, assigns):
             subs[patclause[lit]] = seqtuple[lit]
     return (result, subs)
 
-def eval_opr(opr, vvlist, assigns):
-    result = False
-    values = [ ]
-    for vname in vvlist:
-        if vname in assigns :
-            values.append(assigns[vname])
+def eval_exprs(eqnlist, assigns):
+    result = True
+    for eqnstr in eqnlist:
+        try:
+            tmpres = eval(eqnstr,{},assigns)
+        except  (ValueError, SyntaxError):
+            print('eva;_exprs value/syntax error: ', eqnlist, assigns)
+            tmpres = False
+        if isinstance(tmpres, bool):
+            result = result and tmpres
         else:
-            values.append(float(vname))
-    if opr == '<' or opr == '<=' or opr == '>' or opr == '>=' :
-        result = True
-        for val in values[1:] :
-            if opr == '<' :
-                result = result and (values[0] < val)
-            elif opr == '>' :
-                result = result and (values[0] > val)
-            elif opr == '<=' :
-                result = result and (values[0] <= val)
-            elif opr == '>=' :
-                result = result and (values[0] >= val)
-            if not result : break
-    elif opr == 'in' :
-        result = True
-        valrange = [min(values[0], values[1]),max(values[0], values[1])]
-        for val in values[2:] :
-            result = result and (valrange[0] <= val and val <= valrange[1]) 
-            if not result : 
-                result = False
-                break
-    else:
-        print('opr. err.')
+            print('eva;_exprs error: ', eqnlist, assigns)
+            result = False
+        if not result : break
     return result, { }
-    
+
 for rootpos in range(max(0,len(tsseq)-200), len(tsseq)):
     assignments = { }
     flag = True
     tuples = 0
     for i in range(0,len(seqpattern)):
-        if seqpattern[i][0][:1] == '@' :
-            opr = seqpattern[i][0][1:]
-            res, subs = eval_opr(opr, seqpattern[i][1:], assignments)
+        if seqpattern[i][0] == '?' :
+            eqnlist = seqpattern[i][1:]
+            res, subs = eval_exprs(eqnlist, assignments)
         else:
             if rootpos + tuples >= len(tsseq):
                 flag = False

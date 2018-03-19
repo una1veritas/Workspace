@@ -24,7 +24,7 @@ def ExpMovingAverage(values, window):
     return a
 
 # default values for options
-params = { 'sma' : [5, 25, 50], 'path' : './data' }
+params = { 'sma' : [5, 25, 50], 'path' : './' }
 
 for arg in sys.argv[1:] :
     if arg[0] == '-' :
@@ -41,7 +41,7 @@ if not ('code' in params) :
     
 print (params)
 #print(params['path'] + '/' + params['code']+'-*-*.csv')
-files_list = glob.glob(params['path'] + '/' + params['code']+'-*-*.csv')
+files_list = glob.glob(params['path'] + '/' + params['code']+'-*.csv')
 files_list.sort()
 print(files_list)
 
@@ -50,6 +50,7 @@ for fname in files_list[1:]:
     tseries = tseries.append(pd.read_csv(fname, index_col='date', parse_dates=['date']))
 
 tseries.sort_index()
+print(tseries.columns)
 
 # normalize the prices
 if 'adj.close' in tseries.columns:
@@ -76,8 +77,18 @@ def SimpleMovingAverages(dframe, avrspans):
 
 #add moving averages
 if 'sma' in params:
+    print('sma=',params['sma'])
     SimpleMovingAverages(tseries, params['sma'])
 
+if 'mom' in params:
+    back = int(params['mom'])
+    momentum = []
+    prices = list(tseries['close'])
+    for i in range(0, len(prices)) :
+        iback = max(0,i-back)
+        momentum.append(prices[i] - prices[iback])
+    tseries['momentum'] = momentum
+    
 if 'bband' in params:
     #add Bollinger band lines
     adjclose = list(tseries['close'])
@@ -142,6 +153,7 @@ if 'rci' in params:
 #output
 if 'adj.close' in tseries.columns :
     tseries = tseries.drop(labels='adj.close', axis=1)
+print(tseries.columns)
 tseries.to_csv(params['code']+'-'+'anal'+'.csv')
 
 #plot

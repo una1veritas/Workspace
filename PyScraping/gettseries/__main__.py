@@ -108,13 +108,12 @@ def kabutanTimeSeries(code,timespan='day'):
 header = ['date','open','high','low','close','volume'] 
 table = kabutanTimeSeries(params['code'])
 
-table = sorted(table, reverse=False)
-firstdate = table[0][0].replace('/','')
+table = sorted(table)
 lastdate = table[-1][0].replace('/','')
 colnum = len(table[0])
 df = pd.DataFrame(table,columns=header[:colnum])
 df = df.set_index('date')
-fname = params['code']+'-'+firstdate+'-'+lastdate+'.csv'
+fname = params['code']+'-'+lastdate+'.csv'
 df.to_csv(fname)
 print('csv file ' + fname + ' has been written.')
 #dframe = pd.DataFrame[table, ]
