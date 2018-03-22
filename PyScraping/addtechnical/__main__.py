@@ -29,9 +29,7 @@ params = { 'sma' : [5, 25, 50], 'path' : './' , 'files' : [] }
 for arg in sys.argv[1:] :
     if arg[0] == '-' :
         pname, pvalue = arg[1:].split('=')
-        if len(pvalue.split('.')) >= 2:
-            pvalue = pvalue.split('.')
-        params[pname] = pvalue
+        params[pname] = pvalue.split('.')
     else:
         params['files'].append(arg)
 
