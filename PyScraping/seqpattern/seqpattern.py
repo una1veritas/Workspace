@@ -44,6 +44,7 @@ class SequencePattern:
         result = True
         subs = { }
         for lit in range(len(patclause)):
+            print(patclause[lit], seqtuple[lit] )
             if patclause[lit] == '*' : 
                 continue
             elif patclause[lit] in assigns:
@@ -57,7 +58,13 @@ class SequencePattern:
                     subs.clear()
                     break
             else:
-                subs[patclause[lit]] = seqtuple[lit]
+                try:
+                    if eval(patclause[lit]) != seqtuple[lit]:
+                        result = False
+                        subs.clear()
+                        break
+                except ( NameError ):
+                    subs[patclause[lit]] = seqtuple[lit]
         return (result, subs)
 
     def eval_clause(self, eqnlist, assigns):
@@ -81,26 +88,30 @@ class SequencePattern:
         flag = True
         tupleix = 0
         clauseix = 0
-        while (clauseix < self.length()):
+        while ( clauseix < self.length() ):
+            if not (tupleix < len(tsseq)) :
+                return False
             if self.patternlist[clauseix][0] == '?' :
                 eqnlist = self.patternlist[clauseix][1:]
                 res, subs = self.eval_clause(eqnlist, assignments)
                 clauseix = clauseix + 1
             else:
                 res, subs = self.match_clause(self.patternlist[clauseix], tsseq[tupleix], assignments)
+                clauseix = clauseix + 1
                 tupleix = tupleix + 1
             if not res:
-                flag = False
-                break
+                return False
             for k in subs:
                 assignments[k] = subs[k]
-        if flag:
-            print('pos at ' + str(rootpos) +', ' + str(assignments))
-            print(tsseq[rootpos:min(rootpos+tuples+1,len(tsseq))])
+        print(assignments)
+        return flag
 
 
 if __name__ == '__main__':
     print(sys.argv)
     seqpatt = SequencePattern(sys.argv[1])
     print(seqpatt)
+    tsseq = eval(sys.argv[2])
+    print(tsseq)
+    print(seqpatt.match(tsseq))
     
