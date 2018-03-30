@@ -39,6 +39,13 @@ class SequencePattern:
     
     def length(self):
         return len(self.pattSeq)
+    
+    def patternCount(self):
+        tally = 0
+        for cix in range(len(self.pattSeq)):
+            if self.ispredicate(cix) :
+                tally = tally + 1
+        return tally
 
     def ispredicate(self, ith):
         return self.pattSeq[ith][0] == '?'
@@ -100,15 +107,15 @@ class SequencePattern:
                 ith = ith + 1
             else:
                 if not (pos < len(seq) ) :
-                    return False
+                    return False, maps
                 res, subs = self.clauseMatch(self.pattSeq[ith], seq[pos], maps)
                 # the last clause must have no defined variables
                 maps.append(subs)
                 ith = ith + 1                
                 pos = pos + 1
             if not res:
-                return False
-        return True
+                return False, maps
+        return True, maps
 
 
 if __name__ == '__main__':

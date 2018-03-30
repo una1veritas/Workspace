@@ -74,18 +74,18 @@ if 'sma' in params:
     SimpleMovingAverages(tseries, params['sma'])
 
 if 'mom' in params:
-    back = int(params['mom'])
+    back = int(params['mom'][0])
     momentum = []
     priceseq = list(tseries['close'])
     for i in range(0, len(priceseq)) :
         iback = max(0,i-back)
         momentum.append(priceseq[i] - priceseq[iback])
-    tseries['momentum'] = momentum
+    tseries['momentum ('+str(back)+')'] = momentum
     
 if 'bband' in params:
     #add Bollinger band lines
     adjclose = list(tseries['close'])
-    span = int(params['bband'])
+    span = int(params['bband'][0])
     mpv = list(tseries['sma '+str(span)])
     if 'volume' in tseries.columns :
         vol = list(tseries['volume'])
@@ -125,10 +125,12 @@ if 'rci' in params:
         span = int(params['rci'])
     else:
         span = int(params['rci'][0])
+        scale = 1
+        offset = 0
         if len(params['rci']) >= 2 :
-            offset = int(params['rci'][1])
+            scale = int(params['rci'][1])/100
         if len(params['rci']) >= 3 :
-            scale = int(params['rci'][2])/100
+            offset = int(params['rci'][2])
     for ix in range(0, len(dateprice)) :
         dprange = dateprice[max(0,ix+1-span):ix+1]
         dprange.sort(key=itemgetter(1),reverse=True)

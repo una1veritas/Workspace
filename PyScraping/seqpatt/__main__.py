@@ -7,7 +7,7 @@ import glob
 #
 import pandas as pd
 #
-import dataseq.pattern as dspat
+import pattern as dspat
 
 params = { 'path': ''}
 
@@ -33,7 +33,7 @@ print(params)
 params['path'] = params['path'].rstrip('/')
 if len(params['path']) == 0:
     params['path'] = '.'
-filepatt = params['path'] + '/' + params[0] +'-*-*.csv'
+filepatt = params['path'] + '/' + params[0]
 print(filepatt)
 files = glob.glob(filepatt)
 if len(files) == 0:
@@ -50,27 +50,12 @@ tseries.sort_index()
 tsseq = tseries[['open','high','low','close','volume']].reset_index().values
 
 patt = dspat.SequencePattern(params[1])
-print('sequence dataseq = '+str(patt))
+print('sequence seqpatt = '+str(patt))
 
 for pos in range(max(0,len(tsseq)-200), len(tsseq)):
-    assignments = { }
-    flag = True
-    tuples = 0
-    for i in range(0,len(seqpattern)):
-        if seqpattern[i][0] == '?' :
-            eqnlist = seqpattern[i][1:]
-            res, subs = eval_exprs(eqnlist, assignments)
-        else:
-            if pos + tuples >= len(tsseq):
-                flag = False
-                break
-            res, subs = clauseMatch(seqpattern[i], tsseq[pos+tuples], assignments)
-            tuples = tuples + 1
-        if not res:
-            flag = False
-            break
-        for k in subs:
-            assignments[k] = subs[k]
-    if flag:
-        print('pos at ' + str(pos) +', ' + str(assignments))
-        print(tsseq[pos:min(pos+tuples+1,len(tsseq))])
+    (result, vardict) = patt.match(tsseq, pos)
+    if result :
+        print(tsseq[pos : pos+patt.patternCount()+1])
+        print(pos, vardict)
+        print()
+    
