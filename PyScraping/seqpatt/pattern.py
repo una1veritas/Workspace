@@ -9,21 +9,21 @@ class SequencePattern:
     '''
     classdocs
     '''
-    patternlist = []
+    pattSeq = []
 
 
     def __init__(self, patternstr):
         '''
         Constructor
         '''
-        self.parsestring(patternstr)
+        self.parseStr(patternstr)
         
     def __str__(self):
-        return str(self.patternlist)
+        return str(self.pattSeq)
         
-    def parsestring(self, patstr):
+    def parseStr(self, patstr):
         patstr = patstr.lstrip().rstrip()
-        self.patternlist.clear()
+        self.pattSeq.clear()
         ix = 0
         while ix < len(patstr) :
             leftix = patstr.find('[', ix)
@@ -33,18 +33,27 @@ class SequencePattern:
             clause = []
             for eqstr in clausestr[1:-1].split(','):
                 clause.append(eqstr.strip())
-            self.patternlist.append(clause)
+            self.pattSeq.append(clause)
             ix = rightix + 1
         return
     
     def length(self):
-        return len(self.patternlist)
+        return len(self.pattSeq)
+    
+    def patternCount(self):
+        tally = 0
+        for cix in range(len(self.pattSeq)):
+            if self.ispredicate(cix) :
+                tally = tally + 1
+        return tally
 
-    def match_clause(self, patclause, seqtuple, assigns):
+    def ispredicate(self, ith):
+        return self.pattSeq[ith][0] == '?'
+
+    def clauseMatch(self, patclause, seqtuple, assigns):
         result = True
         subs = { }
         for lit in range(len(patclause)):
-            print(patclause[lit], seqtuple[lit] )
             if patclause[lit] == '*' : 
                 continue
             elif patclause[lit] in assigns:
@@ -67,44 +76,46 @@ class SequencePattern:
                     subs[patclause[lit]] = seqtuple[lit]
         return (result, subs)
 
-    def eval_clause(self, eqnlist, assigns):
+    def clauseEval(self, ith, maps):
         result = True
-        for eqnstr in eqnlist:
+        predlist = self.pattSeq[ith][1:]
+        vardict = {}
+        for varmap in maps:
+            for k in varmap:
+                vardict[k] = varmap[k]
+        for predstr in predlist:
             try:
-                tmpres = eval(eqnstr,{},assigns)
+                tmpres = eval(predstr,{},vardict)
             except  (ValueError, SyntaxError):
-                print('eva;_exprs value/syntax error: ', eqnlist, assigns)
+                print('eva;_exprs value/syntax error: ', predstr, vardict)
                 tmpres = False
             if isinstance(tmpres, bool):
                 result = result and tmpres
             else:
-                print('eva;_exprs error: ', eqnlist, assigns)
+                print('eva;_exprs error: ', predstr, vardict)
                 result = False
             if not result : break
         return result, { }
     
-    def match(self, tsseq):
-        assignments = { }
-        flag = True
-        tupleix = 0
-        clauseix = 0
-        while ( clauseix < self.length() ):
-            if not (tupleix < len(tsseq)) :
-                return False
-            if self.patternlist[clauseix][0] == '?' :
-                eqnlist = self.patternlist[clauseix][1:]
-                res, subs = self.eval_clause(eqnlist, assignments)
-                clauseix = clauseix + 1
+    def match(self, seq, pos):
+        maps = []
+        ith = 0
+        while ( ith < self.length() ):
+            if self.ispredicate(ith) :
+                res, subs = self.clauseEval(ith, maps)
+                # maps is read-only
+                ith = ith + 1
             else:
-                res, subs = self.match_clause(self.patternlist[clauseix], tsseq[tupleix], assignments)
-                clauseix = clauseix + 1
-                tupleix = tupleix + 1
+                if not (pos < len(seq) ) :
+                    return False, maps
+                res, subs = self.clauseMatch(self.pattSeq[ith], seq[pos], maps)
+                # the last clause must have no defined variables
+                maps.append(subs)
+                ith = ith + 1                
+                pos = pos + 1
             if not res:
-                return False
-            for k in subs:
-                assignments[k] = subs[k]
-        print(assignments)
-        return flag
+                return False, maps
+        return True, maps
 
 
 if __name__ == '__main__':
@@ -113,5 +124,7 @@ if __name__ == '__main__':
     print(seqpatt)
     tsseq = eval(sys.argv[2])
     print(tsseq)
-    print(seqpatt.match(tsseq))
+    for pos in range(0,len(tsseq)):
+        print(seqpatt.match(tsseq,pos))
+        print()
     

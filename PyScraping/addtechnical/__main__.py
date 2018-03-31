@@ -77,24 +77,18 @@ if 'sma' in params:
     SimpleMovingAverages(tseries, params['sma'])
 
 if 'mom' in params:
-    if isinstance(params['mom'], list) :
-        back = int(params['mom'][0])
-    else:
-        back = int(params['mom'])
+    back = int(params['mom'][0])
     momentum = []
     priceseq = list(tseries['close'])
     for i in range(0, len(priceseq)) :
         iback = max(0,i-back)
         momentum.append(priceseq[i] - priceseq[iback])
-    tseries['momentum'] = momentum
+    tseries['momentum ('+str(back)+')'] = momentum
     
 if 'bband' in params:
     #add Bollinger band lines
     adjclose = list(tseries['close'])
-    if isinstance(params['bband'], list) :
-        span = int(params['bband'][0])
-    else:
-        span = int(params['bband'])
+    span = int(params['bband'][0])
     mpv = list(tseries['sma '+str(span)])
     if 'volume' in tseries.columns :
         vol = list(tseries['volume'])
@@ -128,15 +122,18 @@ if 'rci' in params:
     # add RCI oscillator
     rciq = []
     dateprice = list(zip(tseries.index.tolist(),tseries['close'].tolist()))
-    baseprice = 0
-    scale = 100/100
     offset = 0
     scale = 1
-    span = int(params['rci'][0])
-    if len(params['rci']) >= 2 :
-        offset = int(params['rci'][1])
-    if len(params['rci']) >= 3 :
-        scale = int(params['rci'][2])/100
+    if len(params['rci']) == 1 :
+        span = int(params['rci'])
+    else:
+        span = int(params['rci'][0])
+        scale = 1
+        offset = 0
+        if len(params['rci']) >= 2 :
+            scale = int(params['rci'][1])/100
+        if len(params['rci']) >= 3 :
+            offset = int(params['rci'][2])
     for ix in range(0, len(dateprice)) :
         dprange = dateprice[max(0,ix+1-span):ix+1]
         dprange.sort(key=itemgetter(1),reverse=True)
