@@ -24,7 +24,7 @@ def ExpMovingAverage(values, window):
     return a
 
 # default values for options
-params = { 'sma' : [5, 25, 50], 'path' : './' , 'files' : [] }
+params = { 'sma' : [5, 25, 50], 'files' : [] }
 
 for arg in sys.argv[1:] :
     if arg[0] == '-' :
@@ -34,6 +34,9 @@ for arg in sys.argv[1:] :
         params['files'].append(arg)
 
 print (params)
+if 'path' in params :
+    for i in range(len(params['files'])) :
+        params['files'][i] = params['path'] + '/' + params['files'][i] 
 #print(params['path'] + '/' + params['code']+'-*-*.csv')
 #files_list = glob.glob(params['path'] + '/' + params['code']+'-*.csv')
 files_list = params['files']
@@ -74,7 +77,10 @@ if 'sma' in params:
     SimpleMovingAverages(tseries, params['sma'])
 
 if 'mom' in params:
-    back = int(params['mom'])
+    if isinstance(params['mom'], list) :
+        back = int(params['mom'][0])
+    else:
+        back = int(params['mom'])
     momentum = []
     priceseq = list(tseries['close'])
     for i in range(0, len(priceseq)) :
@@ -85,7 +91,10 @@ if 'mom' in params:
 if 'bband' in params:
     #add Bollinger band lines
     adjclose = list(tseries['close'])
-    span = int(params['bband'])
+    if isinstance(params['bband'], list) :
+        span = int(params['bband'][0])
+    else:
+        span = int(params['bband'])
     mpv = list(tseries['sma '+str(span)])
     if 'volume' in tseries.columns :
         vol = list(tseries['volume'])
@@ -121,14 +130,13 @@ if 'rci' in params:
     dateprice = list(zip(tseries.index.tolist(),tseries['close'].tolist()))
     baseprice = 0
     scale = 100/100
-    if len(params['rci']) == 1 :
-        span = int(params['rci'])
-    else:
-        span = int(params['rci'][0])
-        if len(params['rci']) >= 2 :
-            offset = int(params['rci'][1])
-        if len(params['rci']) >= 3 :
-            scale = int(params['rci'][2])/100
+    offset = 0
+    scale = 1
+    span = int(params['rci'][0])
+    if len(params['rci']) >= 2 :
+        offset = int(params['rci'][1])
+    if len(params['rci']) >= 3 :
+        scale = int(params['rci'][2])/100
     for ix in range(0, len(dateprice)) :
         dprange = dateprice[max(0,ix+1-span):ix+1]
         dprange.sort(key=itemgetter(1),reverse=True)
@@ -146,11 +154,9 @@ if 'rci' in params:
 #output
 if 'adj.close' in tseries.columns :
     tseries = tseries.drop(labels='adj.close', axis=1)
-outfilename = files_list[0].split('.')[:-1]
-for strchunk in outfilename[1:] :
-    outfilename[0] = outfilename[0] + '.' + strchunk
-outfilename = outfilename[0]
-tseries.to_csv(outfilename + '-'+'anal'+'.csv')
+outfilename = ''
+outfilename = files_list[-1].split('-')[0] + '-anal.csv'
+tseries.to_csv(outfilename)
 
 #plot
 if 'plot' in params :
