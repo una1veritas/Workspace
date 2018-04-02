@@ -124,16 +124,11 @@ if 'rci' in params:
     dateprice = list(zip(tseries.index.tolist(),tseries['close'].tolist()))
     offset = 0
     scale = 1
-    if len(params['rci']) == 1 :
-        span = int(params['rci'])
-    else:
-        span = int(params['rci'][0])
-        scale = 1
-        offset = 0
-        if len(params['rci']) >= 2 :
-            scale = int(params['rci'][1])/100
-        if len(params['rci']) >= 3 :
-            offset = int(params['rci'][2])
+    span = int(params['rci'][0])
+    if len(params['rci']) >= 2 :
+        scale = int(params['rci'][1])/100
+    if len(params['rci']) >= 3 :
+        offset = int(params['rci'][2])
     for ix in range(0, len(dateprice)) :
         dprange = dateprice[max(0,ix+1-span):ix+1]
         dprange.sort(key=itemgetter(1),reverse=True)
