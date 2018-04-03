@@ -9,33 +9,29 @@ import pandas as pd
 #
 import pattern as dspat
 
-params = { 'path': ''}
+params = { 'pattern': '', 'files' : []}
 
 args = sys.argv
 del args[0]
-argvcount = 0
 while len(args) > 0:
     arg = args.pop(0)
     if arg[0] == '-':
-        argval= arg[1:].split('=')
-        argkey = argval[0]
-        if len(argval) > 1 :
-            argval = argval[1]
+        if '=' in arg[1:]:
+            argval = arg[1:].split('=')
+            argkey = argval[0]
+            argval.pop(0)
         else:
+            argkey = arg[1:]
+            args.pop(0)
             argval = args.pop(0)
+            print(argkey, argval)            
         params[argkey] = argval
     else:
-        params[argvcount] = arg
-        argvcount = argvcount + 1
+        params['files'].append(arg)
         
 print(params)
 
-params['path'] = params['path'].rstrip('/')
-if len(params['path']) == 0:
-    params['path'] = '.'
-filepatt = params['path'] + '/' + params[0]
-print(filepatt)
-files = glob.glob(filepatt)
+files = params['files']
 if len(files) == 0:
     print('No files found.')
     exit()
