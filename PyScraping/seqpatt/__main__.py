@@ -22,36 +22,32 @@ while len(args) > 0:
             argval.pop(0)
         else:
             argkey = arg[1:]
-            args.pop(0)
             argval = args.pop(0)
-            print(argkey, argval)            
+        if 'pattern'.startswith(argkey) :
+            argkey = 'pattern'
         params[argkey] = argval
     else:
         params['files'].append(arg)
-        
-print(params)
+#print(params)
 
 files = params['files']
-if len(files) == 0:
-    print('No files found.')
-    exit()
-files.sort()
-print(files)
+if len(files) != 0:
+    files.sort()
 
-tseries = pd.read_csv(files.pop(0), index_col='date') #, parse_dates=['date'] )
 for fname in files:
+    print(fname)
+    tseries = pd.read_csv(fname, index_col='date') #, parse_dates=['date'] )
     tseries = tseries.append(pd.read_csv(fname, index_col='date')) #, parse_dates=['date'] )
-
-tseries.sort_index()
-tsseq = tseries[['open','high','low','close','volume']].reset_index().values
-
-patt = dspat.SequencePattern(params[1])
-print('sequence seqpatt = '+str(patt))
-
-for pos in range(max(0,len(tsseq)-200), len(tsseq)):
-    (result, vardict) = patt.match(tsseq, pos)
-    if result :
-        print(tsseq[pos : pos+patt.patternCount()+1])
-        print(pos, vardict)
-        print()
+    tseries.sort_index()
+    tsseq = tseries[['open','high','low','close','volume']].reset_index().values
     
+    patt = dspat.SequencePattern(params['pattern'])
+    print('sequence pattern = '+str(patt))
+    
+    for pos in range(max(0,len(tsseq)-200), len(tsseq)):
+        (result, vardict) = patt.match(tsseq, pos)
+        if result :
+            print(tsseq[pos : pos+patt.patternCount()+1])
+            print(pos, vardict)
+            print()
+

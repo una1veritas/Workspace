@@ -50,9 +50,17 @@ class SequencePattern:
     def ispredicate(self, ith):
         return self.pattSeq[ith][0] == '?'
 
+    def islikevarname(self, namestr):
+        if namestr[0] in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_':
+            for i in range(1,len(namestr)):
+                if not (namestr[i] in '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_'):
+                    return False
+            return True
+        return False
+    
     def clauseMatch(self, patclause, seqtuple, assigns):
         result = True
-        subs = { }
+        subs = { } # new substitutions in this clause
         for lit in range(len(patclause)):
             if patclause[lit] == '*' : 
                 continue
@@ -66,14 +74,25 @@ class SequencePattern:
                     result = False
                     subs.clear()
                     break
-            else:
-                try:
-                    if eval(patclause[lit]) != seqtuple[lit]:
+            else: # new variable or a constant literal expressed in string
+                if self.islikevarname(patclause[lit]) :
+                    subs[patclause[lit]] = seqtuple[lit]
+                elif patclause[lit][0] == '\'' and patclause[lit][-1] == '\'' :
+                    # a string constant literal
+                    if patclause[lit][1:-1] != seqtuple[lit]: 
                         result = False
                         subs.clear()
                         break
-                except ( NameError ):
-                    subs[patclause[lit]] = seqtuple[lit]
+                else:
+                    print(type(seqtuple[lit]))
+                    try :
+                        if str(eval(patclause[lit])) != str(seqtuple[lit]) :
+                            result = False
+                            subs.clear()
+                            break
+                    except(Exception) :
+                        print('error occurred.')
+                        exit()
         return (result, subs)
 
     def clauseEval(self, ith, maps):
