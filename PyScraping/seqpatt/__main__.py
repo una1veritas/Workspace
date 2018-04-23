@@ -30,6 +30,17 @@ while len(args) > 0:
         params['files'].append(arg)
 #print(params)
 
+if 'pf' in params and len(params['pattern']) == 0:
+    filename = params['pf']
+    with open(filename) as pf:
+        for a_line in pf:
+            if a_line[0] == '#' : continue
+            a_line = a_line.strip()
+            if len(a_line) == 0 : continue
+            break
+    if len(a_line) > 0 :
+        params['pattern'] = a_line
+
 files = params['files']
 if len(files) != 0:
     files.sort()
