@@ -32,14 +32,17 @@ while len(args) > 0:
 
 if 'pf' in params and len(params['pattern']) == 0:
     filename = params['pf']
+    pattstr = ''
     with open(filename) as pf:
         for a_line in pf:
             if a_line[0] == '#' : continue
             a_line = a_line.strip()
             if len(a_line) == 0 : continue
+            pattstr = pattstr + a_line
+            if a_line[-1] == ',' : continue
             break
-    if len(a_line) > 0 :
-        params['pattern'] = a_line
+    if len(pattstr) > 0 :
+        params['pattern'] = pattstr
 
 files = params['files']
 if len(files) != 0:
