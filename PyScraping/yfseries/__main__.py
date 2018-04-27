@@ -14,30 +14,38 @@ import pandas as pd
 if __name__ == '__main__':
     pass
 
-params = { 'path': './', 'tmspan': 'd'}
+params = { 'path': './', 'timespan': 'd', 'codes' : [ ]}
+args = sys.argv
+del args[0]
+while len(args) > 0:
+    arg = args.pop(0)
+    if arg[0] == '-':
+        if '=' in arg[1:]:
+            argval = arg[1:].split('=')
+            argkey = argval[0]
+            argval.pop(0)
+        else:
+            argkey = arg[1:]
+            argval = args.pop(0)
+        if 'fromdate'.startswith(argkey) :
+            argkey = 'fromdate'
+        elif 'todate'.startswith(argkey) :
+            argkey = 'todate'
+        elif 'timespan'.startswith(argkey) :
+            argkey = 'timespan'
+        params[argkey] = argval
+    else:
+        params['codes'].append(arg)
+print(params)
 #code = '5698.T'
 #pdstart = int('20171210')
 #pdend = int('20180112')
 #tmspan = 'd'
-for argv in sys.argv[1:] :
-    if argv[0] != '-' :
-        if not 'code' in params :
-            params['code'] = argv
-        elif not 'fromdate' in params:
-            params['fromdate'] = int(argv)
-        elif not 'todate' in params:
-            params['todate'] = int(argv)
-        elif not 'path' in params :
-            params['path'] = argv
-    else:
-        paramname, paramvalue = argv[1:].split('=')
-        params[paramname] = paramvalue
 
-print(params)
-if not 'code' in params or not 'fromdate' in params or not 'todate' in params:
-    print('code.m frmdate todate path')
+if not (len(params['codes']) > 0 and 'fromdate' in params and 'todate' in params):
+    print(' -from frmdate -to todate -path dirname code1.m code2.m ...')
     exit()
-        
+
 #timestamp = datetime.now().strftime("%Y%m%d-%H%M")
 #print ("current time stamp: ", timestamp)
 # 1カラム目に時間を挿入します
