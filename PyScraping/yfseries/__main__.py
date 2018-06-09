@@ -128,26 +128,31 @@ def yahooFinanceTimeSeries(code,pdstart,pdend,timespan='d'):
 #        if ranking[key][1] != u'東証ETF':
 #            print key,": ",ranking[key]
 
-jpstart = int(0.5+JulianDay(params['fromdate']//10000, params['fromdate']//100%100, params['fromdate']%100))
-jpend = int(0.5+JulianDay(params['todate']//10000, params['todate']//100%100, params['todate']%100))
+dateint = int(params['fromdate'])
+jpstart = int(0.5+JulianDay(dateint // 10000, dateint // 100 % 100, dateint % 100))
+dateint = int(params['todate'])
+jpend = int(0.5+JulianDay(dateint//10000, dateint// 100 % 100, dateint%100))
 table = [ ]
 header = ['date','open','high','low','close','volume','adj.close'] 
-for jd in range(jpstart, jpend+1, 30):
-    je = min(jpend, jd+31)
-    pjstart = int(CalDate(jd))
-    pjend = int(CalDate(je))
-    print(pjstart, pjend)
-    table = table + yahooFinanceTimeSeries(params['code'], pjstart, pjend, params['tmspan'])
+for stockcode in params['codes']:
+    for jd in range(jpstart, jpend+1, 25):
+        if jd + 25 - 1 <= jpend : 
+            je = jd+25 -1
+        else:
+            je = jpend
+        pjstart = int(CalDate(jd))
+        pjend = int(CalDate(je))
+        print(pjstart, pjend)
+        table = table + yahooFinanceTimeSeries(stockcode, pjstart, pjend, params['timespan'])
 
-
-table = sorted(table, reverse=False)
-colnum = len(table[0])
-df = pd.DataFrame(table,columns=header[:colnum])
-df = df.set_index('date')
-basepath = params['path'].rstrip('/')
-if basepath != '' :
-    basepath = basepath + '/'
-df.to_csv(basepath + params['code']+'-'+str(params['fromdate'])+'-'+str(params['todate'])+'.csv')
+    table = sorted(table, reverse=False)
+    colnum = len(table[0])
+    df = pd.DataFrame(table,columns=header[:colnum])
+    df = df.set_index('date')
+    basepath = params['path'].rstrip('/')
+    if basepath != '' :
+        basepath = basepath + '/'
+    df.to_csv(basepath + stockcode +'-'+params['fromdate']+'-'+params['todate']+'.csv')
 #dframe = pd.DataFrame[table, ]
 
 #for row in table:

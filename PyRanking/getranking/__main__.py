@@ -12,8 +12,8 @@ if __name__ == '__main__':
     pass #特になし
 
 # from argv
-if len(sys.argv) <= 2:
-    print('usage: basedirname rankingcode')
+if len(sys.argv) > 2:
+    print('usage: rankingcode')
     exit()
 
 if tuple(sys.version_info)[0] != 3:
@@ -127,6 +127,11 @@ for rkcode in params['codes']:
     elif rkcode == '36d2a' :
         kd = 36
         mk = 2
+        tm = 'd'
+        vl = 'a'
+    elif rkcode == '41d1a' :
+        kd = 41
+        mk = 1
         tm = 'd'
         vl = 'a'
     else:
