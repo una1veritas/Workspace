@@ -1,38 +1,39 @@
 import sys
 import random
 
-def get_graph(arglist):
-    vertices = set()
-    if ',' in arglist[0]:
-        arglist[0] = arglist[0].split(',')
-    else:
-        arglist[0] = arglist[0].split()
-    for v in arglist[0] :
-        vertices.add(v)
-    arglist.pop(0)
-    elist = arglist.pop(0).split()
-    edges = set()
-    for i in range(0, len(elist), 2) :
-        edges.add( tuple(sorted([elist[i], elist[i+1]])) )
-    return (vertices, edges)
+class Graph():
+    def __init__(self,v,e):
+        self.vertices = set(v)
+        self.edges = set()
+        for u, v in e:
+            if u != v : #rejects self loop
+                edge = (u,v) if u < v else (v,u)
+                self.edges.add(edge)
 
-(vertices,edges) = get_graph(sys.argv[1:])
-print('Vertices = '+str(vertices))
-print('Edges = '+str(edges))
-circuit = list(vertices)
+    def adjacent(self, u, v):
+        if u < v :
+            return (u,v) in self.edges
+        else:
+            return (v,u) in self.edges 
+
+#引数にはコンマで区切った（tuple として解釈される）頂点の列，辺の列，
+#あるいは set, tuple, list 形式での頂点の集合，辺の集合 
+g = Graph(eval(sys.argv[1]), eval(sys.argv[2]))
+print('G = (V = '+str(g.vertices)+', E = '+str(g.edges)+ ' )')
+circuit = list(g.vertices)
+
 #非決定的な順列の生成をランダムシャッフルでシミュレーション
 random.shuffle(circuit)
-
 print('circuit = '+str(circuit))
 
 print('checking the circuit...')
-for i in range(0, len(vertices)) :
-    j = (i + 1) % len(vertices)
-    a_pair = (circuit[i], circuit[j])
-    print( a_pair )
-    a_pair = tuple(sorted(list(a_pair)))
-    if not (a_pair in edges) :
-        print('failed at '+str(a_pair))
+for i in range(0, len(g.vertices)) :
+    j = (i + 1) % len(g.vertices)
+    print(str(circuit[i])+' -> '+str(circuit[j])+', ', end='')
+    if not g.adjacent(circuit[i], circuit[j]) :
+        print('failed.')
         break
+    print()
 else:
     print('success!')
+#prints out success on accept
