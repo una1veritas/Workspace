@@ -31,9 +31,7 @@ print('G = (V = '+str(g.vertices)+', E = '+str(g.edges)+ ' )')
 print('colors = '+str(k))
 
 #非決定的な彩色の生成をランダムでシミュレーション
-coloring = dict()
-for v in g.vertices:
-    coloring[v] = random.randint(0,k)
+coloring = { v: random.randint(0,k-1) for v in g.vertices }
 print('coloring = '+str(coloring))
 
 print('verifying...')
