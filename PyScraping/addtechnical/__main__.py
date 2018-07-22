@@ -11,7 +11,7 @@ from operator import itemgetter
 
 #
 import matplotlib.pyplot as plt
-import matplotlib.finance as mf
+#import matplotlib.finance as mf
 #from matplotlib import ticker
 import matplotlib.dates as mdates
 #from matplotlib.pyplot import tight_layout
@@ -26,10 +26,16 @@ def ExpMovingAverage(values, window):
 # default values for options
 params = { 'sma' : [5, 25, 50], 'files' : [] }
 
-for arg in sys.argv[1:] :
+args = sys.argv
+del args[0]
+if len(args) == 0 :
+    print('-sma -path -mon -bband -rci files')
+    exit()
+    
+for arg in args :
     if arg[0] == '-' :
         pname, pvalue = arg[1:].split('=')
-        params[pname] = pvalue.split('.')
+        params[pname] = eval(pvalue)
     else:
         params['files'].append(arg)
 
@@ -66,7 +72,7 @@ def SimpleMovingAverages(dframe, avrspans):
         mavrs['sma '+str(span)] = [ ]
     priceq = dframe['close']
     for span in avrspans:
-        mavr = pd.rolling_mean(priceq,window=int(span), min_periods=1)
+        mavr = priceq.rolling(window=int(span), min_periods=1).mean()
         mavrs['sma '+str(span)].append(round(mavr,1))
     for smaname in mavrs :
         dframe[smaname] = mavrs[smaname][0]
@@ -77,7 +83,7 @@ if 'sma' in params:
     SimpleMovingAverages(tseries, params['sma'])
 
 if 'mom' in params:
-    back = int(params['mom'][0])
+    back = int(params['mom'])    
     momentum = []
     priceseq = list(tseries['close'])
     for i in range(0, len(priceseq)) :
@@ -88,7 +94,7 @@ if 'mom' in params:
 if 'bband' in params:
     #add Bollinger band lines
     adjclose = list(tseries['close'])
-    span = int(params['bband'][0])
+    span = int(params['bband'])
     mpv = list(tseries['sma '+str(span)])
     if 'volume' in tseries.columns :
         vol = list(tseries['volume'])
@@ -122,13 +128,7 @@ if 'rci' in params:
     # add RCI oscillator
     rciq = []
     dateprice = list(zip(tseries.index.tolist(),tseries['close'].tolist()))
-    offset = 0
-    scale = 1
-    span = int(params['rci'][0])
-    if len(params['rci']) >= 2 :
-        scale = int(params['rci'][1])/100
-    if len(params['rci']) >= 3 :
-        offset = int(params['rci'][2])
+    span = int(params['rci'])
     for ix in range(0, len(dateprice)) :
         dprange = dateprice[max(0,ix+1-span):ix+1]
         dprange.sort(key=itemgetter(1),reverse=True)
@@ -140,7 +140,7 @@ if 'rci' in params:
             dev2sum = dev2sum + (drank-prank)**2
         rci = (1 - 6 * dev2sum / (span*(span - 1)*(span+1))) * 100
     #    print(round(rci,1))
-        rciq.append(offset + round(rci,1) * scale)
+        rciq.append(round(rci,1))
     tseries['RCI'] = rciq
 
 #output
@@ -171,11 +171,11 @@ if 'plot' in params :
     mf.candlestick_ohlc(ax1, df, width=.6, colorup='#53c156', colordown='#ff1717')
     
     #sma = df['close'].rolling(5).mean()
-    #vstack = np.vstack((range(len(sma)), sma.values.T)).T  # x軸データを整数に
+    #vstack = np.vstack((range(len(sma)), sma.values.T)).T  # x霆ｸ繝�繝ｼ繧ｿ繧呈紛謨ｰ縺ｫ
     #ax.plot(vstack[:, 0], vstack[:, 1])
     
     ax0 = plt.subplot2grid((6,4), (0,0), sharex=ax1, rowspan=1, colspan=4, axisbg='#07000d')
-    ax0.grid(True) #グリッド表示
+    ax0.grid(True) #繧ｰ繝ｪ繝�繝芽｡ｨ遉ｺ
     fig.autofmt_xdate()
     #for label in ax1.xaxis.get_ticklabels():
     #    label.set_rotation(90)
