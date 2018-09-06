@@ -2,11 +2,13 @@ import sys
 
 class Trie:
     ''' string word Trie '''
+    ''' self.arcs[node_id] --> (dict[char] --> child_id) '''
     def __init__(self,str_set):
         self.nodes = set()
         self.arcs = dict()
         self.root = 0
         self.nodes.add(self.root)
+        ''' add the children-dict when its child is added '''
         for a_word in str_set:
             self.addPath(a_word)
         
@@ -14,20 +16,29 @@ class Trie:
         curr_node = self.root
         for c in a_word:
             if not (curr_node in self.arcs) :
-                ''' new node == the last node id + 1 == the size '''
-                new_node = len(self.nodes)
-                self.nodes.add(new_node)
+                ''' if curr_node is leaf '''
                 self.arcs[curr_node] = dict()
             if not (c in self.arcs[curr_node]) :
-                self.arcs[curr_node][c] =  
-            curr_node = self.arcs[(curr_node,c)]
+                new_child = len(self.nodes)
+                self.nodes.add(new_child)
+                self.arcs[curr_node][c] = new_child
+            curr_node = self.arcs[curr_node][c]
 
     def traverse(self):
-        curr_node = self.root
-        prev_node = -1 # NIL
-        while ( curr_node != -1 ):
-            print('current = ' + str(curr_node) + ', prev = ' + str(prev_node) )
-            children = self.arcs[current
+        path = list()
+        path.append( (chr(0), self.root) )
+        print(path)
+        while ( len(path) > 0 ):
+            curr_label, curr_node = path[-1]
+            if ( curr_node in self.arcs ) : # has some children 
+                next_label = list(self.arcs[curr_node].keys())[0]
+                next_node = self.arcs[curr_node][next_label]
+                path.append( (next_label, next_node) )
+                print(path)
+            else:
+                # reached to a leaf.
+                print('a leaf.')
+                break
             
     def __str__(self):
         return 'Trie' + str(self.arcs)
@@ -35,3 +46,5 @@ class Trie:
 
 tree = Trie(['cat', 'at', 'act', 'cab', 'bat', 'bcc', 'tab'])
 print(tree)
+tree.traverse()
+print('finished.')
