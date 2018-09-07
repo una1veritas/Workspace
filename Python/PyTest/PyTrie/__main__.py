@@ -24,27 +24,47 @@ class Trie:
                 self.arcs[curr_node][c] = new_child
             curr_node = self.arcs[curr_node][c]
 
-    def traverse(self):
+    def traverse_preorder(self):
         path = list()
         path.append( (chr(0), self.root) )
-        print(path)
+        visiting = self.root
         while ( len(path) > 0 ):
-            curr_label, curr_node = path[-1]
-            if ( curr_node in self.arcs ) : # has some children 
-                next_label = list(self.arcs[curr_node].keys())[0]
-                next_node = self.arcs[curr_node][next_label]
-                path.append( (next_label, next_node) )
+            if ( path[-1][1] == visiting ) : # at a node never visited before
                 print(path)
-            else:
-                # reached to a leaf.
-                print('a leaf.')
-                break
-            
+                if ( visiting in self.arcs) : # has some children
+                    label = sorted(self.arcs[visiting].keys())[0]
+                    visiting = self.arcs[visiting][label]
+                    path.append( (label, visiting) )
+                else: # exists no children
+                    path.pop()
+            else: # backed from a child
+                keylist = sorted(self.arcs[path[-2][1]].keys())
+                print(str(keylist)+', '+str(path[-2][0]))
+                keylist = [ elem for elem in keylist if elem > path[-1][0] ]
+                # print()
+                '''index = 0
+                for index in range(0, len(keylist) ):
+                    if visiting == self.arcs[path[-1][1]][keylist[index]] :
+                        break
+                index = index + 1
+                '''
+                #if index >= len(keylist):
+                if len(keylist) == 0 :
+                    visiting = path[-1][1]
+                    path.pop()
+                else:
+                    print('visiting = '+ str(visiting) + ', keylist = ' + str(keylist))
+                    break;
+                    nextkey = keylist[0]
+                    visiting = self.arcs[path[-1][1]][nextkey]
+                    path.append( (nextkey, visiting) )
+
+
     def __str__(self):
         return 'Trie' + str(self.arcs)
     
 
-tree = Trie(['cat', 'at', 'act', 'cab', 'bat', 'bcc', 'tab'])
+tree = Trie(['cat', 'at', 'act', 'cab', 'bat', 'tab'])
 print(tree)
-tree.traverse()
+tree.traverse_preorder()
 print('finished.')
