@@ -11,6 +11,7 @@ class Trie:
         self.nodes.add(self.root)
         for a_word in str_set:
             self.addPath(a_word)
+            
     def isRoot(self, node_id):
         return node_id == self.root
     
@@ -36,17 +37,17 @@ class Trie:
                 self.arcs[curr_node][c] = new_child
             curr_node = self.arcs[curr_node][c]
 
-    def traverse(self):
+    def xbw(self):
         st_list = list()
         path = list()
-        path.append( (self.root, chr(0)) )
+        path.append( (self.root, chr(36)) )
         visiting = self.root
         while ( len(path) > 0 ):
             if  visiting == path[-1][0] : # at a node never visited before
                 # visiting
                 # print(str(path) + " : " + str(visiting))
                 if self.isRoot(visiting) :
-                    st_list.append([False, path[-1][1], False, ''])
+                    st_list.append([True, path[-1][1], False, ''])
                 else:
                     t_list = [ pair[1] for pair in path ]
                     t_str = ''.join(reversed(t_list[1:-1]))
@@ -77,15 +78,26 @@ class Trie:
             else:
                 print('unexpected error!')
                 break
-        return sorted(st_list, key = lambda st: st[3])
+        st_list = [t[0:3] for t in sorted(st_list, key = lambda st: st[3])]
+        return st_list
 
     def __str__(self):
-        return 'Trie' + str(self.arcs)
+        t_list = []
+        for t_node in self.nodes:
+            if t_node in self.arcs:
+                t_list.append(str(t_node)+'-{')
+                itempairs = sorted(self.arcs[t_node].items())
+                for t_pair in itempairs[0:-1]:
+                    t_list.append(str(t_pair[0]) + ' -> ' + str(t_pair[1]) + ', ')
+                t_list.append(str(itempairs[-1][0]) + ' -> ' + str(itempairs[-1][1]) + '}, ')
+            else:
+                t_list.append(str(t_node)+', ')
+        return 'Trie ' + ''.join(t_list)
     
     
-tree = Trie(['cat', 'at', 'bbc', 'act', 'cab', 'bat', 'abba'])
+tree = Trie(['cat', 'at', 'act', 'cab', 'bat', 'abba'])
 print(tree)
-st_list = tree.traverse()
+st_list = tree.xbw()
 for i in range(len(st_list)):
-    print(str(i) + ': ' + str(1 if st_list[i][0] else 0) + ' ' + str(st_list[i][1] if st_list[i][1] != chr(0) else ' ') + ' ' + str(1 if st_list[i][2] else 0) )
+    print(str(i).rjust(3) + ':  ' + str(1 if st_list[i][0] else 0) + ' ' + str(st_list[i][1]) + ' ' + str(1 if st_list[i][2] else 0)) #+ '   ' + st_list[i][3])
 print('finished.')
