@@ -81,17 +81,18 @@ class Trie:
         st_list = [t[0:3] for t in sorted(st_list, key = lambda st: st[3])]
         return st_list
 
-    def rxbw(self, s_list):
+    @classmethod
+    def revxbw(self, s_list):
         alphabet_n = set()
         count = dict()
-        for (mu, alpha, phi) in s_list:
-            if phi :
+        for t in s_list:
+            if t[2] :
                 continue
-            if not alpha in alphabet_n :
-                alphabet_n.add(alpha)
-                count[alpha] = 1
+            if not t[1] in alphabet_n :
+                alphabet_n.add(t[1])
+                count[t[1]] = 1
             else:
-                count[alpha] = count[alpha] + 1
+                count[t[1]] = count[t[1]] + 1
         print('count=',count)
         first = dict()
         alph_list = sorted(alphabet_n)
@@ -139,4 +140,4 @@ s_list = tree.xbw()
 for i in range(len(s_list)):
     print(i, s_list[i])
 print('finished.')
-Trie.rxbw(s_list)
+Trie.revxbw(s_list)
