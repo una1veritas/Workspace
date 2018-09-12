@@ -139,4 +139,4 @@ s_list = tree.xbw()
 for i in range(len(s_list)):
     print(i, s_list[i])
 print('finished.')
-tree.rxbw(s_list)
+Trie.rxbw(s_list)
