@@ -1,4 +1,4 @@
-import sys
+# import sys
 
 class Trie:
     ''' string word Trie '''
@@ -11,6 +11,7 @@ class Trie:
         self.nodes.add(self.root)
         for a_word in str_set:
             self.addPath(a_word)
+            
     def isRoot(self, node_id):
         return node_id == self.root
     
@@ -36,17 +37,17 @@ class Trie:
                 self.arcs[curr_node][c] = new_child
             curr_node = self.arcs[curr_node][c]
 
-    def traverse(self):
+    def xbw(self):
         st_list = list()
         path = list()
-        path.append( (self.root, chr(0)) )
+        path.append( (self.root, chr(36)) )
         visiting = self.root
         while ( len(path) > 0 ):
             if  visiting == path[-1][0] : # at a node never visited before
                 # visiting
                 # print(str(path) + " : " + str(visiting))
                 if self.isRoot(visiting) :
-                    st_list.append([False, path[-1][1], False, ''])
+                    st_list.append([True, path[-1][1], False, ''])
                 else:
                     t_list = [ pair[1] for pair in path ]
                     t_str = ''.join(reversed(t_list[1:-1]))
@@ -77,15 +78,66 @@ class Trie:
             else:
                 print('unexpected error!')
                 break
-        return sorted(st_list, key = lambda st: st[3])
+        st_list = [t[0:3] for t in sorted(st_list, key = lambda st: st[3])]
+        return st_list
 
+    @classmethod
+    def revxbw(self, s_list):
+        alphabet_n = set()
+        count = dict()
+        for t in s_list:
+            if t[2] :
+                continue
+            if not t[1] in alphabet_n :
+                alphabet_n.add(t[1])
+                count[t[1]] = 1
+            else:
+                count[t[1]] = count[t[1]] + 1
+        print('count=',count)
+        first = dict()
+        alph_list = sorted(alphabet_n)
+        first[alph_list[0]] = 1
+        for i in range(1,len(alph_list)) :
+            mu_count = 0
+            pos = first[alph_list[i-1]]
+            while mu_count < count[alph_list[i-1]] :
+                # print('pos, mu_count, count = ', pos, mu_count, count[alph_list[i-1]])
+                if s_list[pos][0] :
+                    mu_count = mu_count + 1
+                pos = pos + 1
+            first[alph_list[i]] = pos
+        print('f=',first)
+        jump = []
+        for i in range(0,len(s_list)):
+            if s_list[i][2] :
+                jump.append(0)
+            else:
+                z = first[s_list[i][1]]
+                jump.append(z)
+                while not s_list[z][0]:
+                    z = z+ 1
+                first[s_list[i][1]] = z + 1
+        print('jump=',jump)
+        return
+        
     def __str__(self):
-        return 'Trie' + str(self.arcs)
+        t_list = []
+        for t_node in self.nodes:
+            if t_node in self.arcs:
+                t_list.append(str(t_node)+'-{')
+                itempairs = sorted(self.arcs[t_node].items())
+                for t_pair in itempairs[0:-1]:
+                    t_list.append(str(t_pair[0]) + ' -> ' + str(t_pair[1]) + ', ')
+                t_list.append(str(itempairs[-1][0]) + ' -> ' + str(itempairs[-1][1]) + '}, ')
+            else:
+                t_list.append(str(t_node)+', ')
+        return 'Trie ' + ''.join(t_list)
     
     
-tree = Trie(['cat', 'at', 'bbc', 'act', 'cab', 'bat', 'abba'])
+tree = Trie(['ace', 'bag', 'beat', 'cat', 'at', 'tab', 'bat', 'cab', 'act'])
 print(tree)
-st_list = tree.traverse()
-for i in range(len(st_list)):
-    print(str(i) + ': ' + str(1 if st_list[i][0] else 0) + ' ' + str(st_list[i][1] if st_list[i][1] != chr(0) else ' ') + ' ' + str(1 if st_list[i][2] else 0) )
+s_list = tree.xbw()
+for i in range(len(s_list)):
+    print(i, s_list[i])
 print('finished.')
+Trie.revxbw(s_list)
