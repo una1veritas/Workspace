@@ -10,7 +10,7 @@ base_path = 'C:/Users/Sin Shimozono/Downloads'
 print(sys.argv)
 base_path=sys.argv[1]
 os.chdir(base_path)
-file_list = [os.path.abspath(path) for path in glob.glob('./*_Short_Positions.xls')]
+file_list = sorted([os.path.abspath(path) for path in glob.glob('./*_Short_Positions.xls')])
 
 def xls_read(file_name):
     column_names = ['leftmargin',
@@ -54,7 +54,7 @@ def xls_read(file_name):
 #     print('Date of disclosure: ' + file_timestamp.strftime('%Y-%m-%d'))
     df.drop(index=[0,1,2,3,4,5,6],inplace=True)
     # replace chars not compatible with shift-jis
-    replace_dict = {'\u2013':'-', u'\uff0d': u'\u2212', u'\xa0': ''}
+    replace_dict = {'\u2013':'-', u'\uff0d': u'\u2212', u'\xa0': '', '\u3231': u'(株)' }
     for (t_key, t_value) in replace_dict.items() :
         df['Name'] = df['Name'].str.replace(t_key, t_value)
         df['Short Seller'] = df['Short Seller'].str.replace(t_key, t_value)
@@ -65,7 +65,9 @@ df = pandas.DataFrame()
 for filename in file_list:
     print(filename)
     df = df.append(xls_read(filename))
+print('reading files finished.')
 
 df = df.set_index(['Code', 'Name', 'Short Seller', 'Date'], drop=True)
 df.sort_index(inplace=True)
 df.to_csv('short-positions-'+datetime.datetime.today().strftime('%Y%m%d')+'.csv', encoding='shift-jis')
+print('writing output finished.')
