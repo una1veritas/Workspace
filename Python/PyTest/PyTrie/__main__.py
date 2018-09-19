@@ -81,11 +81,85 @@ class Trie:
         st_list = [t[0:3] for t in sorted(st_list, key = lambda st: st[3])]
         return st_list
 
-    @classmethod
-    def revxbw(self, s_list):
+#     @classmethod
+#     def revxbw(self, s_list):
+#         alphabet_n = set()
+#         count = dict()
+#         for t in s_list:
+#             if t[2] :
+#                 continue
+#             if not t[1] in alphabet_n :
+#                 alphabet_n.add(t[1])
+#                 count[t[1]] = 1
+#             else:
+#                 count[t[1]] = count[t[1]] + 1
+#         print('count=',count)
+#         first = dict()
+#         alph_list = sorted(alphabet_n)
+#         first[alph_list[0]] = 1
+#         for i in range(1,len(alph_list)) :
+#             mu_count = 0
+#             pos = first[alph_list[i-1]]
+#             while mu_count < count[alph_list[i-1]] :
+#                 # print('pos, mu_count, count = ', pos, mu_count, count[alph_list[i-1]])
+#                 if s_list[pos][0] :
+#                     mu_count = mu_count + 1
+#                 pos = pos + 1
+#             first[alph_list[i]] = pos
+#         print('f=',first)
+#         jump = []
+#         for i in range(0,len(s_list)):
+#             if s_list[i][2] :
+#                 jump.append(0)
+#             else:
+#                 z = first[s_list[i][1]]
+#                 jump.append(z)
+#                 while not s_list[z][0]:
+#                     z = z+ 1
+#                 first[s_list[i][1]] = z + 1
+#         print('jump=',jump)
+#         return 
+
+    def __str__(self):
+        t_list = []
+        for t_node in self.nodes:
+            if t_node in self.arcs:
+                t_list.append(str(t_node)+'-{')
+                itempairs = sorted(self.arcs[t_node].items())
+                for t_pair in itempairs[0:-1]:
+                    t_list.append(str(t_pair[0]) + ' -> ' + str(t_pair[1]) + ', ')
+                t_list.append(str(itempairs[-1][0]) + ' -> ' + str(itempairs[-1][1]) + '}, ')
+            else:
+                t_list.append(str(t_node)+', ')
+        return 'Trie ' + ''.join(t_list)
+    
+    
+class XBWTrie:
+    def __init__(self, xbw_array):
+        self.xbw = xbw_array
+        self.firstchild = self.jumpindex()
+        return
+    
+    def __str__(self):
+        str_list = ['XBWTrie ']
+        for index in range(len(self.xbw)):
+            t_tuple = self.xbw[index]
+            t_str = ['(', str(index)+': ']
+            if t_tuple[0] :
+                t_str.append('/')
+            t_str.append("'"+t_tuple[1]+"'")
+            if not self.xbw[index][2] :
+                t_str.append('-> '+str(self.firstchild[index]))
+            t_str.append('), ')
+            str_list.append(''.join(t_str))
+        #t_list.append(str(self.xbw)+', ')
+        #str_list.append(str(self.firstchild))
+        return ''.join(str_list)
+
+    def jumpindex(self):
         alphabet_n = set()
         count = dict()
-        for t in s_list:
+        for t in self.xbw:
             if t[2] :
                 continue
             if not t[1] in alphabet_n :
@@ -117,27 +191,13 @@ class Trie:
                 while not s_list[z][0]:
                     z = z+ 1
                 first[s_list[i][1]] = z + 1
-        print('jump=',jump)
-        return
-        
-    def __str__(self):
-        t_list = []
-        for t_node in self.nodes:
-            if t_node in self.arcs:
-                t_list.append(str(t_node)+'-{')
-                itempairs = sorted(self.arcs[t_node].items())
-                for t_pair in itempairs[0:-1]:
-                    t_list.append(str(t_pair[0]) + ' -> ' + str(t_pair[1]) + ', ')
-                t_list.append(str(itempairs[-1][0]) + ' -> ' + str(itempairs[-1][1]) + '}, ')
-            else:
-                t_list.append(str(t_node)+', ')
-        return 'Trie ' + ''.join(t_list)
-    
-    
-tree = Trie(['ace', 'bag', 'beat', 'cat', 'at', 'tab', 'bat', 'cab', 'act'])
+        return jump
+            
+tree = Trie(['ace', 'bag', 'beat', 'acetone', 'cat', 'coat', 'at', 'tab', 'bat', 'bad', 'cab', 'act'])
 print(tree)
 s_list = tree.xbw()
-for i in range(len(s_list)):
-    print(i, s_list[i])
+#for i in range(len(s_list)):
+#    print(i, s_list[i])
 print('finished.')
-Trie.revxbw(s_list)
+xbwt = XBWTrie(s_list)
+print(xbwt)
