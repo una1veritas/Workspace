@@ -7,7 +7,7 @@ import sys
 
 args = dict()
 args['base_path'] = 'C:/Users/Sin Shimozono/Downloads'
-args['file_pattern'] = './*_Short_Positions.xls'
+args['file_pattern'] = './20180914_Short_Positions.xls'
 args['codes'] = []
 index = 1
 while index  < len(sys.argv) :
@@ -32,7 +32,7 @@ file_list = sorted([os.path.abspath(path) for path in glob.glob(args['file_patte
 #exit()
 
 def xls_read(file_name, codes):
-    column_names = ['leftmargin',
+    column_names = ['lmargin',
                     'Date',
                     'Code',
                     'Name',
@@ -48,7 +48,7 @@ def xls_read(file_name, codes):
                     'Prev. Date',
                     'Prev. Ratio',
                     'Notes',
-                    'rightmargin'
+                    'rmargin'
                     ]
     column_list=[1,2,3, 5,  10,11, ]
     data_types = {#'Date' : str,
@@ -87,10 +87,14 @@ for filename in file_list:
     df = df.append(xls_read(filename, args['codes']))
 print('reading files finished.')
 
-#df.set_index(['Code', 'Short Seller', 'Date'], inplace=True)
-df.sort_values('Date',inplace=True)
-short_sellers = df['Short Seller'].unique()
-print(sorted(short_sellers))
-exit()
-df.to_csv('short-positions-'+datetime.datetime.today().strftime('%Y%m%d')+'.csv', encoding='shift-jis')
+df.sort_values(['Code','Short Seller', 'Date'],inplace=True)
+df = df[['Code', 'Short Seller', 'Date', 'Ratio']]
+# short_sellers = sorted(df['Short Seller'].unique())
+# for a_seller in short_sellers:
+#     print(a_seller)
+#     table = df.loc[(df['Short Seller'] == a_seller)][['Code','Name','Date','Ratio']]
+#     table.rename(columns={'Ratio':a_seller})
+#     print(table.rename(columns={'Ratio':a_seller}))
+# exit()
+df.to_csv('short-positions-'+'-'.join([str(t) for t in args['codes']])+'-'+datetime.datetime.today().strftime('%Y%m%d')+'.csv', encoding='shift-jis')
 print('writing output finished.')
