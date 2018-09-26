@@ -4,6 +4,8 @@ import datetime
 import os
 import glob
 import sys
+from pymysql.constants.FIELD_TYPE import DATE
+from math import nan
 
 args = dict()
 args['base_path'] = 'C:/Users/Sin Shimozono/Downloads'
@@ -31,35 +33,40 @@ file_list = sorted([os.path.abspath(path) for path in glob.glob(args['file_patte
 #print(file_list)
 #exit()
 
-def xls_read(file_name, codes):
+def xls_read(file_name, codes, charset='utf8'):
     column_names = ['lmargin',
                     'Date',
                     'Code',
                     'Name',
-                    'Name (En)',
-                    'Short Seller',
-                    'Address of Seller',
+                    'Name_En',
+                    'Short_Seller',
+                    'Seller_Address',
                     'DIC',
-                    'Address of DIC',
-                    'Inv. Fund',
+                    'DIC_Address',
+                    'Inv_Fund',
                     'Ratio',
                     'Number',
                     'Units',
-                    'Prev. Date',
-                    'Prev. Ratio',
+                    'Prev_Date',
+                    'Prev_Ratio',
                     'Notes',
                     'rmargin'
                     ]
-    column_list=[1,2,3, 5,  10,11, ]
-    data_types = {#'Date' : str,
-                'Code': int,
+    column_list=[1, 2,3,4, 5,6, 7,8, 9, 10,11,12, 15 ]
+    data_types = {'Date' : datetime.date,
+                'Code': str,
                 'Name' : str,
-    #            'Name (En)' : str,
-                'Short Seller' : str,
-    #            'Seller Address':str,
-    #            'DIC' : str,
-    #            'Address of DIC' : str,
-    #            'Inv. Fund' : str,
+                'Name_En' : str,
+                'Short_Seller' : str,
+                'Seller_Address':str,
+                'DIC' : str,
+                'DIC_Address' : str,
+                'Inv_Fund' : str,
+                'Ratio' : float,
+                'Number' : int,
+                'Units' : int,
+                'Prev_Date' : datetime.date,
+                'Prev_Ratio' : float,
                 'Notes' : str,
                 }
     df = pandas.read_excel(file_name,
@@ -72,12 +79,14 @@ def xls_read(file_name, codes):
 #        file_timestamp = datetime.datetime.strptime(str(df.iat[2,1]), '%Y-%m-%d %H:%M:%S')
 #     print('Date of disclosure: ' + file_timestamp.strftime('%Y-%m-%d'))
     df.drop(index=[0,1,2,3,4,5,6],inplace=True)
-    df = df.loc[ df['Code'].isin(codes) ]
-    # replace chars not compatible with shift-jis
-    replace_dict = {'\u2013':'-', u'\uff0d': u'\u2212', u'\xa0': '', '\u3231': u'(株)' }
-    for (t_key, t_value) in replace_dict.items() :
-        df['Name'] = df['Name'].str.replace(t_key, t_value)
-        df['Short Seller'] = df['Short Seller'].str.replace(t_key, t_value)
+    if len(codes) != 0:
+        df = df.loc[ df['Code'].isin(codes) ]
+    if charset == 'sjis':
+        # replace chars not compatible with shift-jis
+        replace_dict = {'\u2013':'-', u'\uff0d': u'\u2212', u'\xa0': '', '\u3231': u'(株)' }
+        for (t_key, t_value) in replace_dict.items() :
+            df['Name'] = df['Name'].str.replace(t_key, t_value)
+            df['Short Seller'] = df['Short Seller'].str.replace(t_key, t_value)
     #print(df)
     return df
 
@@ -87,8 +96,9 @@ for filename in file_list:
     df = df.append(xls_read(filename, args['codes']))
 print('reading files finished.')
 
-df.sort_values(['Code','Short Seller', 'Date'],inplace=True)
-df = df[['Code', 'Short Seller', 'Date', 'Ratio']]
+#df.sort_values(['Code','Short Seller', 'Date'],inplace=True)
+#df = df[['Code', 'Short Seller', 'Date', 'Ratio']]
+
 # short_sellers = sorted(df['Short Seller'].unique())
 # for a_seller in short_sellers:
 #     print(a_seller)
@@ -96,5 +106,7 @@ df = df[['Code', 'Short Seller', 'Date', 'Ratio']]
 #     table.rename(columns={'Ratio':a_seller})
 #     print(table.rename(columns={'Ratio':a_seller}))
 # exit()
-df.to_csv('short-positions-'+'-'.join([str(t) for t in args['codes']])+'-'+datetime.datetime.today().strftime('%Y%m%d')+'.csv', encoding='shift-jis')
+df.set_index(['Date','Code','Short_Seller'], inplace=True)
+df.sort_index(inplace=True)
+df.to_csv('short-positions-'+'-'.join([str(t) for t in args['codes']])+'-'+datetime.datetime.today().strftime('%Y%m%d')+'.csv') #, encoding='shift-jis')
 print('writing output finished.')

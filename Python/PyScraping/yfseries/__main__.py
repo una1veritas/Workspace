@@ -102,7 +102,7 @@ def yahooFinanceTimeSeries(code,pdstart,pdend,timespan='d'):
             #skip header line
             if len(row('td')) == 0: 
                 continue
-            columns = []
+            columns = [code]
             colnum = 0
             for td in row('td'):
                 td_str = row(td).text()
@@ -132,9 +132,9 @@ dateint = int(params['fromdate'])
 jpstart = int(0.5+JulianDay(dateint // 10000, dateint // 100 % 100, dateint % 100))
 dateint = int(params['todate'])
 jpend = int(0.5+JulianDay(dateint//10000, dateint// 100 % 100, dateint%100))
-table = [ ]
-header = ['date','open','high','low','close','volume','adj.close'] 
+header = ['code','date','open','high','low','close','volume','adj_close'] 
 for stockcode in params['codes']:
+    table = []
     for jd in range(jpstart, jpend+1, 25):
         if jd + 25 - 1 <= jpend : 
             je = jd+25 -1
@@ -148,11 +148,12 @@ for stockcode in params['codes']:
     table = sorted(table, reverse=False)
     colnum = len(table[0])
     df = pd.DataFrame(table,columns=header[:colnum])
-    df = df.set_index('date')
+    df = df.set_index(['code', 'date'])
     basepath = params['path'].rstrip('/')
     if basepath != '' :
         basepath = basepath + '/'
     df.to_csv(basepath + stockcode +'-'+params['fromdate']+'-'+params['todate']+'.csv')
+    
 #dframe = pd.DataFrame[table, ]
 
 #for row in table:
