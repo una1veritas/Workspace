@@ -4,6 +4,7 @@ class Trie:
     ''' string word Trie '''
     ''' if node_id in self.arcs then node_id is not a leaf '''
     ''' self.arcs[node_id] --> (dict[char] --> child_id) '''
+    
     def __init__(self,str_set):
         self.nodes = set()
         self.arcs = dict()
@@ -40,10 +41,10 @@ class Trie:
     def xbw(self):
         st_list = list()
         path = list()
-        path.append( (self.root, chr(36)) )
+        path.append( (self.root, '$') )
         visiting = self.root
         while ( len(path) > 0 ):
-            if  visiting == path[-1][0] : # at a node never visited before
+            if  visiting == path[-1][0] : # on the node never visited before
                 # visiting
                 # print(str(path) + " : " + str(visiting))
                 if self.isRoot(visiting) :
@@ -196,8 +197,8 @@ class XBWTrie:
 tree = Trie(['ace', 'bag', 'beat', 'acetone', 'cat', 'coat', 'at', 'tab', 'bat', 'bad', 'cab', 'act'])
 print(tree)
 s_list = tree.xbw()
-#for i in range(len(s_list)):
-#    print(i, s_list[i])
+for i in range(len(s_list)):
+    print(i, s_list[i])
 print('finished.')
 xbwt = XBWTrie(s_list)
 print(xbwt)
