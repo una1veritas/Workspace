@@ -138,6 +138,16 @@ class Trie:
 class XBWTrie:
     def __init__(self, xbw_array):
         self.xbw = xbw_array
+        self.alphabet_count = dict()
+        for t in self.xbw:
+            if t[2] :
+                if not t[1] in self.alphabet_count:
+                    self.alphabet_count[t[1]] = 0
+            else:
+                if not t[1] in self.alphabet_count :
+                    self.alphabet_count[t[1]] = 1
+                else:
+                    self.alphabet_count[t[1]] = self.alphabet_count[t[1]] + 1
         self.firstchild = self.jumpindex()
         return
     
@@ -156,49 +166,49 @@ class XBWTrie:
         #t_list.append(str(self.xbw)+', ')
         #str_list.append(str(self.firstchild))
         return ''.join(str_list)
+    
+    def isRightmost(self, index):
+        return self.xbw[index][0]
+    
+    def inLabel(self, index):
+        return self.xbw[index][1]
+    
+    def isLeaf(self, index):
+        return self.xbw[index][2]
 
     def jumpindex(self):
-        alphabet_n = set()
-        count = dict()
-        for t in self.xbw:
-            if t[2] :
-                continue
-            if not t[1] in alphabet_n :
-                alphabet_n.add(t[1])
-                count[t[1]] = 1
-            else:
-                count[t[1]] = count[t[1]] + 1
-        print('count=',count)
         first = dict()
-        alph_list = sorted(alphabet_n)
+        alph_list = sorted([ a for a in self.alphabet_count if self.alphabet_count[a] != 0])
+        #print('alphabet=',self.alphabet_count)
+        #print('alph_list=',alph_list)
         first[alph_list[0]] = 1
         for i in range(1,len(alph_list)) :
             mu_count = 0
             pos = first[alph_list[i-1]]
-            while mu_count < count[alph_list[i-1]] :
-                # print('pos, mu_count, count = ', pos, mu_count, count[alph_list[i-1]])
-                if s_list[pos][0] :
+            while mu_count < self.alphabet_count[alph_list[i-1]] :
+                #print('pos, mu_count, count = ', pos, mu_count, count[alph_list[i-1]])
+                if self.isRightmost(pos) :
                     mu_count = mu_count + 1
                 pos = pos + 1
             first[alph_list[i]] = pos
         print('f=',first)
         jump = []
-        for i in range(0,len(s_list)):
-            if s_list[i][2] :
+        for i in range(0,len(self.xbw)):
+            if self.isLeaf(i):
                 jump.append(0)
             else:
-                z = first[s_list[i][1]]
+                z = first[self.inLabel(i)]
                 jump.append(z)
-                while not s_list[z][0]:
+                while not self.isRightmost(z):
                     z = z+ 1
-                first[s_list[i][1]] = z + 1
+                first[self.inLabel(i)] = z + 1
         return jump
             
 tree = Trie(['ace', 'bag', 'beat', 'acetone', 'cat', 'coat', 'at', 'tab', 'bat', 'bad', 'cab', 'act'])
 print(tree)
-s_list = tree.xbw()
-for i in range(len(s_list)):
-    print(i, s_list[i])
+structure = tree.xbw()
+for i in range(len(structure)):
+    print(i, structure[i])
 print('finished.')
-xbwt = XBWTrie(s_list)
+xbwt = XBWTrie(structure)
 print(xbwt)
