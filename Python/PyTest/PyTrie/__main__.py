@@ -154,12 +154,11 @@ class XBWTrie:
     def __str__(self):
         str_list = ['XBWTrie ']
         for index in range(len(self.xbw)):
-            t_tuple = self.xbw[index]
             t_str = ['(', str(index)+': ']
-            if t_tuple[0] :
-                t_str.append('/')
-            t_str.append("'"+t_tuple[1]+"'")
-            if not self.xbw[index][2] :
+            t_str.append("'"+self.inLabel(index)+"'")
+            if self.isRightmost(index) :
+                t_str.append(']')
+            if not self.isLeaf(index) :
                 t_str.append('-> '+str(self.firstchild[index]))
             t_str.append('), ')
             str_list.append(''.join(t_str))
@@ -191,7 +190,7 @@ class XBWTrie:
                     mu_count = mu_count + 1
                 pos = pos + 1
             first[alph_list[i]] = pos
-        print('f=',first)
+        #print('f=',first)
         jump = []
         for i in range(0,len(self.xbw)):
             if self.isLeaf(i):
