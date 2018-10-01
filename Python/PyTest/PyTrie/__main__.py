@@ -196,8 +196,8 @@ class XBWTrie:
 tree = Trie(['ace', 'bag', 'beat', 'acetone', 'cat', 'coat', 'at', 'tab', 'bat', 'bad', 'cab', 'act'])
 print(tree)
 s_list = tree.xbw()
-#for i in range(len(s_list)):
-#    print(i, s_list[i])
+for i in range(len(s_list)):
+    print(i, s_list[i])
 print('finished.')
 xbwt = XBWTrie(s_list)
 print(xbwt)
