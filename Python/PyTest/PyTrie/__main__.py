@@ -157,7 +157,7 @@ class XBWTrie:
             t_str = ['(', str(index)+': ']
             t_str.append("'"+self.inLabel(index)+"'")
             if self.isRightmost(index) :
-                t_str.append(']')
+                t_str.append('/')
             if not self.isLeaf(index) :
                 t_str.append('-> '+str(self.firstchild[index]))
             t_str.append('), ')
