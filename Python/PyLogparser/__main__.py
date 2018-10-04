@@ -12,6 +12,10 @@ if __name__ == '__main__':
 else:
     exit()
 
+month_dict = { 'Jan':1, 'Feb':2, 'Mar': 3, 'Apr': 4, 
+             'May': 5, 'Jun':6, 'Jul': 7, 'Aug': 8,
+             'Sep': 9, 'Oct': 10, 'Nov':11, 'Dec': 12, }
+
 cmd_list = ['last']
 try:
     res = subprocess.run(
@@ -22,14 +26,25 @@ try:
         )
 except subprocess.CalledProcessError:
     print('error on '+str(cmd_list))
+    exit()
 
-for a_line in res.stdout.splitlines():
-    line_list = a_line.split()
-    if len(line_list) <= 1:
-        continue
-    if line_list[1][:4] != 'ttys' :
-        print(line_list)
+event_log = dict()
+
+for each_line in res.stdout.splitlines():
+    item_list = each_line.split()
+    if len(item_list) >= 5:
+        line_date = str(month_dict[item_list[3]])+'/'+item_list[4].zfill(2)
+        line_day = item_list[2]
+        line_time = item_list[5]
+        if item_list[0] == 'reboot' or item_list[0] == 'shutdown':
+            if not (line_date, line_day) in event_log : 
+                event_log[(line_date, line_day)] = [(line_time, item_list[0])]
+            else:
+                event_log[(line_date, line_day)].append( (line_time, item_list[0]) )
     
+    
+for key in sorted(event_log.keys()):
+    print(key, sorted(event_log[key]))
 exit()
     
 
@@ -38,9 +53,6 @@ exit()
 # fname = sys.argv[1]
 # print('filename: '+fname)
 # bseq = [ ]
-# monthdic = { 'Jan':1, 'Feb':2, 'Mar': 3, 'Apr': 4, 
-#             'May': 5, 'Jun':6, 'Jul': 7, 'Aug': 8,
-#             'Sep': 9, 'Oct': 10, 'Nov':11, 'Dec': 12, }
 # with open(fname, "r") as ifile:
 #     for a_line in ifile:
 #         data = a_line.split()
