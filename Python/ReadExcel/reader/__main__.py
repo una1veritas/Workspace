@@ -4,8 +4,8 @@ import datetime
 import os
 import glob
 import sys
-from pymysql.constants.FIELD_TYPE import DATE
-from math import nan
+#from pymysql.constants.FIELD_TYPE import DATE
+#from math import nan
 
 args = dict()
 args['base_path'] = 'C:/Users/Sin Shimozono/Downloads'
