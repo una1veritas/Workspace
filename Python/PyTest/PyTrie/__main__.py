@@ -82,44 +82,6 @@ class Trie:
         st_list = [t[0:3] for t in sorted(st_list, key = lambda st: st[3])]
         return st_list
 
-#     @classmethod
-#     def revxbw(self, s_list):
-#         alphabet_n = set()
-#         count = dict()
-#         for t in s_list:
-#             if t[2] :
-#                 continue
-#             if not t[1] in alphabet_n :
-#                 alphabet_n.add(t[1])
-#                 count[t[1]] = 1
-#             else:
-#                 count[t[1]] = count[t[1]] + 1
-#         print('count=',count)
-#         first = dict()
-#         alph_list = sorted(alphabet_n)
-#         first[alph_list[0]] = 1
-#         for i in range(1,len(alph_list)) :
-#             mu_count = 0
-#             pos = first[alph_list[i-1]]
-#             while mu_count < count[alph_list[i-1]] :
-#                 # print('pos, mu_count, count = ', pos, mu_count, count[alph_list[i-1]])
-#                 if s_list[pos][0] :
-#                     mu_count = mu_count + 1
-#                 pos = pos + 1
-#             first[alph_list[i]] = pos
-#         print('f=',first)
-#         jump = []
-#         for i in range(0,len(s_list)):
-#             if s_list[i][2] :
-#                 jump.append(0)
-#             else:
-#                 z = first[s_list[i][1]]
-#                 jump.append(z)
-#                 while not s_list[z][0]:
-#                     z = z+ 1
-#                 first[s_list[i][1]] = z + 1
-#         print('jump=',jump)
-#         return 
 
     def __str__(self):
         t_list = []
