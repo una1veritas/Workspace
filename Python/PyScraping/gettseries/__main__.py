@@ -15,9 +15,12 @@ if __name__ == '__main__':
     pass
 
 #https://kabutan.jp/stock/kabuka?code=0000
+#TOPIX: 0010
+#NIKKEI225: 0000
+#NYDOWJ: 0800
 #https://kabutan.jp/stock/kabuka?code=0000&ashi=day&page=2
-params = { 'path': './', 'code' : '0000', 'url_base' : 'https://kabutan.jp/stock/kabuka?', 
-          'fromdate' : 20170101, 'todate' : 20181229, 'tmspan' : 'day'}
+params = { 'path': './', 'code' : '0010', 'url_base' : 'https://kabutan.jp/stock/kabuka?', 
+          'fromdate' : 20160101, 'todate' : 20181231, 'tmspan' : 'day'}
 
 print(params)
         
@@ -112,7 +115,9 @@ table = sorted(table)
 lastdate = table[-1][0].replace('/','')
 colnum = len(table[0])
 df = pd.DataFrame(table,columns=header[:colnum])
-df = df.set_index('date')
+df['code'] = params['code']
+df = df[['code','date','open','high','low','close','volume']]
+df = df.set_index(['code','date'])
 fname = params['code']+'-'+lastdate+'.csv'
 df.to_csv(fname)
 print('csv file ' + fname + ' has been written.')

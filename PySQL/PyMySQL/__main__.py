@@ -13,7 +13,7 @@ def fetch_table(conection, query):
             break
     return t
 
-args = { 'code': 5301, 'date_from': '20180101'}
+args = { 'code': 5304, 'date_from': '20171001'}
 
 url = urlparse('mysql://sin:qpm4nz@localhost:3306/stockanal')
 
@@ -26,22 +26,44 @@ conn = mysql.connector.connect(
 )
 
 if not conn.is_connected():
-    print('connection not available.')
+    print('connection is not available.')
     exit()
 
-sql_sellers = 'SELECT DISTINCT Short_Seller FROM short_positions WHERE Date >= \'{date}\' AND Code = {code}'
+# collect the names of sellers
+sql_sellers = 'SELECT DISTINCT Short_Seller FROM short_positions WHERE Date >= \'{date}\' AND Code = {code} ORDER BY Short_Seller'
 sql_sellers = sql_sellers.format(date=args['date_from'], code=args['code'])
-seller_list = sorted([row[0] for row in fetch_table(conn, sql_sellers)])
+seller_list = [row[0] for row in fetch_table(conn, sql_sellers)]
 
 sql_name = 'SELECT DISTINCT Name FROM short_positions WHERE Date >= \'{date}\' AND Code = {code}'
 sql_name = sql_name.format(date=args['date_from'], code=args['code'])
-name_list = sorted([row[0] for row in fetch_table(conn, sql_name)])
+stockname_list = [row[0] for row in fetch_table(conn, sql_name)]
 
-sql = 'SELECT Date, Short_Seller, Ratio FROM short_positions WHERE Date >= \'{date}\' AND Code = {code}'.format(date=args['date_from'], code=args['code'])
+short_positions = dict()
+sql = 'SELECT Date, Short_Seller, Ratio FROM short_positions WHERE Date >= \'{date}\' AND Code = {code}'
+for seller in seller_list:
+    sql = sql.format(date=args['date_from'], code=args['code'], seller=seller)
+    for row in fetch_table(conn,sql):
+        if not row[0] in short_positions:
+            short_positions[row[0]] = dict()
+        short_positions[row[0]][row[1]] = row[2]
+
+sql = 'SELECT date, code, close FROM stock_price WHERE Date >= \'{date}\' AND Code = {code}'.format(date=args['date_from'], code=args['code'])
 sql = sql.format(date=args['date_from'], code=args['code'])
-short_table = fetch_table(conn,sql)
+for row in fetch_table(conn,sql):
+    if not row[0] in short_positions:
+        short_positions[row[0]] = dict()
+    short_positions[row[0]][row[1]] = row[2]
 
-print(name_list,seller_list)
-print(short_table[:5])
-
+for col in ['date', args['code']] + seller_list:
+    print(str(col)+'\t', end='')
+print()
+for eachday in sorted(short_positions.keys()):
+    print(str(eachday), end='')
+    for item in [args['code']] + seller_list:
+        if item in short_positions[eachday]:
+            print('\t'+str(short_positions[eachday][item]), end='')
+        else:
+            print('\t', end='')
+    print()
+    
 print('finished.')
