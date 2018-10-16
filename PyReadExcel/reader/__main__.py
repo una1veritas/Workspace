@@ -6,10 +6,10 @@ import glob
 import sys
 #from pymysql.constants.FIELD_TYPE import DATE
 #from math import nan
-
+# -path /Users/sin/Dropbox/株式分析/analysis ./*_Short_Positions.xls
 args = dict()
-args['base_path'] = 'C:/Users/Sin Shimozono/Downloads'
-args['file_pattern'] = './20180914_Short_Positions.xls'
+args['base_path'] = '/Users/sin/Dropbox/株式分析/analysis'
+args['file_pattern'] = './*_Short_Positions.xls'
 args['codes'] = []
 index = 1
 while index  < len(sys.argv) :
