@@ -51,7 +51,7 @@ def main():
     print(' = rank_X(0,j)')
     print('select_Y(0,j) - j = ', [ (select_Y[0][j] - j) for j in range(0,len(xstr))])
     print(' = rank_X(1,j)')
-    print('select_Y(1,j) - j = ', [ (select_Y[1][j] - j) for j in range(0,len(select_Y[1]))])
+    print('select_Y(1, i) - i = ', [ (select_Y[1][i] - i) for i in range(0,len(select_Y[1]))])
     print(' = select_X(1,j)')
 
 main()
