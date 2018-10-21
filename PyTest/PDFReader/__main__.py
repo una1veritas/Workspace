@@ -20,30 +20,19 @@ def convert_pdf_to_txt(path): # 引数にはPDFファイルパスを指定
     maxpages = 0
     caching = True
     pagenos=set()
-    fstr = ''
+    output_list = []
     for page in PDFPage.get_pages(fp, pagenos, maxpages=maxpages,caching=caching, check_extractable=True):
         interpreter.process_page(page)
-
-        str = retstr.getvalue()
-        fstr += str
-
+        output_list.append(retstr.getvalue())
     fp.close()
     device.close()
     retstr.close()
-    return fstr
+    return ''.join(output_list)
 
 def main():
     file_list = glob('../*.pdf') # PDFファイル取り込み
-    
-    result_list = []
-    for item in file_list[:1]:
-        print(item)
-        result_txt = convert_pdf_to_txt(item)
-        result_list.append(result_txt)
-    
-    allText = ','.join(result_list) # PDFごとのテキストが配列に格納されているので連結する
-    
-    file = open('pdf.txt', 'w')  #書き込みモードでオープン
-    file.write(allText)
+    result_txt = convert_pdf_to_txt(file_list[0])
+    print(result_txt)
+
     
 main()
