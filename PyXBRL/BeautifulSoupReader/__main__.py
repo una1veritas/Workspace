@@ -22,6 +22,11 @@ def main():
     html = urllib.request.urlopen(url_sum).read().decode('utf-8') 
     soup = BeautifulSoup(html, 'lxml')
 
+    ''' replace im-parsable ix:xxx tag to ix_xxx '''
+    source = str(soup)
+    source = source.replace('ix:','ix_')
+    soup = BeautifulSoup(source, 'lxml')
+    
     #        result = [[td.get_text(strip=True) for td in trs.select('th, td')] for trs in a_table.select('tr')]
     #df = pd.read_html(str(a_table), header=0, index_col=0)
     tables = list()
@@ -58,12 +63,18 @@ def get_table(node):
     for row in node.select('tr'):
         columns = []
         for td in row.select('th, td'):
-            if '<ix:' in str(td.contents):
-                print(re.findall('<ix:\w+[^>]+>', str(td.contents)))
+            ix_info = ''
+            if td.ix_nonnumeric != None:
+                ix_info = ' '+' '.join([td.ix_nonnumeric.get(attr) for attr in ['name', 'format'] if td.ix_nonnumeric.get(attr) != None ])
+            elif td.ix_nonfraction != None:
+                ix_info = ' '+' '.join([td.ix_nonfraction.get(attr) for attr in ['name', 'format'] if td.ix_nonfraction.get(attr) != None])
             if td.span :
-                columns.append(''.join([s.get_text(strip=True) for s in td.find_all('span')]))
+                text = ''.join([s.get_text(strip=True) for s in td.find_all('span')])
             else:
-                columns.append(td.get_text(strip=False))
+                text = td.get_text(strip=True)
+            if len(text) :
+                text = text + ' ' +ix_info
+            columns.append( text )
         if sum([len(td) for td in columns]):
             res_table.append(columns)
     return res_table
