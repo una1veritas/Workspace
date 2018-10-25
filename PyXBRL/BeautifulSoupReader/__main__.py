@@ -7,31 +7,30 @@ Created on 2017/12/24
 '''
 import sys
 import glob
-import urllib.request
-#import xml.etree.ElementTree as ElementTree
+#import urllib.request
 import lxml
 from bs4 import BeautifulSoup, NavigableString
-import pandas as pd
+#import pandas as pd
 import re
 
 def main():
     if __name__ == '__main__':
         pass
     params = get_params()
-    
-    file_sum_name = params['basedir'].rstrip('/')+'/Summary/tse-qcedjpsm-*-ixbrl.htm'
+    #tse-qcedussm-77510-20181017418792-ixbrl.htm
+    file_sum_name = params['basedir'].rstrip('/')+'/Summary/tse-*-ixbrl.htm'
     file_sum = glob.glob(file_sum_name)
     if len(file_sum) > 1 or len(file_sum) == 0:
-        print('no or more than one file(s) exist: '+params['basedir']+'/Summary/tse-qcedjpsm*-ixbrl.thm', file_sum_name)
+        print('no or more than one file(s) exist: ', file_sum_name, file_sum)
         exit()
     #html = urllib.request.urlopen(url_sum).read().decode('utf-8') 
     xrblfile = open(file_sum[0], 'r', encoding='utf-8') 
     soup = BeautifulSoup(xrblfile, 'lxml')
     xrblfile.close()
 
-#     f = open('prettify.txt', 'w', encoding='utf-8')
-#     f.write(soup.prettify())
-#     f.close()
+    f = open('prettify.txt', 'w', encoding='utf-8')
+    f.write(soup.prettify())
+    f.close()
     ''' replace im-parsable ix:xxx tag to ix_xxx '''
 #    source = str(soup)
 #    source = source.replace('ix:','ix_')
@@ -39,49 +38,61 @@ def main():
     
     #        result = [[td.get_text(strip=True) for td in trs.select('th, td')] for trs in a_table.select('tr')]
     #df = pd.read_html(str(a_table), header=0, index_col=0)
-    curr_node = soup.body.find('div', class_='root')
+    curr_node = soup.body #.find('div', class_='root')
     tag_pattern = re.compile('ix:\w*')
+    tag_dicts = list()
     for node in curr_node.find_all(tag_pattern):
-        ix_type = node.name
+        ix_tag = dict()
+        ix_tag['type'] = node.name.split(':')[1]
         ix_contextref = node.get('contextref')
+        if ix_contextref :
+            ix_tag['contextref'] = ix_contextref
         ix_name = node.get('name')
-        if ix_name:
-            ix_name = ix_name.split(':')[1]
+        if ix_name :
+            ix_tag['name'] = ix_name.split(':')[1]
         ix_format = node.get('format')
         if ix_format:
-            ix_format = ix_format.split(':')[1]
-        print(ix_type, ix_contextref, ix_name, ix_format)
+            ix_tag['format'] = ix_format.split(':')[1]
+            
+#        if ix_tag['name'] in ['DocumentName', 'FilingDate', 'CompanyName', 'SecuritiesCode' ] :
+        if ix_tag['type'] == 'nonnumeric' :
+            ix_text = node.get_text(strip=True)
+            if not ix_text:
+                ix_text = [sp.get_text(strip=True) for sp in node.find_all('span')]
+            if ix_text:
+                ix_tag['text'] = ix_text
+        
+        if ix_tag['type'] == 'nonfraction':
+#         if ix_tag['name'] in ['NetSales', 'ChangeInNetSales', 
+#                               'OperatingIncome', 'ChangeInOperatingIncome', 
+#                               'OrdinaryIncome', 'ChangeInOrdinaryIncome', 
+#                               'ProfitAttributableToOwnersOfParent', 'ChangeInProfitAttributableToOwnersOfParent', 
+#                               'ComprehensiveIncome', 'ChangeInComprehensiveIncome', 
+#                               'NetIncomePerShare', 'DilutedNetIncomePerShare',
+#                               'TotalAssets', 'NetAssets', 
+#                               'CapitalAdequacyRatio', 'NetAssetsPerShare', 'OwnersEquity',
+#                               'DividendPerShare',
+#                               'NumberOfSubsidiariesNewlyConsolidated', 'NumberOfSubsidiariesExcludedFromConsolidation',
+#                               ] :
+            ix_scale = node.get('scale')
+            if ix_scale:
+                ix_tag['scale'] = ix_scale
+            ix_tag['text'] = node.get_text(strip=True)
+        tag_dicts.append(ix_tag)
         
     '''
     xbrl = {}
     xbrl['head/title'] = soup.head.title.text
-
-    basic_info(tables[0], xbrl)
-    opresult_info(tables[4], tables[6], xbrl)
-    for key in xbrl:
-        print(key)
-        print(xbrl[key])
-        print()
-    
-    for key in xbrl['連結経営成績（累計）']:
-        print(xbrl['連結経営成績（累計）'][key])
-    print()
-    ''' 
+    '''
+    print('\n'.join([ str(a_dict) for a_dict in tag_dicts]))
     exit()
 
-<<<<<<< HEAD
-def get_ix_table(node):
-    result_table = []
-    result_dict = dict()
-=======
 def get_table(node):
     table = list()
     attrs = dict()
->>>>>>> 06ba458d5080fbd46f0f8b264b89eb8c2725482e
     for row in node.select('tr'):
         columns = list()
         for td in row.select('th, td'):
-<<<<<<< HEAD
 #             ix_info = ''
 #             if td.ix_nonnumeric != None:
 #                 ix_info = ' '+' '.join([td.ix_nonnumeric.get(attr) for attr in ['name', 'format'] if td.ix_nonnumeric.get(attr) != None ])
@@ -97,33 +108,7 @@ def get_table(node):
         if sum([len(td) for td in columns]):
             result_table.append(columns)
     return (result_table, result_dict)
-=======
-            #if td.ix_nonfraction != None:
-            #    ix_info = ' '+' '.join([td.ix_nonfraction.get(attr) for attr in ['name', 'format'] if td.ix_nonfraction.get(attr) != None])
-            # get text
-            if td.span :
-                text = '\r'.join([span.get_text(strip=True) for span in td.find_all('span')])
-            else:
-                text = td.get_text(strip=True)
-            if len(text) :
-                if td.ix_nonnumeric != None :
-                    print(' '.join([td.ix_nonnumeric.get(attr) for attr in ['name', 'format'] if td.ix_nonnumeric.get(attr) != None]) )
-                    ix_name = td.ix_nonnumeric.get('name') # the 1st attr name
-                    if ix_name == 'tse-ed-t:DocumentName' :
-                        attrs[ix_name.split(':')[1]] = text
-                    elif ix_name == 'tse-ed-t:CompanyName' :
-                        attrs[ix_name.split(':')[1]] = text
-                    elif ix_name == 'tse-ed-t:SecuritiesCode' :
-                        attrs[ix_name.split(':')[1]] = text
-                    elif ix_name == 'tse-ed-t:URL' :
-                        attrs[ix_name.split(':')[1]] = text
-                    elif ix_name == 'tse-ed-t:FilingDate' :
-                        attrs[ix_name.split(':')[1]] = text
-            columns.append( text )
-        if sum([len(td) for td in columns]):
-            table.append(columns)
-    return (table, attrs)
->>>>>>> 06ba458d5080fbd46f0f8b264b89eb8c2725482e
+
 
 def collect_tables(node):
     tables = node.find_all('table')
