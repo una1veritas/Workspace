@@ -69,12 +69,19 @@ def main():
     ''' 
     exit()
 
+<<<<<<< HEAD
 def get_ix_table(node):
     result_table = []
     result_dict = dict()
+=======
+def get_table(node):
+    table = list()
+    attrs = dict()
+>>>>>>> 06ba458d5080fbd46f0f8b264b89eb8c2725482e
     for row in node.select('tr'):
-        columns = []
+        columns = list()
         for td in row.select('th, td'):
+<<<<<<< HEAD
 #             ix_info = ''
 #             if td.ix_nonnumeric != None:
 #                 ix_info = ' '+' '.join([td.ix_nonnumeric.get(attr) for attr in ['name', 'format'] if td.ix_nonnumeric.get(attr) != None ])
@@ -90,6 +97,33 @@ def get_ix_table(node):
         if sum([len(td) for td in columns]):
             result_table.append(columns)
     return (result_table, result_dict)
+=======
+            #if td.ix_nonfraction != None:
+            #    ix_info = ' '+' '.join([td.ix_nonfraction.get(attr) for attr in ['name', 'format'] if td.ix_nonfraction.get(attr) != None])
+            # get text
+            if td.span :
+                text = '\r'.join([span.get_text(strip=True) for span in td.find_all('span')])
+            else:
+                text = td.get_text(strip=True)
+            if len(text) :
+                if td.ix_nonnumeric != None :
+                    print(' '.join([td.ix_nonnumeric.get(attr) for attr in ['name', 'format'] if td.ix_nonnumeric.get(attr) != None]) )
+                    ix_name = td.ix_nonnumeric.get('name') # the 1st attr name
+                    if ix_name == 'tse-ed-t:DocumentName' :
+                        attrs[ix_name.split(':')[1]] = text
+                    elif ix_name == 'tse-ed-t:CompanyName' :
+                        attrs[ix_name.split(':')[1]] = text
+                    elif ix_name == 'tse-ed-t:SecuritiesCode' :
+                        attrs[ix_name.split(':')[1]] = text
+                    elif ix_name == 'tse-ed-t:URL' :
+                        attrs[ix_name.split(':')[1]] = text
+                    elif ix_name == 'tse-ed-t:FilingDate' :
+                        attrs[ix_name.split(':')[1]] = text
+            columns.append( text )
+        if sum([len(td) for td in columns]):
+            table.append(columns)
+    return (table, attrs)
+>>>>>>> 06ba458d5080fbd46f0f8b264b89eb8c2725482e
 
 def collect_tables(node):
     tables = node.find_all('table')
