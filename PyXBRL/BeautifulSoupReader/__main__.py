@@ -6,6 +6,7 @@ Created on 2017/12/24
 @author: sin
 '''
 import sys
+import glob
 import urllib.request
 #import xml.etree.ElementTree as ElementTree
 import lxml
@@ -17,30 +18,40 @@ def main():
     if __name__ == '__main__':
         pass
     params = get_params()
-    url_sum = params['baseurl'] + 'Summary/tse-qcedjpsm-78110-20181015378110-ixbrl.htm'
-    url_bs = params['baseurl'] + 'Attachment/0101010-qcbs01-tse-qcedjpfr-78110-2018-08-31-01-2018-10-15-ixbrl.htm'
-    html = urllib.request.urlopen(url_sum).read().decode('utf-8') 
-    soup = BeautifulSoup(html, 'lxml')
+    
+    file_sum_name = params['basedir'].rstrip('/')+'/Summary/tse-qcedjpsm-*-ixbrl.htm'
+    file_sum = glob.glob(file_sum_name)
+    if len(file_sum) > 1 or len(file_sum) == 0:
+        print('no or more than one file(s) exist: '+params['basedir']+'/Summary/tse-qcedjpsm*-ixbrl.thm', file_sum_name)
+        exit()
+    #html = urllib.request.urlopen(url_sum).read().decode('utf-8') 
+    xrblfile = open(file_sum[0], 'r', encoding='utf-8') 
+    soup = BeautifulSoup(xrblfile, 'lxml')
+    xrblfile.close()
 
+#     f = open('prettify.txt', 'w', encoding='utf-8')
+#     f.write(soup.prettify())
+#     f.close()
     ''' replace im-parsable ix:xxx tag to ix_xxx '''
-    source = str(soup)
-    source = source.replace('ix:','ix_')
-    soup = BeautifulSoup(source, 'lxml')
+#    source = str(soup)
+#    source = source.replace('ix:','ix_')
+#    soup = BeautifulSoup(source, 'lxml')
     
     #        result = [[td.get_text(strip=True) for td in trs.select('th, td')] for trs in a_table.select('tr')]
     #df = pd.read_html(str(a_table), header=0, index_col=0)
-    tables = list()
-    curr_node = soup.body.find('div', class_='root').div
-    for child in curr_node.children:
-        if not isinstance(child, NavigableString): 
-            for table_node in child.find_all('table'):
-                if len(''.join([node.get_text(strip=True) for node in table_node.find_all('span')])) :
-                    tables.append(get_table(child))
-    #tds = [td.get_text(strip=True) for td in a_row.select('th, td')]
-    
-    for k in tables:
-        print(k)
-        print()
+    curr_node = soup.body.find('div', class_='root')
+    tag_pattern = re.compile('ix:\w*')
+    for node in curr_node.find_all(tag_pattern):
+        ix_type = node.name
+        ix_contextref = node.get('contextref')
+        ix_name = node.get('name')
+        if ix_name:
+            ix_name = ix_name.split(':')[1]
+        ix_format = node.get('format')
+        if ix_format:
+            ix_format = ix_format.split(':')[1]
+        print(ix_type, ix_contextref, ix_name, ix_format)
+        
     '''
     xbrl = {}
     xbrl['head/title'] = soup.head.title.text
@@ -58,26 +69,27 @@ def main():
     ''' 
     exit()
 
-def get_table(node):
-    res_table = []
+def get_ix_table(node):
+    result_table = []
+    result_dict = dict()
     for row in node.select('tr'):
         columns = []
         for td in row.select('th, td'):
-            ix_info = ''
-            if td.ix_nonnumeric != None:
-                ix_info = ' '+' '.join([td.ix_nonnumeric.get(attr) for attr in ['name', 'format'] if td.ix_nonnumeric.get(attr) != None ])
-            elif td.ix_nonfraction != None:
-                ix_info = ' '+' '.join([td.ix_nonfraction.get(attr) for attr in ['name', 'format'] if td.ix_nonfraction.get(attr) != None])
+#             ix_info = ''
+#             if td.ix_nonnumeric != None:
+#                 ix_info = ' '+' '.join([td.ix_nonnumeric.get(attr) for attr in ['name', 'format'] if td.ix_nonnumeric.get(attr) != None ])
+#             elif td.ix_nonfraction != None:
+#                 ix_info = ' '+' '.join([td.ix_nonfraction.get(attr) for attr in ['name', 'format'] if td.ix_nonfraction.get(attr) != None])
             if td.span :
-                text = ''.join([s.get_text(strip=True) for s in td.find_all('span')])
+                text = td.span.get_text(strip=True) #''.join([s.get_text(strip=True) for s in td.find_all('span')])
             else:
                 text = td.get_text(strip=True)
-            if len(text) :
-                text = text + ' ' +ix_info
+#             if len(text) :
+#                 text = text + ' ' +ix_info
             columns.append( text )
         if sum([len(td) for td in columns]):
-            res_table.append(columns)
-    return res_table
+            result_table.append(columns)
+    return (result_table, result_dict)
 
 def collect_tables(node):
     tables = node.find_all('table')
