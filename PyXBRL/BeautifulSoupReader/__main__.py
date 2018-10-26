@@ -40,7 +40,7 @@ def main():
     #df = pd.read_html(str(a_table), header=0, index_col=0)
     curr_node = soup.body #.find('div', class_='root')
     tag_pattern = re.compile('ix:\w*')
-    tag_dicts = list()
+    contents = dict()
     for node in curr_node.find_all(tag_pattern):
         ix_tag = dict()
         ix_tag['type'] = node.name.split(':')[1]
@@ -78,13 +78,27 @@ def main():
             if ix_scale:
                 ix_tag['scale'] = ix_scale
             ix_tag['text'] = node.get_text(strip=True)
-        tag_dicts.append(ix_tag)
+
+        if 'contextref' in ix_tag :
+            ref = ix_tag.pop('contextref', None)
+            if ix_tag['type'] == 'nonfraction':
+                ix_tuple = (ix_tag['name'], ix_tag.get('format', ''), ix_tag.get('scale', ''), ix_tag.get('text', '') )
+            elif ix_tag['type'] == 'nonnumeric':
+                ix_tuple = (ix_tag['name'], ix_tag.get('format', ''), ix_tag.get('text', '') )
+            else:
+                ix_tuple = tuple(ix_tag)
+
+            if not ref in contents:
+                contents[ref] = [ ix_tuple ]
+            else:
+                contents[ref].append(ix_tuple)
         
     '''
     xbrl = {}
     xbrl['head/title'] = soup.head.title.text
     '''
-    print('\n'.join([ str(a_dict) for a_dict in tag_dicts]))
+    for a_key in sorted(contents):
+        print(a_key, contents[a_key])
     exit()
 
 def get_table(node):
