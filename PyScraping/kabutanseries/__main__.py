@@ -6,9 +6,9 @@ Created on 2017/12/24
 '''
 import sys
 import math
-from pyquery import PyQuery
-import pandas as pd
-
+import pandas
+from bs4 import BeautifulSoup
+import urllib.request
 #import csv
 
 if __name__ == '__main__':
@@ -19,8 +19,8 @@ if __name__ == '__main__':
 #NIKKEI225: 0000
 #NYDOWJ: 0800
 #https://kabutan.jp/stock/kabuka?code=0000&ashi=day&page=2
-params = { 'path': './', 'code' : '0010', 'baseurl' : 'https://kabutan.jp/stock/kabuka?', 
-          'fromdate' : 20160101, 'todate' : 20181231, 'timespan' : 'daily'}
+params = { 'path': './', 'code' : '0010', 
+          'fromdate' : 20160101, 'todate' : 20181231, 'interval' : 'daily'}
 
 def get_params(args, default_params):
     params = dict(default_params)
@@ -39,6 +39,8 @@ def get_params(args, default_params):
                 argkey = 'fromdate'
             elif 'todate'.startswith(argkey) :
                 argkey = 'todate'
+            elif 'interval'.startswith(argkey) :
+                argkey = 'interval'
             elif argkey.endswith('span') :
                 argkey = 'timespan'
             params[argkey] = argval
@@ -49,7 +51,7 @@ def get_params(args, default_params):
 params = get_params(sys.argv, params)
 print(params)
 
-exit()
+
 #timestamp = datetime.now().strftime("%Y%m%d-%H%M")
 #print ("current time stamp: ", timestamp)
 # 1カラム目に時間を挿入します
@@ -90,49 +92,37 @@ def JulianDay(year, month, date):
         b = 2-a+int(a/4)
     return int(365.25 * year) + int(30.6001 * (month+1)) + date + b + 1720994.5;
 
-def kabutanTimeSeries(code,timespan='day'):
-    urltemplate = params['url_base'] + 'code={0}&ashi={1}&page={2}'
-    hist = [ ]
-    for i in range(10):
-        url = urltemplate.format(code,timespan,i+1)
-        print('url='+url)
-        pyquery = PyQuery(url)
-        if len(hist) == 0 :
-            table_today = pyquery('table.stock_kabuka0')
-            today = [ ]
-            col_index = 0
-            for td in pyquery(list(table_today('tr'))[1])('td'):
-                td_str = pyquery(td).text()
-                if len(today) == 0 :
-                    td_str = '20'+td_str
-                    today.append(td_str)
-                elif not (col_index == 5 or col_index == 6):
-                    td_str = td_str.lstrip('+').replace(',','')        
-                    today.append(float(td_str))
-                col_index = col_index + 1
-            hist.append(today)
-                    
-        table_history = pyquery('table.stock_kabuka1')
-        for tr in pyquery(table_history)('tr'):
-            row = table_history(tr)
-            col_list = []
-            col_index = 0
-            for td in row('td'):
-                td_str = row(td).text()
-                if len(col_list) == 0 :
-                    td_str = '20'+ td_str
-                    col_list.append(td_str)
-                elif not (col_index == 5 or col_index == 6):
-                    td_str = td_str.lstrip('+').replace(',','')
-                    col_list.append(float(td_str))
-                col_index = col_index + 1
-            if len(col_list) == 0:
-                continue
-            hist.append(col_list)
-    return hist
-#    for key in ranking:
-#        if ranking[key][1] != u'東証ETF':
-#            print key,": ",ranking[key]
+def get_kabutanTimeSeries(code, interval, fromdate, todate):
+    url_template = 'https://kabutan.jp/stock/kabuka?code={0}&ashi={1}&page={2}'
+    if interval.startswith('w') :
+        interval = 'wek'
+    elif interval.startswith('m') :
+        interval = 'mon'
+    else:
+        interval = 'day'
+    result = list()
+    for page in range(1,2+1):
+        #print('page = ' + str(page) )
+        url = url_template.format(code, interval, page)
+        #htmlsrc = urllib.request.urlopen(url).read().decode('utf-8') 
+        ts_in_page = pandas.read_html(url, flavor='bs4')
+        if page == 1 :
+            #result.append(ts_in_page[13].iloc[0] )
+            ts_in_page[12].columns=ts_in_page[13].iloc[0]
+            ts_in_page[12].set_index('日付', inplace=True)
+            result.append(ts_in_page[12][1:2])
+        ts_in_page[13].columns = ts_in_page[13].iloc[0]
+        ts_in_page[13].set_index('日付', inplace=True)
+        result.append(ts_in_page[13][1:])
+    return result
+# tables = pd.read_html('http://stocks.finance.yahoo.co.jp/stocks/history/?code=998407.O', flavor='bs4')
+# print(tables[1])        
+
+result = get_kabutanTimeSeries(params['code'], params['interval'], params['fromdate'], params['todate'])
+print(result[0].info())
+print(result[1].info())
+print(result[2].info())
+exit()
 
 header = ['date','open','high','low','close','volume'] 
 table = kabutanTimeSeries(params['code'])
