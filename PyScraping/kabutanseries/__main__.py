@@ -29,20 +29,18 @@ def get_params(args, default_params):
         arg = args.pop(0)
         if arg[0] == '-':
             if '=' in arg[1:]:
-                argval = arg[1:].split('=')
-                argkey = argval[0]
-                argval.pop(0)
+                (argkey, argval) = arg[1:].split('=')
             else:
                 argkey = arg[1:]
                 argval = args.pop(0)
             if 'fromdate'.startswith(argkey) :
                 argkey = 'fromdate'
-            elif 'todate'.startswith(argkey) :
-                argkey = 'todate'
             elif 'interval'.startswith(argkey) :
                 argkey = 'interval'
             elif argkey.endswith('span') :
                 argkey = 'timespan'
+            elif 'todate'.startswith(argkey) :
+                argkey = 'todate'
             params[argkey] = argval
         else:
             params['codes'].append(arg)
@@ -94,6 +92,7 @@ def JulianDay(year, month, date):
 
 def get_kabutanTimeSeries(code, interval, fromdate, todate):
     url_template = 'https://kabutan.jp/stock/kabuka?code={0}&ashi={1}&page={2}'
+    column_names = ['date','open','high','low','close','change','changerate','volume'] 
     if interval.startswith('w') :
         interval = 'wek'
     elif interval.startswith('m') :
@@ -101,40 +100,45 @@ def get_kabutanTimeSeries(code, interval, fromdate, todate):
     else:
         interval = 'day'
     result = list()
-    for page in range(1,2+1):
+    for page in range(1,10+1):
         #print('page = ' + str(page) )
         url = url_template.format(code, interval, page)
         #htmlsrc = urllib.request.urlopen(url).read().decode('utf-8') 
         ts_in_page = pandas.read_html(url, flavor='bs4')
+        tbl_today = ts_in_page[12][1:]
+        tbl_series = ts_in_page[13][1:]
         if page == 1 :
-            #result.append(ts_in_page[13].iloc[0] )
-            ts_in_page[12].columns=ts_in_page[13].iloc[0]
-            ts_in_page[12].set_index('日付', inplace=True)
-            result.append(ts_in_page[12][1:2])
-        ts_in_page[13].columns = ts_in_page[13].iloc[0]
-        ts_in_page[13].set_index('日付', inplace=True)
-        result.append(ts_in_page[13][1:])
-    return result
+            tbl_today.columns = column_names
+            tbl_today.set_index('date', inplace=True)
+            #result.append(tbl_today)
+            tbl_series.columns = column_names
+            tbl_series.set_index('date', inplace=True)
+            result.append(tbl_today.append(tbl_series))
+        else:
+            tbl_series.columns = column_names
+            tbl_series.set_index('date', inplace=True)
+            result.append(tbl_series)
+    df = result[0]
+    for eachdf in result[1:] :
+        df = df.append(eachdf)
+    return df
 # tables = pd.read_html('http://stocks.finance.yahoo.co.jp/stocks/history/?code=998407.O', flavor='bs4')
 # print(tables[1])        
 
-result = get_kabutanTimeSeries(params['code'], params['interval'], params['fromdate'], params['todate'])
-print(result[0].info())
-print(result[1].info())
-print(result[2].info())
-exit()
+df = get_kabutanTimeSeries(params['code'], params['interval'], params['fromdate'], params['todate'])
 
-header = ['date','open','high','low','close','volume'] 
-table = kabutanTimeSeries(params['code'])
-
-table = sorted(table)
-lastdate = table[-1][0].replace('/','')
-colnum = len(table[0])
-df = pd.DataFrame(table,columns=header[:colnum])
+df.reset_index(inplace=True)
 df['code'] = params['code']
 df = df[['code','date','open','high','low','close','volume']]
-df = df.set_index(['code','date'])
-fname = params['code']+'-'+lastdate+'.csv'
+date_series = sorted(list(df['date']))
+lastdate = date_series[-1].replace('/', '')
+firstdate = date_series[0].replace('/', '')
+print(lastdate, firstdate)
+df.set_index(['code', 'date'], inplace=True)
+# df.sort_index(inplace=True)
+#df.sort_values(['code', 'date'], inplace=True)
+#print(df.info(), df.iloc[-1])
+fname = params['code']+'-'+firstdate+'-'+lastdate+'.csv'
 df.to_csv(fname)
 print('csv file ' + fname + ' has been written.')
 #dframe = pd.DataFrame[table, ]
