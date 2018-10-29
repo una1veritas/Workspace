@@ -61,19 +61,7 @@ def main():
                 ix_text = [sp.get_text(strip=True) for sp in node.find_all('span')]
             if ix_text:
                 ix_tag['text'] = ix_text
-        
         if ix_tag['type'] == 'nonfraction':
-#         if ix_tag['name'] in ['NetSales', 'ChangeInNetSales', 
-#                               'OperatingIncome', 'ChangeInOperatingIncome', 
-#                               'OrdinaryIncome', 'ChangeInOrdinaryIncome', 
-#                               'ProfitAttributableToOwnersOfParent', 'ChangeInProfitAttributableToOwnersOfParent', 
-#                               'ComprehensiveIncome', 'ChangeInComprehensiveIncome', 
-#                               'NetIncomePerShare', 'DilutedNetIncomePerShare',
-#                               'TotalAssets', 'NetAssets', 
-#                               'CapitalAdequacyRatio', 'NetAssetsPerShare', 'OwnersEquity',
-#                               'DividendPerShare',
-#                               'NumberOfSubsidiariesNewlyConsolidated', 'NumberOfSubsidiariesExcludedFromConsolidation',
-#                               ] :
             ix_scale = node.get('scale')
             if ix_scale:
                 ix_tag['scale'] = ix_scale
@@ -107,7 +95,18 @@ def main():
                 node.append(root.new_tag(tag))
             node = node.find(tag)
         for each_tuple in contents[a_key]:
-            new_tag = root.new_tag(each_tuple[0], type=each_tuple[1])
+            if len(each_tuple) == 3 :
+                new_tag = root.new_tag(each_tuple[0], format=each_tuple[1])
+                if each_tuple[2]:
+                    new_tag = root.new_tag(each_tuple[0], format=each_tuple[1], text=each_tuple[2])
+                else:
+                    new_tag = root.new_tag(each_tuple[0], format=each_tuple[1])
+            else:
+                if each_tuple[1] == "numdotdecimal" :
+                    value = each_tuple[3].replace(',', '')
+                    new_tag = root.new_tag(each_tuple[0], format=each_tuple[1], scale=each_tuple[2], text=value)
+                else:
+                    new_tag = root.new_tag(each_tuple[0], format=each_tuple[1], scale=each_tuple[2])
         node.append(new_tag)
     print(root.prettify())
     exit()
