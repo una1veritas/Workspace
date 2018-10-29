@@ -143,12 +143,3 @@ df.to_csv(fname)
 print('csv file ' + fname + ' has been written.')
 #dframe = pd.DataFrame[table, ]
 
-#for row in table:
-#    for index in range(0,len(row)):
-#        print(row[index].replace(',',''), end='')
-#        if index+1 < len(row): 
-#            print(',', end='')
-#        else:
-#            print()
-#yahooFinanceRanking(ranking, timespan='w',page=2)
-
