@@ -97,22 +97,10 @@ def main():
     xbrl = {}
     xbrl['head/title'] = soup.head.title.text
     '''
-    root = BeautifulSoup('','lxml')
-    root.append(root.new_tag('DocRoot'))
     for a_key in sorted(contents):
-        path = a_key.split('_')
-        node = root.DocRoot
-        for tag in path:
-            if not node.find(tag) :
-                node.append(root.new_tag(tag))
-            node = node.find(tag)
-        for each_tuple in contents[a_key]:
-            new_tag = root.new_tag(each_tuple[0], type=each_tuple[1])
-        node.append(new_tag)
-    print(root.prettify())
+        print(a_key, contents[a_key])
     exit()
 
-'''
 def get_table(node):
     table = list()
     attrs = dict()
@@ -135,6 +123,7 @@ def get_table(node):
             result_table.append(columns)
     return (result_table, result_dict)
 
+
 def collect_tables(node):
     tables = node.find_all('table')
     for t_index in range(0, len(tables)):
@@ -150,7 +139,7 @@ def collect_tables(node):
                 res_table.append(columns)
         tables[t_index] = res_table
     return tables
-
+    
 def basic_info(tbl, resdict):
 #    print(tbl)
     resdict['見出し'] = tbl[0][0]
@@ -170,8 +159,7 @@ def opresult_info(tbl, tbl2, resdict):
     result[tbl[3][0]] = tbl[3][1:] + tbl2[3][1:]
     resdict['連結経営成績（累計）'] = result
     return
-'''
-
+    
 def get_params():
     params = { 'arg': [] }
     args = sys.argv[1:]
