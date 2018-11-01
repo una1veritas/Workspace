@@ -108,7 +108,8 @@ def main():
     
 #    print(xbrldb.prettify())
 #    print(xbrldb.find('PriorAccumulatedQ2Duration'))
-    curr_q2 = xbrldb.find('CurrentAccumulatedQ2Duration')
+    q_pattern = re.compile('CurrentAccumulatedQ[1234]Duration')
+    curr_q2 = xbrldb.find(q_pattern)
     curr_q2_result_entry = ['NetSales', 'ChangeInNetSales', 
                     'OperatingIncome', 'ChangeInOperatingIncome', 
                     'OrdinaryIncome', 'ChangeInOrdinaryIncome', 
@@ -123,7 +124,7 @@ def main():
         else:
             scale = 0
         if each_entry.get('value') != None :
-            print(each_entry.get('value'))
+#            print(each_entry.get('value'))
             val = float(each_entry.get('value'))
         else:
             val = 0
@@ -131,7 +132,8 @@ def main():
             val = val * (10**scale)
         curr_q2_result[each] = val
             
-    print( curr_q2_result )
+    for key in curr_q2_result: 
+        print(key, curr_q2_result[key])
 #    print(curr2q.ConsolidatedMember.ResultMember.prettify())
     exit()
 
