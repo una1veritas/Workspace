@@ -107,15 +107,46 @@ def main():
             node.append(newtag)
     
 #    print(xbrldb.prettify())
+<<<<<<< HEAD
 #    print(xbrldb.find('PriorAccumulatedQ2Duration'))
     q_pattern = re.compile('CurrentAccumulatedQ[1234]Duration')
     curr_q2 = xbrldb.find(q_pattern)
+=======
+    print(xbrldb.find('PriorAccumulatedQ2Duration').prettify())
+    curr_q2 = xbrldb.find('CurrentAccumulatedQ2Duration')
+>>>>>>> 70d05bbb3ba0646cc234c4a73ac2a9434c1ec5a1
     curr_q2_result_entry = ['NetSales', 'ChangeInNetSales', 
                     'OperatingIncome', 'ChangeInOperatingIncome', 
                     'OrdinaryIncome', 'ChangeInOrdinaryIncome', 
                     'ProfitAttributableToOwnersOfParent', 'ChangeInProfitAttributableToOwnersOfParent', 
                     'ComprehensiveIncome', 'ChangeInComprehensiveIncome', 
                     'NetIncomePerShare', 'DilutedNetIncomePerShare', ]
+    '''
+       <RevenueIFRS scale="6" value="884044">
+   </RevenueIFRS>
+   <ChangeInRevenueIFRS scale="-2" value="20.3">
+   </ChangeInRevenueIFRS>
+   <ProfitBeforeTaxIFRS scale="6" value="37915">
+   </ProfitBeforeTaxIFRS>
+   <ChangeInProfitBeforeTaxIFRS scale="-2" value="94.3">
+   </ChangeInProfitBeforeTaxIFRS>
+   <ProfitIFRS scale="6" value="30272">
+   </ProfitIFRS>
+   <ChangeInProfitIFRS scale="-2" value="80.6">
+   </ChangeInProfitIFRS>
+   <ProfitAttributableToOwnersOfParentIFRS scale="6" value="27241">
+   </ProfitAttributableToOwnersOfParentIFRS>
+   <ChangeInProfitAttributableToOwnersOfParentIFRS scale="-2" value="77.4">
+   </ChangeInProfitAttributableToOwnersOfParentIFRS>
+   <TotalComprehensiveIncomeIFRS scale="6" value="36764">
+   </TotalComprehensiveIncomeIFRS>
+   <ChangesInTotalComprehensiveIncomeIFRS>
+   </ChangesInTotalComprehensiveIncomeIFRS>
+   <BasicEarningsPerShareIFRS scale="0" value="21.78">
+   </BasicEarningsPerShareIFRS>
+   <DilutedEarningsPerShareIFRS scale="0" value="21.77">
+   </DilutedEarningsPerShareIFRS>
+    '''
     curr_q2_result = dict()
     for each in curr_q2_result_entry:
         each_entry = curr_q2.find(each)
@@ -124,7 +155,11 @@ def main():
         else:
             scale = 0
         if each_entry.get('value') != None :
+<<<<<<< HEAD
 #            print(each_entry.get('value'))
+=======
+            #print(each_entry.get('value'))
+>>>>>>> 70d05bbb3ba0646cc234c4a73ac2a9434c1ec5a1
             val = float(each_entry.get('value'))
         else:
             val = 0
