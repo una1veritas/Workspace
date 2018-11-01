@@ -32,28 +32,19 @@ def main():
     f.write(soup.prettify())
     f.close()
     ''' replace im-parsable ix:xxx tag to ix_xxx '''
-#    source = str(soup)
-#    source = source.replace('ix:','ix_')
-#    soup = BeautifulSoup(source, 'lxml')
     
-    #        result = [[td.get_text(strip=True) for td in trs.select('th, td')] for trs in a_table.select('tr')]
-    #df = pd.read_html(str(a_table), header=0, index_col=0)
-    curr_node = soup.body #.find('div', class_='root')
     tag_pattern = re.compile('ix:\w*')
     contents = dict()
-    for node in curr_node.find_all(tag_pattern):
+    for node in soup.body.find_all(tag_pattern):
         ix_tag = dict()
         ix_tag['type'] = node.name.split(':')[1]
-        ix_contextref = node.get('contextref')
-        if ix_contextref :
-            ix_tag['contextref'] = ix_contextref
+        ix_tag['contextref'] = node.get('contextref', 'NoContextref')            
         ix_name = node.get('name')
         if ix_name :
             ix_tag['name'] = ix_name.split(':')[1]
         ix_format = node.get('format')
         if ix_format:
             ix_tag['format'] = ix_format.split(':')[1]
-            
 #        if ix_tag['name'] in ['DocumentName', 'FilingDate', 'CompanyName', 'SecuritiesCode' ] :
         if ix_tag['type'] == 'nonnumeric' :
             ix_text = node.get_text(strip=True)
@@ -61,44 +52,69 @@ def main():
                 ix_text = [sp.get_text(strip=True) for sp in node.find_all('span')]
             if ix_text:
                 ix_tag['text'] = ix_text
-        
-        if ix_tag['type'] == 'nonfraction':
-#         if ix_tag['name'] in ['NetSales', 'ChangeInNetSales', 
-#                               'OperatingIncome', 'ChangeInOperatingIncome', 
-#                               'OrdinaryIncome', 'ChangeInOrdinaryIncome', 
-#                               'ProfitAttributableToOwnersOfParent', 'ChangeInProfitAttributableToOwnersOfParent', 
-#                               'ComprehensiveIncome', 'ChangeInComprehensiveIncome', 
-#                               'NetIncomePerShare', 'DilutedNetIncomePerShare',
-#                               'TotalAssets', 'NetAssets', 
-#                               'CapitalAdequacyRatio', 'NetAssetsPerShare', 'OwnersEquity',
-#                               'DividendPerShare',
-#                               'NumberOfSubsidiariesNewlyConsolidated', 'NumberOfSubsidiariesExcludedFromConsolidation',
-#                               ] :
+        elif ix_tag['type'] == 'nonfraction':
             ix_scale = node.get('scale')
             if ix_scale:
                 ix_tag['scale'] = ix_scale
-            ix_tag['text'] = node.get_text(strip=True)
+            ix_tag['value'] = node.get_text(strip=True)
 
         if 'contextref' in ix_tag :
             ref = ix_tag.pop('contextref', None)
-            if ix_tag['type'] == 'nonfraction':
-                ix_tuple = (ix_tag['name'], ix_tag.get('format', ''), ix_tag.get('scale', ''), ix_tag.get('text', '') )
-            elif ix_tag['type'] == 'nonnumeric':
-                ix_tuple = (ix_tag['name'], ix_tag.get('format', ''), ix_tag.get('text', '') )
-            else:
-                ix_tuple = tuple(ix_tag)
-
+#             if ix_tag['type'] == 'nonfraction':
+#                 ix_tuple = (ix_tag['name'], ix_tag.get('format', ''), ix_tag.get('scale', ''), ix_tag.get('text', '') )
+#             elif ix_tag['type'] == 'nonnumeric':
+#                 ix_tuple = (ix_tag['name'], ix_tag.get('format', ''), ix_tag.get('text', '') )
+#             else:
+#                 ix_tuple = tuple(ix_tag)
+#
             if not ref in contents:
-                contents[ref] = [ ix_tuple ]
+                contents[ref] = [ ix_tag ]
             else:
-                contents[ref].append(ix_tuple)
-        
-    '''
-    xbrl = {}
-    xbrl['head/title'] = soup.head.title.text
-    '''
+                contents[ref].append(ix_tag)
+
+    xbrldb = BeautifulSoup('','lxml')
+    xbrldb.append(xbrldb.new_tag('database'))
+    xbrldb.database.append(xbrldb.new_tag('document'))
+    docroot = xbrldb.database.document
+    
     for a_key in sorted(contents):
-        print(a_key, contents[a_key])
+        if a_key == 'NoContextref' :
+            continue
+        node = docroot
+        for tag_name in a_key.split('_'):
+            nextnode = node.find(tag_name)
+            if nextnode == None:
+                node.append(xbrldb.new_tag(tag_name))
+                nextnode = node.find(tag_name)
+            node = nextnode
+        for tag_dict in contents[a_key]:
+            newtag = xbrldb.new_tag(tag_dict['name'])
+            tag_dict.pop('name')
+            tag_dict.pop('type')
+            if 'format' in tag_dict: 
+                if (tag_dict['format'] == 'booleantrue') or (tag_dict['format'] == 'booleanfalse'):
+                    if tag_dict['format'] == 'booleantrue':
+                        tag_dict['boolean'] = True
+                    elif tag_dict['format'] == 'booleanfalse' :
+                        newtag['boolean'] = False
+                    tag_dict.pop('format')
+                elif tag_dict['format'] == 'numdotdecimal':
+                    tag_dict['value'] = tag_dict['value'].replace(',','')
+                    tag_dict.pop('format')
+            for attr_name in tag_dict:
+                newtag[attr_name] = tag_dict[attr_name]
+            node.append(newtag)
+#         curr_node = docroot
+#         for elem in a_key.split('_'):
+#             if curr_node.find(elem) == None :
+#                 curr_node.append(curr_node.new_tag(elem))
+#             curr_node = curr_node.find(elem)
+#         print(a_key.split('_'), contents[a_key])
+    
+    print(xbrldb.prettify())
+    print(xbrldb.find('PriorAccumulatedQ2Duration'))
+    print(xbrldb.find('CurrentAccumulatedQ2Duration'))
+    print(xbrldb.find('CurrentYearDuration'))
     exit()
 
 def get_table(node):
