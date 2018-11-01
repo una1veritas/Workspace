@@ -102,79 +102,53 @@ def main():
                     tag_dict['value'] = tag_dict['value'].replace(',','')
                     tag_dict.pop('format')
             for attr_name in tag_dict:
-                newtag[attr_name] = tag_dict[attr_name]
+                if not (isinstance(tag_dict[attr_name], str) and tag_dict[attr_name].strip() == '') :
+                    newtag[attr_name] = tag_dict[attr_name]
             node.append(newtag)
-#         curr_node = docroot
-#         for elem in a_key.split('_'):
-#             if curr_node.find(elem) == None :
-#                 curr_node.append(curr_node.new_tag(elem))
-#             curr_node = curr_node.find(elem)
-#         print(a_key.split('_'), contents[a_key])
     
-    print(xbrldb.prettify())
-    print(xbrldb.find('PriorAccumulatedQ2Duration'))
-    print(xbrldb.find('CurrentAccumulatedQ2Duration'))
-    print(xbrldb.find('CurrentYearDuration'))
+#    print(xbrldb.prettify())
+#    print(xbrldb.find('PriorAccumulatedQ2Duration'))
+    curr_q2 = xbrldb.find('CurrentAccumulatedQ2Duration')
+    curr_q2_result_entry = ['NetSales', 'ChangeInNetSales', 
+                    'OperatingIncome', 'ChangeInOperatingIncome', 
+                    'OrdinaryIncome', 'ChangeInOrdinaryIncome', 
+                    'ProfitAttributableToOwnersOfParent', 'ChangeInProfitAttributableToOwnersOfParent', 
+                    'ComprehensiveIncome', 'ChangeInComprehensiveIncome', 
+                    'NetIncomePerShare', 'DilutedNetIncomePerShare', ]
+    curr_q2_result = dict()
+    for each in curr_q2_result_entry:
+        each_entry = curr_q2.find(each)
+        if each_entry.get('scale') != None :
+            scale = int(each_entry.get('scale')) 
+        else:
+            scale = 0
+        if each_entry.get('value') != None :
+            print(each_entry.get('value'))
+            val = float(each_entry.get('value'))
+        else:
+            val = 0
+        if scale != 0 :
+            val = val * (10**scale)
+        curr_q2_result[each] = val
+            
+    print( curr_q2_result )
+#    print(curr2q.ConsolidatedMember.ResultMember.prettify())
     exit()
 
-def get_table(node):
-    table = list()
-    attrs = dict()
-    for row in node.select('tr'):
-        columns = list()
-        for td in row.select('th, td'):
-#             ix_info = ''
-#             if td.ix_nonnumeric != None:
-#                 ix_info = ' '+' '.join([td.ix_nonnumeric.get(attr) for attr in ['name', 'format'] if td.ix_nonnumeric.get(attr) != None ])
-#             elif td.ix_nonfraction != None:
-#                 ix_info = ' '+' '.join([td.ix_nonfraction.get(attr) for attr in ['name', 'format'] if td.ix_nonfraction.get(attr) != None])
-            if td.span :
-                text = td.span.get_text(strip=True) #''.join([s.get_text(strip=True) for s in td.find_all('span')])
-            else:
-                text = td.get_text(strip=True)
-#             if len(text) :
-#                 text = text + ' ' +ix_info
-            columns.append( text )
-        if sum([len(td) for td in columns]):
-            result_table.append(columns)
-    return (result_table, result_dict)
-
-
-def collect_tables(node):
-    tables = node.find_all('table')
-    for t_index in range(0, len(tables)):
-        res_table = []
-        for row in tables[t_index].select('tr'):
-            columns = []
-            for td in row.select('th, td'):
-                if td.span :
-                    columns.append(' '.join([s.get_text(strip=True) for s in td.find_all('span')]))
-                else:
-                    columns.append(td.get_text(strip=True))
-            if sum([len(td) for td in columns]):
-                res_table.append(columns)
-        tables[t_index] = res_table
-    return tables
-    
-def basic_info(tbl, resdict):
-#    print(tbl)
-    resdict['見出し'] = tbl[0][0]
-    resdict['日付'] = tbl[1][2]
-    if tbl[2][0] == '上場会社名':
-        resdict['上場会社名'] = tbl[2][1]
-        resdict['上場取引所'] = tbl[3][2]
-    resdict['コード番号'] = tbl[3][1]
-    resdict['四半期報告書提出予定日'] = tbl[6][1]
-    resdict['配当支払開始予定日'] = tbl[6][3]
-    return
-
-def opresult_info(tbl, tbl2, resdict):
-    result = dict()
-    result['見出し'] = tbl[0][1:] + tbl2[0][1:]
-    result[tbl[2][0]] = tbl[2][1:] + tbl2[2][1:]
-    result[tbl[3][0]] = tbl[3][1:] + tbl2[3][1:]
-    resdict['連結経営成績（累計）'] = result
-    return
+# def get_table(node):
+#     table = list()
+#     attrs = dict()
+#     for row in node.select('tr'):
+#         columns = list()
+#         for td in row.select('th, td'):
+#             if td.span :
+#                 text = td.span.get_text(strip=True) #''.join([s.get_text(strip=True) for s in td.find_all('span')])
+#             else:
+#                 text = td.get_text(strip=True)
+#             columns.append( text )
+#         if sum([len(td) for td in columns]):
+#             result_table.append(columns)
+#     return (result_table, result_dict)
     
 def get_params():
     params = { 'arg': [] }
