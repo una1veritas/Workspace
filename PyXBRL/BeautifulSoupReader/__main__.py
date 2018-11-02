@@ -106,15 +106,9 @@ def main():
                     newtag[attr_name] = tag_dict[attr_name]
             node.append(newtag)
     
-#    print(xbrldb.prettify())
-<<<<<<< HEAD
-#    print(xbrldb.find('PriorAccumulatedQ2Duration'))
     q_pattern = re.compile('CurrentAccumulatedQ[1234]Duration')
-    curr_q2 = xbrldb.find(q_pattern)
-=======
-    print(xbrldb.find('PriorAccumulatedQ2Duration').prettify())
-    curr_q2 = xbrldb.find('CurrentAccumulatedQ2Duration')
->>>>>>> 70d05bbb3ba0646cc234c4a73ac2a9434c1ec5a1
+    print(docroot.prettify())
+    curr_q2 = docroot.find(q_pattern)
     curr_q2_result_entry = ['NetSales', 'ChangeInNetSales', 
                     'OperatingIncome', 'ChangeInOperatingIncome', 
                     'OrdinaryIncome', 'ChangeInOrdinaryIncome', 
@@ -150,25 +144,25 @@ def main():
     curr_q2_result = dict()
     for each in curr_q2_result_entry:
         each_entry = curr_q2.find(each)
-        if each_entry.get('scale') != None :
+        if each_entry.get('scale') :
             scale = int(each_entry.get('scale')) 
         else:
             scale = 0
-        if each_entry.get('value') != None :
-<<<<<<< HEAD
+        if each_entry.get('value') :
 #            print(each_entry.get('value'))
-=======
-            #print(each_entry.get('value'))
->>>>>>> 70d05bbb3ba0646cc234c4a73ac2a9434c1ec5a1
             val = float(each_entry.get('value'))
         else:
             val = 0
         if scale != 0 :
             val = val * (10**scale)
         curr_q2_result[each] = val
-            
+    
+    curr_q2_result['DocumentName'] = docroot.CurrentAccumulatedQ2Instant.find('DocumentName').get('text')
+    curr_q2_result['CompanyName'] = docroot.CurrentAccumulatedQ2Instant.find('CompanyName').get('text')
+    curr_q2_result['SecuritiesCode'] = docroot.CurrentAccumulatedQ2Instant.find('SecuritiesCode').get('text')
+    
     for key in curr_q2_result: 
-        print(key, curr_q2_result[key])
+        print(key + ' = ' + str(curr_q2_result[key]) )
 #    print(curr2q.ConsolidatedMember.ResultMember.prettify())
     exit()
 
