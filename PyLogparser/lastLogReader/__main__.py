@@ -5,6 +5,7 @@ Created on 2018/08/01
 '''
 
 import sys
+import datetime
 import subprocess
 
 if __name__ == '__main__':
@@ -28,23 +29,25 @@ except subprocess.CalledProcessError:
     print('error on '+str(cmd_list))
     exit()
 
-event_log = dict()
+print(datetime.date.today())
+active_period = dict()
 
 for each_line in res.stdout.splitlines():
     item_list = each_line.split()
-    if len(item_list) >= 5:
-        line_date = str(month_dict[item_list[3]])+'/'+item_list[4].zfill(2)
-        line_day = item_list[2]
-        line_time = item_list[5]
-        if item_list[0] == 'reboot' or item_list[0] == 'shutdown':
-            if not (line_date, line_day) in event_log : 
-                event_log[(line_date, line_day)] = [(line_time, item_list[0])]
-            else:
-                event_log[(line_date, line_day)].append( (line_time, item_list[0]) )
+    print(item_list[2:6])
+#     if len(item_list) >= 5:
+#         line_date = str(month_dict[item_list[3]])+'/'+item_list[4].zfill(2)
+#         line_day = item_list[2]
+#         line_time = item_list[5]
+#         if item_list[0] == 'reboot' or item_list[0] == 'shutdown':
+#             if not (line_date, line_day) in event_log : 
+#                 event_log[(line_date, line_day)] = [(line_time, item_list[0])]
+#             else:
+#                 event_log[(line_date, line_day)].append( (line_time, item_list[0]) )
     
     
-for key in sorted(event_log.keys()):
-    print(key, sorted(event_log[key]))
+# for key in sorted(event_log.keys()):
+#     print(key, sorted(event_log[key]))
 exit()
     
 
