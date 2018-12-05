@@ -29,28 +29,28 @@ except subprocess.CalledProcessError:
     print('error on '+str(cmd_list))
     exit()
 
-print(datetime.date.today())
+date_today = datetime.date.today()
 active_period = dict()
 
 for each_line in res.stdout.splitlines():
-    item_list = each_line.split()
-    print(item_list[2:6])
-#     if len(item_list) >= 5:
-#         line_date = str(month_dict[item_list[3]])+'/'+item_list[4].zfill(2)
-#         line_day = item_list[2]
-#         line_time = item_list[5]
-#         if item_list[0] == 'reboot' or item_list[0] == 'shutdown':
-#             if not (line_date, line_day) in event_log : 
-#                 event_log[(line_date, line_day)] = [(line_time, item_list[0])]
-#             else:
-#                 event_log[(line_date, line_day)].append( (line_time, item_list[0]) )
-    
-    
-# for key in sorted(event_log.keys()):
-#     print(key, sorted(event_log[key]))
-exit()
-    
-
+    items = each_line.split()
+    if len(items) < 4:
+        continue
+    evnt_year = date_today.year
+    evnt_mon = month_dict[items[3]]
+    evnt_date = items[4]
+    evnt_dt = datetime(evnt_year, evnt_month, evnt_date)
+    hm = items[5].split(':')
+    time_1 = datetime.time(hour=int(hm[0]), minute=int(hm[1]))
+    time_2 = datetime.time(hour=0, minute=0)
+    if len(items) > 7 :
+        hm = items[7].split(':')
+        if len(hm) == 2:
+            time_2 = datetime.time(hour=int(hm[0]), minute=int(hm[1]))
+    if time_1 < time_2 :
+        print(evnt_year, evnt_mon, evnt_date, time_1, time_2)
+    else:
+        print(evnt_year, evnt_mon, evnt_date, time_1)
 exit()
 
 # fname = sys.argv[1]
