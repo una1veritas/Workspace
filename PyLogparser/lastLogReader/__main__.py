@@ -13,6 +13,13 @@ if __name__ == '__main__':
 else:
     exit()
 
+month = 0
+if len(sys.argv) > 1 :
+    month = int(sys.argv[1])
+if month == 0 or month > 12:
+    print('format: command month')
+    exit()
+
 month_dict = { 'Jan':1, 'Feb':2, 'Mar': 3, 'Apr': 4, 
              'May': 5, 'Jun':6, 'Jul': 7, 'Aug': 8,
              'Sep': 9, 'Oct': 10, 'Nov':11, 'Dec': 12, }
@@ -56,7 +63,8 @@ for each_line in res.stdout.splitlines():
             active_period[evnt_dt][1] = time_2
 
 for key in sorted(active_period) :
-    print(key, active_period[key][0], '-', active_period[key][1])
+    if key.month == month :
+        print(key, active_period[key][0], '-', active_period[key][1])
     
 exit()
 
