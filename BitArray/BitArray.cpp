@@ -18,6 +18,7 @@ int main(void) {
 	for (int i = 0; i < 8; ++i)
 		std::cout << std::hex << static_cast<unsigned int>(*p++) << ' ';
 	std::cout << std::endl;
+
 	std::cout << "size of barray = " << sizeof(barray) << std::endl;
 	unsigned long bit;
 	unsigned int pos;
