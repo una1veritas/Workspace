@@ -1,4 +1,4 @@
-#jpeg image file data extracter
+#pixel image file data reader
 import os
 import sys
 
@@ -22,6 +22,8 @@ print(os.listdir(workpath))
 #def RGBtoGrey(pixval):
 #    return int(0.2126 * pixval[0] + 0.7152 * pixval[1] + 0.0722 * pixval[2])
 
+np_data = []
+
 for file in os.listdir(workpath) :
     filext = file.split('.')[-1].lower()
     print(filext, workpath + '/' + file)
@@ -29,17 +31,34 @@ for file in os.listdir(workpath) :
         img = Image.open(workpath + '/' + file)
         print(img.mode, img.size[0], img.size[1])
         img_width, img_height = img.size
+        img_classname = file.split('_')[0]
         if img.mode == 'RGB' :
             img = img.convert('L')
-        pixels = np.array([[img.getpixel((i,j)) for j in range(img_height)] for i in range(img_width)])
-        print(pixels)
+        if img_height == 32 and img_width == 32 :
+            pixdata = np.array([[img.getpixel((i,j)) for j in range(32)] for i in range(32)])
+            np_data.append( (img_classname, pixdata) )
+        elif img_height >= 32 and img_width >= 32:
+            for offset_x in range(0, img_width - 32 + 1) :
+                for offset_y in range(0, img_width - 32 + 1):
+                    img_cropped = img.crop(box=(offset_x, offset_y, offset_x + 32, offset_y+32 ))
+                    pixdata = np.array([[img_cropped.getpixel((i,j)) for j in range(32)] for i in range(32)])
+                    np_data.append( (img_classname, pixdata) )
+                    if img_height > 36 and img_width > 36:
+                        img_rotcc = img.rotate(-2)
+                        pixdata = np.array([[img_rotcc.getpixel((i,j)) for j in range(32)] for i in range(32)])
+                        np_data.append( (img_classname, pixdata) )
+                        img_rotcc = img.rotate(2)
+                        pixdata = np.array([[img_rotcc.getpixel((i,j)) for j in range(32)] for i in range(32)])
+                        np_data.append( (img_classname, pixdata) )                
     else:
-        print('file ext dunnow.')
+        print('skip ' + file)
 
-#python3 jpegReader ./files
-# working dir = /Users/sin/Documents/Workspace/PythonTest/jpegReader/files
+print(len(np_data))
+print(np_data[:30])
+#python3 imageDataReader ./files
+# working dir = /Users/sin/Documents/Workspace/PythonTest/imageDataReader/files
 # ['4gray.png', '4gray.jpg', '3col.jpg', '4col.jpg', '8col.jpg']
-# png /Users/sin/Documents/Workspace/PythonTest/jpegReader/files/4gray.png
+# png /Users/sin/Documents/Workspace/PythonTest/imageDataReader/files/4gray.png
 # L 32 32
 # [[ 24  13  40 ... 224  63  12]
 #  [ 22  10  40 ... 221  62  12]
@@ -48,7 +67,7 @@ for file in os.listdir(workpath) :
 #  [ 24  17 139 ... 114  18  33]
 #  [ 23  16 142 ... 102  14  29]
 #  [ 16  15 145 ...  94  12  25]]
-# jpg /Users/sin/Documents/Workspace/PythonTest/jpegReader/files/4gray.jpg
+# jpg /Users/sin/Documents/Workspace/PythonTest/imageDataReader/files/4gray.jpg
 # L 32 32
 # [[ 24  13  39 ... 224  61  12]
 #  [ 20  12  39 ... 223  61  13]
@@ -57,7 +76,7 @@ for file in os.listdir(workpath) :
 #  [ 24  16 139 ... 112  19  32]
 #  [ 21  16 144 ... 102  15  29]
 #  [ 18  14 145 ...  95  10  24]]
-# jpg /Users/sin/Documents/Workspace/PythonTest/jpegReader/files/3col.jpg
+# jpg /Users/sin/Documents/Workspace/PythonTest/imageDataReader/files/3col.jpg
 # RGB 32 32
 # [[ 13 114 241 ...  10  55  65]
 #  [  9 116 244 ...  33  20  19]
@@ -66,7 +85,7 @@ for file in os.listdir(workpath) :
 #  [130 230 215 ...  43  28  81]
 #  [133 229 214 ...  45  29  87]
 #  [136 228 212 ...  45  34  84]]
-# jpg /Users/sin/Documents/Workspace/PythonTest/jpegReader/files/4col.jpg
+# jpg /Users/sin/Documents/Workspace/PythonTest/imageDataReader/files/4col.jpg
 # RGB 32 32
 # [[ 50  26  70 ... 232  97  24]
 #  [ 40  21  68 ... 232  97  25]
@@ -75,7 +94,7 @@ for file in os.listdir(workpath) :
 #  [ 49  34 169 ... 145  32  59]
 #  [ 43  34 173 ... 138  30  56]
 #  [ 33  30 177 ... 131  23  46]]
-# jpg /Users/sin/Documents/Workspace/PythonTest/jpegReader/files/8col.jpg
+# jpg /Users/sin/Documents/Workspace/PythonTest/imageDataReader/files/8col.jpg
 # RGB 32 32
 # [[ 46  35  42 ... 181  86  39]
 #  [ 45  33  41 ... 181  79  37]
