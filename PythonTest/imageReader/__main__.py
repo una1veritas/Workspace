@@ -38,18 +38,22 @@ for file in os.listdir(workpath) :
             pixdata = np.array([[img.getpixel((i,j)) for j in range(32)] for i in range(32)])
             np_data.append( (img_classname, pixdata) )
         elif img_height >= 32 and img_width >= 32:
+            # ぎりぎりまで左右上下にずらして例を作成
             for offset_x in range(0, img_width - 32 + 1) :
                 for offset_y in range(0, img_width - 32 + 1):
                     img_cropped = img.crop(box=(offset_x, offset_y, offset_x + 32, offset_y+32 ))
                     pixdata = np.array([[img_cropped.getpixel((i,j)) for j in range(32)] for i in range(32)])
                     np_data.append( (img_classname, pixdata) )
+                    # 大きさにゆとりがあるなら反時計回り，時計回りにかたむける．とりあえず 2 度ぐらいでいいやろ
                     if img_height > 36 and img_width > 36:
-                        img_rotcc = img.rotate(-2)
-                        pixdata = np.array([[img_rotcc.getpixel((i,j)) for j in range(32)] for i in range(32)])
-                        np_data.append( (img_classname, pixdata) )
-                        img_rotcc = img.rotate(2)
-                        pixdata = np.array([[img_rotcc.getpixel((i,j)) for j in range(32)] for i in range(32)])
-                        np_data.append( (img_classname, pixdata) )                
+                        img_rot = img.rotate(-2)
+                        if img_rot != img :
+                            pixdata = np.array([[img_rot.getpixel((i,j)) for j in range(32)] for i in range(32)])
+                            np_data.append( (img_classname, pixdata) )
+                        img_rot = img.rotate(2)
+                        if img_rot != img :
+                            pixdata = np.array([[img_rot.getpixel((i,j)) for j in range(32)] for i in range(32)])
+                            np_data.append( (img_classname, pixdata) )
     else:
         print('skip ' + file)
 
