@@ -23,6 +23,8 @@ int main(int argc, char * argv[]) {
 	unsigned long sum;
 	int seed = 113;
 
+	printf("%u\n", clog32(57));
+
 	if ( argc == 2 )
 		seed = atol(argv[1]);
 

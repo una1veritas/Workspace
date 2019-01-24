@@ -1,4 +1,4 @@
-CXXFLAGS =	-O2 -g -Wall -fmessage-length=0
+CXXFLAGS =	-std=c++1z -O2 -g -Wall -fmessage-length=0
 
 OBJS =		BitArray.o
 

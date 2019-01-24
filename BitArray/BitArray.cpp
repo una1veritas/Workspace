@@ -8,134 +8,76 @@
 #include <iostream>
 #include <vector>
 
-struct BitArray {
-	unsigned char * bytearray;
-	unsigned long bytecapacity, bitcapacity;
+#include <cinttypes>
 
-	BitArray(const unsigned long & n) {
-		bitcapacity = n;
-		bytecapacity = (n>>3) + ((n & 0x07) ? 1 : 0);
-		if ( bytecapacity )
-			bytearray = new unsigned char[bytecapacity];
-	}
+typedef std::vector<bool> BitArray;
+typedef uint32_t uint32;
 
-	~BitArray() {
-		if ( bytecapacity )
-			delete [] bytearray;
-		bytecapacity = 0;
-		bitcapacity = 0;
-	}
 
-	void clear_all(const unsigned char & val = 0) {
-		unsigned char * ptr = bytearray;
-		if ( val ) {
-			for ( unsigned long i = 0; i < bytecapacity; ++i )
-				*ptr = 0xff;
-		} else {
-			for ( unsigned long i = 0; i < bytecapacity; ++i )
-				*ptr = 0;
+uint32 nlz32(uint32 x)
+{
+	// Hacker's Delight 2nd by H. S. Warren Jr., 5.3, p. 104 --
+	double d = (double) x + 0.5;
+	uint32 *p = ((uint32*) &d) + 1;
+	return 0x41e - (*p>>20);  // 31 - ((*(p+1)>>20) - 0x3FF)
+}
+/*
+uint32 nlz32(uint32 x)
+{
+    int ret;
+    __asm__ volatile ("lzcnt %1, %0" : "=r" (ret) : "r" (x) );
+    return ret;
+}
+*/
+
+bool encode(BitArray & barray, uint32 & intval) {
+	unsigned int digits;
+	unsigned long bitmask;
+	switch ( intval ) {
+	case 0:
+		barray.push_back(0);
+		barray.push_back(0);
+		break;
+	case 1:
+		barray.push_back(0);
+		barray.push_back(1);
+		break;
+	default:
+		digits = 31 - nlz32(intval);
+		std::cout << digits << std::endl;
+		for(unsigned int i = 0; i< digits; ++i)
+			barray.push_back(1);
+		barray.push_back(0);
+		bitmask = 1<<(digits-1);
+		for(unsigned int i = 0; i< digits; ++i) {
+			std::cout << std::hex << bitmask << std::endl;
+			barray.push_back( (bitmask & intval ? 1 : 0) );
+			bitmask >>= 1;
 		}
 	}
-
-	void bitset(const unsigned long & bpos) {
-		unsigned long byteindex = (bpos >> 3);
-		unsigned char bitmask = 1<<(bpos & 0x07);
-		bytearray[byteindex] |= bitmask;
-	}
-
-	void bitclear(const unsigned long & bpos) {
-		unsigned long byteindex = (bpos >> 3);
-		unsigned char bitmask = 1<<(bpos & 0x07);
-		bytearray[byteindex] &= ~bitmask;
-	}
-
-	unsigned int bitat(const unsigned long & bpos) const {
-		unsigned long byteindex = (bpos >> 3);
-		unsigned char bitmask = 1<<(bpos & 0x07);
-		if ( bytearray[byteindex] & bitmask )
-			return 1;
-		else
-			return 0;
-	}
-
-	friend std::ostream & operator<<(std::ostream & stream, const BitArray & barray) {
-		for (unsigned long bpos = 0; bpos < barray.bitcapacity; ++bpos) {
-			stream << (int) barray.bitat(bpos);
-			if ( (bpos & 0x07) == 0x07)
-				stream << "  ";
-			else
-				stream << " ";
-		}
-		return stream;
-	}
-};
-
-struct BitStream {
-	BitArray bitarray;
-	unsigned char * byteptr;
-	unsigned int bitptr;
-	unsigned int maxpos;
-
-	BitStream(BitArray & barray) : bitarray(barray){
-		reset();
-	}
-
-	void reset() {
-		byteptr = bitarray.bytearray;
-		bitptr = 0;
-		maxpos = 0;
-	}
-
-	void set(const unsigned long & bpos) {
-		byteptr = bitarray.bytearray + (bpos >> 3);
-		bitptr = bpos & 0x07;
-		maxpos = bpos > maxpos ? bpos : maxpos;
-	}
-
-	void append(const unsigned int & boolval) {
-		if ( boolval ) {
-			*byteptr |= (1<<bitptr);
-		} else {
-			*byteptr &= ~(1<<bitptr);
-		}
-		forward();
-		++maxpos;
-	}
-
-	void forward() {
-		if ( bitptr < 7 ) {
-			++bitptr;
-			return;
-		} else {
-			bitptr = 0;
-			++byteptr;
-		}
-	}
-
-};
+	return true;
+}
 
 int main(void) {
 
 	std::cout << "Hello World!!!" << std::endl;
 
-	BitArray barray(32);
-	BitStream bstream(barray);
-	unsigned long val = 144065;
-	unsigned char * p = (unsigned char *) &val;
-	for (int i = 0; i < 8; ++i)
-		std::cout << std::hex << static_cast<unsigned int>(*p++) << ' ';
-	std::cout << std::endl;
-
+	BitArray barray;
+	const char str[] = "Go to the hell 3092!";
 	std::cout << "size of barray = " << sizeof(barray) << std::endl;
-	unsigned long bit;
-	unsigned int pos;
-	for (bit = 1, pos = 0; pos < 31; bit <<= 1, ++pos) {
-		bstream.append((bit & val) ? 1 :0) ;
+
+	for(const char * p = str; *p; ++p) {
+		uint32 c = *p;
+		std::cout << std::hex << c << std::endl;
+		encode(barray, c);
 	}
 	std::cout << std::endl;
 	//char t[16];
 	//std::cin.getline(t,15);
-	std::cout << barray << std::endl;
+	for (auto i = barray.begin(); i != barray.end() ; ++i) {
+		std::cout << *i << " ";
+	}
+	std::cout << std::endl;
 	return EXIT_SUCCESS;
 }
 
