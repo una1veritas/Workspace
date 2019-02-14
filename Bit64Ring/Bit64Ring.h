@@ -22,7 +22,7 @@ class Bit64Ring {
 
 	inline static uint64_t rotl64(uint64_t x, uint64_t n) {
 		// assert (n<32);
-		return (x<<n) | (x>>(-n&63));
+		return (x<<n) | (x>>(-n & 63));
 	}
 
 public:
