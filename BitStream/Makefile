@@ -1,6 +1,6 @@
 PROJECT_ROOT = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-OBJS = BitStream.o
+OBJS = main.o
 
 ifeq ($(BUILD_MODE),debug)
 	CFLAGS += -g -std=c++1z
