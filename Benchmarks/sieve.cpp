@@ -12,11 +12,7 @@
 #include <cstdlib>
 #include <cinttypes>
 
-#if defined(uint64_t)
 typedef uint64_t ulong;
-#else
-typedef unsigned long ulong;
-#endif
 
 const ulong LIMIT = 0x40000000UL;
 
@@ -44,10 +40,12 @@ int main(int argc, char * argv[]) {
 		std::cout << "size of ulong does not match the expected." << std::endl;
 		return EXIT_FAILURE;
 	}
-	std::vector<ulong> wordarray((sieve_size>>ulong_shifts) > 1 ? (sieve_size>>ulong_shifts) : 1);
+
+	ulong wordarray_size = ((sieve_size>>ulong_shifts) > 1 ? (sieve_size>>ulong_shifts) : 1);
+	ulong * wordarray = new ulong[wordarray_size];
 
 	//std::cout << wordarray.size() << std::endl;
-	for(ulong i = 0; i < wordarray.size(); ++i) {
+	for(ulong i = 0; i < wordarray_size; ++i) {
 		wordarray[i] = ~((ulong)0); 	// all set
 	}
 	std::cout << std::endl;
@@ -77,6 +75,8 @@ int main(int argc, char * argv[]) {
   }
   std::cout << std::endl;
   printf("detection finished.\n");
+
+  delete [] wordarray;
 
   return EXIT_SUCCESS;
 }
