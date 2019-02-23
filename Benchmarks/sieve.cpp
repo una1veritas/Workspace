@@ -12,9 +12,13 @@
 #include <cstdlib>
 #include <cinttypes>
 
+#if defined(uint64_t)
+typedef uint64_t ulong;
+#else
 typedef unsigned long ulong;
+#endif
 
-const ulong LIMIT = 0x8000000UL;
+const ulong LIMIT = 0x40000000UL;
 
 int main(int argc, char * argv[]) {
 	ulong sieve_size;
@@ -25,15 +29,17 @@ int main(int argc, char * argv[]) {
 		sieve_size = sieve_size < LIMIT ? sieve_size : LIMIT;
 	}
 	ulong i, l, n;
-	ulong ulong_nbits, ulong_mask, ulong_shifts;
+	ulong ulong_mask, ulong_shifts;
 
 	std::cout << "Sieve size : " << sieve_size << ", " << std::endl;
-	std::cout << "The bibt-size of ulong : " << sizeof(ulong)*8 << ". " << std::endl;
+	std::cout << "ulong size in bits : " << sizeof(ulong)*8 << ". " << std::endl;
 
 	if ( sizeof(ulong) == 8) {
-		ulong_nbits = 64;
 		ulong_shifts = 6;
 		ulong_mask = 63;
+	} else if ( sizeof(ulong) == 4) {
+			ulong_shifts = 5;
+			ulong_mask = 31;
 	} else {
 		std::cout << "size of ulong does not match the expected." << std::endl;
 		return EXIT_FAILURE;
