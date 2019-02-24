@@ -2,8 +2,8 @@
 CXX = g++ 
 CXXFLAGS = -Wall -O2 -g
 
-INCLUDES = -I./SRC
-SRC = ./SRC
+INCLUDES = -I./src
+SRC = ./src
 
 %.o: $(SRC)/%.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $<

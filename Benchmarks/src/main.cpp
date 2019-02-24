@@ -39,7 +39,13 @@ int main(int argc, char * argv[]) {
 
 	std::cout << "Pi by Leibniz_pi " << limit_size << " loops." << std::endl;
 	clock();
-	pi = Leibniz_pi(limit_size*10, (long double)1/(limit_size*100));
+	pi = Leibniz_pi(limit_size);
+	std::cout << ((double)clock()/CLOCKS_PER_SEC) << " sec." << std::endl;
+	std::cout << "Pi = " << std::fixed << std::setprecision(16) << pi << std::endl;
+
+	std::cout << "Pi by Wallis_pi " << limit_size << " loops." << std::endl;
+	clock();
+	pi = Wallis_pi(limit_size);
 	std::cout << ((double)clock()/CLOCKS_PER_SEC) << " sec." << std::endl;
 	std::cout << "Pi = " << std::fixed << std::setprecision(16) << pi << std::endl;
 
@@ -50,10 +56,14 @@ int main(int argc, char * argv[]) {
  * Sieve size : 100000000,
 long long size (bits) : 64.
 
-7.01573 sec.
+7.31222 sec.
 The last prime = 99999989
 Pi by Leibniz_pi 100000000 loops.
-9.41917 sec.
-Pi = 3.1415926535897952
+7.43583 sec.
+Pi = 3.1415926535897941
+Pi by Wallis_pi 100000000 loops.
+7.5847970000000000 sec.
+Pi = 3.1415926457358383
+ *
  *
  */

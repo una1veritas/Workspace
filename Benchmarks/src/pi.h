@@ -9,7 +9,7 @@
 #define SRC_PI_H_
 
 
-long double Leibniz_pi(const unsigned long & n, const long double & error);
-
+long double Leibniz_pi(const unsigned long & n /*, const long double & error */);
+long double Wallis_pi(const unsigned long & n /*, const long double & error */);
 
 #endif /* SRC_PI_H_ */
