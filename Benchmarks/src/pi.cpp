@@ -25,31 +25,32 @@
 #include <cmath>
 
 long double Leibniz_pi(const unsigned long & n /*, const long double & error */) {
-	long double p = 1.0, q;
+	long double p = 1.0, p_ = p;
 	long double sign = -1;
 	for ( unsigned long i = 1; i < n; ++i) {
-		q = p;
-		p += sign / (long double)((i<<1) + 1);
+		p_ = p;
+		p += sign /((i<<1) + 1);
 		/*
 		if ( abs(p-q) < error )
 			break;
 		*/
 		sign = -sign;
 	}
-	return (p + q)*2;
+	return (p + p_)*2;
 }
 
 long double Wallis_pi(const unsigned long & n /*, const long double & error*/) {
-	long double p = 1.0, q;
+	long double p = 1.0, p_ = p;
 	for ( unsigned long i = 1; i < n; ++i) {
-		q = p;
-		p *= (long double)(i*2)*(i*2)/(long double)((i*2-1)*(i*2+1));
+		p *= (long double)(i*2)/(long double)(i*2-1);
+		p_ = p;
+		p *= (long double)(i*2)/(long double)(i*2+1);
 		/*
 		if ( abs(p-q) < error)
 			break;
 		*/
 	}
-	return p*2;
+	return p*p_;
 }
 
 
