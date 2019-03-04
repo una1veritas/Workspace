@@ -3,9 +3,9 @@ PROJECT_ROOT = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 OBJS = main.o
 
 ifeq ($(BUILD_MODE),debug)
-	CFLAGS += -g -std=c++1z
+	CFLAGS += -g -std=c++11
 else ifeq ($(BUILD_MODE),run)
-	CFLAGS += -O2 -std=c++1z
+	CFLAGS += -O2 -std=c++11
 else
 	$(error Build mode $(BUILD_MODE) not supported by this Makefile)
 endif

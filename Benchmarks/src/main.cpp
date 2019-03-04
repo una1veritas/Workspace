@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <cinttypes>
 
+//#include "bcd.h"
 #include "pi.h"
 #include "sieve.h"
 
@@ -39,13 +40,13 @@ int main(int argc, char * argv[]) {
 
 	std::cout << "Pi by Leibniz_pi " << limit_size << " loops." << std::endl;
 	clock();
-	pi = Leibniz_pi(limit_size*10);
+	pi = Leibniz_pi(limit_size);
 	std::cout << ((double)clock()/CLOCKS_PER_SEC) << " sec." << std::endl;
 	std::cout << "Pi = " << std::fixed << std::setprecision(16) << pi << std::endl;
 
 	std::cout << "Pi by Wallis_pi " << limit_size << " loops." << std::endl;
 	clock();
-	pi = Wallis_pi(limit_size*10);
+	pi = Wallis_pi(limit_size);
 	std::cout << ((double)clock()/CLOCKS_PER_SEC) << " sec." << std::endl;
 	std::cout << "Pi = " << std::fixed << std::setprecision(16) << pi << std::endl;
 
