@@ -4,96 +4,96 @@
 #include <cinttypes>
 #include <vector>
 
-class bit64array {
-	typedef uint64_t uint64;
-	uint64 bitarray;
-	unsigned int bitcount;
+class bitstream {
 
-	inline static void rotl64(uint64 & x) {
-		// assert (n<32);
-		x = (x<<1) | (x>>(-1&63));
+	typedef uint64_t uint64;
+
+	std::vector<uint64> bit64array;
+	unsigned int bitcount;
+	uint64 cache64;
+
+	inline static uint64 & rotl64(uint64 & x) {
+		return x = (x<<1) | (x>>(-1&63));
 	}
 
-	inline static void rotl64(uint64_t & x, const unsigned int & n) {
-		// assert (n<32);
-		x = (x<<n) | (x>>(-n & 63));
+	inline static uint64 & rotl64(uint64_t & x, const unsigned int & n) {
+		return x = (x<<n) | (x>>(-n & 63));
+	}
+
+	inline static uint64 & rotr64(uint64 & x) {
+		return x = (x>>1) | (x<<(-1&63));
+	}
+
+	inline static uint64 & rotr64(uint64_t & x, const unsigned int & n) {
+		return x = (x>>n) | (x<<(-n & 63));
 	}
 
 public:
-	bit64array(void) : bitarray(0), bitcount(0) { }
+	bitstream(void) : bit64array(), bitcount(0), cache64(0) {}
+	unsigned int bit_count() const { return bitcount; }
 
-	void appendBit(const bool & b) {
-		rotl64(bitarray);
-		bitarray |= (b? 1 : 0);
+	void append(unsigned char bit) {
+		cache64 |= (bit != 0);
+		// post process
+		rotr64(cache64);
+		if ( (bitcount & 63) == 63 ) {
+			bit64array.push_back(cache64);
+			cache64 = 0;
+		}
 		++bitcount;
 	}
 
-	void append(const char * str) {
-		while (*str) {
-			if ( (sizeof(uint64)<<3) - bitcount >= (sizeof(char)<<3) ) {
-				rotl64(bitarray,8);
-				bitarray |= (uint64)(*str);
-				bitcount += 8;
-				++str;
-				std::cout << "." << std::flush;
-
-			} else {
-				for (unsigned int i = (sizeof(char)<<3) - ((sizeof(uint64)<<3) - bitcount);
-						i < sizeof(char)<<3; ++i) {
-					appendBit(((*str)>>i) & 1);
-				}
-				std::cout << "!" << std::flush;
-				return;
-			}
-		}
-	}
-
-	void append(const uint32_t & val) {
-		const unsigned int val_size =  sizeof(uint32_t);
-		for (unsigned int i = 0; i < val_size; ++i ) {
-			rotl64(bitarray,8);
-			bitarray |= (val >> ((val_size- 1 - i)<<3)) & 0xff;
-			bitcount += 8;
-		}
-	}
-
-	bool is_full(void) const {
-		return bitcount == 64;
-	}
-
-	unsigned int size() const { return (bitcount & 0x3f) + (bitcount & 0x40); }
-
 	bool operator[](const unsigned int i) const {
-		return bitarray & (1<<((bitcount-1-i) & 0x3f));
+		uint64 t = 1;
+		uint64 val;
+		if ( i < (bitcount & ~((unsigned int)63)) ) {
+			val = bit64array[i>>6];
+			return 1 & (val>>(i&63));
+		}
+		rotr64(t, (bitcount & 63) - i);
+		return cache64 & t;
 	}
 
-	//
-
-	friend std::ostream & operator<<(std::ostream & stream, const bit64array & barray) {
 		std::cout << barray.size() << std::endl;
-		for (unsigned int i = 0 ; i < barray.size() ; ++i) {
-			stream << std::hex << barray[i];
-			stream << " ";
+	friend std::ostream & operator<<(std::ostream & stream, const bitstream & bstream) {
+		stream << "bit count = " << bstream.bitcount << ", ";
+		stream << "array length = " << bstream.bit64array.size() << ", " << std::endl;
+		for(unsigned int i = 0; i < bstream.bit_count(); ++i) {
+			if ( (i & 0x7) == 0)
+				stream << " ";
+			stream << std::hex << bstream[i];// << " ";
 		}
+
+		stream << ", ";
 		return stream;
 	}
 
 };
 
 int main(int argc, char **argv) {
-	std::cout << "Hello, there." << std::endl;
+	const char message[] = "HELLO, there.\n";
+	std::cout << message << std::flush;
 
-	bit64array barray;
-	barray.appendBit(1);
-	barray.append("A stack.");
+	bitstream bstream;
+	for(unsigned int ix = 0; ix < 11 && message[ix]; ++ix) {
+		for(unsigned int bp = 0; bp < 8; ++bp) {
+			bstream.append((message[ix]>>(7-bp)) & 1);
+		}
+	}
 	/*
-	barray.append((bool)0);
-	barray.append((bool)1);
-	barray.append((bool)1);
-	barray.append((bool)0);
-	*/
-	//barray.append((uint32_t)0x2bda0);
-	std::cout << "unsigned int size = " << sizeof(unsigned int) << std::endl;
-	std::cout << "bit64array (" << barray.size() << ") = " << barray << std::endl;
+	bstream.append(1);
+	bstream.append(0);
+	bstream.append(1);
+	bstream.append(1);
+	bstream.append(1);
+	bstream.append(0);
+	bstream.append(1);
+	bstream.append(1);
+*/
+	std::cout << "bit count = " << bstream.bit_count() << std::endl;
+	std::cout << "now. " << std::flush;
+	std::cout << bstream << std::endl;
+
+	std::cout << "bye." << std::endl;
 	return EXIT_SUCCESS;
 }
