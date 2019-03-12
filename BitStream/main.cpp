@@ -54,7 +54,6 @@ public:
 		return cache64 & t;
 	}
 
-		std::cout << barray.size() << std::endl;
 	friend std::ostream & operator<<(std::ostream & stream, const bitstream & bstream) {
 		stream << "bit count = " << bstream.bitcount << ", ";
 		stream << "array length = " << bstream.bit64array.size() << ", " << std::endl;
