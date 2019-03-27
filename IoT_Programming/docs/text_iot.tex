@@ -1,0 +1,113 @@
+\documentclass[11pt,a4,epsf]{report}
+%\documentstyle[11pt]{j-article}
+%\usepackage{otf}
+\usepackage{amssymb}
+\usepackage{theorem}
+\usepackage[titletoc,title]{appendix}
+%\input{A4}
+\setlength{\topmargin}{-1cm}
+\setlength{\oddsidemargin}{0cm}
+\setlength{\textwidth}{16cm}
+\setlength{\textheight}{24cm}
+\renewcommand{\@}[1]{{\bf #1}}
+
+\title{{\bf IoT デバイス・プログラミング}}
+\author{下薗 真一\\
+e-mail: {\sf sin@ai.kyutech.ac.jp}\\
+}
+%\date{}
+%
+% 諸定義
+%
+\def\linesparpage#1{\baselineskip=\textheight\divide\baselineskip#1}
+\newtheorem{exerc}{演習}
+\newtheorem{adv}{発展課題}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% ワンポイントの表示 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcounter{pntnumber}
+\setcounter{pntnumber}{0}
+\newcommand{\POINT}[2]{
+ \medskip
+ \refstepcounter{pntnumber}
+\noindent
+■■■■■ {\sf Point \arabic{pntnumber}:} {\bf #1} \hrulefill ■ \\
+{\small #2}
+
+\noindent
+■ \hrulefill ■■■■■ \\
+% \begin{center}
+%  \fbox{
+%   \begin{minipage}{\textwidth}
+%    \noindent
+%    {\bf ポイント \arabic{pntnumber} (#1)}
+%    #2
+%   \end{minipage}
+%  }
+% \end{center}
+ \medskip
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 本文
+%
+\begin{document}
+%\linesparpage{40}
+\linesparpage{36}
+\maketitle
+
+\medskip
+
+\begin{description}
+\item[対象:] 知能情報工学科 2 年次
+\item[期間:] 前期
+\item[機材:] ？？？CAD実験室(共通教育研究棟 3 階 S303 室)の Linux PC 端末%\\
+%	初回のみ 第 I 計算機室(研究棟 6 階)の Linux PC 端末
+\end{description}
+
+\medskip
+
+\section{演習の目標}
+
+ワンボード PC である Raspberry Pi をエッジデバイスとし，
+エッジデバイス上のセンサーでの測定，および表示出力の使用，
+インターネット上の連携などについてプログラミング演習を行い，
+IoT とよばれる概念とそこで必要となる技術を習得する．
+
+センサーボードのライブラリによる使用に必要なスクリプト言語 Python にふれる．
+プログラミング言語によらない，プログラミングやコンピュータサイエンスの概念を再認識する．
+
+\section{IoT とは}
+
+IoT とは，Internet of the Things （もののインターネット）を略したものである．
+人間がユーザーとして他のユーザーとの情報のやりとりを目的に使用するインターネットの活用とはことなる，
+デバイスや装置が直接他のデバイス・装置あるいはユーザーとインターネットを通じて情報をやりとりすることで可能になる，
+技術やサービスのことである．
+
+従来は，デバイスや装置などは，電話回線，無線通信，有線回線などで専用の回線やネットワークを構築し，通信を行ってきた．
+しかし，優先および無線でのインターネットの普及，機器の基本ソフトウェアで UNIX 系など TCP/IP による通信が容易な OS が使われるようになったこと，公開鍵暗号などでセキュアな通信経路を確保できるようになったことなどから，
+機器間，あるいは機器とユーザーの間の接続をインターネットで行い，一般的な回線で多様な機器間で情報をやりとりし，
+よりすすんだサービスを提供したり，技術を可能にしようという考え方がひろまってきた．
+5G などのより高速で低遅延のインターネット回線が実現すれば，ますます発展すると考えられている．
+
+ただし，直接ユーザーが使用し状況を確認するわけではない膨大な量の機器や装置が，初期設定のままインターネットに接続される状況になっており，
+セキュリティ上の脆弱性を悪用され，インターネットなど社会インフラへの攻撃などが起きるのではないか，という懸念が残っている．
+
+\section{Raspberry Pi}
+
+ラズベリー・パイは，イギリスで教育目的に設計されたワンボードＰＣである．
+LINUX などを動作させることができる CPU とメモリをそなえ，基本ディスク装置として SD カードを使用する．
+ビデオ出力（HDMI / アナログビデオ），音声出力，キーボードやマウスを接続できる USB ポート，有線／無線のイーサネットインターフェースを備えている．
+micro USB ポートから電源を供給し，ディスプレイ，キーボードやマウスを接続すれば，LINUX や組み込み Windows が動作するパソコンとして使用することができる．
+また，汎用の I/O ポートやIC間通信のバスが利用可能で，自作の電子回路や市販のセンサーボードなどハードウェアを追加し使用することができる．
+
+今回は，Sensor Hat  とよばれる，センサ類とスイッチを入力として持ち，マトリクス LED を出力として備える市販のボードを Raspberry Pi につけて演習を行う．
+
+
+\section{Python 言語}
+
+Sensor Hat は Python 言語によってライブラリが提供されており，非常に使いやすいため，この演習のプログラミングは Python 言語で行う．
+
+\end{document}
+
+
