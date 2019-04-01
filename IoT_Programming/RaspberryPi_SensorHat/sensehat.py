@@ -4,22 +4,20 @@ import time
 sense = SenseHat()
 sense.clear()
 
-while True:
+while True :
     temp = sense.get_temperature()
     humi = sense.get_humidity()
     pres = sense.get_pressure()
     
-    print("temp., humid., air press. = ", round(temp,1), round(humi,1), round(pres,1))
+    msg = u"Temp. {0} °C. Humidity {1} % Air pressure {2} hPa".format(round(temp,1), round(humi,1), round(pres,1))
+    print(msg)
     
-    acc = sense.get_accelerometer_raw()
-    ori = sense.get_orientation()
-    
-    print(ori)
-    print("Acceleration = ({0}, {1}, {2})".format(round(acc["x"], 3), round(acc["y"], 3), round(acc["z"], 3)) )
-    print("Orientation = ({0}, {1}, {2})".format(round(ori["yaw"], 3), round(ori["pitch"], 3), round(ori["roll"], 3)) )
+    accx = sense.get_accelerometer_raw()
+    msg = "(x: {0}, y: {1}, z: {2})".format(round(accx["x"], 3), round(accx["y"], 3), round(accx["z"], 3))
+    print(msg)
 
     for event in sense.stick.get_events():
-        print(event.direction, event.action)
+        print(event.timestamp, event.direction, event.action)
     
-    time.sleep(5)
+    time.sleep(3)
     
