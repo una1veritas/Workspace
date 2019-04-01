@@ -32,5 +32,6 @@ try:
 
         time.sleep(5)
 except KeyboardInterrupt:
-    pass
+    print("Exit by Ctrl-C")
+
 sense.clear()
