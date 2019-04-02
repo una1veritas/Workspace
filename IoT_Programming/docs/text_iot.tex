@@ -5,6 +5,7 @@
 \usepackage{theorem}
 \usepackage{ascmac} %itembox
 \usepackage[titletoc,title]{appendix}
+\usepackage[dvipdfmx]{graphicx}
 %\input{A4}
 \setlength{\topmargin}{-1cm}
 \setlength{\oddsidemargin}{0cm}
@@ -107,7 +108,7 @@ LINUX や組み込み Windows が動作する単体のパソコンとして使�
 今回は，Sensor Hat  とよばれる，センサ類とスイッチを入力として持ち，マトリクス LED を出力として備える市販のボードを Raspberry Pi にとりつけて演習を行う．
 
 
-\section{Python 言語 （第一日，第二日）}
+\section{Python 言語}
 
 本演習では，Python 3.x を使用する．
 
@@ -152,12 +153,12 @@ Python 言語は，インタープリタで動作する，インデンテーシ�
   \end{tabular}
 %\end{table}
 
-\section{Raspberry Pi の起動からシャットダウン（電源投了）まで}
+\section{Raspberry Pi の基本，起動からシャットダウン（電源投了）まで}
 
 Raspberry Pi の HDMI ポートと USB ポート，ネットワークポートを使えば，ディスプレイ，キーボード，マウスを接続しインターネットに接続した PC として使用できるが，今回はトラブル等が発生しない限り，ディスプレイおよびキーボードのない状態で起動し，
 Wi-Fi を通じて端末エミュレーターで接続し，その中ですべての作業を行う．
 
-\subsection{起動と端末エミュレータからのログイン}
+\subsection{電源投入，起動と端末エミュレータからのログイン}
 
 Raspberry Pi には電源スイッチはない．
 電源入力である micro USB ポートに，5V/2A の USB電源からケーブルをつないだ時点で起動する．
@@ -204,8 +205,8 @@ Hello, world!
 ...    pi = pi + 4.0*sgn/(2*i+1)       # 上に同じ
 ...    sgn = -sgn
 ... 　                                 # ← ... の後になにも入力せず改行
->>> print(pi)
-3.140592653839794
+>>> print((prev+pi)/2)
+3.141593154089919
 >>> 
 >>> quit()
 pi@raspberrypi:~ $ 
@@ -220,8 +221,7 @@ pi@raspberrypi:~ $
 Python のインタラクティブモードを終了するには，関数 \verb+quit()+ を実行する．
 
 \begin{excercise}
-Python 3 のインタプリタモードで上記のプログラムを実行し， 
-円周率 $\pi$ を $1/1000$ の桁まで正しく求めるには，ループの範囲をいくつまでにする必要があるか確かめなさい．
+Python 3 のインタプリタモードで上記のプログラムを実行し，ループの \verb+i+ の範囲を 1 から 9999 までにして \verb+pi+ の値がどのように変化するか確かめなさい．
 その後，Python を正しく終了させなさい．
 また，ctrl-C で終了できるかどうか確かめなさい．
 \end{excercise}
@@ -346,7 +346,31 @@ pi@raspberrypi:~/Documents $
 SenseHat は， 4方向+押し込みの入力ができるスイッチをもっており，センサと同様に状態を読み取ることができる．
 この Joystick スイッチを使えば，キーボードやマウスを接続しなくても， SenseHat だけで直接ユーザーに入力させることができる．
 
-\subsection{Raspberry Pi とのファイルのやりとり}
+\begin{figure}
+\centering
+\includegraphics[width=4cm]{joystick.jpg}
+%\caption{}
+\end{figure}
+
+Joystic スイッチからは，イベントとしてスイッチの変化が起きた時刻，上下左右の４方向または中央のスイッチの種類，押下または解放　の３つ組みを列として得ることができる．
+\begin{itembox}[l]{\tt sensehat.py の最後に追加}
+\begin{quote}
+\small
+\begin{verbatim}
+while True :
+       for event in sense.stick.get_events():
+        print(event.timestamp, event.direction, event.action)
+    time.sleep(0.5)
+\end{verbatim}
+\end{quote}
+\end{itembox}
+
+\begin{excercise}
+Joystick の操作で LED Matrix に流れるメッセージの内容や流れる方向を変更するプログラムを書きなさい．
+\end{excercise}
+
+
+\section{Raspberry Pi とのファイルのやりとり}
 
 Raspberry Pi の SDカード内のディレクトリからファイルを演習端末のディレクトリへコピーする，またその逆を行うには，
 端末エミュレータのスクリーン文字をエディタ使用中にコピー／ペーストするほかに，
