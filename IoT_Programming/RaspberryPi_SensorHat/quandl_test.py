@@ -2,7 +2,7 @@
 import quandl
 import requests
 
-data = quandl.get("XJPX/13440", authtoken="o-n5ZDbb-ewagY5j8VYf")
+data = quandl.get("XJPX/13050", authtoken="o-n5ZDbb-ewagY5j8VYf")
 print(data[:5])
 
 #COLUMN    DESCRIPTION
