@@ -1,4 +1,4 @@
-\documentclass[11pt,a4,epsf]{report}
+\documentclass[11pt,a4,epsf]{article}
 %\documentstyle[11pt]{j-article}
 %\usepackage{otf}
 \usepackage{amssymb}
@@ -108,6 +108,100 @@ LINUX や組み込み Windows が動作する単体のパソコンとして使�
 今回は，Sensor Hat  とよばれる，センサ類とスイッチを入力として持ち，マトリクス LED を出力として備える市販のボードを Raspberry Pi にとりつけて演習を行う．
 
 
+\section{Raspberry Pi の電源投入からシャットダウン（電源投了）まで}
+
+Raspberry Pi の HDMI ポートと USB ポート，ネットワークポートを使えば，ディスプレイ，キーボード，マウスを接続しインターネットに接続した PC として使用できるが，今回はトラブル等が発生しない限り，ディスプレイおよびキーボードのない状態で起動し，
+Wi-Fi を通じて端末エミュレーターで接続し，その中ですべての作業を行う．
+
+\subsection{電源投入と起動}
+
+Raspberry Pi には電源スイッチはない．
+電源入力である micro USB ポートに，5V/2A の USB電源からケーブルをつないだ時点で起動する．
+HDMI やシリアル入出力を通してディスプレイ装置を接続している場合，Linux の起動プロセスメッセージが表示される．
+この実験で使用する micro SD カードには， (1)  Wi-Fi 接続を行い，(2) X ウインドウを使用しない状態でログインを待機し，また (3) ネットワークからの SSH 接続を受け入れる設定で Linux (Debian ベースの Raspbian) が起動するようになっている．
+SenseHat を装着した状態では，LED マトリクスが消灯したころ起動プロセスが終了している．
+
+\subsection{端末エミュレータからのログイン}
+
+接続先の Raspberry Pi の IP アドレスが \verb+192.168.1.129+ であるとする．
+（実際に使用する IP アドレスは，micro SD カードで OS から設定されるか，ネットワークのアドレスサーバ（DHCP）から割り当てられるので，各自確認すること．）
+端末エミュレータからの接続は，セキュアシェル ssh コマンドを使って次のように行う．
+\begin{quote}
+\small
+\begin{verbatim}
+$ ssh 192.168.1.129 -l pi
+pi@192.168.1.129's password: 
+
+Linux raspberrypi 4.14.98-v7+ #1200 SMP Tue Feb 12 20:27:48 GMT 2019 armv7l
+（省略）
+pi@raspberrypi:~ $ 
+\end{verbatim}
+\end{quote}
+\verb+pi+ は OS インストール時にデフォルトで設定されるユーザー名で，パスワードは \verb+raspberry+ である．
+bash のコマンドプロンプト \verb+pi@raspberrypi:~ $+ で，raspberrypi という名前のホストに ユーザー名 pi でログインしている状態であることがわかる．
+\verb+pi+ は管理グループユーザーに設定されているため，管理権限が必要なコマンドも \verb+sudo [コマンド]+ で使用することができる．
+
+\subsection{Python 3 のインタラクティブモードの実行と終了}
+
+Python は，シェルと同様にプログラム・ファイルを実行することができ，インタラクティブ・モードで使うこともできる．
+Python 3.x のインタラクティブモードでの起動，対話的実行，終了は，以下のように行う．
+実行は，文（改行するまで）ごとに行われる．
+\begin{quote}
+\small
+\begin{verbatim}
+pi@raspberrypi:~ $ python3
+Python 3.5.3 (default, Sep 27 2018, 17:25:39) 
+[GCC 6.3.0 20170516] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> print("Hello, world!")
+Hello, world!
+>>> pi = 4
+>>> sgn = -1
+>>> for i in range(1,100):
+...    prev = pi                       # ← ... の後に空白 3 つ
+...    pi = pi + 4.0*sgn/(2*i+1)       # 上に同じ
+...    sgn = -sgn
+... 　                                 # ← ... の後になにも入力せず改行
+>>> print((prev+pi)/2)
+3.141643154814835
+>>> 
+>>> quit()
+pi@raspberrypi:~ $ 
+\end{verbatim}
+\end{quote}
+\verb+>>>+ はインタプリタのプロンプトである．
+\verb+...+ は，文は終わったがループのネストの中にあり，最も外側の文が終わっていないことを示している．
+ネストのレベルにあわせた適切な量の空白やタブを入れインデントづけする．
+上の例では，\verb+for in range(1,100) :+ で変数 \verb+i+ に範囲 $[1,100)$ から順に一つずつ整数を代入し，
+その次の同じインデントを持つ 4行をくりかえす．
+インタラクティブモードでは，ループの中のブロックが終了したことを伝えるため，\verb+...+ のあとをカラのまま改行して， \verb+for+ の文を終わらせる．
+
+Python のインタラクティブモードを終了するには，関数 \verb+quit()+ を実行する．
+
+\begin{excercise}
+Python 3 のインタプリタモードで上記のプログラムを実行し，その後 Python を正しく終了させなさい．
+ctrl-C で Python  インタプリタを終了できるかどうか確かめなさい．
+\end{excercise}
+
+\subsection{シャットダウンと終了}
+
+Raspberry Pi の電源を切る場合，OS のシャットダウンを使用してから micro USB ケーブルを抜く．
+\begin{quote}
+\small
+\begin{verbatim}
+pi@raspberrypi:~ $ sudo shutdown now
+Connection to 192.168.1.129 closed by remote host.
+Connection to 1192.168.1.129 closed.
+$ 
+\end{verbatim}
+\end{quote}
+ディスプレイがないと OS のシャットダウンメッセージを見ることはできないが，
+上記方法で接続を切ってからしばらくすると LED の点滅をしなくなるので，ケーブルを抜いて終了する．
+
+ただしディスクアクセス中などでなければ，突然電源を OFF にしてもファイルやディレクトリが壊れたり，起動しなくなる，といった状態になることはまれである．
+
+
+
 \section{Python 言語}
 
 本演習では，Python 3.x を使用する．
@@ -153,96 +247,6 @@ Python 言語は，インタープリタで動作する，インデンテーシ�
   \end{tabular}
 %\end{table}
 
-\section{Raspberry Pi の基本，起動からシャットダウン（電源投了）まで}
-
-Raspberry Pi の HDMI ポートと USB ポート，ネットワークポートを使えば，ディスプレイ，キーボード，マウスを接続しインターネットに接続した PC として使用できるが，今回はトラブル等が発生しない限り，ディスプレイおよびキーボードのない状態で起動し，
-Wi-Fi を通じて端末エミュレーターで接続し，その中ですべての作業を行う．
-
-\subsection{電源投入，起動と端末エミュレータからのログイン}
-
-Raspberry Pi には電源スイッチはない．
-電源入力である micro USB ポートに，5V/2A の USB電源からケーブルをつないだ時点で起動する．
-HDMI やシリアル入出力を通してディスプレイ装置を接続している場合，Linux の起動プロセスメッセージが表示される．
-この実験で使用する micro SD カードには， (1)  Wi-Fi 接続を行い，(2) X ウインドウを使用しない状態でログインを待機し，また (3) ネットワークからの SSH 接続を受け入れる設定で Linux (Debian ベースの Raspbian) が起動するようになっている．
-SenseHat を装着した状態では，LED マトリクスが消灯したころが起動プロセスが終了したころである．
-
-接続先の Raspberry Pi の IP アドレスが \verb+192.168.1.129+ であるとする．
-（実際に使用する IP アドレスは，micro SD カードで OS から設定されるか，ネットワークのアドレスサーバ（DHCP）から割り当てられるので，各自確認すること．）
-端末エミュレータからの接続は，セキュアシェル ssh コマンドを使って次のように行う．
-\begin{quote}
-\small
-\begin{verbatim}
-$ ssh 192.168.1.129 -l pi
-pi@192.168.1.129's password: 
-
-Linux raspberrypi 4.14.98-v7+ #1200 SMP Tue Feb 12 20:27:48 GMT 2019 armv7l
-（省略）
-pi@raspberrypi:~ $ 
-\end{verbatim}
-\end{quote}
-\verb+pi+ は OS インストール時にデフォルトで設定されるユーザー名で，パスワードは \verb+raspberry+ である．
-bash のコマンドプロンプト \verb+pi@raspberrypi:~ $+ で，raspberrypi という名前のホストに ユーザー名 pi でログインしている状態であることがわかる．
-\verb+pi+ は管理グループユーザーに設定されているため，管理権限が必要なコマンドも \verb+sudo [コマンド]+ で使用することができる．
-
-\subsection{Python 3 のインタラクティブモードの実行と終了}
-
-Python は，シェルと同様にプログラム・ファイルを実行することができ，インタラクティブ・モードで使うこともできる．
-Python 3.x のインタラクティブモードでの起動，対話的実行，終了は，以下のように行う．
-実行は，文（改行するまで）ごとに行われる．
-\begin{quote}
-\small
-\begin{verbatim}
-pi@raspberrypi:~ $ python3
-Python 3.5.3 (default, Sep 27 2018, 17:25:39) 
-[GCC 6.3.0 20170516] on linux
-Type "help", "copyright", "credits" or "license" for more information.
->>> print("Hello, world!")
-Hello, world!
->>> pi = 4
->>> sgn = -1
->>> for i in range(1,1000):
-...    prev = pi                       # ← ... の後に空白 3 つ
-...    pi = pi + 4.0*sgn/(2*i+1)       # 上に同じ
-...    sgn = -sgn
-... 　                                 # ← ... の後になにも入力せず改行
->>> print((prev+pi)/2)
-3.141593154089919
->>> 
->>> quit()
-pi@raspberrypi:~ $ 
-\end{verbatim}
-\end{quote}
-\verb+>>>+ はインタプリタのプロンプトである．
-\verb+...+ は，改行したがまだループのネストの中にあり，最も外側の文が終わっていないことを示しているので，ネストのレベルにあわせた適切な量の空白やタブを入れインデントづけする．
-上の例では，\verb+for in range(1,1000) :+ で変数 \verb+i+ に範囲 $[1,1000)$ から順に一つずつ整数を代入し，
-その次の同じインデントを持つ 4行をくりかえす．
-インタラクティブモードでは，ループの中のブロックが終了したことを伝えるため，\verb+...+ のあとをカラのまま改行して， \verb+for+ の文を終わらせる．
-
-Python のインタラクティブモードを終了するには，関数 \verb+quit()+ を実行する．
-
-\begin{excercise}
-Python 3 のインタプリタモードで上記のプログラムを実行し，ループの \verb+i+ の範囲を 1 から 9999 までにして \verb+pi+ の値がどのように変化するか確かめなさい．
-その後，Python を正しく終了させなさい．
-また，ctrl-C で終了できるかどうか確かめなさい．
-\end{excercise}
-
-\subsection{シャットダウンと終了}
-
-Raspberry Pi の電源を切る場合，OS のシャットダウンを使用してから micro USB ケーブルを抜く．
-\begin{quote}
-\small
-\begin{verbatim}
-pi@raspberrypi:~ $ sudo shutdown now
-Connection to 192.168.1.129 closed by remote host.
-Connection to 1192.168.1.129 closed.
-$ 
-\end{verbatim}
-\end{quote}
-ディスプレイがないと OS のシャットダウンメッセージを見ることはできないが，
-上記方法で接続を切ってからしばらくすると LED の点滅をしなくなるので，ケーブルを抜いて終了する．
-
-ただしディスクアクセス中などでなければ，突然電源を OFF にしてもファイルやディレクトリが壊れたり，起動しなくなる，といった状態になることはまれである．
-
 
 \section{Sensor Hat の使い方}
 
@@ -259,7 +263,9 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>> from sense_hat import SenseHat        # SenseHat クラスライブラリの使用を宣言
 >>> sense = SenseHat()                    # SenseHat へのアクセスオブジェクトを生成
 >>> sense.show_message("hello, world!")   # LED Matrix に文字列を流れ出力
->>> 
+>>> sense.set_rotation(90)
+>>> sense.show_message("Bye!", 0.2,[255,255,0],[0,0,255])
+>>> sense.clear()
 \end{verbatim}
 \end{quote}
 
@@ -272,22 +278,24 @@ Type "help", "copyright", "credits" or "license" for more information.
 SenseHat には，マイクロマシン技術を使った超小型の一体型加速度，ジャイロ（回転），磁気のセンサが搭載されている．
 このようなセンサの普及によって，カメラの手ぶれ防止やドローンの自動制御，スマートホンの万歩計機能や地図の方位機能が使用可能になった．
 
-下記のコードを実行すると、ctrl-C で中断するまで加速度センサの値を出力しつづける．
+下記のコードを実行すると、ctrl-C で中断するまで加速度センサで取得する値のうちキーが \verb+Z+ の値（ボードの $Z$ 軸，垂直方向）を出力しつづける．
 \begin{quote}
 \small
 \begin{verbatim}
 >>> from sense_hat import SenseHat 
 >>> import time
 >>> sense = SenseHat() 
->>> while True :
-...    accl = sense.get_accelerometer_raw()
-...    msg = "x: {0}, y: {1}, z: {2}".format(accl["x"],accl["y"],accl["z"])
-...    print(msg)
-...    time.sleep(0.5)
-...
-0.0058187018148601055 -0.1268848180770874 1.0050058364868164
-0.013334525749087334 -0.13098566234111786 0.9833167791366577
-0.014061863534152508 -0.13122688233852386 0.9806361198425293
+>>> while True:
+...   accl = sense.get_accelerometer_raw()
+...   print(round(accl["z"],3))
+...   time.sleep(0.5)
+... 
+0.994
+0.969
+0.701
+0.356
+-0.142
+-0.713
 （以下略）
 \end{verbatim}
 \end{quote}
@@ -302,11 +310,11 @@ Raspberry Pi の向きを変えて，加速度センサの読み取り値が変�
 
 \subsection{気温，湿度，気圧センサ}
 
-次に，Python のプログラムをプログラムファイルとして作成しよう．
-気候に関する気温，湿度，気圧センサーの値を利用するプログラムを以下に示す．
+Python のプログラムをプログラムファイルとして作成しよう．
+気温，湿度，気圧センサーの値を利用するプログラムを以下に示す．
 
-以下の内容のテキスト・ファイルを Raspberry Pi で作成し，たとえば \verb+sensehat.py+ として（Raspberry Pi のディレクトリに）保存する．
-エディタは Raspbian に標準でインストールされている \verb+nano+，または 追加インストールされている \verb+emacs+ を使用するとよい．
+以下の内容のテキスト・ファイルを Raspberry Pi 上で作成し，たとえば \verb+sensehat.py+ として保存する．
+エディタは Raspbian に標準でインストールされている \verb+nano+，または追加インストールされている \verb+emacs+ を使用するとよい．
 \verb+nano+ は使用するコマンド（保存，終了など）がスクリーン下にメニュー形式で表示される．
 保存ファイル名を保存時にプロンプトされるので，修正の必要がなければそのまま改行する．
  \begin{itembox}[l]{\tt sensehat.py}
@@ -328,6 +336,11 @@ print(temp, humi, pres)
 \end{verbatim}
 \end{quote}
 \end{itembox}
+\verb+from datetime import datetime+ は，ライブラリの \verb+datetime+ モジュールから日時，現在の時間などを扱うための \verb+datetime+ クラス\footnote{データ型とその型用の関数をまとめたものをクラスという． Python や C++ では，データ型やその型の変数の関数を呼び出すとき，コンマでつないで関数を書く．}を導入している．
+\verb+.now()+ 関数で現在の日付と時刻を取得できる．あらかじめ決まった表示形式に変換するには，\verb+.strftime+関数を使う．
+
+Raspberry Pi はバックアップ・バッテリーを備えたリアルタイム・クロックは持っていないため，日付および時刻は，インターネットに接続可能な状態で \verb+ntp+ （ネットワーク時刻プロトコル）サーバから取得する．
+一度日付，時刻を取得すると，動作中は CPU のクロック機能で日付および時刻を保持する．
 
 Python プログラム・ファイルは，コマンド \verb+python3 [ファイル名] [引数]+ で実行する．
 \verb+sensehat.py+ は引数を使わないので，実行例は以下のようになる．
@@ -339,8 +352,6 @@ pi@raspberrypi:~/Documents $ python3 sensehat.py
 pi@raspberrypi:~/Documents $ 
 \end{verbatim}
 \end{quote}
-\verb+from datetime import datetime+ では，ライブラリの \verb+datetime+ モジュールから日時，現在の時間などを扱うための \verb+datetime+ クラス\footnote{データ型とその型用の関数をまとめたものをクラスという． Python や C++ では，データ型やその型の変数の関数を呼び出すとき，コンマでつないで関数を書く．}を導入している．
-\verb+.now()+ 関数で現在の日付と時刻を取得できる．あらかじめ決まった表示形式に変換するには，\verb+.strftime+関数を使うとよい．
 
 \subsection{Joystick スイッチ}
 SenseHat は， 4方向+押し込みの入力ができるスイッチをもっており，センサと同様に状態を読み取ることができる．
@@ -348,7 +359,7 @@ SenseHat は， 4方向+押し込みの入力ができるスイッチをもっ�
 
 \begin{figure}
 \centering
-\includegraphics[width=4cm]{joystick.jpg}
+\includegraphics[width=5cm]{joystick.jpg}
 %\caption{}
 \end{figure}
 
@@ -364,19 +375,32 @@ while True :
 \end{verbatim}
 \end{quote}
 \end{itembox}
+キーやボタンのイベントを処理する場合，その押下は「ボタンをはなした」イベントで検出する．
+マウスのクリックで，押したままだと反応せず，はなした時に動作するのと同じである．
+複数回の冗長な入力をキャンセルしたり，一連の動作，たとえば Joystick を上右下左上に入れる，といった動作を認識するには，方向 \verb+.direction+とアクション \verb+.action+ だけではなく，その時刻 \verb+.timestamp+も考慮する必要がある．
 
 \begin{excercise}
-Joystick の操作で LED Matrix に流れるメッセージの内容や流れる方向を変更するプログラムを書きなさい．
+Joystick の操作で LED Matrix に流れるメッセージの内容，流れる方向などを変更するプログラムを書きなさい．
 \end{excercise}
 
 
-\section{Raspberry Pi とのファイルのやりとり}
+\section{Raspberry Pi と演習端末の間のファイルのやりとり}
 
 Raspberry Pi の SDカード内のディレクトリからファイルを演習端末のディレクトリへコピーする，またその逆を行うには，
 端末エミュレータのスクリーン文字をエディタ使用中にコピー／ペーストするほかに，
-セキュアシェル \verb+ssh+ の機能を使ったファイル転送を行う \verb+sftp+ コマンドが使用できる．
+セキュアシェル \verb+ssh+ の機能を使ったファイル転送を行う \verb+sftp+ コマンド，セキュアリモートコピー \verb+scp+ コマンドが使用できる．
 
-ファイルの Raspberry Pi へのアップロードまたはダウンロードを行うには，次の手順を踏とよい．
+\verb+scp+ による演習端末と Raspberry Pi の間でのファイルコピー等：
+\begin{enumerate}
+\item
+必要であれば，\verb+ssh pi@[アドレス] "ls [ディレクトリ名]"+ で，Raspberry Pi のディレクトリ内容を確認する．
+（\verb+ls+ 以外のリモートコマンドも実行できる．）
+\item
+\verb+scp pi@[アドレス]:[コピー元ディレクトリ／ファイル銘]  [コピー先ディレクトリ／ファイル名]+, または
+\verb+scp [コピー元ディレクトリ／ファイル銘]  pi@[アドレス]:[コピー先ディレクトリ／ファイル名]+ でファイルをコピーする．
+\end{enumerate}
+
+\verb+sftp+ によるファイルの Raspberry Pi へのアップロードまたはダウンロード：
 \begin{enumerate}
 \item
 演習端末の端末エミュレータのシェルで，やりとりするファイルのディレクトリに移動する．
@@ -389,6 +413,8 @@ Raspberry Pi の SDカード内のディレクトリからファイルを演習�
 アップロードするときは \verb+put [ファイル名]+ コマンドを、ダウンロードするときは \verb+get [ファイル名]+ コマンドを実行する．
 ファイル名のファイルがない場合は，エラーになる．
 \end{enumerate}
+
+なお，コピー操作を行うときは，コマンドを実行しているのが Raspberry Pi 側か演習端末側か，
 アップロードしているのか，ダウンロードしているのかに注意して作業すること．
 間違えると，古いファイルで上書きしてしまうことになる．
 
@@ -397,7 +423,28 @@ Raspberry Pi の SDカード内のディレクトリからファイルを演習�
 自分の USB メモリにコピーしなさい．
 \end{excercise}
 
+
 \section{センサーデバイス・プログラムの作成}
+
+\begin{subject}
+気温センサ，湿度センサ，気圧センサ，加速度センサ，ジャイロセンサ，磁気センサ，Joystick スイッチ，のうち少なくとも 3 つ以上を入力として，
+LED Matrix を出力表示器として活用し，単独で利用できるデバイスのプログラムを作成しなさい．
+（なお実際のデバイスではプログラムを自動的に起動するようにするが，今回はプログラムをリモートシェルで起動するものとする．）
+
+設計上の仕様として，（すくなくとも起動時には）Wi-Fi に接続可能で，日付と時刻は使用できるものとする．
+必要であれば，モバイルバッテリーなどを利用して移動も可能であるとする．
+
+レポートでは，そのデバイスの必要性や有用性を簡単に説明し，センサの値をどのように使用して目標を達成するのか方法を述べ，
+そのプログラムでの実現について（プログラム・リストとは別に）説明しなさい．
+また，目標とした機能をどの程度達成できたか，達成できていない場合はその理由をのべなさい．
+考察／まとめでは，作成したデバイスに対して発展的な事項を議論しなさい．たとえば欠点の改善の方法や，付加すれば大きく機能を改善または拡張できるハードウェア（GPSモジュール，カメラ，小さな液晶グラフィック・ディスプレイなど）と効果など．
+\end{subject}
+
+\begin{example}
+日付，時刻とともに，気温，湿度，気圧の変化などから半日〜数時間後程度の天気を予測し，予報を表示するデバイス．
+（湿度や気圧の変化で天候を予想することは，古くから行われていた．）
+将来的には，GPS により現在地の位置を取得し，インターネットサイトから，気象庁の予報，PM 2.5 情報，花粉飛散情報などを自動取得して表示する機能を付与する．
+\end{example}
 
 \end{document}
 
