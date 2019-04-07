@@ -158,16 +158,6 @@ Hello, world!
 >>> quit()
 pi@raspberrypi:~ $ 
 \end{verbatim}
-%>>> pi = 4
-%>>> sgn = -1
-%>>> for i in range(1,100):
-%...    prev = pi                       # ← ... の後に空白 3 つ
-%...    pi = pi + 4.0*sgn/(2*i+1)       # 上に同じ
-%...    sgn = -sgn
-%... 　                                 # ← ... の後になにも入力せず改行
-%>>> print((prev+pi)/2)
-%3.141643154814835
-%>>> 
 \end{quote}
 \verb+>>>+ はインタプリタのプロンプトである．
 %\verb+...+ は，文は終わったがループのネストの中にあり，最も外側の文が終わっていないことを示している．
@@ -251,34 +241,359 @@ Python 言語は，インタープリタで動作する，インデンテーシ�
 
 インタラクティブモードでも，ファイルで書いたプログラムでも，ライブラリのデータ型（クラス）や関数を使用する場合，その前にインポート（導入）指令を書く．
 また，コマンドスクリプトとして使うプログラムファイルの場合は，Python インタープリタのあるパス，ファイル（とプログラム中の文字列）の記述に使っている文字コードなどを指定して文字化けを避ける，などを書く．
+この入門ではインタラクティブモードを使うため，必要になる都度ライブラリのインポートをすることとにして，先にすすむ．
 
-この入門ではインタラクティブモードを使うため，必要になる都度ライブラリのインポートをすることとにして，先にすすもう．
+\begin{excercise}
+Raspberry Pi を起動し，演習端末のターミナルエミュレーターからユーザー\verb+pi+でログインし，Python 3 をインタラクティブモードで起動し，
+以下の説明では実行例と同様のことを行って自分でも確認しなさい．
+\end{excercise}
 
 \subsection{変数の宣言，代入，演算}
 
-Python では，{\bf 変数の宣言は不要}であるが，値を定義済みでない変数の値を参照しようとするとエラーとなる．
+Python では，{\bf 変数の宣言は不要}で変数は型をもたないが，値を定義済みでない変数の値を参照しようとするとエラーとなる．
 間違いが起きないように，変数に初期値を代入する式を書いておき，宣言のかわりにするとよい．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> x = 3
+>>> x
+3
+>>> y = 4.1
+>>> s = "result = "
+>>> s, x*y
+('result = ', 12.299999999999999)
+>>> u
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'u' is not defined
+>>>
+\end{verbatim}
+\end{quote}
+インタラクティブモードでは，式が値を返す場合，値が表示される．
+C 言語と違って，Python では{\bf 代入式は値を返さない}．
 
-変数への代入などの算術式，論理式などは C 言語とほぼかわらない．
-ただし，論理 AND \verb+&&+, OR \verb+||+ は \verb+and+, \verb+or+ と書く．
+数値に使用する算術式，論理式などは優先順位もふくめ多くは C 言語と共通である．
+ただし，C言語で \verb+! 式+ で書く論理値の反転（否定）は \verb+not 式+ と書く．
+論理積, 論理和 \verb+and+, \verb+or+ と書く．
+論理値の定数，{\bf 真と偽は \verb+True+ と \verb+False+} である．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> "apple" < "orange" and x > y
+False
+>>> x < y < x*y
+True
+>>>
+\end{verbatim}
+\end{quote}
+
 また，インクリメントおよびデクリメント演算子 \verb%++%，\verb+--+はない．
 \begin{quote}
 \small
 \begin{verbatim}
->>> print(x)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-NameError: name 'x' is not defined
->>> x = 1
->>> print(x+1)
-2
->>> s = "I am "
->>> s += "a student."
->>> print(s)
-I am a student.
->>> 
+  File "<stdin>", line 1
+    x++
+      ^
+SyntaxError: invalid syntax
+>>> x += 1
+>>> x
+4
 \end{verbatim}
 \end{quote}
+
+文字列には，部分文字列として含まれるかどうかを試す \verb+in+ 演算子が使用できる．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> "zou" in "reizouko"
+True
+>>>\end{verbatim}
+\end{quote}
+
+\subsection{条件分岐とループ}
+
+ループの記述には，C 言語の \verb+while+ 文と \verb+for+ 文に相当する \verb+while 条件式 :+ と \verb+for 変数 in コレクション:+ が使用できる．
+コレクションは，数値の範囲，リスト，キーと値が組の辞書，などのデータ構造を選ぶことができる．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> for i in range(0,6):
+...    print(i, end=", ")
+...
+0, 1, 2, 3, 4, 5, >>>
+>>> while x < 8:
+...    print(x)
+...    x = x + 2
+...
+3
+5
+7
+\end{verbatim}
+\end{quote}
+ループの内側の{\bf ブロックは，文頭に同じ数の空白またはタブによるインデントをいれて続ける}ことで表す．
+逆に，「見やすくする」といった，Python のプログラムの構造と関係ないインデントは，不必要なためエラーとなる
+
+\verb+range(0,6)+ は初期値，ふくまれない終値，増分を引数とする範囲データ構造を生成し，\verb+for+ 文はその先頭から値を一つずつ変数にいれてループ内の文に渡す．
+\verb+range+ の引数は，増分が1の場合，さらに初期値が 0 の場合，それぞれを省略できる．
+なお，\verb+print+ はオプショナルな引数 \verb+end+ に文字列を値として渡すと，改行のかわりにその文字列を出力する．
+
+ループを中断してループをぬけるためには，C 言語とおなじように \verb+break+ を使用する．
+ループの内側の実行を切り上げて次のループにうつるための \verb+continue+ も使用できる．
+ただし，Python には \verb+goto ... label+ はない\footnote{インストールすると使えるようになるライブラリモジュールもあるらしいが，標準ですらないので使わないことにするほうがよいだろう．}ので，二重以上のループを中断して出るためには，ループを関数化して \verb+return+ で終了する，変数の組で制御する一重ループにする，終了フラグ変数を使って連続で \verb+break+する，などの工夫が必要である．
+また， Python には \verb+do ... while 式+ 構文はないので \verb+while True: ... if 論理式: break+ で置き換える．
+
+\begin{excercise}[円周率$\pi$を求める]
+ライプニッツの公式
+\[
+\frac{\pi}{4} = \frac{1}{1} - \frac{1}{3} + \frac{1}{5} - \frac{1}{7} + \cdots = \sum_{i=0}^{\infty}\frac{(-1)^i}{2i+1}
+\]
+を使って，円周率（$3.141592\cdots$）を 1/10000 の桁またはそれ以下まで正しくもとめなさい．
+ループはおよそ何回まわせばよいか．
+なお，Python の式ではべき乗 $x^y$ は \verb+x**y+ で表せる．
+ただし上記式のべき乗 $(-1)^i$ は，項ごとに符号を逆にしているだけでありべき乗を必ずしも求める必要はない．
+\end{excercise}
+
+
+C言語の \verb+if (式) ... else if ... else ...+ に相当する \verb+if 論理式 : ... elif: ... else: ...+ がある．
+\verb+switch(値) { case 値: ... default: ...}+ 文はないので，\verb+if+ 文を使って実現する．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> if order == "short" :
+...    print(430)
+... elif order == "tall" :
+...    print(470)
+... elif order == "grande" :
+...    print(510)
+... elif order == "venti" :
+...    print(550)
+... else:
+...    print("I beg your pardon?")
+...
+510
+>>>
+\end{verbatim}
+\end{quote}
+
+\subsection{組，リスト，集合，辞書}
+
+Python は，データの集まりを表すデータ構造を言語標準で持ち，数値や文字列と同様に使うことができる．
+\verb+for+ 文では，いずれに対しても，先頭から要素ごとにループを回すことができる．
+
+\subsubsection{列：組とリスト}
+組は，定数で生成した後変更できない列である．
+カッコ \verb+( )+ でくくってコンマで要素を区切りあらわす．
+リストは，\verb+[ ]+ でくくって表すデータの列で，範囲 [0, 長さ) 中の添字でアクセスする C言語の配列と，要素の追加や削除を行う連結リストの役割をはたす．
+どちらも要素には添字で \verb+list[i]+ のようにアクセスでき，さらにスライスとよばれる部分列を \verb+list[1:4]+ の要に添字の始値と終値の次の値の区間で得ることができる．
+列の長さは \verb+len+ 関数でえられる．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> t = (1, -2, 3)
+>>> t[0]
+1
+>>> t[1:len(t)]
+(-2, 3)
+>>> (x, y, z) = t
+>>> y
+-2
+>>> l = list(t)
+>>> l
+[1, -2, 3]
+>>> l.append(0)
+>>> l
+[1, -2, 3, 0]
+>>> l = l + [8, 2]
+>>> for i in l :
+...    if i in [2,3,4,5] :
+...       print(i)
+...
+3
+2
+>>>
+\end{verbatim}
+\end{quote}
+組は変更できないので，\verb+list( )+ 関数で型をリストに変換して追加等を行う．
+リストには，要素の追加 \verb+append+ や，連結した列を新たに生成する演算子 \verb$+$ が使用できる．
+論理式では，列の要素としてある値を持つかどうかを演算子 \verb+in+ で検査でき，
+\verb+for+ 文でループの制御変数に値をそのまま渡して枚挙することも可能である．
+
+\subsubsection{集合と辞書（写像）}
+
+ハッシュ法を使った，要素の順序を気にしないデータの集まりとして，\verb+set+ がある．
+カッコ \verb+{ }+ で表す．
+\verb+set+ は和集合，差集合，部分集合かどうかの判定，などの集合演算を備えている．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> s = set(l)
+>>> u = {0, 2, 4, 6, -2, -4}
+>>> t = s & u
+>>> t
+{0, 2, -2}
+>>> t.add(4)
+>>> t
+{0, 2, 4, -2}
+>>>
+\end{verbatim}
+\end{quote}
+
+辞書 \verb+dict+ 型は，集合の要素が \verb+値1：値2+ の形で記述されたもので，
+ \verb+値1+ をキー，\verb+値2+ をそのキーに対応づける値として持つ．
+持っているキーに対する値は \verb+辞書型変数[キー]+ で，
+キーに対する値の設定（追加）は，\verb+辞書型変数[キー] = 値+ で行える．
+\verb+in+ 演算子は，値は関係なく，キーをもつかどうかを検査する．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> d = {"apple": u"リンゴ", "this": u"これ", "is a": u"は", "is the": u"が", "dog" : u"いぬ"}
+>>> d
+{'apple': 'リンゴ', 'this': 'これ', 'is a': 'は', 'is the': 'が', 'dog': 'いぬ'}
+>>> d["apple"] = u"リンゴ"
+>>> d["pen"] = u"ペン"
+>>> msg = "this is a pen"
+>>> for key in d:    "
+...    if key in msg :
+...       print(d[key])  "
+...
+これ
+は
+ペン
+>>>
+\end{verbatim}
+\end{quote}
+文字列のまえの \verb+u+ は，その文字列の文字コードが unicode であることを明示し，文字化けを防いでいる．
+
+キー値での参照 \verb+辞書型変数[キー]+ は，そのキーを持たない場合にはエラーを発生させる．
+キーが含まれるかどうかわからない状態で値を取得するには，キーがない場合定数 \verb+None+ または第二引数であたえた値を返す関数 \verb+get(キー)+ を使うか，例外処理とよばれるエラーが生じた場合のブロックをプログラムする．（例外処理については，ファイル処理で少し説明する．）
+
+\begin{excercise}[リファレンスとしての Web 情報の利用]
+リスト，集合，辞書それぞれについて，要素の削除を行うための関数（メソッド）をしらべなさい．
+列中の要素を添字で指定して削除する方法，削除したい要素と同じ値を指定して削除する方法，
+それぞれ使用できるかどうかを確認しなさい．
+\end{excercise}
+
+\section{関数の宣言}
+
+そろそろインタラクティブモードではつらくなってきたであろうから，プログラムをファイル編集して書き，実行することにする．
+プログラムはテキストファイルで，ファイル名を \verb+名前.py+ とつけて保存する．
+プログラムの先頭に，
+\begin{verbatim}
+#!/usr/bin/env python3
+\end{verbatim}
+と書いておくと，プログラムのファイルに実行許可がある場そのままコマンドファイルとして実行できる．
+さらに，その次の行あるいはファイル先頭に
+\begin{verbatim}
+# -*- coding: utf-8 -*-
+\end{verbatim}
+と書いておくと，プログラムファイルの文字コーディングが UTF-8 であることを Python に，また \verb+emacs+エディタを使う場合は \verb+emacs+ にも知らせることができ，文字化けを防ぐことができる．
+
+関数の宣言は，関数が呼び出されるより前に行われていなければならない．
+関数名と引数を \verb+def 関数名(引数，引数，...) :+ で宣言し，
+この後にインデントをつけたブロックでその処理を記述する．
+\begin{itembox}[l]{\tt test.py}
+\begin{quote}
+\small
+\begin{verbatim}
+# -*- coding: utf-8 -*-
+import sys
+
+def gcd(a, b):
+    if a == 0 or b == 0 :
+        return 0  # error
+    while b != 0 :
+        c = a % b
+        a = b
+        b = c
+    return a
+
+print(sys.argv)
+if len(sys.argv) < 3:
+    print("エラー: 引数が少なすぎ")
+    exit(1) 
+
+x = int(sys.argv[1])
+y = int(sys.argv[2])
+print(gcd(x, y))
+\end{verbatim}
+\end{quote}
+\end{itembox}
+\verb+sys+ はシステム関係のライブラリモジュールで，\verb+sys.argv+ はコマンド引数（文字列）のリストである．
+C言語の \verb+main+ 関数の引数 \verb+int argc, char * argv[]+ にあたる．
+\verb+int( )+ は型変換の関数で，引数は文字列であるためその表現する整数に変換している．
+C言語の \verb+atoi, atol+ にあたる．
+浮動小数点数の整数部を取り出すのにも使用する．
+その場合は C 言語のキャスト \verb+(int)+ と同じはたらきになる．
+
+このプログラムの実行例は，以下のようになる．
+\begin{quote}
+\small
+\begin{verbatim}
+pi@raspberrypi:~/Documents $ python3 test.py 28 12
+['test.py', '28', '12']
+4
+pi@raspberrypi:~/Documents $
+\end{verbatim}
+\end{quote}
+
+関数内では局所変数を使用できる．
+使用する変数は，初期化（値の代入）が行われれば局所変数とみなされ，
+代入が行われていない変数を参照すれば大域変数とみなされる．
+局所変数と大域変数で同じ名前を使うことは許されず，局所変数が優先される．
+上の \verb+test.py+ では，\verb+a, b+ は引数として値を代入され渡される局所変数，\verb+c+ は最初に代入が行われる局所変数である．
+引数は値呼び出しで，引数変数への操作は，関数を呼び出したときの変数の値に影響しない．
+
+引数には，名前と省略した場合の値を与えることもできる．
+下記の例では，引数 \verb+form+ をデフォルト値 0 で省略可能にしている．
+\begin{quote}
+\small
+\begin{verbatim}
+from datetime import datetime
+
+def dt(form = 0):
+    if form == 0:
+        return datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+    else:
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+print(dt())
+print(dt(form=1))
+\end{verbatim}
+\end{quote}
+複数の引数がある場合，省略した変数とそうでない変数をはっきりさせるため，引数部に \verb+変数名=値+ と書いて引数を渡す．
+\verb+print( )+ の \verb+end=''+ はこの形をとっている．
+\begin{quote}
+\small
+\begin{verbatim}
+2019/04/02 17:14:27
+2019-04-02 17:14:27
+\end{verbatim}
+\end{quote}
+
+\begin{excercise}[Python 言語でのアルゴリズムの実装]
+ユリウス通日 Julian day number は，さまざまな暦の間での日付の相互変換を念頭においたある起点からの日数で，
+天体の運動を扱う天文計算などで使われる．
+西暦 $Y$ 年 $M$ 月 $D$ 日のユリウス通日 $\mathit{JD}(Y,M,D)$は，以下の方法で計算できる\footnote{時刻は，日 $D$ の小数点以下で表されているものとする．ただし，ユリウス通日の 0 時は昼の正午となっている．}．
+\begin{enumerate}
+\item
+月 $M$ が 1 または 2 ならば，$M$ に 12 を加え，$Y$ を 1 減ずる．
+\item
+日付 $Y$ 年 $M$ 月 $D$ 日が 1582年10月15日以降ならば，
+$a = int(Y/100)$, $b=2 - a + int(a/4)$ とし，
+そうでなければ $b=0$ とする．
+
+ただし $int(x)$ は $x$ の整数部で，負の値に関しては，$-x < 0$ のとき $\mathit{int}(x) = -\mathit{int}(x)$ である（床関数ではない）．
+\item
+$JD = \mathit{int}(365.25 * Y) + \mathit{int}(30.6001 * (M+1)) + D + b + 1720994.5$
+\end{enumerate}
+
+このユリウス通日を求める関数を定義し，自分の誕生日から今日は何日目か計算するプログラムを作れ．
+日付はプログラムの中で（定数で）あたえてよい．
+\end{excercise}
+
+
+\subsection{ファイル入出力}
 
 
 \section{Sensor Hat の使い方}
