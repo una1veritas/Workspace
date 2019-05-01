@@ -24,6 +24,7 @@ def set_screen(screen, column, row, color):
 sense = SenseHat()
 sense.clear()
 
+
 ledscreen = []
 fill_screen(ledscreen,BLACK)
 laststamp = datetime.now().timestamp()
