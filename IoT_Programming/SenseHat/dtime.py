@@ -4,29 +4,25 @@ import math
 import random
 
 
-hist = [0,0,0,0,0]
+hist = [0,0,0]
 outer = 0
-width = 0.4
+width = 0.33
 hists = list()
-for mu in range(0, 10):
-    center = mu/10
-    hist = [0 for i in range(0,5)]
-    for i in range(0,10000):
+for mu in range(0, 6):
+    center = mu/6
+    hist = [0 for i in range(3)]
+    for i in range(0,80000):
         r = random.gauss(center, width)
-        if -2 < r <= -1 :
-            hist[-2] += 1
-        elif -1 < r <= 0 :
+        if -1 <= r < 0 :
             hist[-1] += 1
-        elif 0 < r <= 1 :
+        elif 0 <= r < 1 :
             hist[0] += 1
-        elif 1 < r <= 2 :
+        elif 1 <= r < 2 :
             hist[1] += 1
-        elif 2 < r <= 3 :
-            hist[2] += 1
         else :
             outer += 1
             
-    hists.append([int(hist[i]/10000*320) for i in range(-2,3)])
+    hists.append([int(hist[i]/80000*280) for i in range(-1,2)])
 
 print(hists)
 

@@ -14,11 +14,8 @@ WHITE = [255, 255, 255]  # White
 BLACK = [0, 0, 0]  # White
 
 ring_outer = [
-    [4,0], [5,0], [6,0],
-    [7,1], [7,2], [7,3], [7,4], [7,5], [7,6],
-    [6,7], [5,7], [4,7], [3,7], [2,7], [1,7],
-    [0,6], [0,5], [0,4], [0,3], [0,2], [0,1],
-    [1,0], [2,0], [3,0]
+    [4,0], [5,0], [6,1], [7,2], [7,3], [7,4], [7,5], [6,6], [5,7], [4,7], 
+    [3,7], [2,7], [1,6], [0,5], [0,4], [0,3], [0,2], [1,1], [2,0], [3,0]
     ]
 ring_inner = [
     [4,1], [5,1], 
@@ -28,40 +25,42 @@ ring_inner = [
     [2,1], [3,1],
     ]
 
-idx_offset = [22, 23, 0, 1, 2]
+idx_offset = [18, 19, 0, 1, 2]
 mag_sec = [
-    [20, 130, 130, 20, 0], 
-    [17, 123, 135, 22, 0], 
-    [14, 113, 144, 25, 0], 
-    [12, 111, 147, 30, 0], 
-    [10, 102, 151, 33, 1], 
-    [9, 95, 154, 38, 1], 
-    [8, 89, 155, 44, 1], 
-    [6, 84, 161, 46, 2], 
-    [5, 77, 161, 53, 2], 
-    [4, 71, 162, 58, 2], 
-    [3, 63, 164, 63, 3], 
-    [2, 60, 164, 67, 4], 
-    [2, 52, 162, 77, 5], 
-    [2, 46, 161, 82, 6], 
-    [1, 43, 156, 90, 8], 
-    [1, 37, 154, 97, 9], 
-    [1, 33, 148, 106, 10], 
-    [0, 30, 143, 110, 12], 
-    [0, 25, 138, 119, 14], 
-    [0, 22, 135, 123, 17]
+    [19, 139, 141, 19, 0], 
+    [14, 130, 151, 22, 0], 
+    [9, 117, 161, 31, 0], 
+    [7, 103, 169, 37, 1], 
+    [5, 92, 174, 46, 1], 
+    [4, 76, 182, 55, 1], 
+    [2, 68, 178, 66, 2], 
+    [1, 55, 179, 78, 4], 
+    [1, 48, 175, 88, 5], 
+    [0, 37, 171, 101, 7], 
+    [0, 31, 161, 117, 9], 
+    [0, 22, 154, 128, 14]
     ]
 mag_min = [
-    [1, 158, 157, 1, 0], 
-    [0, 129, 185, 4, 0], 
-    [0, 98, 214, 7, 0], 
-    [0, 75, 232, 12, 0], 
-    [0, 50, 248, 21, 0], 
-    [0, 34, 250, 34, 0], 
-    [0, 20, 249, 50, 0], 
-    [0, 13, 234, 72, 0], 
-    [0, 8, 214, 96, 0], 
-    [0, 3, 187, 127, 0]
+    [2, 156, 158, 2, 0], 
+    [1, 132, 181, 4, 0], 
+    [0, 108, 202, 7, 0], 
+    [0, 86, 219, 12, 0], 
+    [0, 68, 232, 18, 0], 
+    [0, 51, 242, 26, 0], 
+    [0, 37, 245, 36, 0], 
+    [0, 26, 240, 52, 0], 
+    [0, 18, 231, 70, 0], 
+    [0, 11, 218, 89, 0], 
+    [0, 7, 201, 109, 0], 
+    [0, 4, 178, 135, 1]
+    ]
+mag_hour = [
+    [139, 139, 0], 
+    [85, 193, 1], 
+    [42, 230, 5], 
+    [18, 242, 18], 
+    [5, 230, 42], 
+    [1, 196, 85],
     ]
 
 def fill_screen(screen, color):
@@ -88,40 +87,41 @@ sense.clear()
 
 ledscreen = []
 fill_screen(ledscreen,BLACK)
-lastdt = datetime.now(TZ_JST)
-lastoctsecond = 8*lastdt.second + lastdt.microsecond // 125000
-lastqmin = 4 * lastdt.minute + lastdt.second // 15
+lastquartersec = 61
 try:
     while True:
         # timestamp for this iteration
-        nowdt = datetime.now(TZ_JST)
-        nowqsecond = 8*nowdt.second + nowdt.microsecond // 125000
-        if lastoctsecond != nowqsecond :
-            lastoctsecond = nowqsecond
-            nowqmin = 4 * nowdt.minute + nowdt.second // 15
-            if lastqmin != nowqmin:
-                lastqmin = nowqmin
+        currentdt = datetime.now(TZ_JST)
+        currentquatersec = 4*currentdt.second + currentdt.microsecond // 250000
+        if lastquartersec != currentquatersec :
+            lastquartersec = currentquatersec
+            currentquartermin = 4 * currentdt.minute + currentdt.second // 15
             # draw outer ring
             fill_screen(ledscreen,BLACK)
-            basepos = lastoctsecond // len(mag_sec)
-            fracpos = lastoctsecond % len(mag_sec)
+            basepos = lastquartersec // len(mag_sec)
+            fracpos = lastquartersec % len(mag_sec)
             for i in range(len(mag_sec[fracpos])):
-                [x, y] = ring_outer[(basepos + idx_offset[i]) % 24]
+                [x, y] = ring_outer[(basepos + idx_offset[i]) % len(ring_outer)]
                 brt = [mag_sec[fracpos][i], mag_sec[fracpos][i], mag_sec[fracpos][i]]
                 set_screen(ledscreen, x, y, brt)
-            basepos = lastqmin // len(mag_min)
-            fracpos = lastqmin % len(mag_min)
+            basepos = currentquartermin // len(mag_min)
+            fracpos = currentquartermin % len(mag_min)
             for i in range(len(mag_min[fracpos])):
-                [x, y] = ring_outer[(basepos + idx_offset[i]) % 24]
+                [x, y] = ring_outer[(basepos + idx_offset[i]) % len(ring_outer)]
                 brt = [mag_min[fracpos][i], mag_min[fracpos][i], 0]
                 brt = mix(ledscreen[y*8+x], brt)
                 set_screen(ledscreen, x, y, brt)
             # draw inner ring
-            basepos = lastdt.hour // 16
-            [x, y] = ring_inner[basepos]
-            set_screen(ledscreen, x, y, [0, 191, 63])
+            basepos = (4 * currentdt.hour + currentdt.minute // 15) // len(mag_hour)
+            fracpos = (4 * currentdt.hour + currentdt.minute // 15) % len(mag_hour)
+            #print(basepos, fracpos)
+            for i in range(3):
+                [x, y] = ring_inner[(basepos + [15, 0, 1][i]) % len(ring_inner)]
+                #print(x,y)
+                brt = [0, mag_hour[fracpos][i]*3//4, mag_hour[fracpos][i]]
+                set_screen(ledscreen, x, y, brt)
             sense.set_pixels(ledscreen)
-        time.sleep(0.02)
+        time.sleep(0.05)
 except KeyboardInterrupt:
     pass
     
