@@ -6,12 +6,12 @@ import random
 
 hist = [0,0,0,0,0]
 outer = 0
-width = 0.5
-hists = dict()
+width = 0.4
+hists = list()
 for mu in range(0, 10):
     center = mu/10
     hist = [0 for i in range(0,5)]
-    for i in range(0,2000):
+    for i in range(0,10000):
         r = random.gauss(center, width)
         if -2 < r <= -1 :
             hist[-2] += 1
@@ -26,12 +26,14 @@ for mu in range(0, 10):
         else :
             outer += 1
             
-    hists[center] = [round(hist[i]/2000*256) for i in range(-2,3)]
-            
+    hists.append([int(hist[i]/10000*320) for i in range(-2,3)])
+
 print(hists)
 
+exit()
+
 idx = [22, 23, 0, 1, 2]
-mag = [[7, 149, 149, 7, 0], 
+mag_sec = [[7, 149, 149, 7, 0], 
 [4, 127, 167, 12, 0], 
 [0, 103, 186, 17, 0], 
 [0, 84, 197, 24, 0], 
@@ -50,5 +52,5 @@ while True:
     
     if lastsec != nowsec :
         lastsec = nowsec
-        print(str(lastsec) + ' ' + str(lastsec//10) + ': '+str(mag[lastsec%10]))
+        print(str(lastsec) + ' ' + str(lastsec//10) + ': '+str(mag_sec[lastsec%10]))
     time.sleep(0.05)
