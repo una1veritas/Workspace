@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
+import sys
+
+print('Read text lines from file.')
 i = 0
-with open('test.py','r') as f:
+with open(sys.argv[1],'r') as f:
     for row in f:
         print(i, row.strip())
         i += 1
 
-print("file io read finished.")
+print("Write text to file \'writetest.txt\'.")
 
 f = open('writetest.txt','w')
 for i in range(20):
@@ -15,4 +18,4 @@ for i in range(20):
 
 f.close()
 
-print("file io write finished.")
+print("Finished.")

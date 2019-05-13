@@ -1,9 +1,12 @@
+import sys
 import requests
 import json
-from sense_hat import SenseHat
+#sense_hat を使う場合，次の行の # を削除する
+#from sense_hat import SenseHat
 
-sense = SenseHat()
-sense.clear()
+if 'sense_hat' in sys.modules:
+    sense = SenseHat()
+    sense.clear()
  
 api ="https://api.bitflyer.jp/v1/ticker"
  
@@ -15,5 +18,7 @@ tstamp = data_dict["timestamp"].replace('T', ' ').split('.')[0]
 buy = data_dict["best_bid"]
 sell = data_dict["best_ask"]
 msg = "{0} UTC  {1} BUY {2:,} SELL {3:,}".format(tstamp, curpair, buy, sell)
-#print(msg)
-sense.show_message(msg)
+if 'sense_hat' in sys.modules:
+    sense.show_message(msg)
+else:
+    print(msg)
