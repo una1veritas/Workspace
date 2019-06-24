@@ -6,7 +6,10 @@ from datetime import datetime
 sense = SenseHat()
 sense.clear()
 
-temp = round(sense.get_temperature(), 1)
+weatherdata = dict()
+weatherdata["temp"] = round(sense.get_temperature(), 1)
+weatherdata["humi"] = round(sense.get_humidity(), 1)
+weatherdata["pres"] = round(sense.get_pressure(), 1)
 
 # LINE Notify
 # https://notify-bot.line.me/ja/
@@ -29,6 +32,6 @@ opt_files = {"imageFile": open("cloudyandsunny.png", "rb")} #バイナリで画�
 
 r = requests.post(url_notifyapi ,headers = auth_headers, params=payload, files=opt_files)
 
-payload["message"] = "Temp@pi is " + str(temp) + "deg."
+payload["message"] = "Temp. " + str(weatherdata["temp"]) + "C.deg. " + "Humidity " + str(weatherdata["humi"] + "%.")
 r = requests.post(url_notifyapi ,headers = auth_headers, params=payload)
 
