@@ -7,6 +7,7 @@ Created on 2018/08/01
 import sys
 import datetime
 import subprocess
+import math
 
 if __name__ == '__main__':
     pass
@@ -23,6 +24,8 @@ if month == 0 or month > 12:
 month_dict = { 'Jan':1, 'Feb':2, 'Mar': 3, 'Apr': 4, 
              'May': 5, 'Jun':6, 'Jul': 7, 'Aug': 8,
              'Sep': 9, 'Oct': 10, 'Nov':11, 'Dec': 12, }
+
+dayname_dict = { 0:u'月', 1:u'火', 2:u'水', 3:u'木', 4:u'金', 5:u'土', 6:u'日',  }
 
 cmd_list = ['last']
 try:
@@ -62,10 +65,22 @@ for each_line in res.stdout.splitlines():
         if time_2 > active_period[evnt_dt][1] :
             active_period[evnt_dt][1] = time_2
 
-for key in sorted(active_period) :
-    if key.month == month :
-        print(key, active_period[key][0], '-', active_period[key][1])
-    
+todaydate = datetime.date.today()
+keydate = todaydate - datetime.timedelta(days = 30)
+keydate = datetime.date(keydate.year, keydate.month, 1)
+while keydate != todaydate :
+    if keydate in active_period :
+        time1 = active_period[keydate][0]
+        time2 = active_period[keydate][1]
+        time1 = datetime.time(time1.hour, int(time1.minute/5)*5)
+        if time2.minute > 55 :
+            time2 = datetime.time(time2.hour+1, 0)
+        else:
+            time2 = datetime.time(time2.hour, math.ceil(time2.minute/5)*5)
+        print(keydate, '\t', dayname_dict[keydate.weekday()], '\t', time1.strftime("%H:%M"), '\t', time2.strftime("%H:%M"))
+    else:
+        print(keydate, '\t', dayname_dict[keydate.weekday()], '\t\t')
+    keydate = keydate + datetime.timedelta(days=1)
 exit()
 
 # fname = sys.argv[1]
