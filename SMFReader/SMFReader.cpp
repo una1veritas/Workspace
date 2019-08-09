@@ -4,12 +4,7 @@
 #include <cctype>
 #include <cstring>
 
-using namespace std; // std:: 名前空間を省略して使用
-
 typedef uint16_t uint16;
-
-bool check_signature(ifstream & ifile, const char * sigstr, const int length);
-bool get_uint16(ifstream & ifile, uint16 & val);
 
 struct SMFScore {
 	uint16 format, tracks, division;
@@ -21,7 +16,23 @@ struct SMFScore {
 		ERROR_MTRK = 1<<2,
 	};
 
-	SMFScore(ifstream & ifs) : format(0), tracks(0), division(0), status(0) {
+	static void read_event(std::ifstream & ifs) {
+		unsigned int deltat = SMFScore::read_varlenint(ifs);
+	}
+
+	static unsigned int read_varlenint(std::ifstream & ifs) {
+		char tbyte;
+		unsigned int val = 0;
+		while ( ifs.get(tbyte) ) {
+			val <<= 7;
+			val |= 0x07f & tbyte;
+			if ( (tbyte & 0x80) == 0 )
+				break;
+		}
+		return val;
+	}
+
+	SMFScore(std::ifstream & ifs) : format(0), tracks(0), division(0), status(0) {
 		unsigned char t[18];
 		status = 0;
 		if ( !ifs.read((char*) t, 18) ) {
@@ -41,7 +52,7 @@ struct SMFScore {
 		division = t[12]<<8 | t[13];
 	}
 
-	friend ostream & operator<<(ostream & ost, const SMFScore & score) {
+	friend std::ostream & operator<<(std::ostream & ost, const SMFScore & score) {
 		ost << score.format << ", " << score.tracks << ", " << score.division;
 		return ost;
 	}
@@ -62,37 +73,59 @@ struct SMFScore {
 */
 
 int main(int argc, char **argv) {
-	ifstream infile;
+	std::ifstream infile;
 
-	infile.open("panzerlied.mid", (ios::in | ios::binary) );
+	infile.open(argv[1], (std::ios::in | std::ios::binary) );
 
 	if ( !infile ) {
-		cerr << "失敗" << endl;
+		std::cerr << "失敗" << std::endl;
 		return -1;
 	}
 
 	SMFScore smfscore(infile);
-	cout << smfscore << endl;
-
+	std::cout << smfscore << std::endl;
+	char buf[4];
+	unsigned int deltat;
+	unsigned int len;
+	unsigned char tbyte;
+	infile.read(buf,4);
+	deltat = (unsigned int) SMFScore::read_varlenint(infile);
+	tbyte = (unsigned char) infile.get();
+	std::cout << "delta time = " << deltat << ", ";
+	if ( (tbyte & 0x80) != 0 ) {
+		// status byte
+		std::cout << "status byte: ";
+		switch (tbyte) {
+		case 0xf0:
+			// system exclusive event
+			std::cout << "system exclusive event, ";
+			break;
+		case 0xf7:
+			// escaped system exclusive event
+			std::cout << "secaped system exclusive event, ";
+			break;
+		case 0xff:
+			// meta event
+			std::cout << "meta event, ";
+			tbyte = (unsigned char) infile.get(); // event type
+			len = SMFScore::read_varlenint(infile); // event size
+			if (tbyte == 0x2f) {
+				// may be 'end of track'
+				// len is always assumed to be zero.
+				//score.add(new MusicalNote(-1, -1, -1));
+				std::cout << "end of track, ";
+				break; // go to the next track.
+			} else {
+				std::cout << "len = " << len << ", ";
+				do {
+					infile.get();
+				} while (--len);
+			}
+		}
+	} else {
+		std::cout << "???";
+	}
+	std::cout << std::endl;
 	infile.close();
 	return 0;
-}
-
-bool check_signature(ifstream & ifile, const char * sigstr, const int length) {
-	char binstr[length];
-	if ( !ifile.read(binstr, length) )
-		return false;
-	if ( memcmp(sigstr, binstr, length) != 0 )
-		return false;
-	return true;
-}
-
-bool get_uint16(ifstream & ifile, uint16 & val) {
-	char t[2];
-	if ( !ifile.read(t, 2) )
-		return false;
-	val = (unsigned char) t[0];
-	val <<= 8;
-	val |= (unsigned char) t[1];
-	return true;
 }
