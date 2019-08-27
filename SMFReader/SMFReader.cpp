@@ -5,6 +5,8 @@
 #include <cctype>
 #include <cstring>
 
+#include <vector>
+
 #include "SMFReader.h"
 
 typedef uint8_t uint8;
@@ -14,7 +16,11 @@ typedef uint32_t uint32;
 struct SMFStream {
 	std::fstream & smfstream;
 	uint16 format, tracks, division;
-	uint16 status;
+	struct {
+		bool omni;
+		bool poly;
+	} midistatus;
+	uint8 status;
 
 	enum {
 		ERROR_HEADER = 1<<0,
@@ -35,20 +41,21 @@ struct SMFStream {
 		char tbyte;
 		uint32 val = 0;
 		while ( smfstream.get(tbyte) ) {
-			std::cerr << std::hex << (unsigned int) tbyte << ", ";
+			//std::cerr << std::hex << (unsigned int) tbyte << ", ";
 			val <<= 7;
 			val |= (0x07f & tbyte);
 			if ( !(tbyte & 0x80) )
 				break;
 		}
-		std::cerr << std::flush;
+		//std::cerr << std::flush;
 		return val;
 	}
 
 	SMFStream(std::fstream & fs) : smfstream(fs),
 		format(0), tracks(0), division(0), status(0) {
 		unsigned char t[18];
-		status = 0;
+		midistatus.omni = true;
+		midistatus.poly = false;
 		if ( !smfstream.read((char*) t, 18) ) {
 			status |= ERROR_HEADER;
 			return;
@@ -73,13 +80,13 @@ struct SMFStream {
 
 	SMFEvent getNextEvent() {
 		SMFEvent event;
-		event.delta = read_byte(); //read_varlenint();
-		std::cout << "delta = " << event.delta << ", ";
+		event.delta = read_varlenint();
+		//std::cout << "delta = " << event.delta << ", ";
 		event.type = read_byte();
-		std::cout << "type = " << std::hex << (unsigned int) event.type << ", ";
+		//std::cout << "type = " << std::hex << (unsigned int) event.type << ", ";
 		if ( (event.type & 0xf0) == 0xf0 ) {
 			// status byte
-			std::cout << "status: ";
+			//std::cout << "status: ";
 			switch (event.type) {
 			case SMFEvent::SYSEX: // status = 0xf0
 				event.sysex.length = read_varlenint() - 1;
@@ -98,10 +105,10 @@ struct SMFStream {
 				}
 				break;
 			case SMFEvent::META: // status = 0xff
-				std::cout << "meta event, ";
+				//std::cout << "meta event, ";
 				event.meta.type = read_byte(); // event type
 				event.meta.length = read_varlenint(); // event size
-				std::cout << "length = " << event.meta.length << " ";
+				//std::cout << "length = " << event.meta.length << " ";
 				event.data = new uint8[event.sysex.length];
 				for(int i = 0; i < event.meta.length; ++i) {
 					event.data[i] = read_byte();
@@ -113,14 +120,32 @@ struct SMFStream {
 			case 0x80:
 			case 0x90:
 			case 0xa0:
-			case 0xb0:
+				break;
+			case 0xb0: // control change
+				event.midi.channel = event.type & 0x0f;
+				event.midi.number = read_byte();
+				event.midi.velocity = read_byte();
+				if ( (event.midi.number & 0x78) ) {
+					if (event.midi.number == 0x7c)
+						midistatus.omni = false;
+					else if (event.midi.number == 0x7d)
+						midistatus.omni = true;
+					else if (event.midi.number == 0x7e) {
+						midistatus.poly = false;
+						if ( !midistatus.omni )
+							read_byte();
+					} else if (event.midi.number == 0x7f) {
+						midistatus.poly = true;
+					}
+				}
+				break;
 			case 0xc0:
 			case 0xd0:
 			case 0xe0:
 				break;
 			}
 		}
-		std::cout << std::endl;
+		//std::cout << std::endl;
 		return event;
 	}
 
@@ -158,11 +183,19 @@ int main(int argc, char **argv) {
 	std::cout << smf << std::endl;
 	uint8 buf[16];
 	smf.read_byte(buf, 4);
+	for(int i = 0; i < 4; ++i) {
+		std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned int) buf[i] << " ";
+	}
+	std::cout << std::endl;
 
 	// 00 f0 05 7e 7f 09 01 f7
 	// 00 ff 01 17 72 61 6e 64 6f 6d 5f 73 65 65 64 20 31 33 30 36 38 34 31 32
-	SMFEvent evt = smf.getNextEvent();
-	std::cout << evt << std::endl;
+	std::cout << smf.getNextEvent() << smf.getNextEvent()
+		<< smf.getNextEvent() << smf.getNextEvent() << std::endl;
+	std::cout << smf.getNextEvent() << smf.getNextEvent()
+		<< smf.getNextEvent() << smf.getNextEvent() << std::endl;
+	std::cout << smf.getNextEvent() << smf.getNextEvent()
+		<< smf.getNextEvent() << smf.getNextEvent() << std::endl;
 	/*
 	smf.read_byte(buf,32);
 	for(int i = 0; i < 32; ++i) {

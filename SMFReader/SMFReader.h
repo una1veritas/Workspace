@@ -30,7 +30,7 @@ struct SMFEvent {
 		struct {
 			uint8 number, channel, velocity;
 			uint32 duration;
-		} note;
+		} midi;
 	};
 	uint8 * data;
 
@@ -45,15 +45,15 @@ struct SMFEvent {
 	// methods
 	SMFEvent() : delta(0), type(0), data(NULL) {}
 	~SMFEvent() {
-		if ( data != NULL && isMIDI() ) {
+		if ( !isMIDI() && data != NULL ) {
 			delete [] data;
-			std::cerr << "allocated data area to an SMFEvent deleted. " << std::endl;
+			std::cerr << "allocated data area to an SMFEvent deleted. " << std::endl << std::flush;
 		}
 	}
 
 	SMFEvent & operator=(const SMFEvent & evt) {
-		std::cerr << "substitution operator for SMFEvent has called. " << std::endl;
-		if ( data != NULL && isMIDI() )
+		std::cerr << "substitution operator for SMFEvent has called. " << std::endl << std::flush;
+		if ( !isMIDI() && data != NULL )
 			delete [] data;
 		memcpy((void*)&evt, (void*)this, sizeof(SMFEvent));
 		return *this;
@@ -68,17 +68,31 @@ struct SMFEvent {
 		if ( ! evt.isMIDI() ) {
 			if (evt.type == SYSEX) {
 				ost << "(SYSEX) ";
+				for(int i = 0; i < evt.meta.length; ++i) {
+					ost << std::setw(2) << std::hex << std::setfill('0') << (unsigned int) evt.data[i]<< " ";
+				}
 			} else if (evt.type == ESCSYSEX) {
 				ost << "(ESCSYSEX) ";
 			} else if (evt.type == META) {
-				ost << "(META " << std::setw(2) << std::hex << std::setfill('0') << (unsigned int) evt.meta.type << ") ";
-				ost << evt.meta.length << " ";
+				ost << "(META ";
+				if ( evt.meta.type == 0x01 ) {
+					ost << "TEXT" << ") ";
+				} else {
+					ost << std::setw(2) << std::hex << std::setfill('0') << (unsigned int) evt.meta.type << ") ";
+				}
 				for(int i = 0; i < evt.meta.length; ++i) {
+					if ( evt.meta.type == 0x01 ) {
+						ost << (char) evt.data[i];
+					} else {
 						ost << (unsigned int) evt.data[i]<< " ";
+					}
 				}
 			}
 		} else {
-			ost << "MIDI ";
+			ost << "(MIDI) ";
+			if ( (evt.type & 0xf0) == 0xb0 ) {
+				ost << "control change/channel mode ";
+			}
 		}
 		ost << "] ";
 		return ost;
