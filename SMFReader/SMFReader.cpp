@@ -32,14 +32,15 @@ struct SMFStream {
 	}
 
 	uint32 read_varlenint() {
-		char tbyte;
+		char tbyte = 0x80;
 		uint32 val = 0;
-		while ( smfstream.get(tbyte) ) {
+		while ( tbyte & 0x80 ) {
+			tbyte = read_byte();
+			std::cerr << std::hex << (unsigned int) tbyte << ", ";
 			val <<= 7;
-			val |= 0x07f & tbyte;
-			if ( (tbyte & 0x80) == 0 )
-				break;
+			val |= (0x07f & tbyte);
 		}
+		std::cerr << std::flush;
 		return val;
 	}
 
@@ -72,13 +73,14 @@ struct SMFStream {
 	SMFEvent getNextEvent() {
 		SMFEvent event;
 		event.delta = read_varlenint();
-		//std::cout << "delta time = " << event.delta << ", ";
+		std::cout << "delta = " << event.delta << ", ";
 		event.type = read_byte();
-		if ( (event.type & 0x80) != 0 ) {
+		std::cout << "type = " << std::hex << (unsigned int) event.type << ", ";
+		if ( (event.type & 0xf0) == 0xf0 ) {
 			// status byte
-			// std::cout << "status: ";
+			std::cout << "status: ";
 			switch (event.type) {
-			case SMFEvent::STAT_SYSEX: // status = 0xf0
+			case SMFEvent::SYSEX: // status = 0xf0
 				event.sysex.length = read_varlenint() - 1;
 				event.data = new uint8[event.sysex.length];
 				for(int i = 0; i < event.sysex.length; ++i) {
@@ -86,7 +88,7 @@ struct SMFStream {
 				}
 				read_byte(); // end-marker x0f7
 				break;
-			case SMFEvent::STAT_ESCEX: // status = 0xf7
+			case SMFEvent::ESCSYSEX: // status = 0xf7
 				//std::cout << "escaped/system exclusive event, ";
 				event.sysex.length = read_varlenint();
 				event.data = new uint8[event.sysex.length];
@@ -94,10 +96,11 @@ struct SMFStream {
 					event.data[i] = read_byte();
 				}
 				break;
-			case SMFEvent::STAT_META: // status = 0xff
-				// std::cout << "meta event, ";
+			case SMFEvent::META: // status = 0xff
+				std::cout << "meta event, ";
 				event.meta.type = read_byte(); // event type
 				event.meta.length = read_varlenint(); // event size
+				std::cout << "length = " << event.meta.length << " ";
 				event.data = new uint8[event.sysex.length];
 				for(int i = 0; i < event.meta.length; ++i) {
 					event.data[i] = read_byte();
@@ -105,7 +108,16 @@ struct SMFStream {
 				break;
 			}
 		} else {
-			std::cout << "???";
+			switch(event.type & 0xf0) {
+			case 0x80:
+			case 0x90:
+			case 0xa0:
+			case 0xb0:
+			case 0xc0:
+			case 0xd0:
+			case 0xe0:
+				break;
+			}
 		}
 		std::cout << std::endl;
 		return event;
@@ -146,12 +158,13 @@ int main(int argc, char **argv) {
 	uint8 buf[16];
 	smf.read_byte(buf, 4);
 	smf.read_byte(buf,16);
-	/*
-	for(int i = 0; i < 16; ++i) {
-		std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned int) buf[i] << " ";
-	}
-	*/
+
 	SMFEvent evt = smf.getNextEvent();
 	std::cout << evt << std::endl;
+	/*
+	for(int i = 0; i < 32; ++i) {
+		std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned int) buf[i] << " ";
+	}
+	 */
 	return 0;
 }
