@@ -4,47 +4,11 @@
 #include <cctype>
 #include <cstring>
 
+#include "SMFReader.h"
+
 typedef uint8_t uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
-
-struct SMFEvent {
-	uint32 deltatime;
-	union {
-		uint8 evtype;
-		uint8 note;
-	};
-	union {
-		char
-		uint16 duration;
-	};
-
-	enum EVENT_TYPE {
-		STAT_SYSEX = 0xf0, 	// System Exclusive
-		STAT_ESCEX = 0xf7, 	// Escaped System Exclusive
-		STAT_META = 0xff, 	// Meta
-		DATA = 0x0f, 		// Data
-	};
-
-	bool isData() const {
-		return (evtype & 0x80) == 0;
-	}
-
-	friend std::ostream & operator<<(std::ostream & ost, const SMFEvent & evt) {
-		if ( isData() ) {
-			if (evt.evtype == STAT_SYSEX) {
-				ost << "Status (Sys Exclusive) ";
-			} else if (evt.evtype == STAT_ESCEX) {
-				ost << "Status (Escape Sys Exclusive) ";
-			} else if (evt.evtype == STAT_META) {
-				if (evt.)
-			}
-		}
-		ost << std::hex << score.status << ", " << score.format << ", " << score.tracks << ", " << score.division;
-		return ost;
-	}
-
-};
 
 struct SMFStream {
 	std::ifstream & smfstream;
@@ -106,34 +70,44 @@ struct SMFStream {
 
 	SMFEvent getNextEvent() {
 		SMFEvent event;
-		uint32 deltat;
-		uint8 tbyte;
-		deltat = read_varlenint();
-		std::cout << "delta time = " << deltat << ", ";
-		tbyte = read_byte();
-		if ( (tbyte & 0x80) != 0 ) {
+		event.delta = read_varlenint();
+		std::cout << "delta time = " << event.delta << ", ";
+		event.type = read_byte();
+		if ( (event.type & 0x80) != 0 ) {
 			// status byte
 			std::cout << "status: ";
-			switch (tbyte) {
-			case SMFEvent::STAT_SYSEX:
+			switch (event.type) {
+			case SMFEvent::STAT_SYSEX: // f0
+				event.sysex.length = read_varlenint();
+				event.dataptr = new uint8[event.sysex.length];
+				for(int i = 0; i < event.sysex.length; ++i) {
+					event.dataptr[i] = read_byte();
+				}
+				event.dataptr[event.sysex.length-1] = 0;
+				break;
 			case SMFEvent::STAT_ESCEX:
 				std::cout << "escaped/system exclusive event, ";
+				event.sysex.length = read_varlenint();
+				event.dataptr = new uint8[event.sysex.length];
+				for(int i = 0; i < event.sysex.length; ++i) {
+					event.dataptr[i] = read_byte();
+				}
 				break;
 			case SMFEvent::STAT_META:
 				std::cout << "meta event, ";
-				tbyte = read_byte(); // event type
-				uint32 len = read_varlenint(); // event size
-				std::cout << "len = " << len << ", ";
-				if (tbyte == 0x2f) {
+				event.meta.type = read_byte(); // event type
+				event.meta.length = read_varlenint(); // event size
+				std::cout << "len = " << event.meta.length << ", ";
+				if (event.meta.type == 0x2f) {
 					// may be 'end of track'
 					// len is always assumed to be zero.
 					//score.add(new MusicalNote(-1, -1, -1));
 					std::cout << "end of track/new track, ";
 				} else {
-					do {
+					for(int i = 0; i < event.meta.length; ++i) {
 						std::cout << std::setw(2) << std::hex << (unsigned int) read_byte()
 								<< ", ";
-					} while (--len);
+					};
 					std::cout << std::endl;
 				}
 				break;
@@ -177,9 +151,13 @@ int main(int argc, char **argv) {
 
 	SMFStream smf(infile);
 	std::cout << smf << std::endl;
-	uint8 buf[4];
+	uint8 buf[16];
 	smf.read_byte(buf, 4);
 
-	SMFEvent e = smf.getNextEvent();
+	smf.read_byte(buf,16);
+	for(int i = 0; i < 16; ++i) {
+		std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned int) buf[i] << " ";
+	}
+	std::cout << std::endl;
 	return 0;
 }
