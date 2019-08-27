@@ -12,7 +12,7 @@ typedef uint16_t uint16;
 typedef uint32_t uint32;
 
 struct SMFStream {
-	std::ifstream & smfstream;
+	std::fstream & smfstream;
 	uint16 format, tracks, division;
 	uint16 status;
 
@@ -44,7 +44,7 @@ struct SMFStream {
 		return val;
 	}
 
-	SMFStream(std::ifstream & ifs) : smfstream(ifs),
+	SMFStream(std::fstream & fs) : smfstream(fs),
 		format(0), tracks(0), division(0), status(0) {
 		unsigned char t[18];
 		status = 0;
@@ -144,7 +144,7 @@ struct SMFStream {
 */
 
 int main(int argc, char **argv) {
-	std::ifstream infile;
+	std::fstream infile;
 
 	infile.open(argv[1], (std::ios::in | std::ios::binary) );
 
