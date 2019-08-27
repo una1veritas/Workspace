@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <sstream>
 #include <cctype>
 #include <cstring>
 
@@ -64,51 +65,42 @@ struct SMFStream {
 	}
 
 	~SMFStream() {
-		std::cerr << "closed." << std::endl;
 		smfstream.close();
+		std::cerr << "an SMFStream closed." << std::endl;
 	}
 
 	SMFEvent getNextEvent() {
 		SMFEvent event;
 		event.delta = read_varlenint();
-		std::cout << "delta time = " << event.delta << ", ";
+		//std::cout << "delta time = " << event.delta << ", ";
 		event.type = read_byte();
 		if ( (event.type & 0x80) != 0 ) {
 			// status byte
-			std::cout << "status: ";
+			// std::cout << "status: ";
 			switch (event.type) {
-			case SMFEvent::STAT_SYSEX: // f0
-				event.sysex.length = read_varlenint();
-				event.dataptr = new uint8[event.sysex.length];
+			case SMFEvent::STAT_SYSEX: // status = 0xf0
+				event.sysex.length = read_varlenint() - 1;
+				event.data = new uint8[event.sysex.length];
 				for(int i = 0; i < event.sysex.length; ++i) {
-					event.dataptr[i] = read_byte();
+					event.data[i] = read_byte();
 				}
-				event.dataptr[event.sysex.length-1] = 0;
+				read_byte(); // end-marker x0f7
 				break;
-			case SMFEvent::STAT_ESCEX:
-				std::cout << "escaped/system exclusive event, ";
+			case SMFEvent::STAT_ESCEX: // status = 0xf7
+				//std::cout << "escaped/system exclusive event, ";
 				event.sysex.length = read_varlenint();
-				event.dataptr = new uint8[event.sysex.length];
+				event.data = new uint8[event.sysex.length];
 				for(int i = 0; i < event.sysex.length; ++i) {
-					event.dataptr[i] = read_byte();
+					event.data[i] = read_byte();
 				}
 				break;
-			case SMFEvent::STAT_META:
-				std::cout << "meta event, ";
+			case SMFEvent::STAT_META: // status = 0xff
+				// std::cout << "meta event, ";
 				event.meta.type = read_byte(); // event type
 				event.meta.length = read_varlenint(); // event size
-				std::cout << "len = " << event.meta.length << ", ";
-				if (event.meta.type == 0x2f) {
-					// may be 'end of track'
-					// len is always assumed to be zero.
-					//score.add(new MusicalNote(-1, -1, -1));
-					std::cout << "end of track/new track, ";
-				} else {
-					for(int i = 0; i < event.meta.length; ++i) {
-						std::cout << std::setw(2) << std::hex << (unsigned int) read_byte()
-								<< ", ";
-					};
-					std::cout << std::endl;
+				event.data = new uint8[event.sysex.length];
+				for(int i = 0; i < event.meta.length; ++i) {
+					event.data[i] = read_byte();
 				}
 				break;
 			}
@@ -153,11 +145,13 @@ int main(int argc, char **argv) {
 	std::cout << smf << std::endl;
 	uint8 buf[16];
 	smf.read_byte(buf, 4);
-
 	smf.read_byte(buf,16);
+	/*
 	for(int i = 0; i < 16; ++i) {
 		std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned int) buf[i] << " ";
 	}
-	std::cout << std::endl;
+	*/
+	SMFEvent evt = smf.getNextEvent();
+	std::cout << evt << std::endl;
 	return 0;
 }

@@ -31,14 +31,15 @@ struct SMFEvent {
 			uint8 number, channel, velocity;
 			uint32 duration;
 		} note;
-		uint8 * dataptr;
 	};
+	uint8 * data;
 
-	SMFEvent() : delta(0), type(0), dataptr(NULL) {}
-
+	SMFEvent() : delta(0), type(0), data(NULL) {}
 	~SMFEvent() {
-		if ( dataptr != NULL && !isNote() )
-			delete [] dataptr;
+		if ( data != NULL && !isNote() ) {
+			delete [] data;
+			std::cerr << "allocated data area to an SMFEvent deleted. " << std::endl;
+		}
 	}
 
 	enum EVENT_TYPE {
@@ -53,17 +54,22 @@ struct SMFEvent {
 	}
 
 	friend std::ostream & operator<<(std::ostream & ost, const SMFEvent & evt) {
-		if ( evt.isNote() ) {
+		ost << "[" << '+' << evt.delta << " ";
+		if ( not evt.isNote() ) {
 			if (evt.type == STAT_SYSEX) {
-				ost << "Status (Sys Exclusive) ";
+				ost << "status (sysex) ";
 			} else if (evt.type == STAT_ESCEX) {
-				ost << "Status (Escape Sys Exclusive) ";
+				ost << "status (esysx) ";
 			} else if (evt.type == STAT_META) {
-				ost << "Meta ";
+				ost << "status (meta " << std::setw(2) << std::hex << std::setfill('0') << (unsigned int) evt.meta.type << ") ";
+				for(int i = 0; i < evt.meta.length; ++i) {
+						ost << (unsigned int) evt.data[i]<< " ";
+				}
 			}
 		} else {
 			ost << "data ";
 		}
+		ost << "] ";
 		return ost;
 	}
 

@@ -10,7 +10,7 @@ SMFReader:	$(OBJS)
 	$(CXX) -o $@ $^
 
 #%.o:	$(PROJECT_ROOT)%.cpp
-%.o:	%.cpp
+%.o:	%.cpp SMFReader.h
 	$(CXX) -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
 #%.o:	$(PROJECT_ROOT)%.c
