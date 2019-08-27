@@ -32,13 +32,14 @@ struct SMFStream {
 	}
 
 	uint32 read_varlenint() {
-		char tbyte = 0x80;
+		char tbyte;
 		uint32 val = 0;
-		while ( tbyte & 0x80 ) {
-			tbyte = read_byte();
+		while ( smfstream.get(tbyte) ) {
 			std::cerr << std::hex << (unsigned int) tbyte << ", ";
 			val <<= 7;
 			val |= (0x07f & tbyte);
+			if ( !(tbyte & 0x80) )
+				break;
 		}
 		std::cerr << std::flush;
 		return val;
@@ -72,7 +73,7 @@ struct SMFStream {
 
 	SMFEvent getNextEvent() {
 		SMFEvent event;
-		event.delta = read_varlenint();
+		event.delta = read_byte(); //read_varlenint();
 		std::cout << "delta = " << event.delta << ", ";
 		event.type = read_byte();
 		std::cout << "type = " << std::hex << (unsigned int) event.type << ", ";
@@ -157,14 +158,18 @@ int main(int argc, char **argv) {
 	std::cout << smf << std::endl;
 	uint8 buf[16];
 	smf.read_byte(buf, 4);
-	smf.read_byte(buf,16);
 
+	// 00 f0 05 7e 7f 09 01 f7
+	// 00 ff 01 17 72 61 6e 64 6f 6d 5f 73 65 65 64 20 31 33 30 36 38 34 31 32
 	SMFEvent evt = smf.getNextEvent();
 	std::cout << evt << std::endl;
 	/*
+	smf.read_byte(buf,32);
 	for(int i = 0; i < 32; ++i) {
 		std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned int) buf[i] << " ";
 	}
-	 */
+	*/
+
+	std::cout << std::endl;
 	return 0;
 }
