@@ -64,7 +64,7 @@ struct SMFEvent {
 	}
 
 	friend std::ostream & operator<<(std::ostream & ost, const SMFEvent & evt) {
-		ost << "[" << '+' << evt.delta << " ";
+		ost << "[" << '+' << std::dec << evt.delta << " ";
 		if ( ! evt.isMIDI() ) {
 			if (evt.type == SYSEX) {
 				ost << "(SYSEX) ";
@@ -77,21 +77,53 @@ struct SMFEvent {
 				ost << "(META ";
 				if ( evt.meta.type == 0x01 ) {
 					ost << "TEXT" << ") ";
-				} else {
-					ost << std::setw(2) << std::hex << std::setfill('0') << (unsigned int) evt.meta.type << ") ";
-				}
-				for(int i = 0; i < evt.meta.length; ++i) {
-					if ( evt.meta.type == 0x01 ) {
+					for(int i = 0; i < evt.meta.length; ++i) {
 						ost << (char) evt.data[i];
+					}
+				} else if ( evt.meta.type == 0x59 ) {
+					ost << "KEY" << ") ";
+					if ( 0 < (char) evt.data[0] ) {
+						ost << '#' << (unsigned int) evt.data[0];
+					} else if ( evt.data[0] == 0 ) {
+						ost << evt.data[1];
 					} else {
+						ost << 'b' << (unsigned int) evt.data[0];
+					}
+					ost << " " << (evt.data[1] ? "min" : "maj");
+				} else {
+					ost << std::hex << (unsigned int) evt.type << ") ";
+					for(int i = 0; i < evt.meta.length; ++i) {
 						ost << (unsigned int) evt.data[i]<< " ";
 					}
 				}
 			}
 		} else {
 			ost << "(MIDI) ";
-			if ( (evt.type & 0xf0) == 0xb0 ) {
-				ost << "control change/channel mode ";
+			switch ( evt.type & 0xf0 ) {
+			case 0xb0:
+				ost << "ctrl change " << std::hex << (unsigned int) evt.midi.channel
+					<< " " << std::hex << (unsigned int) evt.midi.number
+					<< " " << std::hex << (unsigned int) evt.midi.velocity;
+				break;
+			case 0xc0:
+				ost << "prog change " << std::hex << (unsigned int) evt.midi.channel
+					<< " " << std::hex << (unsigned int) evt.midi.number;
+				break;
+			case 0x80:
+			case 0x90:
+				if ( (evt.type & 0xf0) == 0x80 || evt.midi.velocity == 0 ) {
+					ost << "note-off ";
+					ost << (unsigned int) evt.midi.channel
+						<< " " << (unsigned int) evt.midi.number;
+				} else {
+					ost << "note-on ";
+					ost << (unsigned int) evt.midi.channel
+						<< " " << (unsigned int) evt.midi.number << " " << (unsigned int) evt.midi.velocity;
+				}
+				break;
+			default:
+				ost << std::hex << (unsigned int) evt.type;
+				break;
 			}
 		}
 		ost << "] ";

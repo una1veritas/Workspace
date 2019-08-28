@@ -118,7 +118,11 @@ struct SMFStream {
 		} else {
 			switch(event.type & 0xf0) {
 			case 0x80:
-			case 0x90:
+			case 0x90: // note on
+				event.midi.channel = event.type & 0x0f;
+				event.midi.number = read_byte();
+				event.midi.velocity = read_byte();
+				break;
 			case 0xa0:
 				break;
 			case 0xb0: // control change
@@ -139,7 +143,10 @@ struct SMFStream {
 					}
 				}
 				break;
-			case 0xc0:
+			case 0xc0: // prog. change
+				event.midi.channel = event.type & 0x0f;
+				event.midi.number = read_byte();
+				break;
 			case 0xd0:
 			case 0xe0:
 				break;
@@ -190,12 +197,11 @@ int main(int argc, char **argv) {
 
 	// 00 f0 05 7e 7f 09 01 f7
 	// 00 ff 01 17 72 61 6e 64 6f 6d 5f 73 65 65 64 20 31 33 30 36 38 34 31 32
-	std::cout << smf.getNextEvent() << smf.getNextEvent()
-		<< smf.getNextEvent() << smf.getNextEvent() << std::endl;
-	std::cout << smf.getNextEvent() << smf.getNextEvent()
-		<< smf.getNextEvent() << smf.getNextEvent() << std::endl;
-	std::cout << smf.getNextEvent() << smf.getNextEvent()
-		<< smf.getNextEvent() << smf.getNextEvent() << std::endl;
+	for(int i = 0; i < 64; ++i) {
+		std::cout << smf.getNextEvent() << std::endl;
+		if (!smf.smfstream)
+			break;
+	}
 	/*
 	smf.read_byte(buf,32);
 	for(int i = 0; i < 32; ++i) {
