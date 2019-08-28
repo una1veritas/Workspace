@@ -20,7 +20,8 @@ struct SMFStream {
 		bool omni;
 		bool poly;
 	} midistatus;
-	uint8 status;
+	uint8 stream_status;
+	uint8 current_track;
 
 	enum {
 		ERROR_HEADER = 1<<0,
@@ -52,25 +53,10 @@ struct SMFStream {
 	}
 
 	SMFStream(std::fstream & fs) : smfstream(fs),
-		format(0), tracks(0), division(0), status(0) {
+		format(0), tracks(0), division(0), stream_status(0), current_track(0) {
 		unsigned char t[18];
 		midistatus.omni = true;
 		midistatus.poly = false;
-		if ( !smfstream.read((char*) t, 18) ) {
-			status |= ERROR_HEADER;
-			return;
-		}
-		if ( memcmp(t, "MThd", 4) != 0 ) {
-			status |= ERROR_MTHD;
-			return;
-		}
-		if ( memcmp(t+14, "MTrk", 4) != 0 ) {
-			status |= ERROR_MTRK;
-			return;
-		}
-		format = t[8]<<8 | t[9];
-		tracks = t[10]<<8 | t[11];
-		division = t[12]<<8 | t[13];
 	}
 
 	~SMFStream() {
@@ -80,42 +66,58 @@ struct SMFStream {
 
 	SMFEvent getNextEvent() {
 		SMFEvent event;
+		uint8 tbuf[4];
 		event.delta = read_varlenint();
 		//std::cout << "delta = " << event.delta << ", ";
 		event.type = read_byte();
 		//std::cout << "type = " << std::hex << (unsigned int) event.type << ", ";
-		if ( (event.type & 0xf0) == 0xf0 ) {
+		if ( event.delta == 'M' && event.type == (uint8)'T' ) {
+			read_byte(tbuf,2);
+			event.mt.mttype = tbuf[0];
+			read_byte(tbuf, 4);
+			event.length = (uint32)tbuf[0]<<24 | (uint32)tbuf[1]<<16 | (uint32)tbuf[2]<<8 | tbuf[3];
+			if ( event.mt.mttype == 'h') {
+				read_byte(tbuf,2);
+				event.mt.format = (uint16)tbuf[0] << 8 | tbuf[2];
+				read_byte(tbuf,2);
+				event.mt.tracks = (uint16)tbuf[0] << 8 | tbuf[2];
+				read_byte(tbuf,2);
+				event.mt.resolution = (uint16)tbuf[0] << 8 | tbuf[2];
+			}
+	    } else if ( (event.type & 0xf0) == 0xf0 ) {
 			// status byte
 			//std::cout << "status: ";
 			switch (event.type) {
 			case SMFEvent::SYSEX: // status = 0xf0
-				event.sysex.length = read_varlenint() - 1;
-				event.data = new uint8[event.sysex.length];
-				for(int i = 0; i < event.sysex.length; ++i) {
+				event.length = read_varlenint() - 1;
+				event.data = new uint8[event.length];
+				for(int i = 0; i < event.length; ++i) {
 					event.data[i] = read_byte();
 				}
 				read_byte(); // end-marker x0f7
 				break;
 			case SMFEvent::ESCSYSEX: // status = 0xf7
 				//std::cout << "escaped/system exclusive event, ";
-				event.sysex.length = read_varlenint();
-				event.data = new uint8[event.sysex.length];
-				for(int i = 0; i < event.sysex.length; ++i) {
+				event.length = read_varlenint();
+				event.data = new uint8[event.length];
+				for(int i = 0; i < event.length; ++i) {
 					event.data[i] = read_byte();
 				}
 				break;
 			case SMFEvent::META: // status = 0xff
 				//std::cout << "meta event, ";
-				event.meta.type = read_byte(); // event type
-				event.meta.length = read_varlenint(); // event size
+				event.metatype = read_byte(); // event type
+				event.length = read_varlenint(); // event size
 				//std::cout << "length = " << event.meta.length << " ";
-				event.data = new uint8[event.sysex.length];
-				for(int i = 0; i < event.meta.length; ++i) {
-					event.data[i] = read_byte();
+				if (event.metatype != 0x2f) {
+					event.data = new uint8[event.length];
+					for(int i = 0; i < event.length; ++i) {
+						event.data[i] = read_byte();
+					}
 				}
 				break;
 			}
-		} else {
+		} else if ( (event.type & 0xf0) >= 0x80) {
 			switch(event.type & 0xf0) {
 			case 0x80:
 			case 0x90: // note on
@@ -157,7 +159,8 @@ struct SMFStream {
 	}
 
 	friend std::ostream & operator<<(std::ostream & ost, const SMFStream & score) {
-		ost << std::hex << score.status << ", " << score.format << ", " << score.tracks << ", " << score.division;
+		ost << (unsigned int) score.stream_status << ", " << (unsigned int) score.format
+				<< ", " << (unsigned int) score.tracks << ", " << (unsigned int) score.division;
 		return ost;
 	}
 };
@@ -189,11 +192,6 @@ int main(int argc, char **argv) {
 	SMFStream smf(infile);
 	std::cout << smf << std::endl;
 	uint8 buf[16];
-	smf.read_byte(buf, 4);
-	for(int i = 0; i < 4; ++i) {
-		std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned int) buf[i] << " ";
-	}
-	std::cout << std::endl;
 
 	// 00 f0 05 7e 7f 09 01 f7
 	// 00 ff 01 17 72 61 6e 64 6f 6d 5f 73 65 65 64 20 31 33 30 36 38 34 31 32
