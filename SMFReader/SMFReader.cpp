@@ -77,12 +77,12 @@ struct SMFStream {
 			read_byte(tbuf, 4);
 			event.length = (uint32)tbuf[0]<<24 | (uint32)tbuf[1]<<16 | (uint32)tbuf[2]<<8 | tbuf[3];
 			if ( event.mt.mttype == 'h') {
-				read_byte(tbuf,2);
-				event.mt.format = (uint16)tbuf[0] << 8 | tbuf[2];
-				read_byte(tbuf,2);
-				event.mt.tracks = (uint16)tbuf[0] << 8 | tbuf[2];
-				read_byte(tbuf,2);
-				event.mt.resolution = (uint16)tbuf[0] << 8 | tbuf[2];
+				read_byte(tbuf,event.length);
+				/*
+				event.mt.format = ((uint16)tbuf[0]) << 8 | tbuf[2];
+				event.mt.tracks = ((uint16)tbuf[0]) << 8 | tbuf[2];
+				event.mt.resolution = ((uint16)tbuf[0]) << 8 | tbuf[2];
+				*/
 			}
 	    } else if ( (event.type & 0xf0) == 0xf0 ) {
 			// status byte
