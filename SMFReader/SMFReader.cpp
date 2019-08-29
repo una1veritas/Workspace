@@ -15,7 +15,6 @@ typedef uint32_t uint32;
 
 struct SMFStream {
 	std::fstream & smfstream;
-	uint16 format, tracks, division;
 	struct {
 		bool omni;
 		bool poly;
@@ -52,8 +51,7 @@ struct SMFStream {
 		return val;
 	}
 
-	SMFStream(std::fstream & fs) : smfstream(fs),
-		format(0), tracks(0), division(0), stream_status(0), current_track(0) {
+	SMFStream(std::fstream & fs) : smfstream(fs), stream_status(0), current_track(0) {
 		unsigned char t[18];
 		midistatus.omni = true;
 		midistatus.poly = false;
@@ -159,8 +157,7 @@ struct SMFStream {
 	}
 
 	friend std::ostream & operator<<(std::ostream & ost, const SMFStream & score) {
-		ost << (unsigned int) score.stream_status << ", " << (unsigned int) score.format
-				<< ", " << (unsigned int) score.tracks << ", " << (unsigned int) score.division;
+		ost << (unsigned int) score.stream_status << " ";
 		return ost;
 	}
 };
@@ -190,8 +187,6 @@ int main(int argc, char **argv) {
 	}
 
 	SMFStream smf(infile);
-	std::cout << smf << std::endl;
-	uint8 buf[16];
 
 	// 00 f0 05 7e 7f 09 01 f7
 	// 00 ff 01 17 72 61 6e 64 6f 6d 5f 73 65 65 64 20 31 33 30 36 38 34 31 32
@@ -201,6 +196,7 @@ int main(int argc, char **argv) {
 			break;
 	}
 	/*
+	uint8 buf[32];
 	smf.read_byte(buf,32);
 	for(int i = 0; i < 32; ++i) {
 		std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned int) buf[i] << " ";

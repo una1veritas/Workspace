@@ -46,12 +46,12 @@ struct SMFEvent {
 	~SMFEvent() {
 		if ( !isMIDI() && data != NULL ) {
 			delete [] data;
-			std::cerr << "allocated data area to an SMFEvent deleted. " << std::endl << std::flush;
+			//std::cerr << "allocated data area to an SMFEvent deleted. " << std::endl << std::flush;
 		}
 	}
 
 	SMFEvent & operator=(const SMFEvent & evt) {
-		std::cerr << "substitution operator for SMFEvent has called. " << std::endl << std::flush;
+		//std::cerr << "substitution operator for SMFEvent has called. " << std::endl << std::flush;
 		if ( !isMIDI() && data != NULL )
 			delete [] data;
 		memcpy((void*)&evt, (void*)this, sizeof(SMFEvent));
@@ -89,6 +89,16 @@ struct SMFEvent {
 			ost << "(META ";
 			if ( evt.metatype == 0x01 ) {
 				ost << "TEXT" << ") ";
+				for(int i = 0; i < evt.length; ++i) {
+					ost << (char) evt.data[i];
+				}
+			} else if ( evt.metatype == 0x02 ) {
+				ost << "COPYRIGHT" << ") ";
+				for(int i = 0; i < evt.length; ++i) {
+					ost << (char) evt.data[i];
+				}
+			} else if ( evt.metatype == 0x03 ) {
+				ost << "NAME" << ") ";
 				for(int i = 0; i < evt.length; ++i) {
 					ost << (char) evt.data[i];
 				}
@@ -147,7 +157,10 @@ struct SMFEvent {
 			}
 		} else {
 			ost << "UNKNOWN ";
-			ost << std::hex << (unsigned int) evt.type;
+			ost << std::hex << (unsigned int) evt.delta << " " << (unsigned int) evt.type << " " << (unsigned int) evt.length;
+			for(int i = 0; i < evt.length; ++i) {
+				ost << std::hex << evt.data[i] << " ";
+			}
 		}
 		ost << "] ";
 		return ost;
