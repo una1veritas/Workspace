@@ -15,6 +15,7 @@ typedef uint32_t uint32;
 
 struct SMFStream {
 	std::fstream & smfstream;
+	uint8 last_status;
 	struct {
 		bool omni;
 		bool poly;
@@ -51,8 +52,7 @@ struct SMFStream {
 		return val;
 	}
 
-	SMFStream(std::fstream & fs) : smfstream(fs), stream_status(0), current_track(0) {
-		unsigned char t[18];
+	SMFStream(std::fstream & fs) : smfstream(fs), last_status(0), stream_status(0), current_track(0) {
 		midistatus.omni = true;
 		midistatus.poly = false;
 	}
@@ -72,26 +72,28 @@ struct SMFStream {
 		if ( event.delta == 'M' && event.type == 'T' ) {
 			read_byte(tbuf,2);
 			event.type = tbuf[0]; // MTRK or MTHD
-			read_byte(tbuf, 10);
-			event.length = (uint32)tbuf[0]<<24 | (uint32)tbuf[1]<<16 | (uint32)tbuf[2]<<8 | tbuf[3];
 			if ( event.type == SMFEvent::MTHD) {
-				read_byte(tbuf,event.length);
-				event.format = ((uint16)tbuf[0]) << 8 | tbuf[2];
-				event.tracks = ((uint16)tbuf[0]) << 8 | tbuf[2];
-				event.resolution = ((uint16)tbuf[0]) << 8 | tbuf[2];
+				read_byte(tbuf, 10);
+				event.length = (uint32)tbuf[0]<<24 | (uint32)tbuf[1]<<16 | (uint32)tbuf[2]<<8 | tbuf[3];
+				event.format = (uint16)tbuf[4] << 8 | tbuf[5];
+				event.tracks = (uint16)tbuf[6] << 8 | tbuf[7];
+				event.resolution = (uint16)tbuf[8] << 8 | tbuf[9];
+			} else if ( event.type == SMFEvent::MTRK) {
+				read_byte(tbuf, 4);
+				event.length = (uint32)tbuf[0]<<24 | (uint32)tbuf[1]<<16 | (uint32)tbuf[2]<<8 | tbuf[3];
 			}
+			last_status = event.type;
 	    } else if ( (event.type & 0xf0) == 0xf0 ) {
 			// status byte
 			//std::cout << "status: ";
 			switch (event.type) {
 			case SMFEvent::SYSEX: // status = 0xf0
-				event.length = read_varlenint() - 1;
-				event.data = new uint8[event.length];
+				event.length = read_varlenint();
 				for(int i = 0; i < event.length; ++i) {
-					if ( i < SMFEvent::DATA_MAX_LENGTH)
-						event.data[i] = read_byte();
+					*tbuf = read_byte();
+					if ( i < SMFEvent::DATA_MAX_LENGTH && *tbuf != 0xf7)
+						event.data[i] = *tbuf;
 				}
-				read_byte(); // comes end-marker x0f7
 				break;
 			case SMFEvent::ESCSYSEX: // status = 0xf7
 				//std::cout << "escaped/system exclusive event, ";
@@ -107,14 +109,16 @@ struct SMFStream {
 				event.length = read_varlenint(); // event size
 				//std::cout << "length = " << event.meta.length << " ";
 				if (event.meta != 0x2f) {
-					for(int i = 0; i+1 < event.length; ++i) {
+					for(int i = 0; i < event.length; ++i) {
+						*tbuf = read_byte();
 						if ( i < SMFEvent::DATA_MAX_LENGTH)
-							event.data[i+1] = read_byte();
+							event.data[i] = *tbuf;
 					}
 				}
 				break;
 			}
-		} else if ( (event.type & 0xf0) >= 0x80) {
+			last_status = event.type;
+		} else if ( (event.type & 0xf0) >= 0x80 && (event.type & 0xf0) < 0xf0 ) {
 			switch(event.type & 0xf0) {
 			case 0x80:
 			case 0x90: // note on
@@ -147,6 +151,46 @@ struct SMFStream {
 				break;
 			case 0xe0: // pitch bend
 				read_byte(tbuf, 2);
+				event.pitchbend = (tbuf[0] & 0x7f) | ((uint16)tbuf[1] & 0x7f) << 7;
+				break;
+			}
+			last_status = event.type;
+		} else if ( (last_status & 0xf0) >= 0x80 && (last_status & 0xf0) < 0xf0) {
+			//std::cout << "running? " << std::hex << (unsigned int) last_status;
+			*tbuf = event.type;
+			event.type = last_status;
+			switch(last_status & 0xf0) {
+			case 0x80:
+			case 0x90: // note on
+				event.number = *tbuf;
+				event.velocity = read_byte();
+				event.duration = 0;
+				break;
+			case 0xa0:
+				break;
+			case 0xb0: // control change
+				event.number = *tbuf;
+				event.velocity = read_byte();
+				if ( (event.number & 0x78) ) {
+					if (event.number == 0x7c)
+						midistatus.omni = false;
+					else if (event.number == 0x7d)
+						midistatus.omni = true;
+					else if (event.number == 0x7e) {
+						midistatus.poly = false;
+						if ( !midistatus.omni )
+							read_byte();
+					} else if (event.number == 0x7f) {
+						midistatus.poly = true;
+					}
+				}
+				break;
+			case 0xc0: // prog. change
+			case 0xd0: // ch. pressure
+				event.number = *tbuf;
+				break;
+			case 0xe0: // pitch bend
+				read_byte(tbuf+1, 1);
 				event.pitchbend = (tbuf[0] & 0x7f) | ((uint16)tbuf[1] & 0x7f) << 7;
 				break;
 			}
@@ -187,17 +231,38 @@ int main(int argc, char **argv) {
 
 	SMFStream smf(infile);
 
-	// 00 f0 05 7e 7f 09 01 f7
-	// 00 ff 01 17 72 61 6e 64 6f 6d 5f 73 65 65 64 20 31 33 30 36 38 34 31 32
-	for(int i = 0; i < 64; ++i) {
-		std::cout << smf.getNextEvent() << std::endl;
-		if (!smf.smfstream)
-			break;
+	// 4d 54 68 64 00 00 00 06 00 00 00 01 00 78
+	// 4d 54 72 6b 00 00 1e 71
+	// 00 ff 03 0a 50 61 6e 7a 65 72 6c 69 65 64
+	// 00 ff 02 24 43 6f 70 79 72 69 67 68 74 20 5f 20 32 30 30 33 20 62 79 20 4a 6f 68 61 6e 6e 20 53 63 68 72 65 69 62 65 72
+	// 00 ff 58 04 04 02 18 08
+	// 00 ff 59 02 fe 00
+	// 00 ff 51 03 08 52 af
+	// 00 c0 49
+	// 00 b0 07 50
+	// 00    0a 19
+	// 00 c1 47 00 b1
+	/*
+	07 5f 00 0a 64 00 c2 3a 00 b2 07 7f 00 0a 6e 00
+	c3 39 00 b3 07 64 00 0a 5a 00 c4 38 00 b4 07 5a
+	00 0a 1e 00 c5 48 00 b5 07 4b 00 0a 14 00 c6 09
+	00 b6 07 41 00 0a 32 00 c7 3c 00 b7 07 5a 00 0a
+	28 00 b9 07 41 00 0a 46 82 68 b0 5d 0a 00 5b 0f
+	00 90 41 64 00 b1 5d 14 00 5b 0f 00 91 3e 64 00
+	b2 5b 1e 00 b3 5b 1e 00 b4 5d 05 00 5b 1e 00 94
+	41 64 00 b5 5d 0a 00 5b 14 00 95 4d 64 00 b6 5b
+	23 00 96 4d 64 6e 94 41 00 0a 95 4d 00 00 90 41
+	*/
+	while ( smf.smfstream ) {
+		SMFEvent evt = smf.getNextEvent();
+		std::cout << evt << std::endl;
 	}
 	/*
-	uint8 buf[32];
-	smf.read_byte(buf,32);
-	for(int i = 0; i < 32; ++i) {
+	uint8 buf[256];
+	smf.read_byte(buf,256);
+	for(int i = 0; i < 256; ++i) {
+		if ( i && (i & 0x0f) == 0 )
+			std::cout << std::endl;
 		std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned int) buf[i] << " ";
 	}
 	*/

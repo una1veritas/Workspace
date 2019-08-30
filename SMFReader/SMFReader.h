@@ -33,8 +33,10 @@ struct SMFEvent {
 			uint8 number, velocity;
 			uint16 pitchbend;
 		};
-		uint8 meta;
-		uint8 data[DATA_MAX_LENGTH];
+		struct {
+			uint8 meta;
+			uint8 data[DATA_MAX_LENGTH];
+		};
 	};
 
 	enum EVENT_TYPE {
@@ -72,7 +74,7 @@ struct SMFEvent {
 	}
 
 	bool isMT() const {
-		return type == MTRK;
+		return type == MTRK || type == MTHD;
 	}
 
 	uint8 channel() const {
@@ -83,10 +85,10 @@ struct SMFEvent {
 		ost << "[" << '+' << std::dec << evt.delta << " ";
 		if ( evt.isSys() ) {
 			if (evt.type == SYSEX) {
-				ost << "(SYSEX) ";
+				ost << "(SYSEX) "<< evt.length << " ";
  				for(int i = 0; i < evt.length; ++i) {
 					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
-						ost << std::setw(2) << std::hex << (unsigned int) evt.data[i];
+						ost << std::setw(2) << std::setfill('0') << std::hex << (unsigned int) evt.data[i] << " ";
 					} else {
 						ost << '.';
 					}
@@ -123,16 +125,10 @@ struct SMFEvent {
 						ost << '.';
 					}
 				}
-			} else if ( evt.meta == 0x59 ) {
-				ost << "KEY" << ") ";
-				if ( 0 < (char) evt.data[0] ) {
-					ost << '#' << (unsigned int) evt.data[0];
-				} else if ( evt.data[0] == 0 ) {
-					ost << evt.data[1];
-				} else {
-					ost << 'b' << (unsigned int) evt.data[0];
-				}
-				ost << " " << (evt.data[1] ? "min" : "maj");
+			} else if ( evt.meta == 0x2f ) {
+				ost << "TRACK END" << ") ";
+			} else if ( evt.meta == 0x51 ) {
+				ost << "TEMPO" << ") " << ((uint32)evt.data[0]<<16 | (uint32)evt.data[1]<<8 | evt.data[2]);
 			} else if ( evt.meta == 0x54 ) {
 				ost << "SMTPE OFFSET" << ") ";
 				for(int i = 0; i < evt.length; ++i) {
@@ -146,8 +142,16 @@ struct SMFEvent {
 				ost << "TIME" << ") ";
 				ost << (unsigned int) evt.data[0] << "/" << ((unsigned int) 1 <<evt.data[1]);
 				ost << " clocks " << (unsigned int) evt.data[2] << " 32nds " << (unsigned int) evt.data[3];
-			} else if ( evt.meta == 0x2f ) {
-				ost << "TRACK END" << ") ";
+			} else if ( evt.meta == 0x59 ) {
+				ost << "KEY" << ") ";
+				if ( 0 < (char) evt.data[0] ) {
+					ost << '#' << (unsigned int) evt.data[0];
+				} else if ( evt.data[0] == 0 ) {
+					ost << evt.data[1];
+				} else {
+					ost << 'b' << (unsigned int) evt.data[0];
+				}
+				ost << " " << (evt.data[1] ? "min" : "maj");
 			} else {
 				ost << std::hex << (unsigned int) evt.meta << ") ";
 				for(int i = 0; i < evt.length; ++i) {
@@ -177,16 +181,16 @@ struct SMFEvent {
 						<< " " << (unsigned int) evt.number;
 				} else {
 					ost << "(note on) ";
-					ost << (unsigned int) evt.midi.channel
-						<< " " << (unsigned int) evt.midi.number << ", " << (unsigned int) evt.midi.velocity;
+					ost << (unsigned int) evt.channel()
+						<< " " << (unsigned int) evt.number << ", " << (unsigned int) evt.velocity;
 				}
 				break;
 			}
 		} else if ( evt.isMT() ) {
-			if (evt.mt.mttype == 'r') {
+			if ( evt.type == MTRK ) {
 				ost << "MTrk " << evt.length;
-			} else if ( evt.mt.mttype == 'h') {
-				ost << "MThd " << evt.length << " format " << evt.mt.format << " tracks " << evt.mt.tracks << " resolution " << evt.mt.resolution;
+			} else if ( evt.type == MTHD ) {
+				ost << "MThd " << evt.length << " format " << evt.format << " tracks " << evt.tracks << " resolution " << evt.resolution;
 			}
 		} else {
 			ost << "UNKNOWN ";
