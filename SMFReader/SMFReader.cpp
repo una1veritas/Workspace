@@ -64,19 +64,18 @@ struct SMFStream {
 
 	SMFEvent getNextEvent() {
 		SMFEvent event;
-		uint8 tbuf[4];
+		uint8 tbuf[16];
 		event.delta = read_varlenint();
 		//std::cout << "delta = " << event.delta << ", ";
 		event.type = read_byte();
 		//std::cout << "type = " << std::hex << (unsigned int) event.type << ", ";
 		if ( event.delta == 'M' && event.type == (uint8)'T' ) {
 			read_byte(tbuf,2);
-			event.mt.mttype = tbuf[0];
-			read_byte(tbuf, 4);
+			event.type = tbuf[0];
+			read_byte(tbuf, 10);
 			event.length = (uint32)tbuf[0]<<24 | (uint32)tbuf[1]<<16 | (uint32)tbuf[2]<<8 | tbuf[3];
 			if ( event.mt.mttype == 'h') {
 				read_byte(tbuf,event.length);
-				/*
 				event.mt.format = ((uint16)tbuf[0]) << 8 | tbuf[2];
 				event.mt.tracks = ((uint16)tbuf[0]) << 8 | tbuf[2];
 				event.mt.resolution = ((uint16)tbuf[0]) << 8 | tbuf[2];

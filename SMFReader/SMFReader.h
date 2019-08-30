@@ -15,41 +15,39 @@
 typedef uint8_t uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
+typedef uint64_t uint64;
 
 struct SMFEvent {
 	uint32 delta;
 	uint8  type;
 	union {
-		uint8 metatype;
-		struct {
-			uint8 number, channel, velocity;
-		} midi;
-		struct {
-			uint8 mttype;
-			uint16 format, tracks, resolution;
-		} mt;
+		uint32 length;
+		uint32 duration;
 	};
-	uint32 length;
-	uint8 * data;
-
+	const static uint8 META_LENGTH = 8;
+	union {
+		struct {
+			uint16 format, tracks, resolution;
+		};
+		struct {
+			uint8 number, velocity;
+		};
+		uint8 meta[META_LENGTH];
+	};
 
 	enum EVENT_TYPE {
 		SYSEX = 0xf0, 	// System Exclusive
 		ESCSYSEX = 0xf7, 	// Escaped System Exclusive
 		META = 0xff, 	// Meta
 		MIDI = 0x80, 		// Data
-		MT = 'T',
+		MTTRACK = 'T',
+		MTHEAD = 'H',
 	};
 
 	// methods
-	SMFEvent() : delta(0), type(0), length(0), data(NULL) {}
-	~SMFEvent() {
-		if ( !isMIDI() && data != NULL ) {
-			delete [] data;
-			//std::cerr << "allocated data area to an SMFEvent deleted. " << std::endl << std::flush;
-		}
-	}
-
+	SMFEvent() : delta(0), type(0), number(0), velocity(0), duration(0) {}
+	//~SMFEvent() {}
+	/*
 	SMFEvent & operator=(const SMFEvent & evt) {
 		//std::cerr << "substitution operator for SMFEvent has called. " << std::endl << std::flush;
 		if ( !isMIDI() && data != NULL )
@@ -57,6 +55,7 @@ struct SMFEvent {
 		memcpy((void*)&evt, (void*)this, sizeof(SMFEvent));
 		return *this;
 	}
+	 */
 
 	bool isMIDI() const {
 		return (type & 0xf0) >= 0x80 && (type & 0xf0) <= 0xe0;
@@ -71,7 +70,7 @@ struct SMFEvent {
 	}
 
 	bool isMT() const {
-		return type == (uint8)'T';
+		return type == MTTRACK;
 	}
 
 	friend std::ostream & operator<<(std::ostream & ost, const SMFEvent & evt) {
@@ -79,8 +78,8 @@ struct SMFEvent {
 		if ( evt.isSys() ) {
 			if (evt.type == SYSEX) {
 				ost << "(SYSEX) ";
-				for(int i = 0; i < evt.length; ++i) {
-					ost << std::setw(2) << std::hex << std::setfill('0') << (unsigned int) evt.data[i]<< " ";
+				for(int i = 0; i < min(evt.length, META_LENGTH); ++i) {
+					ost << std::setw(2) << std::hex << std::setfill('0') << (unsigned int) evt.meta[i]<< " ";
 				}
 			} else if (evt.type == ESCSYSEX) {
 				ost << "(ESCSYSEX) ";
@@ -117,6 +116,10 @@ struct SMFEvent {
 				for(int i = 0; i < evt.length; ++i) {
 					ost << (unsigned int) evt.data[i]<< " ";
 				}
+			} else if ( evt.metatype == 0x58 ) {
+				ost << "TIME" << ") ";
+				ost << (unsigned int) evt.data[0] << "/" << ((unsigned int) 1 <<evt.data[1]);
+				ost << " clocks " << (unsigned int) evt.data[2] << " 32nds " << (unsigned int) evt.data[3];
 			} else if ( evt.metatype == 0x2f ) {
 				ost << "TRACK END" << ") ";
 			} else {
