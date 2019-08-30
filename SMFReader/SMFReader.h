@@ -24,15 +24,17 @@ struct SMFEvent {
 		uint32 length;
 		uint32 duration;
 	};
-	const static uint8 META_LENGTH = 8;
+	const static uint8 DATA_MAX_LENGTH = 8;
 	union {
 		struct {
 			uint16 format, tracks, resolution;
 		};
 		struct {
 			uint8 number, velocity;
+			uint16 pitchbend;
 		};
-		uint8 meta[META_LENGTH];
+		uint8 meta;
+		uint8 data[DATA_MAX_LENGTH];
 	};
 
 	enum EVENT_TYPE {
@@ -40,8 +42,8 @@ struct SMFEvent {
 		ESCSYSEX = 0xf7, 	// Escaped System Exclusive
 		META = 0xff, 	// Meta
 		MIDI = 0x80, 		// Data
-		MTTRACK = 'T',
-		MTHEAD = 'H',
+		MTHD = 'h',
+		MTRK = 'r',
 	};
 
 	// methods
@@ -70,7 +72,11 @@ struct SMFEvent {
 	}
 
 	bool isMT() const {
-		return type == MTTRACK;
+		return type == MTRK;
+	}
+
+	uint8 channel() const {
+		return type & 0x0f;
 	}
 
 	friend std::ostream & operator<<(std::ostream & ost, const SMFEvent & evt) {
@@ -78,30 +84,46 @@ struct SMFEvent {
 		if ( evt.isSys() ) {
 			if (evt.type == SYSEX) {
 				ost << "(SYSEX) ";
-				for(int i = 0; i < min(evt.length, META_LENGTH); ++i) {
-					ost << std::setw(2) << std::hex << std::setfill('0') << (unsigned int) evt.meta[i]<< " ";
-				}
+ 				for(int i = 0; i < evt.length; ++i) {
+					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
+						ost << std::setw(2) << std::hex << (unsigned int) evt.data[i];
+					} else {
+						ost << '.';
+					}
+ 				}
 			} else if (evt.type == ESCSYSEX) {
 				ost << "(ESCSYSEX) ";
 			}
 		} else if ( evt.isMeta() ) {
 			ost << "(META ";
-			if ( evt.metatype == 0x01 ) {
+			if ( evt.meta == 0x01 ) {
 				ost << "TEXT" << ") ";
 				for(int i = 0; i < evt.length; ++i) {
-					ost << (char) evt.data[i];
+					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
+						ost << (char) evt.data[i];
+					} else {
+						ost << '.';
+					}
 				}
-			} else if ( evt.metatype == 0x02 ) {
+			} else if ( evt.meta == 0x02 ) {
 				ost << "COPYRIGHT" << ") ";
 				for(int i = 0; i < evt.length; ++i) {
-					ost << (char) evt.data[i];
+					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
+						ost << (char) evt.data[i];
+					} else {
+						ost << '.';
+					}
 				}
-			} else if ( evt.metatype == 0x03 ) {
+			} else if ( evt.meta == 0x03 ) {
 				ost << "NAME" << ") ";
 				for(int i = 0; i < evt.length; ++i) {
-					ost << (char) evt.data[i];
+					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
+						ost << (char) evt.data[i];
+					} else {
+						ost << '.';
+					}
 				}
-			} else if ( evt.metatype == 0x59 ) {
+			} else if ( evt.meta == 0x59 ) {
 				ost << "KEY" << ") ";
 				if ( 0 < (char) evt.data[0] ) {
 					ost << '#' << (unsigned int) evt.data[0];
@@ -111,40 +133,48 @@ struct SMFEvent {
 					ost << 'b' << (unsigned int) evt.data[0];
 				}
 				ost << " " << (evt.data[1] ? "min" : "maj");
-			} else if ( evt.metatype == 0x54 ) {
+			} else if ( evt.meta == 0x54 ) {
 				ost << "SMTPE OFFSET" << ") ";
 				for(int i = 0; i < evt.length; ++i) {
-					ost << (unsigned int) evt.data[i]<< " ";
+					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
+						ost << std::setw(2) << std::hex << (unsigned int) evt.data[i];
+					} else {
+						ost << '.';
+					}
 				}
-			} else if ( evt.metatype == 0x58 ) {
+			} else if ( evt.meta == 0x58 ) {
 				ost << "TIME" << ") ";
 				ost << (unsigned int) evt.data[0] << "/" << ((unsigned int) 1 <<evt.data[1]);
 				ost << " clocks " << (unsigned int) evt.data[2] << " 32nds " << (unsigned int) evt.data[3];
-			} else if ( evt.metatype == 0x2f ) {
+			} else if ( evt.meta == 0x2f ) {
 				ost << "TRACK END" << ") ";
 			} else {
-				ost << std::hex << (unsigned int) evt.metatype << ") ";
+				ost << std::hex << (unsigned int) evt.meta << ") ";
 				for(int i = 0; i < evt.length; ++i) {
-					ost << (unsigned int) evt.data[i]<< " ";
+					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
+						ost << std::setw(2) << std::hex << (unsigned int) evt.data[i];
+					} else {
+						ost << '.';
+					}
 				}
 			}
 		} else if ( evt.isMIDI() ) {
 			switch ( evt.type & 0xf0 ) {
 			case 0xb0:
-				ost << "(ctrl change) " << std::hex << (unsigned int) evt.midi.channel
-					<< " " << std::hex << (unsigned int) evt.midi.number
-					<< " " << std::hex << (unsigned int) evt.midi.velocity;
+				ost << "(ctrl change) " << std::hex << (unsigned int) evt.channel()
+					<< " " << std::hex << (unsigned int) evt.number
+					<< " " << std::hex << (unsigned int) evt.velocity;
 				break;
 			case 0xc0:
-				ost << "(prog change) " << std::hex << (unsigned int) evt.midi.channel
-					<< " " << std::hex << (unsigned int) evt.midi.number;
+				ost << "(prog change) " << std::hex << (unsigned int) evt.channel()
+					<< " " << std::hex << (unsigned int) evt.number;
 				break;
 			case 0x80:
 			case 0x90:
-				if ( (evt.type & 0xf0) == 0x80 || evt.midi.velocity == 0 ) {
+				if ( (evt.type & 0xf0) == 0x80 || evt.velocity == 0 ) {
 					ost << "(noteoff) ";
-					ost << (unsigned int) evt.midi.channel
-						<< " " << (unsigned int) evt.midi.number;
+					ost << (unsigned int) evt.channel()
+						<< " " << (unsigned int) evt.number;
 				} else {
 					ost << "(note on) ";
 					ost << (unsigned int) evt.midi.channel

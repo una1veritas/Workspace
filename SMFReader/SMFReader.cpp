@@ -69,17 +69,16 @@ struct SMFStream {
 		//std::cout << "delta = " << event.delta << ", ";
 		event.type = read_byte();
 		//std::cout << "type = " << std::hex << (unsigned int) event.type << ", ";
-		if ( event.delta == 'M' && event.type == (uint8)'T' ) {
+		if ( event.delta == 'M' && event.type == 'T' ) {
 			read_byte(tbuf,2);
-			event.type = tbuf[0];
+			event.type = tbuf[0]; // MTRK or MTHD
 			read_byte(tbuf, 10);
 			event.length = (uint32)tbuf[0]<<24 | (uint32)tbuf[1]<<16 | (uint32)tbuf[2]<<8 | tbuf[3];
-			if ( event.mt.mttype == 'h') {
+			if ( event.type == SMFEvent::MTHD) {
 				read_byte(tbuf,event.length);
-				event.mt.format = ((uint16)tbuf[0]) << 8 | tbuf[2];
-				event.mt.tracks = ((uint16)tbuf[0]) << 8 | tbuf[2];
-				event.mt.resolution = ((uint16)tbuf[0]) << 8 | tbuf[2];
-				*/
+				event.format = ((uint16)tbuf[0]) << 8 | tbuf[2];
+				event.tracks = ((uint16)tbuf[0]) << 8 | tbuf[2];
+				event.resolution = ((uint16)tbuf[0]) << 8 | tbuf[2];
 			}
 	    } else if ( (event.type & 0xf0) == 0xf0 ) {
 			// status byte
@@ -89,27 +88,28 @@ struct SMFStream {
 				event.length = read_varlenint() - 1;
 				event.data = new uint8[event.length];
 				for(int i = 0; i < event.length; ++i) {
-					event.data[i] = read_byte();
+					if ( i < SMFEvent::DATA_MAX_LENGTH)
+						event.data[i] = read_byte();
 				}
-				read_byte(); // end-marker x0f7
+				read_byte(); // comes end-marker x0f7
 				break;
 			case SMFEvent::ESCSYSEX: // status = 0xf7
 				//std::cout << "escaped/system exclusive event, ";
 				event.length = read_varlenint();
-				event.data = new uint8[event.length];
 				for(int i = 0; i < event.length; ++i) {
-					event.data[i] = read_byte();
+					if ( i < SMFEvent::DATA_MAX_LENGTH)
+						event.data[i] = read_byte();
 				}
 				break;
 			case SMFEvent::META: // status = 0xff
 				//std::cout << "meta event, ";
-				event.metatype = read_byte(); // event type
+				event.meta = read_byte(); // meta event type
 				event.length = read_varlenint(); // event size
 				//std::cout << "length = " << event.meta.length << " ";
-				if (event.metatype != 0x2f) {
-					event.data = new uint8[event.length];
-					for(int i = 0; i < event.length; ++i) {
-						event.data[i] = read_byte();
+				if (event.meta != 0x2f) {
+					for(int i = 0; i+1 < event.length; ++i) {
+						if ( i < SMFEvent::DATA_MAX_LENGTH)
+							event.data[i+1] = read_byte();
 					}
 				}
 				break;
@@ -118,36 +118,36 @@ struct SMFStream {
 			switch(event.type & 0xf0) {
 			case 0x80:
 			case 0x90: // note on
-				event.midi.channel = event.type & 0x0f;
-				event.midi.number = read_byte();
-				event.midi.velocity = read_byte();
+				event.number = read_byte();
+				event.velocity = read_byte();
+				event.duration = 0;
 				break;
 			case 0xa0:
 				break;
 			case 0xb0: // control change
-				event.midi.channel = event.type & 0x0f;
-				event.midi.number = read_byte();
-				event.midi.velocity = read_byte();
-				if ( (event.midi.number & 0x78) ) {
-					if (event.midi.number == 0x7c)
+				event.number = read_byte();
+				event.velocity = read_byte();
+				if ( (event.number & 0x78) ) {
+					if (event.number == 0x7c)
 						midistatus.omni = false;
-					else if (event.midi.number == 0x7d)
+					else if (event.number == 0x7d)
 						midistatus.omni = true;
-					else if (event.midi.number == 0x7e) {
+					else if (event.number == 0x7e) {
 						midistatus.poly = false;
 						if ( !midistatus.omni )
 							read_byte();
-					} else if (event.midi.number == 0x7f) {
+					} else if (event.number == 0x7f) {
 						midistatus.poly = true;
 					}
 				}
 				break;
 			case 0xc0: // prog. change
-				event.midi.channel = event.type & 0x0f;
-				event.midi.number = read_byte();
+			case 0xd0: // ch. pressure
+				event.number = read_byte();
 				break;
-			case 0xd0:
-			case 0xe0:
+			case 0xe0: // pitch bend
+				read_byte(tbuf, 2);
+				event.pitchbend = (tbuf[0] & 0x7f) | ((uint16)tbuf[1] & 0x7f) << 7;
 				break;
 			}
 		}
