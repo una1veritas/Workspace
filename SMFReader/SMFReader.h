@@ -97,7 +97,7 @@ struct SMFEvent {
 				ost << "(ESCSYSEX) ";
 			}
 		} else if ( evt.isMeta() ) {
-			ost << "(META ";
+			ost << "(M ";
 			if ( evt.meta == 0x01 ) {
 				ost << "TEXT" << ") ";
 				for(int i = 0; i < evt.length; ++i) {
@@ -149,7 +149,7 @@ struct SMFEvent {
 				} else if ( evt.data[0] == 0 ) {
 					ost << evt.data[1];
 				} else {
-					ost << 'b' << (unsigned int) evt.data[0];
+					ost << 'b' << -((char) evt.data[0]);
 				}
 				ost << " " << (evt.data[1] ? "min" : "maj");
 			} else {
@@ -165,22 +165,22 @@ struct SMFEvent {
 		} else if ( evt.isMIDI() ) {
 			switch ( evt.type & 0xf0 ) {
 			case 0xb0:
-				ost << "(ctrl change) " << std::hex << (unsigned int) evt.channel()
+				ost << "(ctrl ch) " << std::hex << (unsigned int) evt.channel()
 					<< " " << std::hex << (unsigned int) evt.number
 					<< " " << std::hex << (unsigned int) evt.velocity;
 				break;
 			case 0xc0:
-				ost << "(prog change) " << std::hex << (unsigned int) evt.channel()
+				ost << "(prog ch) " << std::hex << (unsigned int) evt.channel()
 					<< " " << std::hex << (unsigned int) evt.number;
 				break;
 			case 0x80:
 			case 0x90:
 				if ( (evt.type & 0xf0) == 0x80 || evt.velocity == 0 ) {
-					ost << "(noteoff) ";
+					ost << "(off) ";
 					ost << (unsigned int) evt.channel()
 						<< " " << (unsigned int) evt.number;
 				} else {
-					ost << "(note on) ";
+					ost << "(on)  ";
 					ost << (unsigned int) evt.channel()
 						<< " " << (unsigned int) evt.number << ", " << (unsigned int) evt.velocity;
 				}

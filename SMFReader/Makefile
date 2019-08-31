@@ -1,16 +1,16 @@
 #PROJECT_ROOT = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-OBJS = SMFReader.o
+OBJS = demo_main.o
 
 CFLAGS += -g
 
-all:	SMFReader
+all:	demo.exe
 
-SMFReader:	$(OBJS)
+demo.exe:	$(OBJS)
 	$(CXX) -o $@ $^
 
 #%.o:	$(PROJECT_ROOT)%.cpp
-%.o:	%.cpp SMFReader.h
+%.o:	%.cpp SMFReader.h SMFStream.h
 	$(CXX) -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
 #%.o:	$(PROJECT_ROOT)%.c
@@ -18,4 +18,4 @@ SMFReader:	$(OBJS)
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 clean:
-	rm -fr SMFReader $(OBJS)
+	rm -fr demo.exe $(OBJS)
