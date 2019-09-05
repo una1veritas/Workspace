@@ -1,12 +1,14 @@
 #PROJECT_ROOT = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-OBJS = demo_main.o
+CXX = g++ -Wall -Ilibsmf
+
+OBJS = main.o
 
 CFLAGS += -g
 
-all:	demo.exe
+all:	SMFReader.exe
 
-demo.exe:	$(OBJS)
+SMFReader.exe:	$(OBJS)
 	$(CXX) -o $@ $^
 
 #%.o:	$(PROJECT_ROOT)%.cpp
@@ -18,4 +20,4 @@ demo.exe:	$(OBJS)
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 clean:
-	rm -fr demo.exe $(OBJS)
+	rm -fr SMFReader.exe $(OBJS)

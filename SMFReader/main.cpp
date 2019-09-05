@@ -7,8 +7,8 @@
 
 #include <vector>
 
-#include "SMFReader.h"
-#include "SMFStream.h"
+#include "libsmf/SMFEvent.h"
+#include "libsmf/SMFStream.h"
 
 typedef uint8_t uint8;
 typedef uint16_t uint16;
@@ -17,8 +17,8 @@ typedef uint32_t uint32;
 int main(int argc, char **argv) {
 	std::fstream infile;
 
+	std::cout << "file: " << argv[1] << std::endl;
 	infile.open(argv[1], (std::ios::in | std::ios::binary) );
-
 	if ( !infile ) {
 		std::cerr << "失敗" << std::endl;
 		return -1;
@@ -37,20 +37,23 @@ int main(int argc, char **argv) {
 	// 00 b0 07 50
 	// 00    0a 19
 	// 00 c1 47 00 b1
-	/*
-	07 5f 00 0a 64 00 c2 3a 00 b2 07 7f 00 0a 6e 00
-	c3 39 00 b3 07 64 00 0a 5a 00 c4 38 00 b4 07 5a
-	00 0a 1e 00 c5 48 00 b5 07 4b 00 0a 14 00 c6 09
-	00 b6 07 41 00 0a 32 00 c7 3c 00 b7 07 5a 00 0a
-	28 00 b9 07 41 00 0a 46 82 68 b0 5d 0a 00 5b 0f
-	00 90 41 64 00 b1 5d 14 00 5b 0f 00 91 3e 64 00
-	b2 5b 1e 00 b3 5b 1e 00 b4 5d 05 00 5b 1e 00 94
-	41 64 00 b5 5d 0a 00 5b 14 00 95 4d 64 00 b6 5b
-	23 00 96 4d 64 6e 94 41 00 0a 95 4d 00 00 90 41
-	*/
+
+	uint32 delta_total = 0, last_total;
 	while ( smf.smfstream ) {
 		SMFEvent evt = smf.getNextEvent();
-		std::cout << evt << std::endl;
+		if (evt.delta > 0)
+			delta_total += evt.delta;
+		if ( evt.isMTRK() ) {
+			delta_total = 0;
+			last_total = 0xffffffff;
+		}
+		if ( evt.isNoteOn() ) {
+			if ( last_total != delta_total ) {
+				std::cout << std::endl << std::dec << delta_total << " ";
+				last_total = delta_total;
+			}
+			std::cout << evt << " ";
+		}
 	}
 	/*
 	uint8 buf[256];

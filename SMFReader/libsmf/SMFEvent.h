@@ -5,14 +5,14 @@
  *      Author: sin
  */
 
-#ifndef SMFREADER_H_
-#define SMFREADER_H_
+#ifndef SMFEVENT_H_
+#define SMFEVENT_H_
 
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 
-typedef uint8_t uint8;
+typedef uint8_t  uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
 typedef uint64_t uint64;
@@ -49,7 +49,7 @@ struct SMFEvent {
 	};
 
 	// methods
-	SMFEvent() : delta(0), type(0), number(0), velocity(0), duration(0) {}
+	SMFEvent() : delta(0), type(0), duration(0), number(0), velocity(0) {}
 	//~SMFEvent() {}
 	/*
 	SMFEvent & operator=(const SMFEvent & evt) {
@@ -65,6 +65,20 @@ struct SMFEvent {
 		return (type & 0xf0) >= 0x80 && (type & 0xf0) <= 0xe0;
 	}
 
+	bool isNote() const {
+		uint8 t = type & 0xf0;
+		return t == 0x80 || t == 0x90;
+	}
+
+	bool isNoteOff() const {
+		uint8 t = type & 0xf0;
+		return ( t == 0x80 || (t == 0x90 && velocity == 0) );
+	}
+
+	bool isNoteOn() const {
+		return (type & 0xf0) == 0x90 && velocity != 0;
+	}
+
 	bool isSys() const {
 		return (type == SYSEX) || (type == ESCSYSEX);
 	}
@@ -75,6 +89,10 @@ struct SMFEvent {
 
 	bool isMT() const {
 		return type == MTRK || type == MTHD;
+	}
+
+	bool isMTRK() const {
+		return type == MTRK;
 	}
 
 	uint8 channel() const {
@@ -206,4 +224,4 @@ struct SMFEvent {
 };
 
 
-#endif /* SMFREADER_H_ */
+#endif /* SMFEVENT_H_ */
