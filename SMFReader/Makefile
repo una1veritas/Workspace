@@ -1,5 +1,7 @@
 #PROJECT_ROOT = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
+CXX = g++ -Wall -Ilibsmf
+
 OBJS = demo_main.o
 
 CFLAGS += -g

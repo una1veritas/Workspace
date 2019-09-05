@@ -77,9 +77,9 @@ while keydate != todaydate :
             time2 = datetime.time(time2.hour+1, 0)
         else:
             time2 = datetime.time(time2.hour, math.ceil(time2.minute/5)*5)
-        print(keydate, '\t', dayname_dict[keydate.weekday()], '\t', time1.strftime("%H:%M"), '\t', time2.strftime("%H:%M"))
+        print(keydate, dayname_dict[keydate.weekday()], time1.strftime("%H:%M"), time2.strftime("%H:%M"), sep='\t' )
     else:
-        print(keydate, '\t', dayname_dict[keydate.weekday()], '\t\t')
+        print(keydate, dayname_dict[keydate.weekday()], sep='\t')
     keydate = keydate + datetime.timedelta(days=1)
 exit()
 
@@ -102,22 +102,3 @@ exit()
 # 
 # bseq.reverse()
 # #bseq.sort(key=lambda x:(x[0],x[1]))
-
-date = ''
-time_from = ''
-time_to = ''
-for tp in bseq:
-    if date != tp[0] :
-        if date != '' :
-            print(date+'\t'+time_from+'\t'+time_to)
-        date = tp[0]
-        time_from = ''
-        time_to = ''
-    else:
-        if time_from == '' or tp[1] < time_from :
-            time_from = tp[1]
-        elif tp[1] > time_to :
-            time_to = tp[1]
-print(date+',\t'+time_from+',\t'+time_to)
-
-print('finished.')

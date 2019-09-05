@@ -8,11 +8,18 @@
 #ifndef SMFSTREAM_H_
 #define SMFSTREAM_H_
 
-#include "SMFReader.h"
+#include <iostream>
+#include <iomanip>
+#include <fstream>
 
-typedef uint8_t uint8;
+#include "SMFEvent.h"
+
+/*
+typedef uint8_t  uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
+typedef uint64_t uint64;
+*/
 
 struct SMFStream {
 	std::fstream & smfstream;

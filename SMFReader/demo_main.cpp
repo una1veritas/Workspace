@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include "SMFReader.h"
+#include "libsmf/SMFEvent.h"
 #include "SMFStream.h"
 
 typedef uint8_t uint8;
