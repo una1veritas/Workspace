@@ -65,6 +65,20 @@ struct SMFEvent {
 		return (type & 0xf0) >= 0x80 && (type & 0xf0) <= 0xe0;
 	}
 
+	bool isNote() const {
+		uint8 t = type & 0xf0;
+		return t == 0x80 || t == 0x90;
+	}
+
+	bool isNoteOff() const {
+		uint8 t = type & 0xf0;
+		return ( t == 0x80 || (t == 0x90 && velocity == 0) );
+	}
+
+	bool isNoteOn() const {
+		return (type & 0xf0) == 0x90 && velocity != 0;
+	}
+
 	bool isSys() const {
 		return (type == SYSEX) || (type == ESCSYSEX);
 	}
@@ -75,6 +89,10 @@ struct SMFEvent {
 
 	bool isMT() const {
 		return type == MTRK || type == MTHD;
+	}
+
+	bool isMTRK() const {
+		return type == MTRK;
 	}
 
 	uint8 channel() const {
