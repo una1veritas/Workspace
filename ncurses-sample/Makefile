@@ -16,7 +16,7 @@ LIBS = -lncurses
 all: $(TARGET)
 
 $(TARGET):	$(OBJS)
-	$(CXX) $(LIBS) -o $@ $^
+	$(CXX) -o $@ $^ $(LIBS)
 
 #%.o:	$(PROJECT_ROOT)%.cpp
 %.o:	%.cpp 

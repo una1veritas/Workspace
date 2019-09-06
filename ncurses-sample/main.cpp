@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include <ncurses.h>
+#include <ncurses/ncurses.h>
 
 typedef unsigned int uint;
 
@@ -26,7 +26,7 @@ struct NCursesWindow {
 
 	NCursesWindow() {
 		mainwin = initscr();
-		if ( *this ) {
+		if ( this ) {
 			getmaxyx(stdscr, maxrow, maxcol);
 		}
 	}
