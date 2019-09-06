@@ -9,7 +9,8 @@
 */
 
 #include <stdarg.h>
-#include "include/my.h"
+
+#include "../src/include/my.h-"
 
 int	disp(int nb, int size)
 {

@@ -9,7 +9,8 @@
 */
 
 #include <stdlib.h>
-#include "include/my.h"
+
+#include "../src/include/my.h-"
 
 int	my_putstr_va(va_list *ap)
 {

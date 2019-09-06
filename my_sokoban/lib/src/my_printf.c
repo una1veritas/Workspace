@@ -9,7 +9,8 @@
 */
 
 #include <stdarg.h>
-#include "include/my.h"
+
+#include "../src/include/my.h-"
 
 int	tabb(int (*tab_fonc[256])())
 {

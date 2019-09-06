@@ -8,7 +8,7 @@
 ** Last update Wed Nov 16 22:13:17 2016 Le Goff Kawrantin
 */
 
-#include "include/my.h"
+#include "../src/include/my.h-"
 
 int	the_little_mod_function_with_a_big_name(int final_len)
 {

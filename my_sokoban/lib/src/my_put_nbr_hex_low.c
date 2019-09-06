@@ -1,17 +1,19 @@
 /*
-** truc.c for my_put_adress in /home/kawrantin/delivery/PSU_2016_my_printf
+** my_put_nbr_hex_low.c for my_put_nbr_hex_low in /home/kawrantin/delivery/PSU_2016_my_printf
 ** 
 ** Made by Le Goff Kawrantin
 ** Login   <kawrantin@epitech.net>
 ** 
-** Started on  Thu Nov 17 15:38:39 2016 Le Goff Kawrantin
-** Last update Thu Dec  1 09:09:01 2016 Le Goff Kawrantin
+** Started on  Thu Nov 17 13:06:11 2016 Le Goff Kawrantin
+** Last update Thu Nov 17 13:09:24 2016 Le Goff Kawrantin
 */
 
+#include <stdarg.h>
 #include <stdlib.h>
-#include "include/my.h"
 
-int     final_ptr(char *bin, int i, int bool, int size)
+#include "../src/include/my.h-"
+
+int	final_hex_low(char *bin, int i, int bool, int size)
 {
   if (bool == 42)
     {
@@ -33,16 +35,16 @@ int     final_ptr(char *bin, int i, int bool, int size)
   return (size);
 }
 
-int     my_put_nbr_ptr(long tmp)
+int	my_put_nbr_hex_low(va_list *ap)
 {
-  char          *bin;
-  int           i;
-  long	int	quotient;
-  int           bool;
-  int           size;
+  char		*bin;
+  int		i;
+  unsigned int  quotient;
+  int		bool;
+  int		size;
 
   bin = malloc(sizeof(char) * 100);
-  quotient = tmp;
+  quotient = va_arg(*ap, unsigned int);
   i = bool = 0;
   if (quotient == 0)
     bool = 84;
@@ -55,18 +57,6 @@ int     my_put_nbr_ptr(long tmp)
       quotient = quotient / 16;
       i++;
     }
-  size = final_ptr(bin, i, bool, size);
-  return (size);
-}
-
-int	my_put_address(va_list *ap)
-{
-  int	size;
-  char	*address;
-  void	*tmp;
-
-  tmp = va_arg(*ap, void*);
-  my_putstr("0x");
-  my_put_nbr_ptr((long)tmp);
+  size = final_hex_low(bin, i, bool, size);
   return (size);
 }

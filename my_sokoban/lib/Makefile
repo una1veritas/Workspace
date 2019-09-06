@@ -8,16 +8,16 @@
 ## Last update Tue Nov 15 16:41:35 2016 Le Goff Kawrantin
 ##
 
-SRCS	=	*.c
+#SRCS	=	*.c
 
-FLAG	=	-Llib -lmy
+FLAG	=	-I../include -Llib -lmy
 
 NAME	=	libmy.a
 
 all:	$(NAME)
 
 $(NAME):	$(OBJ)
-	gcc -c *.c
+	gcc -c src/*.c
 	ar rc libmy.a *.o
 
 clean:

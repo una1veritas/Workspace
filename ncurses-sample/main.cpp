@@ -1,7 +1,8 @@
 /*
- * main.c
+ * main.cpp
  *
  *  Created on: 2016/04/03
+ *  Modified on: 2019/09/06
  *      Author: sin
  */
 
@@ -10,7 +11,50 @@
 
 #include <ncurses.h>
 
-int main(void)
+typedef unsigned int uint;
+
+struct NCursesWindow {
+	WINDOW * mainwin;
+	uint maxrow, maxcol;
+
+	enum {
+		RAW_MODE = 1,
+		ECHO = 2,
+		CURSOR_VISIBLE = 4,
+		NO_DELAY = 8,
+	};
+
+	NCursesWindow() {
+		mainwin = initscr();
+		if ( *this ) {
+			getmaxyx(stdscr, maxrow, maxcol);
+		}
+	}
+
+	bool operator()(void) {
+		return mainwin != NULL;
+	}
+
+	void set_mode(const uint flags) {
+		if ( !(flags & RAW_MODE) )
+			cbreak(); 			/* not raw mode but read key immediately */
+		if ( !(flags & ECHO) )
+			noecho(); 			/* do not echo the input key char */
+		if ( !(flags & CURSOR_VISIBLE) )
+			curs_set(0);		/* 0 ... set cursor invisible */
+		if ( flags & NO_DELAY )
+			nodelay(stdscr, TRUE); /* getch do not wait keypress */
+
+	}
+
+	int print(const char * str) {
+		return printw(str);
+	}
+
+
+};
+
+int main(const int argc, const char **argv)
 {
 	WINDOW * mainwin;
 	int row, col;
@@ -60,5 +104,5 @@ int main(void)
 	endwin();			/* End curses mode		  */
 	refresh();
 
-	return 0;
+	return EXIT_SUCCESS;
 }

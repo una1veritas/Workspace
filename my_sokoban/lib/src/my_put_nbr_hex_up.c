@@ -1,18 +1,19 @@
 /*
-** my_put_nbr_bin.c for my_put_nbr_bin in /home/kawrantin/delivery/PSU_2016_my_printf
-**
+** my_put_nbr_hex.c for my_put_nbr_hex_up in /home/kawrantin/delivery/PSU_2016_my_printf
+** 
 ** Made by Le Goff Kawrantin
 ** Login   <kawrantin@epitech.net>
-**
-** Started on  Tue Nov 15 21:52:58 2016 Le Goff Kawrantin
-** Last update Wed Nov 16 18:49:34 2016 Le Goff Kawrantin
+** 
+** Started on  Thu Nov 17 12:55:41 2016 Le Goff Kawrantin
+** Last update Thu Nov 17 12:55:44 2016 Le Goff Kawrantin
 */
 
 #include <stdarg.h>
 #include <stdlib.h>
-#include "include/my.h"
 
-int	final_bin(char *bin, int i, int bool, int size)
+#include "../src/include/my.h-"
+
+int	final_hex_up(char *bin, int i, int bool, int size)
 {
   if (bool == 42)
     {
@@ -34,11 +35,11 @@ int	final_bin(char *bin, int i, int bool, int size)
   return (size);
 }
 
-int	my_put_nbr_bin(va_list *ap)
+int	my_put_nbr_hex_up(va_list *ap)
 {
   char		*bin;
   int		i;
-  unsigned int	quotient;
+  unsigned int  quotient;
   int		bool;
   int		size;
 
@@ -49,10 +50,13 @@ int	my_put_nbr_bin(va_list *ap)
     bool = 84;
   while (quotient != 0)
     {
-      bin[i] = (quotient % 2) + 48;
-      quotient = quotient / 2;
+      if ((quotient % 16) >= 10)
+	bin[i] = (quotient % 16) + 55;
+      else
+	bin[i] = (quotient % 16) + 48;
+      quotient = quotient / 16;
       i++;
     }
-  size = final_bin(bin, i, bool, size);
+  size = final_hex_up(bin, i, bool, size);
   return (size);
 }

@@ -21,7 +21,7 @@ SRCS	=	sources/main.c		\
 
 CC	=	gcc
 
-CFLAGS	=	-Wall -Werror -Wextra -I.
+CFLAGS	=	-Wall -Werror -Wextra -Iinclude -Incurses
 
 LDFLAGS	=	-lncurses -Llib -lmy
 
@@ -32,13 +32,14 @@ NAME	=	my_sokoban
 all:	$(NAME)
 
 lib/libmy.a: 
-	cd lib/my; make; mv libmy.a ../libmy.a
+	cd lib; make
 
 $(NAME):	lib/libmy.a $(OBJ)
 	$(CC) $(OBJ) -o $(NAME) $(LDFLAGS)
 
 clean:
 	rm -f $(OBJ)
+	cd lib; make clean
 
 fclean:	clean
 	rm -f $(NAME)

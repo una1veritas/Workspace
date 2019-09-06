@@ -1,18 +1,19 @@
 /*
-** my_put_nbr_hex_low.c for my_put_nbr_hex_low in /home/kawrantin/delivery/PSU_2016_my_printf
+** my_put_nbr_oct.c for my_put_nbr_oct in /home/kawrantin/delivery/PSU_2016_my_printf
 ** 
 ** Made by Le Goff Kawrantin
 ** Login   <kawrantin@epitech.net>
 ** 
-** Started on  Thu Nov 17 13:06:11 2016 Le Goff Kawrantin
-** Last update Thu Nov 17 13:09:24 2016 Le Goff Kawrantin
+** Started on  Wed Nov 16 18:06:19 2016 Le Goff Kawrantin
+** Last update Wed Nov 16 18:52:06 2016 Le Goff Kawrantin
 */
 
 #include <stdarg.h>
 #include <stdlib.h>
-#include "include/my.h"
 
-int	final_hex_low(char *bin, int i, int bool, int size)
+#include "../src/include/my.h-"
+
+int	final_oct(char *bin, int i, int bool, int size)
 {
   if (bool == 42)
     {
@@ -34,7 +35,7 @@ int	final_hex_low(char *bin, int i, int bool, int size)
   return (size);
 }
 
-int	my_put_nbr_hex_low(va_list *ap)
+int	my_put_nbr_oct(va_list *ap)
 {
   char		*bin;
   int		i;
@@ -49,13 +50,10 @@ int	my_put_nbr_hex_low(va_list *ap)
     bool = 84;
   while (quotient != 0)
     {
-      if ((quotient % 16) >= 10)
-	bin[i] = (quotient % 16) + 87;
-      else
-	bin[i] = (quotient % 16) + 48;
-      quotient = quotient / 16;
+      bin[i] = (quotient % 8) + 48;
+      quotient = quotient / 8;
       i++;
     }
-  size = final_hex_low(bin, i, bool, size);
+  size = final_oct(bin, i, bool, size);
   return (size);
 }
