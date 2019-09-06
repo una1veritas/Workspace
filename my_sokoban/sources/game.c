@@ -8,7 +8,7 @@
 ** Last update Tue Dec 20 22:43:05 2016 Le Goff Kawrantin
 */
 
-#include <ncurses.h>
+#include <ncurses/ncurses.h>
 #include "include/my.h"
 
 int	init_player(char **map, int lines, int cols, struct s_map *m)

@@ -12,7 +12,7 @@ SMFReader.exe:	$(OBJS)
 	$(CXX) -o $@ $^
 
 #%.o:	$(PROJECT_ROOT)%.cpp
-%.o:	%.cpp SMFReader.h SMFStream.h
+%.o:	%.cpp libsmf/SMFEvent.h libsmf/SMFStream.h
 	$(CXX) -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
 #%.o:	$(PROJECT_ROOT)%.c

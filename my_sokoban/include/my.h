@@ -12,7 +12,7 @@
 # define MY_H_
 
 #include <stdarg.h>
-#include <ncurses.h>
+#include <ncurses/ncurses.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>

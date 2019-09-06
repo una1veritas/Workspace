@@ -31,7 +31,10 @@ NAME	=	my_sokoban
 
 all:	$(NAME)
 
-$(NAME):	$(OBJ)
+lib/libmy.a: 
+	cd lib/my; make; mv libmy.a ../libmy.a
+
+$(NAME):	lib/libmy.a $(OBJ)
 	$(CC) $(OBJ) -o $(NAME) $(LDFLAGS)
 
 clean:

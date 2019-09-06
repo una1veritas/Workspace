@@ -16,6 +16,7 @@ typedef uint8_t  uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
 typedef uint64_t uint64;
+typedef unsigned int  uint;
 
 struct SMFEvent {
 	uint32 delta;
@@ -104,7 +105,7 @@ struct SMFEvent {
 		if ( evt.isSys() ) {
 			if (evt.type == SYSEX) {
 				ost << "(SYSEX) "<< evt.length << " ";
- 				for(int i = 0; i < evt.length; ++i) {
+ 				for(uint i = 0; i < evt.length; ++i) {
 					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
 						ost << std::setw(2) << std::setfill('0') << std::hex << (unsigned int) evt.data[i] << " ";
 					} else {
@@ -118,7 +119,7 @@ struct SMFEvent {
 			ost << "(M ";
 			if ( evt.meta == 0x01 ) {
 				ost << "TEXT" << ") ";
-				for(int i = 0; i < evt.length; ++i) {
+				for(uint i = 0; i < evt.length; ++i) {
 					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
 						ost << (char) evt.data[i];
 					} else {
@@ -127,7 +128,7 @@ struct SMFEvent {
 				}
 			} else if ( evt.meta == 0x02 ) {
 				ost << "COPYRIGHT" << ") ";
-				for(int i = 0; i < evt.length; ++i) {
+				for(uint i = 0; i < evt.length; ++i) {
 					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
 						ost << (char) evt.data[i];
 					} else {
@@ -136,7 +137,7 @@ struct SMFEvent {
 				}
 			} else if ( evt.meta == 0x03 ) {
 				ost << "NAME" << ") ";
-				for(int i = 0; i < evt.length; ++i) {
+				for(uint i = 0; i < evt.length; ++i) {
 					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
 						ost << (char) evt.data[i];
 					} else {
@@ -149,7 +150,7 @@ struct SMFEvent {
 				ost << "TEMPO" << ") " << ((uint32)evt.data[0]<<16 | (uint32)evt.data[1]<<8 | evt.data[2]);
 			} else if ( evt.meta == 0x54 ) {
 				ost << "SMTPE OFFSET" << ") ";
-				for(int i = 0; i < evt.length; ++i) {
+				for(uint i = 0; i < evt.length; ++i) {
 					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
 						ost << std::setw(2) << std::hex << (unsigned int) evt.data[i];
 					} else {
@@ -172,9 +173,9 @@ struct SMFEvent {
 				ost << " " << (evt.data[1] ? "min" : "maj");
 			} else {
 				ost << std::hex << (unsigned int) evt.meta << ") ";
-				for(int i = 0; i < evt.length; ++i) {
+				for(uint i = 0; i < evt.length; ++i) {
 					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
-						ost << std::setw(2) << std::hex << (unsigned int) evt.data[i];
+						ost << std::setw(2) << std::hex << (uint) evt.data[i];
 					} else {
 						ost << '.';
 					}
@@ -183,13 +184,13 @@ struct SMFEvent {
 		} else if ( evt.isMIDI() ) {
 			switch ( evt.type & 0xf0 ) {
 			case 0xb0:
-				ost << "(ctrl ch) " << std::hex << (unsigned int) evt.channel()
-					<< " " << std::hex << (unsigned int) evt.number
-					<< " " << std::hex << (unsigned int) evt.velocity;
+				ost << "(ctrl ch) " << std::hex << (uint) evt.channel()
+					<< " " << std::hex << (uint) evt.number
+					<< " " << std::hex << (uint) evt.velocity;
 				break;
 			case 0xc0:
-				ost << "(prog ch) " << std::hex << (unsigned int) evt.channel()
-					<< " " << std::hex << (unsigned int) evt.number;
+				ost << "(prog ch) " << std::hex << (uint) evt.channel()
+					<< " " << std::hex << (uint) evt.number;
 				break;
 			case 0x80:
 			case 0x90:
@@ -212,8 +213,8 @@ struct SMFEvent {
 			}
 		} else {
 			ost << "UNKNOWN ";
-			ost << std::hex << (unsigned int) evt.delta << " " << (unsigned int) evt.type << " " << (unsigned int) evt.length;
-			for(int i = 0; i < evt.length; ++i) {
+			ost << std::hex << (uint) evt.delta << " " << (uint) evt.type << " " << (unsigned int) evt.length;
+			for(uint i = 0; i < evt.length; ++i) {
 				ost << std::hex << evt.data[i] << " ";
 			}
 		}

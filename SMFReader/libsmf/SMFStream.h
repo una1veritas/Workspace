@@ -48,7 +48,7 @@ struct SMFStream {
 
 	uint8 * read_byte(uint8 * buf, const uint32 num, const uint32 limit_num) {
 		uint8 t;
-		for(int i = 0; i < num; ++i) {
+		for(uint i = 0; i < num; ++i) {
 			t = read_byte();
 			if ( i < limit_num)
 				buf[i] = t;
@@ -79,7 +79,6 @@ struct SMFStream {
 	}
 
 	SMFEvent & complete_read_MIDIEvent(SMFEvent & event, const uint8 nextByte) {
-		uint8 t;
 		switch(event.type & 0xf0) {
 		case 0x80:
 		case 0x90: // note on
@@ -111,7 +110,7 @@ struct SMFStream {
 			event.number = nextByte;
 			break;
 		case 0xe0: // pitch bend
-			t = read_byte();
+			read_byte();
 			event.pitchbend = ((uint16) read_byte() & 0x7f)<<7;
 			event.pitchbend |= nextByte & 0x7f;
 			break;
