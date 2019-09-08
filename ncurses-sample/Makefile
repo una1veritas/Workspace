@@ -10,7 +10,7 @@ CXXFLAGS =
 OBJS = main.o
 TARGET = ncurses-sample.exe
 
-INCLUDES =
+INCLUDES = -Incurses
 LIBS = -lncurses
 
 all: $(TARGET)

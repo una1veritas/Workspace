@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include <ncurses/ncurses.h>
+#include <ncurses.h>
 
 typedef unsigned int uint;
 
@@ -19,32 +19,63 @@ struct NCursesWindow {
 
 	enum {
 		RAW_MODE = 1,
-		ECHO = 2,
+		ECHO_INPUT = 2,
 		CURSOR_VISIBLE = 4,
 		NO_DELAY = 8,
+		KEYPAD = 16,
+		FUNCTION_MASK = RAW_MODE | ECHO_INPUT | CURSOR_VISIBLE | NO_DELAY | KEYPAD,
 	};
 
 	NCursesWindow() {
 		mainwin = initscr();
-		if ( this ) {
+		if ( *this ) {
 			getmaxyx(stdscr, maxrow, maxcol);
 		}
 	}
 
-	bool operator()(void) {
+	~NCursesWindow() {
+		delwin(mainwin);
+		endwin();			/* End curses mode		  */
+		refresh();
+	}
+
+	explicit operator bool() const {
 		return mainwin != NULL;
 	}
 
-	void set_mode(const uint flags) {
-		if ( !(flags & RAW_MODE) )
-			cbreak(); 			/* not raw mode but read key immediately */
-		if ( !(flags & ECHO) )
-			noecho(); 			/* do not echo the input key char */
-		if ( !(flags & CURSOR_VISIBLE) )
-			curs_set(0);		/* 0 ... set cursor invisible */
-		if ( flags & NO_DELAY )
-			nodelay(stdscr, TRUE); /* getch do not wait keypress */
+	void buffered_input(const bool yes) {
+	if ( yes )
+		nocbreak();
+	else
+		cbreak();	/* not raw mode but read key immediately */
+	}
 
+	void echo_input(const bool yes) {
+		if ( yes )
+			echo();
+		else
+			noecho(); 			/* do not echo the input key char */
+	}
+
+	void cursor_visible(const bool yes) {
+		if ( yes )
+			curs_set(1);
+		else
+			curs_set(0);		/* 0 ... set cursor invisible */
+	}
+
+	void keypress_delay(const bool yes) {
+		if ( yes )
+			nodelay(stdscr, TRUE); /* getch do not wait keypress */
+		else
+			nodelay(stdscr, FALSE);
+	}
+
+	void use_keypad(const bool yes) {
+		if ( yes )
+			keypad(stdscr, TRUE);
+		else
+			keypad(stdscr,FALSE);
 	}
 
 	int print(const char * str) {
@@ -56,24 +87,30 @@ struct NCursesWindow {
 
 int main(const int argc, const char **argv)
 {
-	WINDOW * mainwin;
-	int row, col;
+	NCursesWindow mainwin;
+//	WINDOW * mainwin;
+//	int row, col;
 	char ch = ' ';
 	int counter;
 
-	mainwin = initscr();			/* Start curses mode 		  */
-	if ( mainwin == NULL ) {
+//	mainwin = initscr();			/* Start curses mode 		  */
+	if ( !mainwin ) {
 		printf("failed ncurses mode.\n");
 		return EXIT_FAILURE;
 	}
 
-	getmaxyx(stdscr,row,col); 	/* get the size of stdscr */
+	//getmaxyx(stdscr,row,col); 	/* get the size of stdscr */
+	//mainwin.buffered_input(false);
 	cbreak(); 			/* not raw mode but read key immediately */
-	noecho(); 			/* do not echo the input key char */
-	curs_set(0);		/* 0 ... set cursor invisible */
+	mainwin.echo_input(false); //noecho(); 			/* do not echo the input key char */
+	mainwin.use_keypad(true); //	keypad(stdscr,TRUE);
+	mainwin.cursor_visible(true); //curs_set(0);		/* 0 ... set cursor invisible */
+
+	//mainwin.set_mode(NCursesWindow::RAW_MODE | NCursesWindow::NO_DELAY | NCursesWindow::KEYPAD,
+	//		NCursesWindow::RAW_MODE | NCursesWindow::NO_DELAY | NCursesWindow::CURSOR_VISIBLE | NCursesWindow::KEYPAD );
 
 	printw("Hello World !!!");	/* Print Hello World		  */
-	mvprintw(1,0,"My world is %d x %d.",row, col);
+	mvprintw(1,0,"My world is %d x %d.",mainwin.maxrow, mainwin.maxcol);
 
 	mvprintw(4,5,"Type 'Q' or 'q' to exit.");
 	refresh();			/* Print it on to the real screen */
@@ -100,9 +137,10 @@ int main(const int argc, const char **argv)
 
 		counter++;
 	}
-	delwin(mainwin);
-	endwin();			/* End curses mode		  */
-	refresh();
+
+	//delwin(mainwin);
+	//endwin();			/* End curses mode		  */
+	//refresh();
 
 	return EXIT_SUCCESS;
 }
