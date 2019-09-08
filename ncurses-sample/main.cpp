@@ -13,27 +13,38 @@
 
 typedef unsigned int uint;
 
-struct NCursesWindow {
+struct NCWindow {
 	WINDOW * mainwin;
-	uint maxrow, maxcol;
+	uint width, height;
 
 	enum {
-		RAW_MODE = 1,
-		ECHO_INPUT = 2,
-		CURSOR_VISIBLE = 4,
-		NO_DELAY = 8,
-		KEYPAD = 16,
-		FUNCTION_MASK = RAW_MODE | ECHO_INPUT | CURSOR_VISIBLE | NO_DELAY | KEYPAD,
+		BUFFERED = 1<<0,
+		NO_BUFFERED = 1<<1,
+		ECHO = 1<<2,
+		NO_ECHO = 1<<3,
+		CURSOR_VISIBLE = 1<<4,
+		CURSOR_INVISIBLE = 1<<5,
+		NO_DELAY = 1<<6,
+		DELAY = 1<<7,
+		KEYPAD = 1<<8,
+		NO_KEYPAD = 1<<8,
 	};
 
-	NCursesWindow() {
+	enum {
+		KEYPAD_DOWN = 0x102,
+		KEYPAD_UP,
+		KEYPAD_LEFT,
+		KEYPAD_RIGHT,
+	};
+
+	NCWindow() {
 		mainwin = initscr();
 		if ( *this ) {
-			getmaxyx(stdscr, maxrow, maxcol);
+			getmaxyx(stdscr, height,  width);
 		}
 	}
 
-	~NCursesWindow() {
+	~NCWindow() {
 		delwin(mainwin);
 		endwin();			/* End curses mode		  */
 		refresh();
@@ -43,38 +54,26 @@ struct NCursesWindow {
 		return mainwin != NULL;
 	}
 
-	void buffered_input(const bool yes) {
-	if ( yes )
-		nocbreak();
-	else
-		cbreak();	/* not raw mode but read key immediately */
-	}
-
-	void echo_input(const bool yes) {
-		if ( yes )
+	void screen_mode(const uint flags) {
+		if (flags & BUFFERED)
+			nocbreak();
+		else if (flags & NO_BUFFERED)
+			cbreak(); 	/* raw mode, read key immediately */
+		if (flags & ECHO)
 			echo();
-		else
-			noecho(); 			/* do not echo the input key char */
-	}
-
-	void cursor_visible(const bool yes) {
-		if ( yes )
+		else if (flags & NO_ECHO)
+			noecho(); 	/* do not echo the input key char */
+		if (flags & CURSOR_VISIBLE)
 			curs_set(1);
-		else
-			curs_set(0);		/* 0 ... set cursor invisible */
-	}
-
-	void keypress_delay(const bool yes) {
-		if ( yes )
-			nodelay(stdscr, TRUE); /* getch do not wait keypress */
-		else
+		else if (flags & CURSOR_INVISIBLE)
+			curs_set(0); 	/* 0 ... set cursor invisible */
+		if (flags & NO_DELAY)
+			nodelay(stdscr, TRUE);
+		else if (flags & DELAY)
 			nodelay(stdscr, FALSE);
-	}
-
-	void use_keypad(const bool yes) {
-		if ( yes )
+		if (flags & KEYPAD)
 			keypad(stdscr, TRUE);
-		else
+		else if (flags & NO_KEYPAD)
 			keypad(stdscr,FALSE);
 	}
 
@@ -82,55 +81,69 @@ struct NCursesWindow {
 		return printw(str);
 	}
 
-
 };
+
+
+#define range(x,y,z)  ((x) > (y)? (x) : ((y) > (z)? (z) : (y)))
 
 int main(const int argc, const char **argv)
 {
-	NCursesWindow mainwin;
-//	WINDOW * mainwin;
-//	int row, col;
-	char ch = ' ';
-	int counter;
+	NCWindow mainwin;
+//	WINDOW * mainwin; int row, col;
 
-//	mainwin = initscr();			/* Start curses mode 		  */
 	if ( !mainwin ) {
 		printf("failed ncurses mode.\n");
 		return EXIT_FAILURE;
 	}
 
-	//getmaxyx(stdscr,row,col); 	/* get the size of stdscr */
-	//mainwin.buffered_input(false);
-	cbreak(); 			/* not raw mode but read key immediately */
-	mainwin.echo_input(false); //noecho(); 			/* do not echo the input key char */
-	mainwin.use_keypad(true); //	keypad(stdscr,TRUE);
-	mainwin.cursor_visible(true); //curs_set(0);		/* 0 ... set cursor invisible */
-
-	//mainwin.set_mode(NCursesWindow::RAW_MODE | NCursesWindow::NO_DELAY | NCursesWindow::KEYPAD,
-	//		NCursesWindow::RAW_MODE | NCursesWindow::NO_DELAY | NCursesWindow::CURSOR_VISIBLE | NCursesWindow::KEYPAD );
+	mainwin.screen_mode(NCWindow::NO_BUFFERED | NCWindow::NO_ECHO | NCWindow::NO_DELAY
+			|NCWindow::KEYPAD | NCWindow::CURSOR_INVISIBLE);
 
 	printw("Hello World !!!");	/* Print Hello World		  */
-	mvprintw(1,0,"My world is %d x %d.",mainwin.maxrow, mainwin.maxcol);
+	mvprintw(1,0,"My world is %d x %d.",mainwin.width, mainwin.height);
 
 	mvprintw(4,5,"Type 'Q' or 'q' to exit.");
 	refresh();			/* Print it on to the real screen */
 
-	nodelay(stdscr, TRUE); /* getch do not wait keypress */
-	counter = 0;
-	while (1) {
+	int ch = '@', t;
+	bool update = true;
+	int counter = 0;
+	int posrow = 5, poscol = 0;
+	while ( true ) {
 		move(3,0);
 		attrset(A_REVERSE);
 		printw("counter = %d",counter);
 		attroff(A_REVERSE);
 
-		ch = getch();			/* Wait for user input */
-		if ( ch != -1 ) { /* 255 if there is no input. */
-			if ( !isprint(ch) )
-				ch = ' ';
-			mvprintw(4,0,"[%c]",ch);
+		t = getch();			/* scan a pressed key */
+		if ( t != -1 ) { /* 255 if there is no input. */
+			update = true;
 		}
-		refresh();
-
+		if ( update ) {
+			if (t >= NCWindow::KEYPAD_DOWN && t <= NCWindow::KEYPAD_RIGHT) {
+				mvprintw(posrow, poscol, "    ");
+				switch (t) {
+				case NCWindow::KEYPAD_DOWN:
+					posrow += 1;
+					break;
+				case NCWindow::KEYPAD_UP:
+					posrow -= 1;
+					break;
+				case NCWindow::KEYPAD_LEFT:
+					poscol -= 1;
+					break;
+				case NCWindow::KEYPAD_RIGHT:
+					poscol += 1;
+				}
+				posrow = range(5, posrow, (int)mainwin.height-1);
+				poscol = range(0, poscol, (int)mainwin.width-4);
+			} else if ( isprint(t) ) {
+				ch = t;
+			}
+			mvprintw(posrow, poscol,"[%c]", ch);
+			refresh();
+			update = false;
+		}
 
 		if ( ch == 'Q' || ch == 'q' )
 			break;
