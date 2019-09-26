@@ -5,52 +5,51 @@ Created on 2019/09/25
 '''
 import math
 
-def decide(qid, dset):
+def decide(dset, propid, querytype = 'IDENTITY'):
     res = dict()
     for t in dset:
-        ans = t[qid]
+        if querytype == 'IDENTITY' :
+            ans = t[propid]
+        elif querytype == 'THRESHOLD' :
+            ans = t[propid]
         if not ans in res:
             res[ans] = [t]
         else:
             res[ans].append(t)
     return res
 
-def infval(possibility):
-    if possibility == 0 :
-        return 0
-    return -math.log2(possibility)
-
 def purity(dset):
-    countdict = dict()
+    counters = dict()
     for elem in dset:
-        if elem[-1] in countdict :
-            countdict[elem[-1]] += 1
+        if elem[-1] in counters :
+            counters[elem[-1]] += 1
         else:
-            countdict[elem[-1]] = 1
-    numclasses = len(countdict)
-    numexamples = sum(countdict.values())
-    gain = 0
-    for a_class in countdict:
-        poss = countdict[a_class]/numexamples
-        gain += poss*infval(poss)
+            counters[elem[-1]] = 1
+    total = sum(counters.values())
+    gain = 0  # entropy
+    for a_class in counters:
+        poss = counters[a_class]/total
+        if poss != 0 :
+            # if poss == 0 then gain += 0
+            gain += -poss*math.log2(poss)
     return gain
 
 classes = [u'台風', u'熱帯低気圧', u'温帯低気圧']
-queries = ['中心気圧', '中心付近の最大風速（ノット）', '前線を伴う', 'class']
-
+propertyname = [u'中心気圧', u'中心付近の最大風速', u'前線を伴う']
 dataset = [
     [985, 32, 'no', u'熱帯低気圧'],
-    [990, 45, 'no', u'台風'],
-    [985, 36, 'yes', u'温帯低気圧']
+    [970, 45, 'no', u'台風'],
+    [985, 36, 'yes', u'温帯低気圧'],
+    [976, 5, 'yes', u'温帯低気圧']
     ]
 
-questionid = 1
-print('\n質問 {0} で分類した場合の情報量利得：'.format(questionid))
-result = decide(questionid,dataset)
-entropy = 0
-total = 0
-for ans in result:
-    print(ans, result[ans])
-    total += len(result[ans])
-    entropy += len(result[ans])*purity(result[ans])
-print('average information gain = ', entropy/total)
+for qid in range(len(dataset)-1) :
+    print('\n属性 {0}（{1}）で分類した場合の情報量利得：'.format(qid, propertyname[qid]))
+    result = decide(dataset, qid)
+    entropy = 0
+    total = 0
+    for ans in result:
+        print(ans, result[ans])
+        total += len(result[ans])
+        entropy += len(result[ans])*purity(result[ans])
+    print('average information gain = ', entropy/total)
