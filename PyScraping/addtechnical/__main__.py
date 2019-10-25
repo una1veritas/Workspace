@@ -11,7 +11,7 @@ from operator import itemgetter
 
 #
 import matplotlib.pyplot as plt
-import matplotlib.finance as mf
+#import matplotlib.finance as mf
 #from matplotlib import ticker
 import matplotlib.dates as mdates
 #from matplotlib.pyplot import tight_layout
@@ -24,27 +24,28 @@ def ExpMovingAverage(values, window):
     return a
 
 # default values for options
-params = { 'sma' : [5, 25, 50], 'path' : './data' }
+params = { 'sma' : [5, 25, 50], 'files' : [] }
 
-for arg in sys.argv[1:] :
+args = sys.argv
+del args[0]
+if len(args) == 0 :
+    print('-sma -path -mon -bband -rci files')
+    exit()
+    
+for arg in args :
     if arg[0] == '-' :
         pname, pvalue = arg[1:].split('=')
-        if len(pvalue.split('.')) >= 2:
-            pvalue = pvalue.split('.')
-        params[pname] = pvalue
+        params[pname] = eval(pvalue)
     else:
-        if not 'code' in params:
-            if len(arg.split('.')) == 2 :
-                params['code'] = arg
-            else:
-                params['code'] = arg + '.T'
+        params['files'].append(arg)
 
-if not ('code' in params) :
-    exit
-    
 print (params)
+if 'path' in params :
+    for i in range(len(params['files'])) :
+        params['files'][i] = params['path'] + '/' + params['files'][i] 
 #print(params['path'] + '/' + params['code']+'-*-*.csv')
-files_list = glob.glob(params['path'] + '/' + params['code']+'-*-*.csv')
+#files_list = glob.glob(params['path'] + '/' + params['code']+'-*.csv')
+files_list = params['files']
 files_list.sort()
 print(files_list)
 
@@ -71,7 +72,7 @@ def SimpleMovingAverages(dframe, avrspans):
         mavrs['sma '+str(span)] = [ ]
     priceq = dframe['close']
     for span in avrspans:
-        mavr = pd.rolling_mean(priceq,window=int(span), min_periods=1)
+        mavr = priceq.rolling(window=int(span), min_periods=1).mean()
         mavrs['sma '+str(span)].append(round(mavr,1))
     for smaname in mavrs :
         dframe[smaname] = mavrs[smaname][0]
@@ -81,6 +82,15 @@ def SimpleMovingAverages(dframe, avrspans):
 if 'sma' in params:
     SimpleMovingAverages(tseries, params['sma'])
 
+if 'mom' in params:
+    back = int(params['mom'])    
+    momentum = []
+    priceseq = list(tseries['close'])
+    for i in range(0, len(priceseq)) :
+        iback = max(0,i-back)
+        momentum.append(priceseq[i] - priceseq[iback])
+    tseries['momentum ('+str(back)+')'] = momentum
+    
 if 'bband' in params:
     #add Bollinger band lines
     adjclose = list(tseries['close'])
@@ -118,16 +128,7 @@ if 'rci' in params:
     # add RCI oscillator
     rciq = []
     dateprice = list(zip(tseries.index.tolist(),tseries['close'].tolist()))
-    baseprice = 0
-    scale = 100/100
-    if len(params['rci']) == 1 :
-        span = int(params['rci'])
-    elif len(params['rci']) > 1 :
-        span = int(params['rci'][0])
-    if len(params['rci']) >= 2 :
-        baseprice = int(params['rci'][1])
-    if len(params['rci']) >= 3 :
-        scale = int(params['rci'][2])/100
+    span = int(params['rci'])
     for ix in range(0, len(dateprice)) :
         dprange = dateprice[max(0,ix+1-span):ix+1]
         dprange.sort(key=itemgetter(1),reverse=True)
@@ -139,13 +140,15 @@ if 'rci' in params:
             dev2sum = dev2sum + (drank-prank)**2
         rci = (1 - 6 * dev2sum / (span*(span - 1)*(span+1))) * 100
     #    print(round(rci,1))
-        rciq.append(baseprice+round(rci,1)*scale)
+        rciq.append(round(rci,1))
     tseries['RCI'] = rciq
 
 #output
 if 'adj.close' in tseries.columns :
     tseries = tseries.drop(labels='adj.close', axis=1)
-tseries.to_csv(params['code']+'-'+'anal'+'.csv')
+outfilename = ''
+outfilename = files_list[-1].split('-')[0] + '-anal.csv'
+tseries.to_csv(outfilename)
 
 #plot
 if 'plot' in params :
@@ -168,11 +171,11 @@ if 'plot' in params :
     mf.candlestick_ohlc(ax1, df, width=.6, colorup='#53c156', colordown='#ff1717')
     
     #sma = df['close'].rolling(5).mean()
-    #vstack = np.vstack((range(len(sma)), sma.values.T)).T  # x軸データを整数に
+    #vstack = np.vstack((range(len(sma)), sma.values.T)).T  # x霆ｸ繝�繝ｼ繧ｿ繧呈紛謨ｰ縺ｫ
     #ax.plot(vstack[:, 0], vstack[:, 1])
     
     ax0 = plt.subplot2grid((6,4), (0,0), sharex=ax1, rowspan=1, colspan=4, axisbg='#07000d')
-    ax0.grid(True) #グリッド表示
+    ax0.grid(True) #繧ｰ繝ｪ繝�繝芽｡ｨ遉ｺ
     fig.autofmt_xdate()
     #for label in ax1.xaxis.get_ticklabels():
     #    label.set_rotation(90)

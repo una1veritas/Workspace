@@ -1,10 +1,17 @@
 
-SRC = ./
+CXX = g++ 
+CXXFLAGS = -Wall -O2 -g
 
-all: sieve.exe
+INCLUDES = -I./src
+SRC = ./src
 
-sieve.exe: $(SRC)/sieve.c 
-	 gcc -Wall -o sieve.exe $(SRC)/sieve.c
+%.o: $(SRC)/%.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $<
+
+all: benchmarks.exe
+
+benchmarks.exe: sieve.o pi.o main.o
+	 g++ $(CXXFLAGS)2 -o benchmarks.exe main.o sieve.o pi.o
 
 clean: 
-	 sieve.exe
+	 benchmarks.exe sieve.o pi.o main.o

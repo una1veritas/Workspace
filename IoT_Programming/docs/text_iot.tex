@@ -1,0 +1,1057 @@
+\documentclass[11pt,a4,epsf]{report}
+%\documentstyle[11pt]{j-article}
+%\usepackage{otf}
+\usepackage{amssymb}
+\usepackage{theorem}
+\usepackage{ascmac} %itembox
+\usepackage[titletoc,title]{appendix}
+\usepackage[dvipdfmx]{graphicx}
+\input{A4}
+%\setlength{\topmargin}{-1cm}
+%\setlength{\oddsidemargin}{0cm}
+%\setlength{\textwidth}{16cm}
+%\setlength{\textheight}{24cm}
+%\renewcommand{\@}[1]{{\bf #1}}
+
+\title{{\bf IoT デバイス・プログラミング}}
+\author{下薗 真一\\
+e-mail: {\sf sin@ai.kyutech.ac.jp}\\[1ex]
+ TA: 安倍 望 \\
+ e-mail: {\sf p231003n@mail.kyutech.jp}
+}
+\date{}
+%
+% 諸定義
+%
+\def\linesparpage#1{\baselineskip=\textheight\divide\baselineskip#1}
+\newtheorem{exerc}{演習}
+\newtheorem{adv}{発展課題}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% ワンポイントの表示 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcounter{pntnumber}
+\setcounter{pntnumber}{0}
+\newcommand{\POINT}[2]{
+ \medskip
+ \refstepcounter{pntnumber}
+\noindent
+■■■■■ {\sf Point \arabic{pntnumber}:} {\bf #1} \hrulefill ■ \\
+{\small #2}
+
+\noindent
+■ \hrulefill ■■■■■ \\
+% \begin{center}
+%  \fbox{
+%   \begin{minipage}{\textwidth}
+%    \noindent
+%    {\bf ポイント \arabic{pntnumber} (#1)}
+%    #2
+%   \end{minipage}
+%  }
+% \end{center}
+ \medskip
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 本文
+%
+\begin{document}
+%\linesparpage{40}
+\linesparpage{38}
+\maketitle
+
+%\medskip
+
+%\begin{description}
+%\item[対象:] 知能情報工学科 2 年次
+%\item[期間:] 前期
+%\item[教室:] E607 知能情報端末室（研究棟東棟６階）
+%\end{description}
+
+\medskip
+
+\chapter{Raspberry Pi と Python 入門}
+
+\section{演習の目標}
+
+ワンボード PC である Raspberry Pi をエッジ（末端）デバイスとし，
+エッジデバイス上の各種センサーを使った測定，表示出力の使用，
+インターネット上のサービスとの連携，などについてプログラミング演習を行う．
+IoT とよばれる概念とそこで必要となる技術を習得する．
+
+センサーボードのライブラリによる使用に必要なスクリプト言語 Python にふれる．
+プログラミング言語によらない，プログラミングやコンピュータサイエンスの概念を再認識する．
+
+\section{IoT とは}
+
+IoT とは，Internet of the Things （もののインターネット）の略である．
+インターネットを，ユーザー（人）が他のユーザーあるいはその集合と情報をやりとりするための空間としてだけではなく，
+デバイスや装置が他のデバイス・装置あるいはユーザーとインターネットを通じて情報をやりとりする空間として考えること，
+またこれにより実現できるようになる技術やサービスのことを指す．
+
+従来は，デバイスや装置などは，電話回線，無線通信，有線回線などで専用の回線やネットワークを構築し，通信を行うのが主であった．
+しかし，有線および無線でのインターネット・インフラが整備され，
+機器の基本ソフトウェアとして TCP/IP を使える OS が一般的になり，
+公開鍵暗号などセキュアな通信経路を確保するための CPU パワーが安価になったことなどから，
+機器間，あるいは機器とユーザーの間の接続をインターネットで行い，一般的な回線で多様な機器間で情報をやりとりし，
+よりすすんだサービスを提供したり，技術を可能にしようという考え方がひろまってきた．
+5G などのより高速で低遅延の無線インターネット回線が実現すれば，ますます発展すると考えられている．
+
+%ただし，現在すでに直接ユーザーが使用し状況を確認するわけではない膨大な量の機器や装置が初期設定のままインターネットに接続される状況になっており，
+%セキュリティ上の脆弱性を悪用され，社会インフラへの攻撃などが起きるのではないか，という懸念が残っている．
+
+\section{Raspberry Pi}
+
+Raspberry Pi ラズベリー・パイ\cite{raspberry-pi-org}は，子供の教育目的にイギリスで設計され世界的に普及しているワンボードＰＣである．
+Linux などを動作させることができる CPU （ARM7相当）とメモリをそなえ， 基本ディスク装置として SD カードを使用する．
+ビデオ出力（HDMI / アナログビデオ），音声出力，キーボードやマウスを接続できる USB ポート，有線／無線のイーサネットインターフェースを備え，micro USB ポートから電源を供給し，ディスプレイ，キーボードやマウスを接続すれば，
+LINUX や組み込み Windows が動作する単体のパソコンとして使用することができる．
+また，汎用の I/O ポートやIC間通信のバスが物理的に利用者に開放されており，自作の電子回路や市販のセンサーボードなどハードウェアを追加し使用することができる．
+
+今回は，Sensor Hat  とよばれる，センサ類とスイッチを入力として持ち，マトリクス LED を出力として備える市販のボードを Raspberry Pi にとりつけて演習を行う．
+
+
+\section{Raspberry Pi の電源投入からシャットダウン（電源投了）まで}
+
+Raspberry Pi の HDMI ポートと USB ポート，ネットワークポートを使えば，ディスプレイ，キーボード，マウスを接続しインターネットに接続した PC として使用できるが，今回はトラブル等が発生しない限り，ディスプレイおよびキーボードのない状態で起動し，
+Wi-Fi を通じて端末エミュレーターで接続し，その中ですべての作業を行う．
+
+\subsection{電源投入と起動}
+
+Raspberry Pi には電源スイッチはない．
+電源入力である micro USB ポートに，5V/2A の USB電源からケーブルをつないだ時点で起動する．
+HDMI やシリアル入出力を通してディスプレイ装置を接続している場合，Linux の起動プロセスメッセージが表示される．
+この実験で使用する micro SD カードには， (1)  Wi-Fi 接続を行い，(2) X ウインドウを使用しない状態でログインを待機し，また (3) ネットワークからの SSH 接続を受け入れる設定で Linux (Debian ベースの Raspbian) が起動するようになっている．
+SenseHat を装着した状態では，LED マトリクスが消灯したころ起動プロセスが終了している．
+
+\subsection{端末エミュレータからのログイン}
+
+接続先の Raspberry Pi の IP アドレスが \verb+192.168.1.129+ であるとする．
+（実際に使用する IP アドレスは，micro SD カードで OS から設定されるか，ネットワークのアドレスサーバ（DHCP）から割り当てられるので，各自確認すること．）
+端末エミュレータからの接続は，セキュアシェル ssh コマンドを使って次のように行う．
+\begin{quote}
+\small
+\begin{verbatim}
+$ ssh 192.168.1.129 -l pi
+pi@192.168.1.129's password: 
+
+Linux raspberrypi 4.14.98-v7+ #1200 SMP Tue Feb 12 20:27:48 GMT 2019 armv7l
+（省略）
+pi@raspberrypi:~ $ 
+\end{verbatim}
+\end{quote}
+\verb+pi+ は OS インストール時にデフォルトで設定されるユーザー名で，パスワードは \verb+raspberry+ である．
+bash のコマンドプロンプト \verb+pi@raspberrypi:~ $+ で，raspberrypi という名前のホストに ユーザー名 pi でログインしている状態であることがわかる．
+\verb+pi+ は管理グループユーザーに設定されているため，管理権限が必要なコマンドも \verb+sudo [コマンド]+ で使用することができる．
+
+\subsection{Python 3 のインタラクティブモードの実行と終了}
+
+Python は，シェルと同様にプログラム・ファイルを実行することができ，インタラクティブ・モードで使うこともできる．
+Python 3.x のインタラクティブモードでの起動，対話的実行，終了は，以下のように行う．
+実行は，文（改行するまで）ごとに行われる．
+\begin{quote}
+\small
+\begin{verbatim}
+pi@raspberrypi:~ $ python3
+Python 3.5.3 (default, Sep 27 2018, 17:25:39) 
+[GCC 6.3.0 20170516] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> print("Hello, world!")
+Hello, world!
+>>> quit()
+pi@raspberrypi:~ $ 
+\end{verbatim}
+\end{quote}
+\verb+>>>+ はインタプリタのプロンプトである．
+%\verb+...+ は，文は終わったがループのネストの中にあり，最も外側の文が終わっていないことを示している．
+%ネストのレベルにあわせた適切な量の空白やタブを入れインデントづけする．
+%上の例では，\verb+for in range(1,100) :+ で変数 \verb+i+ に範囲 $[1,100)$ から順に一つずつ整数を代入し，
+%その次の同じインデントを持つ 4行をくりかえす．
+%インタラクティブモードでは，ループの中のブロックが終了したことを伝えるため，\verb+...+ のあとをカラのまま改行して， \verb+for+ の%文を終わらせる．
+Python のインタラクティブモードを終了するには，関数 \verb+quit()+ を実行する．
+
+\begin{excercise}
+Python 3 をインタプリタモードを起動し，
+Ctrl-C で Python  インタプリタを終了できるかどうか確かめなさい．
+Ctrl-C で終了できない場合は，上記方法で Python を正しく終了させなさい．
+\end{excercise}
+
+\subsection{シャットダウンと終了}
+
+Raspberry Pi の電源を切る場合，シャットダウン・コマンドを使用してから micro USB ケーブルを抜くのが安全である．
+\begin{quote}
+\small
+\begin{verbatim}
+pi@raspberrypi:~ $ sudo shutdown now
+Connection to 192.168.1.129 closed by remote host.
+Connection to 1192.168.1.129 closed.
+$ 
+\end{verbatim}
+\end{quote}
+ディスプレイがないと OS のシャットダウンメッセージを確認できないが，
+上記方法で接続を切ってからしばらくすると LED の点滅をしなくなるので，ケーブルを抜いて終了する．
+
+ただしディスクアクセス中などでなければ，突然電源を OFF にしてもファイルやディレクトリが壊れたり，起動しなくなったりといった状態になることはまれである．
+
+
+
+\section{Python 言語入門}
+
+本テーマでは，Python 3.x \cite{python.org-python-3.7.3-doc}を使用する．
+
+Linux などマルチタスク，マルチユーザーをサポートする OS では，一般に仮想メモリが実装される．
+メモリー空間に配置された入出力アドレスへのアクセスには，仮想メモリの影響の排除や他のプロセスのアクセスとの調停が必要になるため，ハードウェアとの通信は，OS の利用を前提としないワンチップ・マイコンより複雑にならざるをえない．
+たとえ 1 ビットの読み書きでも，ライブラリを使うことが前提となる．
+この実験で使用する Sensor Hat には，使いやすいライブラリが Python 言語で提供されており，入出力やセンサーとの通信プロトコルについては気にせず利用できるようになっている．
+そこで，この演習のプログラミングは Python 言語で行う．
+
+Python 言語は，インタープリタで動作する，インデンテーション言語である．
+予約語や式，演算子は C言語などに近い．
+豊富なライブラリやツールが公開され，それらの追加インストールが容易で，スクリプトの記述から，インターネットでのデータスクレイピング，深層学習によるデータ処理まで，さまざまなデータ処理に使われている．
+
+すでに C 言語を学んでいる場合，Python プログラミングを基礎から体系的に学ぶのはやや冗長である．
+今回は Sensor Hat の基本的な使い方を学ぶ中で， C 言語ほか既知のプログラミング言語との相違をふまえる形式で修得する．
+Web で詳しい解説\footnote{\sf https://docs.python.org/ja/3/library/}にアクセスできるので，必要に応じて参照しながらすすめるとよいだろう．
+
+\begin{table}[h]
+\caption{Python と C の違い，初級編}
+  \begin{tabular}{|p{1.5in}|p{2in}|p{2in}|}
+\hline
+文法，記述法 & Python 言語 & C/C++ 言語 \\
+\hline
+\hline
+文の終わり，区切り & 改行 （式の途中でない限りテキスト中の１行が１文） & \verb+;+（セミコロン） \\
+\hline
+実行ブロック & 連続して行頭からのインデント文字数が同じ文 & 一文，または \verb+{+ から \verb+}+ の間\\
+\hline
+コメント & \verb+#+ の後文末まで & \verb+/*+ から \verb+*/+ の間，\par \verb+//+ の後文末まで \\
+\hline
+演算子 & インクリメント，デクリメントはない &  \\
+\hline
+条件分岐 & \verb+if 条件式 :+\par ~~~ブロック \par\verb+else:+ \par ~~~ブロック & \verb+if (条件式) +\par ブロック\par\verb+else+\par ブロック \\
+\hline
+明示的な制御変数を持つループ & \verb+for 変数／変数の組 in データのコレクション :+ \par ~~~ブロック& \verb+for (初期化式，条件式，更新式)+ \par ブロック \\
+\hline
+ループを一度実行した後に条件判断をするループ & なし & \verb+do ... while+ 文\\
+\hline
+組み込みのデータのコレクションの型 & 組（固定長，変更不可），配列，リスト，辞書，集合，整数範囲 & 配列，構造体（クラス）\\
+\hline
+データのコレクションの大きさ，要素数 & \verb+len(コレクション)+ & 配列の長さはメモリ割り当て時以外不明，プログラマが管理\\
+\hline
+  \end{tabular}
+\end{table}
+
+\subsection{プログラムの開始}
+
+インタラクティブモードでも，ファイルで書いたプログラムでも，ライブラリのデータ型（クラス）や関数を使用する場合，その前にインポート（導入）指令を書く．
+また，コマンドスクリプトとして使うプログラムファイルの場合は，Python インタープリタのあるパス，ファイル（とプログラム中の文字列）の記述に使っている文字コードなどを指定して文字化けを避ける，などを書く．
+この入門ではインタラクティブモードを使うため，必要になる都度ライブラリのインポートをすることとにして，先にすすむ．
+
+\begin{excercise}
+Raspberry Pi を起動し，演習端末のターミナルエミュレーターからユーザー\verb+pi+でログインし，Python 3 をインタラクティブモードで起動し，
+以下の説明では実行例と同様のことを行って自分でも確認しなさい．
+\end{excercise}
+
+\subsection{変数の宣言，代入，演算}
+
+Python では，{\bf 変数の宣言は不要}で変数は型をもたないが，値を定義済みでない変数の値を参照しようとするとエラーとなる．
+間違いが起きないように，変数に初期値を代入する式を書いておき，宣言のかわりにするとよい．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> x = 3
+>>> x
+3
+>>> y = 4.1
+>>> s = "result = "
+>>> s, x*y
+('result = ', 12.299999999999999)
+>>> u
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'u' is not defined
+>>>
+\end{verbatim}
+\end{quote}
+インタラクティブモードでは，式が値を返す場合，値が表示される．
+C 言語と違って，Python では{\bf 代入式は値を返さない}．
+
+数値に使用する算術式，論理式などは優先順位もふくめ多くは C 言語と共通である．
+ただし，C言語で \verb+! 式+ で書く論理値の反転（否定）は \verb+not 式+ と書く．
+論理積, 論理和 \verb+and+, \verb+or+ と書く．
+論理値の定数，{\bf 真と偽は \verb+True+ と \verb+False+} である．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> "apple" < "orange" and x > y
+False
+>>> x < y < x*y
+True
+>>>
+\end{verbatim}
+\end{quote}
+
+また，インクリメントおよびデクリメント演算子 \verb%++%，\verb+--+はない．
+\begin{quote}
+\small
+\begin{verbatim}
+  File "<stdin>", line 1
+    x++
+      ^
+SyntaxError: invalid syntax
+>>> x += 1
+>>> x
+4
+\end{verbatim}
+\end{quote}
+
+文字列には，部分文字列として含まれるかどうかを試す \verb+in+ 演算子，
+列を連結する \verb-+- 演算子が使用できる．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> "zou" in "reizouko"
+True
+>>> "kaba" + "n"
+'Kaban'
+>>>
+\end{verbatim}
+\end{quote}
+
+\begin{excercise}
+整数変数 $x, y$ に対して，以下の一連の手続き
+\begin{eqnarray*}
+x \leftarrow x \oplus y \\
+y \leftarrow y \oplus x \\
+x \leftarrow x \oplus y
+\end{eqnarray*}
+を行うと，$x$ および $y$ の値はどうなるか．
+Python で実行して確かめよ．
+ただし，$\leftarrow$ は右辺から左辺への代入，$\oplus$ はビットごとの排他的論理和 exclusive or である\cite{Warren-book-2012}．
+\end{excercise}
+
+\subsection{条件分岐とループ}
+
+ループの記述には，C 言語の \verb+while+ 文と \verb+for+ 文に相当する \verb+while 条件式 :+ と \verb+for 変数 in コレクション:+ が使用できる．
+コレクションは，数値の範囲，リスト，キーと値が組の辞書，などのデータ構造を選ぶことができる．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> for i in range(0,6):
+...    print(i, end=", ")
+...
+0, 1, 2, 3, 4, 5, >>>
+>>> while x < 8:
+...    print(x)
+...    x = x + 2
+...
+3
+5
+7
+\end{verbatim}
+\end{quote}
+ループの内側の{\bf ブロックは，文頭に同じ数の空白またはタブによるインデントをいれて続ける}ことで表す．
+逆に，「見やすくする」といった，Python のプログラムの構造と関係ないインデントは，不必要なためエラーとなる
+
+\verb+range(0,6)+ は初期値，ふくまれない終値，増分を引数とする範囲データ構造を生成し，\verb+for+ 文はその先頭から値を一つずつ変数にいれてループ内の文に渡す．
+\verb+range+ の引数は，増分が1の場合，さらに初期値が 0 の場合，それぞれを省略できる．
+なお，\verb+print+ はオプショナルな引数 \verb+end+ に文字列を値として渡すと，改行のかわりにその文字列を出力する．
+
+ループを中断してループをぬけるためには，C 言語とおなじように \verb+break+ を使用する．
+ループの内側の実行を切り上げて次のループにうつるための \verb+continue+ も使用できる．
+ただし，Python には \verb+goto ... label+ はない\footnote{インストールすると使えるようになるライブラリモジュールもあるらしいが，標準ですらないので使わないことにするほうがよいだろう．}ので，二重以上のループを中断して出るためには，ループを関数化して \verb+return+ で終了する，変数の組で制御する一重ループにする，終了フラグ変数を使って連続で \verb+break+する，などの工夫が必要である．
+また， Python には \verb+do ... while 式+ 構文はないので \verb+while True: ... if 論理式: break+ で置き換える．
+
+\begin{excercise}[円周率$\pi$を求める]
+ライプニッツの公式
+\[
+\frac{\pi}{4} = \frac{1}{1} - \frac{1}{3} + \frac{1}{5} - \frac{1}{7} + \cdots = \sum_{i=0}^{\infty}\frac{(-1)^i}{2i+1}
+\]
+を使って，円周率（$3.141592\cdots$）を 1/10000 の桁またはそれ以下まで正しくもとめなさい．
+ループはおよそ何回まわせばよいか．
+なお，Python の式ではべき乗 $x^y$ は \verb+x**y+ で表せる．
+ただし上記式のべき乗 $(-1)^i$ は，項ごとに符号を逆にしているだけでありべき乗を必ずしも求める必要はない．
+\end{excercise}
+
+
+C言語の \verb+if (式) ... else if ... else ...+ に相当する \verb+if 論理式 : ... elif: ... else: ...+ がある．
+\verb+switch(値) { case 値: ... default: ...}+ 文はないので，\verb+if+ 文を使って実現する．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> if order == "short" :
+...    print(430)
+... elif order == "tall" :
+...    print(470)
+... elif order == "grande" :
+...    print(510)
+... elif order == "venti" :
+...    print(550)
+... else:
+...    print("I beg your pardon?")
+...
+510
+>>>
+\end{verbatim}
+\end{quote}
+
+\subsection{組，リスト，集合，辞書}
+
+Python は，データの集まりを表すデータ構造を言語標準で持ち，数値や文字列と同様に使うことができる．
+\verb+for+ 文では，いずれに対しても，先頭から要素ごとにループを回すことができる．
+
+\subsubsection{列：組 tuple とリスト list}
+組は，定数で生成した後変更できない列である．
+カッコ \verb+( )+ でくくってコンマで要素を区切りあらわす．
+リストは，\verb+[ ]+ でくくって表すデータの列で，範囲 [0, 長さ) 中の添字でアクセスする C言語の配列と，要素の追加や削除を行う連結リストの役割をはたす．
+どちらも要素には添字で \verb+list[i]+ のようにアクセスでき，さらにスライスとよばれる部分列を \verb+list[1:4]+ の要に添字の始値と終値の次の値の区間で得ることができる．
+列の長さは \verb+len+ 関数でえられる．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> t = (1, -2, 3)
+>>> t[0]
+1
+>>> t[1:len(t)]
+(-2, 3)
+>>> (x, y, z) = t
+>>> y
+-2
+>>> l = list(t)
+>>> l
+[1, -2, 3]
+>>> l.append(0)
+>>> l
+[1, -2, 3, 0]
+>>> l = l + [8, 2]
+>>> for i in l :
+...    if i in [2,3,4,5] :
+...       print(i)
+...
+3
+2
+>>>
+\end{verbatim}
+\end{quote}
+組は変更できないので，\verb+list( )+ 関数で型をリストに変換して追加等を行う．
+リストには，要素の追加 \verb+append+ や，連結した列を新たに生成する演算子 \verb$+$ が使用できる．
+論理式では，列の要素としてある値を持つかどうかを演算子 \verb+in+ で検査でき，
+\verb+for+ 文でループの制御変数に値をそのまま渡して枚挙することも可能である．
+
+\subsubsection{集合と辞書（写像）}
+
+ハッシュ法を使った，要素の順序を気にしないデータの集まりとして，\verb+set+ がある．
+カッコ \verb+{ }+ で表す．
+\verb+set+ は和集合，差集合，部分集合かどうかの判定，などの集合演算を備えている．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> s = set(l)
+>>> u = {0, 2, 4, 6, -2, -4}
+>>> t = s & u
+>>> t
+{0, 2, -2}
+>>> t.add(4)
+>>> t
+{0, 2, 4, -2}
+>>>
+\end{verbatim}
+\end{quote}
+
+辞書 \verb+dict+ 型は，集合の要素が \verb+値1：値2+ の形で記述されたもので，
+ \verb+値1+ をキー，\verb+値2+ をそのキーに対応づける値として持つ．
+持っているキーに対する値は \verb+辞書型変数[キー]+ で，
+キーに対する値の設定（追加）は，\verb+辞書型変数[キー] = 値+ で行える．
+\verb+in+ 演算子は，値は関係なく，キーをもつかどうかを検査する．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> d = {"apple": u"リンゴ", "this": u"これ", "is a": u"は", "is the": u"が", "dog" : u"いぬ"}
+>>> d
+{'apple': 'リンゴ', 'this': 'これ', 'is a': 'は', 'is the': 'が', 'dog': 'いぬ'}
+>>> d["apple"] = u"リンゴ"
+>>> d["pen"] = u"ペン"
+>>> msg = "this is a pen"
+>>> for key in d:    "
+...    if key in msg :
+...       print(d[key])  "
+...
+これ
+は
+ペン
+>>>
+\end{verbatim}
+\end{quote}
+文字列のまえの \verb+u+ は，その文字列の文字コードが unicode であることを明示し，文字化けを防いでいる．
+
+キー値での参照 \verb+辞書型変数[キー]+ は，そのキーを持たない場合にはエラーを発生させる．
+キーが含まれるかどうかわからない状態で値を取得するには，キーがない場合定数 \verb+None+ または第二引数であたえた値を返す関数 \verb+get(キー)+ を使うか，例外処理とよばれるエラーが生じた場合のブロックをプログラムする．（例外処理については，ファイル処理で少し説明する．）
+
+\begin{excercise}[リファレンスとしての Web 情報の利用]
+リスト，集合，辞書それぞれについて，要素の削除を行うための関数（メソッド）をしらべなさい．
+列中の要素を添字で指定して削除する方法，削除したい要素と同じ値を指定して削除する方法，
+それぞれ使用できるかどうかを確認しなさい．
+\end{excercise}
+
+\section{関数の宣言}
+
+そろそろインタラクティブモードではつらくなってきたであろうから，プログラムをファイル編集して書き，実行することにする．
+プログラムはテキストファイルで，ファイル名を \verb+名前.py+ とつけて保存する．
+プログラムの先頭に，
+\begin{verbatim}
+#!/usr/bin/env python3
+\end{verbatim}
+と書いておくと，プログラムのファイルに実行許可がある場そのままコマンドファイルとして実行できる．
+さらに，その次の行あるいはファイル先頭に
+\begin{verbatim}
+# -*- coding: utf-8 -*-
+\end{verbatim}
+と書いておくと，プログラムファイルの文字コーディングが UTF-8 であることを Python に，また \verb+emacs+エディタを使う場合は \verb+emacs+ にも知らせることができ，文字化けを防ぐことができる．
+
+関数の宣言は，関数が呼び出されるより前に行われていなければならない．
+関数名と引数を \verb+def 関数名(引数，引数，...) :+ で宣言し，
+この後にインデントをつけたブロックでその処理を記述する．
+\begin{itembox}[l]{\tt test.py}
+\begin{quote}
+\small
+\begin{verbatim}
+# -*- coding: utf-8 -*-
+import sys
+
+def gcd(a, b):
+    if a == 0 or b == 0 :
+        return 0  # error
+    while b != 0 :
+        c = a % b
+        a = b
+        b = c
+    return a
+
+print(sys.argv)
+if len(sys.argv) < 3:
+    print("エラー: 引数が少なすぎ")
+    exit(1) 
+
+x = int(sys.argv[1])
+y = int(sys.argv[2])
+print(gcd(x, y))
+\end{verbatim}
+\end{quote}
+\end{itembox}
+\verb+sys+ はシステム関係のライブラリモジュールで，\verb+sys.argv+ はコマンド引数（文字列）のリストである．
+C言語の \verb+main+ 関数の引数 \verb+int argc, char * argv[]+ にあたる．
+\verb+int( )+ は型変換の関数で，引数は文字列であるためその表現する整数に変換している．
+C言語の \verb+atoi, atol+ にあたる．
+浮動小数点数の整数部を取り出すのにも使用する．
+その場合は C 言語のキャスト \verb+(int)+ と同じはたらきになる．
+
+このプログラムの実行例は，以下のようになる．
+\begin{quote}
+\small
+\begin{verbatim}
+pi@raspberrypi:~/Documents $ python3 test.py 28 12
+['test.py', '28', '12']
+4
+pi@raspberrypi:~/Documents $
+\end{verbatim}
+\end{quote}
+
+関数内では局所変数を使用できる．
+使用する変数は，初期化（値の代入）が行われれば局所変数とみなされ，
+代入が行われていない変数を参照すれば大域変数とみなされる．
+局所変数と大域変数で同じ名前を使うことは許されず，局所変数が優先される．
+上の \verb+test.py+ では，\verb+a, b+ は引数として値を代入され渡される局所変数，\verb+c+ は最初に代入が行われる局所変数である．
+引数は値呼び出しで，引数変数への操作は，関数を呼び出したときの変数の値に影響しない．
+
+引数には，名前と省略した場合の値を与えることもできる．
+下記の例では，引数 \verb+form+ をデフォルト値 0 で省略可能にしている．
+\begin{quote}
+\small
+\begin{verbatim}
+from datetime import datetime
+
+def dt(form = 0):
+    if form == 0:
+        return datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+    else:
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+print(dt())
+print(dt(form=1))
+\end{verbatim}
+\end{quote}
+複数の引数がある場合，省略した変数とそうでない変数をはっきりさせるため，引数部に \verb+変数名=値+ と書いて引数を渡す．
+\verb+print( )+ の \verb+end=''+ はこの形をとっている．
+\begin{quote}
+\small
+\begin{verbatim}
+2019/04/02 17:14:27
+2019-04-02 17:14:27
+\end{verbatim}
+\end{quote}
+
+\begin{excercise}[Python 言語でのアルゴリズムの実装]
+ユリウス通日 Julian day number は，さまざまな暦の間での日付の相互変換を念頭においたある起点からの日数で，
+天体の運動を扱う天文計算などで使われる．
+西暦 $Y$ 年 $M$ 月 $D$ 日のユリウス通日 $\mathit{JD}(Y,M,D)$は，以下の方法で計算できる\footnote{時刻は，日 $D$ の小数点以下で表されているものとする．ただし，ユリウス通日では昼の正午が 0 時なのであるが，ここでは気にしないことにする．} \cite{Meeus-book-98}．
+\begin{enumerate}
+\item
+月 $M$ が 1 または 2 ならば，$M$ に 12 を加え，$Y$ を 1 減ずる．
+\item
+日付 $Y$ 年 $M$ 月 $D$ 日が 1582年10月15日以降ならば，
+$a = int(Y/100)$, $b=2 - a + int(a/4)$ とし，
+そうでなければ $b=0$ とする．
+
+ただし $int(x)$ は $x$ の整数部で，負の値に関しては，$-x < 0$ のとき $\mathit{int}(x) = -\mathit{int}(x)$ である（床関数ではない）．
+\item
+$JD = \mathit{int}(365.25 * Y) + \mathit{int}(30.6001 * (M+1)) + D + b + 1720994.5$
+\end{enumerate}
+
+このユリウス通日を求める関数を定義し，自分の誕生日のユリウス通日とから今日のユリウス通日の差から誕生日から何日目か計算するプログラムを作れ．
+日付はプログラムの中で（定数で）あたえてよい．
+\end{excercise}
+
+\subsection{数学関数}
+
+三角関数，対数といった数学関数は，数学 \verb+math+ モジュール\footnote{https://docs.python.org/ja/3/library/math.html}にある．
+インポートし，モジュール名 \verb+math+ に関数名をつけて呼び出す必要がある．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> import math
+>>> math.pi
+3.141592653589793
+>>> math.sqrt(5)
+2.23606797749979
+>>> math.log(1024,2)
+10.0
+>>> 
+\end{verbatim}
+\end{quote}
+
+
+\section{ファイル入出力}
+
+センサーで取得した値を時系列で記録したり，あとで統計処理をするなどのために必要な，
+ディスクのディレクトリの情報や，ファイルへの読み書きについて簡単に見ておくことにする．
+
+基本的には C言語と同様にファイル名を使ってファイルをオープンしてファイル変数を作成し，
+その変数に対して読み書きし，終了したらファイルをクローズする流れである．
+ただ，入出力は途中でエラーが起きた場合などのファイル変数の処置を確実にするため，
+テキストファイルのオープンと一行ずつの読み取りは，以下のように行うことが推奨されている．
+\begin{quote}
+\small
+\begin{verbatim}
+# -*- coding: utf-8 -*-
+i = 0
+with open('test.py','r') as f:
+    for row in f:
+        print(i, row.strip())
+        i += 1
+
+print('file io read finished.')
+\end{verbatim}
+\end{quote}
+\verb+open(ファイル名, モード)+ のオープンモードは C 言語の \verb+fopen+ と同様である．
+\verb+strip()+ は文字列の左端と右端の連続する空白記号を削除する．
+文字列として読み込んだあとは，Python がそなえる豊富な文字列処理関数をつかうことができる．
+たとえば \verb+CSV+ 形式でテーブルを書き出したファイルであれば，
+その行 \verb+row+ を \verb+split( )+ 関数を使ってコンマで分解してリストにし，それぞれを数値など適切な型に変換すればよい．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> row = '12,0.34,2301,-1.2'
+>>> for item in row.split(','):
+...    print(float(item))
+...
+12.0
+0.34
+2301.0
+-1.2
+>>>
+\end{verbatim}
+\end{quote}
+となる．
+
+上書きまたは新規作成は，以下のようにできる．
+\begin{quote}
+\small
+\begin{verbatim}
+# -*- coding: utf-8 -*-
+
+f = open('writetest.txt','w')
+f.write('Humpty dumpty sat on a wall;\n')
+f.close()
+\end{verbatim}
+\end{quote}
+追記の場合は，モードを \verb+'a'+ でオープンする．
+
+ファイルオープンの前に，ファイルとパスがあるかどうかを検査するには，\verb+os.path+ ライブラリ／モジュールを使用する．
+以下は引数をパス+ファイルまたはディレクトリ名として存在するかどうかを検査する．
+\begin{quote}
+\small
+\begin{verbatim}
+#coding:utf-8
+import os.path
+import sys
+
+if os.path.exists(sys.argv[1]):
+    print u"ありまぁす！."
+else:
+    print u"なかった．"
+\end{verbatim}
+\end{quote}
+
+
+\section{Python 入門の最後に}
+
+Python のようにオープンに開発されている言語では，たとえば演算子の優先順位を確認したり，インポートするライブラリや関数をしらべたり，やりたいことのサンプルコードなどを見つけるためは，Web で検索するのが最も合理的である．
+英語のページも含めて調べれば，できることならばたいてい参考になる情報をみつけることができる．
+したがって，可能そうかどうかを見極める力が重要であり，新しいプログラミング言語を学ぶには，他の言語での学習経験は非常に役に立つ．
+
+
+\chapter{Python による Sensor Hat プログラミング}
+
+\section{Sensor Hat の使い方}
+
+\subsection{LED マトリクスによるテキストの流れ表示}
+
+Python のインタラクティブモードで，Sensor Hat の LED マトリクス表示装置を使用してみよう．
+\begin{quote}
+\small
+\begin{verbatim}
+pi@raspberrypi:~ $ python3
+Python 3.5.3 (default, Sep 27 2018, 17:25:39) 
+[GCC 6.3.0 20170516] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from sense_hat import SenseHat        # SenseHat クラスライブラリの使用を宣言
+>>> sense = SenseHat()                    # SenseHat へのアクセスオブジェクトを生成
+>>> sense.show_message("hello, world!")   # LED Matrix に文字列を流れ出力
+>>> sense.set_rotation(90)
+>>> sense.show_message("Bye!", 0.2,[255,255,0],[0,0,255])
+>>> sense.clear()
+\end{verbatim}
+\end{quote}
+
+\begin{excercise}
+流れるスピード，文字の色，背景の色，上下の方向などが設定／変更できるので，\verb+show_message+ 関数の引数を Web ページ\footnote{Google 等で検索しなさい．たとえば {\tt https://pythonhosted.org/sense-hat/api/} など}でしらべ，メッセージや色を変えてみなさい．
+\end{excercise}
+
+\subsection{慣性計測センサ（IMU）}
+
+SenseHat には，マイクロマシン技術を使った超小型の一体型加速度，ジャイロ（回転），磁気のセンサが搭載されている．
+このようなセンサの普及によって，カメラの手ぶれ防止やドローンの自動制御，スマートホンの万歩計機能や地図の方位機能が使用可能になった．
+
+下記のコードを実行すると、ctrl-C で中断するまで加速度センサで取得する値のうちキーが \verb+Z+ の値（ボードの $Z$ 軸，垂直方向）を出力しつづける．
+\begin{quote}
+\small
+\begin{verbatim}
+>>> from sense_hat import SenseHat 
+>>> import time
+>>> sense = SenseHat() 
+>>> while True:
+...   accl = sense.get_accelerometer_raw()
+...   print(round(accl["z"],3))
+...   time.sleep(0.5)
+... 
+0.994
+0.969
+0.701
+0.356
+-0.142
+-0.713
+（以下略）
+\end{verbatim}
+\end{quote}
+\verb+変数[キー値]+ は，辞書データ構造のもつ特定のキー値に対応する値を返す．
+\verb+文字列.format(値0, 値1, ...)+ は文字列の \verb+{添え字}+ の箇所に、引数にとる値を順に添え字 0 から対応させ埋め込んだ文字列を返す．
+辞書は，リスト， 組， 集合などと同様に組み込みのデータ型の一つである．
+文字列は \verb+' '+でくくることもできる．
+
+\begin{excercise}
+Raspberry Pi の向きを変えて，加速度センサの読み取り値が変化するのを確認し．またそのような値になる理由を考えなさい．
+\end{excercise}
+
+\subsection{気温，湿度，気圧センサ}
+
+Python のプログラムをプログラムファイルとして作成しよう．
+気温，湿度，気圧センサーの値を利用するプログラムを以下に示す．
+
+以下の内容のテキスト・ファイルを Raspberry Pi 上で作成し，たとえば \verb+sensehat.py+ として保存する．
+エディタは Raspbian に標準でインストールされている \verb+nano+，または追加インストールされている \verb+emacs+ を使用するとよい．
+\verb+nano+ は使用するコマンド（保存，終了など）がスクリーン下にメニュー形式で表示される．
+保存ファイル名を保存時にプロンプトされるので，修正の必要がなければそのまま改行する．
+ \begin{itembox}[l]{\tt sensehat.py}
+\begin{quote}
+\small
+\begin{verbatim}
+from sense_hat import SenseHat
+from datetime import datetime
+
+sense = SenseHat()
+sense.clear()
+
+temp = sense.get_temperature()
+humi = sense.get_humidity()
+pres = sense.get_pressure()
+    
+print(datetime.now())
+print(temp, humi, pres)
+\end{verbatim}
+\end{quote}
+\end{itembox}
+\verb+from datetime import datetime+ は，ライブラリの \verb+datetime+ モジュールから日時，現在の時間などを扱うための \verb+datetime+ クラス\footnote{データ型とその型用の関数をまとめたものをクラスという． Python や C++ では，データ型やその型の変数の関数を呼び出すとき，コンマでつないで関数を書く．}を導入している．
+\verb+.now()+ 関数で現在の日付と時刻を取得できる．あらかじめ決まった表示形式に変換するには，\verb+.strftime+関数を使う．
+
+Raspberry Pi はバックアップ・バッテリーを備えたリアルタイム・クロックは持っていないため，日付および時刻は，インターネットに接続可能な状態で \verb+ntp+ （ネットワーク時刻プロトコル）サーバから取得する．
+一度日付，時刻を取得すると，動作中は CPU のクロック機能で日付および時刻を保持する．
+
+Python プログラム・ファイルは，コマンド \verb+python3 [ファイル名] [引数]+ で実行する．
+\verb+sensehat.py+ は引数を使わないので，実行例は以下のようになる．
+\begin{quote}
+\small
+\begin{verbatim}
+pi@raspberrypi:~/Documents $ python3 sensehat.py 
+34.04765701293945  31.003049850463867  1010.461181640625 
+pi@raspberrypi:~/Documents $ 
+\end{verbatim}
+\end{quote}
+
+\subsection{Joystick スイッチ}
+SenseHat は， 4方向+押し込みの入力ができるスイッチをもっており，センサと同様に状態を読み取ることができる．
+この Joystick スイッチを使えば，キーボードやマウスを接続しなくても， SenseHat だけで直接ユーザーに入力させることができる．
+
+\begin{figure}
+\centering
+\includegraphics[width=5cm]{joystick.jpg}
+%\caption{}
+\end{figure}
+
+Joystic スイッチからは，イベントとしてスイッチの変化が起きた時刻，上下左右の４方向または中央のスイッチの種類，押下または解放　の３つ組みを列として得ることができる．
+\begin{itembox}[l]{\tt sensehat.py の最後に追加}
+\begin{quote}
+\small
+\begin{verbatim}
+while True :
+       for event in sense.stick.get_events():
+        print(event.timestamp, event.direction, event.action)
+    time.sleep(0.5)
+\end{verbatim}
+\end{quote}
+\end{itembox}
+キーやボタンのイベントを処理する場合，その押下は「ボタンをはなした」イベントで検出する．
+マウスのクリックで，押したままだと反応せず，はなした時に動作するのと同じである．
+複数回の冗長な入力をキャンセルしたり，一連の動作，たとえば Joystick を上右下左上に入れる，といった動作を認識するには，方向 \verb+.direction+とアクション \verb+.action+ だけではなく，その時刻 \verb+.timestamp+も考慮する必要がある．
+
+\begin{excercise}
+Joystick の操作で LED Matrix に流れるメッセージの内容，流れる方向などを変更するプログラムを書きなさい．
+\end{excercise}
+
+
+\section{Raspberry Pi と演習端末の間のファイルのやりとり}
+
+Raspberry Pi の SDカード内のディレクトリからファイルを演習端末のディレクトリへコピーする，またその逆を行うには，
+端末エミュレータのスクリーン文字をエディタ使用中にコピー／ペーストするほかに，
+セキュアシェル \verb+ssh+ の機能を使ったファイル転送を行う \verb+sftp+ コマンド，セキュアリモートコピー \verb+scp+ コマンドが使用できる．
+
+\verb+scp+ による演習端末と Raspberry Pi の間でのファイルコピー等：
+\begin{enumerate}
+\item
+必要であれば，\verb+ssh pi@[アドレス] "ls [ディレクトリ名]"+ で，Raspberry Pi のディレクトリ内容を確認する．
+（\verb+ls+ 以外のリモートコマンドも実行できる．）
+\item
+\verb+scp pi@[アドレス]:[コピー元ディレクトリ／ファイル銘]  [コピー先ディレクトリ／ファイル名]+, または
+\verb+scp [コピー元ディレクトリ／ファイル銘]  pi@[アドレス]:[コピー先ディレクトリ／ファイル名]+ でファイルをコピーする．
+\end{enumerate}
+
+\verb+sftp+ によるファイルの Raspberry Pi へのアップロードまたはダウンロード：
+\begin{enumerate}
+\item
+演習端末の端末エミュレータのシェルで，やりとりするファイルのディレクトリに移動する．
+\item
+\verb+sftp pi@[アドレス]+ でそのアドレス（の Raspberry Pi）に接続する．
+\verb+ls+や\verb+cd+コマンドが使用できるので，カレントディレクトリなどを確認する．
+\item
+接続直後はログイン直後の状態と同じで，カレントディレクトリはホームディレクトリになっている．
+まず，アップロード先あるいはダウンロードするファイルのあるディレクトリに移動する．
+アップロードするときは \verb+put [ファイル名]+ コマンドを、ダウンロードするときは \verb+get [ファイル名]+ コマンドを実行する．
+ファイル名のファイルがない場合は，エラーになる．
+\end{enumerate}
+
+なお，コピー操作を行うときは，コマンドを実行しているのが Raspberry Pi 側か演習端末側か，
+アップロードしているのか，ダウンロードしているのかに注意して作業すること．
+間違えると，古いファイルで上書きしてしまうことになる．
+
+\begin{excercise}
+演習で作成したファイルを，続きの作業をするため，またレポート作成で参照するために，演習端末のディレクトリにコピーし，
+自分の USB メモリにコピーしなさい．
+\end{excercise}
+
+\section{インターネットでのデータのやりとり}
+
+インターネットに接続した状態であれば，人が読むための一般的なウェブページをテキストファイルとして取得し，HTML/XML 解析の処理して情報を取得することができる．
+ただし，ウェブサイトのページは人に対して表示をするのが目的なので，ページのソースコードから目的とするデータを取得することが難しい場合があり，さらにページのデザインを変更されて取得ができなくなることがある．
+また，多くのウェブサイトでは，頻繁なアクセスや大量のデータトラフィックでサーバやネットワークに負担がかかるため，
+ウェブロボット（ウェブサイトにアクセスするプログラム）によるアクセスは禁止している．
+さらに，情報取得の際にユーザー認証が必要な場合は，プログラムがログインの手順を模倣する必要があるだけでなく，ユーザーのアカウントとパスワードをプログラムに預けることが必要になる．
+
+もし，情報の取得専用に用意された Web API （アクセス・プロトコル・インターフェース）のサービスがあれば，事前に登録したアカウントに対して発行される認証キーを URL アドレスに含めるだけで，必要なデータ（のみ）をプログラムが可読な形式で取得し，活用することができる．
+デバイス側で取得したセンサー値をサーバーにアップロードして，他のサービスと共有し利用することもできる\footnote{ホスティングサービスと呼ばれる．}．
+
+ここでは，Python が備える，あるいは提供されるライブラリでデータの取得，必要な形式への変換の実例を見ることにする．
+
+\subsection{OpenWeatherMap での気象データの取得}
+
+以下のプログラムでは，\verb+https://openweathermap.org+ に API でアクセスし，都市の名前で気象データを取得し表示する\footnote{無料アカウントでは，1分間に60回まで，5日で合計3時間までのアクセスが可能．}．
+%日本語の文字表示のためプログラムのファイルに utf-8 文字コードを使うため，先頭の
+%\begin{verbatim}
+%# -*- coding: utf-8 -*-
+%\end{verbatim}
+%で Python インタープリタに伝えている．
+%また，\verb+u"天気 "+  のように，文字列リテラルの前に \verb+u+ とつけると，文字列を utf-8 でエンコードしていることが明示できる．
+
+\verb+sys.argv+ はプログラムの実行時に与えられたコマンド引数を格納しているグローバル変数で，C言語の \verb+main+ 関数の引数 \verb+char * argv[]+ と同じである．
+（ただし，コマンド python3 自身は引数に含められない．）
+引数がなければ都市名として \verb+Fukuoka-shi+ を，与えた場合は第一引数を登録都市名としてその気象データを取得し，内容を表示する．
+
+\begin{itembox}[l]{\tt openweathermap.py}
+\begin{quote}
+\small
+\begin{verbatim}
+# -*- coding: utf-8 -*-
+import requests
+import json
+import datetime
+import sys
+
+params = dict()
+params['API_KEY'] = "3efcd2e4fecf61bd823bcc55b23b0aab"
+params['CITY_NAME']= "Fukuoka-shi"
+
+if ( len(sys.argv) > 1 ) :
+    params['CITY_NAME']= sys.argv[1]
+
+api = "http://api.openweathermap.org/data/2.5/weather?q={city}&\
+APPID={key}&units=metric"
+url = api.format(city = params['CITY_NAME'], key = params['API_KEY'])
+resp = requests.get(url)
+data_dict = json.loads(resp.text)
+print(data_dict)
+
+print(u"天気 "+data_dict["weather"][0]["main"])
+print(u"最高気温 {0} °C, 最低気温 {1} °C ".format(\
+data_dict[ "main" ][ "temp_max" ], data_dict["main"]["temp_min"]))
+utimestamp = datetime.datetime.fromtimestamp(data_dict["sys"]\
+["sunset"])
+sunset = utimestamp.strftime("%Y/%m/%d %H:%M:%S")
+print(u"日没 " + sunset)
+\end{verbatim}
+\end{quote}
+\end{itembox}
+
+Tokyo は登録されているので，以下のような実行例になる．
+\begin{quote}
+\small
+\begin{verbatim}
+Proxima:RaspberryPi_SensorHat sin$ python3 openweathermap.py Tokyo
+{'coord': {'lon': 139.76, 'lat': 35.68}, 'weather': [{'id': 800, ...（省略）
+天気 Clear
+最高気温 15 °C, 最低気温 8.89 °C
+日没 2019/04/04 18:03:47
+\end{verbatim}
+\end{quote}
+
+\subsection{bitFlyer API による仮想通貨の取引価格取得}
+
+仮想通貨（暗号資産）取引所のビットフライヤーは，bitFlyer Lightning という API で取り扱い仮想通貨の取引情報を公開している\footnote{{\sf https://lightning.bitflyer.com/docs?lang=ja} }．
+HTTP パブリック API については、利用者登録やアクセスキーは不要となっている．
+
+この API を使ってビットコインの日本円価格 BTC/JPY を取得し，取引時刻と買値および売値を LED Matrix に流すプログラムは，たとえば以下のようにかける．
+\begin{itembox}[l]{\tt bitcoin.py}
+\begin{quote}
+\small
+\begin{verbatim}
+import requests
+import json
+from sense_hat import SenseHat
+
+sense = SenseHat()
+sense.clear()
+ 
+api ="https://api.bitflyer.jp/v1/ticker"
+ 
+resp = requests.get(api)
+data_dict = json.loads(resp.text) 
+print(data_dict)
+curpair = data_dict["product_code"].replace('_','/')
+tstamp = data_dict["timestamp"].replace('T', ' ').split('.')[0]
+buy = data_dict["best_bid"]
+sell = data_dict["best_ask"]
+msg = "{0} UTC  {1} BUY {2:,} SELL {3:,}".format(tstamp, curpair, \
+buy, sell)
+#print(msg)
+sense.show_message(msg)
+\end{verbatim}
+\end{quote}
+\end{itembox}
+BTC 以外の通貨や，成立した売買の履歴なども取得できる．
+
+\subsection{その他の Web API}
+
+金融ほかの情報にアクセスできる Quandl\footnote{\sf https://www.quandl.com} の API は，有料情報が多いが広く知られている．
+Twitter API\footnote{\sf https://developer.twitter.com/} では，Twitter でフォロワーの ID やそのフォロワー数などを取得できる．
+LINE は自動応答や情報配信ができる LINE Message API \footnote{\sf https://developers.line.biz/ja/services/messaging-api/} を公開している．
+
+一方で，プログラムによると思われる極端に頻繁なアクセスを制限するために twitter 社が API の制限を強化したり，Instagram のように親会社 Facebook の個人情報漏洩問題をうけて API を廃止する，といったことも起きている（2019年4月現在）．
+一般的に、特定のプラットフォームに極度に依存するのは，持続的な機能の実現、提供のためには危険である．
+
+
+\chapter{レポート課題}
+
+\section{センサーデバイス・プログラムの作成}
+
+\begin{subject}
+気温センサ，湿度センサ，気圧センサ，加速度センサ，ジャイロセンサ，磁気センサ，Joystick スイッチ，のうち少なくとも 3 つ以上を入力として，
+LED Matrix を出力表示器として活用し，単独で利用できるデバイスのプログラムを作成しなさい．
+（なお実際のデバイスではプログラムを自動的に起動するようにするが，今回はプログラムをリモートシェルで起動するものとする．）
+
+設計上の仕様として，（すくなくとも起動時には）Wi-Fi に接続可能で，日付と時刻は使用できるものとする．
+必要であれば，モバイルバッテリーなどを利用して移動も可能であるとする．
+
+レポートでは，そのデバイスの必要性や有用性を簡単に説明し，センサの値をどのように使用して目標を達成するのか方法を述べ，
+そのプログラムでの実現について（プログラム・リストとは別に）説明しなさい．
+また，目標とした機能をどの程度達成できたか，達成できていない場合はその理由をのべなさい．
+考察／まとめでは，作成したデバイスに対して発展的な事項を議論しなさい．たとえば欠点の改善の方法や，付加すれば大きく機能を改善または拡張できるハードウェア（GPSモジュール，カメラ，小さな液晶グラフィック・ディスプレイなど）と効果など．
+\end{subject}
+
+\begin{example}
+日付，時刻とともに，気温，湿度，気圧の変化などから半日〜数時間後程度の天気を予測し，予報を表示するデバイス．
+（湿度や気圧の変化で天候を予想することは，古くから行われていた．）
+GPS モジュールを付加すれば，現在地の位置を自動的に取得でき，センサーで取得が可能なデータ以外の気象データを提示できる．
+将来的には，インターネットサイトから予報，PM 2.5 情報，花粉飛散情報などを自動取得して表示する機能を付与する．
+\end{example}
+
+\begin{thebibliography}{10}
+ %\small
+ %\renewcommand{\baselinestretch}{.35}
+ %\renewcommand{\baselinestretch}{.7}
+ %\addtolength{\itemsep}{-.3\baselineskip}
+ 
+\bibitem{Meeus-book-98}
+J.~Meeus, {\em Astronomical Algorithms, 2nd ed.}, Chap.~7 (p.59~), Willmann-Bell, Inc., 1998. 
+
+\bibitem{python.org-python-3.7.3-doc}
+ Python Software Foundation, python.org, The Python 3.7.3 documentation, 
+{\sf https://docs.python.org/3/}, 2019.
+
+\bibitem{raspberry-pi-org}
+Raspberry Pi foundation, Raspberry Pi org, {\sf https://www.raspberrypi.org}, 2019. 
+
+\bibitem{Warren-book-2012}
+H.~S.~Warren, {\em Hacker’s Delight, 2nd ed.}, Chap.~7 (p.59~), Addison-Wesley Professional, 1998. 
+
+\end{thebibliography}
+\end{document}
+
+

@@ -14,30 +14,38 @@ import pandas as pd
 if __name__ == '__main__':
     pass
 
-params = { 'path': './', 'tmspan': 'd'}
+params = { 'path': './', 'timespan': 'd', 'codes' : [ ]}
+args = sys.argv
+del args[0]
+while len(args) > 0:
+    arg = args.pop(0)
+    if arg[0] == '-':
+        if '=' in arg[1:]:
+            argval = arg[1:].split('=')
+            argkey = argval[0]
+            argval.pop(0)
+        else:
+            argkey = arg[1:]
+            argval = args.pop(0)
+        if 'fromdate'.startswith(argkey) :
+            argkey = 'fromdate'
+        elif 'todate'.startswith(argkey) :
+            argkey = 'todate'
+        elif 'timespan'.startswith(argkey) :
+            argkey = 'timespan'
+        params[argkey] = argval
+    else:
+        params['codes'].append(arg)
+print(params)
 #code = '5698.T'
 #pdstart = int('20171210')
 #pdend = int('20180112')
 #tmspan = 'd'
-for argv in sys.argv[2:] :
-    if argv[0] != '-' :
-        if not 'code' in params :
-            params['code'] = argv
-        elif not 'fromdate' in params:
-            params['fromdate'] = int(argv)
-        elif not 'todate' in params:
-            params['todate'] = int(argv)
-        elif not 'path' in params :
-            params['path'] = argv
-    else:
-        paramname, paramvalue = argv[1:].split('=')
-        params[paramname] = paramvalue
 
-print(params)
-if not 'code' in params or not 'fromdate' in params or not 'todate' in params:
-    print('code.m frmdate todate path')
+if not (len(params['codes']) > 0 and 'fromdate' in params and 'todate' in params):
+    print(' -from frmdate -to todate -path dirname code1.m code2.m ...')
     exit()
-        
+
 #timestamp = datetime.now().strftime("%Y%m%d-%H%M")
 #print ("current time stamp: ", timestamp)
 # 1カラム目に時間を挿入します
@@ -94,7 +102,7 @@ def yahooFinanceTimeSeries(code,pdstart,pdend,timespan='d'):
             #skip header line
             if len(row('td')) == 0: 
                 continue
-            columns = []
+            columns = [code]
             colnum = 0
             for td in row('td'):
                 td_str = row(td).text()
@@ -120,24 +128,32 @@ def yahooFinanceTimeSeries(code,pdstart,pdend,timespan='d'):
 #        if ranking[key][1] != u'東証ETF':
 #            print key,": ",ranking[key]
 
-jpstart = int(0.5+JulianDay(params['fromdate']//10000, params['fromdate']//100%100, params['fromdate']%100))
-jpend = int(0.5+JulianDay(params['todate']//10000, params['todate']//100%100, params['todate']%100))
-table = [ ]
-header = ['date','open','high','low','close','volume','adj.close'] 
-for jd in range(jpstart, jpend+1, 32):
-    if jd+31 > jpend:
-        je = jpend
-    else:
-        je = jd+31
-    pjstart = int(CalDate(jd))
-    pjend = int(CalDate(je))
-    table = table + yahooFinanceTimeSeries(params['code'], pjstart, pjend, params['tmspan'])
+dateint = int(params['fromdate'])
+jpstart = int(0.5+JulianDay(dateint // 10000, dateint // 100 % 100, dateint % 100))
+dateint = int(params['todate'])
+jpend = int(0.5+JulianDay(dateint//10000, dateint// 100 % 100, dateint%100))
+header = ['code','date','open','high','low','close','volume','adj_close'] 
+for stockcode in params['codes']:
+    table = []
+    for jd in range(jpstart, jpend+1, 25):
+        if jd + 25 - 1 <= jpend : 
+            je = jd+25 -1
+        else:
+            je = jpend
+        pjstart = int(CalDate(jd))
+        pjend = int(CalDate(je))
+        print(pjstart, pjend)
+        table = table + yahooFinanceTimeSeries(stockcode, pjstart, pjend, params['timespan'])
 
-table = sorted(table, reverse=False)
-colnum = len(table[0])
-df = pd.DataFrame(table,columns=header[:colnum])
-df = df.set_index('date')
-df.to_csv(params['code']+'-'+str(params['fromdate'])+'-'+str(params['todate'])+'.csv')
+    table = sorted(table, reverse=False)
+    colnum = len(table[0])
+    df = pd.DataFrame(table,columns=header[:colnum])
+    df = df.set_index(['code', 'date'])
+    basepath = params['path'].rstrip('/')
+    if basepath != '' :
+        basepath = basepath + '/'
+    df.to_csv(basepath + stockcode +'-'+params['fromdate']+'-'+params['todate']+'.csv')
+    
 #dframe = pd.DataFrame[table, ]
 
 #for row in table:

@@ -12,8 +12,8 @@ if __name__ == '__main__':
     pass #特になし
 
 # from argv
-if len(sys.argv) <= 2:
-    print('usage: basedirname rankingcode')
+if len(sys.argv) > 2:
+    print('usage: rankingcode')
     exit()
 
 if tuple(sys.version_info)[0] != 3:
@@ -81,13 +81,23 @@ def save_ranking(basedir, kind, timespan, market, volume, pages):
     return
 
 #
-    
-basedir = sys.argv[1]
-if not os.path.exists(basedir):
-    print('path \"'+ basedir + '\" does not exist.')
+
+params = { 'path' : '.', 'codes': [] }
+for arg in sys.argv[1:] :
+    if arg[0] == '-' :
+        values = arg[1:].split('=')
+        if len(values) == 1:
+            params[values[0]] = True
+        else:
+            params[values[0]] = values[1]
+    else:
+        params['codes'].append(arg)
+
+if not os.path.exists(params['path']) :
+    print('path \"' + params['path'] + '\" does not exist.')
     exit()
     
-for rkcode in sys.argv[2:]:
+for rkcode in params['codes']:
     print(rkcode)
     if rkcode == '1d2a' :
         kd = 1
@@ -119,9 +129,14 @@ for rkcode in sys.argv[2:]:
         mk = 2
         tm = 'd'
         vl = 'a'
+    elif rkcode == '41d1a' :
+        kd = 41
+        mk = 1
+        tm = 'd'
+        vl = 'a'
     else:
         print('unknown code '+rkcode)
-    save_ranking(basedir,kd,tm,mk,vl,36)
+    save_ranking(params['path'],kd,tm,mk,vl,36)
 
 print ('done.')
 exit()
