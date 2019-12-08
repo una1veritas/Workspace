@@ -12,21 +12,21 @@
 #include "SMFStream.h"
 
 #include "kmp.h"
+#include "DirectoryLister.h"
 
-int main(int argc, char **argv) {
+std::array<std::vector<int8>, 16> translate(const char * filename) {
 	std::fstream infile;
+	std::array<std::vector<int8>, 16> melody;
+	int last_time[16];
 
-	std::cout << "file: " << argv[1] << std::endl;
-	infile.open(argv[1], (std::ios::in | std::ios::binary) );
+	infile.open(filename, (std::ios::in | std::ios::binary) );
 	if ( !infile ) {
-		std::cerr << argv[1] << " open failed." << std::endl;
-		return -1;
+		std::cerr << filename << " open failed." << std::endl;
+		return melody;
 	}
 
 	SMFStream smf(infile);
 
-	std::array<std::vector<int8>, 16> melody;
-	int last_time[16];
 	for(int i = 0; i < 16; ++i) {
 		melody[i].push_back(-1);
 		last_time[i] = -1;
@@ -71,30 +71,44 @@ int main(int argc, char **argv) {
 	}
 	for(int i = 0; i < 16; ++i)
 		if ( melody[i].back() == -1) melody[i].pop_back();
-	/*
-	 * binary file dump
-	uint8 buf[256];
-	smf.read_byte(buf,256);
-	for(int i = 0; i < 256; ++i) {
-		if ( i && (i & 0x0f) == 0 )
-			std::cout << std::endl;
-		std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned int) buf[i] << " ";
-	}
-	*/
 
-	std::cout << std::endl << std::endl;
-	kmp mcpat("*--=+--+++-");
-	for(int ch = 0; ch < melody.size(); ++ch) {
-		if ( melody[ch].size() == 0 )
-			continue;
-		int res = mcpat.search(melody[ch]);
-		if ( res < melody[ch].size() ) {
-			std::cout << ch << " (" << melody[ch].size() << ") :";
-			std::cout << "matched at " << res << std::endl;
+	return melody;
+}
+
+int main(int argc, char **argv) {
+
+	std::cout << "path = " << argv[1] << " melodic contour = " << argv[2] << std::endl;
+
+	const std::regex filepattern(".*\\.mid");
+	DirectoryLister dlister(argv[2]);
+	kmp mcpat(argv[1]);
+
+	if ( ! dlister() ) {
+		std::cerr << "error: opendir returned a NULL pointer for the base path." << std::endl;
+		exit(1);
+	}
+
+	std::array<std::vector<int8>, 16> melody;
+	bool matched;
+	std::cout << "search for " << mcpat << std::endl << std::endl;
+	int i;
+	for(i = 1; dlister.get_next_file(filepattern) != NULL; ++i) {
+		melody = translate(dlister.entry_path().c_str());
+		matched = false;
+		for(int ch = 0; ch < melody.size(); ++ch) {
+			if ( melody[ch].size() == 0 )
+				continue;
+			int res = mcpat.search(melody[ch]);
+			if ( res < melody[ch].size() ) {
+				matched = true;
+				std::cout << ch << " (" << melody[ch].size() << ") @" << res << " ";
+			}
+		}
+
+		if ( matched ) {
+			std::cout << dlister.entry_path().c_str() << std::endl;
 		}
 	}
-	std::cout << std::endl;
-
-	std::cout << mcpat << std::endl;
+	std::cout << i << "songs. " << std::endl;
 	return 0;
 }

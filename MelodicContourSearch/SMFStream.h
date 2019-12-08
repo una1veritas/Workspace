@@ -125,7 +125,7 @@ struct SMFStream {
 
 	~SMFStream() {
 		smfstream.close();
-		std::cerr << "an SMFStream closed." << std::endl;
+		//std::cerr << "an SMFStream closed." << std::endl;
 	}
 
 	void reset() {
