@@ -42,7 +42,7 @@ private:
 	}
 
 	void init_failure() {
-		int i, j;
+		unsigned int i, j;
 		i = 1, j = 0, failure[0] = 0;
 		while ( i < pattern.size() ) {
 			if (pattern[i] == pattern[j] or pattern[i] == '*' or pattern[j] == '*') {
@@ -69,7 +69,7 @@ public:
 	}
 
 	int search(const std::vector<int8> & txt) {
-		int pos = 0;
+		unsigned int pos = 0;
 		state = 0;
 		while (pos < txt.size()) {
 #ifdef KMP_DEBUG
@@ -100,7 +100,7 @@ public:
 	}
 
 	int search(const std::string & txt) {
-		int pos = 0;
+		unsigned int pos = 0;
 		state = 0;
 		while (pos < txt.size()) {
 #ifdef KMP_DEBUG
@@ -129,7 +129,7 @@ public:
 
 	friend std::ostream & operator<<(std::ostream & ost, const kmp & p) {
 		ost << "pmm('";
-		for(int i = 0; i < p.pattern.size(); i++) {
+		for(unsigned int i = 0; i < p.pattern.size(); i++) {
 			switch (p.pattern[i]) {
 			case '=':
 				ost << '=';
@@ -146,7 +146,7 @@ public:
 			}
 		}
 		ost << "' (" << p.pattern.size() << ") [";
-		for(int i = 0; i < p.failure.size(); i++) {
+		for(unsigned int i = 0; i < p.failure.size(); i++) {
 			ost << p.failure[i];
 			if ( i+1 < p.failure.size() )
 				ost << ", ";

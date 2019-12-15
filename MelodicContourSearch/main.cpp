@@ -14,10 +14,13 @@
 #include "kmp.h"
 #include "DirectoryLister.h"
 
+typedef unsigned int  uint;
+typedef unsigned long ulong;
+
 std::array<std::vector<int8>, 16> translate(const char * filename) {
 	std::fstream infile;
 	std::array<std::vector<int8>, 16> melody;
-	int last_time[16];
+	uint last_time[16];
 
 	infile.open(filename, (std::ios::in | std::ios::binary) );
 	if ( !infile ) {
@@ -31,7 +34,7 @@ std::array<std::vector<int8>, 16> translate(const char * filename) {
 		melody[i].push_back(-1);
 		last_time[i] = -1;
 	}
-	uint32 delta_total = 0;
+	uint delta_total = 0;
 	while ( smf.smfstream ) {
 		SMFEvent evt = smf.getNextEvent();
 		if (evt.delta > 0)
@@ -95,10 +98,10 @@ int main(int argc, char **argv) {
 	for(i = 1; dlister.get_next_file(filepattern) != NULL; ++i) {
 		melody = translate(dlister.entry_path().c_str());
 		matched = false;
-		for(int ch = 0; ch < melody.size(); ++ch) {
+		for(uint ch = 0; ch < melody.size(); ++ch) {
 			if ( melody[ch].size() == 0 )
 				continue;
-			int res = mcpat.search(melody[ch]);
+			uint res = mcpat.search(melody[ch]);
 			if ( res < melody[ch].size() ) {
 				matched = true;
 				std::cout << ch << " (" << melody[ch].size() << ") @" << res << " ";

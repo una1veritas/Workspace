@@ -13,7 +13,7 @@ endif
 
 
 OBJS = main.o
-INCLUDES = SMFEvent.h SMFStream.h
+INCLUDES = SMFEvent.h SMFStream.h kmp.h
 
 all:	mcsearch.exe
 
