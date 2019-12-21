@@ -52,7 +52,7 @@
 #define HAVE_ALARM 1
 #define HAVE_ERASECHAR 1
 #define HAVE_KILLCHAR 1
-#define HAVE_CRYPT
+#define HAVE_CRYPT 
 
 #elif defined(_WIN32)
 #define HAVE_CURSES_H
@@ -111,7 +111,7 @@ typedef unsigned int pid_t;
 #define HAVE_GETUID 1
 #define HAVE_SETREUID 1
 #define HAVE_SETREGID 1
-#define HAVE_CRYPT 1
+/* #define HAVE_CRYPT 1 */
 #define HAVE_GETPASS 1
 #define HAVE_GETPWUID 1
 #define HAVE_WORKING_FORK 1
