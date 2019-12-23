@@ -8,8 +8,8 @@ Created on 2017/12/24
 import sys
 import glob
 #import urllib.request
-import lxml
-from bs4 import BeautifulSoup, NavigableString
+#import lxml
+from bs4 import BeautifulSoup #, NavigableString
 #import pandas as pd
 import re
 
