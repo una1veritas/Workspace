@@ -8,14 +8,11 @@
 #ifndef KMP_H_
 #define KMP_H_
 
-
-typedef int8_t int8;
-typedef uint8_t uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
 
 class kmp {
-	std::vector<int8> pattern;
+	std::vector<char> pattern;
 	std::vector<uint16> failure;
 	unsigned int state;
 
@@ -25,19 +22,8 @@ private:
 		const char * p = str;
 		pattern.push_back('*');
 		++p;
-		while ( *p ) {
-			if ( *p == '=') {
-				pattern.push_back('=');
-			} else if ( *p == '+') {
-				pattern.push_back('+');
-			} else if ( *p == '-') {
-				pattern.push_back('-');
-			} else if ( *p == '*' ) {
-				pattern.push_back('*');
-			} else {
-				pattern.push_back('?');
-			}
-			++p;
+		for ( ; *p; ++p) {
+			pattern.push_back(*p);
 		}
 	}
 
