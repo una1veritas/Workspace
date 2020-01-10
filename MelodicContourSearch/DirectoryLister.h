@@ -5,13 +5,19 @@
 #include <cstdlib>
 #include <deque>
 #include <regex>
+
+#ifdef _linux
 #include <dirent.h>
+#else
+#ifdef _WIN64
+#include "msdirent.h"
+#endif
 
 struct DirectoryLister {
 	typedef std::pair<std::string,DIR*> pathdir;
 	std::deque<pathdir> pathdirs;
 	dirent * lastentry;
-/* dirent.h で定義される
+/* dirent.h
 #define DT_UNKNOWN       0
 #define DT_FIFO          1
 #define DT_CHR           2
