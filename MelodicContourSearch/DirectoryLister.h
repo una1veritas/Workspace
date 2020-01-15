@@ -6,12 +6,12 @@
 #include <deque>
 #include <regex>
 
-#ifdef _linux
+//#if defined(_linux) || defined(__macos)
 #include <dirent.h>
-#else
-#ifdef _WIN64
-#include "msdirent.h"
-#endif
+//#else
+//#ifdef _WIN64
+//#include "msdirent.h"
+//#endif
 
 struct DirectoryLister {
 	typedef std::pair<std::string,DIR*> pathdir;

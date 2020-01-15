@@ -53,6 +53,12 @@ struct SMFEvent {
 		MTRK = 'r',
 	};
 
+	enum META_TYPE {
+		TRACK_END = 0x2f,
+		TEMPO = 0x51,
+		TIME = 0x58,
+	};
+
 	// methods
 	SMFEvent() : delta(0), type(0), duration(0), number(0), velocity(0) {}
 	//~SMFEvent() {}
@@ -92,8 +98,16 @@ struct SMFEvent {
 		return type == META;
 	}
 
+	bool isMeta(const uint8 mtype) const {
+		return (type == META) && (meta == mtype);
+	}
+
 	bool isMT() const {
 		return type == MTRK || type == MTHD;
+	}
+
+	bool isMTHD() const {
+		return type == MTHD;
 	}
 
 	bool isMTRK() const {

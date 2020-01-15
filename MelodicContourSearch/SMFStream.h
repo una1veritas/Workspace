@@ -23,6 +23,7 @@ typedef uint64_t uint64;
 
 struct SMFStream {
 	std::fstream & smfstream;
+	SMFEvent header;
 	uint8 last_status;
 	struct {
 		bool omni;
@@ -121,6 +122,12 @@ struct SMFStream {
 	SMFStream(std::fstream & fs) : smfstream(fs), last_status(0), stream_status(0), current_track(0) {
 		midistatus.omni = true;
 		midistatus.poly = false;
+		header = getNextEvent();
+		if ( !header.isMTHD() ) {
+			std::cerr << "expected the header but not found." << std::endl;
+			return;
+		}
+
 	}
 
 	~SMFStream() {
@@ -136,7 +143,13 @@ struct SMFStream {
 		 midistatus.poly = false;
 		 smfstream.clear();
 		 smfstream.seekg(0);
+		 header = getNextEvent();
 	}
+
+	uint16 format() const { return header.format; }
+	uint16 resolution() const { return header.resolution; }
+	uint16 tracks() const { return header.tracks; }
+	uint32 length() const { return header.length; }
 
 	SMFEvent getNextEvent() {
 		SMFEvent event;

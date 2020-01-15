@@ -17,18 +17,20 @@
 typedef unsigned int  uint;
 typedef unsigned long ulong;
 
-std::array<std::vector<int8>, 16> translate(const char * filename) {
+std::vector<int8> translate(const char * filename) {
 	std::fstream infile;
 	std::array<std::vector<int8>, 16> melody;
+	std::vector<int8> sequence;
 	uint last_time[16];
 
 	infile.open(filename, (std::ios::in | std::ios::binary) );
 	if ( !infile ) {
 		std::cerr << filename << " open failed." << std::endl;
-		return melody;
+		return melody[0];
 	}
 
 	SMFStream smf(infile);
+	std::cout << "format = " << smf.format() << ", tracks = " << smf.tracks()  << ", resolution = " << smf.resolution() << std::endl;
 
 	for(int i = 0; i < 16; ++i) {
 		melody[i].push_back(-1);
@@ -37,6 +39,8 @@ std::array<std::vector<int8>, 16> translate(const char * filename) {
 	uint delta_total = 0;
 	while ( smf.smfstream ) {
 		SMFEvent evt = smf.getNextEvent();
+		if (evt.isMeta(SMFEvent::TIME) || evt.isMeta(SMFEvent::TEMPO))
+			std::cout << evt << std::endl;
 		if (evt.delta > 0)
 			delta_total += evt.delta; 	// advance the global clock.
 		if ( evt.isMTRK() ) {
@@ -72,10 +76,16 @@ std::array<std::vector<int8>, 16> translate(const char * filename) {
 #endif //ifdef SHOW_EVENTSEQ
 		}
 	}
-	for(int i = 0; i < 16; ++i)
+	for(int i = 0; i < 16; ++i) {
 		if ( melody[i].back() == -1) melody[i].pop_back();
-
-	return melody;
+		for(int j = 0; j < melody[i].size(); ++j) {
+			sequence.push_back(melody[i][j]);
+		}
+		sequence.push_back( (int8)(0x80 | 'r') );
+	}
+	if ( sequence.back() == (int8)(0x80 | 'r') )
+		sequence.pop_back();
+	return sequence;
 }
 
 int main(int argc, char **argv) {
@@ -87,25 +97,21 @@ int main(int argc, char **argv) {
 	kmp mcpat(argv[1]);
 
 	if ( ! dlister() ) {
-		std::cerr << "error: opendir returned a NULL pointer for the base path." << std::endl;
+		std::cerr << "error: opendir returned a NULL pointer for the base path." << argv[2] << std::endl;
 		exit(1);
 	}
 
-	std::array<std::vector<int8>, 16> melody;
+	std::vector<int8> melody;
 	bool matched;
 	std::cout << "search for " << mcpat << std::endl << std::endl;
 	int i;
 	for(i = 1; dlister.get_next_file(filepattern) != NULL; ++i) {
 		melody = translate(dlister.entry_path().c_str());
 		matched = false;
-		for(uint ch = 0; ch < melody.size(); ++ch) {
-			if ( melody[ch].size() == 0 )
-				continue;
-			uint res = mcpat.search(melody[ch]);
-			if ( res < melody[ch].size() ) {
-				matched = true;
-				std::cout << ch << " (" << melody[ch].size() << ") @" << res << " ";
-			}
+		uint res = mcpat.search(melody);
+		if ( res < melody.size() ) {
+			matched = true;
+			std::cout << "match found in " << melody.size() << " @" << res << " ";
 		}
 
 		if ( matched ) {

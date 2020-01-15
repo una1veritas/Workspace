@@ -28,12 +28,6 @@ private:
 		}
 	}
 
-	bool compare(const char & t, const char & p) {
-		if ( t == p )
-			return true;
-
-	}
-
 	void init_failure() {
 		uint i, j;
 		i = 1, j = 0, failure[0] = 0;
