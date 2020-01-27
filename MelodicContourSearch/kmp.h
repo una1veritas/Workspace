@@ -21,8 +21,6 @@ private:
 	void init_pattern(const char * str) {
 		pattern.clear();
 		const char * p = str;
-		pattern.push_back('*');
-		++p;
 		for (; *p; ++p) {
 			pattern.push_back(*p);
 		}
@@ -54,8 +52,8 @@ public:
 		init_failure();
 		state = 0;
 	}
-
-	int search(const std::vector<int8> & txt) {
+/*
+	int search(const std::string & txt) {
 		unsigned int pos = 0;
 		state = 0;
 		while (pos < txt.size()) {
@@ -85,13 +83,14 @@ public:
 		}
 		return pos;
 	}
+*/
 
-	int search(const std::string & txt) {
+	unsigned int search(const std::string & txt) {
 		unsigned int pos = 0;
 		state = 0;
 		while (pos < txt.size()) {
 #ifdef KMP_DEBUG
-			std::cout << pos << ", " << state << std::endl;
+			std::cout << pos << " '" << txt[pos] << "'" << ", " << state << " '" << pattern[state] << "'"<< std::endl;
 #endif //ifdef KMP_DEBUG
 			if ( txt[pos] == pattern[state]) {
 				state++;
@@ -108,6 +107,8 @@ public:
 #ifdef KMP_DEBUG
 					std::cout << "failured " << state << std::endl;
 #endif //ifdef KMP_DEBUG
+				} else {
+					++pos;
 				}
 			}
 		}

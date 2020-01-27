@@ -7,7 +7,7 @@ ifeq ($(BUILD_MODE),run)
 	CFLAGS += -O2
 	CXXFLAGS += -std=c++11
 else
-	CFLAGS += -g
+	CFLAGS += -g #-DKMP_DEBUG
 	CXXFLAGS += -std=c++11
 endif
 

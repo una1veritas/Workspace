@@ -17,10 +17,10 @@
 typedef unsigned int  uint;
 typedef unsigned long ulong;
 
-std::vector<int8> translate(const char * filename) {
+std::string & translate(const char * filename, std::string & sequence) {
 	std::fstream infile;
-	std::array<std::vector<int8>, 16> melody;
-	std::vector<int8> sequence;
+	std::array<std::string, 16> melody;
+//	std::string sequence;
 	uint last_time[16];
 
 	infile.open(filename, (std::ios::in | std::ios::binary) );
@@ -39,8 +39,10 @@ std::vector<int8> translate(const char * filename) {
 	uint delta_total = 0;
 	while ( smf.smfstream ) {
 		SMFEvent evt = smf.getNextEvent();
-		if (evt.isMeta(SMFEvent::TIME) || evt.isMeta(SMFEvent::TEMPO))
+		/*
+		if ( evt.isMeta(SMFEvent::TIME) ) //|| evt.isMeta(SMFEvent::TEMPO))
 			std::cout << evt << std::endl;
+			*/
 		if (evt.delta > 0)
 			delta_total += evt.delta; 	// advance the global clock.
 		if ( evt.isMTRK() ) {
@@ -81,10 +83,8 @@ std::vector<int8> translate(const char * filename) {
 		for(int j = 0; j < melody[i].size(); ++j) {
 			sequence.push_back(melody[i][j]);
 		}
-		sequence.push_back( (int8)(0x80 | 'r') );
+		sequence.push_back( -'\n' );
 	}
-	if ( sequence.back() == (int8)(0x80 | 'r') )
-		sequence.pop_back();
 	return sequence;
 }
 
@@ -101,14 +101,34 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	std::vector<int8> melody;
+	std::string melody, contour;
 	bool matched;
 	std::cout << "search for " << mcpat << std::endl << std::endl;
+
 	int i;
 	for(i = 1; dlister.get_next_file(filepattern) != NULL; ++i) {
-		melody = translate(dlister.entry_path().c_str());
+		melody.clear();
+		translate(dlister.entry_path().c_str(), melody);
+
+		contour.clear();
+		auto iter = melody.begin();
+		int8 lastchar = *iter;
+		++iter;
+		for( ; iter != melody.end(); ++iter) {
+			if ( *iter == -'\n' ) {
+				contour.push_back('\n');
+			} else if ( lastchar == *iter) {
+				contour.push_back('=');
+			} else if ( lastchar > *iter ) {
+				contour.push_back('+');
+			} else if ( lastchar < *iter ) {
+				contour.push_back('-');
+			}
+			lastchar = *iter;
+		}
+
 		matched = false;
-		uint res = mcpat.search(melody);
+		int res = mcpat.search(contour);
 		if ( res < melody.size() ) {
 			matched = true;
 			std::cout << "match found in " << melody.size() << " @" << res << " ";
@@ -118,6 +138,6 @@ int main(int argc, char **argv) {
 			std::cout << dlister.entry_path().c_str() << std::endl;
 		}
 	}
-	std::cout << i << "songs. " << std::endl;
+	std::cout << i << " songs. " << std::endl;
 	return 0;
 }
