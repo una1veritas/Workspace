@@ -78,12 +78,28 @@ std::string & translate(const char * filename, std::string & sequence) {
 #endif //ifdef SHOW_EVENTSEQ
 		}
 	}
+	sequence.clear();
+	int8 lastnote, currnote;
 	for(int i = 0; i < 16; ++i) {
 		if ( melody[i].back() == -1) melody[i].pop_back();
-		for(int j = 0; j < melody[i].size(); ++j) {
-			sequence.push_back(melody[i][j]);
+		if ( melody[i].size() == 0 )
+			continue;
+		lastnote = melody[i][0];
+		for(int j = 1; j < melody[i].size(); ++j) {
+			currnote = melody[i][j];
+			if ( lastnote == currnote) {
+				sequence.push_back('=');
+			} else if ( lastnote < currnote && lastnote + 2 >= currnote ) {
+				sequence.push_back('#');
+			} else if ( lastnote < currnote ) {
+				sequence.push_back('+');
+			} else if ( lastnote > currnote && lastnote <= currnote+2 ) {
+				sequence.push_back('b');
+			} else if ( lastnote > currnote ) {
+				sequence.push_back('-');
+			}
 		}
-		sequence.push_back( -'\n' );
+		sequence.push_back( '\n' );
 	}
 	return sequence;
 }
@@ -101,37 +117,21 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	std::string melody, contour;
+	std::string melody;
 	bool matched;
 	std::cout << "search for " << mcpat << std::endl << std::endl;
 
 	int i;
-	for(i = 1; dlister.get_next_file(filepattern) != NULL; ++i) {
-		melody.clear();
+	for(i = 0; dlister.get_next_file(filepattern) != NULL; ++i) {
 		translate(dlister.entry_path().c_str(), melody);
 
-		contour.clear();
-		auto iter = melody.begin();
-		int8 lastchar = *iter;
-		++iter;
-		for( ; iter != melody.end(); ++iter) {
-			if ( *iter == -'\n' ) {
-				contour.push_back('\n');
-			} else if ( lastchar == *iter) {
-				contour.push_back('=');
-			} else if ( lastchar > *iter ) {
-				contour.push_back('+');
-			} else if ( lastchar < *iter ) {
-				contour.push_back('-');
-			}
-			lastchar = *iter;
-		}
-
 		matched = false;
-		int res = mcpat.search(contour);
+		int res = mcpat.search(melody);
+		std::cout << "melody size " << melody.size() << std::endl;
 		if ( res < melody.size() ) {
 			matched = true;
-			std::cout << "match found in " << melody.size() << " @" << res << " ";
+			std::cout << "match found in " << melody.size() << " @" << res << std::endl;
+			std::cout << melody << std::endl;
 		}
 
 		if ( matched ) {
