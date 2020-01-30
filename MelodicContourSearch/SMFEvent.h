@@ -117,6 +117,49 @@ struct SMFEvent {
 		return type & 0x0f;
 	}
 
+	std::ostream & notename(std::ostream & ssout) const {
+		switch(number % 12) {
+		case 0:
+			ssout << "C";
+			break;
+		case 1:
+			ssout << "C#";
+			break;
+		case 2:
+			ssout << "D";
+			break;
+		case 3:
+			ssout << "D#";
+			break;
+		case 4:
+			ssout << "E";
+			break;
+		case 5:
+			ssout << "F";
+			break;
+		case 6:
+			ssout << "F#";
+			break;
+		case 7:
+			ssout << "G";
+			break;
+		case 8:
+			ssout << "G#";
+			break;
+		case 9:
+			ssout << "A";
+			break;
+		case 10:
+			ssout << "A#";
+			break;
+		case 11:
+			ssout << "B";
+			break;
+		}
+		ssout << (number/12 - 2);
+		return ssout;
+	}
+
 	friend std::ostream & operator<<(std::ostream & ost, const SMFEvent & evt) {
 		if ( evt.delta != 0 ) {
 			ost << "[" << '+' << std::dec << evt.delta << " ";
@@ -220,7 +263,9 @@ struct SMFEvent {
 						<< "OFF " << std::dec << (uint) evt.number;
 				} else {
 					ost << "(" << std::dec << (uint) evt.channel() << ") "
-						<< "ON " << std::dec << (uint) evt.number << ", " << (unsigned int) evt.velocity;
+						<< "ON ";
+					evt.notename(ost);
+					ost << ", " << (unsigned int) evt.velocity;
 				}
 				break;
 			case 0xe0:

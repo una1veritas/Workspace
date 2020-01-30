@@ -4,14 +4,15 @@
 #include <sstream>
 #include <cctype>
 #include <cstring>
-
 #include <vector>
 #include <array>
 
 #include "SMFEvent.h"
 #include "SMFStream.h"
 
-#include "kmp.h"
+#include "stringmatching.h"
+
+//#define SHOW_EVENTSEQ
 
 typedef unsigned int  uint;
 typedef unsigned long ulong;
@@ -42,8 +43,9 @@ std::string & translate(const char * filename, std::string & sequence) {
 		if ( evt.isMeta(SMFEvent::TIME) ) //|| evt.isMeta(SMFEvent::TEMPO))
 			std::cout << evt << std::endl;
 			*/
-		if (evt.delta > 0)
+		if (evt.delta > 0) {
 			delta_total += evt.delta; 	// advance the global clock.
+		}
 		if ( evt.isMTRK() ) {
 			delta_total = 0;
 			//last_total = (uint32) -1;
@@ -73,7 +75,9 @@ std::string & translate(const char * filename, std::string & sequence) {
 				}
 			}
 #ifdef SHOW_EVENTSEQ
-			std::cout << evt;
+			if ( evt.isNoteOn() ) {
+				std::cout << evt;
+			}
 #endif //ifdef SHOW_EVENTSEQ
 		}
 	}
@@ -89,46 +93,21 @@ std::string & translate(const char * filename, std::string & sequence) {
 	return sequence;
 }
 
-std::stringstream & notename(std::stringstream & ssout, const int & nn) {
-	switch(nn%12) {
-	case 0:
-		ssout << "C";
-		break;
-	case 1:
-		ssout << "C#";
-		break;
-	case 2:
-		ssout << "D";
-		break;
-	case 3:
-		ssout << "D#";
-		break;
-	case 4:
-		ssout << "E";
-		break;
-	case 5:
-		ssout << "F";
-		break;
-	case 6:
-		ssout << "F#";
-		break;
-	case 7:
-		ssout << "G";
-		break;
-	case 8:
-		ssout << "G#";
-		break;
-	case 9:
-		ssout << "A";
-		break;
-	case 10:
-		ssout << "A#";
-		break;
-	case 11:
-		ssout << "B";
-		break;
+
+std::stringstream & contour(std::stringstream & ssout, const char & notediff){
+	if ( notediff == 0 ) {
+		ssout << "=";
+	} else if ( notediff < 0 ) {
+		if ( notediff < -2 )
+			ssout << "-";
+		else
+			ssout << "b";
+	} else if ( notediff > 0 ) {
+		if ( notediff > 2 )
+			ssout << "+";
+		else
+			ssout << "#";
 	}
-	ssout << (nn/12 - 2);
 	return ssout;
 }
 
@@ -143,45 +122,35 @@ int main(int argc, char **argv) {
 
 	std::string melody;
 	translate(filename.c_str(), melody);
+	std::cout << "size = "<< melody.size() << std::endl;
 
-	std::stringstream contour;
+	std::stringstream contout;
 	int lastnote;
 	int notecounter = 0;
 	int track = 0;
-	for(auto iter = melody.begin(); iter != melody.end(); ++iter) {
-		if ( *iter == -'\n') {
-			contour << std::endl;
+	for(auto & iter : melody) {
+		if ( iter == -'\n') {
+			contout << std::endl;
 			++track;
 			notecounter = 0;
 			continue;
-		} else if ( notecounter == 0 ) {
-			lastnote = *iter;
-			++notecounter;
 		} else {
-			if ( lastnote == *iter ) {
-				contour << '=';
-			} else if ( lastnote > *iter ) {
-				if ( lastnote > *iter + 2 )
-					contour << '-';
-				else
-					contour << 'b';
-			} else if ( lastnote < *iter ) {
-				if ( lastnote + 2 < *iter )
-					contour << '+';
-				else
-					contour << '#';
+			if ( notecounter == 0 ) {
+				contout << "*";
+			} else {
+				contour(contout, iter - lastnote);
 			}
-			lastnote = *iter;
+			lastnote = iter;
 			++notecounter;
 		}
 	}
-	contour << std::endl;
-	std::cout << contour.str() << std::endl << "finished." << std::endl;
-	/*
-	int res = mcpat.search(contour);
-	if ( res < melody.size() ) {
-		std::cout << "match found in " << filename << " " << res << " ` " << melody.size() << std::endl;
+	std::string contstr = contout.str();
+	std::cout << contstr << std::endl << "finished." << std::endl;
+
+	int res = mcpat.find(contstr);
+	if ( res < contstr.size() ) {
+		std::cout << "match found in " << filename << " " << res << " ` " << contstr.size() << std::endl;
 	}
-	 */
+
 	return 0;
 }
