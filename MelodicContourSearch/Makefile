@@ -20,6 +20,9 @@ all:	mcsearch.exe
 mcsearch.exe:	$(OBJS)
 	$(CXX) -o $@ $^
 
+mana.exe: mana.cpp libsmf/SMFStream.h libsmf/SMFEvent.h DirectoryLister.h
+	$(CXX) $(CFLAGS) $(CXXFLAGS) -o mana.exe mana.cpp
+
 #%.o:	$(PROJECT_ROOT)%.cpp
 %.o:	%.cpp $(INCLUDES)
 	$(CXX) -c $(CFLAGS) $(CXXFLAGS) -o $@ $<

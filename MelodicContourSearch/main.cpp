@@ -7,8 +7,8 @@
 #include <vector>
 #include <array>
 
-#include "SMFEvent.h"
-#include "SMFStream.h"
+#include "libsmf/SMFEvent.h"
+#include "libsmf/SMFStream.h"
 
 #include "stringmatching.h"
 

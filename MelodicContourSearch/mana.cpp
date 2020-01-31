@@ -96,7 +96,8 @@ std::array<std::vector<char>, 16> change(const char *filename) {
 	SMFStream smf(infile);
 	count = count + 1;
 
-	uint32 delta_total = 0, last_total, last_number = 0, latest_number = 0;
+	uint32 delta_total = 0, last_total;
+	int last_number, latest_number;
 	for (int i = 1; i <= 16; i++) {
 		interval.clear();
 		smf.reset();
@@ -173,6 +174,11 @@ std::array<std::vector<char>, 16> change(const char *filename) {
 		//printf("%d\n",i);
 
 	}
+	for(int i = 0; i < 16; ++i) {
+		if (allinterval[i].size() > 0) {
+			allinterval[i][0] = '.';
+		}
+	}
 	return allinterval;
 }
 
@@ -187,6 +193,15 @@ int main(int argc, char **argv) {
     std::cerr << "error: opendir returned a NULL pointer." << std::endl;
     exit(1);
   }
+
+  // char b[] = "+-#+=";
+  char b[64] = "+==b#===b";
+
+  if ( argc > 2) {
+	  strcpy(b,argv[2]);
+  }
+  std::cout << "search pattern: " << b << std::endl;
+
   while (lister.get_next_file(".*\\.mid") != NULL) {
     ++counter;
     printf("\n%s ",lister.entry_path().c_str());
@@ -216,8 +231,6 @@ int main(int argc, char **argv) {
 	  const char *a = stdString.c_str();
 	  
 	  //printf("%d: %s\n",k,a);
-	 // char b[] = "+-#+=";
-	  char b[] = "+==b#===b";
 	  allfrag = search(a,b);
 	  if (allfrag)
 	    break;
