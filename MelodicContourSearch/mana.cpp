@@ -216,16 +216,17 @@ int main(int argc, char **argv) {
 	  const char *a = stdString.c_str();
 	  
 	  //printf("%d: %s\n",k,a);
-	  char b[] = "+-#+=";
+	 // char b[] = "+-#+=";
+	  char b[] = "+==b#===b";
 	  allfrag = search(a,b);
 	  if (allfrag)
 	    break;
 	}
 	printf("総合結果 = ");
 	if(allfrag == 1)
-	  printf("一致 match %s\n",lister.entry_path().c_str());
+	  printf("一致 match %s",lister.entry_path().c_str());
 	else
-	  printf("不一致 no\n");
+	  printf("不一致 no");
 
   
 	std::cout << std::endl;
