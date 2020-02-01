@@ -98,7 +98,7 @@ std::array<std::vector<char>, 16> change(const char *filename) {
 
 	uint32 delta_total = 0, last_total;
 	int last_number, latest_number;
-	for (int i = 1; i <= 16; i++) {
+	for (int i = 0; i <= 15; i++) {
 		interval.clear();
 		smf.reset();
 		last_number = 0;

@@ -17,11 +17,32 @@
 typedef unsigned int  uint;
 typedef unsigned long ulong;
 
+char contour_symbol(const char before, const char last){
+	if ( before == -1 )
+		return '.';
+	char notediff = last - before;
+	if ( notediff < 0 ) {
+		if ( notediff < -2 )
+			return '-';
+		else
+			return 'b';
+	} else if ( notediff > 0 ) {
+		if ( notediff > 2 )
+			return '+';
+		else
+			return '#';
+	}
+	return '=';
+}
+
 std::string & translate(const char * filename, std::string & sequence) {
 	std::fstream infile;
 	std::array<std::string, 16> melody;
-//	std::string sequence;
 	uint last_time[16];
+	struct {
+		char last;
+		char before; // before last
+	} note[16];
 
 	infile.open(filename, (std::ios::in | std::ios::binary) );
 	if ( !infile ) {
@@ -33,8 +54,9 @@ std::string & translate(const char * filename, std::string & sequence) {
 	std::cout << "format = " << smf.format() << ", tracks = " << smf.tracks()  << ", resolution = " << smf.resolution() << std::endl;
 
 	for(int i = 0; i < 16; ++i) {
-		melody[i].push_back(-1);
 		last_time[i] = -1;
+		note[i].before = -1;
+		note[i].last = -1;
 	}
 	uint delta_total = 0;
 	while ( smf.smfstream ) {
@@ -52,25 +74,27 @@ std::string & translate(const char * filename, std::string & sequence) {
 		} else {
 			if ( last_time[evt.channel()] != delta_total ) {
 				// if the global clock is advanced with resp. to channel clock
-				// includes delta time == 0 (a note in another channel simultaneously on-ed.)
+				// includes delta time == 0 (a note in another channel has been simultaneously on-ed.)
 #ifdef SHOW_EVENTSEQ
 				std::cout << std::endl << std::dec << delta_total << " ";
 #endif //SHOW_EVENTSEQ
 				last_time[evt.channel()] = delta_total;
-				if ( melody[evt.channel()].back() != -1 ) {
+				if ( note[evt.channel()].last != -1 ) {
 					// clear the buffer (the last element) of melody queue.
 					// push dummy as the last note,
 					// assuming a possible note-off (or control) then note-on in the same time
-					melody[evt.channel()].push_back(-1);
+					melody[evt.channel()].push_back(contour_symbol(note[evt.channel()].before, note[evt.channel()].last));
+					note[evt.channel()].before = note[evt.channel()].last;
+					note[evt.channel()].last = -1;
 				}
 				if ( evt.isNoteOn() ) {
-					melody[evt.channel()].back() = evt.number;
+					note[evt.channel()].last = evt.number;
 				}
 			} else {
 				if ( evt.isNoteOn() ) {
-					if ( evt.number > melody[evt.channel()].back() ) {
-						// force the dummy to be replaced.
-						melody[evt.channel()].back() = evt.number;
+					if ( evt.number > note[evt.channel()].last ) {
+						// replace the dummy note number.
+						note[evt.channel()].last = evt.number;
 					}
 				}
 			}
@@ -82,34 +106,20 @@ std::string & translate(const char * filename, std::string & sequence) {
 		}
 	}
 	for(int i = 0; i < 16; ++i) {
-		if ( melody[i].back() == -1) melody[i].pop_back();
+		if ( note[i].last != -1 ) {
+			melody[i].push_back(contour_symbol(note[i].before, note[i].last));
+		}
+	}
+	sequence.clear();
+	for(int i = 0; i < 16; ++i) {
 		if ( melody[i].size() != 0 ) {
-			for(int j = 0; j < melody[i].size(); ++j) {
-				sequence.push_back(melody[i][j]);
-			}
-			sequence.push_back( -'\n' );
+			sequence += melody[i];
+			sequence.push_back( '\n' );
 		}
 	}
 	return sequence;
 }
 
-
-std::stringstream & contour(std::stringstream & ssout, const char & notediff){
-	if ( notediff == 0 ) {
-		ssout << "=";
-	} else if ( notediff < 0 ) {
-		if ( notediff < -2 )
-			ssout << "-";
-		else
-			ssout << "b";
-	} else if ( notediff > 0 ) {
-		if ( notediff > 2 )
-			ssout << "+";
-		else
-			ssout << "#";
-	}
-	return ssout;
-}
 
 int main(int argc, char **argv) {
 
@@ -124,32 +134,11 @@ int main(int argc, char **argv) {
 	translate(filename.c_str(), melody);
 	std::cout << "size = "<< melody.size() << std::endl;
 
-	std::stringstream contout;
-	int lastnote;
-	int notecounter = 0;
-	int track = 0;
-	for(auto & iter : melody) {
-		if ( iter == -'\n') {
-			contout << std::endl;
-			++track;
-			notecounter = 0;
-			continue;
-		} else {
-			if ( notecounter == 0 ) {
-				contout << "*";
-			} else {
-				contour(contout, iter - lastnote);
-			}
-			lastnote = iter;
-			++notecounter;
-		}
-	}
-	std::string contstr = contout.str();
-	std::cout << contstr << std::endl << "finished." << std::endl;
+	std::cout << melody << std::endl << "finished." << std::endl;
 
-	int res = mcpat.find(contstr);
-	if ( res < contstr.size() ) {
-		std::cout << "match found in " << filename << " " << res << " ` " << contstr.size() << std::endl;
+	int res = mcpat.find(melody);
+	if ( res < melody.size() ) {
+		std::cout << "match found in " << filename << " " << res << " ` " << melody.size() << std::endl;
 	}
 
 	return 0;
