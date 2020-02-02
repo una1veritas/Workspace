@@ -5,15 +5,15 @@ CC  = gcc -Wall
 
 ifeq ($(BUILD_MODE),run)
 	CFLAGS += -O2
-	CXXFLAGS += -std=c++11
+	CXXFLAGS += -std=c++1z
 else
 	CFLAGS += -g #-DKMP_DEBUG
-	CXXFLAGS += -std=c++11
+	CXXFLAGS += -std=c++1z
 endif
 
 
 OBJS = main.o
-INCLUDES = SMFEvent.h SMFStream.h kmp.h
+INCLUDES = SMFEvent.h SMFStream.h kmp.h DirectoryLister.h
 
 all:	mcsearch.exe
 

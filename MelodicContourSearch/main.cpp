@@ -10,6 +10,7 @@
 #include "libsmf/SMFEvent.h"
 #include "libsmf/SMFStream.h"
 
+#include "DirectoryLister.h"
 #include "stringmatching.h"
 
 //#define SHOW_EVENTSEQ
@@ -18,8 +19,10 @@ typedef unsigned int  uint;
 typedef unsigned long ulong;
 
 char contour_symbol(const char before, const char last){
-	if ( before == -1 )
+	if ( before == -1 and last >= 0 )
 		return '.';
+	if ( before >= 0 and before == last )
+		return '=';
 	char notediff = last - before;
 	if ( notediff < 0 ) {
 		if ( notediff < -2 )
@@ -32,12 +35,12 @@ char contour_symbol(const char before, const char last){
 		else
 			return '#';
 	}
-	return '=';
+	return '?'; // error
 }
 
 std::string & translate(const char * filename, std::string & sequence) {
 	std::fstream infile;
-	std::array<std::string, 16> melody;
+	std::array<std::stringstream, 16> melody;
 	uint last_time[16];
 	struct {
 		char last;
@@ -47,13 +50,14 @@ std::string & translate(const char * filename, std::string & sequence) {
 	infile.open(filename, (std::ios::in | std::ios::binary) );
 	if ( !infile ) {
 		std::cerr << filename << " open failed." << std::endl;
-		return melody[0];
+		return sequence;
 	}
 
 	SMFStream smf(infile);
-	std::cout << "format = " << smf.format() << ", tracks = " << smf.tracks()  << ", resolution = " << smf.resolution() << std::endl;
+	//std::cout << "format = " << smf.format() << ", tracks = " << smf.tracks()  << ", resolution = " << smf.resolution() << std::endl;
 
 	for(int i = 0; i < 16; ++i) {
+		melody[i].str("");
 		last_time[i] = -1;
 		note[i].before = -1;
 		note[i].last = -1;
@@ -83,7 +87,8 @@ std::string & translate(const char * filename, std::string & sequence) {
 					// clear the buffer (the last element) of melody queue.
 					// push dummy as the last note,
 					// assuming a possible note-off (or control) then note-on in the same time
-					melody[evt.channel()].push_back(contour_symbol(note[evt.channel()].before, note[evt.channel()].last));
+					//melody[evt.channel()].push_back(contour_symbol(note[evt.channel()].before, note[evt.channel()].last));
+					melody[evt.channel()] << contour_symbol(note[evt.channel()].before, note[evt.channel()].last);
 					note[evt.channel()].before = note[evt.channel()].last;
 					note[evt.channel()].last = -1;
 				}
@@ -107,15 +112,12 @@ std::string & translate(const char * filename, std::string & sequence) {
 	}
 	for(int i = 0; i < 16; ++i) {
 		if ( note[i].last != -1 ) {
-			melody[i].push_back(contour_symbol(note[i].before, note[i].last));
+			melody[i] << contour_symbol(note[i].before, note[i].last);
 		}
 	}
 	sequence.clear();
 	for(int i = 0; i < 16; ++i) {
-		if ( melody[i].size() != 0 ) {
-			sequence += melody[i];
-			sequence.push_back( '\n' );
-		}
+		sequence += melody[i].str();
 	}
 	return sequence;
 }
@@ -124,22 +126,35 @@ std::string & translate(const char * filename, std::string & sequence) {
 int main(int argc, char **argv) {
 
 	//const std::regex filepattern(".*\\.mid");
-	std::string filename(argv[2]);
+	std::string path(argv[2]);
 	kmp mcpat(argv[1]);
 
-	std::cout << "file: " <<filename << std::endl;
+	std::cout << "file path: " << path << std::endl;
 	std::cout << "search for " << mcpat << std::endl << std::endl;
 
-	std::string melody;
-	translate(filename.c_str(), melody);
-	std::cout << "size = "<< melody.size() << std::endl;
+	DirectoryLister dlister(path);
 
-	std::cout << melody << std::endl << "finished." << std::endl;
-
-	int res = mcpat.find(melody);
-	if ( res < melody.size() ) {
-		std::cout << "match found in " << filename << " " << res << " ` " << melody.size() << std::endl;
+	if ( ! dlister() ) {
+		std::cerr << "error: opendir returned a NULL pointer for the base path." << std::endl;
+		exit(1);
 	}
 
+	const std::regex fnamepattern(".*\\.(mid|MID)");
+	int i;
+	for(i = 1; dlister.get_next_file(fnamepattern) != NULL; ++i) {
+
+		std::string melody;
+		translate(dlister.entry_path().c_str(), melody);
+		int res = mcpat.find(melody);
+		if ( res < melody.size() ) {
+			std::cout << i << ": " << dlister.entry_path().c_str() << " size = "<< melody.size() << std::endl << melody << std::endl;
+			std::cout << "match found at " << res << " in " << melody.size() << " notes." << std::endl;
+			std::cout << std::endl;
+		} else {
+			//std::cout << "no match." << std::endl;
+		}
+	}
+
+	std::cout << std::endl << "Finished search among " << i-1 << " files." << std::endl;
 	return 0;
 }

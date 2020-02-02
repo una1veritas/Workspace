@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <deque>
+#include <string>
 #include <regex>
 
 //#if defined(_linux) || defined(__macos)
@@ -29,7 +30,7 @@ struct DirectoryLister {
 #define DT_WHT          14
 */
 
-	DirectoryLister(const char *path) : pathdirs(), lastentry(NULL) {
+	DirectoryLister(const std::string & path) : pathdirs(), lastentry(NULL) {
 		std::string rootpath(path);
 		if ( rootpath.size() != 0 and rootpath[rootpath.size()-1] == '/' )
 			rootpath.pop_back();

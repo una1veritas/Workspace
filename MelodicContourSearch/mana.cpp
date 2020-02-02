@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <array>
+#include <filesystem>
 
 #include "libsmf/SMFEvent.h"
 #include "libsmf/SMFStream.h"
