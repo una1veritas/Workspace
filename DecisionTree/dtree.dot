@@ -1,0 +1,79 @@
+digraph graph_name {
+  graph [
+    charset = "UTF-8";
+    label = "sample graph",
+    labelloc = "t",
+    labeljust = "c",
+    bgcolor = "ltgray",
+    fontcolor = white,
+    fontsize = 18,
+    style = "filled",
+    rankdir = TB,
+    margin = 0.2,
+    splines = spline,
+    ranksep = 1.0,
+    nodesep = 0.9
+  ];
+  // node definitions
+  か_助詞_副助詞／並立助詞／終助詞 [shape = box];
+  ください_動詞_非自立 [shape = box];
+  こわい_形容詞_自立 [shape = box];
+  だ_助動詞 [shape = box];
+  ほしい_形容詞_自立 [shape = box];
+  たい_助動詞 [shape = box];
+  人_名詞_接尾 [shape = box];
+  病気_名詞_サ変接続 [shape = box];
+  に_助詞_格助詞 [shape = box];
+  出_動詞_自立 [shape = box];
+  洗い_動詞_自立 [shape = box];
+  浴び_動詞_自立 [shape = box];
+  飲み_動詞_自立 [shape = box];
+  横向き_名詞_一般 [shape = box];
+  ください_動詞_自立 [shape = box];
+  ほしい_形容詞_非自立 [shape = box];
+  いる_動詞_自立 [shape = box];
+  何_名詞_代名詞 [shape = box];
+  ない_助動詞 [shape = box];
+  今日_名詞_副詞可能 [shape = box];
+  // edge definitions
+  か_助詞_副助詞／並立助詞／終助詞 -> ください_動詞_非自立 [label = "False", arrowhead = normal];
+  か_助詞_副助詞／並立助詞／終助詞 -> 何_名詞_代名詞 [label = "True", arrowhead = normal];
+  ください_動詞_非自立 -> こわい_形容詞_自立 [label = "False", arrowhead = normal];
+  ください_動詞_非自立 -> 要求 [label = "True", arrowhead = normal];
+  こわい_形容詞_自立 -> だ_助動詞 [label = "False", arrowhead = normal];
+  こわい_形容詞_自立 -> 感情説明 [label = "True", arrowhead = normal];
+  だ_助動詞 -> ほしい_形容詞_自立 [label = "False", arrowhead = normal];
+  だ_助動詞 -> 感情説明 [label = "True", arrowhead = normal];
+  ほしい_形容詞_自立 -> 要求 [label = "True", arrowhead = normal];
+  ほしい_形容詞_自立 -> たい_助動詞 [label = "False", arrowhead = normal];
+  たい_助動詞 -> 人_名詞_接尾 [label = "True", arrowhead = normal];
+  たい_助動詞 -> ください_動詞_自立 [label = "False", arrowhead = normal];
+  人_名詞_接尾 -> 病気_名詞_サ変接続 [label = "False", arrowhead = normal];
+  人_名詞_接尾 -> 状況説明 [label = "True", arrowhead = normal];
+  病気_名詞_サ変接続 -> に_助詞_格助詞 [label = "False", arrowhead = normal];
+  病気_名詞_サ変接続 -> 状況説明 [label = "True", arrowhead = normal];
+  に_助詞_格助詞 -> 出_動詞_自立 [label = "False", arrowhead = normal];
+  に_助詞_格助詞 -> 横向き_名詞_一般 [label = "True", arrowhead = normal];
+  出_動詞_自立 -> 洗い_動詞_自立 [label = "False", arrowhead = normal];
+  出_動詞_自立 -> 要求 [label = "True", arrowhead = normal];
+  洗い_動詞_自立 -> 浴び_動詞_自立 [label = "False", arrowhead = normal];
+  洗い_動詞_自立 -> 要求 [label = "True", arrowhead = normal];
+  浴び_動詞_自立 -> 飲み_動詞_自立 [label = "False", arrowhead = normal];
+  浴び_動詞_自立 -> 要求 [label = "True", arrowhead = normal];
+  飲み_動詞_自立 -> 要求 [label = "True", arrowhead = normal];
+  飲み_動詞_自立 -> 状態説明 [label = "False", arrowhead = normal];
+  横向き_名詞_一般 -> 要求 [label = "False", arrowhead = normal];
+  横向き_名詞_一般 -> 状態説明 [label = "True", arrowhead = normal];
+  ください_動詞_自立 -> ほしい_形容詞_非自立 [label = "False", arrowhead = normal];
+  ください_動詞_自立 -> 要求 [label = "True", arrowhead = normal];
+  ほしい_形容詞_非自立 -> 要求 [label = "True", arrowhead = normal];
+  ほしい_形容詞_非自立 -> いる_動詞_自立 [label = "False", arrowhead = normal];
+  いる_動詞_自立 -> 状態説明 [label = "False", arrowhead = normal];
+  いる_動詞_自立 -> 状況説明 [label = "True", arrowhead = normal];
+  何_名詞_代名詞 -> ない_助動詞 [label = "False", arrowhead = normal];
+  何_名詞_代名詞 -> 今日_名詞_副詞可能 [label = "True", arrowhead = normal];
+  ない_助動詞 -> 質問 [label = "False", arrowhead = normal];
+  ない_助動詞 -> 状態説明 [label = "True", arrowhead = normal];
+  今日_名詞_副詞可能 -> 要求 [label = "False", arrowhead = normal];
+  今日_名詞_副詞可能 -> 質問 [label = "True", arrowhead = normal];
+ }
