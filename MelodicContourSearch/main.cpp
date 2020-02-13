@@ -13,6 +13,8 @@
 #include "DirectoryLister.h"
 #include "stringmatching.h"
 
+#include "manamatching.h"
+
 //#define SHOW_EVENTSEQ
 
 typedef unsigned int  uint;
@@ -127,10 +129,15 @@ int main(int argc, char **argv) {
 
 	//const std::regex filepattern(".*\\.mid");
 	std::string path(argv[2]);
-	kmp mcpat(argv[1]);
+	kmp mcpat("AAACAAAAAC"); //argv[1]);
+	manakmp pmm("AAACAAAAAC"); //argv[1]);
 
 	std::cout << "file path: " << path << std::endl;
-	std::cout << "search for " << mcpat << std::endl << std::endl;
+	std::cout << "search for " << mcpat << std::endl;
+	std::cout << "search for " << pmm << std::endl;
+	std::cout << std::endl;
+
+	exit(1);
 
 	DirectoryLister dlister(path);
 

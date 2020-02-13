@@ -45,10 +45,6 @@ int search(const char a[], char b[]){
   int j = 0;
   int frag = 0; // 1 まっちんぐちゅう。
 
-  //printf("pattern length = %d\n", strlen(b));
-  loopcheck(b);
-
-
   while(b[j] != '\0'){
     //printf("1 = %c",a[i]);
     //printf(" 2 = %c\n",b[j]);
@@ -197,6 +193,13 @@ int main(int argc, char **argv) {
 
   // char b[] = "+-#+=";
   char b[64] = "+==b#===b";
+  printf("pattern length = %lu\n", strlen(b));
+  loopcheck(b);
+  std::cout << "failure: ";
+  for(unsigned int i = 0; i < f.size(); ++i) {
+	  std::cout << f[i] << ", ";
+  }
+  std::cout << std::endl;
 
   if ( argc > 2) {
 	  strcpy(b,argv[2]);

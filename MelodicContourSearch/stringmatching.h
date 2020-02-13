@@ -73,13 +73,14 @@ private:
 		i = 1, j = 0, failure[0] = 0;
 		while ( i < pattern.size() ) {
 			if (pattern[i] == pattern[j]) {
-				failure[i] = j + 1;
 				j++;
+				failure[i] = j;
 				i++;
 			} else {
 				if (j > 0) {
 					j = failure[j - 1];
 				} else {
+					failure[i] = 0;
 					i++;
 				}
 			}
