@@ -49,10 +49,13 @@ class DecisionTree:
         elif self.qtype == 'analyzedword' :
             if self.is_leaf() :
                 ostr = self.label
-            elif self.label[2] != '*' :
-                ostr = str(self.label[0] + '_' + self.label[1] + '_' + self.label[2])
             else:
-                ostr = str(self.label[0] + '_' + self.label[1])
+                if self.label[0] != '*':
+                    ostr = self.label[0]
+                for item in self.label[1:]:
+                    ostr += '_'
+                    if item != '*':
+                        ostr += item
         return ostr
         
     def __str__(self):
@@ -96,19 +99,21 @@ class DecisionTree:
             for idx in selections:
                 for a_word in database[idx][analyzedTextIndex]:
                     words.add(a_word)
+                    wildword = ('*', a_word[1], a_word[2])
+                    words.add(wildword)
             return words
-
+        
     def choose_analyzedword(self, database, selections, words, textColumn, targetColumn):
         (bestword, bestgain, bestdecision) = ('', 0, None)
         for a_word in words:
             decision = self.classify_by_analyzedword(a_word, database, selections, textColumn, targetColumn)
             val = self.info_gain(database, decision, targetColumn)
             #print(a_word, val, decision)
-            if bestgain < val or (bestgain == val and len(bestword) < len(a_word) ):
+            if bestgain < val or (bestgain == val and (a_word[0] != '*' and bestword[0] == '*') ):
                 bestgain = val
                 bestword = a_word
                 bestdecision = decision
-        print('best = '+str( (bestword, bestdecision) ))
+        #print('best = '+str( (bestword, bestdecision) ))
         return (bestword, bestdecision)
     
     def choose_substring(self, database, selections, words, textColumn, targetColumn):
@@ -141,7 +146,18 @@ class DecisionTree:
     def classify_by_analyzedword(self, labelobj, database, selections, analyzedIndexColumn, targetColumn):
         res = dict()
         for idx in selections:
-            ans = labelobj in database[idx][analyzedIndexColumn]
+#            ans = labelobj in database[idx][analyzedIndexColumn]
+            for w in database[idx][analyzedIndexColumn] :
+                for p in zip(labelobj, w) :
+                    if p[0] == '*' or p[1] == '*' :
+                        continue
+                    if p[0] != p[1] :
+                        break
+                else:
+                    ans = True
+                    break
+            else:
+                ans = False
             #print(labelobj, ans, rec[propertyIndex], rec[targetIndex])
             if ans not in res:
                 res[ans] = list()
@@ -180,14 +196,14 @@ class DecisionTree:
         return (nodes, edges)
 
     def dot_script(self):
-        header = """digraph graph_name {
+        header = """digraph graph_name {{
   graph [
     charset = "UTF-8";
-    label = "sample graph",
+    label = "{0}",
     labelloc = "t",
     labeljust = "c",
-    bgcolor = "#343434",
-    fontcolor = white,
+    bgcolor = "#e5e5e5",
+    fontcolor = black,
     fontsize = 18,
     style = "filled",
     rankdir = TB,
@@ -196,6 +212,30 @@ class DecisionTree:
     ranksep = 1.0,
     nodesep = 0.9
   ];
+
+    node [
+      colorscheme = "white"
+      style = "solid,filled",
+      fontsize = 18,
+      fontcolor = "black",
+      fontname = "Migu 1M",
+      color = "black",
+      fillcolor = "white",
+      fixedsize = false,
+      height = 0.6,
+      width = 1.2
+    ];
+
+    edge [
+      style = solid,
+      fontsize = 18,
+      fontcolor = black,
+      fontname = "Migu 1M",
+      color = black,
+      labelfloat = true,
+      labeldistance = 2.5,
+      labelangle = 70
+    ];
 """
 #   node [
 #     colorscheme = "ghostwhite"
@@ -228,11 +268,11 @@ class DecisionTree:
         self.collect_graphdefs(nodes, edges)
         nodestr = '  // node definitions\n'
         for a_node in nodes :
-            nodestr += '  ' + str(a_node) + ' [shape = box];\n'
+            nodestr += '  {0} [shape = box];\n'.format(str(a_node))
         edgestr = '  // edge definitions\n'
         for an_edge in edges :
-            edgestr += '  ' + str(an_edge[0]) + ' -> ' + str(an_edge[1]) + ' [label = "{}", arrowhead = normal];\n'.format(an_edge[2])
-        return header+nodestr+edgestr+footer
+            edgestr += '  {0} -> {1} [label = "{2}", arrowhead = normal];\n'.format(an_edge[0], an_edge[1], an_edge[2])
+        return header.format('DecisionTree')+nodestr+edgestr+footer
 
 
 #program begins
@@ -263,7 +303,7 @@ for idx in range(0, len(db)):
     newrecord = list(db[idx])
     newrecord.append(a_list)
     db[idx] = tuple(newrecord)
-[print(r) for r in db[:3] ]
+[print(r) for r in db[:3] + ['...'] ]
 
 dtree = DecisionTree()
 dtree.makeDecisionTree(db, range(0, len(db)), 4, 3, 'analyzedword')
