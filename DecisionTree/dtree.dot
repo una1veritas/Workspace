@@ -4,7 +4,7 @@ digraph graph_name {
     label = "DecisionTree",
     labelloc = "t",
     labeljust = "c",
-    bgcolor = "#e5e5e5",
+    bgcolor = "#f0f0f0",
     fontcolor = black,
     fontsize = 18,
     style = "filled",
@@ -39,53 +39,53 @@ digraph graph_name {
       labelangle = 70
     ];
   // node definitions
-  か_助詞_副助詞／並立助詞／終助詞 [shape = box];
-  ください_動詞_非自立 [shape = box];
-  こわい_形容詞_自立 [shape = box];
-  だ_助動詞_ [shape = box];
-  ほしい_形容詞_自立 [shape = box];
-  たい_助動詞_ [shape = box];
-  _助詞_格助詞 [shape = box];
-  なり_動詞_自立 [shape = box];
-  おろし_動詞_自立 [shape = box];
-  の_助詞_連体化 [shape = box];
-  変え_動詞_自立 [shape = box];
-  ほしい_形容詞_非自立 [shape = box];
-  ください_動詞_自立 [shape = box];
-  何_名詞_代名詞 [shape = box];
-  いっ_動詞_自立 [shape = box];
-  月_名詞_一般 [shape = box];
+  "か_助詞_副助詞／並立助詞／終助詞" [shape = box];
+  "ください_動詞_非自立" [shape = box];
+  "こわい_形容詞_自立" [shape = box];
+  "だ_助動詞_*" [shape = box];
+  "ほしい_形容詞_自立" [shape = box];
+  "たい_助動詞_*" [shape = box];
+  "*_助詞_格助詞" [shape = box];
+  "の_助詞_連体化" [shape = box];
+  "なり_動詞_自立" [shape = box];
+  "おろし_動詞_自立" [shape = box];
+  "体制_名詞_一般" [shape = box];
+  "ください_動詞_自立" [shape = box];
+  "ほしい_形容詞_非自立" [shape = box];
+  "何_名詞_代名詞" [shape = box];
+  "わから_動詞_自立" [shape = box];
+  "です_助動詞_*" [shape = box];
   // edge definitions
-  か_助詞_副助詞／並立助詞／終助詞 -> ください_動詞_非自立 [label = "False", arrowhead = normal];
-  か_助詞_副助詞／並立助詞／終助詞 -> 何_名詞_代名詞 [label = "True", arrowhead = normal];
-  ください_動詞_非自立 -> こわい_形容詞_自立 [label = "False", arrowhead = normal];
-  ください_動詞_非自立 -> 要求 [label = "True", arrowhead = normal];
-  こわい_形容詞_自立 -> だ_助動詞_ [label = "False", arrowhead = normal];
-  こわい_形容詞_自立 -> 感情表現 [label = "True", arrowhead = normal];
-  だ_助動詞_ -> ほしい_形容詞_自立 [label = "False", arrowhead = normal];
-  だ_助動詞_ -> 感情表現 [label = "True", arrowhead = normal];
-  ほしい_形容詞_自立 -> 要求 [label = "True", arrowhead = normal];
-  ほしい_形容詞_自立 -> たい_助動詞_ [label = "False", arrowhead = normal];
-  たい_助動詞_ -> _助詞_格助詞 [label = "True", arrowhead = normal];
-  たい_助動詞_ -> ほしい_形容詞_非自立 [label = "False", arrowhead = normal];
-  _助詞_格助詞 -> なり_動詞_自立 [label = "True", arrowhead = normal];
-  _助詞_格助詞 -> 状態説明 [label = "False", arrowhead = normal];
-  なり_動詞_自立 -> おろし_動詞_自立 [label = "False", arrowhead = normal];
-  なり_動詞_自立 -> 状態説明 [label = "True", arrowhead = normal];
-  おろし_動詞_自立 -> の_助詞_連体化 [label = "False", arrowhead = normal];
-  おろし_動詞_自立 -> 状態説明 [label = "True", arrowhead = normal];
-  の_助詞_連体化 -> 変え_動詞_自立 [label = "False", arrowhead = normal];
-  の_助詞_連体化 -> 状態説明 [label = "True", arrowhead = normal];
-  変え_動詞_自立 -> 要求 [label = "False", arrowhead = normal];
-  変え_動詞_自立 -> 状態説明 [label = "True", arrowhead = normal];
-  ほしい_形容詞_非自立 -> 要求 [label = "True", arrowhead = normal];
-  ほしい_形容詞_非自立 -> ください_動詞_自立 [label = "False", arrowhead = normal];
-  ください_動詞_自立 -> 状態説明 [label = "False", arrowhead = normal];
-  ください_動詞_自立 -> 要求 [label = "True", arrowhead = normal];
-  何_名詞_代名詞 -> いっ_動詞_自立 [label = "False", arrowhead = normal];
-  何_名詞_代名詞 -> 月_名詞_一般 [label = "True", arrowhead = normal];
-  いっ_動詞_自立 -> 質問 [label = "False", arrowhead = normal];
-  いっ_動詞_自立 -> 状態説明 [label = "True", arrowhead = normal];
-  月_名詞_一般 -> 要求 [label = "False", arrowhead = normal];
-  月_名詞_一般 -> 質問 [label = "True", arrowhead = normal];
+  "か_助詞_副助詞／並立助詞／終助詞" -> "ください_動詞_非自立" [label = "False", arrowhead = normal];
+  "か_助詞_副助詞／並立助詞／終助詞" -> "何_名詞_代名詞" [label = "True", arrowhead = normal];
+  "ください_動詞_非自立" -> "こわい_形容詞_自立" [label = "False", arrowhead = normal];
+  "ください_動詞_非自立" -> "要求" [label = "True", arrowhead = normal];
+  "こわい_形容詞_自立" -> "だ_助動詞_*" [label = "False", arrowhead = normal];
+  "こわい_形容詞_自立" -> "感情表現" [label = "True", arrowhead = normal];
+  "だ_助動詞_*" -> "ほしい_形容詞_自立" [label = "False", arrowhead = normal];
+  "だ_助動詞_*" -> "感情表現" [label = "True", arrowhead = normal];
+  "ほしい_形容詞_自立" -> "要求" [label = "True", arrowhead = normal];
+  "ほしい_形容詞_自立" -> "たい_助動詞_*" [label = "False", arrowhead = normal];
+  "たい_助動詞_*" -> "*_助詞_格助詞" [label = "True", arrowhead = normal];
+  "たい_助動詞_*" -> "ください_動詞_自立" [label = "False", arrowhead = normal];
+  "*_助詞_格助詞" -> "の_助詞_連体化" [label = "True", arrowhead = normal];
+  "*_助詞_格助詞" -> "説明" [label = "False", arrowhead = normal];
+  "の_助詞_連体化" -> "なり_動詞_自立" [label = "False", arrowhead = normal];
+  "の_助詞_連体化" -> "説明" [label = "True", arrowhead = normal];
+  "なり_動詞_自立" -> "おろし_動詞_自立" [label = "False", arrowhead = normal];
+  "なり_動詞_自立" -> "説明" [label = "True", arrowhead = normal];
+  "おろし_動詞_自立" -> "体制_名詞_一般" [label = "False", arrowhead = normal];
+  "おろし_動詞_自立" -> "説明" [label = "True", arrowhead = normal];
+  "体制_名詞_一般" -> "要求" [label = "False", arrowhead = normal];
+  "体制_名詞_一般" -> "説明" [label = "True", arrowhead = normal];
+  "ください_動詞_自立" -> "ほしい_形容詞_非自立" [label = "False", arrowhead = normal];
+  "ください_動詞_自立" -> "要求" [label = "True", arrowhead = normal];
+  "ほしい_形容詞_非自立" -> "要求" [label = "True", arrowhead = normal];
+  "ほしい_形容詞_非自立" -> "説明" [label = "False", arrowhead = normal];
+  "何_名詞_代名詞" -> "わから_動詞_自立" [label = "False", arrowhead = normal];
+  "何_名詞_代名詞" -> "です_助動詞_*" [label = "True", arrowhead = normal];
+  "わから_動詞_自立" -> "質問" [label = "False", arrowhead = normal];
+  "わから_動詞_自立" -> "説明" [label = "True", arrowhead = normal];
+  "です_助動詞_*" -> "要求" [label = "False", arrowhead = normal];
+  "です_助動詞_*" -> "質問" [label = "True", arrowhead = normal];
  }

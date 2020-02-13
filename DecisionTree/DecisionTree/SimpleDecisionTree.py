@@ -50,13 +50,12 @@ class DecisionTree:
             if self.is_leaf() :
                 ostr = self.label
             else:
-                if self.label[0] != '*':
-                    ostr = self.label[0]
+                ostr = self.label[0]
                 for item in self.label[1:]:
                     ostr += '_'
-                    if item != '*':
-                        ostr += item
-        return ostr
+#                    if item != '*':
+                    ostr += item
+        return '"'+ostr+'"'
         
     def __str__(self):
         ostr = self.label_string()
@@ -186,13 +185,13 @@ class DecisionTree:
     def is_empty(self):
         return self.label == None
 
-    def collect_graphdefs(self, nodes, edges):
+    def graphdef(self, nodes, edges):
         nodes.append(self.label_string())
         for key, value in self.children.items():
             edges.append( (self.label_string(), value.label_string(), key) )
         for a_child in self.children.values() :
             if not a_child.is_leaf() :
-                a_child.collect_graphdefs(nodes, edges)
+                a_child.graphdef(nodes, edges)
         return (nodes, edges)
 
     def dot_script(self):
@@ -202,7 +201,7 @@ class DecisionTree:
     label = "{0}",
     labelloc = "t",
     labeljust = "c",
-    bgcolor = "#e5e5e5",
+    bgcolor = "#f0f0f0",
     fontcolor = black,
     fontsize = 18,
     style = "filled",
@@ -237,35 +236,11 @@ class DecisionTree:
       labelangle = 70
     ];
 """
-#   node [
-#     colorscheme = "ghostwhite"
-#     style = "solid,filled",
-#     fontsize = 16,
-#     fontcolor = 6,
-#     fontname = "Migu 1M",
-#     color = 7,
-#     fillcolor = 11,
-#     fixedsize = false,
-#     height = 0.6,
-#     width = 1.2
-#   ];
-# 
-#   edge [
-#     style = solid,
-#     fontsize = 14,
-#     fontcolor = white,
-#     fontname = "Migu 1M",
-#     color = white,
-#     labelfloat = true,
-#     labeldistance = 2.5,
-#     labelangle = 70
-#   ];
-
         footer = ' }'
         
         nodes = list()
         edges = list()
-        self.collect_graphdefs(nodes, edges)
+        self.graphdef(nodes, edges)
         nodestr = '  // node definitions\n'
         for a_node in nodes :
             nodestr += '  {0} [shape = box];\n'.format(str(a_node))
