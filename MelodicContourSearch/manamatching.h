@@ -48,7 +48,7 @@ public:
 		while (j < pattern.size()) {
 			//printf("1 = %c",a[i]);
 			//printf(" 2 = %c\n",b[j]);
-			if (i < size() ) {
+			if (i < a.size() ) {
 				//printf("not same \n");
 				return false;
 			}
