@@ -129,8 +129,8 @@ int main(int argc, char **argv) {
 
 	//const std::regex filepattern(".*\\.mid");
 	std::string path(argv[2]);
-	kmp mcpat("AAACAAAAAC"); //argv[1]);
-	manakmp pmm("AAACAAAAAC"); //argv[1]);
+	kmp mcpat("AABAACAABAA"); //argv[1]);
+	manakmp pmm("AABAACAABAA"); //argv[1]);
 
 	std::cout << "file path: " << path << std::endl;
 	std::cout << "search for " << mcpat << std::endl;
