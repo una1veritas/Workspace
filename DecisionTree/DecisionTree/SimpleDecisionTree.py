@@ -92,15 +92,16 @@ class DecisionTree:
                 words.add(a_word)
         return words
 
-    def collect_analyzedwords(self, database, selections, analyzedTextIndex):
-            words = set()
-            #tagger = MeCab.Tagger("-Ochasen")
-            for idx in selections:
-                for a_word in database[idx][analyzedTextIndex]:
-                    words.add(a_word)
-                    wildword = ('*', a_word[1], a_word[2])
-                    words.add(wildword)
-            return words
+    def collect_analyzedwords(self, database, selections, analyzedIndex):
+        words = set()
+        #tagger = MeCab.Tagger("-Ochasen")
+        for idx in selections:
+            sentence = database[idx][analyzedIndex]
+            for a_word in sentence :
+                words.add( a_word )
+                wildword = ('*', a_word[1], a_word[2])
+                words.add( wildword )
+        return words
         
     def choose_analyzedword(self, database, selections, words, textColumn, targetColumn):
         (bestword, bestgain, bestdecision) = ('', 0, None)
@@ -131,7 +132,7 @@ class DecisionTree:
             #print('-----')
         #print(bestword, bestdecision)
         return (bestword, bestdecision)
-        
+    
     def classify_by_simpleregx(self, labelobj, database, selections, testColumn, targetColumn):
         res = dict()
         for idx in selections:
@@ -252,21 +253,48 @@ class DecisionTree:
 
 #program begins
 
-db = list()
-idx = 0
-with open('./patient.csv') as dbfile:
-    for a_record in [ a_line.strip().split(',') for a_line in dbfile.readlines()]:
-        if len(a_record) == 0:
+with open('../../Projects/DecisionTree/アンケート回答/normalized.csv') as dbfile:
+    select_fields = [6, 7, 8]
+    filed_names = list()
+    data_table = list()
+    header_skips = 1
+    header_field_name = 2
+    line_counter = 0;
+    idx = 0
+    for a_line in dbfile.readlines() :
+        all_fields = a_line.split(',')
+        if select_fields == None :
+            a_record = [ item.strip() for item in all_fields]
+        else:
+            a_record = [ all_fields[fieldno].strip() for fieldno in select_fields]
+        line_counter += 1
+        if line_counter <= header_skips:
             continue
-        db.append( tuple([idx]+[ an_item.strip() for an_item in a_record]) )
+        if line_counter == header_field_name :
+            field_names = a_record
+            continue
+        if len(a_record[1]) + len(a_record[2]) == 0:
+            continue
+        data_table.append( tuple(a_record) )
         idx += 1
-#db_pos = ''.split('\n')
-#db_neg = ''.split('\n')
-#print(db)
-textIndex = 2
+print(field_names)
+
+for i in range(0, len(data_table)):
+    r = list(data_table[i])
+    val = int(r[0])
+    if val < 3 :
+        r[0] = '否定的'
+    elif val == 3 :
+        r[0] = '中立'
+    else:
+        r[0] = '肯定的'
+    data_table[i] = tuple([i] + r)
+[print(record) for record in data_table[:4] + ['...', '\n']]
+
+textIndex = [2, 3]
 tagger = MeCab.Tagger("-Ochasen")
-for idx in range(0, len(db)):
-    a_text = db[idx][textIndex]
+for idx in range(0, len(data_table)):
+    a_text = ' '.join([data_table[idx][index] for index in textIndex])
     node = tagger.parseToNode(a_text)
     a_list = list()
     while node:
@@ -275,13 +303,13 @@ for idx in range(0, len(db)):
         if wordinfo[0] != u'BOS/EOS':
             a_list.append( (word, wordinfo[0], wordinfo[1]) )
         node = node.next
-    newrecord = list(db[idx])
+    newrecord = list(data_table[idx])
     newrecord.append(a_list)
-    db[idx] = tuple(newrecord)
-[print(r) for r in db[:3] + ['...'] ]
+    data_table[idx] = tuple(newrecord)
+[print(r) for r in data_table[:3] + ['...', '\n'] ]
 
 dtree = DecisionTree()
-dtree.makeDecisionTree(db, range(0, len(db)), 4, 3, 'analyzedword')
+dtree.makeDecisionTree(data_table, range(0, len(data_table)), 4, 1, 'analyzedword')
 print('\nResult: ')
 print(dtree)
 with open('dtree.dot', mode='w') as wfile:
