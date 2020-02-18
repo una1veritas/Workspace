@@ -300,5 +300,5 @@ dtree = DecisionTree()
 dtree.makeDecisionTree(data_table, range(0, len(data_table)), 3, 2, 'analyzedword')
 print('\nResult: ')
 print(dtree)
-with open('dtree.dot', mode='w') as wfile:
+with open('patient.dot', mode='w') as wfile:
     wfile.write(dtree.dot_script())
