@@ -173,14 +173,14 @@ public:
 // An implementation of (Boyer-Moore-) Horspool algorithm
 class horspool {
 	std::string pattern;
-	std::vector<int> delta;
+	std::vector<unsigned int> delta;
 	int state;
 
 	void initialize() {
 		delta.resize( 256 );
 		for (int i = 0; i < 256; ++i)
 			delta[i] = pattern.size();
-		for (int i = 0; i < pattern.size() - 1; i++) {
+		for (unsigned int i = 0; i < pattern.size() - 1; i++) {
 			delta[pattern[i]] = pattern.size() - i - 1;
 		}
 	}

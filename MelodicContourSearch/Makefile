@@ -13,11 +13,11 @@ endif
 
 
 OBJS = main.o
-INCLUDES = SMFEvent.h SMFStream.h kmp.h DirectoryLister.h
+INCLUDES = libsmf/SMFEvent.h libsmf/SMFStream.h kmp.h DirectoryLister.h stringmatching.h manamatching.h
 
 all:	mcsearch.exe
 
-mcsearch.exe:	$(OBJS)
+mcsearch.exe:	$(OBJS) 
 	$(CXX) -o $@ $^
 
 mana.exe: mana.cpp libsmf/SMFStream.h libsmf/SMFEvent.h DirectoryLister.h

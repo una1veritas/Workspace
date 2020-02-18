@@ -16,30 +16,44 @@ struct manakmp {
 	const std::string pattern;
 	std::vector<int> f;
 
-	void loopcheck(const std::string & b) {
+	void loopcheck() {
+		const char *b = pattern.c_str();
 		int i = 0;
 		int j = 1;
-		f.resize(b.size() + 1);
 
+		//f.resize(strlen(b) + 1);
 		f[1] = 0;
 		while (b[j] != '\0') {
+			std::cout << "b[" << i << "] = " << b[i] << ", b[" << j << "] = " << b[j] << "  ";
 			if (i == 0 || b[i] == b[j])
 				f[++j] = ++i;
 			else
 				i = f[i];
+			std::cout << "[";
+			for(int ix = 0; ix < f.size(); ++ix) {
+				std::cout << f[ix] << " ";
+			}
+			std::cout << "]" << std::endl;
 		}
+		std::cout << "b[" << i << "] = " << b[i] << ", b[" << j << "] = " << (b[j] > ' ' ? b[j] : (int) b[j]) << "  ";
+		std::cout << "[";
+		for(int ix = 0; ix < f.size(); ++ix) {
+			std::cout << f[ix] << " ";
+		}
+		std::cout << "]" << std::endl;
 	}
 
 public:
 	manakmp(const std::string & p) : pattern(p) {
-		loopcheck(p);
+		f.resize(pattern.size() + 1);
+		loopcheck();
 	}
 
 	unsigned int size() const { return pattern.size(); }
 
 	bool search(const std::string & a) {
-		int i = 0;
-		int j = 0;
+		unsigned int i = 0;
+		unsigned int j = 0;
 		int frag = 0; // 1 まっちんぐちゅう。
 
 		//printf("pattern length = %d\n", strlen(b));

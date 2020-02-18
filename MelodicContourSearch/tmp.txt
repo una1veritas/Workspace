@@ -1,11 +1,13 @@
-+=#b##=
-
-search for kmp('+=#b##=' (7) [0, 0, 0, 0, 0, 0, 0]) 
-search for manakmp('+=#b##=' (7) [0, 0, 1, 1, 1, 1, 1, 2]) 
-
-search for kmp('ABCDE' (5) [0, 0, 0, 0, 0]) 
-search for manakmp('ABCDE' (5) [0, 0, 1, 1, 1, 1]) 
-
-search for kmp('AABAACAABAA' (11) [0, 1, 0, 1, 2, 0, 1, 2, 3, 4, 5]) 
-search for manakmp('AABAACAABAA' (11) [0, 0, 1, 1, 2, 2, 1, 2, 2, 3, 4, 5]) 
+b[0] = a, b[1] = a  [0 0 1 0 0 0 0 0 ]
+b[1] = a, b[2] = a  [0 0 1 2 0 0 0 0 ]
+b[2] = a, b[3] = b  [0 0 1 2 0 0 0 0 ]
+b[1] = a, b[3] = b  [0 0 1 2 0 0 0 0 ]
+b[0] = a, b[3] = b  [0 0 1 2 1 0 0 0 ]
+b[1] = a, b[4] = a  [0 0 1 2 1 2 0 0 ]
+b[2] = a, b[5] = a  [0 0 1 2 1 2 3 0 ]
+b[3] = b, b[6] = b  [0 0 1 2 1 2 3 4 ]
+b[4] = a, b[7] = 0  [0 0 1 2 1 2 3 4 ]
+file path: ./
+search for kmp('aaabaab' (7) [0, 1, 2, 0, 1, 2, 0]) 
+search for manakmp('aaabaab' (7) [0, 0, 1, 2, 1, 2, 3, 4]) 
 

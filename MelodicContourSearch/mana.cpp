@@ -211,7 +211,7 @@ int main(int argc, char **argv) {
     printf("\n%s ",lister.entry_path().c_str());
     allinterval=change(lister.entry_path().c_str());
     printf("change finished.\n");
-    fflush(stdout);
+    //fflush(stdout);
   
   // std::vector<char> *allinterval= change(argv[1]); 
 
