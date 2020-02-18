@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
 	}
 
 	std::cout << "file path: " << path << std::endl;
-	std::cout << "search for " << mcpat << std::endl;
+	std::cout << "search for     " << mcpat << std::endl;
 	std::cout << "search for " << pmm << std::endl;
 	std::cout << std::endl;
 

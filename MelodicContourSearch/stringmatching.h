@@ -73,13 +73,16 @@ private:
 		i = 1, j = 0, failure[0] = 0;
 		while ( i < pattern.size() ) {
 			if (pattern[i] == pattern[j]) {
+				std::cout << "+";
 				j++;
 				failure[i] = j;
 				i++;
 			} else {
 				if (j > 0) {
+					std::cout << "-";
 					j = failure[j - 1];
 				} else {
+					std::cout << "0";
 					failure[i] = 0;
 					i++;
 				}

@@ -25,10 +25,16 @@ struct manakmp {
 		f[1] = 0;
 		while (b[j] != '\0') {
 			std::cout << "b[" << i << "] = " << b[i] << ", b[" << j << "] = " << b[j] << "  ";
-			if (i == 0 || b[i] == b[j])
+			if ( /*i == 0 ||*/ b[i] == b[j]) {
 				f[++j] = ++i;
-			else
+				//std::cout << "+";
+			} else if ( i == 0 ){
+				f[++j] = 0;
+				//std::cout << "0";
+			} else {
 				i = f[i];
+				//std::cout << "-";
+			}
 			std::cout << "[";
 			for(int ix = 0; ix < f.size(); ++ix) {
 				std::cout << f[ix] << " ";
