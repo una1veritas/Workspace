@@ -253,12 +253,12 @@ class DecisionTree:
 
 #program begins
 
-with open('../../Projects/DecisionTree/アンケート回答/normalized.csv') as dbfile:
-    select_fields = [6, 7, 8]
+with open('../patient.csv') as dbfile:
+    select_fields = None
     filed_names = list()
     data_table = list()
-    header_skips = 1
-    header_field_name = 2
+    header_skips = 0
+    header_field_name = 0
     line_counter = 0;
     idx = 0
     for a_line in dbfile.readlines() :
@@ -277,21 +277,9 @@ with open('../../Projects/DecisionTree/アンケート回答/normalized.csv') as
             continue
         data_table.append( tuple(a_record) )
         idx += 1
-print(field_names)
+[print(r) for r in data_table[:4] + ['...', '\n']]
 
-for i in range(0, len(data_table)):
-    r = list(data_table[i])
-    val = int(r[0])
-    if val < 3 :
-        r[0] = '否定的'
-    elif val == 3 :
-        r[0] = '中立'
-    else:
-        r[0] = '肯定的'
-    data_table[i] = tuple([i] + r)
-[print(record) for record in data_table[:4] + ['...', '\n']]
-
-textIndex = [2, 3]
+textIndex = [1]
 tagger = MeCab.Tagger("-Ochasen")
 for idx in range(0, len(data_table)):
     a_text = ' '.join([data_table[idx][index] for index in textIndex])
@@ -309,7 +297,7 @@ for idx in range(0, len(data_table)):
 [print(r) for r in data_table[:3] + ['...', '\n'] ]
 
 dtree = DecisionTree()
-dtree.makeDecisionTree(data_table, range(0, len(data_table)), 4, 1, 'analyzedword')
+dtree.makeDecisionTree(data_table, range(0, len(data_table)), 3, 2, 'analyzedword')
 print('\nResult: ')
 print(dtree)
 with open('dtree.dot', mode='w') as wfile:
