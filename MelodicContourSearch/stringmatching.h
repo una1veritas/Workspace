@@ -8,7 +8,7 @@
 #define max(a, b) ((a) < (b) ? (b) : (a))
 class naive {
 	std::string pattern;
-	int state;
+	unsigned int state;
 
 public:
 	naive(const char * str) : pattern(str), state(0) { }
@@ -21,7 +21,7 @@ public:
 	}
 
 	int find(const std::string & txt ) {
-		int pos; // pos represents the place which will be matched to the last character of the pattern.
+		unsigned int pos; // pos represents the place which will be matched to the last character of the pattern.
 		for (pos = 0; pos < txt.size() - pattern.size() + 1; ++pos) {
 			if ( compare(txt, pos) ) {
 #ifdef FIND_DEBUG
@@ -39,7 +39,7 @@ public:
 	// find all the occurrences.
 	std::vector<int> find_all(const std::string & txt ) {
 		std::vector<int> occurrences;
-		int pos;
+		unsigned int pos;
 		for (pos = 0; pos < txt.size() - pattern.size() + 1; ++pos) {
 			if ( compare(txt, pos) ) {
 #ifdef FIND_DEBUG
@@ -65,24 +65,24 @@ public:
 class kmp {
 	std::string pattern;
 	std::vector<int> failure;
-	int state;
+	unsigned int state;
 
 private:
 	void initialize() {
-		int i, j;
+		unsigned int i, j;
 		i = 1, j = 0, failure[0] = 0;
 		while ( i < pattern.size() ) {
 			if (pattern[i] == pattern[j]) {
-				std::cout << "+";
+				//std::cout << "+";
 				j++;
 				failure[i] = j;
 				i++;
 			} else {
 				if (j > 0) {
-					std::cout << "-";
+					//std::cout << "-";
 					j = failure[j - 1];
 				} else {
-					std::cout << "0";
+					//std::cout << "0";
 					failure[i] = 0;
 					i++;
 				}
@@ -97,7 +97,7 @@ public:
 	}
 
 	int find(const std::string & txt) {
-		int pos = 0;
+		unsigned int pos = 0;
 		state = 0;
 		while (pos < txt.size() - pattern.size() + 1) {
 #ifdef FIND_DEBUG
@@ -131,7 +131,7 @@ public:
 
 	std::vector<int> find_all(const std::string & txt ) {
 		std::vector<int> occurrs;
-		int pos = 0;
+		unsigned int pos = 0;
 		state = 0;
 		while (pos < txt.size()) {
 #ifdef FIND_DEBUG
@@ -163,7 +163,7 @@ public:
 
 	friend std::ostream & operator<<(std::ostream & ost, const kmp & p) {
 		ost << "kmp('" << p.pattern << "' (" << p.pattern.size() << ") [";
-		for(int i = 0; i < p.failure.size(); i++) {
+		for(unsigned int i = 0; i < p.failure.size(); i++) {
 			ost << p.failure[i];
 			if ( i+1 < p.failure.size() )
 				ost << ", ";
@@ -177,7 +177,7 @@ public:
 class horspool {
 	std::string pattern;
 	std::vector<unsigned int> delta;
-	int state;
+	unsigned int state;
 
 	void initialize() {
 		delta.resize( 256 );
@@ -199,7 +199,7 @@ public:
 	// find the 1st occurrence.
 	// function for the outer-loop.
 	int find(const std::string & txt) {
-		int ix; // pos represents the place corresponds to the head of the pattern.
+		unsigned int ix; // pos represents the place corresponds to the head of the pattern.
 		for (ix = pattern.size() - 1; ix < txt.size(); ix += delta[txt[ix]]) {
 			for (state = 0;
 					state < pattern.size() && (pattern[pattern.size() - state - 1] == txt[ix - state]);
@@ -220,7 +220,7 @@ public:
 	// find all the occurrences.
 	std::vector<int> find_all(const std::string & txt) {
 		std::vector<int> occurrences;
-		int ix;
+		unsigned int ix;
 		for (ix = pattern.size() - 1; ix < txt.size(); ix += delta[txt[ix]]) {
 			for (state = 0;
 					state < pattern.size() && (pattern[pattern.size() - state - 1] == txt[ix - state]);
@@ -241,7 +241,7 @@ public:
 	friend std::ostream & operator<<(std::ostream & ost, const horspool & hors) {
 		int count = 0;
 		ost << "horspool('" << hors.pattern << "' ("<< hors.size() << "), [";
-		for (int i = 0; i < hors.delta.size(); i++) {
+		for (unsigned int i = 0; i < hors.delta.size(); i++) {
 			if ( hors.delta[i] != hors.pattern.size() ) {
 				if ( count != 0 )
 					ost << ", ";

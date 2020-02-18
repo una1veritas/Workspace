@@ -15,7 +15,11 @@ endif
 OBJS = main.o
 INCLUDES = libsmf/SMFEvent.h libsmf/SMFStream.h kmp.h DirectoryLister.h stringmatching.h manamatching.h
 
+#all: pmmtest.exe
 all:	mcsearch.exe
+
+pmmtest.exe:	$(OBJS) 
+	$(CXX) -o $@ $^
 
 mcsearch.exe:	$(OBJS) 
 	$(CXX) -o $@ $^

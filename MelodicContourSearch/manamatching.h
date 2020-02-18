@@ -14,7 +14,7 @@
 
 struct manakmp {
 	const std::string pattern;
-	std::vector<int> f;
+	std::vector<unsigned int> f;
 
 	void loopcheck() {
 		const char *b = pattern.c_str();
@@ -24,7 +24,7 @@ struct manakmp {
 		//f.resize(strlen(b) + 1);
 		f[1] = 0;
 		while (b[j] != '\0') {
-			std::cout << "b[" << i << "] = " << b[i] << ", b[" << j << "] = " << b[j] << "  ";
+			//std::cout << "b[" << i << "] = " << b[i] << ", b[" << j << "] = " << b[j] << "  ";
 			if ( /*i == 0 ||*/ b[i] == b[j]) {
 				f[++j] = ++i;
 				//std::cout << "+";
@@ -35,18 +35,22 @@ struct manakmp {
 				i = f[i];
 				//std::cout << "-";
 			}
+			/*
 			std::cout << "[";
 			for(int ix = 0; ix < f.size(); ++ix) {
 				std::cout << f[ix] << " ";
 			}
 			std::cout << "]" << std::endl;
+			*/
 		}
+		/*
 		std::cout << "b[" << i << "] = " << b[i] << ", b[" << j << "] = " << (b[j] > ' ' ? b[j] : (int) b[j]) << "  ";
 		std::cout << "[";
 		for(int ix = 0; ix < f.size(); ++ix) {
 			std::cout << f[ix] << " ";
 		}
 		std::cout << "]" << std::endl;
+		*/
 	}
 
 public:
@@ -57,26 +61,31 @@ public:
 
 	unsigned int size() const { return pattern.size(); }
 
-	bool search(const std::string & a) {
+	unsigned  search(const std::string & text) const {
+		return search(text.c_str(), text.size());
+	}
+
+	unsigned  search(const char * a) const {
+		return search(a, strlen(a));
+	}
+
+	unsigned int search(const char *a, const unsigned int len) const {
 		unsigned int i = 0;
 		unsigned int j = 0;
+		//const char * b = pattern.c_str();
 		int frag = 0; // 1 まっちんぐちゅう。
 
-		//printf("pattern length = %d\n", strlen(b));
-		//loopcheck(b);
-
-		while (j < pattern.size()) {
-			//printf("1 = %c",a[i]);
-			//printf(" 2 = %c\n",b[j]);
-			if (i < a.size() ) {
-				//printf("not same \n");
-				return false;
+		while ( j < pattern.size() ) {
+			//std::cout << "i=" << i << ", j=" << j << std::endl;
+			if ( !(i < len) ) {
+				//std::cout << "reached to the end of t. " << i << std::endl;
+				return i;
 			}
 
 			if (a[i] != pattern[j] && frag == 0) {
 				i++;
 			} else if (a[i] != pattern[j] && frag == 1) {
-				if (f[i] > 1) {
+				if (f[j] > 0) {
 					/*printf("j=%d, i=%d, f[i]=%d\n", j, i, f[i]);*/
 					j = f[j];
 				} else
@@ -90,12 +99,12 @@ public:
 		}
 		//printf("same \n");
 		//  allfrag = 1;
-		return true;
+		return i - pattern.size();
 	}
 
 	friend std::ostream & operator<<(std::ostream & ost, const manakmp & p) {
 		ost << "manakmp('" << p.pattern << "' (" << p.pattern.size() << ") [";
-		for(int i = 0; i < p.f.size(); i++) {
+		for(unsigned int i = 0; i < p.f.size(); i++) {
 			ost << p.f[i];
 			if ( i+1 < p.f.size() )
 				ost << ", ";
