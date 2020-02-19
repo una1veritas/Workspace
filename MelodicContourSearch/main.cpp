@@ -162,7 +162,7 @@ int main(int argc, char **argv) {
 		unsigned int res = mcpat.find(melody);
 		unsigned int resmana = pmm.search(melody);
 		if ( res < melody.size() or resmana < melody.size() ) {
-			std::cout << i << ": " << dlister.entry_path().c_str() << " size = "<< melody.size() << std::endl; // << melody << std::endl;
+			std::cout << i << ": " << dlister.entry_path().c_str() << " size = "<< melody.size() << std::endl << melody << std::endl;
 			std::cout << "match found at " << res << " in " << melody.size() << " notes." << std::endl;
 			std::cout << "manamatch found at " << resmana << " in " << melody.size() << " notes." << std::endl;
 			std::cout << std::endl;
