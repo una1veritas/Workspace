@@ -15,14 +15,14 @@ class DecisionTree:
         self.children = childs
         self.qtype = None
     
-    def makeDecisionTree(self, database, selections, testColumn, targetColumn, queryType='simpleregex'):
+    def makeDecisionTree(self, database, selections, testColumn, targetColumn, queryType='regex'):
         if self.data_is_pure(database, selections, targetColumn) :
             self.label = database[selections[0]][targetColumn]
             self.children = None
             self.qtype = queryType
             return
         #print(selections, testColumn, targetColumn)
-        if queryType == 'simpleregex' :
+        if queryType == 'regex' :
             wordset = self.collect_substrings(database, selections, testColumn)
             (word, decisions) = self.choose_substring(database, selections, wordset, testColumn, targetColumn)
             self.label = word
@@ -46,7 +46,7 @@ class DecisionTree:
         ostr = ''
         if self.is_empty() :
             return 'DecisionTree'
-        if self.qtype == 'simpleregex' :
+        if self.qtype == 'regex' :
             ostr = str(self.label)
         elif self.qtype == 'analyzedword' :
             if self.is_leaf() :
@@ -57,6 +57,8 @@ class DecisionTree:
                     ostr += '_'
 #                    if item != '*':
                     ostr += item
+        else:
+            ostr = 'unknowntype: ' + str(self.label)
         return ostr
         
     def __str__(self):
@@ -183,7 +185,7 @@ class DecisionTree:
         return 1 - info
     
     def is_leaf(self):
-        return self.children == None
+        return self.children == None or len(self.children) == 0
     
     def is_empty(self):
         return self.label == None
@@ -263,41 +265,21 @@ class DecisionTree:
   graph [
     charset = "UTF-8";
     label = "{0}",
-    labelloc = "t",
-    labeljust = "c",
     bgcolor = "#f0f0f0",
-    fontcolor = black,
-    fontsize = 18,
-    style = "filled",
-    rankdir = TB,
-    margin = 0.2,
-    splines = spline,
-    ranksep = 1.0,
-    nodesep = 0.9
   ];
 
     node [
       colorscheme = "white"
       style = "solid,filled",
-      fontsize = 18,
-      fontcolor = "black",
-      fontname = "Migu 1M",
-      color = "black",
       fillcolor = "white",
-      fixedsize = false,
-      height = 0.6,
-      width = 1.2
     ];
 
     edge [
       style = solid,
       fontsize = 18,
       fontcolor = black,
-      fontname = "Migu 1M",
       color = black,
       labelfloat = true,
-      labeldistance = 2.5,
-      labelangle = 70
     ];
 """
         footer = ' }'
@@ -316,53 +298,49 @@ class DecisionTree:
 
 #program begins
 
+data_table = []
 with open('./patient.csv') as dbfile:
-    select_fields = None
-    filed_names = list()
-    data_table = list()
-    header_skips = 0
-    header_field_name = 0
-    line_counter = 0;
-    idx = 0
+    idx = 0;
     for a_line in dbfile.readlines() :
-        all_fields = a_line.split(',')
-        if select_fields == None :
-            a_record = [ item.strip() for item in all_fields]
-        else:
-            a_record = [ all_fields[fieldno].strip() for fieldno in select_fields]
-        line_counter += 1
-        if line_counter <= header_skips:
-            continue
-        if line_counter == header_field_name :
-            field_names = a_record
-            continue
-        if len(a_record[1]) + len(a_record[2]) == 0:
-            continue
-        data_table.append( tuple(a_record) )
+        fields = a_line.split(',')
+        fields = [ item.strip() for item in fields]
+        fields = [idx] + fields
+        data_table.append( tuple(fields) )
         idx += 1
 [print(r) for r in data_table[:4] + ['...', '\n']]
 
-textIndex = [1]
-tagger = MeCab.Tagger("-Ochasen")
-for idx in range(0, len(data_table)):
-    a_text = ' '.join([data_table[idx][index] for index in textIndex])
-    node = tagger.parseToNode(a_text)
-    a_list = list()
-    while node:
-        word = node.surface
-        wordinfo = node.feature.split(',')
-        if wordinfo[0] != u'BOS/EOS':
-            a_list.append( (word, wordinfo[0], wordinfo[1]) )
-        node = node.next
-    newrecord = list(data_table[idx])
-    newrecord.append(a_list)
-    data_table[idx] = tuple(newrecord)
-[print(r) for r in data_table[:3] + ['...', '\n'] ]
+if True:
+    textIndex = [2]
+    tagger_opt = '-Ochasen'
+    #tagger = MeCab.Tagger("-Ochasen")
+    tagger = MeCab.Tagger(tagger_opt)
+    for idx in range(0, len(data_table)):
+        a_text = ' '.join([data_table[idx][index] for index in textIndex])
+        node = tagger.parseToNode(a_text)
+        a_list = list()
+        while node:
+            word = node.surface
+            wordinfo = node.feature.split(',')
+            if wordinfo[0] != u'BOS/EOS':
+                if tagger_opt == '-Ochasen' :
+                    a_list.append( (word, wordinfo[0], wordinfo[1]) )
+                elif tagger_opt == '-Owakati':
+                    a_list.append( word )
+            node = node.next
+        newrecord = list(data_table[idx])
+        if tagger_opt == '-Ochasen' :
+            newrecord.append(a_list)
+        elif tagger_opt == '-Owakati':
+            a_text = ' '.join(a_list)
+            newrecord.append(a_text)
+        data_table[idx] = tuple(newrecord)
+    [print(r) for r in data_table[:3] + ['...', '\n'] ]
 
 dtree = DecisionTree()
-dtree.makeDecisionTree(data_table, range(0, len(data_table)), 3, 2, 'analyzedword')
-print('\nResult: ')
+dtree.makeDecisionTree(data_table, range(0, len(data_table)), 4, 3, 'analyzedword')
+#print(dtree)
 
+print('Result: ')
 if '/opt/local/bin' not in os.environ['PATH']:
     os.environ['PATH'] += ':/opt/local/bin'
 dtree.graph().view()
