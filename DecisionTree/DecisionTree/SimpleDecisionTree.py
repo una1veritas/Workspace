@@ -2,6 +2,8 @@
 #
 import math
 import MeCab
+from graphviz import Digraph
+import os
 
 class DecisionTree:
     label = None
@@ -55,7 +57,7 @@ class DecisionTree:
                     ostr += '_'
 #                    if item != '*':
                     ostr += item
-        return '"'+ostr+'"'
+        return ostr
         
     def __str__(self):
         ostr = self.label_string()
@@ -186,15 +188,76 @@ class DecisionTree:
     def is_empty(self):
         return self.label == None
 
-    def graphdef(self, nodes, edges):
+    def graphdef(self):
+        nodes = list()
+        edges = list()
+        path = [('root.', self)]
+        visitp = path[-1]
+        while path:
+            if visitp[1] == path[-1][1] :
+                nodes.append(visitp[1])
+                #print(visitp[1].label_string())
+            if path[-1][1].is_leaf() :
+                #print('# reached to a leaf')
+                path.pop()
+                #print('top='+str(path[-1][0])+'->'+path[-1][1].label_string())
+                #print('visit='+str(visitp[0])+'->'+visitp[1].label_string())
+                continue
+            else:
+                if visitp[1] != path[-1][1] :
+                    # backed from a child
+                    # then check the next sibling for visitp[1] exists
+                    lastlabel = visitp[0]
+                    nextchild = False
+                    for label in sorted(path[-1][1].children.keys()):
+                        if nextchild :
+                            path.append( (label, path[-1][1].children[label]) )
+                            #print('# next label = ' + str(label) )
+                            visitp = path[-1]
+                            #print('# go to the next')
+                            edges.append( (path[-2][1], path[-1][1], path[-1][0]) )
+                            break
+                        if label == lastlabel :
+                            nextchild = True
+                    else:
+                        #print('# last child ' + str(lastlabel) )
+                        visitp = path.pop()
+                        #print('# go to upward')
+                    continue
+                else:
+                    # down to the 1st child.
+                    label = sorted(visitp[1].children.keys())[0]
+                    child = visitp[1].children[label]
+                    path.append( (label, child) )
+                    visitp = (label, child)
+                    edges.append( (path[-2][1], path[-1][1], path[-1][0]) )
+                    #print('# going down')
+                    continue
+        return (nodes, edges)
+        
+    def graphdef_r(self, nodes, edges):
         nodes.append(self.label_string())
         for key, value in self.children.items():
             edges.append( (self.label_string(), value.label_string(), key) )
         for a_child in self.children.values() :
             if not a_child.is_leaf() :
-                a_child.graphdef(nodes, edges)
+                a_child.graphdef_r(nodes, edges)
         return (nodes, edges)
-
+    
+    def graph(self):
+        g = Digraph(format='pdf')
+        g.attr('graph', bgcolor='#f7f7f7', fontsize='18')
+        g.attr('node', fillcolor = "white", shape='box' )
+        (nodes, edges) = self.graphdef()
+        for node in nodes:
+            if node.is_leaf() :
+                g.node(node.label_string(), style='solid,filled,rounded', shape='box')
+            else:
+                g.node(node.label_string(), style='solid,filled', shape='box')
+        for edge in edges:
+            g.edge(edge[0].label_string(), edge[1].label_string(), label=str('ある' if edge[2] else 'ない'), arrowhead = 'normal')
+        return g
+        
     def dot_script(self):
         header = """digraph graph_name {{
   graph [
@@ -253,7 +316,7 @@ class DecisionTree:
 
 #program begins
 
-with open('../patient.csv') as dbfile:
+with open('./patient.csv') as dbfile:
     select_fields = None
     filed_names = list()
     data_table = list()
@@ -299,6 +362,10 @@ for idx in range(0, len(data_table)):
 dtree = DecisionTree()
 dtree.makeDecisionTree(data_table, range(0, len(data_table)), 3, 2, 'analyzedword')
 print('\nResult: ')
-print(dtree)
-with open('patient.dot', mode='w') as wfile:
-    wfile.write(dtree.dot_script())
+
+if '/opt/local/bin' not in os.environ['PATH']:
+    os.environ['PATH'] += ':/opt/local/bin'
+dtree.graph().view()
+#print(dtree.graphviz())
+#with open('patient.dot', mode='w') as wfile:
+#    wfile.write(dtree.dot_script())
