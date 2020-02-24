@@ -247,59 +247,24 @@ class DecisionTree:
         return (nodes, edges)
     
     def graph(self):
-        g = Digraph(format='pdf')
-        g.attr('graph', bgcolor='#f7f7f7', fontsize='18')
-        g.attr('node', fillcolor = "white", shape='box' )
+        g = Digraph("DecisionTree", format='pdf')
+        g.attr('graph', encoding='utf-8', bgcolor='#f7f7f7', fontsize='18')
+        g.attr('node', fillcolor = "white", shape='box', fontname='MS Gothic')
+        g.attr('edge', fontname='MS Gothic')
         (nodes, edges) = self.graphdef()
         for node in nodes:
             if node.is_leaf() :
-                g.node(node.label_string(), style='solid,filled,rounded', shape='box')
+                g.node(node.label_string(), style='solid,filled,bold,rounded', shape='box')
             else:
                 g.node(node.label_string(), style='solid,filled', shape='box')
         for edge in edges:
             g.edge(edge[0].label_string(), edge[1].label_string(), label=str('ある' if edge[2] else 'ない'), arrowhead = 'normal')
         return g
-        
-    def dot_script(self):
-        header = """digraph graph_name {{
-  graph [
-    charset = "UTF-8";
-    label = "{0}",
-    bgcolor = "#f0f0f0",
-  ];
-
-    node [
-      colorscheme = "white"
-      style = "solid,filled",
-      fillcolor = "white",
-    ];
-
-    edge [
-      style = solid,
-      fontsize = 18,
-      fontcolor = black,
-      color = black,
-      labelfloat = true,
-    ];
-"""
-        footer = ' }'
-        
-        nodes = list()
-        edges = list()
-        self.graphdef(nodes, edges)
-        nodestr = '  // node definitions\n'
-        for a_node in nodes :
-            nodestr += '  {0} [shape = box];\n'.format(str(a_node))
-        edgestr = '  // edge definitions\n'
-        for an_edge in edges :
-            edgestr += '  {0} -> {1} [label = "{2}", arrowhead = normal];\n'.format(an_edge[0], an_edge[1], an_edge[2])
-        return header.format('DecisionTree')+nodestr+edgestr+footer
-
 
 #program begins
 
 data_table = []
-with open('./patient.csv') as dbfile:
+with open('../patient.csv', encoding="utf-8") as dbfile:
     idx = 0;
     for a_line in dbfile.readlines() :
         fields = a_line.split(',')
