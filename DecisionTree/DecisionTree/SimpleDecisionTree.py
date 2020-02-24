@@ -247,7 +247,7 @@ class DecisionTree:
         return (nodes, edges)
     
     def graph(self):
-        g = Digraph("DecisionTree", format='pdf')
+        g = Digraph("../DecisionTree", format='pdf')
         g.attr('graph', encoding='utf-8', bgcolor='#f7f7f7', fontsize='18')
         g.attr('node', fillcolor = "white", shape='box', fontname='MS Gothic')
         g.attr('edge', fontname='MS Gothic')
