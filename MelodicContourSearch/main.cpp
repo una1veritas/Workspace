@@ -10,7 +10,7 @@
 #include "libsmf/SMFEvent.h"
 #include "libsmf/SMFStream.h"
 
-#include "DirectoryLister.h"
+#include "dirlister.h"
 #include "stringmatching.h"
 
 #include "manamatching.h"
@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
 
 	//exit(1);
 
-	DirectoryLister dlister(path);
+	dirlister dlister(path.c_str());
 
 	if ( ! dlister() ) {
 		std::cerr << "error: opendir returned a NULL pointer for the base path." << std::endl;

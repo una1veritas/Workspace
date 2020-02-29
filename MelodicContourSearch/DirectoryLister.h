@@ -41,6 +41,10 @@ struct DirectoryLister {
 		}
 	}
 
+	~DirectoryLister() {
+		closedir(dp);
+	}
+
 	bool operator()() const {
 		return !pathdirs.empty();
 	}
