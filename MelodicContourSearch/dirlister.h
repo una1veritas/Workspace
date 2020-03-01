@@ -11,31 +11,81 @@
 #include <cstdlib>
 #include <io.h>
 
-struct dirlister {
-	const char * path;
-	struct _finddata_t fdata;
-	intptr_t fh;
+#include <string>
+#include <deque>
+#include <regex>
 
-	dirlister(const char * pstr) : path(pstr), fh(0) { }
+class dirlister {
+	struct lister {
+		const std::string dirpath;
+		struct _finddata_t fdata;
+		intptr_t fhandl;
+		bool opened;
+
+		lister(const std::string path) : dirpath(path), fhandl(0), opened(false) {}
+	};
+	const std::regex fpat;
+	std::deque<lister> spath;
+
+public:
+	dirlister(const std::string & basedir, const std::regex pattern) :fpat(pattern) {
+		std::string path = basedir + "/*.*";
+		spath.push_back(lister(path));
+	}
 
 	~dirlister() {
-		_findclose(fh);
+		while( ! finished() )
+			close_dir();
+	}
+
+	void close_dir() {
+		_findclose(spath.back().fhandl);
+		spath.pop_back();
+	}
+
+	bool finished() {
+		return spath.empty();
 	}
 
 	bool get_next_entry() {
-		if ( fh == 0 ) {
-			fh = _findfirst(path, &fdata);
-			return (fh != -1);
+		bool result;
+		while ( !spath.empty() ) {
+			if ( ! spath.back().opened ) {
+				spath.back().fhandl = _findfirst(spath.back().dirpath.c_str(), &spath.back().fdata);
+				spath.back().opened = true;
+				result = (spath.back().fhandl != -1);
+			} else {
+				result = (_findnext(spath.back().fhandl, &spath.back().fdata) == 0);
+			}
+			if ( ! result ) {
+				if ( !spath.empty() ) {
+					close_dir();
+				}
+				continue;
+			}
+			if ( entry_is_dir() ) {
+				if ( entry_name() == "." || entry_name() == ".." ) {
+					continue;
+				}
+				std::cout << "enter dir: " << entry_name() << std::endl;
+
+			}
+			if ( std::regex_match(entry_name(), fpat) )
+				return true;
 		}
-		return ( _findnext(fh, &fdata) == 0 );
+		return false;
+	}
+
+	bool operator++(int) {
+		return _findnext(spath.back().fhandl, &spath.back().fdata) == 0;
 	}
 
 	bool entry_is_dir() const {
-		return ((fdata.attrib & _A_SUBDIR) != 0 );
+		return ((spath.back().fdata.attrib & _A_SUBDIR) != 0 );
 	}
 
-	const char * entry_name() const {
-		 return fdata.name;
+	const std::string entry_name() const {
+		 return std::string(spath.back().fdata.name);
 	}
 
 /*

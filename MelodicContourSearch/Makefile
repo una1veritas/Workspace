@@ -12,15 +12,17 @@ else
 endif
 
 
-#OBJS = main.o
-OBJS = dirlister.o
-INCLUDES = dlister.h libsmf/SMFEvent.h libsmf/SMFStream.h kmp.h DirectoryLister.h stringmatching.h manamatching.h
+OBJS = main.o
+INCLUDES = libsmf/SMFEvent.h libsmf/SMFStream.h kmp.h DirectoryLister.h stringmatching.h manamatching.h
 
 all: dirlister.exe
 #all:	mcsearch.exe
 
-dirlister.exe:	$(OBJS) 
-	$(CXX) -o $@ $^
+dirlister.exe:	dirlister.o dirlister.h
+	$(CXX) -o $@ dirlister.o
+	
+dirlister.o:	dirlister.cpp dirlister.h
+	$(CXX) -c $(CFLAGS) $(CXXFLAGS) -o $@ $<
 
 pmmtest.exe:	$(OBJS) 
 	$(CXX) -o $@ $^
@@ -40,4 +42,4 @@ mana.exe: mana.cpp libsmf/SMFStream.h libsmf/SMFEvent.h DirectoryLister.h
 	$(CC) -c $(CFLAGS) -o $@ $<
 
 clean:
-	rm -fr mcsearch.exe $(OBJS)
+	rm -fr *.exe $(OBJS)
