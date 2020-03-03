@@ -10,9 +10,9 @@
 #include <array>
 #include <filesystem>
 
+#include "dirlister.h"
 #include "libsmf/SMFEvent.h"
 #include "libsmf/SMFStream.h"
-#include "DirectoryLister.h"
 
 std::vector<int> f;
 int count = 0;
@@ -184,7 +184,7 @@ std::array<std::vector<char>, 16> change(const char *filename) {
 int main(int argc, char **argv) {
 
   std::array<std::vector<char>, 16> allinterval;
-  DirectoryLister lister("./");
+  dirlister lister("./");
   int counter = 0;
   if ( ! lister() ) {
     std::cerr << "error: opendir returned a NULL pointer." << std::endl;

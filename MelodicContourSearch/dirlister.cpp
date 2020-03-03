@@ -7,13 +7,12 @@
 
 #include <iostream>
 #include <cstdlib>
-#include <io.h>
 #include <regex>
 
 #include "dirlister.h"
 
 int main( void ) {
-	std::regex regpat(".*\\.(mid|MID)");
+	std::regex regpat(".*\\.h"); //(mid|MID)");
 	dirlister dl(".");
 	while ( dl.get_next_entry(regpat) ) {
 		//std::cout << dl.entry_name() << std::endl;

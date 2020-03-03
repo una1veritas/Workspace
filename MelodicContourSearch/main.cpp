@@ -7,10 +7,10 @@
 #include <vector>
 #include <array>
 
+#include "dirlister_win.h"
 #include "libsmf/SMFEvent.h"
 #include "libsmf/SMFStream.h"
 
-#include "dirlister.h"
 #include "stringmatching.h"
 
 #include "manamatching.h"
