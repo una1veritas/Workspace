@@ -24,12 +24,11 @@ class dirlister {
 
 		lister(const std::string path) : dirpath(path), fhandl(0), opened(false) {}
 	};
-	const std::regex fpat;
 	std::deque<lister> spath;
 
 public:
-	dirlister(const std::string & basedir, const std::regex pattern) :fpat(pattern) {
-		std::string path = basedir + "/*.*";
+	dirlister(const std::string & basedir) {
+		std::string path = basedir;
 		spath.push_back(lister(path));
 	}
 
@@ -47,11 +46,13 @@ public:
 		return spath.empty();
 	}
 
-	bool get_next_entry() {
+	bool get_next_entry(const std::regex & fnpattern, const bool skipdotfile = true) {
 		bool result;
+		std::string path;
 		while ( !spath.empty() ) {
 			if ( ! spath.back().opened ) {
-				spath.back().fhandl = _findfirst(spath.back().dirpath.c_str(), &spath.back().fdata);
+				path = spath.back().dirpath + "/*.*";
+				spath.back().fhandl = _findfirst(path.c_str(), &spath.back().fdata);
 				spath.back().opened = true;
 				result = (spath.back().fhandl != -1);
 			} else {
@@ -59,25 +60,26 @@ public:
 			}
 			if ( ! result ) {
 				if ( !spath.empty() ) {
+					//std::cout << "exit dir" << std::endl;
 					close_dir();
 				}
+				continue;
+			}
+			if ( skipdotfile && entry_name()[0] == '.' ) {
 				continue;
 			}
 			if ( entry_is_dir() ) {
 				if ( entry_name() == "." || entry_name() == ".." ) {
 					continue;
 				}
-				std::cout << "enter dir: " << entry_name() << std::endl;
-
+				path = entry_name();
+				//std::cout << "enter dir: " << path << std::endl;
+				spath.push_back(lister(path));
 			}
-			if ( std::regex_match(entry_name(), fpat) )
+			if ( std::regex_match(entry_name(), fnpattern) )
 				return true;
 		}
 		return false;
-	}
-
-	bool operator++(int) {
-		return _findnext(spath.back().fhandl, &spath.back().fdata) == 0;
 	}
 
 	bool entry_is_dir() const {
@@ -86,6 +88,18 @@ public:
 
 	const std::string entry_name() const {
 		 return std::string(spath.back().fdata.name);
+	}
+
+	const std::string entry_fullpath() const {
+		std::string tmp = "";
+		for (auto i : spath) {
+			if ( tmp.size() > 0 )
+				tmp += "/";
+			tmp += i.dirpath ;
+		}
+		if ( tmp.size() > 0 )
+			return tmp + "/" + entry_name();
+		return entry_name();
 	}
 
 /*
