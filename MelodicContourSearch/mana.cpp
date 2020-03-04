@@ -10,7 +10,7 @@
 #include <array>
 #include <filesystem>
 
-#include "dirlister.h"
+#include "dirlister_unix.h"
 #include "libsmf/SMFEvent.h"
 #include "libsmf/SMFStream.h"
 

@@ -31,12 +31,12 @@
 
 class dirlister {
 	struct lister {
-		const std::string dirpath;
+		const std::string cdir;
 		struct _finddata_t fdata;
 		intptr_t fhandl;
 		bool opened;
 
-		lister(const std::string path) : dirpath(path), fhandl(0), opened(false) {}
+		lister(const std::string path) : cdir(path), fhandl(0), opened(false) {}
 	};
 	std::deque<lister> spath;
 
@@ -65,7 +65,7 @@ public:
 		std::string path;
 		while ( !spath.empty() ) {
 			if ( ! spath.back().opened ) {
-				path = spath.back().dirpath + "/*.*";
+				path = spath.back().cdir + "/*.*";
 				spath.back().fhandl = _findfirst(path.c_str(), &spath.back().fdata);
 				spath.back().opened = true;
 				result = (spath.back().fhandl != -1);
@@ -110,7 +110,7 @@ public:
 		for (auto i : spath) {
 			if ( tmp.size() > 0 )
 				tmp += "/";
-			tmp += i.dirpath ;
+			tmp += i.cdir ;
 		}
 		if ( tmp.size() > 0 )
 			return tmp + "/" + entry_name();
