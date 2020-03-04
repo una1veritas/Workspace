@@ -45,8 +45,10 @@ struct dirlister {
 	};
 	std::deque<lister> spath;
 
-	dirlister(const std::string & basedir) {
+	dirlister(const std::string basedir) {
 		std::string path = basedir;
+		if (path.back() == '/')
+			path.pop_back();
 		spath.push_back(lister(path));
 	}
 
@@ -82,14 +84,25 @@ struct dirlister {
 
 	const std::string entry_fullpath() const {
 		std::string tmp = "";
-		for (auto i : spath) {
-			if ( tmp.size() > 0 )
-				tmp += "/";
-			tmp += i.dirpath ;
+		/*
+		auto spathptr = spath.begin();
+		if ( spathptr->dirpath != "." ) {
+			tmp += spathptr->dirpath + "/";
 		}
-		if ( tmp.size() > 0 )
-			return tmp + "/" + entry_name();
-		return entry_name();
+		++spathptr;
+		while ( spathptr != spath.end() ) {
+			tmp += spathptr->dirpath + "/";
+			++spathptr;
+			//std::cout << tmp << " > ";
+		}
+		*/
+		for(auto elem : spath) {
+			if ( elem.dirpath == "." )
+				continue;
+			tmp += elem.dirpath + "/";
+			std::cout << tmp << " > ";
+		}
+		return tmp + entry_name();
 	}
 
 	bool get_next_entry(const std::regex & fnpattern, const bool skipdotfile = true) {
@@ -99,11 +112,11 @@ struct dirlister {
 			if ( ! spath.back().opened ) {
 #if defined(__linux__) || defined(__MACH__)
 				spath.back().dir = opendir(spath.back().dirpath.c_str());
+				std::cout << "opendir " << spath.back().dirpath <<  std::endl;
 				spath.back().opened = true;
 				result = (spath.back().dir != NULL);
 				if ( result ) {
 					spath.back().entry = readdir(spath.back().dir);
-					//std::cout << "opened " << spath.back().dirpath <<  std::endl;
 				}
 #elif defined(__WIN64)
 				path = spath.back().dirpath + "/*.*";
@@ -113,7 +126,7 @@ struct dirlister {
 #endif
 			} else {
 #if defined(__linux__) || defined(__MACH__)
-				//std::cout << "readdir " << spath.back().dirpath << std::endl;
+				std::cout << "readdir " << spath.back().dirpath << std::endl;
 				spath.back().entry = readdir(spath.back().dir);
 				result = (spath.back().entry != NULL);
 				/*
@@ -142,7 +155,7 @@ struct dirlister {
 					continue;
 				}
 				path = spath.back().dirpath + "/" + entry_name();
-				//std::cout << "enter dir: " << path << std::endl;
+				std::cout << "enter dir: " << path << std::endl;
 				spath.push_back(lister(path));
 				continue;
 			}

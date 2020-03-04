@@ -11,9 +11,10 @@
 
 #include "dirlister.h"
 
-int main( void ) {
+int main(const int argc, const char * argv[]) {
 	std::regex regpat(".*\\.(mid|MID)");
-	dirlister dl(".");
+	std::string rootdir(argv[1]);
+	dirlister dl(rootdir);
 	unsigned int counter = 0;
 	while ( dl.get_next_entry(regpat) ) {
 		//std::cout << dl.entry_name() << std::endl;
