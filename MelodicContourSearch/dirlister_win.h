@@ -15,6 +15,20 @@
 #include <deque>
 #include <regex>
 
+/*
+ * unsigned attrib;        // ファイル属性。
+ * time_t   time_write;    // 最新ファイル書き込み時刻
+ * _fsize_t size;          // ファイルの長さ (バイト数)
+ * char     name[260];     // ファイルまたはディレクトリの名前
+ *
+ * _A_HIDDEN(0x02) // 隠しファイル
+ * _A_NORMAL(0x00) // 通常ファイル
+ * _A_RDONLY(0x01) // 読み取り専用
+ * _A_SUBDIR(0x10) // サブディレクトリ
+ * _A_SYSTEM(0x04) // システム ファイル。
+ *
+ */
+
 class dirlister {
 	struct lister {
 		const std::string dirpath;
@@ -38,7 +52,7 @@ public:
 	}
 
 	void close_dir() {
-		_findclose(spath.back().fhandl);
+		findclose(spath.back().fhandl);
 		spath.pop_back();
 	}
 
@@ -75,6 +89,7 @@ public:
 				path = entry_name();
 				//std::cout << "enter dir: " << path << std::endl;
 				spath.push_back(lister(path));
+				continue;
 			}
 			if ( std::regex_match(entry_name(), fnpattern) )
 				return true;
@@ -101,20 +116,6 @@ public:
 			return tmp + "/" + entry_name();
 		return entry_name();
 	}
-
-/*
- *
- * unsigned attrib;        // �t�@�C�������B
-time_t   time_write;    // �ŐV�t�@�C���������ݎ���
-_fsize_t size;          // �t�@�C���̒��� (�o�C�g��)
-char     name[260];     // �t�@�C���܂��̓f�B���N�g���̖��O
- *
- * _A_HIDDEN(0x02) // �B���t�@�C��
-_A_NORMAL(0x00) // �ʏ�t�@�C��
-_A_RDONLY(0x01) // �ǂݎ���p
-_A_SUBDIR(0x10) // �T�u�f�B���N�g��
-_A_SYSTEM(0x04) // �V�X�e�� �t�@�C���B
- */
 };
 
 #endif /* DIRLISTER_WIN_H_ */

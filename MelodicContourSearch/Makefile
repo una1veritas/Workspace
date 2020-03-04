@@ -12,7 +12,7 @@ else
 endif
 
 
-OBJS = main.o
+OBJS = main.o dirlister.o
 INCLUDES = libsmf/SMFEvent.h libsmf/SMFStream.h kmp.h DirectoryLister.h stringmatching.h manamatching.h
 
 all: dirlister.exe
@@ -20,7 +20,7 @@ all: dirlister.exe
 
 dirlister.exe:	dirlister.o dirlister.h
 	$(CXX) -o $@ dirlister.o
-	
+
 dirlister.o:	dirlister.cpp dirlister.h
 	$(CXX) -c $(CFLAGS) $(CXXFLAGS) -o $@ $<
 

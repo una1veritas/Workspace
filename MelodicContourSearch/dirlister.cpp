@@ -12,12 +12,14 @@
 #include "dirlister.h"
 
 int main( void ) {
-	std::regex regpat(".*\\.h"); //(mid|MID)");
+	std::regex regpat(".*\\.(mid|MID)");
 	dirlister dl(".");
+	unsigned int counter = 0;
 	while ( dl.get_next_entry(regpat) ) {
 		//std::cout << dl.entry_name() << std::endl;
 		std::cout << dl.entry_fullpath() << std::endl;
+		counter += 1;
 	}
-	std::cout << "finished." << std::endl;
+	std::cout << "found " << counter << " files." << std::endl << "finished." << std::endl;
 	return EXIT_SUCCESS;
 }

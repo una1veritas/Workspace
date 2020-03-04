@@ -14,7 +14,7 @@
 //#include "msdirent.h"
 //#endif
 
-struct DirectoryLister {
+struct dirlister {
 	typedef std::pair<std::string,DIR*> pathdir;
 	std::deque<pathdir> pathdirs;
 	dirent * lastentry;
@@ -30,7 +30,7 @@ struct DirectoryLister {
 #define DT_WHT          14
 */
 
-	DirectoryLister(const std::string & path) : pathdirs(), lastentry(NULL) {
+	dirlister(const std::string & path) : pathdirs(), lastentry(NULL) {
 		std::string rootpath(path);
 		if ( rootpath.size() != 0 and rootpath[rootpath.size()-1] == '/' )
 			rootpath.pop_back();
@@ -41,7 +41,7 @@ struct DirectoryLister {
 		}
 	}
 
-	~DirectoryLister() {
+	~dirlister() {
 		closedir(dp);
 	}
 
