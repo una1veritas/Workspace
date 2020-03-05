@@ -34,11 +34,10 @@ struct dirlister {
 	};
 	std::deque<lister> spath;
 
-	dirlister(const std::string basedir) {
-		std::string path = basedir;
-		if (path.back() == '/')
-			path.pop_back();
-		spath.push_back(lister(path));
+	dirlister(std::string basedir) {
+		if ( basedir.back() == '/' )
+			basedir.pop_back();
+		spath.push_back(lister(basedir));
 	}
 
 	~dirlister() {
@@ -66,7 +65,17 @@ struct dirlister {
 	}
 
 	const std::string entry_fullpath() const {
-		return spath.back().cdir + "/" + entry_name();
+		return fullpath() + "/" + entry_name();
+	}
+
+	const std::string fullpath() const {
+		std::string tmp("");
+		for(auto i : spath) {
+			if ( tmp.size() > 0 )
+				tmp += "/";
+			tmp += i.cdir;
+		}
+		return tmp;
 	}
 
 	bool get_next_entry(const std::regex & fnpattern, const bool skipdotfile = true) {
@@ -74,7 +83,7 @@ struct dirlister {
 		std::string path;
 		while ( !spath.empty() ) {
 			if ( ! spath.back().opened ) {
-				spath.back().dir = opendir(spath.back().cdir.c_str());
+				spath.back().dir = opendir(fullpath().c_str());
 				//std::cout << "opendir " << spath.back().cdir <<  std::endl;
 				spath.back().opened = true;
 				result = (spath.back().dir != NULL);
@@ -100,9 +109,9 @@ struct dirlister {
 				if ( entry_name() == "." || entry_name() == ".." ) {
 					continue;
 				}
-				path = spath.back().cdir + "/" + entry_name();
+				//path = spath.back().cdir + "/" + entry_name();
 				//std::cout << "enter dir: " << path << std::endl;
-				spath.push_back(lister(path));
+				spath.push_back(lister(entry_name()));
 				continue;
 			}
 			if ( std::regex_match(entry_name(), fnpattern) ) {

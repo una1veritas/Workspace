@@ -18,10 +18,10 @@ INCLUDES = libsmf/SMFEvent.h libsmf/SMFStream.h kmp.h DirectoryLister.h stringma
 all: dirlister.exe
 #all:	mcsearch.exe
 
-dirlister.exe:	dirlister.o dirlister.h
+dirlister.exe:	dirlister.o 
 	$(CXX) -o $@ dirlister.o
 
-dirlister.o:	dirlister.cpp dirlister.h
+dirlister.o:	dirlister.cpp dirlister.h dirlister_unix.h dirlister_win.h
 	$(CXX) -c $(CFLAGS) $(CXXFLAGS) -o $@ $<
 
 pmmtest.exe:	$(OBJS) 
