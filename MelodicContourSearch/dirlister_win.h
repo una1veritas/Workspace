@@ -41,9 +41,10 @@ class dirlister {
 	std::deque<lister> spath;
 
 public:
-	dirlister(const std::string & basedir) {
-		std::string path = basedir;
-		spath.push_back(lister(path));
+	dirlister(std::string basedir) {
+		if ( basedir.back() == '/' )
+			basedir.pop_back();
+		spath.push_back(lister(basedir));
 	}
 
 	~dirlister() {
