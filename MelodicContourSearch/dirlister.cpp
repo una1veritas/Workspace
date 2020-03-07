@@ -18,7 +18,7 @@ int main(const int argc, const char * argv[]) {
 	unsigned int counter = 0;
 	while ( dl.get_next_entry(regpat) ) {
 		//std::cout << dl.entry_name() << std::endl;
-		std::cout << dl.entry_fullpath() << std::endl;
+		std::cout << dl.fullpath() << "/" << dl.entry_name() << std::endl;
 		counter += 1;
 	}
 	std::cout << "found " << counter << " files." << std::endl << "finished." << std::endl;

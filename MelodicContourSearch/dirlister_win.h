@@ -53,7 +53,7 @@ public:
 	}
 
 	void close_dir() {
-		findclose(spath.back().fhandl);
+		_findclose(spath.back().fhandl);
 		spath.pop_back();
 	}
 
@@ -66,10 +66,14 @@ public:
 		std::string path;
 		while ( !spath.empty() ) {
 			if ( ! spath.back().opened ) {
-				path = spath.back().cdir + "/*.*";
+				path = fullpath() + "/*.*";
 				spath.back().fhandl = _findfirst(path.c_str(), &spath.back().fdata);
-				spath.back().opened = true;
 				result = (spath.back().fhandl != -1);
+				if (!result) {
+					std::cerr << "open failed " << path << std::endl;
+					return false;
+				}
+				spath.back().opened = true;
 			} else {
 				result = (_findnext(spath.back().fhandl, &spath.back().fdata) == 0);
 			}
@@ -106,16 +110,14 @@ public:
 		 return std::string(spath.back().fdata.name);
 	}
 
-	const std::string entry_fullpath() const {
+	const std::string fullpath() const {
 		std::string tmp = "";
 		for (auto i : spath) {
 			if ( tmp.size() > 0 )
 				tmp += "/";
 			tmp += i.cdir ;
 		}
-		if ( tmp.size() > 0 )
-			return tmp + "/" + entry_name();
-		return entry_name();
+		return tmp;
 	}
 };
 
