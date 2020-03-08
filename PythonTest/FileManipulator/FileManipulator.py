@@ -8,14 +8,19 @@ for entry in list(p.glob('**/*')) :
     if entry.name[:1] == '.' :
         continue
     fullpathname = str(entry)
-    if '(' in fullpathname :
-        fullpathname = re.sub('[ ]*\([^\)]*\)[ ]*', '', fullpathname)
-    fullpathname = fullpathname.encode('cp932', "ignore").decode('CP932')
-    if fullpathname != str(entry) :
+    if '(' in entry.name :
+        print(fullpathname)
+    #    fullpathname = re.sub('[ ]*\([^\)]*\)[ ]*', '', fullpathname)
+    #fullpathname = fullpathname.encode('cp932', "ignore") #.decode('CP932')
+    #if fullpathname != str(entry) :
         #entry.rename(fullpathname)
-        print(str(entry), fullpathname)
+        #print(str(entry), fullpathname)
         #break
-    elif '"' in str(entry):
+    #elif '"' in str(entry):
+    #    print(str(entry))
+    elif entry.name[-1] == '.' :
+        print(str(entry))
+    elif "/" in entry.name or ':' in entry.name:
         print(str(entry))
         
     
