@@ -59,6 +59,20 @@ struct dirlister {
 		return spath.back().opened;
 	}
 
+	bool first_or_next_entry() {
+		if ( ! spath.back().opened ) {
+			spath.back().dir = opendir(fullpath().c_str());
+			//std::cout << "opendir " << spath.back().cdir <<  std::endl;
+			spath.back().opened = (spath.back().dir != NULL);
+			if ( ! spath.back().opened ) {
+				/* dir open failed. */
+				return false;
+			}
+		}
+		spath.back().entry = readdir(spath.back().dir);
+		return (spath.back().entry != NULL);
+	}
+
 	bool finished() {
 		return spath.empty();
 	}
@@ -91,15 +105,7 @@ struct dirlister {
 		bool result;
 		std::string path;
 		while ( !spath.empty() ) {
-			result = true;
-			if ( ! spath.back().opened ) {
-				result = open_dir();
-			}
-			//std::cout << "readdir " << spath.back().cdir << std::endl;
-			if ( result ) {
-				spath.back().entry = readdir(spath.back().dir);
-				result = (spath.back().entry != NULL);
-			}
+			result = first_or_next_entry();
 			if ( ! result ) {
 				if ( !spath.empty() ) {
 					//std::cout << "exit dir: " << spath.back().dirpath << std::endl;
@@ -116,6 +122,7 @@ struct dirlister {
 				}
 				//path = spath.back().cdir + "/" + entry_name();
 				//std::cout << "enter dir: " << path << std::endl;
+				/* enter dir */
 				spath.push_back(lister(entry_name()));
 				continue;
 			}
