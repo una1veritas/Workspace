@@ -49,7 +49,7 @@ struct dirlister {
 		closedir(spath.back().dir);
 		spath.pop_back();
 	}
-
+/*
 	bool open_dir() {
 		if ( ! spath.back().opened ) {
 			spath.back().dir = opendir(fullpath().c_str());
@@ -58,7 +58,7 @@ struct dirlister {
 		}
 		return spath.back().opened;
 	}
-
+*/
 	bool first_or_next_entry() {
 		if ( ! spath.back().opened ) {
 			spath.back().dir = opendir(fullpath().c_str());

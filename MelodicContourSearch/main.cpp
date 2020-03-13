@@ -7,13 +7,13 @@
 #include <vector>
 #include <array>
 
-#include "dirlister_win.h"
+#include "dirlister.h"
 #include "libsmf/SMFEvent.h"
 #include "libsmf/SMFStream.h"
 
 #include "stringmatching.h"
 
-#include "manamatching.h"
+//#include "manamatching.h"
 
 //#define SHOW_EVENTSEQ
 
@@ -127,11 +127,9 @@ std::string & translate(const char * filename, std::string & sequence) {
 
 int main(int argc, char **argv) {
 
-	//const std::regex filepattern(".*\\.mid");
 	std::string path;
 
 	kmp mcpat(argv[1]);
-	manakmp pmm(argv[1]);
 
 	if (argc >= 3) {
 		path = argv[2];
@@ -141,30 +139,22 @@ int main(int argc, char **argv) {
 
 	std::cout << "file path: " << path << std::endl;
 	std::cout << "search for     " << mcpat << std::endl;
-	std::cout << "search for " << pmm << std::endl;
 	std::cout << std::endl;
 
 	//exit(1);
 
-	dirlister dlister(path.c_str());
+	dirlister dl(path.c_str());
 
-	if ( ! dlister() ) {
-		std::cerr << "error: opendir returned a NULL pointer for the base path." << std::endl;
-		exit(1);
-	}
-
-	const std::regex fnamepattern(".*\\.(mid|MID)");
+	const std::regex regpat(".*\\.(mid|MID)$");
 	int i;
-	for(i = 1; dlister.get_next_file(fnamepattern) != NULL; ++i) {
+	for(i = 1; dl.get_next_entry(regpat); ++i) {
 
 		std::string melody;
-		translate(dlister.entry_path().c_str(), melody);
+		translate( (dl.fullpath() + "/" + dl.entry_name()).c_str(), melody);
 		unsigned int res = mcpat.find(melody);
-		unsigned int resmana = pmm.search(melody);
-		if ( res < melody.size() or resmana < melody.size() ) {
-			std::cout << i << ": " << dlister.entry_path().c_str() << " size = "<< melody.size() << std::endl << melody << std::endl;
+		if ( res < melody.size() ) {
+			std::cout << i << ": " << dl.fullpath() << "/"<< dl.entry_name() << std::endl;
 			std::cout << "match found at " << res << " in " << melody.size() << " notes." << std::endl;
-			std::cout << "manamatch found at " << resmana << " in " << melody.size() << " notes." << std::endl;
 			std::cout << std::endl;
 		} else {
 			//std::cout << "no match." << std::endl;
