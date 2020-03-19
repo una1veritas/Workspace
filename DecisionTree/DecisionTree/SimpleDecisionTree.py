@@ -1,6 +1,7 @@
 #
 #
 import math
+import sys
 import MeCab
 from graphviz import Digraph
 import os
@@ -263,8 +264,9 @@ class DecisionTree:
 
 #program begins
 
+print(sys.argv[1])
 data_table = []
-with open('../patient.csv', encoding="utf-8") as dbfile:
+with open(sys.argv[1], encoding="utf-8") as dbfile:
     idx = 0;
     for a_line in dbfile.readlines() :
         fields = a_line.split(',')
