@@ -15,11 +15,11 @@ endif
 OBJS = main.o 
 INCLUDES = libsmf/SMFEvent.h libsmf/SMFStream.h stringmatching.h
 
-#all: dirlister_test.exe
-all:	melodysearch.exe
+all: dirlister_test.exe
+#all:	melodysearch.exe
 
-dirlister_test.exe:	dirlister_test.o 
-	$(CXX) -o $@ dirlister_test.o
+dirlister_test.exe:	dirlister_test.o dirlister.o
+	$(CXX) -o $@ dirlister_test.o dirlister.o
 
 dirlister_test.o:	dirlister_test.cpp dirlister.h dirlister_unix.h dirlister_win.h
 	$(CXX) -c $(CFLAGS) $(CXXFLAGS) -o $@ $<
