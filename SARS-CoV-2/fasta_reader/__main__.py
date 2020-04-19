@@ -1,5 +1,6 @@
 #
 import sys
+from _ast import If
 
 def lcs(seq_a, seq_b, matchwidth):
     # make sure _a is longer than or equal
@@ -37,7 +38,13 @@ def lcs(seq_a, seq_b, matchwidth):
     return ( dpt[(len(seq_b), len(seq_a))], len(seq_a), len(seq_b) )
 
 
-filename = sys.argv[1]
+if len(sys.argv) == 4 :
+    keys = sys.argv[1:3]
+    filename = sys.argv[3]
+    print(keys, filename)
+else:
+    print('usage: key1, key2, filename', file=sys.stderr)
+    exit()
 
 print('reading', end='', file=sys.stderr, flush=True)
 seqdb = list()
@@ -71,7 +78,6 @@ print('got ' + str(lcount) + ' sequences.', file=sys.stderr)
 #print('finished.')
 
 seqdict = dict()
-keys = ['EPI_ISL_421585', 'EPI_ISL_419307', ]
 for i in range(0, len(seqdb)):
 #    if len(seqdb[i][3]) < 29900 * 0.97 :
 #        continue
@@ -80,7 +86,7 @@ for i in range(0, len(seqdb)):
             seqdict[seqdb[i][0]] = i
 
 seqs = [seqdb[i][3] for i in seqdict.values()]
-matchwidth = int(min(len(seqs[0]), len(seqs[1])) * 0.02)
+matchwidth = int(min(len(seqs[0]), len(seqs[1])) * 0.005)
 lcslen, len_longer, len_shorter = lcs(seqs[0], seqs[1], matchwidth)
 
 print('the length of longest common subsequence = ', lcslen)
