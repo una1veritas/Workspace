@@ -1,53 +1,69 @@
 #
 import sys
 
-def lcsgap(seq_a, seq_b, gaplimit = 1000, alignment = False):
+def lcs(seq_a, seq_b, gaplimit = 1000, alignment = False):
     # make sure _a is longer than or equal
     if len(seq_a) < len(seq_b) :
         seq_a, seq_b = seq_b, seq_a
-#    dpt = [[0 for c in range(0, len(seq_a) + 1)] for r in range(0,4)]
-    dpt = dict()
+    base_gap = len(seq_a) - len(seq_b)
+    if base_gap > gaplimit :
+        if alignment :
+            return (0, '')
+        else:
+            return 0
+    margin = gaplimit - base_gap
+    dpt = [[0 for c in range(0,base_gap + 2*margin+1)] for r in range(0,len(seq_b)+1)]
+    print('\n base gap = ', base_gap, ' gaplimit = ', gaplimit, ' margin = ',margin, ' dpt size = ', len(dpt[0]), len(dpt))
     #print('go.', file=sys.stderr)
-    for r in range(1, len(seq_b) + 1):
-        #if (r % 2000) == 0 :
-        #    print('.', file=sys.stderr, flush=True, end='')
-        for c in range(max(1, r - gaplimit), 
-                       min(len(seq_a) - (len(seq_b) - gaplimit) + r, len(seq_a) + 1)):
-            if seq_a[c-1] == seq_b[r-1] :
-                #dpt[r & 3][c] = dpt[(r-1) & 3][c-1] + 1
-                dpt[(r,c)] = dpt.get((r-1,c-1), 0) + 1
-            else:
-                #dpt[r & 3].append(max(dpt[(r-1) & 3][c], dpt[r & 3][c-1], dpt[r-1][c-1]))
-                r_1_c = dpt.get((r-1,c), 0); t_c_1 = dpt.get((r,c-1), 0)
-                if max(r_1_c, t_c_1) != 0 :
-                    dpt[(r,c)] = max(r_1_c, t_c_1)
-#               dpt[(r,c)] = max(dpt[(r-1)&3][c], dpt[r&3][c-1]) #, dpt[(r-1)&3][c-1])
+    try :
+        for r in range(1, len(seq_b) + 1):
+            #if (r % 2000) == 0 :
+            #    print('.', file=sys.stderr, flush=True, end='')
+            left = max(0, r - (gaplimit - base_gap))
+            right = min(len(seq_a), r + gaplimit)
+            for c in range(left+1, right):
+                if seq_a[c-1] == seq_b[r-1] :
+                    #dpt[r & 3][c] = dpt[(r-1) & 3][c-1] + 1
+                    dpt[r][c - left] = dpt[r-1][c-1 - left] + 1
+                else:
+                    #dpt[r & 3].append(max(dpt[(r-1) & 3][c], dpt[r & 3][c-1], dpt[r-1][c-1]))
+                    lu_max = max(dpt[r-1][c-left], dpt[r][c-1-left])
+                    if lu_max != 0 :
+                        dpt[r][c-left] = lu_max
+    #               dpt[(r,c)] = max(dpt[(r-1)&3][c], dpt[r&3][c-1]) #, dpt[(r-1)&3][c-1])
+    except IndexError as err:
+        print('error:')
+        print('r={0}, c={1}, c-left={2}, left={3}, right={4}'.format(r,c,c-left,left,right))
+        print(err)
+        exit()
 #   return ( dpt[len(seq_b) & 3][len(seq_a)], len(seq_a), len(seq_b) )
     if not alignment :
-        return dpt[(len(seq_b), len(seq_a))]
+        return dpt[len(seq_b)][len(seq_a)-left]
 
     #back tracking
     align = ''; r = len(seq_b); c = len(seq_a)
     while r > 0 and c > 0 :
+        left = max(0, r - (gaplimit - base_gap))
+        right = min(len(seq_a), r + gaplimit) + 1
         #print(r,c,dpt[(r,c)],  flush = True)
-        if (r,c) not in dpt :
+        if dpt[r][c-left] == 0 :
             align = ('-'*r ) + align
             break
-        if dpt.get((r-1,c-1), 0) == dpt[(r,c)] :
+        if dpt[r-1][c-1-left] == dpt[r][c-left] :
             align = '-' + align
             r -= 1; c -= 1
-        elif dpt.get((r-1,c), 0) == dpt[(r,c)] :
+        elif dpt[r-1][c-left] == dpt[r][c-left] :
             r -= 1
-        elif dpt.get((r,c-1), 0) == dpt[(r,c)] :
+        elif dpt[r][c-1-left] == dpt[r][c-left] :
             align = '-' + align
             c -= 1
         else:
-            if dpt.get((r-1,c-1), 0) + 1 == dpt[(r,c)]:
+            if dpt[r-1][c-1] + 1 == dpt[r][c-left]:
                 align = seq_a[c-1] + align
                 r -= 1; c -= 1
             else:
                 print('align error at ({0},{1})'.format(r,c), file=sys.stderr)
-    return (dpt[(len(seq_b), len(seq_a))], align)
+    return (dpt[len(seq_b)][len(seq_a)-left], align)
 
 
 def read_fasta(filename, key = None, longerthan = 28000):
@@ -100,9 +116,11 @@ for i in range(0, len(seqdb)) :
         #lcslen = lcs(seqs[0], seqs[1], gaplimit)
         print(seq_1[0], end=',')
         print(seq_2[0], end=',')
-        gaplen, lcsstr = lcsgap(seq_1[3], seq_2[3], gaplimit = int(maxlen*0.1), alignment = True)
+        gaplen, lcsstr = lcs(seq_1[3], seq_2[3], gaplimit = int(maxlen*0.1), alignment = True)
         print(float(gaplen)/maxlen,  end=',')
         print(lcsstr)
         print('{0} ({1}), {2} ({3}): {4}'.format(i, len(seq_1[3]), j, len(seq_2[3]), float(gaplen)/maxlen), file=sys.stderr)
         #print('the length of longest common subsequence = ', lcslen)
         #print(str(seqdict.keys()) + ' similarity =', float(lcslen)/min(len(seqs[0]), len(seqs[1])))
+        exit()
+
