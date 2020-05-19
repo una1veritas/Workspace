@@ -1,5 +1,5 @@
 //============================================================================
-// Name        : permutator.cpp
+// Name        : word_permutation.cpp
 // Author      : 
 // Version     :
 // Copyright   : Your copyright notice
@@ -51,16 +51,27 @@ int main(const int argc, const char * argv[]) {
 
 	struct {
 		bool all;
-	} options = { false };
+		std::string dfilename;
+	} options = { false , "words.txt"};
 
 	if ( argc == 1 )
 		return EXIT_FAILURE;
-	if ( argc == 2 ) {
-		perm = argv[1];
-	} else
-	if ( std::string(argv[1]) == "-all" ) {
-		options.all = true;
-		perm = argv[2];
+	for(int i = 1; i < argc; ) {
+		if ( argv[i][0] == '-' ) {
+			if ( std::string(argv[i]) == "-all" ) {
+				options.all = true;
+				i += 1;
+			} else if ( std::string(argv[i]) == "-dict" && i + 1 < argc ) {
+				options.dfilename = std::string(argv[i+1]);
+				i += 2;
+			} else {
+				/* argument error */
+				i += 1;
+			}
+		} else {
+			perm = argv[i];
+			i+= 1;
+		}
 	}
 
 	for(uint32 i = 0; i < perm.length(); ++i)
@@ -75,7 +86,8 @@ int main(const int argc, const char * argv[]) {
 
 	std::fstream dictfile;
 	dict worddict;
-	dictfile.open("/Users/sin/Documents/Workspace/permutator/words.txt", std::fstream::in);
+	std::cout << "opening word data file " << options.dfilename << std::endl;
+	dictfile.open(options.dfilename , std::fstream::in);
 	if ( dictfile.is_open() ) {
 		std::cout << "reading words..." << std::endl;
 		load_dict(worddict, dictfile);
