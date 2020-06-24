@@ -32,6 +32,12 @@ workdb['date'] = dict()
 for entry in namelist :
     workdb[entry] = dict()
 
+replset = set( ['\u3000', '\xa0', '\r', '\n', 
+                '出席確認課題', '出席確認', '演習問題', 
+                '演習課題', '学籍番号：', '学生番号：', '名前：', '氏名：', '学生番号:', '名前:', 
+                '黒木冬悟', '黒木冬悟', '吉村唯吹', '吉村唯', '有吉優聖', '倉知美帆', '本島永佳', '林田一吹', '長田周也', 
+                '舩津遼太郎', '溝忠剛'] )
+
 dirlist = [basedir + '/' + path for path in os.listdir(basedir) if os.path.isdir(basedir + '/' + path)]
 for probfolder in dirlist:
     probprop = probfolder.replace('¥','/').split('/')[-1].split('_')
@@ -51,26 +57,14 @@ for probfolder in dirlist:
                 #if len(contstr):
                 bsoup = BeautifulSoup(contstr,"html.parser")
                 contstr = bsoup.get_text()
-                contstr = contstr.replace('\u3000', '')
-                contstr = contstr.replace('\xa0', ' ')
-                contstr = contstr.replace('\r', ' ')
-                contstr = contstr.replace('\n', ' ')
-                contstr = contstr.replace('出席確認課題', ' ')
-                contstr = contstr.replace('出席確認', ' ')
-                contstr = contstr.replace('演習問題', '')
-                contstr = contstr.replace('演習課題', '')
-                contstr = contstr.replace('学生番号：182C1073', '')
-                contstr = contstr.replace('名前：黒木冬悟', '')
-                contstr = contstr.replace('192C1177', '')
-                contstr = contstr.replace('吉村唯吹', '')
-                contstr = contstr.replace('吉村唯', '')
-                contstr = contstr.replace('192C1005 有吉優聖','')
-                contstr = contstr.replace('192C1005有吉優聖','')
+                contstr = contstr.replace(str(submprop[0]), '')
+                for key in replset: 
+                    contstr = contstr.replace(key, '')
                 contstr = contstr.strip()[:16]
                 if len(contstr) :
                     workdb[submprop[0]][probprop[3]] = contstr
                 else:
-                    print('EMPTY!!')
+                    print('EMPTY!! '+str(submprop[0]))
             else:
                 print('not exist: '+oltextpath)
 
@@ -93,5 +87,4 @@ with open(basedir+'/table.txt', mode='w') as wf:
             wf.write('\t')
         wf.write('\n')
 
-print(workdb['192C1005'])
 print('finished.')
