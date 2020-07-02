@@ -14,4 +14,4 @@ benchmarks.exe: sieve.o pi.o main.o
 	 g++ $(CXXFLAGS)2 -o benchmarks.exe main.o sieve.o pi.o
 
 clean: 
-	 benchmarks.exe sieve.o pi.o main.o
+	 \rm -f benchmarks.exe *.o
