@@ -7,7 +7,8 @@ else:
 subnet = '.'.join(subnet.split('.')[:3])
 
 if os.name != 'nt' :
-    print('Sorry, this runs only on Windows. ')
+    print('Sorry, this works only on Windows. ')    
+    print('Try \'ssh pi@raspberrypi.local\' on macos.')
     exit(1)
 
 cmd_ping = 'ping -n 1 -w 190 '
