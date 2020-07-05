@@ -1,5 +1,4 @@
-import sys
-import subprocess
+import os, sys, subprocess
 
 if len(sys.argv) > 1 :
     subnet = sys.argv[1]
@@ -7,13 +6,19 @@ else:
     subnet = '192.168.1.1'
 subnet = '.'.join(subnet.split('.')[:3])
 
+if os.name != 'nt' :
+    print('Sorry, this runs only on Windows. ')
+    exit(1)
+
+cmd_ping = 'ping -n 1 -w 190 '
+cmd_arp = 'arp -a '
+    
 print('host responces by ping command:')
 for last_byte in range(1,255):
     try:
-        cmmdtempl = 'ping -n 1 -w 50'
         ipnumber = (subnet + '.{0}').format(last_byte)
         #print(cmdstr)
-        result = subprocess.run((cmmdtempl+' '+ipnumber).split(), shell=True, capture_output=True, check=True)
+        result = subprocess.run((cmd_ping+ipnumber).split(), shell=False, capture_output=True, check=True)
         #print(str(result.stdout.decode('sjis')))
         print(ipnumber + ' is active')
     except subprocess.CalledProcessError as err:
@@ -22,8 +27,7 @@ for last_byte in range(1,255):
 
 print('searching raspberry pi..')
 try:
-    cmmdtempl = 'arp -a'
-    result = subprocess.run(cmmdtempl.split(), shell=True, capture_output=True, check=True)
+    result = subprocess.run(cmd_arp.split(), shell=False, capture_output=True, check=True)
     lines = [a_line.strip() for a_line in result.stdout.decode('sjis').split('\n')]
     lines = [a_line for a_line in lines if 'b8-27-eb' in a_line]
     if lines :
@@ -35,7 +39,7 @@ try:
     else:
         print('no raspberry pi found.')
 except subprocess.CalledProcessError as err:
-    print('\'arp -a\'error.')
+    print(cmd_arp + ' error.')
     pass
 
 print('bye.')
