@@ -12,7 +12,3 @@ pres = round(sense.get_pressure(), 1)
 
 print(dt.strftime("%Y/%m/%d %H:%M:%S"))
 print('{0} deg., {1}%, {2} hPa.'.format(temp, humi, pres))
-
-while True:
-    for event in sense.stick.get_events():
-        print(event.timestamp, event.direction, event.action)

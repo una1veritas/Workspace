@@ -1,10 +1,14 @@
 import os, sys, subprocess
 
+subnet = '192.168.1.1'
+mask = '24'
 if len(sys.argv) > 1 :
     subnet = sys.argv[1]
-else:
-    subnet = '192.168.1.1'
-subnet = '.'.join(subnet.split('.')[:3])
+    if len(sys.argv) > 2 :
+        mask = sys.argv[2]
+subnet = [int(b) for b in subnet.split('.')]
+subnet[3] = 0
+mask = int(mask)
 
 if os.name != 'nt' :
     print('Sorry, this works only on Windows. ')    
@@ -13,15 +17,20 @@ if os.name != 'nt' :
 
 cmd_ping = 'ping -n 1 -w 190 '
 cmd_arp = 'arp -a '
-    
+
+
 print('host responces by ping command:')
-for last_byte in range(1,255):
+for last_byte in range(1,(1<<(32-mask))):
     try:
-        ipnumber = (subnet + '.{0}').format(last_byte)
+        ipnumber = subnet.copy()
+        ipnumber[3] = ipnumber[3] | (last_byte & 0xff)
+        if (last_byte>>8) & 0xff != 0 :
+            ipnumber[2] = ipnumber[2] | ((last_byte>>8) & 0xff)
+        ipstr = '.'.join(ipnumber)
         #print(cmdstr)
-        result = subprocess.run((cmd_ping+ipnumber).split(), shell=False, capture_output=True, check=True)
+        result = subprocess.run((cmd_ping+ipstr).split(), shell=False, capture_output=True, check=True)
         #print(str(result.stdout.decode('sjis')))
-        print(ipnumber + ' is active')
+        print(ipstr + ' is active')
     except subprocess.CalledProcessError as err:
         #print(str(last_byte))
         pass
