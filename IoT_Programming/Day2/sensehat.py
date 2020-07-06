@@ -1,23 +1,18 @@
 from sense_hat import SenseHat
-import time
+from datetime import datetime
 
 sense = SenseHat()
 sense.clear()
 
-while True :
-    temp = sense.get_temperature()
-    humi = sense.get_humidity()
-    pres = sense.get_pressure()
-    
-    msg = u"Temp. {0} °C. Humidity {1} % Air pressure {2} hPa".format(round(temp,1), round(humi,1), round(pres,1))
-    print(msg)
-    
-    accx = sense.get_accelerometer_raw()
-    msg = "(x: {0}, y: {1}, z: {2})".format(round(accx["x"], 3), round(accx["y"], 3), round(accx["z"], 3))
-    print(msg)
+dt = datetime.now()
 
+temp = round(sense.get_temperature(), 1)
+humi = round(sense.get_humidity(), 1)
+pres = round(sense.get_pressure(), 1)
+
+print(dt.strftime("%Y/%m/%d %H:%M:%S"))
+print('{0} deg., {1}%, {2} hPa.'.format(temp, humi, pres))
+
+while True:
     for event in sense.stick.get_events():
         print(event.timestamp, event.direction, event.action)
-    
-    time.sleep(3)
-    
