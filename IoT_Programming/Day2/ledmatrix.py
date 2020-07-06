@@ -69,37 +69,6 @@ for i in range(0,5):
     sense.set_pixels(packman[i%2])
     time.sleep(0.6)
 
-sense.clear()
-
-world = [0 for i in range(64)]
-for i in [4, 12, 18, 19, 21, 22, 23, 28, 36]:
-    world[i] = 1
-laststamp = datetime.now().timestamp()
-
-colors = [[0,0,0], [100,100,100]]
-
-while True:
-    newworld = world.copy()
-    for i in range(0,64):
-        livecount = 0
-        for d in [-9, -8, -7, -1, 1, 7, 8, 9]:
-            if 0 <= i+d < 64 :
-                if world[i+d] != 0 :
-                    livecount += 1
-        if world[i] == 0 and livecount == 3 :
-            newworld[i] = 1
-        elif world[i] == 1 and 2<= livecount <= 3 :
-            newworld[i] = 1
-        elif world[i] == 1 and livecount <= 1 :
-            newworld[i] = 0
-        elif world[i] == 1 and livecount > 3 :
-            newworld[i] = 0
-    world = newworld
-    scrn = [colors[0] if c == 0 else colors[1] for c in world]
-    sense.set_pixels(scrn)
-    wait(1)
-
-sense.clear()
 sense.show_message('Bye!')
 
 sense.clear()  # clean-off

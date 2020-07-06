@@ -40,7 +40,7 @@ while True:
             newworld[i] = 0
         elif world[i] == 1 and livecount > 3 :
             newworld[i] = 0
-    if datetime.now().timestamp() - stamp > 60 :
+    if datetime.now().timestamp() - stamp >= 90 :
         break
     if world == newworld :
         break
