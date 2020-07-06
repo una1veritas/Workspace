@@ -18,15 +18,16 @@ if os.name != 'nt' :
 cmd_ping = 'ping -n 1 -w 190 '
 cmd_arp = 'arp -a '
 
-
 print('host responces by ping command:')
 for last_byte in range(1,(1<<(32-mask))):
+    if (last_byte) & 0xff == 1 :
+        print(last_byte)
     try:
         ipnumber = subnet.copy()
         ipnumber[3] = ipnumber[3] | (last_byte & 0xff)
         if (last_byte>>8) & 0xff != 0 :
             ipnumber[2] = ipnumber[2] | ((last_byte>>8) & 0xff)
-        ipstr = '.'.join(ipnumber)
+        ipstr = '.'.join([str(i) for i in ipnumber])
         #print(cmdstr)
         result = subprocess.run((cmd_ping+ipstr).split(), shell=False, capture_output=True, check=True)
         #print(str(result.stdout.decode('sjis')))
@@ -42,10 +43,8 @@ try:
     lines = [a_line for a_line in lines if 'b8-27-eb' in a_line]
     if lines :
         for a_line in lines:
-            macaddress = [a_token for a_token in (a_line.split()) if 'b8-27-eb' in a_token][0]
-            ipaddress = [a_token for a_token in (a_line.split()) if subnet in a_token][0]
-            
-            print('raspberry pi ' + macaddress + '\'s ip-address = ' + ipaddress)
+            if 'b8-27-eb' in a_line :
+                print('raspberry pi\n' + a_line)
     else:
         print('no raspberry pi found.')
 except subprocess.CalledProcessError as err:
