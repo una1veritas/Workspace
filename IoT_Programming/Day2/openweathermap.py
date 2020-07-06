@@ -17,6 +17,7 @@ resp = requests.get(url)
 data_dict = json.loads(resp.text)
 print(data_dict)
 
+print()
 print(u"天気 "+data_dict["weather"][0]["main"])
 print(u"最高気温 {0} °C, 最低気温 {1} °C".format(data_dict["main"]["temp_max"], 
                                          data_dict["main"]["temp_min"]))

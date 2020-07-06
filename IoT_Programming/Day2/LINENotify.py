@@ -1,7 +1,6 @@
 #coding: UTF-8
 import requests
 from sense_hat import SenseHat
-from datetime import datetime
 
 sense = SenseHat()
 sense.clear()
@@ -32,6 +31,6 @@ opt_files = {"imageFile": open("cloudyandsunny.png", "rb")} #バイナリで画�
 
 r = requests.post(url_notifyapi ,headers = auth_headers, params=payload, files=opt_files)
 
-payload["message"] = "Temp. " + str(weatherdata["temp"]) + "C.deg. " + "Humidity " + str(weatherdata["humi"] + "%.")
+payload["message"] = "Temp. " + str(weatherdata["temp"]) + "C.deg. " + "Humidity " + str(weatherdata["humi"]) + "%."
 r = requests.post(url_notifyapi ,headers = auth_headers, params=payload)
 

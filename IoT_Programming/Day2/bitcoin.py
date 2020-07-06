@@ -18,6 +18,7 @@ tstamp = data_dict["timestamp"].replace('T', ' ').split('.')[0]
 buy = data_dict["best_bid"]
 sell = data_dict["best_ask"]
 msg = "{0} UTC  {1} BUY {2:,} SELL {3:,}".format(tstamp, curpair, buy, sell)
+print()
 if 'sense_hat' in sys.modules:
     sense.show_message(msg)
 else:
