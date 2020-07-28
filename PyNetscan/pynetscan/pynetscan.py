@@ -11,7 +11,7 @@ subnet[3] = 0
 mask = int(mask)
 
 if os.name != 'nt' :
-    print('Sorry, this works only on Windows. ')    
+    print('Sorry, this program runs only on Windows. ')    
     print('Try \'ssh pi@raspberrypi.local\' on macos.')
     exit(1)
 
