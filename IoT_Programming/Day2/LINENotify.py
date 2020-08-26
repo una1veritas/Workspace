@@ -15,9 +15,7 @@ weatherdata["pres"] = round(sense.get_pressure(), 1)
 #
 # LINE Notify API Document
 # https://notify-bot.line.me/doc/ja/
-#
-# Sample w/ Python
-# https://blue-black.ink/?p=3935
+
 
 
 url_notifyapi = "https://notify-api.line.me/api/notify"
