@@ -12,4 +12,4 @@ while b != 0 :
     a = b
     b = c
 
-print('gcd = ' + str(a))
+print('greatest common divisor = ' + str(a) + '.')
