@@ -5,34 +5,23 @@ Created on 2020/10/11
 '''
 from tkinter import *
 from tkinter.ttk import * 
-  
+
 class GFG: 
-    def __init__(self, master = None): 
+
+    def __init__(self, master=None): 
         self.master = master 
-          
-        # to take care movement in x direction 
         self.x = 1
-        # to take care movement in y direction 
         self.y = 0
   
-        # canvas object to create shape 
         self.canvas = Canvas(master) 
-        # creating rectangle 
-        self.rectangle = self.canvas.create_rectangle( 
-                         5, 5, 25, 25, fill = "black") 
+        self.rectangle = self.canvas.create_rectangle(5, 5, 25, 25, fill="black") 
         self.canvas.pack() 
-  
-        # calling class's movement method to  
-        # move the rectangle 
-        self.movement() 
-      
-    def movement(self): 
-  
-        # This is where the move() method is called 
-        # This moves the rectangle to x, y coordinates 
-        self.canvas.move(self.rectangle, self.x, self.y) 
-  
-        self.canvas.after(100, self.movement) 
+        
+        self.iterate() 
+        
+    def iterate(self): 
+        self.canvas.move(self.rectangle, self.x, self.y)   
+        self.canvas.after(100, self.iterate) 
       
     # for motion in negative x direction 
     def left(self, event): 
@@ -57,6 +46,7 @@ class GFG:
         print(event.keysym) 
         self.x = 0
         self.y = 5
+
   
 if __name__ == "__main__": 
   
