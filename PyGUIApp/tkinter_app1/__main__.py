@@ -5,7 +5,7 @@ Created on 2020/10/11
 '''
 from tkinter import *
 
-class App: 
+class App(Frame): 
 
     def __init__(self, master=None): 
         self.master = master 
@@ -56,10 +56,10 @@ if __name__ == "__main__":
   
     # This will bind arrow keys to the tkinter 
     # toplevel which will navigate the image or drawing 
-    root.bind("<KeyPress-Left>", lambda e: app.left(e)) 
-    root.bind("<KeyPress-Right>", lambda e: app.right(e)) 
-    root.bind("<KeyPress-Up>", lambda e: app.up(e)) 
-    root.bind("<KeyPress-Down>", lambda e: app.down(e)) 
+    app.master.bind("<KeyPress-Left>", app.left) 
+    app.master.bind("<KeyPress-Right>", app.right) 
+    app.master.bind("<KeyPress-Up>", app.up) 
+    app.master.bind("<KeyPress-Down>", app.down) 
       
     # Infnite loop breaks only by interrupt 
     mainloop()
