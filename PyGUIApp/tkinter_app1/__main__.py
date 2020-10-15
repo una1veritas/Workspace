@@ -4,9 +4,8 @@ Created on 2020/10/11
 @author: sin
 '''
 from tkinter import *
-from tkinter.ttk import * 
 
-class GFG: 
+class App: 
 
     def __init__(self, master=None): 
         self.master = master 
@@ -52,15 +51,15 @@ if __name__ == "__main__":
   
     # object of class Tk, resposible for creating 
     # a tkinter toplevel window 
-    master = Tk() 
-    gfg = GFG(master) 
+    root = Tk() 
+    app = App(master=root)
   
     # This will bind arrow keys to the tkinter 
     # toplevel which will navigate the image or drawing 
-    master.bind("<KeyPress-Left>", lambda e: gfg.left(e)) 
-    master.bind("<KeyPress-Right>", lambda e: gfg.right(e)) 
-    master.bind("<KeyPress-Up>", lambda e: gfg.up(e)) 
-    master.bind("<KeyPress-Down>", lambda e: gfg.down(e)) 
+    root.bind("<KeyPress-Left>", lambda e: app.left(e)) 
+    root.bind("<KeyPress-Right>", lambda e: app.right(e)) 
+    root.bind("<KeyPress-Up>", lambda e: app.up(e)) 
+    root.bind("<KeyPress-Down>", lambda e: app.down(e)) 
       
     # Infnite loop breaks only by interrupt 
     mainloop()
