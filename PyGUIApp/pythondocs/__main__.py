@@ -24,6 +24,7 @@ class App(tk.Frame):
         # It prints the current value of the variable.
         self.entrythingy.bind('<Key-Return>',
                              self.print_contents)
+        
 
     def print_contents(self, event):
         print("Hi. The current entry content is:",

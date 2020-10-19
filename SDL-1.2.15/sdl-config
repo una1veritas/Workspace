@@ -42,14 +42,14 @@ while test $# -gt 0; do
       echo 1.2.15
       ;;
     --cflags)
-      echo -I${prefix}/include/SDL -D_GNU_SOURCE=1 -Dmain=SDL_main
+      echo -I${prefix}/include/SDL -D_GNU_SOURCE=1 -D_THREAD_SAFE
       ;;
     --libs)
-      echo -L${exec_prefix}/lib  -lmingw32 -lSDLmain -lSDL  -mwindows
+      echo -L${exec_prefix}/lib  -lSDLmain -lSDL   -Wl,-framework,Cocoa
       ;;
     --static-libs)
 #    --libs|--static-libs)
-      echo -L${exec_prefix}/lib  -lmingw32 -lSDLmain -lSDL  -mwindows  -lm -luser32 -lgdi32 -lwinmm
+      echo -L${exec_prefix}/lib  ${libdir}/libSDLmain.a ${libdir}/libSDL.a  -Wl,-framework,OpenGL  -Wl,-framework,Cocoa -Wl,-framework,ApplicationServices -Wl,-framework,Carbon -Wl,-framework,AudioToolbox -Wl,-framework,AudioUnit -Wl,-framework,IOKit
       ;;
     *)
       echo "${usage}" 1>&2

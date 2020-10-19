@@ -22,23 +22,23 @@ SHELL	= /bin/sh
 CC      = gcc
 INCLUDE = -I./include
 CFLAGS  = -g -O2 
-EXTRA_CFLAGS = -I./include -D_GNU_SOURCE=1 -Wall
+EXTRA_CFLAGS = -I./include -D_GNU_SOURCE=1 -DTARGET_API_MAC_CARBON -DTARGET_API_MAC_OSX -fvisibility=hidden  -I/usr/X11R6/include -DXTHREADS -D_THREAD_SAFE -force_cpusubtype_ALL -fpascal-strings -Wall
 LDFLAGS = 
-EXTRA_LDFLAGS =  -lm -luser32 -lgdi32 -lwinmm
+EXTRA_LDFLAGS =  -Wl,-framework,OpenGL  -Wl,-framework,Cocoa -Wl,-framework,ApplicationServices -Wl,-framework,Carbon -Wl,-framework,AudioToolbox -Wl,-framework,AudioUnit -Wl,-framework,IOKit
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
-INSTALL = /bin/install -c
-NASM	=  -f win32
+INSTALL = /usr/bin/install -c
+NASM	=  
 AR	= ar
 RANLIB	= ranlib
-WINDRES	= windres
+WINDRES	= :
 
 TARGET  = libSDL.la
-SOURCES =  ./src/*.c ./src/audio/*.c ./src/cdrom/*.c ./src/cpuinfo/*.c ./src/events/*.c ./src/file/*.c ./src/stdlib/*.c ./src/thread/*.c ./src/timer/*.c ./src/video/*.c ./src/joystick/*.c ./src/video/dummy/*.c ./src/audio/disk/*.c ./src/audio/dummy/*.c ./src/video/wincommon/*.c ./src/video/windib/*.c ./src/audio/windib/*.c ./src/joystick/win32/*.c ./src/cdrom/win32/*.c ./src/thread/win32/SDL_sysmutex.c ./src/thread/win32/SDL_syssem.c ./src/thread/win32/SDL_systhread.c ./src/thread/generic/SDL_syscond.c ./src/timer/win32/*.c ./src/loadso/win32/*.c ./src/main/win32/*.rc
-OBJECTS = $(objects)/SDL.lo $(objects)/SDL_error.lo $(objects)/SDL_fatal.lo $(objects)/SDL_audio.lo $(objects)/SDL_audiocvt.lo $(objects)/SDL_audiodev.lo $(objects)/SDL_mixer.lo $(objects)/SDL_mixer_MMX.lo $(objects)/SDL_mixer_MMX_VC.lo $(objects)/SDL_mixer_m68k.lo $(objects)/SDL_wave.lo $(objects)/SDL_cdrom.lo $(objects)/SDL_cpuinfo.lo $(objects)/SDL_active.lo $(objects)/SDL_events.lo $(objects)/SDL_expose.lo $(objects)/SDL_keyboard.lo $(objects)/SDL_mouse.lo $(objects)/SDL_quit.lo $(objects)/SDL_resize.lo $(objects)/SDL_rwops.lo $(objects)/SDL_getenv.lo $(objects)/SDL_iconv.lo $(objects)/SDL_malloc.lo $(objects)/SDL_qsort.lo $(objects)/SDL_stdlib.lo $(objects)/SDL_string.lo $(objects)/SDL_thread.lo $(objects)/SDL_timer.lo $(objects)/SDL_RLEaccel.lo $(objects)/SDL_blit.lo $(objects)/SDL_blit_0.lo $(objects)/SDL_blit_1.lo $(objects)/SDL_blit_A.lo $(objects)/SDL_blit_N.lo $(objects)/SDL_bmp.lo $(objects)/SDL_cursor.lo $(objects)/SDL_gamma.lo $(objects)/SDL_pixels.lo $(objects)/SDL_stretch.lo $(objects)/SDL_surface.lo $(objects)/SDL_video.lo $(objects)/SDL_yuv.lo $(objects)/SDL_yuv_mmx.lo $(objects)/SDL_yuv_sw.lo $(objects)/SDL_joystick.lo $(objects)/SDL_nullevents.lo $(objects)/SDL_nullmouse.lo $(objects)/SDL_nullvideo.lo $(objects)/SDL_diskaudio.lo $(objects)/SDL_dummyaudio.lo $(objects)/SDL_sysevents.lo $(objects)/SDL_sysmouse.lo $(objects)/SDL_syswm.lo $(objects)/SDL_wingl.lo $(objects)/SDL_dibevents.lo $(objects)/SDL_dibvideo.lo $(objects)/SDL_dibaudio.lo $(objects)/SDL_mmjoystick.lo $(objects)/SDL_syscdrom.lo $(objects)/SDL_sysmutex.lo $(objects)/SDL_syssem.lo $(objects)/SDL_systhread.lo $(objects)/SDL_syscond.lo $(objects)/SDL_systimer.lo $(objects)/SDL_sysloadso.lo $(objects)/version.lo
+SOURCES =  ./src/*.c ./src/audio/*.c ./src/cdrom/*.c ./src/cpuinfo/*.c ./src/events/*.c ./src/file/*.c ./src/stdlib/*.c ./src/thread/*.c ./src/timer/*.c ./src/video/*.c ./src/joystick/*.c ./src/video/dummy/*.c ./src/audio/disk/*.c ./src/audio/dummy/*.c ./src/loadso/dlopen/*.c ./src/video/x11/*.c ./src/video/Xext/Xxf86dga/*.c ./src/video/dga/*.c ./src/video/Xext/Xxf86vm/*.c ./src/video/Xext/Xv/*.c ./src/video/Xext/Xinerama/*.c ./src/video/Xext/XME/*.c ./src/thread/pthread/SDL_systhread.c ./src/thread/pthread/SDL_syssem.c ./src/thread/pthread/SDL_sysmutex.c ./src/thread/pthread/SDL_syscond.c ./src/audio/macosx/*.c ./src/joystick/darwin/*.c ./src/cdrom/macosx/*.c ./src/timer/unix/*.c
+OBJECTS = $(objects)/SDL.lo $(objects)/SDL_error.lo $(objects)/SDL_fatal.lo $(objects)/SDL_audio.lo $(objects)/SDL_audiocvt.lo $(objects)/SDL_audiodev.lo $(objects)/SDL_mixer.lo $(objects)/SDL_mixer_MMX.lo $(objects)/SDL_mixer_MMX_VC.lo $(objects)/SDL_mixer_m68k.lo $(objects)/SDL_wave.lo $(objects)/SDL_cdrom.lo $(objects)/SDL_cpuinfo.lo $(objects)/SDL_active.lo $(objects)/SDL_events.lo $(objects)/SDL_expose.lo $(objects)/SDL_keyboard.lo $(objects)/SDL_mouse.lo $(objects)/SDL_quit.lo $(objects)/SDL_resize.lo $(objects)/SDL_rwops.lo $(objects)/SDL_getenv.lo $(objects)/SDL_iconv.lo $(objects)/SDL_malloc.lo $(objects)/SDL_qsort.lo $(objects)/SDL_stdlib.lo $(objects)/SDL_string.lo $(objects)/SDL_thread.lo $(objects)/SDL_timer.lo $(objects)/SDL_RLEaccel.lo $(objects)/SDL_blit.lo $(objects)/SDL_blit_0.lo $(objects)/SDL_blit_1.lo $(objects)/SDL_blit_A.lo $(objects)/SDL_blit_N.lo $(objects)/SDL_bmp.lo $(objects)/SDL_cursor.lo $(objects)/SDL_gamma.lo $(objects)/SDL_pixels.lo $(objects)/SDL_stretch.lo $(objects)/SDL_surface.lo $(objects)/SDL_video.lo $(objects)/SDL_yuv.lo $(objects)/SDL_yuv_mmx.lo $(objects)/SDL_yuv_sw.lo $(objects)/SDL_joystick.lo $(objects)/SDL_nullevents.lo $(objects)/SDL_nullmouse.lo $(objects)/SDL_nullvideo.lo $(objects)/SDL_diskaudio.lo $(objects)/SDL_dummyaudio.lo $(objects)/SDL_sysloadso.lo $(objects)/SDL_x11dga.lo $(objects)/SDL_x11dyn.lo $(objects)/SDL_x11events.lo $(objects)/SDL_x11gamma.lo $(objects)/SDL_x11gl.lo $(objects)/SDL_x11image.lo $(objects)/SDL_x11modes.lo $(objects)/SDL_x11mouse.lo $(objects)/SDL_x11video.lo $(objects)/SDL_x11wm.lo $(objects)/SDL_x11yuv.lo $(objects)/XF86DGA.lo $(objects)/XF86DGA2.lo $(objects)/SDL_dgaevents.lo $(objects)/SDL_dgamouse.lo $(objects)/SDL_dgavideo.lo $(objects)/XF86VMode.lo $(objects)/Xv.lo $(objects)/Xinerama.lo $(objects)/xme.lo $(objects)/SDL_systhread.lo $(objects)/SDL_syssem.lo $(objects)/SDL_sysmutex.lo $(objects)/SDL_syscond.lo $(objects)/SDL_coreaudio.lo $(objects)/SDL_sysjoystick.lo $(objects)/AudioFilePlayer.lo $(objects)/AudioFileReaderThread.lo $(objects)/CDPlayer.lo $(objects)/SDLOSXCAGuard.lo $(objects)/SDL_syscdrom.lo $(objects)/*.lo
 
 SDLMAIN_TARGET = libSDLmain.la
-SDLMAIN_SOURCES = ./src/main/win32/*.c
-SDLMAIN_OBJECTS = $(objects)/SDL_win32_main.lo
+SDLMAIN_SOURCES = ./src/main/macosx/*.m
+SDLMAIN_OBJECTS = $(objects)/SDLMain.lo
 SDLMAIN_LDFLAGS = -static
 
 DIST = acinclude autogen.sh Borland.html Borland.zip BUGS build-scripts configure configure.in COPYING CREDITS CWprojects.sea.bin docs docs.html include INSTALL Makefile.dc Makefile.minimal Makefile.in MPWmake.sea.bin README* sdl-config.in sdl.m4 sdl.pc.in SDL.qpg.in SDL.spec SDL.spec.in src test TODO VisualCE VisualC.html VisualC Watcom-OS2.zip Watcom-Win32.zip symbian.zip WhatsNew Xcode
