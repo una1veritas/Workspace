@@ -67,7 +67,7 @@ else:
 
 def main(tsp=None):
     frozen = False
-    ix, iy = random.randrange(tsp.size()), random.randrange(tsp.size()>>1)
+    ix, lx = random.randrange(tsp.size()), random.randrange(tsp.size()>>1)
     while True:
         screen.fill([190,190,190])
         #
@@ -75,13 +75,14 @@ def main(tsp=None):
             pygame.draw.circle(screen, (0,0,0), p, 3)
 
         if not frozen :
-            a, b = ix, iy
+            elapsed = pygame.time.get_ticks()
+            a, b = ix, lx
             improved = False
-            for i in range(tsp.size()):
-                for j in range(tsp.size()):
+            for l in range(tsp.size()>>1):
+                for i in range(tsp.size()):
                     ix = (i+a) % tsp.size()
-                    iy = (j+b) % tsp.size()
-                    a_tour = tsp.opt2tour(ix, iy)
+                    lx = (l+b) % tsp.size()
+                    a_tour = tsp.opt2tour(ix, ix+lx)
                     if tsp.tourDistance(a_tour) < tsp.tourDistance() :
                         tsp.setTour(a_tour)
                         improved = True
@@ -90,6 +91,7 @@ def main(tsp=None):
                     break
             if not improved :
                 frozen = True
+                
         if frozen :
             textcolor = (63,63,255)
         else:
