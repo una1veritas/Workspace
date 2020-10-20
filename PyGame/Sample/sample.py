@@ -4,8 +4,6 @@ import pygame
 from pygame.locals import *
 import random
 import math
-from numpy import ix_
-from test.test_smtpnet import check_ssl_verifiy
 
 class tsp2D:
     def __init__(self, nsize, cities=None, area=(500,500)):
@@ -69,7 +67,7 @@ else:
 
 def main(tsp=None):
     frozen = False
-    ix, lx = random.randrange(tsp.size()), random.randrange(tsp.size()>>1)
+    ix, iy = random.randrange(tsp.size()), random.randrange(tsp.size()>>1)
     while True:
         screen.fill([190,190,190])
         #
@@ -77,13 +75,13 @@ def main(tsp=None):
             pygame.draw.circle(screen, (0,0,0), p, 3)
 
         if not frozen :
-            a, b = ix, lx
+            a, b = ix, iy
             improved = False
-            for i in range(t.size()):
-                for j in range(tsp.size()>>1):
+            for i in range(tsp.size()):
+                for j in range(tsp.size()):
                     ix = (i+a) % tsp.size()
-                    lx = (j+b) % tsp.size()
-                    a_tour = tsp.opt2tour(ix, ix+lx)
+                    iy = (j+b) % tsp.size()
+                    a_tour = tsp.opt2tour(ix, iy)
                     if tsp.tourDistance(a_tour) < tsp.tourDistance() :
                         tsp.setTour(a_tour)
                         improved = True
