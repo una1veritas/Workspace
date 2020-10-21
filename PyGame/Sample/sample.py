@@ -138,10 +138,10 @@ def main(tsp=None):
             if wstopped == 0 :
                  wstopped = pygame.time.get_ticks() - wstart
             textcolor = (63,63,255)
-            text1 = font_typ1.render('{0:,>.2f} stopped after {1:,} ms.'.format(tsp.tourDistance(), wstopped), True, textcolor)
+            text1 = font_typ1.render('{0:>,.2f} stopped after {1:,} ms.'.format(tsp.tourDistance(), wstopped), True, textcolor)
         else:
             textcolor = (255,255,255)
-            text1 = font_typ1.render('{0:,>.2f}'.format(tsp.tourDistance()), True, textcolor)
+            text1 = font_typ1.render('{0:>,.2f}'.format(tsp.tourDistance()), True, textcolor)
         screen.blit(text1, (32,16))
         pygame.draw.lines(screen, (0,0,0), True, tsp.tourPoints())
         
@@ -157,7 +157,7 @@ def main(tsp=None):
 
 if __name__ == "__main__" :
     w, h = pygame.display.get_surface().get_size()
-    t = tsp2D(510, area=(w,h))
+    t = tsp2D(200, area=(w,h))
     main(t)
 
 
