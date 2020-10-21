@@ -33,15 +33,26 @@ class tsp2D:
         return [self.cities[self.tour[i]] for i in range(self.size())]
     
     def opt2tour(self, findex, tindex):
-        if findex > tindex :
-            tx = findex
-            findex = tindex
-            tindex = tx
-        rev = self.tour[findex:tindex]
+        fidx = min(findex,tindex) % self.size()
+        tidx = max(findex,tindex) % self.size()
+        if not fidx + 1 < tidx :
+            return self.tour
+        rev = self.tour[fidx:tidx]
         rev.reverse()
-        a_tour = self.tour[:findex] + rev + self.tour[tindex:]
-        return a_tour
+        return self.tour[:fidx] + rev + self.tour[tidx:]
     
+    def semiopt3tour(self, findex, tindex):
+        fidx = findex % self.size()
+        tidx = tindex % self.size()
+        if fidx + 1 < tidx :
+            subseq = self.tour[fidx:tidx]
+            subseq = subseq[1:] + [subseq[0]]
+            return self.tour[:fidx] + subseq + self.tour[tidx:]
+        elif tidx < fidx:
+            subseq = self.tour[tidx:fidx]
+            subseq = [subseq[-1]] + subseq[:-1]
+            return self.tour[:tidx] + subseq + self.tour[fidx:]
+ 
     def tourDistance(self, a_tour = None):
         if not a_tour:
             t = self.tour
@@ -92,12 +103,26 @@ def main(tsp=None):
                     break
                 ix = (iter[0]+base[0]) % tsp.size()
                 iy = (iter[1]+base[1]) % tsp.size()
-                #print(iter, [ix, iy])
-                a_tour = tsp.opt2tour(ix, iy)
-                if tsp.tourDistance(a_tour) < tsp.tourDistance() :
-                    tsp.setTour(a_tour)
-                    improved = True
-                    break
+                if ix + 1 < iy :
+                    #print(iter, [ix, iy])
+                    a_tour = tsp.opt2tour(ix, iy)
+                    if tsp.tourDistance(a_tour) < tsp.tourDistance() :
+                        tsp.setTour(a_tour)
+                        improved = True
+                        #print(tsp.tour)
+                        break
+                    a_tour = tsp.semiopt3tour(ix, iy)
+                    if tsp.tourDistance(a_tour) < tsp.tourDistance() :
+                        tsp.setTour(a_tour)
+                        improved = True
+                        #print(tsp.tour)
+                        break
+                    a_tour = tsp.semiopt3tour(iy, ix)
+                    if tsp.tourDistance(a_tour) < tsp.tourDistance() :
+                        tsp.setTour(a_tour)
+                        improved = True
+                        #print(tsp.tour)
+                        break
                 #
                 iter[1] += 1
                 if not iter[1] < tsp.size() :
@@ -105,24 +130,18 @@ def main(tsp=None):
                     iter[1] = 0
             else:
                 frozen = True
-            #print("----", frozen)
-            #print(iter, [ix, iy])
             if improved :
                 base = [ix, iy]
                 iter = [0, 0]
                 improved = False
-                #print('====')
-                #print(base, iter)
-                #print('====')
-                
         if frozen :
             if wstopped == 0 :
                  wstopped = pygame.time.get_ticks() - wstart
             textcolor = (63,63,255)
-            text1 = font_typ1.render('{0:>8.2f} stopped after {1} ms.'.format(tsp.tourDistance(), wstopped), True, textcolor)
+            text1 = font_typ1.render('{0:,>.2f} stopped after {1:,} ms.'.format(tsp.tourDistance(), wstopped), True, textcolor)
         else:
             textcolor = (255,255,255)
-            text1 = font_typ1.render('{:>8.2f}'.format(tsp.tourDistance()), True, textcolor)
+            text1 = font_typ1.render('{0:,>.2f}'.format(tsp.tourDistance()), True, textcolor)
         screen.blit(text1, (32,16))
         pygame.draw.lines(screen, (0,0,0), True, tsp.tourPoints())
         
@@ -138,7 +157,7 @@ def main(tsp=None):
 
 if __name__ == "__main__" :
     w, h = pygame.display.get_surface().get_size()
-    t = tsp2D(160, area=(w,h))
+    t = tsp2D(510, area=(w,h))
     main(t)
 
 
