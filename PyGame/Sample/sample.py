@@ -66,8 +66,10 @@ else:
     font_typ1 = pygame.font.SysFont("helvetica", 18)
 
 def main(tsp=None):
+    iter = [0, 0]
+    base = [0, 0]
     frozen = False
-    ix, lx = random.randrange(tsp.size()), random.randrange(tsp.size()>>1)
+    improved = False
     while True:
         screen.fill([190,190,190])
         #
@@ -75,22 +77,31 @@ def main(tsp=None):
             pygame.draw.circle(screen, (0,0,0), p, 3)
 
         if not frozen :
-            elapsed = pygame.time.get_ticks()
-            a, b = ix, lx
-            improved = False
-            for l in range(tsp.size()>>1):
-                for i in range(tsp.size()):
-                    ix = (i+a) % tsp.size()
-                    lx = (l+b) % tsp.size()
-                    a_tour = tsp.opt2tour(ix, ix+lx)
-                    if tsp.tourDistance(a_tour) < tsp.tourDistance() :
-                        tsp.setTour(a_tour)
-                        improved = True
-                        break
-                if improved:
-                    break
-            if not improved :
+            while iter[0] < tsp.size() and iter[1] < tsp.size() :
+                print(iter)
+                #
+                iter[1] += 1
+                if not iter[1] < tsp.size() :
+                    iter[0] += 1
+                    iter[1] = iter[0] + 1
+            else:
                 frozen = True
+            
+#             a, b = ix, lx
+#             improved = False
+#             for l in range(tsp.size()>>1):
+#                 for i in range(tsp.size()):
+#                     ix = (i+a) % tsp.size()
+#                     lx = (l+b) % tsp.size()
+#                     a_tour = tsp.opt2tour(ix, ix+lx)
+#                     if tsp.tourDistance(a_tour) < tsp.tourDistance() :
+#                         tsp.setTour(a_tour)
+#                         improved = True
+#                         break
+#                 if improved:
+#                     break
+#             if not improved :
+#                 frozen = True
                 
         if frozen :
             textcolor = (63,63,255)
