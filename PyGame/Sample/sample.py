@@ -82,10 +82,11 @@ else:
 
 def main(tsp=None):
     iter = [0, 0]
-    start = [0, 2]
+    start = [0, 1]
     frozen = False
     improved = False
     enable_semiopt3 = True
+    optimization_run = False
     wstart = pygame.time.get_ticks()
     wstopped = 0
     while True:
@@ -98,20 +99,27 @@ def main(tsp=None):
             screen.blit(ptlabel, (pt[0], pt[1] + 4))
 
         swatch = pygame.time.get_ticks()
-        if not frozen :
-            while iter[0] + 2 < tsp.size() :
-                if  pygame.time.get_ticks() - swatch > 50 :
-                    break
-                ix = (start[0] + iter[0]) % tsp.size()
-                iy = (start[1] + iter[1]) % tsp.size()
-                #print(iter, [ix, iy])
-                if ix + 1 < iy :
-                    a_tour = tsp.opt2tour(ix, iy)
-                    if tsp.tourDistance(a_tour) < tsp.tourDistance() :
-                        tsp.setTour(a_tour)
-                        improved = True
-                        #print(tsp.tour)
+        if optimization_run :
+            if not frozen :
+                while iter[0] + 2 < tsp.size() :
+                    if  pygame.time.get_ticks() - swatch > 50 :
                         break
+                    #
+                    iter[1] += 1
+                    if not iter[1] < tsp.size() :
+                        iter[0] += 1
+                        iter[1] = 0
+                    #
+                    ix = (start[0] + iter[0]) % tsp.size()
+                    iy = (start[1] + iter[1]) % tsp.size()
+                    #print(iter, [ix, iy])
+                    if ix + 1 < iy :
+                        a_tour = tsp.opt2tour(ix, iy)
+                        if tsp.tourDistance(a_tour) < tsp.tourDistance() :
+                            tsp.setTour(a_tour)
+                            improved = True
+                            #print(tsp.tour)
+                            break
                     if enable_semiopt3 :
                         a_tour = tsp.semiopt3tour(ix, iy)
                         if tsp.tourDistance(a_tour) < tsp.tourDistance() :
@@ -119,51 +127,39 @@ def main(tsp=None):
                             improved = True
                             #print(tsp.tour)
                             break
-                        a_tour = tsp.semiopt3tour(iy, ix)
-                        if tsp.tourDistance(a_tour) < tsp.tourDistance() :
-                            tsp.setTour(a_tour)
-                            improved = True
-                            #print(tsp.tour)
-                            break
-                #
-                iter[1] += 1
-                if not iter[1] < tsp.size() :
-                    iter[0] += 1
-                    iter[1] = 0
-            else:
-                if not enable_semiopt3 :
-                    enable_semiopt3 = True
-                    frozen = False
                 else:
                     frozen = True
-            if improved :
-                base = [ix, iy]
-                iter = [0, 0]
-                improved = False
-        if frozen :
-            if wstopped == 0 :
-                wstopped = pygame.time.get_ticks() - wstart
-            textcolor = (63,63,255)
-            text1 = font_typ1.render('{0:>,.2f} stopped after {1:,} ms.'.format(tsp.tourDistance(), wstopped), True, textcolor)
-        else:
-            textcolor = (255,255,255)
-            text1 = font_typ1.render('{0:>,.2f}'.format(tsp.tourDistance()), True, textcolor)
-        screen.blit(text1, (32,16))
-        pygame.draw.lines(screen, (0,0,0), True, tsp.tourPoints())
+                if improved :
+                    start = [ix, iy]
+                    iter = [0, 0]
+                    improved = False
+            if frozen :
+                if wstopped == 0 :
+                    wstopped = pygame.time.get_ticks() - wstart
+                textcolor = (63,63,255)
+                text1 = font_typ1.render('{0:>,.2f} stopped after {1:,} ms.'.format(tsp.tourDistance(), wstopped), True, textcolor)
+            else:
+                textcolor = (255,255,255)
+                text1 = font_typ1.render('{0:>,.2f}'.format(tsp.tourDistance()), True, textcolor)
+            screen.blit(text1, (32,16))
+            pygame.draw.lines(screen, (0,0,0), True, tsp.tourPoints())
         
-        #screen.blit(sprite,(20,50))
+            #screen.blit(sprite,(20,50))
         pygame.display.update()
         pygame.time.wait(max(0,50 - pygame.time.get_ticks() - swatch))
-        #
+            #
         for evt in pygame.event.get():
             if evt.type == QUIT :
                 pygame.quit()
                 sys.exit()
+            elif evt.type == KEYDOWN :
+                if pygame.key.get_pressed()[K_s] :
+                    optimization_run = not optimization_run
 
 
 if __name__ == "__main__" :
     w, h = pygame.display.get_surface().get_size()
-    t = tsp2D(127, area=(w,h))
+    t = tsp2D(160, area=(w,h))
     main(t)
 
 
