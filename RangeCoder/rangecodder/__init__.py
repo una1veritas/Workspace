@@ -1,0 +1,1 @@
+#http://www.nct9.ne.jp/m_hiroi/light/pyalgo36.html
