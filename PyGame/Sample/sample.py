@@ -81,7 +81,7 @@ else:
     font_typ2 = pygame.font.SysFont("helvetica", 10)
 
 def main(tsp=None):
-    iter = [0, 0]
+    idx = [0, 0]
     start = [0, 1]
     frozen = False
     improved = False
@@ -101,25 +101,19 @@ def main(tsp=None):
         swatch = pygame.time.get_ticks()
         if optimization_run :
             if not frozen :
-                while iter[0] + 2 < tsp.size() :
+                while idx[0] + 2 < tsp.size() :
                     if  pygame.time.get_ticks() - swatch > 50 :
                         break
                     #
-                    iter[1] += 1
-                    if not iter[1] < tsp.size() :
-                        iter[0] += 1
-                        iter[1] = 0
-                    #
-                    ix = (start[0] + iter[0]) % tsp.size()
-                    iy = (start[1] + iter[1]) % tsp.size()
+                    ix = (start[0] + idx[0]) % tsp.size()
+                    iy = (start[1] + idx[1]) % tsp.size()
                     #print(iter, [ix, iy])
-                    if ix + 1 < iy :
-                        a_tour = tsp.opt2tour(ix, iy)
-                        if tsp.tourDistance(a_tour) < tsp.tourDistance() :
-                            tsp.setTour(a_tour)
-                            improved = True
-                            #print(tsp.tour)
-                            break
+                    a_tour = tsp.opt2tour(ix, iy)
+                    if tsp.tourDistance(a_tour) < tsp.tourDistance() :
+                        tsp.setTour(a_tour)
+                        improved = True
+                        #print(tsp.tour)
+                        break
                     if enable_semiopt3 :
                         a_tour = tsp.semiopt3tour(ix, iy)
                         if tsp.tourDistance(a_tour) < tsp.tourDistance() :
@@ -127,11 +121,27 @@ def main(tsp=None):
                             improved = True
                             #print(tsp.tour)
                             break
+                        a_tour = tsp.semiopt3tour(iy, ix)
+                        if tsp.tourDistance(a_tour) < tsp.tourDistance() :
+                            tsp.setTour(a_tour)
+                            improved = True
+                            #print(tsp.tour)
+                            break
+                    #
+                    while True :
+                        idx[1] += 1
+                        if not idx[1] < tsp.size() :
+                            idx[0] += 1
+                            idx[1] = 0
+                        if not idx[0] + 2 < tsp.size() :
+                            break
+                        if (start[0] + idx[0]) % tsp.size() + 1 < (start[1] + idx[1]) % tsp.size() :
+                            break
                 else:
                     frozen = True
                 if improved :
                     start = [ix, iy]
-                    iter = [0, 0]
+                    idx = [0, 0]
                     improved = False
             if frozen :
                 if wstopped == 0 :
@@ -159,7 +169,7 @@ def main(tsp=None):
 
 if __name__ == "__main__" :
     w, h = pygame.display.get_surface().get_size()
-    t = tsp2D(160, area=(w,h))
+    t = tsp2D(200, area=(w,h))
     main(t)
 
 
