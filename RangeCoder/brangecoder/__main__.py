@@ -30,15 +30,15 @@ def bytestream(fp, buffer_size = 32) :
             yield ch
         buff = fp.read(buffer_size)
     
-def main(infilename=None):
-    print(infilename)
+def main(infile = None):
+    print(infile)
     hist = list()
     hist.append(1)
     hist_total = 1
     for i in range(255):
         hist.append(0)
     ch_count = 1
-    with open(infilename, "rb") as fp:
+    with open(infile, "rb") as fp:
         for a_byte in bytestream(fp, 128):
             hist[a_byte] += 1
             hist_total += 1
@@ -58,8 +58,16 @@ def main(infilename=None):
     for ch in range(256):
         (l, r) = ranges[ch]
         if l != r :
-            print( chr(ch) if chr(ch).isprintable() else hex(ch) ,bin(l),bin(r), bin(l^r))
+            print( chr(ch) if chr(ch).isprintable() else hex(ch) ,l,r)
     print(2**math.ceil(math.log2(hist_total)))
+    with open(infile, "rb") as fp:
+        code = list()
+        for a_byte in bytestream(fp, 128):
+            #print(ranges[a_byte])
+            code.append(ranges[a_byte])
+    code.append(ranges[0])
+    print([hex(l) + ':' + hex(r) for (l,r) in code[:100]])
+    print(len(code))
     
 if __name__ == "__main__" :
     main(sys.argv[1])
