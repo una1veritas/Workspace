@@ -29,37 +29,44 @@ def bytestream(fp, buffer_size = 32) :
         for ch in buff:
             yield ch
         buff = fp.read(buffer_size)
+
+def samehighbits(l, r): 
+    x = l^r
+    d = math.floor(math.log2(l | r))+1
+    for i in range(1,d):
+        if (x>>(d-i)) & 1 == 1 :
+            break
+    return i-1
     
 def main(infile = None):
     print(infile)
     hist = list()
-    hist.append(1)
-    hist_total = 1
-    for i in range(255):
-        hist.append(0)
-    ch_count = 1
+    for i in range(256):
+        hist.append(1)
+    hist_total = 256
+    cnt = 256
     with open(infile, "rb") as fp:
-        for a_byte in bytestream(fp, 128):
+        for a_byte in bytestream(fp, 256):
             hist[a_byte] += 1
             hist_total += 1
-            ch_count += 1
 #             if chr(a_byte).isprintable() :
 #                 print(chr(a_byte), end='')
 #             else:
 #                 print(hex(a_byte))
-            if ch_count >= (1<<12) :
+            cnt += 1
+            if cnt >= 4096 :
                 break
     ranges = list()
     subsum = 0
     for i in range(0,len(hist)):
         ranges.append( (subsum, subsum + hist[i]) )
         subsum += hist[i]
-    print(subsum)
     for ch in range(256):
         (l, r) = ranges[ch]
-        if l != r :
-            print( chr(ch) if chr(ch).isprintable() else hex(ch) ,l,r)
-    print(2**math.ceil(math.log2(hist_total)))
+#         if l != r :
+#             print( chr(ch) if chr(ch).isprintable() else hex(ch) , r - l)
+    print(hist_total, 2**math.ceil(math.log2(hist_total)))
+    
     with open(infile, "rb") as fp:
         code = list()
         for a_byte in bytestream(fp, 128):
@@ -75,8 +82,8 @@ def main(infile = None):
         width = right - left
         right = left*4096 + (width * r)
         left = left*4096 + (width * l)
-        print(hex(left), hex(right), math.log2(left^right))
-    print(left/(4096**n), right/(4096**n))
+        print('---–\n{0:b}\n{1:b}\n{2:}\n'.format(left, right, samehighbits(left, right)))
+    print('\n',left, right)
     
 if __name__ == "__main__" :
     main(sys.argv[1])
