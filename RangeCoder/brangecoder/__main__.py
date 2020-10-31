@@ -30,21 +30,33 @@ def bytestream(fp, buffer_size = 32) :
             yield ch
         buff = fp.read(buffer_size)
 
-def samehighbits(l, r): 
+def samehighbits(l, r, w): 
     x = l^r
-    d = math.floor(math.log2(l | r))+1
-    for i in range(1,d):
-        if (x>>(d-i)) & 1 == 1 :
+    for b in range(w):
+        if (x>>(w-1-b)) & 1 :
             break
-    return i-1
-    
+#    print('w='+str(w)+', b='+str(b))
+    hbits = ''
+    if not b :
+        return hbits
+    for i in range(w):
+        if i < b :
+            if l>>(w-1-i) & 1 :
+                hbits += '1'
+            else:
+                hbits += '0'
+        else:
+            break
+    return hbits
+   
 def main(infile = None):
+    char_bitsize = 8
+    chunk_bitsize = 12
     print(infile)
     hist = list()
-    for i in range(256):
+    for i in range(1<<char_bitsize):
         hist.append(1)
-    hist_total = 256
-    cnt = 256
+    hist_total = 1<<char_bitsize
     with open(infile, "rb") as fp:
         for a_byte in bytestream(fp, 256):
             hist[a_byte] += 1
@@ -53,8 +65,7 @@ def main(infile = None):
 #                 print(chr(a_byte), end='')
 #             else:
 #                 print(hex(a_byte))
-            cnt += 1
-            if cnt >= 4096 :
+            if hist_total >= (1<<chunk_bitsize) :
                 break
     ranges = list()
     subsum = 0
@@ -76,14 +87,27 @@ def main(infile = None):
     print(len(code))
     left = 0
     right = 1
-    n = 12
-    for i in range(8):
+    bits = 0
+    encodedstr = ''
+    for i in range(32):
         (l, r) = code[i]
         width = right - left
-        right = left*4096 + (width * r)
-        left = left*4096 + (width * l)
-        print('---–\n{0:b}\n{1:b}\n{2:}\n'.format(left, right, samehighbits(left, right)))
-    print('\n',left, right)
+        right = (left<<chunk_bitsize) + (width * r)
+        left = (left<<chunk_bitsize) + (width * l)
+        bits += chunk_bitsize
+#        print('---–\n{0}\n{1}\n'.format(format(left, 'b').zfill(bits), format(right, 'b').zfill(bits)))
+        hbits = samehighbits(left, right, bits)
+        if len(hbits) :
+            mask = (1<<bits) - 1
+            mask >>= len(hbits)
+            left &= mask
+            right &= mask
+            bits -= len(hbits)
+            print('{}.{}\n{}.{} ({}:{})\n'.format(hbits, format(left,'b').zfill(bits), hbits, format(right, 'b').zfill(bits), len(hbits), bits))
+            encodedstr += hbits
+
+    print(left, right)
+    print(encodedstr, len(encodedstr))
     
 if __name__ == "__main__" :
     main(sys.argv[1])
