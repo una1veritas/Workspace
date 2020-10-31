@@ -66,8 +66,17 @@ def main(infile = None):
             #print(ranges[a_byte])
             code.append(ranges[a_byte])
     code.append(ranges[0])
-    print([hex(l) + ':' + hex(r) for (l,r) in code[:100]])
     print(len(code))
+    left = 0
+    right = 1
+    n = 12
+    for i in range(8):
+        (l, r) = code[i]
+        width = right - left
+        right = left*4096 + (width * r)
+        left = left*4096 + (width * l)
+        print(hex(left), hex(right), math.log2(left^right))
+    print(left/(4096**n), right/(4096**n))
     
 if __name__ == "__main__" :
     main(sys.argv[1])
