@@ -40,13 +40,32 @@ def samehighbits(l, r, w):
         bmask >>= 1 
     return bdigits
    
-def update_histgram(hist, block, max_block_size):
+def update_histgram(hist, block, enhance = True):
     for c in block:
         hist[c] += 1
-    
-    if len(block) == max_block_size :
-        for i in range(len(hist)) :
-            hist[i] = (hist[i]+1)>>1
+    if enhance :
+        return hist
+    carry = 0
+    for i in range(len(hist)):
+        if hist[i] > 1 :
+            hist[i] >>= 1
+    while sum(hist) != len(block) :
+        i = 0
+        while sum(hist) > len(block):
+            if hist[i] > 1:
+                hist[i] -= 1
+            i += 1
+            if not i < len(hist) :
+                break
+        i = 0
+        while sum(hist) < len(block):
+            if hist[i] > 1:
+                hist[i] += 1
+            i += 1
+            if not i < len(hist) :
+                break
+    print('sum hist {}'.format(sum(hist)))
+#    print('carry = ' + str(carry))
     return hist
 
 def encode_block(block, bitsize, sections, left = 0, right = 1, bits = 0):
@@ -77,8 +96,12 @@ def encode_block(block, bitsize, sections, left = 0, right = 1, bits = 0):
     codestr += '1'
     return codestr
 
-
-def main(infile = None):
+def main(argv = None):
+    infile = argv[1]
+    if len(argv) >= 3 :
+        outfile = argv[2]
+    else:
+        outfile = 'test.brc'
     byte_bitsize = 8
     print(infile)
     hist = list()
@@ -88,16 +111,12 @@ def main(infile = None):
     
     try:
         block_size_bits = 8
-        block_size_bits_max = 12
+        block_size_bits_max = 13
         
         with open(infile, "rb") as fp:
             while True :
                 buff = fp.read(1<<block_size_bits)
                 # print('block_size = {}'.format(block_size) )
-                # if the block is full (not the final block)
-                if len(buff) == (1<<block_size_bits) and block_size_bits < block_size_bits_max :
-                    update_histgram(hist, buff, 1<<block_size_bits_max)
-                    print('update '+str(sum(hist)))
                 # setup the code_range
                 subsum = 0
                 code_range = [0]
@@ -106,26 +125,29 @@ def main(infile = None):
                     code_range.append(subsum)
                 # encode
                 encodedstr = encode_block(buff, block_size_bits, code_range, left = 0, right = 1, bits = 0)
-                for i in range(len(encodedstr)>>3):
-                    binstr = encodedstr[i*8:(i+1)*8]
-                    print(format(int(binstr,2),'02x') + ' ', end='')
-                print()
+                with open(outfile, "ab") as ofp:
+                    for i in range(len(encodedstr)>>3):
+                        binstr = encodedstr[i*8:(i+1)*8]
+                        ofp.write(int(binstr,2).to_bytes(1, 'little'))
                 print(len(encodedstr), 1<<block_size_bits)
                 
-                # termination condition
-                if len(buff) != (1<<block_size_bits) :
+                # if the block is full (not the final block)
+                if len(buff) == (1<<block_size_bits) :
+                    if block_size_bits < block_size_bits_max :
+                        update_histgram(hist, buff, enhance = True)
+                        print('enhanced histogram size to '+str(sum(hist)))
+                        block_size_bits += 1
+                    else:
+                        update_histgram(hist, buff, enhance = False)
+                else:
+                    # termination condition
                     print(sum(hist), 1<<block_size_bits)
                     break
-                else:
-                    if block_size_bits < block_size_bits_max :
-                        block_size_bits += 1
     except IOError:
         print('file "' + infile + '" open failed.')
         exit()
     print('hist_total = {}'.format(sum(hist)))
     for i in range(1<<byte_bitsize):
-        if hist[i] == 1 :
-            continue
         print( (chr(i) if chr(i).isprintable() else hex(i) ), hist[i])
     exit()
         
@@ -138,7 +160,6 @@ def main(infile = None):
 #         (l, r) = ranges[ch]
 #          if l != r :
 #              print( chr(ch) if chr(ch).isprintable() else hex(ch) , r - l)
-    print(hist_total, 2**math.ceil(math.log2(hist_total)))
     
     with open(infile, "rb") as fp:
         code = list()
@@ -175,4 +196,4 @@ def main(infile = None):
     print('finished.')
     
 if __name__ == "__main__" :
-    main(sys.argv[1])
+    main(sys.argv)
