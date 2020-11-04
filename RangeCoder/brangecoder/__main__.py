@@ -102,10 +102,11 @@ def main(argv = None):
     if len(argv) >= 3 :
         outfile = argv[2]
     else:
-        outfile = 'test.brc'
+        outfile = None
     byte_bitsize = 8
     print(infile)
     hist = list()
+    outarray = list()
     # the initial histogram
     for i in range(1<<byte_bitsize):
         hist.append(1)
@@ -126,10 +127,15 @@ def main(argv = None):
                     code_range.append(subsum)
                 # encode
                 encodedstr = encode_block(buff, block_size_bits, code_range, left = 0, right = 1, bits = 0)
-                with open(outfile, "ab") as ofp:
-                    for i in range(len(encodedstr)>>3):
+                if outfile :
+                    with open(outfile, "ab") as ofp:
+                        for i in range(len(buff)):
+                            binstr = encodedstr[i*8:(i+1)*8]
+                            ofp.write(int(binstr,2).to_bytes(1, 'little'))
+                else:
+                    for i in range(len(buff)):
                         binstr = encodedstr[i*8:(i+1)*8]
-                        ofp.write(int(binstr,2).to_bytes(1, 'little'))
+                        outarray.append(int(binstr,2))                        
                 print(len(encodedstr), 1<<block_size_bits)
                 
                 # if the block is full (not the final block)
@@ -152,7 +158,10 @@ def main(argv = None):
         print( (chr(i) if chr(i).isprintable() else hex(i) ), hist[i])
     
     print("input  file size: {}".format(os.path.getsize(infile)))
-    print("output file size: {}".format(os.path.getsize(outfile)))
+    if outfile :
+        print("output file size: {}".format(os.path.getsize(outfile)))
+    else:
+        print('output array size: {}'.format(len(outarray)))
     print('finished.')
     
 if __name__ == "__main__" :
