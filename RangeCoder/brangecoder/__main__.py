@@ -1,3 +1,4 @@
+# coding: utf-8
 '''
 Created on 2020/10/28
 
@@ -149,50 +150,9 @@ def main(argv = None):
     print('hist_total = {}'.format(sum(hist)))
     for i in range(1<<byte_bitsize):
         print( (chr(i) if chr(i).isprintable() else hex(i) ), hist[i])
-    exit()
-        
-    ranges = list()
-    subsum = 0
-    for i in range(0,len(hist)):
-        ranges.append( (subsum, subsum + hist[i]) )
-        subsum += hist[i]
-#     for ch in range(256):
-#         (l, r) = ranges[ch]
-#          if l != r :
-#              print( chr(ch) if chr(ch).isprintable() else hex(ch) , r - l)
     
-    with open(infile, "rb") as fp:
-        code = list()
-        for a_byte in bytestream(fp, 256):
-            #print(ranges[a_byte])
-            code.append(ranges[a_byte])
-    code.append(ranges[0])
-    print('file size = '+str(len(code)))
-    left = 0
-    right = 1
-    bits = 0
-    encodedstr = ''
-    for (l, r) in code[:4096] :
-#        print('---–\n{0}\n{1}\n'.format(format(left, 'b').zfill(bits), format(right, 'b').zfill(bits)))
-        hbits = samehighbits(left, right, bits)
-        if len(hbits) :
-            mask = (1<<bits) - 1
-            mask >>= len(hbits)
-            left &= mask
-            right &= mask
-            bits -= len(hbits)
-#             print('{}.{}\n{}.{}\n({}:{})\n'.format(hbits, format(left,'b').zfill(bits), hbits, format(right, 'b').zfill(bits), len(hbits), bits))
-            encodedstr += hbits
-        if (left & 0xff == 0) and (right & 0xff == 0) :
-            left >>= 8
-            right >>= 8
-            bits -= 8
-    else:
-        encodedstr += '1'
-
-    #print('{}\n{}'.format(bin(right), len(bin(right))))
-    print(encodedstr)
-    print(len(encodedstr))
+    print("input  file size: {}".format(os.path.getsize(infile)))
+    print("output file size: {}".format(os.path.getsize(outfile)))
     print('finished.')
     
 if __name__ == "__main__" :
