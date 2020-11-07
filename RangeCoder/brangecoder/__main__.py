@@ -31,7 +31,7 @@ def bytestream(fp, buffer_size = 32) :
             yield ch
         buff = fp.read(buffer_size)
 
-def samehighbits(l, r, w): 
+def commonhighbits(l, r, w): 
     bmask = 1<<(w-1)
     bdigits = ''
     while bmask :
@@ -41,36 +41,29 @@ def samehighbits(l, r, w):
         bmask >>= 1 
     return bdigits
    
-def update_histgram(hist, block, enhance = True):
-    for c in block:
-        hist[c] += 1
+def histgram(hist, block, enhance = True):
     if enhance :
-        return hist
-    carry = 0
-    for i in range(len(hist)):
-        if hist[i] > 1 :
-            hist[i] >>= 1
-    while sum(hist) != len(block) :
-        i = 0
-        while sum(hist) > len(block):
-            if hist[i] > 1:
-                hist[i] -= 1
-            i += 1
-            if not i < len(hist) :
-                break
-        i = 0
-        while sum(hist) < len(block):
-            if hist[i] > 1:
-                hist[i] += 1
-            i += 1
-            if not i < len(hist) :
-                break
-    print('sum hist {}'.format(sum(hist)))
-#    print('carry = ' + str(carry))
+        for c in block:
+            hist[c] += 1
     return hist
 
+def subbitseq(val, bitdepth, index_begin, index_end):
+    mask = 1 << (bitdepth - 1)
+    result = ''
+    for i in range(bitdepth):
+        if index_end <= i :
+            break
+        if index_begin <= i :
+            if (val & mask) :
+                result += '1'
+            else:
+                result += '0'
+        mask >>= 1
+    return result
+    
 def encode_block(block, bitsize, sections, left = 0, right = 1, bits = 0):
-    codestr = ''
+    codebytes = b''
+    bitbuffer = ''
     for i in range(len(block)) :
         ch = block[i]
         l, r = sections[ch], sections[ch+1]
@@ -79,7 +72,7 @@ def encode_block(block, bitsize, sections, left = 0, right = 1, bits = 0):
         left = (left<<bitsize) + (width * l)
         bits += bitsize
     # print( '[{}, {}), '.format(left/(1<<bits), right/(1<<bits)))
-        hbits = samehighbits(left, right, bits)
+        hbits = commonhighbits(left, right, bits)
         if len(hbits) :
             mask = (1<<bits) - 1
             mask >>= len(hbits)
@@ -87,15 +80,25 @@ def encode_block(block, bitsize, sections, left = 0, right = 1, bits = 0):
             left &= mask
             right &= mask
             bits -= len(hbits)
-            codestr += hbits
-    #    print('{}:[{:b}, {:b}) ({})'.format(hbits, left, right, bits))
-    #                         print(encodedstr)
-    # #                     if (left & 0xff == 0) and (right & 0xff == 0) :
-    # #                         left >>= 8
-    # #                         right >>= 8
-    # #                         bits -= 8
-    codestr += '1'
-    return codestr
+            bitbuffer += hbits
+            #print('{} '.format(hbits),end='')
+            while (left & 0xff == 0) and (right & 0xff == 0) :
+                left >>= 8
+                right >>= 8
+                bits -= 8
+            if len(bitbuffer) // 8 > 0:
+                bytenum = len(bitbuffer) // 8
+                codebytes += int(bitbuffer[:bytenum*8],2).to_bytes(bytenum, byteorder='big')
+                bitbuffer = bitbuffer[bytenum*8:]
+        #print('[{},{})'.format(format(left,'b')[:8], format(right,'b')[:8]), end='')
+        
+    #print()
+    print('last char {}, remained {}, {} bits'.format(hex(ch), bitbuffer, bits), subbitseq(left, bits, 0, 8), subbitseq(right, bits, 0, 8))
+    if len(bitbuffer) :
+        bitbuffer += subbitseq(left, bits, 0, 8-len(bitbuffer))
+        print(bitbuffer)
+        codebytes += int(bitbuffer,2).to_bytes(bytenum, byteorder='big')
+    return codebytes
 
 def main(argv = None):
     infile = argv[1]
@@ -106,14 +109,17 @@ def main(argv = None):
     byte_bitsize = 8
     print(infile)
     hist = list()
-    outarray = list()
     # the initial histogram
     for i in range(1<<byte_bitsize):
         hist.append(1)
-    
+    codebytes = b''
     try:
         block_size_bits = 8
-        block_size_bits_max = 13
+        block_size_bits_max = 14
+
+        if outfile :
+            with open(outfile, "wb") as ofp:
+                pass
         
         with open(infile, "rb") as fp:
             while True :
@@ -126,26 +132,22 @@ def main(argv = None):
                     subsum += hist[i]
                     code_range.append(subsum)
                 # encode
-                encodedstr = encode_block(buff, block_size_bits, code_range, left = 0, right = 1, bits = 0)
+                print('encoding')
+                block_codebytes = encode_block(buff, block_size_bits, code_range, left = 0, right = 1, bits = 0)
                 if outfile :
                     with open(outfile, "ab") as ofp:
-                        for i in range(len(buff)):
-                            binstr = encodedstr[i*8:(i+1)*8]
-                            ofp.write(int(binstr,2).to_bytes(1, 'little'))
+                        ofp.write(block_codebytes)
                 else:
-                    for i in range(len(buff)):
-                        binstr = encodedstr[i*8:(i+1)*8]
-                        outarray.append(int(binstr,2))                        
-                print(len(encodedstr), 1<<block_size_bits)
+                    codebytes += block_codebytes
+                #print(block_codebytes)
+                print('block code bytes '+str(len(block_codebytes)), 'block size '+str(1<<block_size_bits))
                 
                 # if the block is full (not the final block)
                 if len(buff) == (1<<block_size_bits) :
                     if block_size_bits < block_size_bits_max :
-                        update_histgram(hist, buff, enhance = True)
-                        print('enhanced histogram size to '+str(sum(hist)))
+                        histgram(hist, buff, enhance = True)
+                        print('histogram enhanced to '+str(sum(hist)))
                         block_size_bits += 1
-                    else:
-                        update_histgram(hist, buff, enhance = False)
                 else:
                     # termination condition
                     print(sum(hist), 1<<block_size_bits)
@@ -161,7 +163,7 @@ def main(argv = None):
     if outfile :
         print("output file size: {}".format(os.path.getsize(outfile)))
     else:
-        print('output array size: {}'.format(len(outarray)))
+        print('output array size: {}'.format(len(codebytes)))
     print('finished.')
     
 if __name__ == "__main__" :
