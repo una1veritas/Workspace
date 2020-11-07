@@ -83,7 +83,6 @@ def encode_block(block, bitsize, sections, left = 0, right = 1, bits = 0):
         if len(hbits) :
             mask = (1<<bits) - 1
             mask >>= len(hbits)
-    # print(mask)
             left &= mask
             right &= mask
             bits -= len(hbits)
