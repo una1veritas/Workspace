@@ -6,15 +6,6 @@ Created on 2020/10/28
 '''
 
 import sys, math, os, copy
-
-def bitstream(fp, buffer_size = 32):    
-    buff = fp.read(buffer_size)
-    while buff :
-        for ch in buff:
-            for bp in range(0,8):
-                yield 1 if (ch & 0x80) else 0
-                ch <<= 1
-        buff = fp.read(buffer_size)
     
 def nibblestream(fp, buffer_size = 32):    
     buff = fp.read(buffer_size)
@@ -118,12 +109,68 @@ def encode_block(block, bitsize, sections, left = 0, right = 1, bits = 0):
         codebytes += int(bitbuffer,2).to_bytes(bytenum, byteorder='big')
     return codebytes
 
-def main(argv = None):
-    infile = argv[1]
-    if len(argv) >= 3 :
-        outfile = argv[2]
-    else:
-        outfile = None
+def decode_block(block, bitsize, sections, left = 0, right = 1, bits = 0):
+    codebytes = b''
+    bitbuffer = ''
+    for i in range(len(block)) :
+        ch = block[i]
+        l, r = sections[ch], sections[ch+1]
+        width = right - left
+        right = (left<<bitsize) + (width * r)
+        left = (left<<bitsize) + (width * l)
+        bits += bitsize
+
+def decoder(infile, outfile = None):
+    byte_bitsize = 8
+    print(infile)
+    hist = [1 for i in range(1<<byte_bitsize)]
+    try:
+        block_size_bits = 8
+        block_size_bits_max = 16
+        with open(infile, "rb") as ifp:
+            while True :
+                buff = ifp.read(1<<block_size_bits)
+                if not len(buff) :
+                    break
+                code_range = [0]
+                range_width = sum(hist)
+                subsum = 0
+                for i in range(len(hist)):
+                    subsum += hist[i]
+                    code_range.append(subsum)
+                bitstream = ''
+                value = 0
+                bitdepth = 0
+                bpos = 0
+                left = 0
+                while bpos < (len(buff)<<3) :
+                    abit = 0x01 & ((buff[bpos>>3])>>(7-(bpos&0x07)))
+                    bitstream += str(abit)
+                    value <<= 1
+                    value |= abit
+                    bitdepth += 1
+                    while True :
+                        if not (value < code_range[left]) :
+                            break
+                        left += 1
+                    right = left
+                    while value >= code_range[right] :
+                        right += 1
+                    if left + 1 == right :
+                        print(value)
+                        left = 0
+                print(len(bitstream))
+                    
+                if len(buff) != (1<<block_size_bits) :
+                    break
+                else:
+                    block_size_bits += 1
+                break
+    except IOError:
+        print('file "' + infile + '" open failed.')
+        exit()
+    
+def encoder(infile, outfile = None):
     byte_bitsize = 8
     print(infile)
     hist = list()
@@ -190,4 +237,8 @@ def main(argv = None):
     print('finished.')
     
 if __name__ == "__main__" :
-    main(sys.argv)
+    infile = sys.argv[1]
+    outfile = None
+    if len(sys.argv) >= 3 :
+        outfile = sys.argv[2]
+    decoder(infile, outfile)
