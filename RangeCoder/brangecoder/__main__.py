@@ -6,22 +6,7 @@ Created on 2020/10/28
 '''
 
 import sys, math, os, copy
-
-class BitSequence:
-# bits
-# length
-#
-    def __init__(self, intvalue = 0, digitnum = 0):
-        self.length = digitnum
-        self.bits = intvalue & ((1<<self.length) - 1)
-    
-    def __str__(self):
-        mask = 1<<(self.length - 1)
-        t = ''
-        for i in range(self.length):
-            t += str('1' if mask & self.bits != 0 else '0')
-            mask >>= 1
-        return t
+from bitstream import BitStream
 
 def nibblestream(fp, buffer_size = 32):    
     buff = fp.read(buffer_size)

@@ -38,6 +38,9 @@ class BitStream(object):
             bmask >>= 1
         return tmpstr
     
+    def __int__(self):
+        return self.bval
+
     def append(self, bits, length = 0):
         if type(bits) is int :
             self.bval <<= length
@@ -54,12 +57,30 @@ class BitStream(object):
                     self.bval |= 1
                     self.blength += 1
             return self
-    
-    def __int__(self):
-        return self.bval
 
-bs = BitStream(375, 10)
+    def retract(self, bits = 8):
+        if bits >= self.blength :
+            t = self.bval
+            self.blength = 0
+            self.bval = 0
+            return t
+        t = 0
+        mask = 1<<(self.blength-1)
+        while  bits > 0:
+            t <<= 1
+            if (self.bval & mask) != 0 :
+                t |= 1
+            self.blength -= 1
+            self.bval &= (~mask)
+            bits -= 1
+            mask >>= 1
+        return t
+                      
+bs = BitStream(0, 9)
 print(bs)
-print(bs.append('0110'))
-print(bs.append(13, 5))
+print(bs.append('10110'))
+print(bs.append(7, 5))
 print(int(bs))
+print(bin(bs.retract(9)), bs)
+print(bin(bs.retract(9)), bs)
+print(bin(bs.retract(9)), bs)
