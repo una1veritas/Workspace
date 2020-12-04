@@ -6,7 +6,8 @@ Created on 2020/10/28
 '''
 
 import sys, math, os, copy
-    
+from bitstream import BitStream
+
 def nibblestream(fp, buffer_size = 32):    
     buff = fp.read(buffer_size)
     while buff :
