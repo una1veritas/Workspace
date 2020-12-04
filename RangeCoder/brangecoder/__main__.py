@@ -241,4 +241,4 @@ if __name__ == "__main__" :
     outfile = None
     if len(sys.argv) >= 3 :
         outfile = sys.argv[2]
-    decoder(infile, outfile)
+    encoder(infile, outfile)
