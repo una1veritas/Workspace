@@ -5,17 +5,9 @@ Created on 2020/10/28
 @author: Sin Shimozono
 '''
 
-import sys, math, os
+import sys, math, os, copy
+from bitstream import BitStream
 
-def bitstream(fp, buffer_size = 32):    
-    buff = fp.read(buffer_size)
-    while buff :
-        for ch in buff:
-            for bp in range(0,8):
-                yield 1 if (ch & 0x80) else 0
-                ch <<= 1
-        buff = fp.read(buffer_size)
-    
 def nibblestream(fp, buffer_size = 32):    
     buff = fp.read(buffer_size)
     while buff :
@@ -45,8 +37,27 @@ def histgram(hist, block, enhance = True):
     if enhance :
         for c in block:
             hist[c] += 1
+        return hist
+    for c in block:
+        hist[c] += 1
+    for i in range(len(hist)):
+        if hist[i] > 1 :
+            hist[i] >>= 1
+    if sum(hist) > len(block) :
+        i = 0
+        while sum(hist) > len(block) :
+            if hist[i] > 1 :
+                hist[i] -= 1
+            i = (i + 1) % len(hist)
+    elif sum(hist) < len(block) :
+        i = 0
+        while sum(hist) < len(block) :
+            if hist[i] > 1 :
+                hist[i] += 1
+            i = (i + 1) % len(hist)
+    #print(sum(hist))
     return hist
-
+        
 def subbitseq(val, bitdepth, index_begin, index_end):
     mask = 1 << (bitdepth - 1)
     result = ''
@@ -81,10 +92,10 @@ def encode_block(block, bitsize, sections, left = 0, right = 1, bits = 0):
             bits -= len(hbits)
             bitbuffer += hbits
             #print('{} '.format(hbits),end='')
-            while (left & 0xff == 0) and (right & 0xff == 0) :
-                left >>= 8
-                right >>= 8
-                bits -= 8
+            while (left & 1 == 0) and (right & 1 == 0) :
+                left >>= 1
+                right >>= 1
+                bits -= 1
             if len(bitbuffer) // 8 > 0:
                 bytenum = len(bitbuffer) // 8
                 codebytes += int(bitbuffer[:bytenum*8],2).to_bytes(bytenum, byteorder='big')
@@ -92,19 +103,75 @@ def encode_block(block, bitsize, sections, left = 0, right = 1, bits = 0):
         #print('[{},{})'.format(format(left,'b')[:8], format(right,'b')[:8]), end='')
         
     #print()
-    print('last char {}, remained {}, {} bits'.format(hex(ch), bitbuffer, bits), subbitseq(left, bits, 0, 8), subbitseq(right, bits, 0, 8))
+    #print('last char {}, remained {}, {} bits'.format(hex(ch), bitbuffer, bits), subbitseq(left, bits, 0, 8), subbitseq(right, bits, 0, 8))
     if len(bitbuffer) :
-        bitbuffer += subbitseq(left, bits, 0, 8-len(bitbuffer))
-        print(bitbuffer)
+        bitbuffer = bitbuffer.ljust(8, '0')
+        #print(bitbuffer)
         codebytes += int(bitbuffer,2).to_bytes(bytenum, byteorder='big')
     return codebytes
 
-def main(argv = None):
-    infile = argv[1]
-    if len(argv) >= 3 :
-        outfile = argv[2]
-    else:
-        outfile = None
+def decode_block(block, bitsize, sections, left = 0, right = 1, bits = 0):
+    codebytes = b''
+    bitbuffer = ''
+    for i in range(len(block)) :
+        ch = block[i]
+        l, r = sections[ch], sections[ch+1]
+        width = right - left
+        right = (left<<bitsize) + (width * r)
+        left = (left<<bitsize) + (width * l)
+        bits += bitsize
+
+def decoder(infile, outfile = None):
+    byte_bitsize = 8
+    print(infile)
+    hist = [1 for i in range(1<<byte_bitsize)]
+    try:
+        block_size_bits = 8
+        block_size_bits_max = 16
+        with open(infile, "rb") as ifp:
+            while True :
+                buff = ifp.read(1<<block_size_bits)
+                if not len(buff) :
+                    break
+                code_range = [0]
+                range_width = sum(hist)
+                subsum = 0
+                for i in range(len(hist)):
+                    subsum += hist[i]
+                    code_range.append(subsum)
+                bitstream = ''
+                value = 0
+                bitdepth = 0
+                bpos = 0
+                left = 0
+                while bpos < (len(buff)<<3) :
+                    abit = 0x01 & ((buff[bpos>>3])>>(7-(bpos&0x07)))
+                    bitstream += str(abit)
+                    value <<= 1
+                    value |= abit
+                    bitdepth += 1
+                    while True :
+                        if not (value < code_range[left]) :
+                            break
+                        left += 1
+                    right = left
+                    while value >= code_range[right] :
+                        right += 1
+                    if left + 1 == right :
+                        print(value)
+                        left = 0
+                print(len(bitstream))
+                    
+                if len(buff) != (1<<block_size_bits) :
+                    break
+                else:
+                    block_size_bits += 1
+                break
+    except IOError:
+        print('file "' + infile + '" open failed.')
+        exit()
+    
+def encoder(infile, outfile = None):
     byte_bitsize = 8
     print(infile)
     hist = list()
@@ -114,9 +181,10 @@ def main(argv = None):
     codebytes = b''
     try:
         block_size_bits = 8
-        block_size_bits_max = 14
+        block_size_bits_max = 16
 
         if outfile :
+            #let outfile be the empty binary file.
             with open(outfile, "wb") as ofp:
                 pass
         
@@ -131,7 +199,7 @@ def main(argv = None):
                     subsum += hist[i]
                     code_range.append(subsum)
                 # encode
-                print('encoding')
+                #print('encoding')
                 block_codebytes = encode_block(buff, block_size_bits, code_range, left = 0, right = 1, bits = 0)
                 if outfile :
                     with open(outfile, "ab") as ofp:
@@ -147,6 +215,9 @@ def main(argv = None):
                         histgram(hist, buff, enhance = True)
                         print('histogram enhanced to '+str(sum(hist)))
                         block_size_bits += 1
+                    else:
+                        histgram(hist, buff, enhance = False)
+                        print('histogram modified.')
                 else:
                     # termination condition
                     print(sum(hist), 1<<block_size_bits)
@@ -156,7 +227,8 @@ def main(argv = None):
         exit()
     print('hist_total = {}'.format(sum(hist)))
     for i in range(1<<byte_bitsize):
-        print( (chr(i) if chr(i).isprintable() else hex(i) ), hist[i])
+        if hist[i] > 1 :
+            print( (chr(i) if chr(i).isprintable() else hex(i) ), hist[i])
     
     print("input  file size: {}".format(os.path.getsize(infile)))
     if outfile :
@@ -166,4 +238,8 @@ def main(argv = None):
     print('finished.')
     
 if __name__ == "__main__" :
-    main(sys.argv)
+    infile = sys.argv[1]
+    outfile = None
+    if len(sys.argv) >= 3 :
+        outfile = sys.argv[2]
+    encoder(infile, outfile)
