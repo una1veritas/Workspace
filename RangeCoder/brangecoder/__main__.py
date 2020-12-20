@@ -32,7 +32,7 @@ def commonhighbits(l, r, w):
         bdigits += '1' if (l & bmask) != 0 else '0' 
         bmask >>= 1 
     return bdigits
-   
+
 def histgram(hist, block, enhance = True):
     if enhance :
         for c in block:
