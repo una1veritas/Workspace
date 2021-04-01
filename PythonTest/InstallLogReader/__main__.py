@@ -16,6 +16,7 @@ date_pattern = re.compile('\d\d\d\d-\d\d-\d\d')
 time_pattern = re.compile('\d\d:\d\d:\d\d')
 dtdict = dict()
 with open(params['file'], 'r', encoding='utf-8') as file:
+    print('reading '+params['file'])
     for a_line in file:
         a_line = a_line.strip().split(' ')
         if len(a_line) < 2 :
