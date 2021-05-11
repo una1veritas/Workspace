@@ -1,11 +1,13 @@
 import sys
 
+print(sys.argv)
+
 if len(sys.argv) < 3 :
     print("引数は整数二つです．")
     exit()
 
 a = int(sys.argv[1])
-b = int(sys.argv[2])
+b = int(sys.argv[3])
 
 while b != 0 :
     c = a % b
