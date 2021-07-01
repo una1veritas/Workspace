@@ -4,6 +4,9 @@ import sys
 import re
 
 params = dict()
+if len(sys.argv) == 1 :
+    print("needs argument(s): -file=filename ")
+    exit()
 if sys.argv[1][0] == '-' :
     [attr, val] = sys.argv[1][1:].split('=')
     params[attr] = val
