@@ -16,126 +16,90 @@
 
 struct StringDecimal {
 	char * str;
+	int length;
+	int intlen;
 
 	StringDecimal(const char * s) {
-		int len = strlen(s);
-		int offset = 0;
-		/*
-		switch (s[0]) {
-		case ' ':
-		case '-':
-			break;
-		default:
-			len += 1;
-			offset = 1;
-			break;
-		}
-		*/
-		str = new char[len];
-		str[0] = ' ';
-		strcpy(str+offset, s);
+		length = strlen(s);
+		str = new char[length];
+		strcpy(str, s);
+		intlen = intpart_length(str);
 	}
 
-	StringDecimal(const long d) {
-		long d_val = (d >= 0) ? d : -d;
-		int d_sign = (d == 0) ? 0 : ((d > 0) ? 1 : -1);
-		int digits = floor(log10((double)d_val)) + 1;
-		str = new char[digits+1];
-		char * p = str;
-		if (d_sign < 0)
-			*p++ = '-';
-		//std::cout << "digits = " << digits << std::endl;
-		for(int i = 0; i < digits; ++i) {
-			*(p+digits-1-i) = '0' + (d_val % 10);
-			d_val /= 10;
-			//std::cout << i << std::endl;
-		}
-		*(p + digits) = (char) 0;
+	StringDecimal(const long & d) {
+		char buf[64];
+		length = sprintf(buf, "%ld", d);
+		str = new char[length];
+		strcpy(str, buf);
+		intlen = intpart_length(str);
 	}
 
 	StringDecimal(const double fv) {
 		char buf[64];
-		sprintf(buf,"%f",fv);
-		str = new char[strlen(buf)];
-		strcpy(str,buf);
+		length = sprintf(buf,"%f",fv);
+		str = new char[length];
+		strcpy(str, buf);
+		intlen = intpart_length(str);
 	}
 
 	~StringDecimal() {
 		delete [] str;
 	}
 
-	int prepoint() const {
+	static void internal_add(char * result, char * a, char * b) {
+		char *r = result,  *x = a, *y = b;
+		for(int i = strlen(r)-1; i >= 0; --i) {
+			r[i] = x[i] + y[i];
+		}
+	}
+
+	static int intpart_length(char * s) {
 		int l;
-		for(l = 0; str[l] && str[l] != '.'; ++l);
+		for(l = 0; s[l] && s[l] != '.'; ++l);
 		return l;
 	}
 
-	int postpoint() const {
-		return strlen(str) - prepoint();
+	int digit_at(const int & pos) const {
+		if (pos < 0) {
+			if (intlen - pos < length) {
+				return str[intlen - pos];
+			} else
+				return '0';
+		} else {
+			if (pos < intlen) {
+				return str[intlen - pos - 1];
+			} else {
+				return '0';
+			}
+		}
 	}
 
 	StringDecimal & add(const StringDecimal & b) {
-		int this_prepoint = prepoint(), this_postpoint = postpoint();
-		int b_prepoint = b.prepoint(), b_postpoint = b.postpoint();
-		//std::cout << "this pre " << this_prepoint << " b pre " << b_prepoint << std::endl;
-		int result_prepoint = 1 + ((this_prepoint > b_prepoint) ? this_prepoint : b_prepoint);
-		int result_postpoint = (this_postpoint > b_postpoint) ? this_postpoint : b_postpoint;
-		char result[result_prepoint+result_postpoint];
-		result[result_prepoint+result_postpoint] = (char) 0;
-		memset(result,'0',result_prepoint+result_postpoint);
-		if (result_postpoint) {
-			result[result_prepoint] = '.';
+		int result_intlen = (this->intlen > b.intlen) ? this->intlen : b.intlen;
+		int result_fraclen = this->length - this->intlen;
+		result_fraclen = (result_fraclen > b.length - b.intlen) ? result_fraclen : b.length - b.intlen;
+		char result[result_intlen+result_fraclen];
+		result[result_intlen+result_fraclen] = char(0);
+		memset(result,' ',result_intlen+result_fraclen);
+		if (result_fraclen) {
+			result[result_intlen] = '.';
 		}
 		//std::cout << result << std::endl;
 		char digit, carry = 0;
-		for(int pos = result_postpoint; pos > 1; --pos) {
-			digit = carry;
-
-			//std::cout << "pos = " << pos << ", "
-			//		<< " carry = " << int(carry)
-			//		<< ", this = " << char(this->str[this_prepoint+pos-1])
-			//		<< ", b = " << char(b.str[b_prepoint+pos-1]) << ", ";
-			if (pos <= this_postpoint)
-				digit += this->str[this_prepoint+pos-1] - '0';
-			//std::cout << pos << " < " << this_postpoint << " digit = " << int(digit) << std::endl;
-			if (pos <= b_postpoint)
-				digit += b.str[b_prepoint+pos-1] - '0';
-			//std::cout << "digit = " << int(digit) << std::endl;
+		for(int pos = -result_fraclen; pos < result_intlen; ++pos) {
+			digit = carry; carry = 0;
+			digit += this->digit_at(pos) - '0';
+			digit += b.digit_at(pos) - '0';
 			if (digit > 9) {
 				carry = 1;
 				digit -= 10;
-			} else {
-				carry = 0;
 			}
-			result[result_prepoint+pos-1] = '0' + digit;
-		}
-		const int this_offset = result_prepoint - this_prepoint;
-		const int b_offset = result_prepoint - b_prepoint;
-		//std::cout << "carry = " << int(carry) << std::endl;
-
-		for(int pos = result_prepoint; pos > 1 || carry; --pos) {
-			digit = carry;
-			//std::cout << "pos = " << pos << ", "
-			//		<< " carry = " << int(carry)
-			//		<< ", this = " << this->str[pos-1-this_offset]
-			//		<< ", b = " << b.str[pos-1-b_offset] << std::endl;
-
-			if (pos > this_offset)
-				digit += this->str[pos-1-this_offset] - '0';
-			if (pos > b_offset)
-				digit += b.str[pos-1-b_offset] - '0';
-			if (digit > 9) {
-				carry = 1;
-				digit -= 10;
+			if (pos < 0) {
+				result[result_intlen - pos] = '0' + digit;
 			} else {
-				carry = 0;
+				result[result_intlen - pos - 1] = '0' + digit;
 			}
-			//std::cout << result_prepoint << ", pos: " << pos << std::endl;
-			result[pos-1] = '0' + digit;
-
-			//std::cout << "place to " << pos-1 << std::endl;
 		}
-
 		return *(new StringDecimal(result));
 	}
 

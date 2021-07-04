@@ -14,7 +14,7 @@ int main(const int argc, const char * argv[]) {
 	cout << "Hello World!!!" << endl; // prints Hello World!!!
 
 	StringDecimal d = "100";
-	StringDecimal a = argv[1];
+	StringDecimal a = 1294L;
 	StringDecimal x = 1.10582;
 
 	cout << "d = " << d << std::endl;
