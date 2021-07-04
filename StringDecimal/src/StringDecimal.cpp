@@ -1,5 +1,5 @@
 //============================================================================
-// Name        : StringDecimalLib.cpp
+// Name        : StringDecimal.cpp
 // Author      : 
 // Version     :
 // Copyright   : Your copyright notice
@@ -15,10 +15,11 @@ int main(const int argc, const char * argv[]) {
 
 	StringDecimal d = "100";
 	StringDecimal a = argv[1];
-	StringDecimal x = -23;
+	StringDecimal x = 1.10582;
 
 	cout << "d = " << d << std::endl;
 	cout << "a = " << a << std::endl;
 	cout << "x = " << x << std::endl;
+	cout << a.add(x) << std::endl;
 	return 0;
 }
