@@ -20,6 +20,7 @@ struct StringDecimal {
 	int intlen;
 
 	StringDecimal(const char * s) {
+		while (isspace(*s)) ++s;
 		length = strlen(s);
 		str = new char[length];
 		strcpy(str, s);
@@ -71,39 +72,46 @@ struct StringDecimal {
 		}
 	}
 
-	int is_lessthan(const StringDecimal & b) const {
+	bool is_negative(void) const {
+		return str[0] == '-';
+	}
+
+	bool is_positive(void) const {
+		return str[0] != '-';
+	}
+
+	int compare(const StringDecimal & b) const {
 		int pos = intlen > b.intlen ? intlen : b.intlen;
 		int fract_len = fraclen() > b.fraclen() ? fraclen() : b.fraclen();
-		int both_negative = 0;
+		int both_negative = 1;
 		for( ; pos > -fract_len; --pos) {
 			if (digit_at(pos) == b.digit_at(pos)) {
 				if (digit_at(pos) == '-')
-					both_negative = 1;
+					both_negative = -1;
 				continue;
 			}
 			if (digit_at(pos) == '-')
 				return -1;
 			if (b.digit_at(pos) == '-')
 				return 1;
-			if ( digit_at(pos) < b.digit_at(pos) ) {
-				if (both_negative)
-					return 1;
-				return -1;
-			} else {
-				if (both_negative)
-					return -1;
-				return 1;
-			}
+			if ( digit_at(pos) < b.digit_at(pos) )
+				return -1 * both_negative;
+			else
+				return 1 * both_negative;
 		}
 		return 0;
 	}
 
 	bool operator<(const StringDecimal & b) const {
-		return is_lessthan(b) < 0;
+		return compare(b) < 0;
 	}
 
 	bool operator<=(const StringDecimal & b) const {
-		return is_lessthan(b) <= 0;
+		return compare(b) <= 0;
+	}
+
+	bool operator==(const StringDecimal & b) const {
+		return compare(b) == 0;
 	}
 
 	StringDecimal & add(const StringDecimal & b) {
