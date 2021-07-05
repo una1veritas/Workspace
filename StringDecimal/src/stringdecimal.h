@@ -46,17 +46,14 @@ struct StringDecimal {
 		delete [] str;
 	}
 
-	static void internal_add(char * result, char * a, char * b) {
-		char *r = result,  *x = a, *y = b;
-		for(int i = strlen(r)-1; i >= 0; --i) {
-			r[i] = x[i] + y[i];
-		}
-	}
-
 	static int intpart_length(char * s) {
 		int l;
 		for(l = 0; s[l] && s[l] != '.'; ++l);
 		return l;
+	}
+
+	int fraclen(void) const {
+		return length - intlen;
 	}
 
 	int digit_at(const int & pos) const {
@@ -74,21 +71,55 @@ struct StringDecimal {
 		}
 	}
 
+	int is_lessthan(const StringDecimal & b) const {
+		int pos = intlen > b.intlen ? intlen : b.intlen;
+		int fract_len = fraclen() > b.fraclen() ? fraclen() : b.fraclen();
+		int both_negative = 0;
+		for( ; pos > -fract_len; --pos) {
+			if (digit_at(pos) == b.digit_at(pos)) {
+				if (digit_at(pos) == '-')
+					both_negative = 1;
+				continue;
+			}
+			if (digit_at(pos) == '-')
+				return -1;
+			if (b.digit_at(pos) == '-')
+				return 1;
+			if ( digit_at(pos) < b.digit_at(pos) ) {
+				if (both_negative)
+					return 1;
+				return -1;
+			} else {
+				if (both_negative)
+					return -1;
+				return 1;
+			}
+		}
+		return 0;
+	}
+
+	bool operator<(const StringDecimal & b) const {
+		return is_lessthan(b) < 0;
+	}
+
+	bool operator<=(const StringDecimal & b) const {
+		return is_lessthan(b) <= 0;
+	}
+
 	StringDecimal & add(const StringDecimal & b) {
-		int result_intlen = (this->intlen > b.intlen) ? this->intlen : b.intlen;
-		int result_fraclen = this->length - this->intlen;
+		int result_intlen = (intlen > b.intlen) ? intlen : b.intlen;
+		int result_fraclen = length - intlen;
 		result_fraclen = (result_fraclen > b.length - b.intlen) ? result_fraclen : b.length - b.intlen;
 		char result[result_intlen+result_fraclen];
-		result[result_intlen+result_fraclen] = char(0);
-		memset(result,' ',result_intlen+result_fraclen);
 		if (result_fraclen) {
 			result[result_intlen] = '.';
 		}
-		//std::cout << result << std::endl;
+		//std::cout << result_fraclen << std::endl;
 		char digit, carry = 0;
 		for(int pos = -result_fraclen; pos < result_intlen; ++pos) {
-			digit = carry; carry = 0;
-			digit += this->digit_at(pos) - '0';
+			digit = carry;
+			carry = 0;
+			digit += digit_at(pos) - '0';
 			digit += b.digit_at(pos) - '0';
 			if (digit > 9) {
 				carry = 1;
@@ -100,6 +131,7 @@ struct StringDecimal {
 				result[result_intlen - pos - 1] = '0' + digit;
 			}
 		}
+		result[result_intlen+result_fraclen] = char(0);
 		return *(new StringDecimal(result));
 	}
 
