@@ -81,25 +81,28 @@ struct StringDecimal {
 	}
 
 	int compare(const StringDecimal & b) const {
-		int pos = intlen > b.intlen ? intlen : b.intlen;
-		int fract_len = fraclen() > b.fraclen() ? fraclen() : b.fraclen();
-		int both_negative = 1;
-		for( ; pos > -fract_len; --pos) {
-			if (digit_at(pos) == b.digit_at(pos)) {
-				if (digit_at(pos) == '-')
-					both_negative = -1;
-				continue;
-			}
-			if (digit_at(pos) == '-')
-				return -1;
-			if (b.digit_at(pos) == '-')
+		if ( is_negative() && b.is_positive() )
+			return -1;
+		if ( is_positive() && b.is_negative() )
+			return 1;
+		int pos = (intlen > b.intlen) ? intlen : b.intlen;
+		int fract_len = (fraclen() > b.fraclen()) ? fraclen() : b.fraclen();
+		for( ; (pos > -fract_len) && (digit_at(pos) == b.digit_at(pos)) ; --pos) ;
+		if ( pos <= -fract_len)
+			return 0;
+		if ( digit_at(pos) == '-' )
+			return -1;
+		if ( b.digit_at(pos) == '-' )
+			return -1;
+		if ( digit_at(pos) < b.digit_at(pos) ) {
+			if (is_negative() && b.is_negative() )
 				return 1;
-			if ( digit_at(pos) < b.digit_at(pos) )
-				return -1 * both_negative;
-			else
-				return 1 * both_negative;
+			return -1;
+		} else {
+			if (is_negative() && b.is_negative() )
+				return -1;
+			return 1;
 		}
-		return 0;
 	}
 
 	bool operator<(const StringDecimal & b) const {
