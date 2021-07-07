@@ -20,6 +20,7 @@ int main(const int argc, const char * argv[]) {
 	cout << "d = " << d << std::endl;
 	cout << "a = " << a << std::endl;
 	cout << "x = " << x << std::endl;
+
 	cout << a.add(d) << endl;
 	cout << (d < a) << std::endl;
 	cout << (a < d) << std::endl;
