@@ -8,9 +8,9 @@ with open(sys.argv[1],'r') as f:
         print(i, row.strip())
         i += 1
 
-print("Write text to file \'writetest.txt\'.")
+print("Write text to file \'test_out.txt\'.")
 
-f = open('writetest.txt','w')
+f = open('test_out.txt','w')
 for i in range(20):
     f.write('write test ')
     f.write(str(i))
