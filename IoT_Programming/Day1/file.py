@@ -1,7 +1,7 @@
 import sys
 
 if len(sys.argv) < 3 :
-    printf('give two args.')
+    print('give two args.')
     exit()
 
 a = int(sys.argv[1])
