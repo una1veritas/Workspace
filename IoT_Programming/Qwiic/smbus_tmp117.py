@@ -4,22 +4,27 @@ import smbus
 from pip._internal import resolution
 
 class TMP117:
-    i2c_addr = 0x48
+    i2c_address = 0x48
     reg_temp_result = 0x00
     reg_configuration= 0x01
+    i2c_bus = None
     
     config_factorysetting = 0x0220
     resolution = 0.0078125 # 1/128 in Centigrade
     
+    def __init__(self, i2c_bus=None):
+        if i2c_bus == None :
+            print("I2C bus is not specified.")
+        
     def begin(self, confval = config_factorysetting):
         self.write_configuration(confval)
     
     def read(self, reg_addr):
-        vals = bus.read_i2c_block_data(self.i2c_addr, reg_addr, 2)
+        vals = self.i2c_bus.read_i2c_block_data(self.i2c_addr, reg_addr, 2)
         return vals
     
     def write(self, reg_addr, vals):
-        bus.write_block_data(self.i2c_addr,reg_addr,vals)
+        self.i2c_bus.write_block_data(self.i2c_addr,reg_addr,vals)
         
     def read_temperature(self):
         val = self.read(self.reg_temp_result)
@@ -31,20 +36,20 @@ class TMP117:
     
     def write_configuration(self, val16bit):
         vals = [(val16bit>>8)&0xff, val16bit & 0xff]
-        bus.write_i2c_block_data(self.i2c_addr, self.reg_configuration, vals)
+        self.i2c_bus.write_i2c_block_data(self.i2c_addr, self.reg_configuration, vals)
         return
 
     def read_configuration(self):
-        vals = bus.read_i2c_block_data(self.i2c_addr, self.reg_configuration, 2)
+        vals = self.i2c_bus.read_i2c_block_data(self.i2c_addr, self.reg_configuration, 2)
         return vals[0]<<8 | vals[1]
 
 # program start 
-i2c_ch = 1
+i2c_channel = 1
 
 # Initialize I2C (SMBus)
-bus = smbus.SMBus(i2c_ch)
+bus = smbus.SMBus(i2c_channel)
 
-tmp117 = TMP117()
+tmp117 = TMP117(bus)
 tmp117.begin(0x01a0)
 
 # Read the CONFIG register (2 bytes)
