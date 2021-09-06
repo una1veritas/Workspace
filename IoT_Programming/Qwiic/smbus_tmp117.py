@@ -5,8 +5,8 @@ from pip._internal import resolution
 
 class TMP117:
     i2c_address = 0x48
-    reg_temp_result = 0x00
-    reg_configuration= 0x01
+    REG_TEMP_RESULT = 0x00
+    REG_CONFIG= 0x01
     i2c_bus = None
     
     config_factorysetting = 0x0220
@@ -27,7 +27,7 @@ class TMP117:
         self.i2c_bus.write_block_data(self.i2c_addr,reg_addr,vals)
         
     def read_temperature(self):
-        val = self.read(self.reg_temp_result)
+        val = self.read(self.REG_TEMP_RESULT)
         temp = (val[0] << 8) | val[1]
         if (temp & 0x8000) != 0 :
             temp = -((temp^0xffff)+1)
@@ -36,11 +36,11 @@ class TMP117:
     
     def write_configuration(self, val16bit):
         vals = [(val16bit>>8)&0xff, val16bit & 0xff]
-        self.i2c_bus.write_i2c_block_data(self.i2c_addr, self.reg_configuration, vals)
+        self.i2c_bus.write_i2c_block_data(self.i2c_addr, self.REG_CONFIG, vals)
         return
 
     def read_configuration(self):
-        vals = self.i2c_bus.read_i2c_block_data(self.i2c_addr, self.reg_configuration, 2)
+        vals = self.i2c_bus.read_i2c_block_data(self.i2c_addr, self.REG_CONFIG, 2)
         return vals[0]<<8 | vals[1]
 
 # program start 
