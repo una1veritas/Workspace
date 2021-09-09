@@ -1,6 +1,6 @@
 import time
 import board
-from vishay_veml6030 import VEML6030
+from stemmaqt_veml6030 import VEML6030
         
 from datetime import datetime
 import time

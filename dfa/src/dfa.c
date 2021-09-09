@@ -12,23 +12,26 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* dfa で使用する定数 */
-#define TRANSITION_NOT_DEFINED 	0
-#define STATE_NOT_FINAL 		0
-#define STATE_FINAL 			1
+/* 便宜的に設定する上限 */
 #define STATE_LIMIT	 			128
 #define ALPHABET_LIMIT 			128
 
 typedef struct {
-	/* the set of states must be a subset of {1,...,127}. */
-	/* an element of the finite alphabet must be a char in (1,...,127). */
-	char delta[STATE_LIMIT][ALPHABET_LIMIT];
-	char initial;
-	char finals[STATE_LIMIT]; /* 0 -> not a final state, 1 -> a final state. */
+	/* 状態は ASCII 文字, 状態の集合は char 型の {1,...,127} の部分集合に限定. */
+	/* 文字は ASCII 文字, 有限アルファベットは char 型の {1,...,127} の部分集合に限定. */
+	char delta[STATE_LIMIT][ALPHABET_LIMIT];	/* 遷移関数 */
+	char initial; 								/* 初期状態 */
+	char finals[STATE_LIMIT]; 					/* 最終状態を表すフラグの表 */
 
 	char current;
 } dfa;
 
+/* マーカーとして使用する定数 */
+#define TRANSITION_NOT_DEFINED 	0
+#define STATE_IS_NOT_FINAL 		0
+#define STATE_IS_FINAL 			1
+
+/* 定義文字列から dfa を初期化 */
 void dfa_define(dfa * mp,
 		char * trans,
 		char * initial,
@@ -42,9 +45,9 @@ void dfa_define(dfa * mp,
 		}
 	}
 	for(int i = 0; i < STATE_LIMIT; ++i) {
-		mp->finals[i] = STATE_NOT_FINAL;
+		mp->finals[i] = STATE_IS_NOT_FINAL;
 	}
-	/* 定義の読み取り */
+	/* 定義の三つ組みを読み取る */
 	while ( sscanf(ptr, "%[^,]", triple) ) {
 		//printf("%s\n", triple);
 		mp->delta[(int)triple[0]][(int)triple[1]] = triple[2];
@@ -55,7 +58,7 @@ void dfa_define(dfa * mp,
 	}
 	mp->initial = *initial;
 	for(ptr = finals; *ptr ; ++ptr) {
-		mp->finals[(int)*ptr] = STATE_FINAL;
+		mp->finals[(int)*ptr] = STATE_IS_FINAL;
 	}
 }
 
@@ -69,7 +72,7 @@ char dfa_transfer(dfa * mp, char a) {
 }
 
 int dfa_accepting(dfa * mp) {
-	return mp->finals[(int)mp->current] == STATE_FINAL;
+	return mp->finals[(int)mp->current] == STATE_IS_FINAL;
 }
 
 void dfa_print(dfa * mp) {
@@ -144,6 +147,7 @@ void dfa_print(dfa * mp) {
 
 int dfa_run(dfa * mp, char * inputstr) {
 	char * ptr = inputstr;
+	printf("dfa runs on '%s' :\n", ptr);
 	dfa_reset(mp);
 	printf("     -> %c", mp->current);
 	for ( ; *ptr; ++ptr) {
@@ -151,17 +155,17 @@ int dfa_run(dfa * mp, char * inputstr) {
 		printf(", -%c-> %c", *ptr, mp->current);
 	}
 	if ( dfa_accepting(mp) ) {
-		printf(", accepted.\n");
-		return STATE_FINAL;
+		printf(", \naccepted.\n");
+		return STATE_IS_FINAL;
 	} else {
-		printf(", rejected.\n");
-		return STATE_NOT_FINAL;
+		printf(", \nrejected.\n");
+		return STATE_IS_NOT_FINAL;
 	}
 }
 
 int main(int argc, char **argv) {
 	dfa M;
-	// printf("M is using %lld bytes.\n", sizeof(M));
+	printf("M is using %lld bytes.\n", sizeof(M));
 	dfa_define(&M, "0a1,0b2,1a2,1b0", "0", "0");
 	dfa_print(&M);
 	dfa_run(&M, "ababab");
