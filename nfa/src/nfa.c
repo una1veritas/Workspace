@@ -15,28 +15,34 @@
 #include <ctype.h>
 
 /* 便宜的に設定した上限 */
-#define STATE_LIMIT	 			16
+#define STATE_LIMIT	 			64
 #define ALPHABET_LIMIT 			128
 
-typedef uint16_t set16; 	/* 符号なし整数型をビット表現で集合として使用する */
+typedef uint64_t bset64; 	/* 符号なし整数型をビット表現で集合として使用する */
 typedef struct {
-	/* 状態は16進数1桁の整数, 状態の集合は {0,...,15} の部分集合に限定. */
-	/* 文字は ASCII 文字, 有限アルファベット Σ は char 型の {1,...,127} の部分集合に限定. */
-	set16 delta[STATE_LIMIT][ALPHABET_LIMIT];	/* 遷移関数 : Q x Σ -> 2^Q*/
+	/* 状態は 数字，英大文字を含む空白 (0x20) から _ (0x5f) までの一文字で表す
+	 * 正の整数 {0,...,63} の要素に限定. */
+	/* 文字は ASCII 文字, 有限アルファベットは char 型の {1,...,127} の要素に限定. */
+	bset64 delta[STATE_LIMIT][ALPHABET_LIMIT];	/* 遷移関数 : Q x Σ -> 2^Q*/
 	char  initial; 								/* 初期状態 */
-	set16 finals;			 					/* 最終状態を表すフラグの表 */
+	bset64 finals;			 					/* 最終状態を表すフラグの表 */
 
-	set16 current;
+	bset64 current;
 } nfa;
 
 // ユーティリティ
-#define hexchar2int(x)  ((x) <= '9' ? (x) - '0' : toupper(x) - 'A' + 10)
-char * set16tostr(set16 bits, char * buf) {
+#define char2state(x)  ((x) - 0x30)
+#define state2char(x)  ((x) + 0x30)
+char * bset64_str(bset64 bits, char * buf) {
 	char * ptr = buf;
 	ptr += sprintf(ptr, "{");
+	int cnt = 0;
 	for(int i = 0; i < STATE_LIMIT; ++i) {
-		if (bits>>i & 1)
-			ptr += sprintf(ptr, "%x, ", i);
+		if (bits>>i & 1) {
+			if (cnt) ptr += sprintf(ptr, ", ");
+			ptr += sprintf(ptr, "%c", state2char(i));
+			++cnt;
+		}
 	}
 	sprintf(ptr, "}");
 	return buf;
@@ -52,8 +58,8 @@ void nfa_define(nfa * mp,
 		char * trans,
 		char * initial,
 		char * finals) {
-	char triplex[24];
-	char buf[48];
+	char triplex[72];
+	//char buf[72];
 	char * ptr = trans;
 	/* データ構造の初期化 */
 	for(int i = 0; i < STATE_LIMIT; ++i) {
@@ -64,22 +70,22 @@ void nfa_define(nfa * mp,
 	mp->finals = 0;
 	/* 定義の三つ組みを読み取る */
 	while ( sscanf(ptr, "%[^,]", triplex) ) {
-		printf("def: %s ", triplex);
-		int stat = hexchar2int(triplex[0]);
+		//printf("def: %s ", triplex);
+		int stat = char2state(triplex[0]);
 		int symb = triplex[1];
 		for(char * x = triplex+2; *x; ++x) { 	/* 遷移先は複数記述可能 */
-			mp->delta[stat][symb] |= 1<<hexchar2int(*x);
+			mp->delta[stat][symb] |= 1<<char2state(*x);
 		}
-		printf("%x, %c -> ", stat, symb);
-		printf("%s\n", set16tostr(mp->delta[stat][symb], buf));
+		//printf("%x, %c -> ", stat, symb);
+		//printf("%s\n", bset64_str(mp->delta[stat][symb], buf));
 		ptr += strlen(triplex);
 		if (*ptr == 0) break;
 		++ptr; 	/* , を読み飛ばす */
 		//printf("%s\n", ptr);
 	}
-	mp->initial = hexchar2int(*initial); 	/* 初期状態は１つ */
+	mp->initial = char2state(*initial); 	/* 初期状態は１つ */
 	for(ptr = finals; *ptr ; ++ptr) {
-		mp->finals |= 1<<hexchar2int(*ptr);
+		mp->finals |= 1<<char2state(*ptr);
 	}
 }
 
@@ -87,11 +93,13 @@ void nfa_reset(nfa * mp) {
 	mp->current = 1<<mp->initial;
 }
 
-char nfa_transfer(nfa * mp, char a) {
-	uint64_t next = 0;
+bset64 nfa_transfer(nfa * mp, char a) {
+	bset64 next = 0;
 	for(int i = 0; i < STATE_LIMIT; ++i) {
 		if ((mp->current & (1<<i)) != 0) {
-			next |= mp->delta[i][(int)a];
+			if (mp->delta[i][(int)a] != 0) /* defined */
+				next |= mp->delta[i][(int)a];
+			//else /* if omitted, go to and self-loop in the ghost state. */
 		}
 	}
 	return mp->current = next;
@@ -102,8 +110,9 @@ int nfa_accepting(nfa * mp) {
 }
 
 void nfa_print(nfa * mp) {
-	uint64_t states;
+	bset64 states;
 	char alphabet[ALPHABET_LIMIT];
+	char buf[160];
 
 	states = 0;
 	for(int a = 0; a < ALPHABET_LIMIT; ++a) {
@@ -119,20 +128,9 @@ void nfa_print(nfa * mp) {
 		}
 	}
 	printf("nfa(\n");
-	printf("states = {");
-	int the1st = 1;
-	for(int i = 0; i < STATE_LIMIT; ++i) {
-		if ((states & (1<<i)) != 0) {
-			if ( !the1st ) {
-				printf(", ");
-			}
-			printf("%x", i);
-			the1st = 0;
-		}
-	}
-	printf("},\n");
+	printf("states = %s\n", bset64_str(states, buf));
 	printf("alphabet = {");
-	the1st = 1;
+	int the1st = 1;
 	for(int i = 0; i < ALPHABET_LIMIT; ++i) {
 		if (alphabet[i]) {
 			if ( !the1st ) {
@@ -145,49 +143,33 @@ void nfa_print(nfa * mp) {
 	printf("},\n");
 
 	printf("delta = \n");
-	//printf("state symbol| next\n");
-	//printf("------------+------\n");
+	printf("state symbol| next\n");
+	printf("------------+------\n");
 	for(int i = 0; i < STATE_LIMIT; ++i) {
 		for(int a = 0; a < ALPHABET_LIMIT; ++a) {
 			if ( mp->delta[i][a] ) {
-				printf("  %x  ,  %c   | ",i,a);
-				printf("{");
-				for(int b = 0; b < STATE_LIMIT; ++b) {
-					if ( (mp->delta[i][a]>>b & 1) != 0 ) {
-						printf("%x, ", b);
-					}
-				}
-				printf("}\n");
+				printf("  %c  ,  %c   | %s \n",state2char(i), a, bset64_str(mp->delta[i][a], buf));
 			}
 		}
 	}
 	printf("------------+------\n");
 	printf("initial state = %x\n", mp->initial);
-	/*
-	printf("accepting states = {");
-	the1st = 1;
-	for(int i = 0; i < STATE_LIMIT; ++i) {
-		if (mp->finals[i]) {
-			if ( !the1st ) {
-				printf(", ");
-			}
-			printf("%c", (char) i);
-			the1st = 0;
-		}
-	}
-	*/
-	printf("}\n)\n");
+
+	printf("accepting states = %s\n", bset64_str(mp->finals, buf));
+
+	printf("\n");
 }
 
-/*
+
 int nfa_run(nfa * mp, char * inputstr) {
 	char * ptr = inputstr;
-	printf("dfa runs on '%s' :\n", ptr);
+	char buf[128];
+	printf("run on '%s' :\n", ptr);
 	nfa_reset(mp);
-	printf("     -> %c", mp->current);
+	printf("     -> %s", bset64_str(mp->current, buf));
 	for ( ; *ptr; ++ptr) {
 		nfa_transfer(mp, *ptr);
-		printf(", -%c-> %c", *ptr, mp->current);
+		printf(", -%c-> %s", *ptr, bset64_str(mp->current, buf));
 	}
 	if ( nfa_accepting(mp) ) {
 		printf(", \naccepted.\n");
@@ -197,14 +179,14 @@ int nfa_run(nfa * mp, char * inputstr) {
 		return STATE_IS_NOT_FINAL;
 	}
 }
-*/
+
 
 int main(int argc, char **argv) {
 	nfa M;
 	printf("M is using %lld bytes.\n", sizeof(M));
-	nfa_define(&M, "0a1,0b2,1a2,1b0", "0", "0");
+	nfa_define(&M, "0a01,0b0,1b2,2b3,3a3,3b3", "0", "3");
 	nfa_print(&M);
-	//nfa_run(&M, "ababab");
+	nfa_run(&M, "bbababbab");
 	printf("bye.\n");
 	return EXIT_SUCCESS;
 }
