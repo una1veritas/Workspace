@@ -167,7 +167,7 @@ class VEML6030:
         it = int(self.integration_time)
         conv = {2.0: 0, 1.0: 1, 0.25: 2, 0.125: 3}.get(g, 1)
         lux = VEML6030.LUX_CONV[it][conv] * alsbits
-        print("als = ", hex(alsbits), "lux = ", lux, "conv = ", conv, "integtime = ", it, "gain = ", g)
+        #print("als = ", hex(alsbits), "lux = ", lux, "conv = ", conv, "integtime = ", it, "gain = ", g)
         if lux > 1000 :
             return self.lux_compensated(lux)
         else:

@@ -6,7 +6,7 @@ import board
 from adafruit_bme280 import basic as adafruit_bme280
 import adafruit_bmp3xx
 import adafruit_sht4x
-import qt_veml6030
+from stemmaqt_veml6030 import import VEML6030
 import adafruit_tmp117
 
 from datetime import datetime,timedelta
@@ -24,7 +24,7 @@ print("time interval: {0} sec.".format(tint))
 i2c = board.I2C()  # uses board.SCL and board.SDA
 bme280 = adafruit_bme280.Adafruit_BME280_I2C(i2c, 0x76)
 bmp380 = adafruit_bmp3xx.BMP3XX_I2C(i2c)
-veml =  qt_veml6030.VEML6030(i2c, qt_veml6030.VEML6030.I2C_ADDR_ALT)
+veml =  VEML6030(i2c, VEML6030.I2C_ADDR_ALT)
 sht40 = adafruit_sht4x.SHT4x(i2c)
 tmp117 = adafruit_tmp117.TMP117(i2c)
 
