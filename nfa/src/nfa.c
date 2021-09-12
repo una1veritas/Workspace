@@ -180,13 +180,50 @@ int nfa_run(nfa * mp, char * inputstr) {
 	}
 }
 
+int command_arguments(int argc, char * argv[], char * delta, char * initial, char * finals, char * input);
 
 int main(int argc, char **argv) {
+	char * delta = "0a01,0b0,1b2,2b3,3a3,3b3", *initial = "0", *finals = "3";
+	char input_buff[1024] = "abaababaab";
+	if ( command_arguments(argc, argv, delta, initial, finals, input_buff) )
+		return 1;
+
 	nfa M;
-	printf("M is using %lld bytes.\n", sizeof(M));
-	nfa_define(&M, "0a01,0b0,1b2,2b3,3a3,3b3", "0", "3");
+	printf("M is using %0.2f Kbytes.\n\n", (double)(sizeof(M)/1024) );
+	nfa_define(&M, delta, initial, finals);
 	nfa_print(&M);
-	nfa_run(&M, "bbababbab");
+	if (strlen(input_buff))
+		nfa_run(&M, input_buff);
+	else {
+		/* 標準入力から一行ずつ，入力文字列として走らせる */
+		while( fgets(input_buff, 1023, stdin) ) {
+			for(char * p = input_buff+strlen(input_buff); *--p == '\n'; *p = '\0') ; /* 改行は無視 */
+			nfa_run(&M, input_buff);
+		}
+	}
 	printf("bye.\n");
-	return EXIT_SUCCESS;
+	return 0;
+}
+
+int command_arguments(int argc, char * argv[], char * delta, char * initial, char * finals, char * input) {
+	if (argc > 1) {
+		if (strcmp(argv[1], "-h") == 0 ) {
+			printf("usage: command \"transition triples\" \"initial state\" \"final states\" (\"input string\")\n");
+			printf("example: dfa.exe \"%s\" \"%s\" \"%s\"\n", delta, initial, finals);
+			return 1;
+		} else if (argc == 4 || argc == 5 ) {
+			delta = argv[1]; initial = argv[2]; finals = argv[3];
+			if (argc == 5 )
+				strcpy(input, argv[4]);
+			else
+				input[0] = '\0';
+		} else {
+			printf("Illegal number of arguments.\n");
+			return 1;
+		}
+	} else {
+		printf("define M by buily-in example: \"%s\" \"%s\" \"%s\"\n", delta, initial, finals);
+		printf("(Use 'command -h' to get a help message.)\n");
+	}
+	return 0;
 }

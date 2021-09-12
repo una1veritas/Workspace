@@ -1,4 +1,7 @@
-import time
+# STEMMA QT Vishay VEML6030 lux sensor driver
+# based on Adafruit CircuitPython library
+# by Sin Shimozono
+
 #from collections import namedtuple
 #from micropython import const
 import adafruit_bus_device.i2c_device as i2c_device
@@ -24,16 +27,16 @@ class VEML6030:
 # _INT_EN_POS             = 0x01
 # _PSM_POS                = 0x01
 # _PERS_PROT_POS          = 0x04
-    INTEG_POS           : int = 0x06
+    INTEGTIME_POS           : int = 0x06
     ALS_GAIN_POS        : int = 11
 # _INT_POS                = 0xE
 #
-    ALS_GAIN_MASK       : int = 3<<ALS_GAIN_POS
+    ALS_GAIN_1MASK      : int = 3<<ALS_GAIN_POS
 # _THRESH_MASK            = 0x0
-    INTEG_MASK          : int = 0xf<<INTEG_POS
+    INTEGTIME_1MASK     : int = 0xf<<INTEGTIME_POS
 # _PERS_PROT_MASK         = 0xFFCF
 # _INT_EN_MASK            = 0xFFFD
-    ALS_SD_MASK         : int = 1
+    ALS_SD_1MASK        : int = 1
 # _POW_SAVE_EN_MASK       = 0x06    # Most of this register is reserved
 # _POW_SAVE_MASK          = 0x01    # Most of this register is reserved
 # _INT_MASK               = 0xC000    
@@ -49,16 +52,18 @@ class VEML6030:
                          50: [ .0576, .1152, .4608, .9216],
                          25: [ .1152, .2304, .9216, 1.8432] }
 
+    GAIN_BITS       : dict = {1.0: 0, 2.0: 1, 0.125: 2, 0.25: 3}
+    INTEGTIME_BITS  : dict = {100: 0, 200: 1, 400: 2, 800: 3, 50: 8, 25: 12}
+
 # _ENABLE       = 0x01
 # _DISABLE      = 0x00
-    ALS_SHUTDOWN        : int = 1
-    ALS_POWER_ON        : int = 0
+    ALS_SHUTDOWN    : int = 1
+    ALS_POWER_ON    : int = 0
 # _POWER        = 0x00
 # _NO_INT       = 0x00
 # _INT_HIGH     = 0x01
 # _INT_LOW      = 0x02
-    UNKNOWN_ERROR      : int = 0xFF
-
+    UNKNOWN_ERROR   : int = 0xFF
     
     def __init__(self, i2c_bus, address = I2C_ADDR_DEFAULT):
         """
@@ -81,35 +86,19 @@ class VEML6030:
 
     def write_configuration(self, val16):
         self.write_register(VEML6030.REG_ALS_CONF, val16)
-        
+    
     configuration = property(read_configuration, write_configuration)
 
     def get_gain(self):
-        bits = (self.configuration & VEML6030.ALS_GAIN_MASK)>>VEML6030.ALS_GAIN_POS
-        if bits == 0 :
-            return 1.00
-        elif bits == 1 : 
-            return 2.00
-        elif bits == 2 :
-            return 0.125
-        elif bits == 3 :
-            return 0.25
-        else :
-            return VEML6030.UNKNOWN_ERROR
+        bits = (self.configuration & VEML6030.ALS_GAIN_1MASK)>>VEML6030.ALS_GAIN_POS
+        for (key, val) in VEML6030.GAIN_BITS.items():
+            if val == bits :
+                return key
     
     def set_gain(self, gainVal):
-        if (gainVal == 1.00) :
-            bits = 0 
-        elif (gainVal == 2.00) :
-            bits = 1
-        elif (gainVal == .125) :
-            bits = 2
-        elif (gainVal == .25) :
-            bits = 3
-        else:
-            return
+        bits = VEML6030.GAIN_BITS.get(gainVal, 0)
         confval = self.configuration
-        confval &= (0xffff ^ VEML6030.ALS_GAIN_MASK)
+        confval &= (0xffff ^ VEML6030.ALS_GAIN_1MASK)
         confval |= bits<< VEML6030.ALS_GAIN_POS
         self.configuration = confval
         return
@@ -118,68 +107,67 @@ class VEML6030:
     
     def get_integration_time(self):
         confval = self.configuration
-        confval &= VEML6030.INTEG_MASK
-        bits = confval>> VEML6030.INTEG_POS
+        confval &= VEML6030.INTEGTIME_1MASK
+        bits = confval>> VEML6030.INTEGTIME_POS
         #print(hex(confval), bin(bits))
-        if bits == 0 :
-            return 100
-        elif bits == 1 : 
-            return 200
-        elif bits == 2 :
-            return 400
-        elif bits == 3 :
-            return 800
-        elif bits == 8 :
-            return 50
-        elif bits == 12 :
-            return 25
-        else:
-            return VEML6030._UNKNOWN_ERROR
+        for (key, val) in VEML6030.INTEGTIME_BITS.items():
+            if val == bits :
+                return key
     
     def set_integration_time(self, time = 100):
-        if (time == 100) :
-            bits = 0 
-        elif (time == 200) :
-            bits = 1
-        elif (time == 400) :
-            bits = 2
-        elif (time == 800) :
-            bits = 3
-        elif (time == 50) :
-            bits = 8
-        elif (time == 25) :
-            bits = 12
-        else:
-            return
+        bits = VEML6030.INTEGTIME_BITS.get(time, 0)
         confval = self.configuration
-        confval &= (0xffff ^ VEML6030.INTEG_MASK)
-        confval |= bits<< VEML6030.INTEG_POS
+        confval &= (0xffff ^ VEML6030.INTEGTIME_1MASK)
+        confval |= bits<< VEML6030.INTEGTIME_POS
         self.configuration = confval
         return
         
     integration_time = property(get_integration_time, set_integration_time)
     
+    def set_gain_integtime(self, g, t):
+        gain_bits = VEML6030.GAIN_BITS.get(g, VEML6030.GAIN_BITS[1])
+        time_bits = VEML6030.INTEGTIME_BITS.get(t, VEML6030.INTEGTIME_BITS[100])
+        confval = self.configuration
+        confval &= (0xffff ^ (VEML6030.ALS_GAIN_1MASK | VEML6030.INTEGTIME_1MASK))
+        confval |= (gain_bits<< VEML6030.ALS_GAIN_POS)|(time_bits<<VEML6030.INTEGTIME_POS)
+        self.configuration = confval
+        
+    def get_gain_integtime(self):
+        confval = self.configuration
+        integtime_bits = (confval & VEML6030.INTEGTIME_1MASK)>> VEML6030.INTEGTIME_POS
+        gain_bits = (confval & VEML6030.ALS_GAIN_1MASK)>>VEML6030.ALS_GAIN_POS
+        #print(hex(confval), bin(bits))
+        pair = [0, 0]
+        for (key, val) in VEML6030.GAIN_BITS.items():
+            if val == gain_bits :
+                pair[0] = key
+                break
+        for (key, val) in VEML6030.INTEGTIME_BITS.items():
+            if val == integtime_bits :
+                pair[1] = key
+                break
+        return tuple(pair)
+            
     def shutdown(self):
         confval = self.configuration
-        confval &= 0xffff ^ VEML6030.ALS_SD_MASK
+        confval &= 0xffff ^ VEML6030.ALS_SD_1MASK
         confval |= VEML6030.ALS_SHUTDOWN
         self.configuration = confval
         
     def power_on(self):
         confval = self.configuration
-        confval &= 0xffff ^ VEML6030.ALS_SD_MASK
+        confval &= 0xffff ^ VEML6030.ALS_SD_1MASK
         confval |= VEML6030.ALS_POWER_ON
         self.configuration = confval
         
     def read_lux(self):
         alsbits = self.read_register(VEML6030.REG_ALS)
         #print("alsbits = ", hex(alsbits))
-        gain = float(self.gain)
-        integtime = int(self.integration_time)
-        conv = {2.0: 0, 1.0: 1, 0.25: 2, 0.125: 3}.get(gain, 1)
-        lux = VEML6030.LUX_CONV[integtime][conv]
-        lux = lux * alsbits
-        #print("lux = ", lux)
+        g = float(self.gain)
+        it = int(self.integration_time)
+        conv = {2.0: 0, 1.0: 1, 0.25: 2, 0.125: 3}.get(g, 1)
+        lux = VEML6030.LUX_CONV[it][conv] * alsbits
+        print("als = ", hex(alsbits), "lux = ", lux, "conv = ", conv, "integtime = ", it, "gain = ", g)
         if lux > 1000 :
             return self.lux_compensated(lux)
         else:

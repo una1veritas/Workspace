@@ -1,6 +1,6 @@
 import time
 import board
-from stemmaqt_veml6030 import VEML6030
+from qt_veml6030 import VEML6030
         
 from datetime import datetime
 import time

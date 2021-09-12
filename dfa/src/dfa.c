@@ -18,7 +18,9 @@
 
 typedef struct {
 	/* 状態は ASCII 文字, 状態の集合は char 型の {1,...,127} の部分集合に限定. */
+	/* 状態 0 は black hole state ブラックホールとして扱う．  */
 	/* 文字は ASCII 文字, 有限アルファベットは char 型の {1,...,127} の部分集合に限定. */
+	/* 文字 0 は文字列終端記号（ヌル文字）として処理されるため使用しない. */
 	char delta[STATE_LIMIT][ALPHABET_LIMIT];	/* 遷移関数 */
 	char initial; 								/* 初期状態 */
 	char finals[STATE_LIMIT]; 					/* 最終状態を表すフラグの表 */
@@ -67,14 +69,19 @@ void dfa_reset(dfa * mp) {
 }
 
 char dfa_transfer(dfa * mp, char a) {
-	mp->current = mp->delta[(int)mp->current][(int)a];
+	if (mp->delta[(int)mp->current][(int)a] != 0) /* defined */
+		mp->current = mp->delta[(int)mp->current][(int)a];
+	/* else
+		if omitted, go to and self-loop in the black hole state. */
 	return mp->current;
 }
 
+/* 受理状態にあるか */
 int dfa_accepting(dfa * mp) {
 	return mp->finals[(int)mp->current] == STATE_IS_FINAL;
 }
 
+/* dfa の定義を印字 */
 void dfa_print(dfa * mp) {
 	char states[STATE_LIMIT];
 	char alphabet[ALPHABET_LIMIT];
@@ -102,7 +109,7 @@ void dfa_print(dfa * mp) {
 			if ( !the1st ) {
 				printf(", ");
 			}
-			printf("%c", (char) i);
+			printf("'%c'", (char) i);
 			the1st = 0;
 		}
 	}
@@ -114,7 +121,7 @@ void dfa_print(dfa * mp) {
 			if ( !the1st ) {
 				printf(", ");
 			}
-			printf("%c", (char) i);
+			printf("'%c'", (char) i);
 			the1st = 0;
 		}
 	}
@@ -125,12 +132,12 @@ void dfa_print(dfa * mp) {
 	for(int i = 0; i < STATE_LIMIT; ++i) {
 		for(int a = 0; a < ALPHABET_LIMIT; ++a) {
 			if ( mp->delta[i][a] ) {
-				printf("  %c  ,  %c   |  %c\n",i,a,mp->delta[i][a]);
+				printf(" '%c' , '%c'  | '%c'\n",i,a,mp->delta[i][a]);
 			}
 		}
 	}
 	printf("------------+------\n");
-	printf("initial state = %c\n", mp->initial);
+	printf("initial state = '%c'\n", mp->initial);
 	printf("accepting states = {");
 	the1st = 1;
 	for(int i = 0; i < STATE_LIMIT; ++i) {
@@ -138,37 +145,80 @@ void dfa_print(dfa * mp) {
 			if ( !the1st ) {
 				printf(", ");
 			}
-			printf("%c", (char) i);
+			printf("'%c'", (char) i);
 			the1st = 0;
 		}
 	}
 	printf("}\n)\n");
 }
 
+/* 文字列にたいして dfa を走らせる */
 int dfa_run(dfa * mp, char * inputstr) {
 	char * ptr = inputstr;
-	printf("dfa runs on '%s' :\n", ptr);
-	dfa_reset(mp);
-	printf("     -> %c", mp->current);
+	printf("On input '%s' :\n", ptr);
+	dfa_reset(mp); 	/* 状態を初期状態にする */
+	printf("   -> '%c'", mp->current);
 	for ( ; *ptr; ++ptr) {
-		dfa_transfer(mp, *ptr);
-		printf(", -%c-> %c", *ptr, mp->current);
+		dfa_transfer(mp, *ptr); 	/* 遷移する */
+		printf(", -'%c'-> '%c'", *ptr, mp->current);
 	}
 	if ( dfa_accepting(mp) ) {
+		/* 受理した */
 		printf(", \naccepted.\n");
 		return STATE_IS_FINAL;
 	} else {
+		/* 却下した */
 		printf(", \nrejected.\n");
 		return STATE_IS_NOT_FINAL;
 	}
 }
 
+int command_arguments(int , char ** , char * , char * , char * , char *);
+
 int main(int argc, char **argv) {
+	char * delta = "0a1,0b2,1a2,1b0", *initial = "0", *finals = "0";
+	char input_buff[1024] = "abaababbab";
+	if ( command_arguments(argc, argv, delta, initial, finals, input_buff) )
+		return 1;
+
 	dfa M;
-	printf("M is using %lld bytes.\n", sizeof(M));
-	dfa_define(&M, "0a1,0b2,1a2,1b0", "0", "0");
+	printf("M is using %0.2f Kbytes.\n\n", (double)(sizeof(M)/1024) );
+	dfa_define(&M, delta, initial, finals);
 	dfa_print(&M);
-	dfa_run(&M, "ababab");
-	printf("bye.\n");
-	return EXIT_SUCCESS;
+	if (strlen(input_buff))
+		dfa_run(&M, input_buff);
+	else {
+		/* 標準入力から一行ずつ，入力文字列として走らせる */
+		while( fgets(input_buff, 1023, stdin) ) {
+			for(char * p = input_buff+strlen(input_buff); *--p == '\n'; *p = '\0') ; /* 改行は無視 */
+			dfa_run(&M, input_buff);
+		}
+	}
+	printf("Bye.\n");
+	return 0;
 }
+
+
+int command_arguments(int argc, char * argv[], char * delta, char * initial, char * finals, char * input) {
+	if (argc > 1) {
+		if (strcmp(argv[1], "-h") == 0 ) {
+			printf("usage: command \"transition triples\" \"initial state\" \"final states\" (\"input string\")\n");
+			printf("example: dfa.exe \"%s\" \"%s\" \"%s\"\n", delta, initial, finals);
+			return 1;
+		} else if (argc == 4 || argc == 5 ) {
+			delta = argv[1]; initial = argv[2]; finals = argv[3];
+			if (argc == 5 )
+				strcpy(input, argv[4]);
+			else
+				input[0] = '\0';
+		} else {
+			printf("Illegal number of arguments.\n");
+			return 1;
+		}
+	} else {
+		printf("define M by buily-in example: \"%s\" \"%s\" \"%s\"\n", delta, initial, finals);
+		printf("(Use 'command -h' to get a help message.)\n");
+	}
+	return 0;
+}
+

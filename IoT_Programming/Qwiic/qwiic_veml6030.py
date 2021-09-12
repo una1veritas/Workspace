@@ -17,13 +17,13 @@ class VEML6030:
     INT_EN_POS             = 0x01
     PSM_POS                = 0x01
     PERS_PROT_POS          = 0x04
-    INTEG_POS              = 0x06
+    INTEGTIME_POS              = 0x06
     ALS_GAIN_POS            = 11
     INT_POS                = 0xE
 
-    ALS_GAIN_MASK           = 3<<ALS_GAIN_POS
+    ALS_GAIN_1MASK           = 3<<ALS_GAIN_POS
     THRESH_MASK            = 0x0
-    INTEG_MASK              = 0xf<<INTEG_POS
+    INTEGTIME_1MASK              = 0xf<<INTEGTIME_POS
     PERS_PROT_MASK         = 0xFFCF
     INT_EN_MASK            = 0xFFFD
     SD_MASK                = 0xFFFE
@@ -109,14 +109,14 @@ class VEML6030:
         else:
             return
         confval = self.read_configuration()
-        confval &= (0xffff ^ VEML6030.ALS_GAIN_MASK)
+        confval &= (0xffff ^ VEML6030.ALS_GAIN_1MASK)
         confval |= bits<<VEML6030.ALS_GAIN_POS
         self.write_configuration(confval)
         return
 
     def get_gain(self):
         confval = self.read_configuration()
-        bits = (confval & VEML6030.ALS_GAIN_MASK)>>VEML6030.ALS_GAIN_POS
+        bits = (confval & VEML6030.ALS_GAIN_1MASK)>>VEML6030.ALS_GAIN_POS
         if bits == 0 :
             return 1.00
         elif bits == 1 : 
@@ -146,15 +146,15 @@ class VEML6030:
         else:
             return
         confval = self.read_configuration()
-        confval &= (0xffff ^ VEML6030.INTEG_MASK)
-        confval |= bits<<VEML6030.INTEG_POS
+        confval &= (0xffff ^ VEML6030.INTEGTIME_1MASK)
+        confval |= bits<<VEML6030.INTEGTIME_POS
         self.write_configuration(confval)
         return
         
     def get_integration_time(self):
         confval = self.read_configuration()
-        confval &= VEML6030.INTEG_MASK
-        bits = confval>>VEML6030.INTEG_POS
+        confval &= VEML6030.INTEGTIME_1MASK
+        bits = confval>>VEML6030.INTEGTIME_POS
         #print(hex(confval), bin(bits))
         if bits == 0 :
             return 100
