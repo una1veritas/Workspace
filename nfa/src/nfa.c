@@ -14,14 +14,14 @@
 #include <inttypes.h>
 #include <ctype.h>
 
-/* 便宜的に設定した上限 */
+/* 整数のビット長により設定する上限 */
 #define STATE_LIMIT	 			64
 #define ALPHABET_LIMIT 			128
 
-typedef uint64_t bset64; 	/* 符号なし整数型をビット表現で集合として使用する */
+typedef uint64_t bset64; 	/* 符号なし64bit整数型をビット表現で集合として使用する */
 typedef struct {
-	/* 状態は 数字，英大文字を含む空白 (0x20) から _ (0x5f) までの一文字で表す
-	 * 正の整数 {0,...,63} の要素に限定. */
+	/* 状態は 数字，英大文字を含む空白 (0x20) から _ (0x5f) までの一文字 */
+	/* 正の整数 {0,...,63} の要素に限定. */
 	/* 文字は ASCII 文字, 有限アルファベットは char 型の {1,...,127} の要素に限定. */
 	bset64 delta[STATE_LIMIT][ALPHABET_LIMIT];	/* 遷移関数 : Q x Σ -> 2^Q*/
 	char  initial; 								/* 初期状態 */
@@ -33,6 +33,7 @@ typedef struct {
 // ユーティリティ
 #define char2state(x)  ((x) - 0x30)
 #define state2char(x)  ((x) + 0x30)
+
 char * bset64_str(bset64 bits, char * buf) {
 	char * ptr = buf;
 	ptr += sprintf(ptr, "{");
@@ -48,7 +49,7 @@ char * bset64_str(bset64 bits, char * buf) {
 	return buf;
 }
 
-/* マーカーとして使用する定数 */
+/* 定数 */
 #define TRANSITION_NOT_DEFINED 	0
 #define STATE_IS_NOT_FINAL 		0
 #define STATE_IS_FINAL 			1
@@ -70,18 +71,14 @@ void nfa_define(nfa * mp,
 	mp->finals = 0;
 	/* 定義の三つ組みを読み取る */
 	while ( sscanf(ptr, "%[^,]", triplex) ) {
-		//printf("def: %s ", triplex);
 		int stat = char2state(triplex[0]);
 		int symb = triplex[1];
 		for(char * x = triplex+2; *x; ++x) { 	/* 遷移先は複数記述可能 */
 			mp->delta[stat][symb] |= 1<<char2state(*x);
 		}
-		//printf("%x, %c -> ", stat, symb);
-		//printf("%s\n", bset64_str(mp->delta[stat][symb], buf));
 		ptr += strlen(triplex);
 		if (*ptr == 0) break;
-		++ptr; 	/* , を読み飛ばす */
-		//printf("%s\n", ptr);
+		while ( *ptr == ',' ) ++ptr; 	/* , を読み飛ばす */
 	}
 	mp->initial = char2state(*initial); 	/* 初期状態は１つ */
 	for(ptr = finals; *ptr ; ++ptr) {
