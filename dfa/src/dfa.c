@@ -209,7 +209,6 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-
 int command_arguments(int argc, char * argv[], char ** delta, char * initial, char ** finals, char * input) {
 	if (argc > 1) {
 		if (strcmp(argv[1], "-h") == 0 ) {
@@ -232,4 +231,3 @@ int command_arguments(int argc, char * argv[], char ** delta, char * initial, ch
 	}
 	return 0;
 }
-

@@ -21,8 +21,8 @@
 typedef uint64_t bset64; 	/* 符号なし64bit整数型をビット表現で集合として使用する */
 typedef struct {
 	/* 状態は 数字，英大文字を含む空白 (0x20) から _ (0x5f) までの一文字 */
-	/* 正の整数 {0,...,63} の要素に限定. */
-	/* 文字は ASCII 文字, 有限アルファベットは char 型の {1,...,127} の要素に限定. */
+	/* に対応する正の整数 {0,...,63} の要素に限定. */
+	/* 文字は ASCII 文字, char 型の {0,...,127} の要素に限定. */
 	bset64 delta[STATE_LIMIT][ALPHABET_LIMIT];	/* 遷移関数 : Q x Σ -> 2^Q*/
 	char  initial; 								/* 初期状態 */
 	bset64 finals;			 					/* 最終状態を表すフラグの表 */
@@ -57,7 +57,7 @@ char * bset64_str(bset64 bits, char * buf) {
 /* 定義文字列から nfa を初期化 */
 void nfa_define(nfa * mp,
 		char * trans,
-		char * initial,
+		char initial,
 		char * finals) {
 	char triplex[72];
 	//char buf[72];
@@ -80,7 +80,7 @@ void nfa_define(nfa * mp,
 		if (*ptr == 0) break;
 		while ( *ptr == ',' ) ++ptr; 	/* , を読み飛ばす */
 	}
-	mp->initial = char2state(*initial); 	/* 初期状態は１つ */
+	mp->initial = char2state(initial); 	/* 初期状態は１つ */
 	for(ptr = finals; *ptr ; ++ptr) {
 		mp->finals |= 1<<char2state(*ptr);
 	}
@@ -151,10 +151,9 @@ void nfa_print(nfa * mp) {
 	}
 	printf("------------+------\n");
 	printf("initial state = %x\n", mp->initial);
-
 	printf("accepting states = %s\n", bset64_str(mp->finals, buf));
-
-	printf("\n");
+	printf(")\n");
+	fflush(stdout);
 }
 
 
@@ -170,31 +169,39 @@ int nfa_run(nfa * mp, char * inputstr) {
 	}
 	if ( nfa_accepting(mp) ) {
 		printf(", \naccepted.\n");
+		fflush(stdout);
 		return STATE_IS_FINAL;
 	} else {
 		printf(", \nrejected.\n");
+		fflush(stdout);
 		return STATE_IS_NOT_FINAL;
 	}
 }
 
-int command_arguments(int argc, char * argv[], char * delta, char * initial, char * finals, char * input);
+int command_arguments(int , char ** , char ** , char * , char ** , char *);
 
 int main(int argc, char **argv) {
-	char * delta = "0a01,0b0,1b2,2b3,3a3,3b3", *initial = "0", *finals = "3";
+	char * delta = "0a01,0b0,1b2,2b3,3a3,3b3", initial = '0', *finals = "3";
 	char input_buff[1024] = "abaababaab";
-	if ( command_arguments(argc, argv, delta, initial, finals, input_buff) )
+	if ( command_arguments(argc, argv, &delta, &initial, &finals, input_buff) )
 		return 1;
 
 	nfa M;
-	printf("M is using %0.2f Kbytes.\n\n", (double)(sizeof(M)/1024) );
+	//printf("M is using %0.2f Kbytes.\n\n", (double)(sizeof(M)/1024) );
 	nfa_define(&M, delta, initial, finals);
 	nfa_print(&M);
 	if (strlen(input_buff))
 		nfa_run(&M, input_buff);
 	else {
+		printf("Type an input as a line, or quit by the empty line.\n");
+		fflush(stdout);
 		/* 標準入力から一行ずつ，入力文字列として走らせる */
 		while( fgets(input_buff, 1023, stdin) ) {
-			for(char * p = input_buff+strlen(input_buff); *--p == '\n'; *p = '\0') ; /* 改行は無視 */
+			char * p;
+			for(p = input_buff; *p != '\n' && *p != '\r' && *p != 0; ++p) ;
+			*p = '\0'; /* 行末の改行は消す */
+			if (!strlen(input_buff))
+				break;
 			nfa_run(&M, input_buff);
 		}
 	}
@@ -202,14 +209,14 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-int command_arguments(int argc, char * argv[], char * delta, char * initial, char * finals, char * input) {
+int command_arguments(int argc, char * argv[], char ** delta, char * initial, char ** finals, char * input) {
 	if (argc > 1) {
 		if (strcmp(argv[1], "-h") == 0 ) {
 			printf("usage: command \"transition triples\" \"initial state\" \"final states\" (\"input string\")\n");
-			printf("example: dfa.exe \"%s\" \"%s\" \"%s\"\n", delta, initial, finals);
+			printf("example: dfa.exe \"%s\" \"%c\" \"%s\"\n\n", *delta, *initial, *finals);
 			return 1;
 		} else if (argc == 4 || argc == 5 ) {
-			delta = argv[1]; initial = argv[2]; finals = argv[3];
+			*delta = argv[1]; *initial = argv[2][0]; *finals = argv[3];
 			if (argc == 5 )
 				strcpy(input, argv[4]);
 			else
@@ -219,8 +226,8 @@ int command_arguments(int argc, char * argv[], char * delta, char * initial, cha
 			return 1;
 		}
 	} else {
-		printf("define M by buily-in example: \"%s\" \"%s\" \"%s\"\n", delta, initial, finals);
-		printf("(Use 'command -h' to get a help message.)\n");
+		printf("define M by buily-in example: \"%s\" \"%c\" \"%s\"\n", *delta, *initial, *finals);
+		printf("(Use 'command -h' to get a help message.)\n\n");
 	}
 	return 0;
 }
