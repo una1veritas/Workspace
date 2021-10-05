@@ -226,7 +226,7 @@ int command_arguments(int argc, char * argv[], char ** delta, char * initial, ch
 			return 1;
 		}
 	} else {
-		printf("define M by buily-in example: \"%s\" \"%c\" \"%s\"\n", *delta, *initial, *finals);
+		printf("define M by built-in example: \"%s\" \"%c\" \"%s\"\n", *delta, *initial, *finals);
 		printf("(Use 'command -h' to get a help message.)\n\n");
 	}
 	return 0;
