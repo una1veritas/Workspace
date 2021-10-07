@@ -5,7 +5,7 @@ dfa.c （Version 20211001.1）
 
 dfa.c ファイルを GCC 等の C コンパイラで実行ファイルにコンパイルします。
 例） Linux, Mac OS, Windows 10 Msys2/Mingw64 あるいは WSL 等で
-gcc を使って事項ファイル dfa.exe ファイルにコンパイルする
+gcc を使って実行ファイル dfa.exe ファイルにコンパイルする
 
 % gcc -o dfa.exe dfa.c
 % ls
@@ -41,7 +41,6 @@ Bye.
 
 (2) -h をつけて実行すると、ヘルプ情報を表示する。
 $ ./dfa.exe -h
-$ ./Debug/dfa.exe -h
 usage: command "transition triples" "initial state" "final states" ("input string")
 example: dfa.exe "0a1,0b0,1a0,1b1" "0" "0"
 
@@ -54,9 +53,9 @@ example: dfa.exe "0a1,0b0,1a0,1b1" "0" "0"
 遷移関数の定義は列は、
 [遷移元の状態を表す文字][読む文字][遷移先の状態を表す文字]
 をコンマで区切って並べた列である。
-受理状態は、ただ状態を表す文字を並べる。
+受理状態は、受理状態の集合に含まれる状態を表す文字を並べる。
 
-$ ./Debug/dfa.exe 0a0,0b0,0c0,0h0,0.1,1.1,1a0,1b0,1c2,1h0,2a0,2b0,2c0,2h0,2.1 0 2
+$ ./dfa.exe 0a0,0b0,0c0,0h0,0.1,1.1,1a0,1b0,1c2,1h0,2a0,2b0,2c0,2h0,2.1 0 2
 dfa(
 states = {'0', '1', '2'},
 alphabet = {'.', 'a', 'b', 'c', 'h'},

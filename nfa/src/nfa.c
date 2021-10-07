@@ -181,8 +181,8 @@ int nfa_run(nfa * mp, char * inputstr) {
 int command_arguments(int , char ** , char ** , char * , char ** , char *);
 
 int main(int argc, char **argv) {
-	char * delta = "0a01,0b0,1b2,2b3,3a3,3b3", initial = '0', *finals = "3";
-	char input_buff[1024] = "abaababaab";
+	char * delta = "0a01,0b0,0c0,1a0,1b02,1c0,2a0,2b03,2c0,3a3,3b3,3c3", initial = '0', *finals = "3";
+	char input_buff[1024] = "acabaccababbacbbac";
 	if ( command_arguments(argc, argv, &delta, &initial, &finals, input_buff) )
 		return 1;
 
