@@ -21,7 +21,7 @@
 typedef uint64_t bset64; 	/* 符号なし64bit整数型をビット表現で集合として使用する */
 typedef struct {
 	/* 状態は 数字，英大文字を含む空白 (0x20) から _ (0x5f) までの一文字 */
-	/* に対応する正の整数 {0,...,63} の要素に限定. */
+	/* に対応させる正の整数 {0,...,63} の要素に限定. */
 	/* 文字は ASCII 文字, char 型の {0,...,127} の要素に限定. */
 	bset64 delta[STATE_LIMIT][ALPHABET_LIMIT];	/* 遷移関数 : Q x Σ -> 2^Q*/
 	char  initial; 								/* 初期状態 */
@@ -31,7 +31,7 @@ typedef struct {
 } nfa;
 
 // ユーティリティ
-#define char2state(x)  ((x) - 0x30)
+#define char2state(x)  (tolower(x) - 0x30)
 #define state2char(x)  ((x) + 0x30)
 
 char * bset64_str(bset64 bits, char * buf) {
