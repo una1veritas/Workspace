@@ -6,6 +6,7 @@ Created on 2021/09/20
 
 if __name__ == '__main__':
     import sys
+    import os
     import json
     if not (len(sys.argv) > 1) :
         print('file name required.')
@@ -18,6 +19,10 @@ if __name__ == '__main__':
             "SHT40.TC": "Temp.", "SHT40.RH": "R. Humidity",
             #"BMP380.TC",
             "BMP380.BP": "B.Pressure", "VEML6030.LX": "Lux"}
+
+    if os.path.isfile(outfilename):
+        os.remove(outfilename)
+
     writeheader = True
     with open(infilename, mode='r') as jfile:
         for line in jfile:
