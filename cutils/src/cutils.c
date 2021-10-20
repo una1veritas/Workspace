@@ -14,19 +14,19 @@
 #include "cutils.h"
 
 
-	inline static uint64 & rotl64(uint64 & x) {
+	inline static uint64 rotl64(uint64 x) {
 		return x = (x<<1) | (x>>(-1&63));
 	}
 
-	inline static uint64 & rotl64(uint64_t & x, const unsigned int & n) {
+	inline static uint64 rotl64n(uint64_t x, const unsigned int n) {
 		return x = (x<<n) | (x>>(-n & 63));
 	}
 
-	inline static uint64 & rotr64(uint64 & x) {
+	inline static uint64 rotr64(uint64 x) {
 		return x = (x>>1) | (x<<(-1&63));
 	}
 
-	inline static uint64 & rotr64(uint64_t & x, const unsigned int & n) {
+	inline static uint64 rotr64n(uint64_t x, const unsigned int n) {
 		return x = (x>>n) | (x<<(-n & 63));
 	}
 
