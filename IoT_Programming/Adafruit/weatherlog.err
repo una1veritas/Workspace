@@ -1,0 +1,36 @@
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/dist-packages/adafruit_bus_device/i2c_device.py", line 154, in __probe_for_device
+    self.i2c.writeto(self.device_address, b"")
+  File "/usr/local/lib/python3.7/dist-packages/busio.py", line 159, in writeto
+    return self._i2c.writeto(address, buffer, stop=stop)
+  File "/usr/local/lib/python3.7/dist-packages/adafruit_blinka/microcontroller/generic_linux/i2c.py", line 49, in writeto
+    self._i2c_bus.write_bytes(address, buffer[start:end])
+  File "/usr/local/lib/python3.7/dist-packages/Adafruit_PureIO/smbus.py", line 314, in write_bytes
+    self._device.write(buf)
+OSError: [Errno 121] Remote I/O error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/dist-packages/adafruit_bus_device/i2c_device.py", line 160, in __probe_for_device
+    self.i2c.readfrom_into(self.device_address, result)
+  File "/usr/local/lib/python3.7/dist-packages/busio.py", line 149, in readfrom_into
+    return self._i2c.readfrom_into(address, buffer, stop=stop)
+  File "/usr/local/lib/python3.7/dist-packages/adafruit_blinka/microcontroller/generic_linux/i2c.py", line 56, in readfrom_into
+    readin = self._i2c_bus.read_bytes(address, end - start)
+  File "/usr/local/lib/python3.7/dist-packages/Adafruit_PureIO/smbus.py", line 181, in read_bytes
+    return self._device.read(number)
+OSError: [Errno 121] Remote I/O error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "qt_sensors.py", line 42, in <module>
+    veml   = VEML6030(i2c, VEML6030.I2C_ADDR_ALT)
+  File "/home/pi/.local/lib/python3.7/site-packages/stemmaqt_veml6030.py", line 72, in __init__
+    self._i2c = i2c_device.I2CDevice(i2c_bus, address)
+  File "/usr/local/lib/python3.7/dist-packages/adafruit_bus_device/i2c_device.py", line 50, in __init__
+    self.__probe_for_device()
+  File "/usr/local/lib/python3.7/dist-packages/adafruit_bus_device/i2c_device.py", line 163, in __probe_for_device
+    raise ValueError("No I2C device at address: 0x%x" % self.device_address)
+ValueError: No I2C device at address: 0x10

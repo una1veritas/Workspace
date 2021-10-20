@@ -40,11 +40,12 @@ if __name__ == '__main__':
                 writeheader = False
             firstitem = True
             for k in keys:
-                if firstitem :
-                    firstitem = False
-                else:
-                    outstr += ','
-                outstr += str(jsdict[k])
+                if k in jsdict :
+                    if firstitem :
+                        firstitem = False
+                    else:
+                        outstr += ','
+                    outstr += str(jsdict[k])
             with open(outfilename, mode='a') as csvfile :
                 csvfile.write(outstr + '\n')
     print('bye.')
