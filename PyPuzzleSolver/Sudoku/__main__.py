@@ -1,6 +1,7 @@
 #
 #
 import math
+from array import array
 
 class Sudoku():
     def __init__(self, numbers):
@@ -9,7 +10,9 @@ class Sudoku():
         if self.factor**2 != self.size or self.size**2 != len(numbers):
             raise ValueError('illegal size specified: factor = {}, size = {}, number list length = {}'.format(self.factor,self.size,len(numbers)))
         if isinstance(numbers, (str, list)) :
-            self.cells = [int(d) for d in numbers]
+            self.cells = array('B',[int(d) for d in numbers])
+        elif isinstance(numbers, (array)) :
+            self.cells = array('B',numbers)
         else:
             raise TypeError('illegal arguments for constructor.')
     
@@ -30,7 +33,7 @@ class Sudoku():
     def __hash__(self):
         hashval = 0
         for val in self.cells:
-            hashval = (hashval*(self.factor+1)) ^ val
+            hashval = (hashval<<self.factor) ^ val
         return hashval
     
     def __eq__(self, another):
@@ -50,27 +53,27 @@ class Sudoku():
     def issolved(self):
         return 0 not in [v for v in self.cells]
     
-    def check(self,row,col):
-        rownums = set()
-        colnums = set()
-        blocknums = set()
-        for c in range(0,9):
-            num = self.at(row,c)
-            if num > 0 and num in rownums :
-                return False
-            rownums.add(num)
-        for r in range(0,9):
-            num = self.at(r,col)
-            if num > 0 and num in colnums:
-                return False
-            colnums.add(num)
-        for r in range((row//3)*3,(row//3)*3+3):
-            for c in range((col//3)*3,(col//3)*3):
-                num = self.at(r,c)
-                if num > 0 and num in blocknums:
-                    return False
-                blocknums.add(num)
-        return True   
+    # def check(self,row,col):
+    #     rownums = set()
+    #     colnums = set()
+    #     blocknums = set()
+    #     for c in range(0,9):
+    #         num = self.at(row,c)
+    #         if num > 0 and num in rownums :
+    #             return False
+    #         rownums.add(num)
+    #     for r in range(0,9):
+    #         num = self.at(r,col)
+    #         if num > 0 and num in colnums:
+    #             return False
+    #         colnums.add(num)
+    #     for r in range((row//3)*3,(row//3)*3+3):
+    #         for c in range((col//3)*3,(col//3)*3):
+    #             num = self.at(r,c)
+    #             if num > 0 and num in blocknums:
+    #                 return False
+    #             blocknums.add(num)
+    #     return True   
     
     # def checkAll(self):
     #     for r in range(0,9):
@@ -106,24 +109,25 @@ class Sudoku():
         return cands
     
     def tighten(self):
-        counter = 0
         while True:
             #print(sudoku)
             fix = None
-            for (r,c) in [(r,c) for r in range(9) for c in range(9)]:
-                if self.at(r,c) == 0 :
+            for r in range(9):
+                for c in range(9):
+                    if self.at(r,c) != 0 : 
+                        continue
                     cand = self.allowednumbers(r,c)
+                    #print(cand)
                     if len(cand) == 0:
                         return False
                     elif len(cand) == 1:
                         fix = (r,c,cand.pop())
                         break
-            if fix == None:
-                break
-            counter += 1
+            if fix == None :
+                return True
             (r,c,num) = fix
             self.put(r,c,num)
-            # print("({},{}) <- {}".format(r,c,num))
+            #print("({},{}) <- {}".format(r,c,num))
             #self.checkAll()
             #print()
         return True
@@ -144,31 +148,26 @@ class Sudoku():
     
     def solve(self):
         solved = None
+        done = set()
+        done.add(self)
         if not self.tighten() : return solved
-        frontier = dict()
-        level = self.filllevel()
-        frontier[level] = set()
-        frontier[level].add(self)
+        frontier = list()
+        frontier.append(self)
+        thre = 100
         while len(frontier) > 0 :
-            if len(frontier[level]) == 0 :
-                frontier.pop(level)
-                level += 1
-                continue
-            sd = frontier[level].pop()
+            sd = frontier.pop(0)
+            done.add(sd)
             #sd.checkAll()
-            if len(frontier[level]) < 100 or (len(frontier[level]) % 100) == 0 :
-                print(level, len(frontier[level]))
+            if (len(done) % 100) == 0 :
+                print([len(frontier),len(done)])
                 print(sd)
             if sd.issolved():
                 solved = sd
                 break
-            nextgen = sd.fillsomecell()
-            for next in nextgen: 
-                if next.tighten():
-                    nextlevel = next.filllevel()
-                    if nextlevel not in frontier:
-                        frontier[nextlevel] = set()
-                    frontier[nextlevel].add(next)
+            for nx in sd.fillsomecell(): 
+                if nx.tighten() :
+                    if nx not in done:
+                        frontier.append(nx)
             #frontier.extend(nextgen)
         return solved
     
@@ -177,7 +176,7 @@ if __name__ == '__main__':
     #sudoku = Sudoku('615830049304291076000005081007000100530024000000370004803000905170900400000002003')
     #sudoku = Sudoku('900000000700008040010000079000974000301080000002010000000400800056000300000005001')
     #sudoku = Sudoku('400080100000209000000730000020001009005000070090000050010500400600300000004007603')
-    sudoku = Sudoku('020000010004000800060010040700209005003000400050000020006801200800050003500030006')
+    sudoku = Sudoku('020000010004000800060010040700209005003000400050000020006801200800050004500030006')
     #sudoku = Sudoku('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
     #print(sudoku)
     solved = sudoku.solve()    
