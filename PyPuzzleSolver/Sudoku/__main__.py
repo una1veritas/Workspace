@@ -2,6 +2,7 @@
 #
 import math
 from array import array
+from pickle import FALSE
 
 class Sudoku():
     def __init__(self, numbers):
@@ -51,36 +52,35 @@ class Sudoku():
         return row*self.size+col
     
     def issolved(self):
-        return 0 not in [v for v in self.cells]
-    
-    # def check(self,row,col):
-    #     rownums = set()
-    #     colnums = set()
-    #     blocknums = set()
-    #     for c in range(0,9):
-    #         num = self.at(row,c)
-    #         if num > 0 and num in rownums :
-    #             return False
-    #         rownums.add(num)
-    #     for r in range(0,9):
-    #         num = self.at(r,col)
-    #         if num > 0 and num in colnums:
-    #             return False
-    #         colnums.add(num)
-    #     for r in range((row//3)*3,(row//3)*3+3):
-    #         for c in range((col//3)*3,(col//3)*3):
-    #             num = self.at(r,c)
-    #             if num > 0 and num in blocknums:
-    #                 return False
-    #             blocknums.add(num)
-    #     return True   
-    
-    # def checkAll(self):
-    #     for r in range(0,9):
-    #         for c in range(0,9):
-    #             if not self.check(r,c):
-    #                 print('\n'+str(self))
-    #                 raise RuntimeError('I have bad feeling at {},{}.'.format(r,c))
+        rownums = set()
+        colnums = set()
+        blocknums = set()
+        
+        for r in range(self.size) :
+            rownums.clear()
+            colnums.clear()
+            for c in range(self.size) :
+                num = self.at(r,c)
+                if 0 < num <= 9 and num not in rownums :
+                    rownums.add(num)
+                else:
+                    return False
+                num = self.at(c,r)
+                if 0 < num <= 9 and num not in colnums :
+                    colnums.add(num)
+                else:
+                    return False
+        for row in range(0,9,3):
+            for col in range(0,9,3):
+                blocknums.clear()
+                for r in range(row, row+3):
+                    for c in range(col,col+3):
+                        num = self.at(r,c)
+                        if 0 < num <= 9 and num not in blocknums:
+                            blocknums.add(num)
+                        else:
+                            return False
+        return True   
     
     def affectcells(self,row,col):
         if not (0 <= row < self.size and 0 <= col < self.size):
@@ -143,41 +143,51 @@ class Sudoku():
                     filled.append(s)
         return filled
 
-    def filllevel(self):
+    def filled(self):
         return sum([1 if n != 0 else 0 for n in self.cells])
     
+    def isfilledout(self):
+        for n in self.cells:
+            if n == 0 :
+                return False
+        return True
+    
     def solve(self):
-        solved = None
-        done = set()
-        done.add(self)
-        if not self.tighten() : return solved
         frontier = list()
         frontier.append(self)
-        thre = 100
+        done = set()
+        counter = 0
         while len(frontier) > 0 :
             sd = frontier.pop(0)
-            done.add(sd)
-            #sd.checkAll()
-            if (len(done) % 100) == 0 :
-                print([len(frontier),len(done)])
-                print(sd)
-            if sd.issolved():
-                solved = sd
-                break
-            for nx in sd.fillsomecell(): 
-                if nx.tighten() :
-                    if nx not in done:
-                        frontier.append(nx)
+            if not sd.tighten() :
+                continue
+            if sd not in done:
+                done.add(sd)
+            else:
+                continue
+            counter += 1    
+            if counter % 1000 == 0:
+                print(sd,counter,len(frontier), len(done))
+            if sd.isfilledout() :
+                return sd
+            for nx in sd.fillsomecell():
+                if not nx in done:
+                    frontier.append(nx) 
+
             #frontier.extend(nextgen)
-        return solved
+        return None
     
 if __name__ == '__main__':
     #sudoku = Sudoku('003020600900305001001806400008102900700000008006708200002609500800203009005010300')
     #sudoku = Sudoku('615830049304291076000005081007000100530024000000370004803000905170900400000002003')
     #sudoku = Sudoku('900000000700008040010000079000974000301080000002010000000400800056000300000005001')
     #sudoku = Sudoku('400080100000209000000730000020001009005000070090000050010500400600300000004007603')
-    sudoku = Sudoku('020000010004000800060010040700209005003000400050000020006801200800050004500030006')
     #sudoku = Sudoku('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
-    #print(sudoku)
+    #sudoku = Sudoku('020000010004000800060010040700209005003000400050000020006801200800050004500030006')
+    #sudoku = Sudoku('000310008006080000090600100509000000740090052000000409007004020000020600400069000')
+    #sudoku = Sudoku('001503900040000080002000500010060050400000003000201000900080006500406009006000300')
+    #sudoku = Sudoku('080100000000070016610800000004000702000906000905000400000001028450090000000003040')
+    sudoku = Sudoku('001040600000906000300000002040060050900302004030070060700000008000701000004020500')
+    print(sudoku)
     solved = sudoku.solve()    
-    print(solved)
+    print(solved, solved.issolved())
