@@ -2,21 +2,20 @@
 #
 import math
 from array import array
+from pickle import FALSE
 
 class Sudoku():
     def __init__(self, numbers):
         self.size = int(math.sqrt(len(numbers)))
         self.factor = int(math.sqrt(self.size))
-        if not (self.factor**2 == self.size and self.size**2 == len(numbers)) :
-            raise ValueError('argument array has illegal size = {}'.format(self.size))
-        self.array = array('H',[self.bits(0) for i in range(len(numbers))])
-        for i in range(len(numbers)):
-            self.place(self.row(i),self.col(i),numbers[i])
-    
-    def bits(self, num):
-        if num == 0 : return 0x511
-        return 1<<(num-1)
-        
+        if self.factor**2 != self.size or self.size**2 != len(numbers):
+            raise ValueError('illegal size specified: factor = {}, size = {}, number list length = {}'.format(self.factor,self.size,len(numbers)))
+        if isinstance(numbers, (str, list)) :
+            self.cells = array('B',[int(d) for d in numbers])
+        elif isinstance(numbers, (array)) :
+            self.cells = array('B',numbers)
+        else:
+            raise TypeError('illegal arguments for constructor.')
     
     def __str__(self):
         tmp = ''
