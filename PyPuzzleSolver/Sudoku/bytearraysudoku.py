@@ -67,24 +67,26 @@ class Sudoku():
     #     #print(bin(self.bits_at(row, col)),num)
     #     if self.bits_at(row, col) & self.bits(num) == 0 :
     #         raise RuntimeError('Illegal placement of number {} at {},{}'.format(num,row,col))
-    #     updates = list()
-    #     updates.append((row,col,num))
-    #     while bool(updates) :
-    #         row,col,num = updates.pop(0)
-    #         self.array[self.index(row,col)] = self.bits(num)
-    #         for r, c in self.affectedarea(row,col):
-    #             if r == row and c == col :
-    #                 continue
-    #             bits = self.array[self.index(r,c)]
-    #             newbits = bits & (self.bits(0) ^ self.bits(num))
-    #             self.array[self.index(r,c)] = newbits
-    #             newpcnt = self._popcount(newbits)
-    #             if newpcnt == 0 :
-    #                 return False
-    #             if newbits != bits and newpcnt == 1 :
-    #                 updates.append((r,c,self.debits(newbits)))
-    #     return True
-    #
+
+    def makebitsetmap(self):
+        updates = list()
+        updates.append((row,col,num))
+        while bool(updates) :
+            row,col,num = updates.pop(0)
+            self.array[self.index(row,col)] = self.bits(num)
+            for r, c in self.affectedarea(row,col):
+                if r == row and c == col :
+                    continue
+                bits = self.array[self.index(r,c)]
+                newbits = bits & (self.bits(0) ^ self.bits(num))
+                self.array[self.index(r,c)] = newbits
+                newpcnt = self._popcount(newbits)
+                if newpcnt == 0 :
+                    return False
+                if newbits != bits and newpcnt == 1 :
+                    updates.append((r,c,self.debits(newbits)))
+        return True
+    
     # def bits_at(self,row,col):
     #     return self.array[row*self.size+col]
     
@@ -129,18 +131,16 @@ class Sudoku():
                 tmp += '-----+-----+-----+\n'
         return tmp
     
-    # def __hash__(self):
-    #     hashval = 0
-    #     factor = int(math.sqrt(self.size))
-    #     for val in self.array:
-    #         hashval = (hashval<<factor) ^ val
-    #     return hashval
-    #
-    # def __eq__(self, another):
-    #     if isinstance(another, Sudoku) :
-    #         return self.array == another.array
-    #     return False 
-    #
+    def __hash__(self):
+        hashval = 0
+        factor = {4:2, 9:3, 16:4}[self.size]
+        for val in self.array:
+            hashval = (hashval<<factor) ^ val
+        return hashval
+    
+    def __eq__(self, another):
+        return self.array == another.array 
+    
 
     # def at(self, row, col):
     #     return self.cells[self.index(row,col)]
@@ -151,75 +151,77 @@ class Sudoku():
     # def index(self, row, col):
     #     return row*self.size+col
     #
-    # def issolved(self):
-    #     for bits in self.array:
-    #         if self._popcount(bits) != 1 :
-    #             return False
-    #     return True
-    #
-    # def affectedarea(self,row,col):
-    #     if not (0 <= row < self.size and 0 <= col < self.size):
-    #         return
-    #     factor = int(math.sqrt(self.size))
-    #     baserow = (row // factor)*factor
-    #     basecol = (col // factor)*factor
-    #     for r in range(baserow, baserow+factor):
-    #         for c in range(basecol, basecol+factor):
-    #             yield (r, c)
-    #     for c in range(0,basecol,1):
-    #         yield (row, c)
-    #     for c in range(basecol+factor,self.size,1):
-    #         yield (row, c)
-    #     for r in range(0,baserow,1):
-    #         yield (r, col)      
-    #     for r in range(baserow+factor,self.size,1):
-    #         yield (r, col)
-    #
-    # def allowed(self, row, col):
-    #     b = self.bits_at(row, col)
-    #     if self._popcount(b) == 1 :
-    #         return
-    #     num = 1
-    #     while b != 0:
-    #         if b & 1 == 1 :
-    #             yield num
-    #         b >>= 1
-    #         num += 1
-    #
-    # def tighten(self):
-    #     while True:
-    #         #print(sudoku)
-    #         fix = None
-    #         for r in range(9):
-    #             for c in range(9):
-    #                 if self.at(r,c) != 0 : 
-    #                     continue
-    #                 cand = self.allowednumbers(r,c)
-    #                 #print(cand)
-    #                 if len(cand) == 0:
-    #                     return False
-    #                 elif len(cand) == 1:
-    #                     fix = (r,c,cand.pop())
-    #                     break
-    #         if fix == None :
-    #             return True
-    #         (r,c,num) = fix
-    #         self.put(r,c,num)
-    #         #print("({},{}) <- {}".format(r,c,num))
-    #         #self.checkAll()
-    #         #print()
-    #     return True
-    #
-    # def fillsomecell(self):
-    #     filled = list()
-    #     for r in range(self.size):
-    #         for c in range(self.size):
-    #             for i in self.allowed(r,c):
-    #                 s = Sudoku(self)
-    #                 if s.put(r,c,i):
-    #                     # print(r,c,i)
-    #                     filled.append(s)
-    #     return filled
+    def issolved(self):
+        for r in range(self.size):
+            for c in range(self.size):
+                if self.at(r,c) == 0 :
+                    return False
+        return True
+    
+    def affectedarea(self,row,col):
+        if not (0 <= row < self.size and 0 <= col < self.size):
+            return
+        factor = int(math.sqrt(self.size))
+        baserow = (row // factor)*factor
+        basecol = (col // factor)*factor
+        for r in range(baserow, baserow+factor):
+            for c in range(basecol, basecol+factor):
+                yield (r, c)
+        for c in range(0,basecol,1):
+            yield (row, c)
+        for c in range(basecol+factor,self.size,1):
+            yield (row, c)
+        for r in range(0,baserow,1):
+            yield (r, col)      
+        for r in range(baserow+factor,self.size,1):
+            yield (r, col)
+    
+    def allowed(self, row, col):
+        b = self.bits_at(row, col)
+        if self._popcount(b) == 1 :
+            return
+        num = 1
+        while b != 0:
+            if b & 1 == 1 :
+                yield num
+            b >>= 1
+            num += 1
+    
+    def tighten(self):
+        while True:
+            #print(sudoku)
+            fix = None
+            for r in range(9):
+                for c in range(9):
+                    if self.at(r,c) != 0 : 
+                        continue
+                    cand = self.allowednumbers(r,c)
+                    #print(cand)
+                    if len(cand) == 0:
+                        return False
+                    elif len(cand) == 1:
+                        fix = (r,c,cand.pop())
+                        break
+            if fix == None :
+                return True
+            (r,c,num) = fix
+            self.put(r,c,num)
+            #print("({},{}) <- {}".format(r,c,num))
+            #self.checkAll()
+            #print()
+        return True
+    
+    def fillsomecell(self):
+        filled = list()
+        bitsetmap = self.makebitsetmap()
+        for r in range(self.size):
+            for c in range(self.size):
+                for i in self.allowed(r,c):
+                    s = Sudoku(self)
+                    if s.put(r,c,i):
+                        # print(r,c,i)
+                        filled.append(s)
+        return filled
     #
     # def filled(self):
     #     return sum([1 if n != 0 else 0 for n in self.cells])
@@ -230,27 +232,27 @@ class Sudoku():
     #             return False
     #     return True
     #
-    # def solve(self):
-    #     frontier = list()
-    #     frontier.append(self)
-    #     done = set()
-    #     done.add(self)
-    #     counter = 0
-    #     while bool(frontier) :
-    #         sdok = frontier.pop(0)
-    #         counter += 1    
-    #         if counter % 500 == 0:
-    #             print(sdok,counter,len(frontier),len(done))
-    #         # if sdok in done:
-    #         #     continue
-    #         done.add(sdok)
-    #         if sdok.issolved() :
-    #             return sdok
-    #         for each in sdok.fillsomecell():
-    #             if each not in done:
-    #                 frontier.append(each)
-    #                 done.add(each)
-    #     return None
+    def solve(self):
+        frontier = list()
+        frontier.append(self)
+        done = set()
+        done.add(self)
+        counter = 0
+        while bool(frontier) :
+            sdok = frontier.pop(0)
+            counter += 1    
+            if counter % 500 == 0:
+                print(sdok,counter,len(frontier),len(done))
+            # if sdok in done:
+            #     continue
+            done.add(sdok)
+            if sdok.issolved() :
+                return sdok
+            for each in sdok.fillsomecell():
+                if each not in done:
+                    frontier.append(each)
+                    done.add(each)
+        return None
     
 if __name__ == '__main__':
     #sudoku = Sudoku('000310008006080000090600100509000000740090052000000409007004020000020600400069000')
@@ -265,5 +267,5 @@ if __name__ == '__main__':
     #sudoku = Sudoku('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
     print(sudoku)
     print(sudoku.signature())
-    # solved = sudoku.solve()
-    # print(solved, solved.issolved())
+    solved = sudoku.solve()
+    print(solved, solved.issolved())
