@@ -2,6 +2,7 @@
 #
 import math
 from array import array
+import datetime
 
 class Sudoku():
     SIZE_FACTORS = {4:2,9:3,16:4}
@@ -62,22 +63,22 @@ class Sudoku():
             colnums.clear()
             for c in range(self.size) :
                 num = self.at(r,c)
-                if 0 < num <= 9 and num not in rownums :
+                if 0 < num <= self.size and num not in rownums :
                     rownums.add(num)
                 else:
                     return False
                 num = self.at(c,r)
-                if 0 < num <= 9 and num not in colnums :
+                if 0 < num <= self.size and num not in colnums :
                     colnums.add(num)
                 else:
                     return False
-        for row in range(0,9,3):
-            for col in range(0,9,3):
+        for row in range(0,self.size,self.SIZE_FACTORS[self.size]):
+            for col in range(0,self.size,self.SIZE_FACTORS[self.size]):
                 blocknums.clear()
-                for r in range(row, row+3):
-                    for c in range(col,col+3):
+                for r in range(row, row+self.SIZE_FACTORS[self.size]):
+                    for c in range(col,col+self.SIZE_FACTORS[self.size]):
                         num = self.at(r,c)
-                        if 0 < num <= 9 and num not in blocknums:
+                        if 0 < num <= self.size and num not in blocknums:
                             blocknums.add(num)
                         else:
                             return False
@@ -194,5 +195,8 @@ if __name__ == '__main__':
     sudoku = Sudoku('080100000000070016610800000004000702000906000905000400000001028450090000000003040')
     #sudoku = Sudoku('001040600000906000300000002040060050900302004030070060700000008000701000004020500')
     print(sudoku)
+    dt = datetime.datetime.now()
     solved = sudoku.solve()    
+    delta = datetime.datetime.now() - dt
     print(solved, "Solved." if solved.issolved() else "Not Solved!")
+    print(delta.seconds*1000+ delta.microseconds/1000)

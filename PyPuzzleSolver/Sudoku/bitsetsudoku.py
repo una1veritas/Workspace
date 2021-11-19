@@ -2,6 +2,7 @@
 #
 import math, copy
 from array import array
+import datetime
 
 class Sudoku():
     def __init__(self, arg):
@@ -220,7 +221,7 @@ class Sudoku():
         while bool(frontier) :
             sdok = frontier.pop(0)
             counter += 1    
-            if counter % 500 == 0:
+            if counter % 1000 == 0:
                 print(sdok,counter,len(frontier),len(done))
             # if sdok in done:
             #     continue
@@ -241,10 +242,12 @@ if __name__ == '__main__':
     #sudoku = Sudoku('400080100000209000000730000020001009005000070090000050010500400600300000004007603')
     #sudoku = Sudoku('020000010004000800060010040700209005003000400050000020006801200800050004500030006')
     #sudoku = Sudoku('001503900040000080002000500010060050400000003000201000900080006500406009006000300')
-    #sudoku = Sudoku('080100000000070016610800000004000702000906000905000400000001028450090000000003040')
-    sudoku = Sudoku('001040600000906000300000002040060050900302004030070060700000008000701000004020500')
+    sudoku = Sudoku('080100000000070016610800000004000702000906000905000400000001028450090000000003040')
+    #sudoku = Sudoku('001040600000906000300000002040060050900302004030070060700000008000701000004020500')
     #sudoku = Sudoku('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
     print(sudoku)
-    print(sudoku.signature())
+    dt = datetime.datetime.now()
     solved = sudoku.solve()
+    delta = datetime.datetime.now() - dt
+    print(delta.seconds*1000+ delta.microseconds/1000)
     print(solved, solved.issolved())
