@@ -68,32 +68,29 @@ class Sudoku():
     #     if self.bits_at(row, col) & self.bits(num) == 0 :
     #         raise RuntimeError('Illegal placement of number {} at {},{}'.format(num,row,col))
 
-    def makebitsetmap(self):
-        updates = list()
-        updates.append((row,col,num))
-        while bool(updates) :
-            row,col,num = updates.pop(0)
-            self.array[self.index(row,col)] = self.bits(num)
-            for r, c in self.affectedarea(row,col):
-                if r == row and c == col :
-                    continue
-                bits = self.array[self.index(r,c)]
-                newbits = bits & (self.bits(0) ^ self.bits(num))
-                self.array[self.index(r,c)] = newbits
-                newpcnt = self._popcount(newbits)
-                if newpcnt == 0 :
-                    return False
-                if newbits != bits and newpcnt == 1 :
-                    updates.append((r,c,self.debits(newbits)))
-        return True
+    def make_allowedmap(self):
+        onetonine = [n for n in range(1,10)]
+        allowed =  [set(onetonine) if self.index_at(i) == 0 else set([self.index_at(i)]) for i in range(self.size**2)]
+        for row in range(self.size):
+            for col in range(self.size):
+                num = self.at(row,col)
+                if num != 0 :
+                    for r,c in self.affectedarea(row, col):
+                        if r == row and c == col :
+                            continue
+                        allowed[r*self.size+c].discard(num)
+        #print("allowed = ",allowed)
+        return allowed
     
     # def bits_at(self,row,col):
     #     return self.array[row*self.size+col]
     
-    def index(self,row,col):
-        ix = row*self.size+col
+    def index_at(self,ix):
         md = ix & 1
-        return ((ix>>1), md)
+        if md == 0 :
+            return self.array[ix>>1] & 0x0f
+        else:
+            return (self.array[ix>>1]>>4) & 0x0f
         
     def at(self,row,col):
         ix = row*self.size+col
@@ -176,51 +173,58 @@ class Sudoku():
         for r in range(baserow+factor,self.size,1):
             yield (r, col)
     
-    def allowed(self, row, col):
-        b = self.bits_at(row, col)
-        if self._popcount(b) == 1 :
-            return
-        num = 1
-        while b != 0:
-            if b & 1 == 1 :
-                yield num
-            b >>= 1
-            num += 1
-    
-    def tighten(self):
-        while True:
-            #print(sudoku)
-            fix = None
-            for r in range(9):
-                for c in range(9):
-                    if self.at(r,c) != 0 : 
-                        continue
-                    cand = self.allowednumbers(r,c)
-                    #print(cand)
-                    if len(cand) == 0:
-                        return False
-                    elif len(cand) == 1:
-                        fix = (r,c,cand.pop())
+    def tighten(self, allowed):
+        places = set([(r,c) for r in range(self.size) for c in range(self.size)])
+        while bool(places):
+            (row, col) = places.pop()
+            tsize = len(allowed[row*self.size+col]) 
+            if tsize == 0 :
+                return False
+            elif tsize == 1 :
+                for e in allowed[row*self.size+col]: 
+                    num = e
+                    break
+            else:
+                continue
+            for r,c in self.affectedarea(row, col) :
+                if num not in allowed[r*self.size+c]:
+                    continue
+                if row == r and col == c :
+                    continue
+                allowed[r*self.size+c].discard(num)
+                sizeafter = len(allowed[r*self.size+c])
+                if sizeafter == 0 :
+                    #print(r,c,num)
+                    return False 
+                if sizeafter == 1 :
+                    for e in allowed[r*self.size+c]:
+                        n = e
                         break
-            if fix == None :
-                return True
-            (r,c,num) = fix
-            self.put(r,c,num)
-            #print("({},{}) <- {}".format(r,c,num))
-            #self.checkAll()
-            #print()
+                    places.add( (r,c) )
+                    self.put(r,c,n)
         return True
     
     def fillsomecell(self):
         filled = list()
-        bitsetmap = self.makebitsetmap()
+        # make allowed array
+        allowed = self.make_allowedmap()
         for r in range(self.size):
             for c in range(self.size):
-                for i in self.allowed(r,c):
+                if len(allowed[r*self.size + c]) == 1 :
+                    continue
+                #print("allowed at ", allowed[r*self.size + c])
+                for i in allowed[r*self.size+c]:
                     s = Sudoku(self)
-                    if s.put(r,c,i):
-                        # print(r,c,i)
+                    s.put(r,c,i)
+                    a = copy.deepcopy(allowed)
+                    a[r*self.size+c].discard(i)
+                    #print(s,a,"\n",i)
+                    if s.tighten(a) :
                         filled.append(s)
+                        # print("tighten by put ",r,c,i)
+                        # print(s)
+                    # else:
+                    #     print("false by ",r,c,i)
         return filled
     #
     # def filled(self):
@@ -255,6 +259,7 @@ class Sudoku():
         return None
     
 if __name__ == '__main__':
+    sudoku = Sudoku('000503000260080051300000008070000020000702000508030107001604500050020040002050700')
     #sudoku = Sudoku('000310008006080000090600100509000000740090052000000409007004020000020600400069000')
     #sudoku = Sudoku('003020600900305001001806400008102900700000008006708200002609500800203009005010300')
     #sudoku = Sudoku('615830049304291076000005081007000100530024000000370004803000905170900400000002003')
@@ -263,9 +268,8 @@ if __name__ == '__main__':
     #sudoku = Sudoku('020000010004000800060010040700209005003000400050000020006801200800050004500030006')
     #sudoku = Sudoku('001503900040000080002000500010060050400000003000201000900080006500406009006000300')
     #sudoku = Sudoku('080100000000070016610800000004000702000906000905000400000001028450090000000003040')
-    sudoku = Sudoku('001040600000906000300000002040060050900302004030070060700000008000701000004020500')
+    #sudoku = Sudoku('001040600000906000300000002040060050900302004030070060700000008000701000004020500')
     #sudoku = Sudoku('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
     print(sudoku)
-    print(sudoku.signature())
     solved = sudoku.solve()
-    print(solved, solved.issolved())
+    print(solved)
