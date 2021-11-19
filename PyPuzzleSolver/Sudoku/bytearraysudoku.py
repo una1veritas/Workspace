@@ -256,7 +256,6 @@ class Sudoku():
             for each in sdok.fillsomecell():
                 if each not in done:
                     frontier.append(each)
-                    done.add(each)
         return None
     
 if __name__ == '__main__':
@@ -274,6 +273,6 @@ if __name__ == '__main__':
     print(sudoku)
     dt = datetime.datetime.now()
     solved = sudoku.solve()
-    delta = datetime.datetime.now - dt
-    print(solved)
+    delta = datetime.datetime.now() - dt
     print(delta.seconds*1000+ delta.microseconds/1000)
+    print(solved)

@@ -157,29 +157,49 @@ class Sudoku():
                 return False
         return True
     
+    # def solve(self):
+    #     frontier = list()
+    #     frontier.append(self)
+    #     done = set()
+    #     counter = 0
+    #     while len(frontier) > 0 :
+    #         sd = frontier.pop(0)
+    #         if not sd.tighten() :
+    #             continue
+    #         if sd not in done:
+    #             done.add(sd)
+    #         else:
+    #             continue
+    #         counter += 1    
+    #         if counter % 1000 == 0:
+    #             print(sd,counter,len(frontier), len(done))
+    #         if sd.isfilledout() :
+    #             return sd
+    #         for nx in sd.fillsomecell():
+    #             if not nx in done:
+    #                 frontier.append(nx) 
+    #
+    #         #frontier.extend(nextgen)
+    #     return None
+    
     def solve(self):
-        frontier = list()
-        frontier.append(self)
-        done = set()
+        frontier = set([self])
+        nextgen = set()
         counter = 0
         while len(frontier) > 0 :
-            sd = frontier.pop(0)
-            if not sd.tighten() :
-                continue
-            if sd not in done:
-                done.add(sd)
-            else:
-                continue
-            counter += 1    
-            if counter % 1000 == 0:
-                print(sd,counter,len(frontier), len(done))
-            if sd.isfilledout() :
-                return sd
-            for nx in sd.fillsomecell():
-                if not nx in done:
-                    frontier.append(nx) 
-
-            #frontier.extend(nextgen)
+            sd = frontier.pop()
+            if sd.tighten() :
+                if sd.isfilledout() :
+                    return sd
+                counter += 1    
+                if counter % 1000 == 0:
+                    print("{}counter={}, frontier={}, nextgen={}\n".format(sd,counter,len(frontier), len(nextgen)))
+                for nx in sd.fillsomecell():
+                    nextgen.add(nx) 
+            if not bool(frontier) :
+                frontier = nextgen
+                nextgen = set()
+                #print("{}counter={}, frontier={}, nextgen={}\n".format(sd,counter,len(frontier), len(nextgen)))
         return None
     
 if __name__ == '__main__':
@@ -188,15 +208,15 @@ if __name__ == '__main__':
     #sudoku = Sudoku('615830049304291076000005081007000100530024000000370004803000905170900400000002003')
     #sudoku = Sudoku('900000000700008040010000079000974000301080000002010000000400800056000300000005001')
     #sudoku = Sudoku('400080100000209000000730000020001009005000070090000050010500400600300000004007603')
-    #sudoku = Sudoku('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
     #sudoku = Sudoku('020000010004000800060010040700209005003000400050000020006801200800050004500030006')
-    #sudoku = Sudoku('000310008006080000090600100509000000740090052000000409007004020000020600400069000')
+    sudoku = Sudoku('000310008006080000090600100509000000740090052000000409007004020000020600400069000')
+    #sudoku = Sudoku('080100000000070016610800000004000702000906000905000400000001028450090000000003040')
     #sudoku = Sudoku('001503900040000080002000500010060050400000003000201000900080006500406009006000300')
-    sudoku = Sudoku('080100000000070016610800000004000702000906000905000400000001028450090000000003040')
+    #sudoku = Sudoku('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
     #sudoku = Sudoku('001040600000906000300000002040060050900302004030070060700000008000701000004020500')
     print(sudoku)
     dt = datetime.datetime.now()
-    solved = sudoku.solve()    
+    solved = sudoku.solve()
     delta = datetime.datetime.now() - dt
     print(solved, "Solved." if solved.issolved() else "Not Solved!")
     print(delta.seconds*1000+ delta.microseconds/1000)
