@@ -1,42 +1,81 @@
-import io,os,sys
-import glob
+import os, glob
+import io,sys
 
-path = '/Users/Sin/Dropbox/アルゴリズム設計Ａ/202104/data/C11L202-2021-0101-1121010101-'
+path = u'/Users/sin/Dropbox/オートマトンと言語理論/2021/演習課題/'
+print('Looking for name list file in '+path+'.')
+if len(glob.glob(path+'namelist*.csv')) == 1 :
+    namelistf = glob.glob(path+'namelist*.csv')[0]
+    print('Found "'+namelistf+'" for registered students names.')
+else:
+    print('Not found name flie "namelist*.csv" at '+path+'. ', file=sys.stderr)
 
-namelistfilename = path+'namelist.txt'
-if not os.path.isfile(namelistfilename) :
-    print('Not found name list file.')
-    exit()
-dirlist = list()
-wldcard='*'
-for p in glob.glob(path+wldcard):
-    if os.path.isdir(p):
-        dirlist.append(p)
-
-namelist = list()
-with open(namelistfilename) as f:
+print('Reading the list of registered students.')
+db_registered = list()
+COMMENTESCAPE = '#'
+separator = ','
+with open(namelistf, encoding = "utf-8-sig") as f:
     for l in f.readlines():
-        namelist.append(l.strip().split('\t'))
-namelist[1:].sort(key=(lambda x: x[0]))
-#print(namelist)
+        if l[0] == COMMENTESCAPE : continue
+        fields = l.split(separator)
+        db_registered.append( (fields[2], fields[1], fields[4], fields[6]) )
+        #print(fields)
+db_registered.sort(key=(lambda x: x[0]))
+#for i in db_registered:
+#    print(i)
+print('Found ' + str(len(db_registered))+' registered names')
+
+print('Collecting folder names.')
+db_folders = list()
+for fdname in glob.glob(path+'*'):
+    if  fdname.endswith('.csv') : continue
+    db_folders.append( ( os.path.basename(fdname) ) )
+db_folders.sort()
+#print(db_folders)
+print('Found ' + str(len(db_folders)) + ' folders for reports.')
+
+print('Building attendance table...')
+att_table = dict()
+for folder in db_folders:
+    submissiondirs = [d for d in glob.glob(path+folder+'/*')]
+    for report_folder in submissiondirs:
+        folder_sum = 0
+        folder_count = 0
+        with os.scandir(report_folder) as it:
+            for entry in it:
+                if not entry.name.startswith('.') and entry.is_file() :
+                    folder_count += 1
+                    folder_sum += entry.stat().st_size
+        if folder_sum < 16*1024 :
+            print(report_folder+'/'+entry.name)
+            print('warning! folder sum is '+str(round(folder_sum/1024,1))+', less than 16kB.')
+        sid = os.path.basename(report_folder).split('_')[0]
+        att_table[(folder,sid)] = folder_sum if folder_count > 0 else 'x'
+
+#print(att_table.keys())    
+#exit()
 
 presence = dict()
-for dirname in dirlist:
-    dt = dirname.split('/')[-1].split('-')[-1]
-    dt = dirname.split('/')[-1].split('-')[1] + '-' + dt[:2] + '-' + dt[2:]
-    presence[dt] = list()
-    for subm in os.listdir(dirname):
-        sid = subm.split('_')[0]
-        presence[dt].append(sid)
+presence[' sid'] = list()
+for (sid, namestr, dep, grade) in db_registered:
+    presence[sid] = list()
+for dt in db_folders:
+    presence[' sid'].append(dt)
+    for (sid, namestr, dep, grade) in db_registered:
+        if (dt, sid) in att_table :
+            sz = str(att_table[(dt, sid)]//1024)
+        else:
+            sz = 0
+        presence[sid].append(str(sz))
 
-table = dict()
-columns = list([namelist[0][0]])
-for stu in namelist[1:]:
-    table[stu[0]] = list()
+with open(path+'attendance.csv', mode='w', encoding='shift_jis') as outputf:
+    for sid in presence.keys():
+        outputf.write(sid)
+        outputf.write(',')
+        outputf.write(','.join(presence[sid]))
+        outputf.write('\n')
 
-#print(columns)
-#print(table)
-    
+exit()
+
 for dt in sorted(presence.keys()):
     columns.append(dt)
     for student in namelist[1:]:
