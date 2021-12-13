@@ -2,13 +2,14 @@
 #
 import math
 from array import array
-from pickle import FALSE
+import datetime
 
 class Sudoku():
+    SIZE_FACTORS = {4:2,9:3,16:4}
+    
     def __init__(self, numbers):
         self.size = int(math.sqrt(len(numbers)))
-        self.factor = int(math.sqrt(self.size))
-        if self.factor**2 != self.size or self.size**2 != len(numbers):
+        if self.size not in self.SIZE_FACTORS:
             raise ValueError('illegal size specified: factor = {}, size = {}, number list length = {}'.format(self.factor,self.size,len(numbers)))
         if isinstance(numbers, (str, list)) :
             self.cells = array('B',[int(d) for d in numbers])
@@ -18,23 +19,24 @@ class Sudoku():
             raise TypeError('illegal arguments for constructor.')
     
     def __str__(self):
+        factor = self.SIZE_FACTORS[self.size]
         tmp = ''
         for r in range(self.size):
             for c in range(self.size):
                 tmp += str(self.at(r, c) if self.at(r, c) != 0 else ' ')
-                if c % self.factor == self.factor - 1:
+                if c % factor == factor - 1:
                     tmp += '|'
                 else:
                     tmp += ' '
             tmp += '\n'
-            if r % self.factor == self.factor - 1 :
+            if r % factor == factor - 1 :
                 tmp += '-----+-----+-----+\n'
         return tmp
     
     def __hash__(self):
         hashval = 0
         for val in self.cells:
-            hashval = (hashval<<self.factor) ^ val
+            hashval = (hashval<<3) ^ val
         return hashval
     
     def __eq__(self, another):
@@ -61,75 +63,78 @@ class Sudoku():
             colnums.clear()
             for c in range(self.size) :
                 num = self.at(r,c)
-                if 0 < num <= 9 and num not in rownums :
+                if 0 < num <= self.size and num not in rownums :
                     rownums.add(num)
                 else:
                     return False
                 num = self.at(c,r)
-                if 0 < num <= 9 and num not in colnums :
+                if 0 < num <= self.size and num not in colnums :
                     colnums.add(num)
                 else:
                     return False
-        for row in range(0,9,3):
-            for col in range(0,9,3):
+        for row in range(0,self.size,self.SIZE_FACTORS[self.size]):
+            for col in range(0,self.size,self.SIZE_FACTORS[self.size]):
                 blocknums.clear()
-                for r in range(row, row+3):
-                    for c in range(col,col+3):
+                for r in range(row, row+self.SIZE_FACTORS[self.size]):
+                    for c in range(col,col+self.SIZE_FACTORS[self.size]):
                         num = self.at(r,c)
-                        if 0 < num <= 9 and num not in blocknums:
+                        if 0 < num <= self.size and num not in blocknums:
                             blocknums.add(num)
                         else:
                             return False
         return True   
     
     def affectcells(self,row,col):
+        factor = self.SIZE_FACTORS[self.size]
         if not (0 <= row < self.size and 0 <= col < self.size):
             return
-        baserow = (row // self.factor)*self.factor
-        basecol = (col // self.factor)*self.factor
-        for r in range(baserow, baserow+self.factor):
-            for c in range(basecol, basecol+self.factor):
+        baserow = (row // factor)*factor
+        basecol = (col // factor)*factor
+        for r in range(baserow, baserow+factor):
+            for c in range(basecol, basecol+factor):
                 if r == row and c == col : continue
                 yield (r, c)
         for c in range(0,basecol,1):
             yield (row, c)
-        for c in range(basecol+self.factor,self.size,1):
+        for c in range(basecol+factor,self.size,1):
             yield (row, c)
         for r in range(0,baserow,1):
             yield (r, col)      
-        for r in range(baserow+self.factor,self.size,1):
+        for r in range(baserow+factor,self.size,1):
             yield (r, col)
 
     def allowednumbers(self, row, col):
         if self.at(row, col) != 0:
             return set()
-        cands = set([1,2,3,4,5,6,7,8,9])
+        cands = set([i for i in range(1,self.size+1)])
         for (r,c) in self.affectcells(row,col):
             cands.discard(self.at(r,c))
         return cands
     
     def tighten(self):
-        while True:
+        tobefixed = set()
+        for r in range(self.size): 
+            for c in range(self.size):
+                if self.at(r,c) == 0 :
+                    tobefixed.add( (r,c) )
+        while bool(tobefixed):
             #print(sudoku)
-            fix = None
-            for r in range(9):
-                for c in range(9):
-                    if self.at(r,c) != 0 : 
+            (r,c) = tobefixed.pop()
+            cand = self.allowednumbers(r,c)
+            #print(cand)
+            if len(cand) == 0:
+                return False
+            elif len(cand) == 1:
+                num = cand.pop()
+                self.put(r,c,num)
+                for row, col in self.affectcells(r, c):
+                    if row == r and col == c:
                         continue
-                    cand = self.allowednumbers(r,c)
-                    #print(cand)
-                    if len(cand) == 0:
-                        return False
-                    elif len(cand) == 1:
-                        fix = (r,c,cand.pop())
-                        break
-            if fix == None :
-                return True
-            (r,c,num) = fix
-            self.put(r,c,num)
-            #print("({},{}) <- {}".format(r,c,num))
+                    if self.at(row,col) == 0:
+                        tobefixed.add((row,col))
+            #print(len(tobefixed),end=",")
             #self.checkAll()
-            #print()
+        #print()
         return True
     
     def fillsomecell(self):
@@ -152,42 +157,66 @@ class Sudoku():
                 return False
         return True
     
+    # def solve(self):
+    #     frontier = list()
+    #     frontier.append(self)
+    #     done = set()
+    #     counter = 0
+    #     while len(frontier) > 0 :
+    #         sd = frontier.pop(0)
+    #         if not sd.tighten() :
+    #             continue
+    #         if sd not in done:
+    #             done.add(sd)
+    #         else:
+    #             continue
+    #         counter += 1    
+    #         if counter % 1000 == 0:
+    #             print(sd,counter,len(frontier), len(done))
+    #         if sd.isfilledout() :
+    #             return sd
+    #         for nx in sd.fillsomecell():
+    #             if not nx in done:
+    #                 frontier.append(nx) 
+    #
+    #         #frontier.extend(nextgen)
+    #     return None
+    
     def solve(self):
-        frontier = list()
-        frontier.append(self)
-        done = set()
+        frontier = set([self])
+        nextgen = set()
         counter = 0
         while len(frontier) > 0 :
-            sd = frontier.pop(0)
-            if not sd.tighten() :
-                continue
-            if sd not in done:
-                done.add(sd)
-            else:
-                continue
-            counter += 1    
-            if counter % 1000 == 0:
-                print(sd,counter,len(frontier), len(done))
-            if sd.isfilledout() :
-                return sd
-            for nx in sd.fillsomecell():
-                if not nx in done:
-                    frontier.append(nx) 
-
-            #frontier.extend(nextgen)
+            sd = frontier.pop()
+            if sd.tighten() :
+                if sd.isfilledout() :
+                    return sd
+                counter += 1    
+                if counter % 1000 == 0:
+                    print("{}counter={}, frontier={}, nextgen={}\n".format(sd,counter,len(frontier), len(nextgen)))
+                for nx in sd.fillsomecell():
+                    nextgen.add(nx) 
+            if not bool(frontier) :
+                frontier = nextgen
+                nextgen = set()
+                #print("{}counter={}, frontier={}, nextgen={}\n".format(sd,counter,len(frontier), len(nextgen)))
         return None
     
 if __name__ == '__main__':
+    #sudoku = Sudoku('000503000260080051300000008070000020000702000508030107001604500050020040002050700')
     #sudoku = Sudoku('003020600900305001001806400008102900700000008006708200002609500800203009005010300')
     #sudoku = Sudoku('615830049304291076000005081007000100530024000000370004803000905170900400000002003')
     #sudoku = Sudoku('900000000700008040010000079000974000301080000002010000000400800056000300000005001')
     #sudoku = Sudoku('400080100000209000000730000020001009005000070090000050010500400600300000004007603')
-    #sudoku = Sudoku('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
     #sudoku = Sudoku('020000010004000800060010040700209005003000400050000020006801200800050004500030006')
-    #sudoku = Sudoku('000310008006080000090600100509000000740090052000000409007004020000020600400069000')
-    #sudoku = Sudoku('001503900040000080002000500010060050400000003000201000900080006500406009006000300')
+    sudoku = Sudoku('000310008006080000090600100509000000740090052000000409007004020000020600400069000')
     #sudoku = Sudoku('080100000000070016610800000004000702000906000905000400000001028450090000000003040')
-    sudoku = Sudoku('001040600000906000300000002040060050900302004030070060700000008000701000004020500')
+    #sudoku = Sudoku('001503900040000080002000500010060050400000003000201000900080006500406009006000300')
+    #sudoku = Sudoku('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
+    #sudoku = Sudoku('001040600000906000300000002040060050900302004030070060700000008000701000004020500')
     print(sudoku)
-    solved = sudoku.solve()    
-    print(solved, solved.issolved())
+    dt = datetime.datetime.now()
+    solved = sudoku.solve()
+    delta = datetime.datetime.now() - dt
+    print(solved, "Solved." if solved.issolved() else "Not Solved!")
+    print(delta.seconds*1000+ delta.microseconds/1000)
