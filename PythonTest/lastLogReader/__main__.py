@@ -25,7 +25,8 @@ month_dict = { 'Jan':1, 'Feb':2, 'Mar': 3, 'Apr': 4,
              'May': 5, 'Jun':6, 'Jul': 7, 'Aug': 8,
              'Sep': 9, 'Oct': 10, 'Nov':11, 'Dec': 12, }
 
-dayname_dict = { 0:u'月', 1:u'火', 2:u'水', 3:u'木', 4:u'金', 5:u'土', 6:u'日',  }
+dayname_j_dict = { 0:u'月', 1:u'火', 2:u'水', 3:u'木', 4:u'金', 5:u'土', 6:u'日',  }
+dayname_dict = { 0:u'Mon', 1:u'Tue', 2:u'Wed', 3:u'Thu', 4:u'Fri', 5:u'Sat', 6:u'Sun',  }
 
 cmd_list = ['last']
 try:
@@ -47,10 +48,15 @@ for each_line in res.stdout.splitlines():
     if len(items) < 4:
         continue
     evnt_year = int(date_today.year)
-    evnt_mon = month_dict[items[3]]
-    evnt_date = int(items[4])
+    if items[3] in month_dict :
+        evnt_mon = month_dict[items[3]]
+        evnt_date = int(items[4])
+        hm = items[5].split(':')
+    elif items[3] in dayname_dict and items[4] in month_dict :
+        evnt_mon = month_dict[items[4]]
+        evnt_date = int(items[5])
+        hm = items[6].split(':')
     evnt_dt = datetime.date(evnt_year, evnt_mon, evnt_date)
-    hm = items[5].split(':')
     time_1 = datetime.time(hour=int(hm[0]), minute=int(hm[1]))
     time_2 = time_1
     if len(items) > 7 :
