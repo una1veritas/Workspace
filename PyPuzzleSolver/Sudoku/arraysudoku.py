@@ -111,7 +111,7 @@ class Sudoku():
             cands.discard(self.at(r,c))
         return cands
     
-    def tighten(self):
+    def filluniquepossibility(self):
         tobefixed = set()
         for r in range(self.size): 
             for c in range(self.size):
@@ -128,16 +128,81 @@ class Sudoku():
                 num = cand.pop()
                 self.put(r,c,num)
                 for row, col in self.affectcells(r, c):
-                    if row == r and col == c:
-                        continue
+                    # if row == r and col == c:
+                    #     continue
                     if self.at(row,col) == 0:
                         tobefixed.add((row,col))
             #print(len(tobefixed),end=",")
             #self.checkAll()
         #print()
         return True
+
+    def possibilitymap(self):
+        possmap = dict()
+        for r in range(self.size): 
+            for c in range(self.size):
+                possmap[(r,c)] = set([1,2,3,4,5,6,7,8,9])
+        #row rules
+        for r in range(self.size): 
+            fixednums = set([self.at(r,c) for c in range(self.size) if self.at(r,c) != 0])
+            for c in range(self.size): 
+                if self.at(r,c) != 0 :
+                    possmap[(r,c)] = set([self.at(r,c)])
+                else:
+                    possmap[(r,c)] -= fixednums
+        #column rules
+        for c in range(self.size): 
+            fixednums = set([self.at(r,c) for r in range(self.size) if self.at(r,c) != 0])
+            for r in range(self.size): 
+                if self.at(r,c) == 0 :
+                    possmap[(r,c)] -= fixednums
+        #block rules 
+        szfactor = self.SIZE_FACTORS[self.size]
+        for br in range(szfactor): 
+            for bc in range(szfactor): 
+                fixednums = set()
+                for r in range(br*szfactor,(br+1)*szfactor):
+                    for c in range(bc*szfactor,(bc+1)*szfactor):
+                        if self.at(r,c) != 0 :
+                            fixednums.add(self.at(r,c))
+                for r in range(br*szfactor,(br+1)*szfactor):
+                    for c in range(bc*szfactor,(bc+1)*szfactor):
+                        if self.at(r,c) == 0 :
+                            possmap[(r,c)] -= fixednums
+        return possmap
     
-    def fillsomecell(self):
+    def updatepossibilitymap(self, possmap, row, col, num):
+        possmap[(row,col)] = set([num])
+        for (r,c) in self.affectcells(row,col):
+            if self.at(r,c) == 0 :
+                possmap[(r,c)] -= set([num])
+        
+    def trytofill(self):
+        updated = True
+        while updated :
+            # next trial
+            updated = False 
+            # fix unique possible numbers
+            if not self.filluniquepossibility() :
+                return False
+            #
+            # for (r,c) in possmap:
+            #     if self.at(r,c) == 0 and len(possmap[(r,c)]) == 1 :
+            #         elem = list(possmap[(r,c)])[0]
+            #         self.put(r,c,elem)
+            #         self.updatepossibilitymap(possmap, r, c, elem)
+            #         updated = True
+            # if updated: continue
+            # two possible number cells
+            
+                    
+        # for k in possmap:
+        #     print(k,possmap[k])
+        # print(self, self.filled())
+        # exit()
+        return True
+    
+    def guessed(self):
         filled = list()
         for r in range(self.size):
             for c in range(self.size):
@@ -183,23 +248,25 @@ class Sudoku():
     #     return None
     
     def solve(self):
-        frontier = set([self])
+        self.trytofill()
+        frontier = [self]
         nextgen = set()
         counter = 0
         while len(frontier) > 0 :
-            sd = frontier.pop()
-            if sd.tighten() :
-                if sd.isfilledout() :
-                    return sd
-                counter += 1    
-                if counter % 1000 == 0:
-                    print("{}counter={}, frontier={}, nextgen={}\n".format(sd,counter,len(frontier), len(nextgen)))
-                for nx in sd.fillsomecell():
-                    nextgen.add(nx) 
-            if not bool(frontier) :
-                frontier = nextgen
-                nextgen = set()
-                #print("{}counter={}, frontier={}, nextgen={}\n".format(sd,counter,len(frontier), len(nextgen)))
+            sd = frontier.pop(0)
+            if sd.isfilledout() :
+                return sd
+            counter += 1
+            if counter % 100 == 0:
+                print("{}counter={}, frontier={}, nextgen={}\n".format(sd,counter,len(frontier), len(nextgen)))
+            for nx in sd.guessed():
+                #nextgen.add(nx) 
+                if nx.trytofill() :
+                    frontier.append(nx) 
+            # if not bool(frontier) :
+            #     frontier = nextgen
+            #     nextgen = set()
+            #     #print("{}counter={}, frontier={}, nextgen={}\n".format(sd,counter,len(frontier), len(nextgen)))
         return None
     
 if __name__ == '__main__':
@@ -212,11 +279,11 @@ if __name__ == '__main__':
     #sudoku = Sudoku('000310008006080000090600100509000000740090052000000409007004020000020600400069000')
     #sudoku = Sudoku('080100000000070016610800000004000702000906000905000400000001028450090000000003040')
     #sudoku = Sudoku('001503900040000080002000500010060050400000003000201000900080006500406009006000300')
-    #sudoku = Sudoku('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
+    sudoku = Sudoku('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
     #sudoku = Sudoku('001040600000906000300000002040060050900302004030070060700000008000701000004020500')
-    sudoku = Sudoku('001000000807000000000054003000610000000700000080000004000000010000200706050003000')
+    #sudoku = Sudoku('001000000807000000000054003000610000000700000080000004000000010000200706050003000')
     
-    print(sudoku)
+    print(sudoku, sudoku.filled())
     dt = datetime.datetime.now()
     solved = sudoku.solve()
     delta = datetime.datetime.now() - dt

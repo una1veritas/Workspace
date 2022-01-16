@@ -76,7 +76,7 @@ class Sudoku():
             for col in range(self.size):
                 num = self.at(row,col)
                 if num != 0 :
-                    for r,c in self.affectedarea(row, col):
+                    for r,c in self.relatecells(row, col):
                         if r == row and c == col :
                             continue
                         allowed[r*self.size+c].discard(num)
@@ -156,7 +156,7 @@ class Sudoku():
                     return False
         return True
     
-    def affectedarea(self,row,col):
+    def relatecells(self,row,col):
         if not (0 <= row < self.size and 0 <= col < self.size):
             return
         factor = int(math.sqrt(self.size))
@@ -187,7 +187,7 @@ class Sudoku():
                     break
             else:
                 continue
-            for r,c in self.affectedarea(row, col) :
+            for r,c in self.relatecells(row, col) :
                 if num not in allowed[r*self.size+c]:
                     continue
                 if row == r and col == c :

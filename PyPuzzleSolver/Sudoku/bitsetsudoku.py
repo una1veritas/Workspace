@@ -75,7 +75,7 @@ class Sudoku():
         while bool(updates) :
             row,col,num = updates.pop(0)
             self.array[self.index(row,col)] = self.bits(num)
-            for r, c in self.affectedarea(row,col):
+            for r, c in self.relatecells(row,col):
                 if r == row and c == col :
                     continue
                 bits = self.array[self.index(r,c)]
@@ -139,7 +139,7 @@ class Sudoku():
                 return False
         return True
     
-    def affectedarea(self,row,col):
+    def relatecells(self,row,col):
         if not (0 <= row < self.size and 0 <= col < self.size):
             return
         factor = int(math.sqrt(self.size))
@@ -244,8 +244,8 @@ if __name__ == '__main__':
     #sudoku = Sudoku('001503900040000080002000500010060050400000003000201000900080006500406009006000300')
     #sudoku = Sudoku('080100000000070016610800000004000702000906000905000400000001028450090000000003040')
     #sudoku = Sudoku('001040600000906000300000002040060050900302004030070060700000008000701000004020500')
-    #sudoku = Sudoku('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
-    sudoku = Sudoku('001000000807000000000054003000610000000700000080000004000000010000200706050003000')
+    sudoku = Sudoku('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
+    #sudoku = Sudoku('001000000807000000000054003000610000000700000080000004000000010000200706050003000')
     
     print(sudoku)
     dt = datetime.datetime.now()
