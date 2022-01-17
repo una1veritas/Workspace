@@ -12,7 +12,7 @@ class Sudoku():
             if len(arg) != self.size**2 or self.size != self.factor**2 :
                 raise ValueError('argument array has illegal size = {}'.format(len(arg)))            
             if isinstance(arg, (str, list, array)) :
-                self.cells = array('B',[int(d) for d in arg])
+                self.array = array('B',[int(d) if 1 <= int(d) <= self.size else 0 for d in arg])
             else:
                 raise ValueError('arg is illegal value.')
             # print(self.array)
@@ -20,31 +20,62 @@ class Sudoku():
             self.size = arg.size
             self.factor = arg.factor
             self.array = copy.copy(arg.array)
+    
+    def __str__(self):
+        tmp = ''
+        for r in range(self.size):
+            for c in range(self.size):
+                if self.at(r,c) == 0 :
+                    tmp += ' '
+                else:
+                    tmp += str(self.at(r, c))
+                if c % self.factor == self.factor - 1:
+                    tmp += '|'
+                else:
+                    tmp += ' '
+            tmp += '\n'
+            if r % self.factor == self.factor - 1 :
+                tmp += '-----+-----+-----+\n'
+        return tmp
+    
+    def __hash__(self):
+        hashval = 0
+        for val in self.array:
+            hashval = (hashval<<self.factor) ^ val
+        return hashval
+    
+    def __eq__(self, another):
+        if isinstance(another, SudokuSolver) :
+            return self.array == another.array
+        return False 
+
+    def at(self,row,col):
+        return self.array[row*self.size + col]
+    
+    def put(self,row,col,val):
+        self.array[row*self.size + col] = int(val)
+    
+    def solve(self):
+        return SudokuSolver(self)
 
 class SudokuSolver():
     def __init__(self, arg):
-        if isinstance(arg,(str,list,tuple)):
-            self.size = int(math.sqrt(len(arg)))
-            self.factor = int(math.sqrt(self.size))
-            if len(arg) != self.size**2 or self.size != self.factor**2 :
-                raise ValueError('argument array has illegal size = {}'.format(len(arg)))            
-            self.array = list()
-            for i in range(len(arg)):
-                d = int(arg[i])
-                if 0 <= d <= self.size : 
-                    if d != 0 :
-                        self.array.append([d])
-                    else:
-                        self.array.append(None)
-                    #print(self.row(i),self.col(i),num)
-                else:
-                    raise ValueError('array element is illegal value = {}'.format(arg[i]))
+        if isinstance(arg,Sudoku):
+            self.sudoku = arg
+            self.hint = [[d] if d > 0 else [i for i in range(1,self.sudoku.size+1)] for d in self.sudoku.array]
             self.narrow_by_fixed()
-            # print(self.array)
+            print(self.hint)
         elif isinstance(arg,SudokuSolver):
-            self.size = arg.size
-            self.factor = arg.factor
-            self.array = copy.deepcopy(arg.array)
+            self.sudoku = arg.sudoku
+            self.hint = copy.deepcopy(arg.hint)
+
+    @property
+    def size(self):
+        return self.sudoku.size
+    
+    @property
+    def factor(self):
+        return self.sudoku.factor
     
     def discard(self, row, col, num):
         try:
@@ -73,7 +104,7 @@ class SudokuSolver():
     #     return row*self.size + col
 
     def at(self,row,col):
-        return self.array[row*self.size + col]
+        return self.hint[row*self.size + col]
     
     def put(self,row,col,val):
         self.array[row*self.size + col] = val
@@ -212,12 +243,9 @@ class SudokuSolver():
     #     return row*self.size+col
     #
     def issolved(self):
-        for e in self.array:
-            if isinstance(e,int) :
-                continue
-            else:
-                if len(e) > 1 :
-                    return False
+        for e in self.hint:
+            if len(e) > 1 :
+                return False
         return True
     
     def row(self,row,col):
@@ -235,21 +263,20 @@ class SudokuSolver():
     def block(self,row,col):
         if not (0 <= row < self.size and 0 <= col < self.size):
             return
-        factor = self.factor
-        baserow = (row // factor)*factor
-        basecol = (col // factor)*factor
-        for r in range(baserow, baserow+factor):
-            for c in range(basecol, basecol+factor):
+        baserow = (row // self.factor)*self.factor
+        basecol = (col // self.factor)*self.factor
+        for r in range(baserow, baserow+self.factor):
+            for c in range(basecol, basecol+self.factor):
                 yield (r, c)
 
     def relatecells(self,row,col):
         if not (0 <= row < self.size and 0 <= col < self.size):
             return
         factor = self.factor
-        baserow = (row // factor)*factor
-        basecol = (col // factor)*factor
-        for r in range(baserow, baserow+factor):
-            for c in range(basecol, basecol+factor):
+        baserow = (row // self.factor)*self.factor
+        basecol = (col // self.factor)*self.factor
+        for r in range(baserow, baserow+self.factor):
+            for c in range(basecol, basecol+self.factor):
                 if row == r and col == c :
                     continue
                 yield (r, c)
@@ -346,7 +373,7 @@ class SudokuSolver():
 if __name__ == '__main__':
     #sudoku = SudokuSolver('000310008006080000090600100509000000740090052000000409007004020000020600400069000')
     #sudoku = SudokuSolver('003020600900305001001806400008102900700000008006708200002609500800203009005010300')
-    sudoku = SudokuSolver('615830049304291076000005081007000100530024000000370004803000905170900400000002003')
+    sudoku = Sudoku('615830049304291076000005081007000100530024000000370004803000905170900400000002003')
     #sudoku = SudokuSolver('900000000700008040010000079000974000301080000002010000000400800056000300000005001')
     #sudoku = SudokuSolver('400080100000209000000730000020001009005000070090000050010500400600300000004007603')
     #sudoku = SudokuSolver('020000010004000800060010040700209005003000400050000020006801200800050004500030006')
@@ -361,6 +388,5 @@ if __name__ == '__main__':
     solved = sudoku.solve()
     delta = datetime.datetime.now() - dt
     print(delta.seconds*1000+ delta.microseconds/1000)
-    print(solved.array)
     print(solved)
     print(solved.issolved())
