@@ -5,7 +5,7 @@ Created on 2021/10/31
 '''
 import math
 
-class Sudoku():
+class SudokuSolver():
     
     def __init__(self, size=9, grid=None):
         if int(math.sqrt(size))**2 != size:
@@ -88,5 +88,5 @@ class Sudoku():
                 return False
         return True
 
-sudoku = Sudoku(9, '003020600900305001001806400008102900700000008006708200002609500800203009005010300')
+sudoku = SudokuSolver(9, '003020600900305001001806400008102900700000008006708200002609500800203009005010300')
 sudoku.refine()
