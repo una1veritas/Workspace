@@ -58,13 +58,35 @@ class Sudoku():
         return self.at(row,col) != 0
     
     def solve(self):
-        return SudokuSolver(self)
-
+        frontier = list()
+        frontier.append(self)
+        # done = set()
+        # done.add(self)
+        # counter = 0
+        while bool(frontier) :
+            sd = frontier.pop(0)
+            solver = SudokuSolver(sd)
+            print(solver)
+            solver.narrow_by_nlets()
+            print(solver)
+            print(len(frontier))
+            if sd.issolved():
+                return sd        
+        #     counter += 1    
+        #     if counter % 1000 == 0:
+        #         print(sdok,counter,len(frontier),len(done))
+        #     # if sdok in done:
+        #     #     continue
+        #     done.add(sdok)
+            frontier += sd.guess()
+            
+        return None
+    
 class SudokuSolver():
     def __init__(self, arg):
         if isinstance(arg,Sudoku):
             self.sudoku = arg
-            self.table = self.hinttable()
+            self.hints = self.hinttable()
             #print(self.hint)
         elif isinstance(arg,SudokuSolver):
             self.sudoku = arg.sudoku
@@ -100,8 +122,8 @@ class SudokuSolver():
             for (r,c) in self.columncells(0,col):
                 if self.sudoku.isfixed(r,c) :
                     fixedincol[-1].add(self.sudoku.at(r,c)) 
-        print(fixedinrow)
-        print(fixedincol)
+        #print(fixedinrow)
+        #print(fixedincol)
         fixedinblock = list()
         for i in range(self.size):
             fixedinblock.append(set())
@@ -109,7 +131,7 @@ class SudokuSolver():
             for (r,c) in self.blockcells((i//self.factor)*self.factor,(i%self.factor)*self.factor):
                 if self.sudoku.isfixed(r,c) :
                     fixedinblock[-1].add(self.sudoku.at(r,c)) 
-        print(fixedinblock)
+        #print(fixedinblock)
         hinttable = list()
         for r in range(self.size):
             for c in range(self.size):
@@ -121,8 +143,8 @@ class SudokuSolver():
                     for i in fixedinrow[r].union(fixedincol[c]).union(fixedinblock[b]):
                         hinttable[-1].remove(i)
                     #print(hinttable[-1])
-        print(hinttable)
-        exit()
+        #print(hinttable)
+        #exit()
         return hinttable
         
     def narrow_by_fixed(self):
@@ -144,10 +166,10 @@ class SudokuSolver():
     #     return row*self.size + col
 
     def table_at(self,row,col):
-        return self.table[row*self.size + col]
+        return self.hints[row*self.size + col]
     
     def table_put(self,row,col,val):
-        self.table[row*self.size + col] = val
+        self.hints[row*self.size + col] = val
     
     def table_isfixed(self, row, col):
         return len(self.table_at(row,col)) == 1
@@ -184,7 +206,7 @@ class SudokuSolver():
             updated = False
             for row in range(self.size):
                 possrev = dict()
-                for (r,c) in self.row(row, 0):
+                for (r,c) in self.rowcells(row, 0):
                     if not self.isfixed(r,c) :
                         if tuple(self.at(r,c)) not in possrev:
                             possrev[tuple(self.at(r,c))] = list()
@@ -243,14 +265,12 @@ class SudokuSolver():
         tmp = ''
         for r in range(self.size):
             for c in range(self.size):
-                if self.at(r,c) is None:
+                if len(self.table_at(r,c)) == 0:
                     tmp += ' '
-                elif isinstance(self.at(r, c),int) :
-                    tmp += str(self.at(r, c))
-                elif len(self.at(r, c)) == 1 :
-                    tmp += str(self.at(r, c)[0])
-                elif len(self.at(r, c)) > 1 :
-                    tmp += 'x*+=-;:,. '[len(self.at(r, c))]
+                elif self.table_isfixed(r, c) :
+                    tmp += str(self.table_at(r, c)[0])
+                elif len(self.table_at(r, c)) > 1 :
+                    tmp += 'x*+=-;:,. '[len(self.table_at(r, c))]
 
                 if c % self.factor == self.factor - 1:
                     tmp += '|'
@@ -283,7 +303,7 @@ class SudokuSolver():
     #     return row*self.size+col
     #
     def issolved(self):
-        for e in self.hint:
+        for e in self.hints:
             if len(e) > 1 :
                 return False
         return True
@@ -386,29 +406,7 @@ class SudokuSolver():
     #             return False
     #     return True
     #
-    def solve(self):
-        frontier = list()
-        frontier.append(self)
-        # done = set()
-        # done.add(self)
-        # counter = 0
-        while bool(frontier) :
-            sd = frontier.pop(0)
-            sd.narrow_by_fixed()
-            sd.narrow_by_nlets()
-            print(sd)
-            print(len(frontier))
-            if sd.issolved():
-                return sd        
-        #     counter += 1    
-        #     if counter % 1000 == 0:
-        #         print(sdok,counter,len(frontier),len(done))
-        #     # if sdok in done:
-        #     #     continue
-        #     done.add(sdok)
-            frontier += sd.guess()
-            
-        return None
+
     
 if __name__ == '__main__':
     #sudoku = SudokuSolver('000310008006080000090600100509000000740090052000000409007004020000020600400069000')
