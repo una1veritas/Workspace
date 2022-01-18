@@ -16,13 +16,14 @@ class Sudoku():
             else:
                 raise ValueError('arg is illegal value.')
             # print(self.array)
-        elif isinstance(arg,SudokuSolver):
+        elif isinstance(arg, SudokuSolver):
             self.size = arg.size
             self.factor = arg.factor
             self.array = copy.copy(arg.array)
     
     def __str__(self):
         tmp = ''
+        
         for r in range(self.size):
             for c in range(self.size):
                 if self.at(r,c) == 0 :
@@ -45,15 +46,16 @@ class Sudoku():
         return hashval
     
     def __eq__(self, another):
-        if isinstance(another, SudokuSolver) :
-            return self.array == another.array
-        return False 
-
+        return self.array == another.array
+        
     def at(self,row,col):
         return self.array[row*self.size + col]
     
     def put(self,row,col,val):
         self.array[row*self.size + col] = int(val)
+    
+    def isfixed(self,row,col):
+        return self.at(row,col) != 0
     
     def solve(self):
         return SudokuSolver(self)
@@ -62,9 +64,8 @@ class SudokuSolver():
     def __init__(self, arg):
         if isinstance(arg,Sudoku):
             self.sudoku = arg
-            self.hint = [[d] if d > 0 else [i for i in range(1,self.sudoku.size+1)] for d in self.sudoku.array]
-            self.narrow_by_fixed()
-            print(self.hint)
+            self.table = self.hinttable()
+            #print(self.hint)
         elif isinstance(arg,SudokuSolver):
             self.sudoku = arg.sudoku
             self.hint = copy.deepcopy(arg.hint)
@@ -84,6 +85,45 @@ class SudokuSolver():
             pass
         except AttributeError:
             pass
+
+    def hinttable(self):
+        fixedinrow = list()
+        for row in range(self.size):
+            fixedinrow.append(set())
+            for (r,c) in self.rowcells(row,0):
+                if self.sudoku.isfixed(r,c) :
+                    #print(fixedinrow[-1], self.sudoku.at(r,c))
+                    fixedinrow[-1].add(self.sudoku.at(r,c))
+        fixedincol = list()
+        for col in range(self.size):
+            fixedincol.append(set())
+            for (r,c) in self.columncells(0,col):
+                if self.sudoku.isfixed(r,c) :
+                    fixedincol[-1].add(self.sudoku.at(r,c)) 
+        print(fixedinrow)
+        print(fixedincol)
+        fixedinblock = list()
+        for i in range(self.size):
+            fixedinblock.append(set())
+            #print((i//3)*3,(i%3)*3)
+            for (r,c) in self.blockcells((i//self.factor)*self.factor,(i%self.factor)*self.factor):
+                if self.sudoku.isfixed(r,c) :
+                    fixedinblock[-1].add(self.sudoku.at(r,c)) 
+        print(fixedinblock)
+        hinttable = list()
+        for r in range(self.size):
+            for c in range(self.size):
+                if self.sudoku.isfixed(r,c):
+                    hinttable.append([self.sudoku.at(r,c)])
+                else:
+                    b = (r//self.factor)*self.factor+(c//self.factor)
+                    hinttable.append([i for i in range(1,self.size+1)])
+                    for i in fixedinrow[r].union(fixedincol[c]).union(fixedinblock[b]):
+                        hinttable[-1].remove(i)
+                    #print(hinttable[-1])
+        print(hinttable)
+        exit()
+        return hinttable
         
     def narrow_by_fixed(self):
         for row in range(self.size):
@@ -103,14 +143,14 @@ class SudokuSolver():
     # def index(self,row,col):
     #     return row*self.size + col
 
-    def at(self,row,col):
-        return self.hint[row*self.size + col]
+    def table_at(self,row,col):
+        return self.table[row*self.size + col]
     
-    def put(self,row,col,val):
-        self.array[row*self.size + col] = val
+    def table_put(self,row,col,val):
+        self.table[row*self.size + col] = val
     
-    def isfixed(self, row, col):
-        return len(self.at(row,col)) == 1
+    def table_isfixed(self, row, col):
+        return len(self.table_at(row,col)) == 1
 #        return isinstance(self.at(row, col), int)
     
     # def narrow_by_unique(self):
@@ -248,19 +288,19 @@ class SudokuSolver():
                 return False
         return True
     
-    def row(self,row,col):
+    def rowcells(self,row,col):
         if not (0 <= row < self.size and 0 <= col < self.size):
             return
         for c in range(self.size):
             yield (row, c)
 
-    def column(self,row,col):
+    def columncells(self,row,col):
         if not (0 <= row < self.size and 0 <= col < self.size):
             return
         for r in range(self.size):
             yield (r, col)
     
-    def block(self,row,col):
+    def blockcells(self,row,col):
         if not (0 <= row < self.size and 0 <= col < self.size):
             return
         baserow = (row // self.factor)*self.factor
