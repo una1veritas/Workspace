@@ -16,10 +16,12 @@ class Sudoku():
             else:
                 raise ValueError('arg is illegal value.')
             # print(self.array)
-        elif isinstance(arg, SudokuSolver):
+        elif isinstance(arg, Sudoku):
             self.size = arg.size
             self.factor = arg.factor
             self.array = copy.copy(arg.array)
+        else:
+            raise ValueError('arg is unexpected value.')
     
     def __str__(self):
         tmp = ''
@@ -57,41 +59,19 @@ class Sudoku():
     def isfixed(self,row,col):
         return self.at(row,col) != 0
     
-    def solve(self):
-        frontier = list()
-        frontier.append(self)
-        # done = set()
-        # done.add(self)
-        # counter = 0
-        while bool(frontier) :
-            sd = frontier.pop(0)
-            solver = SudokuSolver(sd)
-            print(solver)
-            solver.narrow_by_nlets()
-            print(solver)
-            print(len(frontier))
-            if sd.issolved():
-                return sd        
-        #     counter += 1    
-        #     if counter % 1000 == 0:
-        #         print(sdok,counter,len(frontier),len(done))
-        #     # if sdok in done:
-        #     #     continue
-        #     done.add(sdok)
-            frontier += sd.guess()
-            
-        return None
-    
-class SudokuSolver():
+class Sudoku():
     def __init__(self, arg):
         if isinstance(arg,Sudoku):
             self.sudoku = arg
-            self.hints = self.hinttable()
+            self.table = None
+            if not self.initialize_table():
+                self.table = None
+                #raise ValueError('A Sudoku instance that has no solution.')
             #print(self.hint)
-        elif isinstance(arg,SudokuSolver):
+        elif isinstance(arg,Sudoku):
             self.sudoku = arg.sudoku
-            self.hint = copy.deepcopy(arg.hint)
-
+            self.table = copy.deepcopy(arg.table)
+    
     @property
     def size(self):
         return self.sudoku.size
@@ -100,15 +80,18 @@ class SudokuSolver():
     def factor(self):
         return self.sudoku.factor
     
+    def is_valid(self):
+        return self.table is None
+    
     def discard(self, row, col, num):
         try:
             self.at(row,col).remove(num)
         except ValueError:
             pass
-        except AttributeError:
-            pass
 
-    def hinttable(self):
+    def initialize_table(self):
+        self.table = [[d] if d != 0 else [] for d in self.sudoku.array ]
+        #print(self.table)
         fixedinrow = list()
         for row in range(self.size):
             fixedinrow.append(set())
@@ -132,48 +115,52 @@ class SudokuSolver():
                 if self.sudoku.isfixed(r,c) :
                     fixedinblock[-1].add(self.sudoku.at(r,c)) 
         #print(fixedinblock)
-        hinttable = list()
         for r in range(self.size):
             for c in range(self.size):
-                if self.sudoku.isfixed(r,c):
-                    hinttable.append([self.sudoku.at(r,c)])
-                else:
+                if not self.isfixed(r,c):
                     b = (r//self.factor)*self.factor+(c//self.factor)
-                    hinttable.append([i for i in range(1,self.size+1)])
+                    self.put(r,c, [i for i in range(1,self.size+1)])
                     for i in fixedinrow[r].union(fixedincol[c]).union(fixedinblock[b]):
-                        hinttable[-1].remove(i)
-                    #print(hinttable[-1])
-        #print(hinttable)
+                        self.discard(r,c,i)
+                    if self.no_possible_numbers(r, c):
+                        return False
         #exit()
-        return hinttable
-        
-    def narrow_by_fixed(self):
-        for row in range(self.size):
-            for col in range(self.size):
-                if self.at(row,col) is not None and self.isfixed(row,col) :
-                    #print(row,col,'->',self.at(row,col), end=', ')
-                    num = self.at(row,col)[0]
-                    for (r,c) in self.relatecells(row, col):
-                        if self.at(r,c) is None:
-                            self.put(r,c,[i for i in range(1,self.size+1)])
-                        if not self.isfixed(r,c):
-                            self.discard(r,c,num)
-                            #print(row,col,self.at(row,col),end=',')
-                #print()
         return True
-    
+        
+    # def narrow_by_fixed(self):
+    #     for row in range(self.size):
+    #         for col in range(self.size):
+    #             if self.at(row,col) is not None and self.isfixed(row,col) :
+    #                 #print(row,col,'->',self.at(row,col), end=', ')
+    #                 num = self.at(row,col)[0]
+    #                 for (r,c) in self.relatecells(row, col):
+    #                     if self.at(r,c) is None:
+    #                         self.put(r,c,[i for i in range(1,self.size+1)])
+    #                     if not self.isfixed(r,c):
+    #                         self.discard(r,c,num)
+    #                         #print(row,col,self.at(row,col),end=',')
+    #             #print()
+    #     return True
+    #
+
     # def index(self,row,col):
     #     return row*self.size + col
 
-    def table_at(self,row,col):
-        return self.hints[row*self.size + col]
+    def at(self,row,col):
+        return self.table[row*self.size + col]
     
-    def table_put(self,row,col,val):
-        self.hints[row*self.size + col] = val
+    def put(self,row,col,val):
+        self.table[row*self.size + col] = val
     
-    def table_isfixed(self, row, col):
-        return len(self.table_at(row,col)) == 1
+    def isfixed(self, row, col):
+        return len(self.at(row,col)) == 1
 #        return isinstance(self.at(row, col), int)
+
+    def has_solution(self):
+        return self.table is not None
+    
+    def no_possible_numbers(self, row, col):
+        return len(self.at(row,col)) == 0
     
     # def narrow_by_unique(self):
     #     uniquecells = list()
@@ -214,16 +201,18 @@ class SudokuSolver():
                 #tmp = [(possrev[k], k) for k in possrev if len(k) == len(possrev[k])]
                 #if bool(tmp) : print(tmp)
                 for k in [t for t in possrev if len(possrev[t]) == len(t)]:
-                    for (r,c) in self.row(row, 0):
+                    for (r,c) in self.rowcells(row, 0):
                         if not self.isfixed(r,c) and (r, c) not in possrev[k]:
                             for d in k:
                                 if d in self.at(r,c):
                                     self.discard(r,c,d)
                                     updated = True
+                            if self.no_possible_numbers(r, c):
+                                return False
     
             for col in range(self.size):
                 possrev = dict()
-                for (r,c) in self.column(0,col):
+                for (r,c) in self.columncells(0,col):
                     if not self.isfixed(r,c) :
                         if tuple(self.at(r,c)) not in possrev:
                             possrev[tuple(self.at(r,c))] = list()
@@ -231,17 +220,19 @@ class SudokuSolver():
                 # tmp = [(possrev[k], k) for k in possrev if len(k) == len(possrev[k])]
                 # if bool(tmp) : print(tmp)
                 for k in [t for t in possrev if len(possrev[t]) == len(t)]:
-                    for (r,c) in self.column(0,col):
+                    for (r,c) in self.columncells(0,col):
                         if not self.isfixed(r,c) and (r, c) not in possrev[k]:
                             for d in k:
                                 if d in self.at(r,c):
                                     self.discard(r,c,d)
                                     updated = True
-    
+                            if self.no_possible_numbers(r, c):
+                                return False
+
             for row in range(0,self.size,self.factor):
                 for col in range(0,self.size,self.factor):
                     possrev = dict()
-                    for (r,c) in self.block(row,col):
+                    for (r,c) in self.blockcells(row,col):
                         if not self.isfixed(r,c) :
                             if tuple(self.at(r,c)) not in possrev:
                                 possrev[tuple(self.at(r,c))] = list()
@@ -249,15 +240,23 @@ class SudokuSolver():
                     #tmp = [(possrev[k], k) for k in possrev if len(k) == len(possrev[k])]
                     #if bool(tmp) : print(tmp)
                     for k in [t for t in possrev if len(possrev[t]) == len(t)]:
-                        for (r,c) in self.block(row,col):
+                        for (r,c) in self.blockcells(row,col):
                             if not self.isfixed(r,c) and (r, c) not in possrev[k]:
                                 for d in k:
                                     #print(r,c,d,self.at(r,c))
                                     if d in self.at(r,c):
                                         self.discard(r,c,d)
                                         updated = True
+                                if self.no_possible_numbers(r, c):
+                                    return False
         return True
 
+    def put_singleton(self):
+        for r in range(self.size):
+            for c in range(self.size):
+                if self.isfixed(r,c) and not self.sudoku.isfixed(r,c):
+                    self.sudoku.put(r,c,self.at(r,c)[0])
+        
     def signature(self):
         return ''.join([str(self.debits(ea)) for ea in self.array])
     
@@ -265,12 +264,12 @@ class SudokuSolver():
         tmp = ''
         for r in range(self.size):
             for c in range(self.size):
-                if len(self.table_at(r,c)) == 0:
+                if len(self.at(r,c)) == 0:
                     tmp += ' '
-                elif self.table_isfixed(r, c) :
-                    tmp += str(self.table_at(r, c)[0])
-                elif len(self.table_at(r, c)) > 1 :
-                    tmp += 'x*+=-;:,. '[len(self.table_at(r, c))]
+                elif self.isfixed(r, c) :
+                    tmp += str(self.at(r, c)[0])
+                elif len(self.at(r, c)) > 1 :
+                    tmp += 'x*+=-;:,. '[len(self.at(r, c))]
 
                 if c % self.factor == self.factor - 1:
                     tmp += '|'
@@ -289,7 +288,7 @@ class SudokuSolver():
         return hashval
     
     def __eq__(self, another):
-        if isinstance(another, SudokuSolver) :
+        if isinstance(another, Sudoku) :
             return self.array == another.array
         return False 
     
@@ -303,7 +302,7 @@ class SudokuSolver():
     #     return row*self.size+col
     #
     def issolved(self):
-        for e in self.hints:
+        for e in self.table:
             if len(e) > 1 :
                 return False
         return True
@@ -384,17 +383,16 @@ class SudokuSolver():
     #         #print()
     #     return True
     #
-    def guess(self):
+    def guessed(self):
         guessed = list()
         for r in range(self.size):
             for c in range(self.size):
                 if self.isfixed(r,c) :
                     continue
                 for i in self.at(r,c):
-                    s = SudokuSolver(self)
-                    s.put(r,c,[i])
-                    s.narrow_by_fixed()
-                    guessed.append(s)
+                    newsudoku = Sudoku(self.sudoku)
+                    newsudoku.put(r,c,i)
+                    guessed.append(newsudoku)
         return guessed
     #
     # def filled(self):
@@ -409,22 +407,40 @@ class SudokuSolver():
 
     
 if __name__ == '__main__':
-    #sudoku = SudokuSolver('000310008006080000090600100509000000740090052000000409007004020000020600400069000')
-    #sudoku = SudokuSolver('003020600900305001001806400008102900700000008006708200002609500800203009005010300')
+    #sudoku = Sudoku('000310008006080000090600100509000000740090052000000409007004020000020600400069000')
+    #sudoku = Sudoku('003020600900305001001806400008102900700000008006708200002609500800203009005010300')
     sudoku = Sudoku('615830049304291076000005081007000100530024000000370004803000905170900400000002003')
-    #sudoku = SudokuSolver('900000000700008040010000079000974000301080000002010000000400800056000300000005001')
-    #sudoku = SudokuSolver('400080100000209000000730000020001009005000070090000050010500400600300000004007603')
-    #sudoku = SudokuSolver('020000010004000800060010040700209005003000400050000020006801200800050004500030006')
-    #sudoku = SudokuSolver('001503900040000080002000500010060050400000003000201000900080006500406009006000300')
-    #sudoku = SudokuSolver('080100000000070016610800000004000702000906000905000400000001028450090000000003040')
-    #sudoku = SudokuSolver('001040600000906000300000002040060050900302004030070060700000008000701000004020500')
-    #sudoku = SudokuSolver('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
-    #sudoku = SudokuSolver('001000000807000000000054003000610000000700000080000004000000010000200706050003000')
+    #sudoku = Sudoku('900000000700008040010000079000974000301080000002010000000400800056000300000005001')
+    #sudoku = Sudoku('400080100000209000000730000020001009005000070090000050010500400600300000004007603')
+    #sudoku = Sudoku('020000010004000800060010040700209005003000400050000020006801200800050004500030006')
+    #sudoku = Sudoku('001503900040000080002000500010060050400000003000201000900080006500406009006000300')
+    #sudoku = Sudoku('080100000000070016610800000004000702000906000905000400000001028450090000000003040')
+    #sudoku = Sudoku('001040600000906000300000002040060050900302004030070060700000008000701000004020500')
+    #sudoku = Sudoku('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
+    #sudoku = Sudoku('001000000807000000000054003000610000000700000080000004000000010000200706050003000')
     
     print(sudoku)
     dt = datetime.datetime.now()
-    solved = sudoku.solve()
+    frontier = [sudoku]
+    while bool(frontier):
+        s = frontier.pop(0)
+        print(s)
+        solver = Sudoku(s)
+        print(solver.table)
+        print(solver.sudoku)        
+        if not solver.has_solution():
+            continue
+        if not solver.narrow_by_nlets():
+            continue
+        if solver.sudoku.at(2,3) != 0 and solver.sudoku.at(2,3) == solver.sudoku.at(2,4):
+            print(solver.table)
+            print(solver.sudoku)
+            exit()
+        solver.put_singleton()
+        if solver.issolved():
+            break
+        for e in solver.guessed():
+            frontier.append(e)
     delta = datetime.datetime.now() - dt
     print(delta.seconds*1000+ delta.microseconds/1000)
-    print(solved)
-    print(solved.issolved())
+    print(s)

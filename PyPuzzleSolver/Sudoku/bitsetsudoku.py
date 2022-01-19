@@ -4,22 +4,21 @@ import math, copy
 from array import array
 import datetime
 
-class SudokuSolver():
+class Sudoku():
+    _SIZE_FACTOR_DICT = {16:(4,2), 81:(9,3), 256:(16,4), 625:(25,5), 1296:(36,6), 2401:(49,7)}
+    
     def __init__(self, arg):
         if isinstance(arg,(str,list)):
             numbers = arg
-            if len(numbers) not in [16,81,256]:
+            if len(numbers) not in self._SIZE_FACTOR_DICT:
                 raise ValueError('argument array has illegal size = {}'.format(len(numbers)))            
-            self.size = int(math.sqrt(len(numbers)))
-            self.array = array('H',[self.bits(0) for i in range(len(numbers))])
+            self.size = self._SIZE_FACTOR_DICT[len(numbers)][0]
+            self.factor = self._SIZE_FACTOR_DICT[len(numbers)][1]
+            self.array = array('H',[self.bits(0) for d in range(len(numbers))])
             for i in range(len(numbers)):
-                num = int(numbers[i])
-                if 0 <= num <= self.size : 
-                    self.put(self.row(i),self.col(i),num)
-                    #print(self.row(i),self.col(i),num)
-                else:
-                    raise ValueError('array element is illegal value = {}'.format(numbers[i]))
-        elif isinstance(arg,SudokuSolver):
+                if numbers[i] != 0 :
+                    self.array[i] = self.bits(int(numbers[i]))
+        elif isinstance(arg,Sudoku):
             self.size = arg.size
             self.array = copy.copy(arg.array)
             
@@ -27,25 +26,17 @@ class SudokuSolver():
     def bits(self, num):
         if num == 0 : 
             return (1<<self.size) - 1
-        if num == -1 :
-            return 0
         return 1<<(num-1)
     
     def debits(self, bval):
-        if self.size == 9 :
-            if bval == 0 : return -1
-            if bval == (1<<self.size) - 1 :return 0
-            val = 1
-            while bval != 0 and (bval & 1) == 0:
-                val += 1
-                bval >>= 1
-            if (bval>>1) == 0 :
-                return val
-        elif self.size == 16:
-            pass
-        elif self.size == 4:
-            pass
-        return 0
+        if bval == 0 : return -1
+        val = 1
+        while bval != 0 and (bval & 1) == 0:
+            val += 1
+            bval >>= 1
+        if bval != 1 :
+            return 0
+        return val
     
     def _popcount(self,val):
         pcntbl = [0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4]
@@ -55,44 +46,54 @@ class SudokuSolver():
             val >>= 4
         return count
     
-    def row(self,i):
-        return i // self.size
-    
-    def col(self,i):
-        return i % self.size
-    
-    def index(self,row,col):
-        return row*self.size + col
+    # def row(self,i):
+    #     return i // self.size
+    #
+    # def col(self,i):
+    #     return i % self.size
+    #
+    # def index(self,row,col):
+    #     return row*self.size + col
+    #
 
-    def put(self,row,col,num):
-        if num == 0 :
-            return True
-        #print(bin(self.bits_at(row, col)),num)
-        if self.bits_at(row, col) & self.bits(num) == 0 :
-            raise RuntimeError('Illegal placement of number {} at {},{}'.format(num,row,col))
-        updates = list()
-        updates.append((row,col,num))
-        while bool(updates) :
-            row,col,num = updates.pop(0)
-            self.array[self.index(row,col)] = self.bits(num)
-            for r, c in self.relatecells(row,col):
-                if r == row and c == col :
-                    continue
-                bits = self.array[self.index(r,c)]
-                newbits = bits & (self.bits(0) ^ self.bits(num))
-                self.array[self.index(r,c)] = newbits
-                newpcnt = self._popcount(newbits)
-                if newpcnt == 0 :
-                    return False
-                if newbits != bits and newpcnt == 1 :
-                    updates.append((r,c,self.debits(newbits)))
-        return True
-        
     def bits_at(self,row,col):
         return self.array[row*self.size+col]
     
     def at(self,row,col):
         return self.debits(self.bits_at(row,col))
+    
+    def bits_put(self,row,col,bval):
+        self.array[row*self.size+col] = bval
+
+    def put(self,row,col, ival):
+        self.array[row*self.size+col] = self.bits(ival)
+
+    def fix(self,row,col, ival):
+        self.array[row*self.size+col] &= self.bits(0) ^ self.bits(ival)
+
+    # def put(self,row,col,num):
+    #     if num == 0 :
+    #         return True
+    #     #print(bin(self.bits_at(row, col)),num)
+    #     if self.bits_at(row, col) & self.bits(num) == 0 :
+    #         raise RuntimeError('Illegal placement of number {} at {},{}'.format(num,row,col))
+    #     updates = list()
+    #     updates.append((row,col,num))
+    #     while bool(updates) :
+    #         row,col,num = updates.pop(0)
+    #         self.array[self.index(row,col)] = self.bits(num)
+    #         for r, c in self.relatecells(row,col):
+    #             if r == row and c == col :
+    #                 continue
+    #             bits = self.array[self.index(r,c)]
+    #             newbits = bits & (self.bits(0) ^ self.bits(num))
+    #             self.array[self.index(r,c)] = newbits
+    #             newpcnt = self._popcount(newbits)
+    #             if newpcnt == 0 :
+    #                 return False
+    #             if newbits != bits and newpcnt == 1 :
+    #                 updates.append((r,c,self.debits(newbits)))
+    #     return True
     
     def signature(self):
         return ''.join([str(self.debits(ea)) for ea in self.array])
@@ -114,13 +115,12 @@ class SudokuSolver():
     
     def __hash__(self):
         hashval = 0
-        factor = int(math.sqrt(self.size))
         for val in self.array:
-            hashval = (hashval<<factor) ^ val
+            hashval = (hashval<<self.factor) ^ val
         return hashval
     
     def __eq__(self, another):
-        if isinstance(another, SudokuSolver) :
+        if isinstance(another, Sudoku) :
             return self.array == another.array
         return False 
     
@@ -136,6 +136,12 @@ class SudokuSolver():
     def issolved(self):
         for bits in self.array:
             if self._popcount(bits) != 1 :
+                return False
+        return True
+    
+    def issolvable(self):
+        for bval in self.array:
+            if bval == 0 :
                 return False
         return True
     
@@ -197,7 +203,7 @@ class SudokuSolver():
         for r in range(self.size):
             for c in range(self.size):
                 for i in self.allowed(r,c):
-                    s = SudokuSolver(self)
+                    s = Sudoku(self)
                     if s.put(r,c,i):
                         # print(r,c,i)
                         filled.append(s)
@@ -235,17 +241,17 @@ class SudokuSolver():
         return None
     
 if __name__ == '__main__':
-    #sudoku = SudokuSolver('000310008006080000090600100509000000740090052000000409007004020000020600400069000')
-    #sudoku = SudokuSolver('003020600900305001001806400008102900700000008006708200002609500800203009005010300')
-    #sudoku = SudokuSolver('615830049304291076000005081007000100530024000000370004803000905170900400000002003')
-    #sudoku = SudokuSolver('900000000700008040010000079000974000301080000002010000000400800056000300000005001')
-    #sudoku = SudokuSolver('400080100000209000000730000020001009005000070090000050010500400600300000004007603')
-    #sudoku = SudokuSolver('020000010004000800060010040700209005003000400050000020006801200800050004500030006')
-    #sudoku = SudokuSolver('001503900040000080002000500010060050400000003000201000900080006500406009006000300')
-    #sudoku = SudokuSolver('080100000000070016610800000004000702000906000905000400000001028450090000000003040')
-    #sudoku = SudokuSolver('001040600000906000300000002040060050900302004030070060700000008000701000004020500')
-    sudoku = SudokuSolver('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
-    #sudoku = SudokuSolver('001000000807000000000054003000610000000700000080000004000000010000200706050003000')
+    #sudoku = Sudoku('000310008006080000090600100509000000740090052000000409007004020000020600400069000')
+    #sudoku = Sudoku('003020600900305001001806400008102900700000008006708200002609500800203009005010300')
+    #sudoku = Sudoku('615830049304291076000005081007000100530024000000370004803000905170900400000002003')
+    #sudoku = Sudoku('900000000700008040010000079000974000301080000002010000000400800056000300000005001')
+    #sudoku = Sudoku('400080100000209000000730000020001009005000070090000050010500400600300000004007603')
+    #sudoku = Sudoku('020000010004000800060010040700209005003000400050000020006801200800050004500030006')
+    #sudoku = Sudoku('001503900040000080002000500010060050400000003000201000900080006500406009006000300')
+    #sudoku = Sudoku('080100000000070016610800000004000702000906000905000400000001028450090000000003040')
+    #sudoku = Sudoku('001040600000906000300000002040060050900302004030070060700000008000701000004020500')
+    sudoku = Sudoku('000007002001500790090000004000000009010004360005080000300400000000000200060003170')
+    #sudoku = Sudoku('001000000807000000000054003000610000000700000080000004000000010000200706050003000')
     
     print(sudoku)
     dt = datetime.datetime.now()
