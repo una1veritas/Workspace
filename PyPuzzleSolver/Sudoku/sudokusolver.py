@@ -12,7 +12,8 @@ class Sudoku():
             if len(arg) != self.size**2 or self.size != self.factor**2 :
                 raise ValueError('argument array has illegal size = {}'.format(len(arg)))            
             if isinstance(arg, (str, list, array)) :
-                self.array = array('B',[int(d) if 1 <= int(d) <= self.size else 0 for d in arg])
+                self.candidate = array('H',[self.bitrepr(int(d)) for d in arg])
+                self.narrow_by_fixed()
             else:
                 raise ValueError('arg is illegal value.')
             # print(self.array)
@@ -22,7 +23,31 @@ class Sudoku():
             self.array = copy.copy(arg.array)
         else:
             raise ValueError('arg is unexpected value.')
+
+    def bitrepr(self, num):
+        if 0 < num <= self.size :
+            return (1<<num)
+        if num == 0 :
+            return 1 | ((1<<(self.size+1))-1)
+        return 0
+    def intval(self, bits):
+        if bits == 0 or (bits & 1) == 1 :
+            return 0
+        val = 1
+        bits >>= 1
+        while (bits & 1) == 0 :
+            val += 1
+            bits >>= 1
+        return val
     
+    def popcount(self,val):
+        pcntbl = [0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4]
+        count = 0
+        while val != 0 :
+            count += pcntbl[val & 0x0f]
+            val >>= 4
+        return count
+
     def __str__(self):
         tmp = ''
         
@@ -48,18 +73,60 @@ class Sudoku():
         return hashval
     
     def __eq__(self, another):
-        return self.array == another.array
+        return self.candidate == another.candidate
         
     def at(self,row,col):
-        return self.array[row*self.size + col]
+        return self.intval(self.candidate[row*self.size + col])        
+
+    def bitat(self,row,col):
+        return self.candidate[row*self.size + col]
     
     def put(self,row,col,val):
-        self.array[row*self.size + col] = int(val)
+        self.candidate[row*self.size + col] = self.bitrepr(val)
+    
+    def bitput(self,row,col,val):
+        self.candidate[row*self.size + col] = val
     
     def isfixed(self,row,col):
-        return self.at(row,col) != 0
+        return self.candidate[row*self.size + col] & 1 == 0
     
-class Sudoku():
+    def narrow_by_fixed(self):
+        fixed_row = list()
+        for r in range(self.size):
+            bitset = 0
+            for c in range(self.size):
+                if self.isfixed(r, c) :
+                    bitset |= self.bitat(r,c)
+            fixed_row.append(bitset)
+        #print(fixed_row)
+        fixed_col = list()
+        for c in range(self.size):
+            bitset = 0
+            for r in range(self.size):
+                if self.isfixed(r, c) :
+                    bitset |= self.bitat(r,c)
+            fixed_col.append(bitset)
+        #print(fixed_col)
+        fixed_blk = list()
+        for b in range(self.size):
+            bitset = 0
+            for r in range((b//self.factor)*self.factor, (b//self.factor + 1)*self.factor):
+                for c in range((b%self.factor), (b%self.factor)+self.factor):
+                    #print(b,r,c)
+                    if self.isfixed(r, c) :
+                        bitset |= self.bitat(r,c)
+            fixed_blk.append(bitset)
+        #print(fixed_blk)
+        for row in range(self.size):
+            for col in range(self.size):
+                if self.isfixed(row,col):
+                    continue
+                fixed = fixed_row[row] | fixed_col[col] | fixed_blk[(row//self.factor)*self.factor+(col//self.factor)]
+                self.bitput(row,col, (1<<(self.size+1))-1 ^ fixed)
+        print(self.candidate)
+        
+        
+class Sudoku_():
     def __init__(self, arg):
         if isinstance(arg,Sudoku):
             self.sudoku = arg
@@ -420,6 +487,7 @@ if __name__ == '__main__':
     #sudoku = Sudoku('001000000807000000000054003000610000000700000080000004000000010000200706050003000')
     
     print(sudoku)
+    exit()
     dt = datetime.datetime.now()
     frontier = [sudoku]
     while bool(frontier):
