@@ -266,7 +266,7 @@ if __name__ == '__main__':
                 '300012400600000000000009200500300006000004000000000008800500000000600000002000900'
                 ]
     
-    sum = 0
+    total = 0
     for p in problems:
         s = Sudoku(p)
         print(s)
@@ -286,7 +286,7 @@ if __name__ == '__main__':
         delta = datetime.datetime.now() - dt
         millis = delta.seconds*1000+ delta.microseconds/1000
         print(millis)
-        sum += millis
+        total += millis
         print(s)
         print()
-    print('finished in {:.4f} millisec.'.format(millis))
+    print('finished in {:.4f} millisec.'.format(total))
