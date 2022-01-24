@@ -265,7 +265,8 @@ if __name__ == '__main__':
                 '090000040000180000000050600000000094001000000020000070006000800000907000005000100',
                 '300012400600000000000009200500300006000004000000000008800500000000600000002000900'
                 ]
-
+    
+    sum = 0
     for p in problems:
         s = Sudoku(p)
         print(s)
@@ -283,6 +284,9 @@ if __name__ == '__main__':
             for e in s.guessed():
                 frontier.append(e)
         delta = datetime.datetime.now() - dt
-        print(delta.seconds*1000+ delta.microseconds/1000)
+        millis = delta.seconds*1000+ delta.microseconds/1000
+        print(millis)
+        sum += millis
         print(s)
         print()
+    print('finished in {:.4f} millisec.'.format(millis))
