@@ -7,9 +7,13 @@ import sys
 import fibonacci
 
 def main(argv):
+    args = list()
     for arg in argv[1:]:
-        argval = int(arg)
-        print(fibonacci.series(argval), end=', ') #, fibonacci.series(argval+1)/fibonacci.series(argval))
+        args.append(int(arg))
+    if len(args) == 2 :
+        print(fibonacci.series(args[0], args[1]))
+    else: 
+        print(fibonacci.series(args[0]))
     print()
     return
 
