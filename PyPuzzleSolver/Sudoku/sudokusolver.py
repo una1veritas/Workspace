@@ -19,10 +19,12 @@ class Sudoku():
             else:
                 raise ValueError('arg is illegal value.')
             # print(self.array)
+            self.history = dict()
         elif isinstance(arg, Sudoku):
             self.size = arg.size
             self.factor = arg.factor
             self.candidate = copy.copy(arg.candidate)
+            self.history = copy.copy(arg.history)
         else:
             raise ValueError('arg is unexpected value.')
 
@@ -147,6 +149,10 @@ class Sudoku():
                         raise RuntimeError('Candidates exhausted.')
                     if self.isfixed(row,col):
                         updated = True
+                        if 'settle' in self.history :
+                            self.history['settle'] += 1
+                        else:
+                            self.history['settle'] = 1
         #print(self.candidate)
         return updated
     
@@ -172,6 +178,10 @@ class Sudoku():
                         if bits != self.bitat(r,c) :
                             #print('row',r,c,bits,'->',self.bitat(r,c))
                             updated = True
+                            if 'candidates'+str(self.popcount(k)) in self.history :
+                                self.history['candidates'+str(self.popcount(k))] += 1
+                            else:
+                                self.history['candidates'+str(self.popcount(k))] = 1
 
         for col in range(self.size):
             candsdict = dict()
@@ -189,6 +199,10 @@ class Sudoku():
                         if bits != self.bitat(r,c) :
                             #print('col',r,c,bits,'->',self.bitat(r,c))
                             updated = True
+                            if 'candidates'+str(self.popcount(k)) in self.history :
+                                self.history['candidates'+str(self.popcount(k))] += 1
+                            else:
+                                self.history['candidates'+str(self.popcount(k))] = 1
 
         for row in range(0,self.size,self.factor):
             for col in range(0,self.size,self.factor):
@@ -207,6 +221,10 @@ class Sudoku():
                             if bits != self.bitat(r,c) :
                                 #print('blk',r,c,bits,'->',self.bitat(r,c))
                                 updated = True
+                                if 'candidates'+str(self.popcount(k)) in self.history :
+                                    self.history['candidates'+str(self.popcount(k))] += 1
+                                else:
+                                    self.history['candidates'+str(self.popcount(k))] = 1
         
         return updated
 
@@ -248,6 +266,10 @@ class Sudoku():
                     newsudoku = Sudoku(self)
                     newsudoku.put(r,c,i)
                     guessed.append(newsudoku)
+                    if 'guessed' in newsudoku.history :
+                        newsudoku.history['guessed'] += 1
+                    else:
+                        newsudoku.history['guessed'] = 1
         return guessed
     
 if __name__ == '__main__':
@@ -271,6 +293,7 @@ if __name__ == '__main__':
     for p in problems:
         s = Sudoku(p)
         print(s)
+        solved = list()
         dt = datetime.datetime.now()
         frontier = [s]
         while bool(frontier):
@@ -281,7 +304,6 @@ if __name__ == '__main__':
                 continue
             if s.issolved():
                 break
-            #print(s)
             for e in s.guessed():
                 frontier.append(e)
         delta = datetime.datetime.now() - dt
@@ -289,5 +311,6 @@ if __name__ == '__main__':
         print(millis)
         total += millis
         print(s)
+        print(s.history)
         print()
     print('finished in {:.4f} millisec.'.format(total))
