@@ -312,5 +312,5 @@ if __name__ == '__main__':
         total += millis
         print(s)
         print(s.history)
-        print()
+        puzzleprint()
     print('finished in {:.4f} millisec.'.format(total))

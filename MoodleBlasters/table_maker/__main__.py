@@ -1,7 +1,7 @@
 import os, glob
 import io,sys
 
-path = u'/Users/sin/Dropbox/オートマトンと言語理論/2021/演習課題/'
+path = u'/Users/sin/Dropbox/離散数学Ⅱ/離散数学Ⅱ-2021q4/quiz'
 print('Looking for name list file in '+path+'.')
 if len(glob.glob(path+'namelist*.csv')) == 1 :
     namelistf = glob.glob(path+'namelist*.csv')[0]
