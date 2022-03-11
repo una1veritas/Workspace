@@ -2,9 +2,10 @@ import os, glob
 import io,sys
 
 path = u'/Users/sin/Dropbox/離散数学Ⅱ/離散数学Ⅱ-2021q4/quiz'
+if path[-1] != '/' : path += '/'
 print('Looking for name list file in '+path+'.')
-if len(glob.glob(path+'namelist*.csv')) == 1 :
-    namelistf = glob.glob(path+'namelist*.csv')[0]
+if len(glob.glob(path+'seiseki*.csv')) == 1 :
+    namelistf = glob.glob(path+'seiseki*.csv')[0]
     print('Found "'+namelistf+'" for registered students names.')
 else:
     print('Not found name flie "namelist*.csv" at '+path+'. ', file=sys.stderr)
@@ -17,21 +18,29 @@ with open(namelistf, encoding = "utf-8-sig") as f:
     for l in f.readlines():
         if l[0] == COMMENTESCAPE : continue
         fields = l.split(separator)
+        # (sid, namestr, dep, grade)
         db_registered.append( (fields[2], fields[1], fields[4], fields[6]) )
         #print(fields)
 db_registered.sort(key=(lambda x: x[0]))
 #for i in db_registered:
 #    print(i)
-print('Found ' + str(len(db_registered))+' registered names')
+print('Found ' + str(len(db_registered))+' names of students.')
+for row in db_registered[:5] :
+    print(row)
 
 print('Collecting folder names.')
 db_folders = list()
 for fdname in glob.glob(path+'*'):
-    if  fdname.endswith('.csv') : continue
-    db_folders.append( ( os.path.basename(fdname) ) )
+    if  os.path.isdir(fdname) : 
+        db_folders.append( ( os.path.basename(fdname) ) )
 db_folders.sort()
-#print(db_folders)
-print('Found ' + str(len(db_folders)) + ' folders for reports.')
+if len(db_folders) :
+    for folder in db_folders[:5]:
+        print(folder)
+    print('Found ' + str(len(db_folders)) + ' folders for reports.')
+else:
+    print('No folders. stop.')
+    exit()
 
 print('Building attendance table...')
 att_table = dict()
@@ -62,12 +71,12 @@ for dt in db_folders:
     presence[' sid'].append(dt)
     for (sid, namestr, dep, grade) in db_registered:
         if (dt, sid) in att_table :
-            sz = str(att_table[(dt, sid)]//1024)
+            sz = str(att_table[(dt, sid)]/1024)
         else:
             sz = 0
         presence[sid].append(str(sz))
 
-with open(path+'attendance.csv', mode='w', encoding='shift_jis') as outputf:
+with open(path+'attendance.csv', mode='w', encoding='utf-8-sig') as outputf:
     for sid in presence.keys():
         outputf.write(sid)
         outputf.write(',')
