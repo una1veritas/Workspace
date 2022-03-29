@@ -6,7 +6,7 @@ prev = 0
 sgn = -1
 
 i = 1
-while i < 10:
+while abs(pi4-prev) > 0.0001:
     prev = pi4
     pi4 += sgn/(2*i+1)
     sgn = -sgn
