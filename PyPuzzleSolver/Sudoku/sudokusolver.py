@@ -2,6 +2,7 @@
 #
 import copy
 from array import array
+from collections import deque
 import datetime
 
 class Sudoku():
@@ -293,11 +294,11 @@ if __name__ == '__main__':
     for p in problems:
         s = Sudoku(p)
         print(s)
-        solved = list()
+        #solved = list()
         dt = datetime.datetime.now()
-        frontier = [s]
+        frontier = deque([s])
         while bool(frontier):
-            s = frontier.pop(0)
+            s = frontier.popleft()
             try:
                 s.narrow()
             except RuntimeError:
@@ -312,5 +313,4 @@ if __name__ == '__main__':
         total += millis
         print(s)
         print(s.history)
-        puzzleprint()
     print('finished in {:.4f} millisec.'.format(total))
