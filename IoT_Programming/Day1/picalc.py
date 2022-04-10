@@ -7,10 +7,10 @@ prev = 0
 sgn = -1
 
 i = 1
-while abs(pi4-prev) > 0.0001:
+while 2*abs(pi4-prev) > 0.1:
     prev = pi4
     pi4 += sgn/(2*i+1)
     sgn = -sgn
     i += 1
 
-print("pi ~= " + str( 2*(prev + pi4) ))
+print("i = "+str(i), " pi ~= " + str( 2*(prev + pi4) ))

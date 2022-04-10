@@ -1,18 +1,17 @@
 import sys
 
-print(sys.argv)
-
 if len(sys.argv) < 3 :
     print("引数は整数二つです．")
     exit()
 
-a = int(sys.argv[1])
-b = int(sys.argv[2])
+x = int(sys.argv[1])
+y = int(sys.argv[2])
+print(x, 'と', y, 'の比は')
 
+a, b = x, y
 while b != 0 :
-    c = a % b
-    a, b = b, c
-    # a = b
-    # b = c
+   c = a % b
+   a = b
+   b = c
 
-print('greatest common divisor = ' + str(a) + '.')
+print(x//a, '対', y//a, 'です')   # // は整数除算（あまりは捨てる）
