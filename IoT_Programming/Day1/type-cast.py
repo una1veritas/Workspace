@@ -3,6 +3,7 @@ import sys
 print('引数 = ', sys.argv)
 r = float(sys.argv[1])
 sq = r**2
+
 print(str(r)+' の二乗は '+str(sq))
 
 print('プログラム中で標準入力をうけとる')
