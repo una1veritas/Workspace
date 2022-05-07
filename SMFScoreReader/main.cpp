@@ -153,7 +153,7 @@ struct SMFEvent {
 			out << "(";
 			if ( evt.delta != 0 )
 				out << evt.delta << ", ";
-			out<< "SYSEX ";
+			out<< "SYSEX " << std::hex << evt.status << ' ';
 			for(auto i = evt.data.begin(); i != evt.data.end(); ++i) {
 				if ( isprint(*i) && !isspace(*i) ) {
 					out << char(*i);
@@ -179,12 +179,43 @@ struct SMFEvent {
 			out << "(";
 			if ( evt.delta != 0 )
 				out << evt.delta << ", ";
-			out<< "META ";
-			for(auto i = evt.data.begin(); i != evt.data.end(); ++i) {
-				if ( isprint(*i) && !isspace(*i) ) {
-					out << char(*i);
-				} else {
-					out << std::hex << std::setw(2) << int(*i);
+			out<< "M: ";
+			uint32 tempo;
+			switch (evt.data[0]) {
+			case 0x03:
+				out << "seq. name: ";
+				for(auto i = evt.data.begin() + 1; i != evt.data.end(); ++i) {
+					out << *i;
+				}
+				break;
+			case 0x04:
+				out << "instr: ";
+				for(auto i = evt.data.begin() + 1; i != evt.data.end(); ++i) {
+					out << *i;
+				}
+				break;
+			case 0x2f:
+				out << "end of track";
+				break;
+			case 0x51:
+				tempo = uint8(evt.data[1]);
+				tempo <<= 8;
+				tempo |= uint8(evt.data[2]);
+				tempo <<= 8;
+				tempo |= uint8(evt.data[3]);
+				out << "tempo 4th = " << std::dec << (60000000L/tempo);
+				break;
+			case 0x58:
+				out << "time signature " << int(evt.data[1]) << "/" << int(1<<evt.data[2]);
+				out << ", " << int(evt.data[3]) << " mclk., " << int(evt.data[4]) << " 32nd";
+				break;
+			default:
+				for(auto i = evt.data.begin(); i != evt.data.end(); ++i) {
+					if ( isprint(*i) && !isspace(*i) ) {
+						out << char(*i);
+					} else {
+						out << std::hex << std::setw(2) << int(*i) << ' ';
+					}
 				}
 			}
 			out << ")";
