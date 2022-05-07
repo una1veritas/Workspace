@@ -126,29 +126,69 @@ struct SMFEvent {
 		return 0x0f & status;
 	}
 
+	bool isNote() const {
+		if ( (status & 0xe0) == 0x80 ) {
+			return true;
+		}
+		return false;
+	}
+
+	int octave() const {
+		if ( isNote() )
+			return data[0] / 12;
+		return -2;
+	}
+
+	const std::string & notename() const {
+		static const std::string name[13] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "", };
+		if ( !isNote() )
+			return name[12];
+		return name[data[0] % 12];
+	}
+
+	int notenumber() const {
+		if ( !isNote() )
+			return 128;
+		return int(data[0]);
+	}
+
 	friend std::ostream & operator<<(std::ostream & out, const SMFEvent & evt) {
 		uint8 type = evt.status & 0xf0;
-		if ( MIDI_NOTEOFF == type ) {
-			out << "(" << evt.delta << ", NOTE OFF, " << evt.channel() << ", "
-					<< std::dec << int(evt.data[0]) << ", " << int(evt.data[1]) << ") ";
-		} else if ( type == MIDI_NOTEON ) {
-			out << "(" << evt.delta << ", NOTE ON, " << evt.channel() << ", "
-					<< std::dec << int(evt.data[0]) << ", " << int(evt.data[1]) << ") ";
-		} else if ( type == MIDI_POLYKEYPRESSURE ) {
-			out << "(" << evt.delta << ", POLYKEY PRESS, " << evt.channel() << ", "
-					<< std::dec << int(evt.data[0]) << ", " << int(evt.data[1]) << ") ";
-		} else if ( type == MIDI_CONTROLCHANGE ) {
-			out << "(" << evt.delta << ", CONTL CHANGE, " << evt.channel() << ", "
-					<< std::dec << int(evt.data[0]) << ", " << int(evt.data[1]) << ") ";
-		} else if ( type == MIDI_PROGRAMCHANGE ) {
-			out << "(" << evt.delta << ", PROG CHANGE, " << evt.channel() << ", "
-					<< std::dec << int(evt.data[0]) << ") ";
-		} else if ( type == MIDI_CHPRESSURE ) {
-			out << "(" << evt.delta << ", CHANNEL PRESS, " << evt.channel() << ", "
-					<< std::dec << int(evt.data[0]) << ") ";
-		} else if ( type == MIDI_PITCHBEND ) {
-			out << "(" << evt.delta << ", CHANNEL PRESS, " << evt.channel() << ", "
-					<< std::dec << (uint16(evt.data[1])<<7 | evt.data[0]) << ") ";
+		if ( (MIDI_NOTEOFF <= type) && (type <= MIDI_PITCHBEND) ) {
+			out << "(";
+			if ( evt.delta > 0 )
+				out << evt.delta << ", ";
+			switch(type) {
+			case MIDI_NOTEOFF:
+				out << "NOTEOFF:" << evt.channel() << ", "
+				<< evt.notename() << evt.octave(); // << ", " << int(evt.data[1]);
+				break;
+			case MIDI_NOTEON:
+				out << "NOTE ON:" << evt.channel() << ", "
+				<< evt.notename() << evt.octave() << ", " << int(evt.data[1]);
+				break;
+			case MIDI_POLYKEYPRESSURE:
+				out << "POLYKEY PRESS, " << evt.channel() << ", "
+				<< std::dec << int(evt.data[0]) << ", " << int(evt.data[1]);
+				break;
+			case MIDI_CONTROLCHANGE:
+				out << "CTL CHANGE, " << evt.channel() << ", "
+				<< std::dec << int(evt.data[0]) << ", " << int(evt.data[1]);
+				break;
+			case MIDI_PROGRAMCHANGE:
+				out << "PRG CHANGE, " << evt.channel() << ", "
+				<< std::dec << int(evt.data[0]);
+				break;
+			case MIDI_CHPRESSURE:
+				out << "CHANNEL PRESS, " << evt.channel() << ", "
+				<< std::dec << int(evt.data[0]);
+				break;
+			case MIDI_PITCHBEND:
+				out << "CHANNEL PRESS, " << evt.channel() << ", "
+				<< std::dec << (uint16(evt.data[1])<<7 | evt.data[0]);
+				break;
+			}
+			out << ")";
 		} else if ( evt.status == SYSEX ) {
 			out << "(";
 			if ( evt.delta != 0 )
@@ -182,6 +222,18 @@ struct SMFEvent {
 			out<< "M: ";
 			uint32 tempo;
 			switch (evt.data[0]) {
+			case 0x01:
+				out << "text: ";
+				for(auto i = evt.data.begin() + 1; i != evt.data.end(); ++i) {
+					out << *i;
+				}
+				break;
+			case 0x02:
+				out << "copyright: ";
+				for(auto i = evt.data.begin() + 1; i != evt.data.end(); ++i) {
+					out << *i;
+				}
+				break;
 			case 0x03:
 				out << "seq. name: ";
 				for(auto i = evt.data.begin() + 1; i != evt.data.end(); ++i) {
@@ -194,8 +246,41 @@ struct SMFEvent {
 					out << *i;
 				}
 				break;
+			case 0x05:
+				out << "lyrics: ";
+				for(auto i = evt.data.begin() + 1; i != evt.data.end(); ++i) {
+					out << *i;
+				}
+				break;
+			case 0x06:
+				out << "marker: ";
+				for(auto i = evt.data.begin() + 1; i != evt.data.end(); ++i) {
+					out << *i;
+				}
+				break;
+			case 0x07:
+				out << "cue: ";
+				for(auto i = evt.data.begin() + 1; i != evt.data.end(); ++i) {
+					out << *i;
+				}
+				break;
+			case 0x08:
+				out << "program: ";
+				for(auto i = evt.data.begin() + 1; i != evt.data.end(); ++i) {
+					out << *i;
+				}
+				break;
+			case 0x09:
+				out << "device: ";
+				for(auto i = evt.data.begin() + 1; i != evt.data.end(); ++i) {
+					out << *i;
+				}
+				break;
+			case 0x21:
+				out << "out port " << std::dec << int(evt.data[1]);
+				break;
 			case 0x2f:
-				out << "end of track";
+				out << "eot";
 				break;
 			case 0x51:
 				tempo = uint8(evt.data[1]);
@@ -306,8 +391,14 @@ struct SMFChunk {
 		} else if ( chunk.isTrack() ) {
 			out << "Track chunk ";
 			out << "(length = " << chunk.length << ") ";
+			std::cout << std::endl;
 			for(auto i = chunk.events.begin(); i != chunk.events.end(); ++i) {
-				std::cout << *i << std::endl;
+				if ( i->delta > 0 ) {
+					std::cout << std::endl;
+				} else {
+					std::cout << " ";
+				}
+				std::cout << *i ;
 			}
 		} else {
 			out << "Unknown chunk ";
