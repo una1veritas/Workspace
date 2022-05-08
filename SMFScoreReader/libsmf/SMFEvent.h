@@ -20,7 +20,7 @@ typedef uint32_t uint32;
 typedef uint64_t uint64;
 typedef unsigned int  uint;
 
-struct SMFEvent {
+struct smfevent {
 	int32 delta;
 	uint8  type;
 	union {
@@ -52,7 +52,7 @@ struct SMFEvent {
 	};
 
 	// methods
-	SMFEvent() : delta(0), type(0), duration(0), number(0), velocity(0) {}
+	smfevent() : delta(0), type(0), duration(0), number(0), velocity(0) {}
 	//~SMFEvent() {}
 	/*
 	SMFEvent & operator=(const SMFEvent & evt) {
@@ -102,13 +102,13 @@ struct SMFEvent {
 		return type & 0x0f;
 	}
 
-	friend std::ostream & operator<<(std::ostream & ost, const SMFEvent & evt) {
+	friend std::ostream & operator<<(std::ostream & ost, const smfevent & evt) {
 		ost << "[" << '+' << std::dec << evt.delta << " ";
 		if ( evt.isSys() ) {
 			if (evt.type == SYSEX) {
 				ost << "(SYSEX) "<< evt.length << " ";
  				for(uint i = 0; i < evt.length; ++i) {
-					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
+					if ( i < smfevent::DATA_MAX_LENGTH ) {
 						ost << std::setw(2) << std::setfill('0') << std::hex << (unsigned int) evt.data[i] << " ";
 					} else {
 						ost << '.';
@@ -122,7 +122,7 @@ struct SMFEvent {
 			if ( evt.meta == 0x01 ) {
 				ost << "TEXT" << ") ";
 				for(uint i = 0; i < evt.length; ++i) {
-					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
+					if ( i < smfevent::DATA_MAX_LENGTH ) {
 						ost << (char) evt.data[i];
 					} else {
 						ost << '.';
@@ -131,7 +131,7 @@ struct SMFEvent {
 			} else if ( evt.meta == 0x02 ) {
 				ost << "COPYRIGHT" << ") ";
 				for(uint i = 0; i < evt.length; ++i) {
-					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
+					if ( i < smfevent::DATA_MAX_LENGTH ) {
 						ost << (char) evt.data[i];
 					} else {
 						ost << '.';
@@ -140,7 +140,7 @@ struct SMFEvent {
 			} else if ( evt.meta == 0x03 ) {
 				ost << "NAME" << ") ";
 				for(uint i = 0; i < evt.length; ++i) {
-					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
+					if ( i < smfevent::DATA_MAX_LENGTH ) {
 						ost << (char) evt.data[i];
 					} else {
 						ost << '.';
@@ -153,7 +153,7 @@ struct SMFEvent {
 			} else if ( evt.meta == 0x54 ) {
 				ost << "SMTPE OFFSET" << ") ";
 				for(uint i = 0; i < evt.length; ++i) {
-					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
+					if ( i < smfevent::DATA_MAX_LENGTH ) {
 						ost << std::setw(2) << std::hex << (unsigned int) evt.data[i];
 					} else {
 						ost << '.';
@@ -176,7 +176,7 @@ struct SMFEvent {
 			} else {
 				ost << std::hex << (unsigned int) evt.meta << ") ";
 				for(uint i = 0; i < evt.length; ++i) {
-					if ( i < SMFEvent::DATA_MAX_LENGTH ) {
+					if ( i < smfevent::DATA_MAX_LENGTH ) {
 						ost << std::setw(2) << std::hex << (uint) evt.data[i];
 					} else {
 						ost << '.';

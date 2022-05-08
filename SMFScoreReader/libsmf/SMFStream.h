@@ -78,7 +78,7 @@ struct SMFStream {
 		return val;
 	}
 
-	SMFEvent & complete_read_MIDIEvent(SMFEvent & event, const uint8 nextByte) {
+	smfevent & complete_read_MIDIEvent(smfevent & event, const uint8 nextByte) {
 		switch(event.type & 0xf0) {
 		case 0x80:
 		case 0x90: // note on
@@ -138,8 +138,8 @@ struct SMFStream {
 		 smfstream.seekg(0);
 	}
 
-	SMFEvent getNextEvent() {
-		SMFEvent event;
+	smfevent getNextEvent() {
+		smfevent event;
 		uint8 tbuf[16];
 		event.delta = read_varlenint();
 		//std::cout << "delta = " << event.delta << ", ";
@@ -148,13 +148,13 @@ struct SMFStream {
 		if ( event.delta == 'M' && event.type == 'T' ) {
 			read_byte(tbuf,2);
 			event.type = tbuf[0]; // MTRK or MTHD
-			if ( event.type == SMFEvent::MTHD) {
+			if ( event.type == smfevent::MTHD) {
 				read_byte(tbuf, 10);
 				event.length = uint32_from_bytes(tbuf[0], tbuf[1], tbuf[2], tbuf[3]);
 				event.format = uint16_from_bytes(tbuf[4], tbuf[5]);
 				event.tracks = uint16_from_bytes(tbuf[6], tbuf[7]);
 				event.resolution = uint16_from_bytes(tbuf[8], tbuf[9]);
-			} else if ( event.type == SMFEvent::MTRK) {
+			} else if ( event.type == smfevent::MTRK) {
 				read_byte(tbuf, 4);
 				event.length = uint32_from_bytes(tbuf[0], tbuf[1], tbuf[2], tbuf[3]);
 			}
@@ -163,22 +163,22 @@ struct SMFStream {
 			// status byte
 			//std::cout << "status: ";
 			switch (event.type) {
-			case SMFEvent::SYSEX: // status = 0xf0
+			case smfevent::SYSEX: // status = 0xf0
 				event.length = read_varlenint();
-				read_byte(event.data, event.length, SMFEvent::DATA_MAX_LENGTH);
+				read_byte(event.data, event.length, smfevent::DATA_MAX_LENGTH);
 				break;
-			case SMFEvent::ESCSYSEX: // status = 0xf7
+			case smfevent::ESCSYSEX: // status = 0xf7
 				//std::cout << "escaped/system exclusive event, ";
 				event.length = read_varlenint();
-				read_byte(event.data, event.length, SMFEvent::DATA_MAX_LENGTH);
+				read_byte(event.data, event.length, smfevent::DATA_MAX_LENGTH);
 				break;
-			case SMFEvent::META: // status = 0xff
+			case smfevent::META: // status = 0xff
 				//std::cout << "meta event, ";
 				event.meta = read_byte(); // meta event type
 				event.length = read_varlenint(); // event size
 				//std::cout << "length = " << event.meta.length << " ";
 				if (event.meta != 0x2f) {
-					read_byte(event.data, event.length, SMFEvent::DATA_MAX_LENGTH);
+					read_byte(event.data, event.length, smfevent::DATA_MAX_LENGTH);
 				}
 				break;
 			}

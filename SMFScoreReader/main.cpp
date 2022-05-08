@@ -8,23 +8,18 @@
 
 #include <vector>
 
-
-typedef uint8_t uint8;
-typedef uint16_t uint16;
-typedef uint32_t uint32;
-
-uint32 get_uint32BE(std::vector<char>::iterator & itr) {
-	uint32 res = 0;
-	for(uint16 i = 0; i < 4; ++i) {
+uint32_t get_uint32BE(std::istreambuf_iterator<char> & itr) {
+	uint32_t res = 0;
+	for(uint16_t i = 0; i < 4; ++i) {
 		res <<= 8;
-		res |= uint8(*itr);
+		res |= uint8_t(*itr);
 		++itr;
 	}
 	return res;
 }
 
-uint32 get_uint16BE(std::vector<char>::iterator & itr) {
-	uint32 res = *itr;
+uint32_t get_uint16BE(std::istreambuf_iterator<char> & itr) {
+	uint32_t res = *itr;
 	++itr;
 	res <<= 8;
 	res |= *itr;
@@ -32,9 +27,9 @@ uint32 get_uint16BE(std::vector<char>::iterator & itr) {
 	return res;
 }
 
-uint32 get_uint32VL(std::vector<char>::iterator & itr) {
-	uint8 b;
-	uint32 res = 0;
+uint32_t get_uint32VLQ(std::istreambuf_iterator<char> & itr) {
+	uint8_t b;
+	uint32_t res = 0;
 	for( ; ; ) {
 		res <<= 7;
 		b = *itr;
@@ -46,9 +41,9 @@ uint32 get_uint32VL(std::vector<char>::iterator & itr) {
 	return res;
 }
 
-struct SMFEvent {
-	uint32 delta;
-	uint8 status;
+struct smfevent {
+	uint32_t delta;
+	uint8_t status;
 	std::string data;
 
 	enum EVENT_TYPE {
@@ -64,19 +59,19 @@ struct SMFEvent {
 		META = 0xff, 	// Meta
 	};
 
-	SMFEvent(void) {
+	smfevent(void) {
 		clear();
 	}
 
-	SMFEvent(std::vector<char>::iterator & itr, uint8 laststatus) {
-		delta = get_uint32VL(itr);
+	smfevent(std::istreambuf_iterator<char> & itr, uint8_t laststatus) {
+		delta = get_uint32VLQ(itr);
 		status = laststatus;
 		if (((*itr) & 0x80) != 0) {
 			status = *itr;
 			++itr;
 		}
-		uint8 type;
-		uint32 len;
+		uint8_t type;
+		uint32_t len;
 		type = status & 0xf0;
 		if ( (MIDI_NOTEOFF <= type && type <= MIDI_CONTROLCHANGE) || (type == MIDI_PITCHBEND) ) {
 			data.push_back(*itr);
@@ -87,27 +82,27 @@ struct SMFEvent {
 			data.push_back(*itr);
 			++itr;
 		} else if ( status == SYSEX ) {
-			len = get_uint32VL(itr);
-			for(uint32 i = 0; i < len; ++i) {
+			len = get_uint32VLQ(itr);
+			for(uint32_t i = 0; i < len; ++i) {
 				data.push_back(*itr);
 				++itr;
 			}
 		} else if ( status == ESCSYSEX ) {
-			len = get_uint32VL(itr);
-			for(uint32 i = 0; i < len; ++i) {
+			len = get_uint32VLQ(itr);
+			for(uint32_t i = 0; i < len; ++i) {
 				data.push_back(*itr);
 				++itr;
 			}
 		} else if ( status == META ) {
 			data.push_back(*itr); // function
 			++itr;
-			len = get_uint32VL(itr);
-			for(uint32 i = 0; i < len; ++i) {
+			len = get_uint32VLQ(itr);
+			for(uint32_t i = 0; i < len; ++i) {
 				data.push_back(*itr);
 				++itr;
 			}
 		} else {
-			std::cerr << "error!" << std::endl;
+			std::cerr << "error!" << std::dec << delta << std::hex << status << std::endl;
 			// error.
 		}
 	}
@@ -118,8 +113,16 @@ struct SMFEvent {
 		data.clear();
 	}
 
-	~SMFEvent() {
+	~smfevent() {
 		data.clear();
+	}
+
+	bool isMeta(void) const {
+		return status == META;
+	}
+
+	bool isEOT(void) const {
+		return isMeta() && data[0] == 0x2f;
 	}
 
 	int channel(void) const {
@@ -139,11 +142,26 @@ struct SMFEvent {
 		return -2;
 	}
 
-	const std::string & notename() const {
-		static const std::string name[13] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "", };
+	static constexpr char * namesofnote[] = {
+			(char *) "C",
+			(char *) "C#",
+			(char *) "D",
+			(char *) "D#",
+			(char *) "E",
+			(char *) "F",
+			(char *) "F#",
+			(char *) "G",
+			(char *) "G#",
+			(char *) "A",
+			(char *) "A#",
+			(char *) "B",
+			(char *) "",
+	};
+
+	const char * notename() const {
 		if ( !isNote() )
-			return name[12];
-		return name[data[0] % 12];
+			return namesofnote[12];
+		return namesofnote[data[0] % 12];
 	}
 
 	int notenumber() const {
@@ -152,8 +170,8 @@ struct SMFEvent {
 		return int(data[0]);
 	}
 
-	friend std::ostream & operator<<(std::ostream & out, const SMFEvent & evt) {
-		uint8 type = evt.status & 0xf0;
+	friend std::ostream & operator<<(std::ostream & out, const smfevent & evt) {
+		uint8_t type = evt.status & 0xf0;
 		if ( (MIDI_NOTEOFF <= type) && (type <= MIDI_PITCHBEND) ) {
 			out << "(";
 			if ( evt.delta > 0 )
@@ -185,7 +203,7 @@ struct SMFEvent {
 				break;
 			case MIDI_PITCHBEND:
 				out << "CHANNEL PRESS, " << evt.channel() << ", "
-				<< std::dec << (uint16(evt.data[1])<<7 | evt.data[0]);
+				<< std::dec << (uint16_t(evt.data[1])<<7 | evt.data[0]);
 				break;
 			}
 			out << ")";
@@ -218,9 +236,9 @@ struct SMFEvent {
 		} else if ( evt.status == META ) {
 			out << "(";
 			if ( evt.delta != 0 )
-				out << evt.delta << ", ";
+				out << std::dec << evt.delta << ", ";
 			out<< "M: ";
-			uint32 tempo;
+			uint32_t tempo;
 			switch (evt.data[0]) {
 			case 0x01:
 				out << "text: ";
@@ -283,15 +301,15 @@ struct SMFEvent {
 				out << "eot";
 				break;
 			case 0x51:
-				tempo = uint8(evt.data[1]);
+				tempo = uint8_t(evt.data[1]);
 				tempo <<= 8;
-				tempo |= uint8(evt.data[2]);
+				tempo |= uint8_t(evt.data[2]);
 				tempo <<= 8;
-				tempo |= uint8(evt.data[3]);
+				tempo |= uint8_t(evt.data[3]);
 				out << "tempo 4th = " << std::dec << (60000000L/tempo);
 				break;
 			case 0x58:
-				out << "time signature " << int(evt.data[1]) << "/" << int(1<<evt.data[2]);
+				out << "time signature " << std::dec << int(evt.data[1]) << "/" << int(1<<evt.data[2]);
 				out << ", " << int(evt.data[3]) << " mclk., " << int(evt.data[4]) << " 32nd";
 				break;
 			default:
@@ -305,94 +323,81 @@ struct SMFEvent {
 			}
 			out << ")";
 		} else {
-			std::cerr << "error!" << std::endl;
+			std::cout << "smfevent::operator<< error!";
+			std::cout << std::dec << evt.delta << ", " << std::hex << int(evt.status) << std::endl;
 			// error.
 		}
 		return out;
 	}
 };
 
-struct SMFChunk {
-	uint8  type;
-	uint32 length;
-	uint16 format, ntracks, division;
-	std::vector<SMFEvent> events;
 
-	enum CHUNK_TYPE {
-		CHUNK_NONE   = 0,
-		CHUNK_MThd = 1,
-		CHUNK_MTrk  = 2,
-	};
+class smfheader {
+	uint16_t length;
 
-	enum EVENT_TYPE {
-		SYSEX = 0xf0, 	// System Exclusive
-		ESCSYSEX = 0xf7, 	// Escaped System Exclusive
-		META = 0xff, 	// Meta
-		MIDI = 0x80, 		// Data
-	};
+public:
+	uint16_t format, ntracks, division;
 
-	SMFChunk(std::vector<char>::iterator & itr) {
-		char t[4];
-		for(int i = 0; i < 4; ++i) {
-			t[i] = *itr;
-			++itr;
-		}
-		if ( strncmp(t, "MThd", 4) == 0 ) {
-			type = CHUNK_MThd;
-		} else if ( strncmp(t, "MTrk", 4) == 0 ) {
-			type = CHUNK_MTrk;
-		} else {
-			type = CHUNK_NONE;
-		}
+	smfheader(void) : length(0), format(0), ntracks(0), division(0) { }
+
+	smfheader(std::istreambuf_iterator<char> & itr) {
 		length = get_uint32BE(itr);
-		if ( isHeader() ) {
-			//std::cout << "header" << std::endl;
-			format = get_uint16BE(itr);
-			ntracks = get_uint16BE(itr);
-			division = get_uint16BE(itr);
-		} else if ( isTrack() ) {
-			//std::cout << "track" << std::endl;
-			events.clear();
-			uint8 laststatus = 0;
-			auto itr_end = itr + length;
-			while ( itr != itr_end ) {
-				SMFEvent ev(itr, laststatus);
-				laststatus = ev.status;
-				events.push_back(ev);
-			}
-		}
-	}
-
-	~SMFChunk() {
-		if ( isTrack() ) {
-			events.clear();
-		}
+		//std::cout << "header" << std::endl;
+		format = get_uint16BE(itr);
+		ntracks = get_uint16BE(itr);
+		division = get_uint16BE(itr);
 	}
 
 	void clear(void) {
+		length = 0;
 		format = 0;
 		ntracks = 0;
 		division = 0;
+	}
+
+	friend std::ostream & operator<<(std::ostream & out, const smfheader & chunk) {
+		out << "Header";
+		out << "(format = " << chunk.format << ", ntracks = " << chunk.ntracks << ", division = " << chunk.division << ") ";
+		return out;
+	}
+};
+
+class smftrack {
+	uint32_t length;
+
+public:
+	std::vector<smfevent> events;
+
+	smftrack(void): length(0) { }
+
+	smftrack(std::istreambuf_iterator<char> & itr) {
+		length = get_uint32BE(itr);
+
+		//std::cout << "track" << std::endl;
+		events.clear();
+		uint8_t laststatus = 0;
+		do {
+			smfevent ev(itr, laststatus);
+			laststatus = ev.status;
+			events.push_back(ev);
+		} while ( !events.back().isEOT() );
+	}
+
+	~smftrack() {
 		events.clear();
 	}
 
-	bool isHeader(void) const {
-		return type == CHUNK_MThd;
+	void clear(void) {
+		length = 0;
+		events.clear();
 	}
 
-	bool isTrack(void) const {
-		return type == CHUNK_MTrk;
-	}
-
-	friend std::ostream & operator<<(std::ostream & out, const SMFChunk & chunk) {
-		if ( chunk.isHeader() ) {
-			out << "Header chunk ";
-			out << "(format = " << chunk.format << ", ntracks = " << chunk.ntracks << ", division = " << chunk.division << ") ";
-		} else if ( chunk.isTrack() ) {
-			out << "Track chunk ";
-			out << "(length = " << chunk.length << ") ";
-			std::cout << std::endl;
-			for(auto i = chunk.events.begin(); i != chunk.events.end(); ++i) {
+	friend std::ostream & operator<<(std::ostream & out, const smftrack & chunk) {
+		out << "Track chunk";
+		out << "(length = " << chunk.length << ") ";
+		std::cout << std::endl;
+		for(auto i = chunk.events.begin(); i != chunk.events.end(); ++i) {
+			if ( i->isMeta() || i->isNote() ) {
 				if ( i->delta > 0 ) {
 					std::cout << std::endl;
 				} else {
@@ -400,125 +405,59 @@ struct SMFChunk {
 				}
 				std::cout << *i ;
 			}
-		} else {
-			out << "Unknown chunk ";
 		}
 		return out;
 	}
 };
 
-/*
-bool get_chunk(std::vector<char>::iterator & itr, SMFChunk & chunk) {
-	chunk.clear();
-	for(int i = 0; i < 4; ++i)
-		chunk.ID[i] = *itr;
-	chunk.length = get_uint32BE(itr);
-	if ( chunk.isHeader() ) {
-		chunk.format = get_uint16BE(itr);
-		chunk.ntracks = get_uint16BE(itr);
-		chunk.division = get_uint16BE(itr);
-		return true;
-	} else if ( chunk.isTrack() ) {
-		std::vector<char>::iterator itr_end = itr + chunk.length;
-		chunk.events.clear();
-		// parse events
-		uint32 b;
-		uint8 status = 0;
-		while ( itr != itr_end ) {
-			b = get_uint32VL(itr);
-			chunk.events.push_back(b);
-			if (((*itr) & 0x80) != 0) {
-				// not the running state
-				status = *itr;
-				++itr;
-			}
-			switch(status & 0xf0) {
-			case 0x80:
-			case 0x90: // note on
-			case 0xa0:
-			case 0xb0: // control change
-			case 0xe0: // pitch bend
-				b = *itr;
-				++itr;
-				b <<= 8;
-				b |= *itr;
-				++itr;
-				chunk.events.push_back(b);
-				break;
-			case 0xc0: // prog. change
-			case 0xd0: // ch. pressure
-				b = *itr;
-				++itr;
-				chunk.events.push_back(b);
-				break;
-			case 0xf0: // Sys Ex | Meta
-				switch(status) {
-				case 0xf0: // sys ex
-					b = get_uint32VL(itr);
-					chunk.events.push_back(*itr);
-					++itr;
-					for(uint32 i = 0; i < b; ++i) {
-						chunk.events.push_back(*itr);
-						++itr;
-					}
-					break;
-				case 0xff: // meta
-					b = *itr;
-					++itr;
-					switch(b) {
-					case 0x01:
-					case 0x02:
-					case 0x03:
-					case 0x04:
-					case 0x05:
-					case 0x06:
-					case 0x07:
-					case 0x7f:
-						chunk.events.push_back(get_uint32VL(itr));
-						break;
-					case 0x2f:
-						// 0
-						break;
-					case 0x51:
-						for(uint32 i = 0; i < 3; ++i) {
-							chunk.events.push_back(*itr);
-							++itr;
-						}
-						break;
-					case 0x54:
-						for(uint32 i = 0; i < 5; ++i) {
-							chunk.events.push_back(*itr);
-							++itr;
-						}
-						break;
-					case 0x58:
-						for(uint32 i = 0; i < 4; ++i) {
-							chunk.events.push_back(*itr);
-							++itr;
-						}
-						break;
-					case 0x59:
-						for(uint32 i = 0; i < 3; ++i) {
-							chunk.events.push_back(*itr);
-							++itr;
-						}
-						break;
-					default:
-						// error
-						break;
-					}
-					break;
-				}
-				break;
+class smf {
+	smfheader header;
+	std::vector<smftrack> tracks;
+
+	bool verify_signature(std::istreambuf_iterator<char> & itr, const std::string & sig) {
+		bool res = true;
+		for(auto i = sig.begin(); i != sig.end(); ++i, ++itr) {
+			res &= (*i == *itr);
+		}
+		return res;
+	}
+
+public:
+	smf(std::istreambuf_iterator<char> & itr) {
+		std::istreambuf_iterator<char>  end_itr;
+
+		if ( verify_signature(itr, "MThd") ) {
+			header = smfheader(itr);
+		}
+
+		while (itr != end_itr) {
+			if ( verify_signature(itr, "MTrk") ) {
+				tracks.push_back(smftrack(itr));
 			}
 		}
-		std::cout << "a track finished." << std::endl;
-		return true;
-	} else {
-		return false;
 	}
-}
-*/
+
+	uint16_t format() const {
+		return header.format;
+	}
+
+	int numoftracks() const {
+		return tracks.size();
+	}
+
+	const smftrack & track(int n) const {
+		return tracks[n];
+	}
+
+	friend std::ostream & operator<<(std::ostream & out, const smf & midi) {
+		out << "smf";
+		out << midi.header << std::endl;
+		for(auto i = midi.tracks.begin(); i != midi.tracks.end(); ++i) {
+			out << *i << std::endl;
+		}
+		return out;
+	}
+};
 
 int main(int argc, char **argv) {
 	std::ifstream ifile;
@@ -529,19 +468,58 @@ int main(int argc, char **argv) {
 		std::cerr << "失敗" << std::endl;
 		return -1;
 	}
-
 	std::istreambuf_iterator<char> smfbuf(ifile);
-	std::istreambuf_iterator<char> end_smfbuf;
-	std::vector<char> smf(smfbuf, end_smfbuf);
+
+	smf midi(smfbuf);
 	ifile.close();
 
-	std::cout << smf.size() << " bytes." << std::endl;
-	std::vector<SMFChunk> midi;
-	for(auto itr = smf.begin(); itr != smf.end(); ) {
-		midi.push_back(SMFChunk(itr));
-		std::cout << midi.back() << std::endl;
+	uint64_t gt = 0;
+	std::vector<smfevent>::const_iterator cursor[midi.numoftracks()], ends[midi.numoftracks()];
+	uint32_t remaining[midi.numoftracks()];
+	for(int i = 0; i < midi.numoftracks(); ++i) {
+		cursor[i] = midi.track(i).events.begin();
+		remaining[i] = cursor[i]->delta;
+		ends[i] = midi.track(i).events.end();
+	}
+	uint32_t mindelta;
+	bool alleot;
+	while (gt < 100000) {
+		mindelta = 0xffffffff;
+		alleot = true;
+		for(int i = 0; i < midi.numoftracks(); ++i) {
+			if ( cursor[i] != ends[i] ) {
+				if ( mindelta > remaining[i] ) {
+					mindelta = remaining[i] ;
+				}
+				alleot = false;
+			}
+		}
+		if ( alleot ) {
+			break;
+		} else {
+			std::cout << "min delta = " << mindelta << std::endl;
+		}
+		for(int i = 0; i < midi.numoftracks(); ++i) {
+			if ( cursor[i] == ends[i] )
+				continue;
+			remaining[i] -= mindelta;
+			while ( remaining[i] == 0 && cursor[i] != ends[i] ) {
+				//std::cout << *cursor[i] << ", ";
+				++cursor[i];
+				remaining[i] += cursor[i]->delta;
+			}
+			if ( cursor[i] != ends[i] )
+				std::cout << *cursor[i] << std::endl;
+		}
+		gt += mindelta;
+		for(int i = 0; i < midi.numoftracks(); ++i) {
+			std::cout << std::dec << remaining[i] << ", ";
+		}
+		std::cout << std::endl;
+		std::cout << "gt = " << gt << std::endl;
 	}
 
-	std::cout << "done. " << std::endl;
+	std::cout << " done. " << std::endl;
+
 	return 0;
 }
