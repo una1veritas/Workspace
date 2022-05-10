@@ -42,3 +42,207 @@ uint32_t smf::get_uint32VLQ(std::istreambuf_iterator<char> & itr) {
 	}
 	return res;
 }
+
+smf::event::event(std::istreambuf_iterator<char> & itr, uint8_t laststatus) {
+	delta = get_uint32VLQ(itr);
+	status = laststatus;
+	if (((*itr) & 0x80) != 0) {
+		status = *itr;
+		++itr;
+	}
+	uint8_t type;
+	uint32_t len;
+	type = status & 0xf0;
+	if ( (smf::MIDI_NOTEOFF <= type && type <= smf::MIDI_CONTROLCHANGE) || (type == smf::MIDI_PITCHBEND) ) {
+		data.push_back(*itr);
+		++itr;
+		data.push_back(*itr);
+		++itr;
+	} else if ( type == smf::MIDI_PROGRAMCHANGE || type == smf::MIDI_CHPRESSURE ) {
+		data.push_back(*itr);
+		++itr;
+	} else if ( status == smf::SYSEX ) {
+		len = get_uint32VLQ(itr);
+		for(uint32_t i = 0; i < len; ++i) {
+			data.push_back(*itr);
+			++itr;
+		}
+	} else if ( status == smf::ESCSYSEX ) {
+		len = get_uint32VLQ(itr);
+		for(uint32_t i = 0; i < len; ++i) {
+			data.push_back(*itr);
+			++itr;
+		}
+	} else if ( status == smf::META ) {
+		data.push_back(*itr); // function
+		++itr;
+		len = get_uint32VLQ(itr);
+		for(uint32_t i = 0; i < len; ++i) {
+			data.push_back(*itr);
+			++itr;
+		}
+	} else {
+		std::cerr << "error!" << std::dec << delta << std::hex << status << std::endl;
+		// error.
+	}
+}
+
+std::ostream & smf::event::printOn(std::ostream & out) const {
+	uint8_t type = status & 0xf0;
+	if ( (smf::MIDI_NOTEOFF <= type) && (type <= smf::MIDI_PITCHBEND) ) {
+		out << "(";
+		if ( delta > 0 )
+			out << delta << ", ";
+		switch(type) {
+		case smf::MIDI_NOTEOFF:
+			out << "NOTEOFF:" << channel() << ", "
+			<< notename() << octave(); // << ", " << int(evt.data[1]);
+			break;
+		case smf::MIDI_NOTEON:
+			out << "NOTE ON:" << channel() << ", "
+			<< notename() << octave() << ", " << int(data[1]);
+			break;
+		case smf::MIDI_POLYKEYPRESSURE:
+			out << "POLYKEY PRESS, " << channel() << ", "
+			<< std::dec << int(data[0]) << ", " << int(data[1]);
+			break;
+		case smf::MIDI_CONTROLCHANGE:
+			out << "CTL CHANGE, " << channel() << ", "
+			<< std::dec << int(data[0]) << ", " << int(data[1]);
+			break;
+		case smf::MIDI_PROGRAMCHANGE:
+			out << "PRG CHANGE, " << channel() << ", "
+			<< std::dec << int(data[0]);
+			break;
+		case smf::MIDI_CHPRESSURE:
+			out << "CHANNEL PRESS, " << channel() << ", "
+			<< std::dec << int(data[0]);
+			break;
+		case smf::MIDI_PITCHBEND:
+			out << "CHANNEL PRESS, " << channel() << ", "
+			<< std::dec << (uint16_t(data[1])<<7 | data[0]);
+			break;
+		}
+		out << ")";
+	} else if ( status == smf::SYSEX ) {
+		out << "(";
+		if ( delta != 0 )
+			out << delta << ", ";
+		out<< "SYSEX " << std::hex << status << ' ';
+		for(auto i = data.begin(); i != data.end(); ++i) {
+			if ( isprint(*i) && !isspace(*i) ) {
+				out << char(*i);
+			} else {
+				out << std::hex << std::setw(2) << int(*i);
+			}
+		}
+		out << ")";
+	} else if ( status == smf::ESCSYSEX ) {
+		out << "(";
+		if ( delta != 0 )
+			out << delta << ", ";
+		out<< "ESCSYSEX ";
+		for(auto i = data.begin(); i != data.end(); ++i) {
+			if ( isprint(*i) && !isspace(*i) ) {
+				out << char(*i);
+			} else {
+				out << std::hex << std::setw(2) << int(*i);
+			}
+		}
+		out << ")";
+	} else if ( status == smf::META ) {
+		out << "(";
+		if ( delta != 0 )
+			out << std::dec << delta << ", ";
+		out<< "M: ";
+		uint32_t tempo;
+		switch (data[0]) {
+		case 0x01:
+			out << "text: ";
+			for(auto i = data.begin() + 1; i != data.end(); ++i) {
+				out << *i;
+			}
+			break;
+		case 0x02:
+			out << "copyright: ";
+			for(auto i = data.begin() + 1; i != data.end(); ++i) {
+				out << *i;
+			}
+			break;
+		case 0x03:
+			out << "seq. name: ";
+			for(auto i = data.begin() + 1; i != data.end(); ++i) {
+				out << *i;
+			}
+			break;
+		case 0x04:
+			out << "instr: ";
+			for(auto i = data.begin() + 1; i != data.end(); ++i) {
+				out << *i;
+			}
+			break;
+		case 0x05:
+			out << "lyrics: ";
+			for(auto i = data.begin() + 1; i != data.end(); ++i) {
+				out << *i;
+			}
+			break;
+		case 0x06:
+			out << "marker: ";
+			for(auto i = data.begin() + 1; i != data.end(); ++i) {
+				out << *i;
+			}
+			break;
+		case 0x07:
+			out << "cue: ";
+			for(auto i = data.begin() + 1; i != data.end(); ++i) {
+				out << *i;
+			}
+			break;
+		case 0x08:
+			out << "program: ";
+			for(auto i = data.begin() + 1; i != data.end(); ++i) {
+				out << *i;
+			}
+			break;
+		case 0x09:
+			out << "device: ";
+			for(auto i = data.begin() + 1; i != data.end(); ++i) {
+				out << *i;
+			}
+			break;
+		case 0x21:
+			out << "out port " << std::dec << int(data[1]);
+			break;
+		case 0x2f:
+			out << "eot";
+			break;
+		case 0x51:
+			tempo = uint8_t(data[1]);
+			tempo <<= 8;
+			tempo |= uint8_t(data[2]);
+			tempo <<= 8;
+			tempo |= uint8_t(data[3]);
+			out << "tempo 4th = " << std::dec << (60000000L/tempo);
+			break;
+		case 0x58:
+			out << "time signature " << std::dec << int(data[1]) << "/" << int(1<<data[2]);
+			out << ", " << int(data[3]) << " mclk., " << int(data[4]) << " 32nd";
+			break;
+		default:
+			for(auto i = data.begin(); i != data.end(); ++i) {
+				if ( isprint(*i) && !isspace(*i) ) {
+					out << char(*i);
+				} else {
+					out << std::hex << std::setw(2) << int(*i) << ' ';
+				}
+			}
+		}
+		out << ")";
+	} else {
+		std::cout << "smfevent::operator<< error!";
+		std::cout << std::dec << delta << ", " << std::hex << int(status) << std::endl;
+		// error.
+	}
+	return out;
+}
