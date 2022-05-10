@@ -59,6 +59,22 @@ struct smfevent {
 		META = 0xff, 	// Meta
 	};
 
+	static constexpr char * namesofnote[] = {
+			(char *) "C",
+			(char *) "C#",
+			(char *) "D",
+			(char *) "D#",
+			(char *) "E",
+			(char *) "F",
+			(char *) "F#",
+			(char *) "G",
+			(char *) "G#",
+			(char *) "A",
+			(char *) "A#",
+			(char *) "B",
+			(char *) "",
+	};
+
 	smfevent(void) {
 		clear();
 	}
@@ -125,15 +141,15 @@ struct smfevent {
 		return isMeta() && data[0] == 0x2f;
 	}
 
-	int channel(void) const {
-		return 0x0f & status;
-	}
-
 	bool isNote() const {
 		if ( (status & 0xe0) == 0x80 ) {
 			return true;
 		}
 		return false;
+	}
+
+	int channel(void) const {
+		return 0x0f & status;
 	}
 
 	int octave() const {
@@ -142,32 +158,16 @@ struct smfevent {
 		return -2;
 	}
 
-	static constexpr char * namesofnote[] = {
-			(char *) "C",
-			(char *) "C#",
-			(char *) "D",
-			(char *) "D#",
-			(char *) "E",
-			(char *) "F",
-			(char *) "F#",
-			(char *) "G",
-			(char *) "G#",
-			(char *) "A",
-			(char *) "A#",
-			(char *) "B",
-			(char *) "",
-	};
+	int notenumber() const {
+		if ( !isNote() )
+			return 128;
+		return int(data[0]);
+	}
 
 	const char * notename() const {
 		if ( !isNote() )
 			return namesofnote[12];
 		return namesofnote[data[0] % 12];
-	}
-
-	int notenumber() const {
-		if ( !isNote() )
-			return 128;
-		return int(data[0]);
 	}
 
 	friend std::ostream & operator<<(std::ostream & out, const smfevent & evt) {
@@ -372,14 +372,12 @@ public:
 
 	smftrack(std::istreambuf_iterator<char> & itr) {
 		length = get_uint32BE(itr);
-
 		//std::cout << "track" << std::endl;
 		events.clear();
 		uint8_t laststatus = 0;
 		do {
-			smfevent ev(itr, laststatus);
-			laststatus = ev.status;
-			events.push_back(ev);
+			events.push_back(smfevent(itr, laststatus));
+			laststatus = events.back().status;
 		} while ( !events.back().isEOT() );
 	}
 
