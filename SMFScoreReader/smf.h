@@ -74,7 +74,7 @@ struct event {
 		return status == META;
 	}
 
-	bool isEOT(void) const {
+	bool isEoT(void) const {
 		return isMeta() && data[0] == 0x2f;
 	}
 
@@ -163,7 +163,7 @@ public:
 			event ev(itr, laststatus);
 			laststatus = ev.status;
 			events.push_back(ev);
-		} while ( !events.back().isEOT() );
+		} while ( !events.back().isEoT() );
 	}
 
 	~track() {
@@ -224,7 +224,7 @@ public:
 		return header.format;
 	}
 
-	int numoftracks() const {
+	int noftracks() const {
 		return tracks.size();
 	}
 

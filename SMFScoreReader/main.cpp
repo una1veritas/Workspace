@@ -1,11 +1,5 @@
 #include <iostream>
-//#include <iomanip>
-//#include <string>
 #include <fstream>
-//#include <sstream>
-//#include <cctype>
-//#include <cstring>
-
 #include <vector>
 
 #include "smf.h"
@@ -25,45 +19,44 @@ int main(int argc, char **argv) {
 	ifile.close();
 
 	uint64_t globaltime = 0;
-	std::vector<smf::event>::const_iterator cursor[midi.numoftracks()], ends[midi.numoftracks()];
-	uint32_t remaining[midi.numoftracks()];
-	for(int i = 0; i < midi.numoftracks(); ++i) {
+	std::vector<smf::event>::const_iterator cursor[midi.noftracks()];
+	//, ends[midi.noftracks()];
+	uint32_t remaining[midi.noftracks()];
+	for(int i = 0; i < midi.noftracks(); ++i) {
 		cursor[i] = midi.track(i).events.begin();
+		while (cursor[i]->delta == 0 and ! cursor[i]->isEoT() )
+			++cursor[i];
 		remaining[i] = cursor[i]->delta;
-		ends[i] = midi.track(i).events.end();
+		//ends[i] = midi.track(i).events.end();
 	}
-	uint32_t mindelta;
-	bool alleot;
-	while (globaltime < 100000) {
-		mindelta = 0xffffffff;
-		alleot = true;
-		for(int i = 0; i < midi.numoftracks(); ++i) {
-			if ( cursor[i] != ends[i] ) {
-				if ( mindelta > remaining[i] ) {
-					mindelta = remaining[i] ;
-				}
-				alleot = false;
+	uint32_t minremaining;
+	while (true) {
+		minremaining = 0;
+		for(int i = 0; i < midi.noftracks(); ++i) {
+			if ( cursor[i]->isEoT() )
+				continue;
+			if ( minremaining == 0 or minremaining > remaining[i] ) {
+				minremaining = remaining[i] ;
 			}
 		}
-		if ( alleot ) {
+		if ( minremaining == 0 )
 			break;
-		} else {
-			std::cout << "min delta = " << mindelta << std::endl;
-		}
-		for(int i = 0; i < midi.numoftracks(); ++i) {
-			if ( cursor[i] == ends[i] )
+		std::cout << "min remaining = " << minremaining << std::endl;
+		for(int i = 0; i < midi.noftracks(); ++i) {
+			if ( cursor[i]->isEoT() )
 				continue;
-			remaining[i] -= mindelta;
-			while ( remaining[i] == 0 && cursor[i] != ends[i] ) {
-				//std::cout << *cursor[i] << ", ";
+			remaining[i] -= minremaining;
+			if ( remaining[i] == 0 ) {
+				// event occurs.
+			}
+			while ( remaining[i] == 0 && ! cursor[i]->isEoT() ) {
+				// event occurring simultaneously.
 				++cursor[i];
 				remaining[i] += cursor[i]->delta;
 			}
-			if ( cursor[i] != ends[i] )
-				std::cout << *cursor[i] << std::endl;
 		}
-		globaltime += mindelta;
-		for(int i = 0; i < midi.numoftracks(); ++i) {
+		globaltime += minremaining;
+		for(int i = 0; i < midi.noftracks(); ++i) {
 			std::cout << std::dec << remaining[i] << ", ";
 		}
 		std::cout << std::endl;
