@@ -4,6 +4,23 @@
 
 #include "smf.h"
 
+struct smfplayer {
+	smf::score & score;
+	uint64_t globaltime;
+	std::vector<std::vector<smf::event>::const_iterator> cursors;
+
+	smfplayer(smf::score & mid) : score(mid) {
+		initialize();
+	}
+
+	void initialize() {
+		globaltime = 0;
+		for(int i = 0; i < score.noftracks() ; ++i) {
+			//cursors.push_back(score.track(i).events.begin());
+		}
+	}
+};
+
 int main(int argc, char **argv) {
 	std::ifstream ifile;
 

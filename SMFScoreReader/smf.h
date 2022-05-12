@@ -145,17 +145,16 @@ public:
 	}
 };
 
+typedef std::vector<smf::event> track;
+/*
 class track {
-	uint32_t length;
-
 public:
 	std::vector<smf::event> events;
 
-	track(void): length(0) { }
+	track(void) : length(0) { }
 
 	track(std::istreambuf_iterator<char> & itr) {
-		length = get_uint32BE(itr);
-
+		get_uint32BE(itr);
 		//std::cout << "track" << std::endl;
 		events.clear();
 		uint8_t laststatus = 0;
@@ -171,13 +170,13 @@ public:
 	}
 
 	void clear(void) {
-		length = 0;
+		//length = 0;
 		events.clear();
 	}
 
 	friend std::ostream & operator<<(std::ostream & out, const track & chunk) {
 		out << "Track chunk";
-		out << "(length = " << chunk.length << ") ";
+		//out << "(length = " << chunk.length << ") ";
 		std::cout << std::endl;
 		for(auto i = chunk.events.begin(); i != chunk.events.end(); ++i) {
 			if ( i->isMeta() || i->isNote() ) {
@@ -192,6 +191,7 @@ public:
 		return out;
 	}
 };
+*/
 
 class score {
 	smf::header header;
@@ -215,9 +215,22 @@ public:
 
 		while (itr != end_itr) {
 			if ( verify_signature(itr, "MTrk") ) {
-				tracks.push_back(smf::track(itr));
+				get_uint32BE(itr);
+				//std::cout << "track" << std::endl;
+				tracks.push_back(std::vector<event>());
+				uint8_t laststatus = 0;
+				do {
+					event ev(itr, laststatus);
+					laststatus = ev.status;
+					tracks.back().push_back(ev);
+				} while ( !tracks.back().back().isEoT() );
+
 			}
 		}
+	}
+
+	std::vector<event> & track(int i) {
+		return tracks[i];
 	}
 
 	uint16_t format() const {
@@ -228,15 +241,11 @@ public:
 		return tracks.size();
 	}
 
-	const track & track(int n) const {
-		return tracks[n];
-	}
-
 	friend std::ostream & operator<<(std::ostream & out, const score & midi) {
 		out << "smf";
 		out << midi.header << std::endl;
 		for(auto i = midi.tracks.begin(); i != midi.tracks.end(); ++i) {
-			out << *i << std::endl;
+			out << "track " << i->size() << std::endl;
 		}
 		return out;
 	}
