@@ -4,23 +4,6 @@
 
 #include "smf.h"
 
-struct smfplayer {
-	smf::score & score;
-	uint64_t globaltime;
-	std::vector<std::vector<smf::event>::const_iterator> cursors;
-
-	smfplayer(smf::score & mid) : score(mid) {
-		initialize();
-	}
-
-	void initialize() {
-		globaltime = 0;
-		for(int i = 0; i < score.noftracks() ; ++i) {
-			//cursors.push_back(score.track(i).events.begin());
-		}
-	}
-};
-
 int main(int argc, char **argv) {
 	std::ifstream ifile;
 
@@ -35,12 +18,16 @@ int main(int argc, char **argv) {
 	smf::score midi(smfbuf);
 	ifile.close();
 
+	std::cout << midi << std::endl;
+
+	return 0;
+
 	uint64_t globaltime = 0;
 	std::vector<smf::event>::const_iterator cursor[midi.noftracks()];
 	//, ends[midi.noftracks()];
 	uint32_t remaining[midi.noftracks()];
 	for(int i = 0; i < midi.noftracks(); ++i) {
-		cursor[i] = midi.track(i).events.begin();
+		cursor[i] = midi.track(i).cbegin();
 		while (cursor[i]->delta == 0 and ! cursor[i]->isEoT() )
 			++cursor[i];
 		remaining[i] = cursor[i]->delta;

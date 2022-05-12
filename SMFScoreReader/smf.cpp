@@ -154,68 +154,50 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 		out << "(";
 		if ( delta != 0 )
 			out << std::dec << delta << ", ";
-		out<< "M: ";
+		out<< "M ";
 		uint32_t tempo;
 		switch (data[0]) {
 		case 0x01:
 			out << "text: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			printData(out, 1);
 			break;
 		case 0x02:
-			out << "copyright: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			out << "(c): ";
+			printData(out, 1);
 			break;
 		case 0x03:
-			out << "seq. name: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			out << "seq.name: ";
+			printData(out, 1);
 			break;
 		case 0x04:
 			out << "instr: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			printData(out, 1);
 			break;
 		case 0x05:
 			out << "lyrics: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			printData(out, 1);
 			break;
 		case 0x06:
 			out << "marker: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			printData(out, 1);
 			break;
 		case 0x07:
 			out << "cue: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			printData(out, 1);
 			break;
 		case 0x08:
-			out << "program: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			out << "prog.: ";
+			printData(out, 1);
 			break;
 		case 0x09:
-			out << "device: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			out << "dev.: ";
+			printData(out, 1);
 			break;
 		case 0x21:
 			out << "out port " << std::dec << int(data[1]);
 			break;
 		case 0x2f:
-			out << "eot";
+			out << "EoT";
 			break;
 		case 0x51:
 			tempo = uint8_t(data[1]);
@@ -226,7 +208,7 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 			out << "tempo 4th = " << std::dec << (60000000L/tempo);
 			break;
 		case 0x58:
-			out << "time signature " << std::dec << int(data[1]) << "/" << int(1<<data[2]);
+			out << "time sig.: " << std::dec << int(data[1]) << "/" << int(1<<data[2]);
 			out << ", " << int(data[3]) << " mclk., " << int(data[4]) << " 32nd";
 			break;
 		default:

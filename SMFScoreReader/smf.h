@@ -108,6 +108,14 @@ struct event {
 	}
 
 	std::ostream & printOn(std::ostream & out) const;
+
+	std::ostream & printData(std::ostream & out, uint32_t offset = 1) const {
+		for(auto i = data.cbegin() + offset; i != data.cend(); ++i) {
+			out << *i;
+		}
+		return out;
+	}
+
 	friend std::ostream & operator<<(std::ostream & out, const event & evt) {
 		return evt.printOn(out);
 	}
@@ -145,7 +153,6 @@ public:
 	}
 };
 
-typedef std::vector<smf::event> track;
 /*
 class track {
 public:
@@ -193,6 +200,8 @@ public:
 };
 */
 
+typedef std::vector<smf::event> track;
+
 class score {
 	smf::header header;
 	std::vector<track> tracks;
@@ -229,23 +238,27 @@ public:
 		}
 	}
 
-	std::vector<event> & track(int i) {
-		return tracks[i];
-	}
-
 	uint16_t format() const {
 		return header.format;
 	}
 
-	int noftracks() const {
+	uint16_t noftracks() const {
 		return tracks.size();
+	}
+
+	track & track(int i) {
+		return tracks[i];
 	}
 
 	friend std::ostream & operator<<(std::ostream & out, const score & midi) {
 		out << "smf";
 		out << midi.header << std::endl;
-		for(auto i = midi.tracks.begin(); i != midi.tracks.end(); ++i) {
-			out << "track " << i->size() << std::endl;
+		for(uint16_t i = 0; i < midi.noftracks() ; ++i) {
+			out << "track " << i << ": ";
+			for(auto e = midi.tracks[i].cbegin(); e != midi.tracks[i].end() ; ++e) {
+				out << *e;
+			}
+			out << std::endl;
 		}
 		return out;
 	}
