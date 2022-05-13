@@ -139,13 +139,6 @@ public:
 		division = get_uint16BE(itr);
 	}
 
-	void clear(void) {
-		length = 0;
-		format = 0;
-		ntracks = 0;
-		division = 0;
-	}
-
 	friend std::ostream & operator<<(std::ostream & out, const header & chunk) {
 		out << "Header";
 		out << "(format = " << chunk.format << ", ntracks = " << chunk.ntracks << ", division = " << chunk.division << ") ";

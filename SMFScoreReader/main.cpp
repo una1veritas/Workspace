@@ -20,18 +20,14 @@ int main(int argc, char **argv) {
 
 	std::cout << midi << std::endl;
 
-	return 0;
-
 	uint64_t globaltime = 0;
 	std::vector<smf::event>::const_iterator cursor[midi.noftracks()];
-	//, ends[midi.noftracks()];
 	uint32_t remaining[midi.noftracks()];
 	for(int i = 0; i < midi.noftracks(); ++i) {
 		cursor[i] = midi.track(i).cbegin();
 		while (cursor[i]->delta == 0 and ! cursor[i]->isEoT() )
 			++cursor[i];
 		remaining[i] = cursor[i]->delta;
-		//ends[i] = midi.track(i).events.end();
 	}
 	uint32_t minremaining;
 	while (true) {
