@@ -78,6 +78,22 @@ struct event {
 		return isMeta() && data[0] == 0x2f;
 	}
 
+	bool isTempo() const {
+		return isMeta() && (data[0] == 0x51);
+	}
+
+	uint32_t tempo() const {
+		if ( isTempo() )
+			return 0;
+		uint32_t tmp = 0;
+		tmp = uint8_t(data[1]);
+		tmp <<= 8;
+		tmp |= uint8_t(data[2]);
+		tmp <<= 8;
+		tmp |= uint8_t(data[3]);
+		return tmp;
+	}
+
 	bool isNote() const {
 		if ( (status & 0xe0) == 0x80 ) {
 			return true;
@@ -241,8 +257,12 @@ public:
 		return smfformat;
 	}
 
+	bool isSMPTE() const {
+		return (division & (uint16_t(1)<<15)) != 0;
+	}
+
 	uint16_t resolution() const {
-		if ( (division & (uint16_t(1)<<15)) == 0  ) {
+		if ( ! isSMPTE() ) {
 			return division;
 		} else {
 			uint16_t smpte = -char(division>>8);

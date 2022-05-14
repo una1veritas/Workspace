@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
 
 	midi.simplay();
 
-	std::cout << "resolution = " << midi.resolution() << " format = " << midi.format() << std::endl;
+	std::cout << "SMPTE " << midi.isSMPTE() << " resolution = " << midi.resolution() << " format = " << midi.format() << std::endl;
 
 	return 0;
 }
