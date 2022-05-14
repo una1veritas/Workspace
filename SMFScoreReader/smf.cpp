@@ -239,7 +239,7 @@ void smf::score::simplay() {
 	for(int i = 0; i < noftracks(); ++i) {
 		trk[i].cursor = tracks[i].cbegin();
 	}
-	// zero delta header-events
+	// zero global time events
 	for(uint32_t i = 0; i < noftracks(); ++i) {
 		trk[i].to_go = 0;
 		while ( trk[i].cursor->deltaTime() == 0 && ! trk[i].cursor->isEoT() ) {
@@ -249,6 +249,7 @@ void smf::score::simplay() {
 		if ( trk[i].cursor->isEoT() )
 			continue;
 		trk[i].to_go = trk[i].cursor->deltaTime();
+		std::cout << i << ": " << *trk[i].cursor << std::endl;
 	}
 	uint64_t min_to_go;
 	while (true) {
@@ -259,8 +260,25 @@ void smf::score::simplay() {
 			if ( min_to_go == 0 or trk[i].to_go < min_to_go ) {
 				min_to_go = trk[i].to_go;
 			}
+			std::cout << i << ": " << *trk[i].cursor << std::endl;
 		}
+		std::cout << "min_to_go = " << min_to_go << std::endl;
 		if (min_to_go == 0)
 			break;
+		globaltime += min_to_go;
+		std::cout << "global = " << globaltime << std::endl;
+		for(uint32_t i = 0; i < noftracks(); ++i) {
+			if ( trk[i].cursor->isEoT() )
+				continue;
+			trk[i].to_go -= min_to_go;
+			if ( trk[i].to_go == 0 ) {
+				// events occur
+				++trk[i].cursor;
+				while ( trk[i].cursor->deltaTime() == 0 && ! trk[i].cursor->isEoT() )
+					++trk[i].cursor;
+			}
+			trk[i].to_go = trk[i].cursor->deltaTime();
+		}
 	}
+	std::cout << "finished." << std::endl;
 }

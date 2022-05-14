@@ -20,50 +20,9 @@ int main(int argc, char **argv) {
 
 	std::cout << midi << std::endl;
 
-	uint64_t globaltime = 0;
-	std::vector<smf::event>::const_iterator cursor[midi.noftracks()];
-	uint32_t remaining[midi.noftracks()];
-	for(int i = 0; i < midi.noftracks(); ++i) {
-		cursor[i] = midi.track(i).cbegin();
-		while (cursor[i]->delta == 0 and ! cursor[i]->isEoT() )
-			++cursor[i];
-		remaining[i] = cursor[i]->delta;
-	}
-	uint32_t minremaining;
-	while (true) {
-		minremaining = 0;
-		for(int i = 0; i < midi.noftracks(); ++i) {
-			if ( cursor[i]->isEoT() )
-				continue;
-			if ( minremaining == 0 or minremaining > remaining[i] ) {
-				minremaining = remaining[i] ;
-			}
-		}
-		if ( minremaining == 0 )
-			break;
-		std::cout << "min remaining = " << minremaining << std::endl;
-		for(int i = 0; i < midi.noftracks(); ++i) {
-			if ( cursor[i]->isEoT() )
-				continue;
-			remaining[i] -= minremaining;
-			if ( remaining[i] == 0 ) {
-				// event occurs.
-			}
-			while ( remaining[i] == 0 && ! cursor[i]->isEoT() ) {
-				// event occurring simultaneously.
-				++cursor[i];
-				remaining[i] += cursor[i]->delta;
-			}
-		}
-		globaltime += minremaining;
-		for(int i = 0; i < midi.noftracks(); ++i) {
-			std::cout << std::dec << remaining[i] << ", ";
-		}
-		std::cout << std::endl;
-		std::cout << "global time = " << globaltime << std::endl << std::endl;
-	}
+	midi.simplay();
 
-	std::cout << " done. " << std::endl;
+	std::cout << "resolution = " << midi.resolution() << " format = " << midi.format() << std::endl;
 
 	return 0;
 }

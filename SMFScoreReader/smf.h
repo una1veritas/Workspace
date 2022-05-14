@@ -126,7 +126,7 @@ struct event {
 
 };
 
-
+/*
 class header {
 	uint16_t length;
 
@@ -150,7 +150,6 @@ public:
 	}
 };
 
-/*
 class track {
 public:
 	std::vector<smf::event> events;
@@ -200,7 +199,7 @@ public:
 typedef std::vector<smf::event> track;
 
 class score {
-	smf::header header;
+	uint16_t length, smfformat, ntracks, division;
 	std::vector<track> tracks;
 
 	bool verify_signature(std::istreambuf_iterator<char> & itr, const std::string & sig) {
@@ -216,9 +215,12 @@ public:
 		std::istreambuf_iterator<char>  end_itr;
 
 		if ( verify_signature(itr, "MThd") ) {
-			header = smf::header(itr);
+			length = get_uint32BE(itr);
+			//std::cout << "header" << std::endl;
+			smfformat = get_uint16BE(itr);
+			ntracks = get_uint16BE(itr);
+			division = get_uint16BE(itr);
 		}
-
 		while (itr != end_itr) {
 			if ( verify_signature(itr, "MTrk") ) {
 				get_uint32BE(itr);
@@ -236,11 +238,21 @@ public:
 	}
 
 	uint16_t format() const {
-		return header.format;
+		return smfformat;
+	}
+
+	uint16_t resolution() const {
+		if ( (division & (uint16_t(1)<<15)) == 0  ) {
+			return division;
+		} else {
+			uint16_t smpte = -char(division>>8);
+			uint16_t tpf = division & 0xff;
+			return smpte * tpf;
+		}
 	}
 
 	uint16_t noftracks() const {
-		return tracks.size();
+		return ntracks;
 	}
 
 	track & track(int i) {
@@ -251,7 +263,7 @@ public:
 
 	friend std::ostream & operator<<(std::ostream & out, const score & midi) {
 		out << "smf";
-		out << midi.header << std::endl;
+		out << "(header: format = " << midi.format() << ", ntracks = " << midi.noftracks() << ", resolution = " << midi.resolution() << ") ";
 		for(uint16_t i = 0; i < midi.noftracks() ; ++i) {
 			out << "track " << i << ": ";
 			for(auto e = midi.tracks[i].cbegin(); e != midi.tracks[i].end() ; ++e) {
