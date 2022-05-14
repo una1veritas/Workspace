@@ -20,8 +20,12 @@ int main(int argc, char **argv) {
 
 	std::cout << midi << std::endl;
 
-	midi.simplay();
-
+	std::vector<smf::note> notes = midi.simplay();
+	std::cout << notes.size() << std::endl;
+	for(auto i = notes.begin(); i != notes.end(); ++i) {
+		std::cout << *i;
+	}
+	std::cout << std::endl;
 	std::cout << "SMPTE " << midi.isSMPTE() << " resolution = " << midi.resolution() << " format = " << midi.format() << std::endl;
 
 	return 0;

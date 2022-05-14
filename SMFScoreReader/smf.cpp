@@ -229,30 +229,33 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 	return out;
 }
 
-void smf::score::simplay() {
+std::vector<smf::note> smf::score::simplay() {
 	struct trkinfo {
 		std::vector<smf::event>::const_iterator cursor;
 		uint32_t to_go;
 	} trk[tracks.size()];
-	uint64_t globaltime = 0;
-
+	std::vector<note> notes;
 	for(int i = 0; i < noftracks(); ++i) {
 		trk[i].cursor = tracks[i].cbegin();
 	}
+	uint64_t globaltime = 0;
 	// zero global time events
 	for(uint32_t i = 0; i < noftracks(); ++i) {
 		trk[i].to_go = 0;
 		while ( trk[i].cursor->deltaTime() == 0 && ! trk[i].cursor->isEoT() ) {
 			// issue events
-			if ( trk[i].cursor->isTempo() ) {
-				std::cout << *trk[i].cursor << std::endl;
+			std::cout << i << ": " << *trk[i].cursor << " ";
+			if ( trk[i].cursor->isNoteOn() ) {
+				const smf::event & e = *trk[i].cursor;
+				notes.push_back(note(globaltime, e, 0));
 			}
 			++trk[i].cursor;
 		}
+		std::cout << std::endl;
 		if ( trk[i].cursor->isEoT() )
 			continue;
 		trk[i].to_go = trk[i].cursor->deltaTime();
-		std::cout << i << ": " << *trk[i].cursor << std::endl;
+
 	}
 	uint64_t min_to_go;
 	while (true) {
@@ -264,9 +267,9 @@ void smf::score::simplay() {
 				min_to_go = trk[i].to_go;
 			}
 		}
-		std::cout << "min_to_go = " << min_to_go << std::endl;
+		//std::cout << "min_to_go = " << min_to_go << std::endl;
 		globaltime += min_to_go;
-		std::cout << "global = " << globaltime << std::endl;
+		//std::cout << "global = " << globaltime << std::endl;
 		if (min_to_go == 0)
 			break;
 		for(uint32_t i = 0; i < noftracks(); ++i) {
@@ -275,15 +278,23 @@ void smf::score::simplay() {
 			trk[i].to_go -= min_to_go;
 			if ( trk[i].to_go == 0 ) {
 				// events occur
-				if ( trk[i].cursor->isTempo() ) {
-					std::cout << *trk[i].cursor << " ";
+				if ( trk[i].cursor->isNoteOn() ) {
+					const smf::event & e = *trk[i].cursor;
+					notes.push_back(note(globaltime, e, 0));
 				}
 				++trk[i].cursor;
-				while ( trk[i].cursor->deltaTime() == 0 && ! trk[i].cursor->isEoT() )
+				while ( trk[i].cursor->deltaTime() == 0 && ! trk[i].cursor->isEoT() ) {
+					if ( trk[i].cursor->isNoteOn() ) {
+						const smf::event & e = *trk[i].cursor;
+						notes.push_back(note(globaltime, e, 0));
+					}
 					++trk[i].cursor;
+				}
+				//std::cout << std::endl;
 			}
-			//trk[i].to_go = trk[i].cursor->deltaTime();
+			trk[i].to_go = trk[i].cursor->deltaTime();
 		}
 	}
-	std::cout << "finished." << std::endl;
+	//std::cout << "finished." << std::endl;
+	return notes;
 }

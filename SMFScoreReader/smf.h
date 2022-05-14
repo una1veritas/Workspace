@@ -101,6 +101,17 @@ struct event {
 		return false;
 	}
 
+	bool isNoteOn() const {
+		if ( (status & 0xf0) == smf::MIDI_NOTEON ) {
+			return data[1] > 0;
+		}
+		return false;
+	}
+
+	bool isNoteOff() const {
+		return (status & 0xf0) == smf::MIDI_NOTEOFF;
+	}
+
 	int channel(void) const {
 		return 0x0f & status;
 	}
@@ -213,6 +224,19 @@ public:
 */
 
 typedef std::vector<smf::event> track;
+struct note {
+	uint32_t abstime;
+	const smf::event & evt;
+	uint32_t duration;
+
+	note(uint32_t t, const smf::event & e, uint32_t d) : abstime(t), evt(e), duration(d) { }
+	friend std::ostream & operator<<(std::ostream & out, const note & n) {
+		out << "[";
+		out << n.abstime << ", " << n.evt.channel() << "." << n.evt.notename() << n.evt.octave() << ", " << n.duration;
+		out << "]";
+		return out;
+	}
+};
 
 class score {
 	uint16_t length, smfformat, ntracks, division;
@@ -279,18 +303,19 @@ public:
 		return tracks[i];
 	}
 
-	void simplay();
+	std::vector<note> simplay();
 
 	friend std::ostream & operator<<(std::ostream & out, const score & midi) {
 		out << "smf";
 		out << "(header: format = " << midi.format() << ", ntracks = " << midi.noftracks() << ", resolution = " << midi.resolution() << ") ";
 		for(uint16_t i = 0; i < midi.noftracks() ; ++i) {
-			out << "track " << i << ": ";
+			out << std::endl << "track " << i << ": ";
 			for(auto e = midi.tracks[i].cbegin(); e != midi.tracks[i].end() ; ++e) {
 				out << *e;
 			}
-			out << std::endl;
+
 		}
+		out << std::endl;
 		return out;
 	}
 };
