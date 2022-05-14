@@ -228,3 +228,39 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 	}
 	return out;
 }
+
+void smf::score::simplay() {
+	struct trkinfo {
+		std::vector<smf::event>::const_iterator cursor;
+		uint32_t to_go;
+	} trk[tracks.size()];
+	uint64_t globaltime = 0;
+
+	for(int i = 0; i < noftracks(); ++i) {
+		trk[i].cursor = tracks[i].cbegin();
+	}
+	// zero delta header-events
+	for(uint32_t i = 0; i < noftracks(); ++i) {
+		trk[i].to_go = 0;
+		while ( trk[i].cursor->deltaTime() == 0 && ! trk[i].cursor->isEoT() ) {
+			// issue events
+			++trk[i].cursor;
+		}
+		if ( trk[i].cursor->isEoT() )
+			continue;
+		trk[i].to_go = trk[i].cursor->deltaTime();
+	}
+	uint64_t min_to_go;
+	while (true) {
+		min_to_go = 0;
+		for(uint32_t i = 0; i < noftracks(); ++i) {
+			if ( trk[i].cursor->isEoT() )
+				continue;
+			if ( min_to_go == 0 or trk[i].to_go < min_to_go ) {
+				min_to_go = trk[i].to_go;
+			}
+		}
+		if (min_to_go == 0)
+			break;
+	}
+}

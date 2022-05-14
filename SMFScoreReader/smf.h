@@ -95,6 +95,10 @@ struct event {
 		return -2;
 	}
 
+	const uint32_t & deltaTime() const {
+		return delta;
+	}
+
 	const char * notename() const {
 		if ( !isNote() )
 			return namesofnote[12];
@@ -242,6 +246,8 @@ public:
 	track & track(int i) {
 		return tracks[i];
 	}
+
+	void simplay();
 
 	friend std::ostream & operator<<(std::ostream & out, const score & midi) {
 		out << "smf";
