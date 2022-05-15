@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <deque>
 
 #include "smf.h"
 
@@ -229,12 +230,40 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 	return out;
 }
 
-std::vector<smf::note> smf::score::simplay() {
+std::vector<smf::note> & smf::score::playout(std::vector<smf::note> & notes) {
 	struct trkinfo {
 		std::vector<smf::event>::const_iterator cursor;
 		uint32_t to_go;
 	} trk[tracks.size()];
-	std::vector<note> notes;
+	struct soundgenerator {
+		struct {
+			bool noteon;
+			uint64_t time;
+			note * ptr;
+		} key[128];
+
+		soundgenerator() {
+			for(int i = 0; i < 128; ++i) {
+				key[i].noteon = false;
+				key[i].time = 0;
+			}
+		}
+
+		void on(uint64_t gt, const smf::event & ev, note * noteitr) {
+			key[ev.notenumber()].noteon = true;
+			key[ev.notenumber()].time = gt;
+			key[ev.notenumber()].ptr = noteitr;
+		}
+
+		void off(uint64_t gt, const smf::event & ev) {
+			if ( key[ev.notenumber()].noteon) {
+				key[ev.notenumber()].noteon = false;
+				key[ev.notenumber()].ptr->duration = gt - key[ev.notenumber()].time;
+				key[ev.notenumber()].time = 0;
+			}
+		}
+	} sg[16];
+
 	for(int i = 0; i < noftracks(); ++i) {
 		trk[i].cursor = tracks[i].cbegin();
 	}
@@ -246,8 +275,10 @@ std::vector<smf::note> smf::score::simplay() {
 			// issue events
 			std::cout << i << ": " << *trk[i].cursor << " ";
 			if ( trk[i].cursor->isNoteOn() ) {
-				const smf::event & e = *trk[i].cursor;
-				notes.push_back(note(globaltime, e, 0));
+				notes.push_back(note(globaltime, *trk[i].cursor, 0));
+				sg[trk[i].cursor->channel()].on(globaltime, *trk[i].cursor, &notes.back());
+			} else if ( trk[i].cursor->isNoteOff() ) {
+				sg[trk[i].cursor->channel()].off(globaltime, *trk[i].cursor);
 			}
 			++trk[i].cursor;
 		}
@@ -269,7 +300,7 @@ std::vector<smf::note> smf::score::simplay() {
 		}
 		//std::cout << "min_to_go = " << min_to_go << std::endl;
 		globaltime += min_to_go;
-		//std::cout << "global = " << globaltime << std::endl;
+		std::cout << "global = " << globaltime << std::endl;
 		if (min_to_go == 0)
 			break;
 		for(uint32_t i = 0; i < noftracks(); ++i) {
@@ -277,19 +308,21 @@ std::vector<smf::note> smf::score::simplay() {
 				continue;
 			trk[i].to_go -= min_to_go;
 			if ( trk[i].to_go == 0 ) {
-				// events occur
-				if ( trk[i].cursor->isNoteOn() ) {
-					const smf::event & e = *trk[i].cursor;
-					notes.push_back(note(globaltime, e, 0));
-				}
-				++trk[i].cursor;
-				while ( trk[i].cursor->deltaTime() == 0 && ! trk[i].cursor->isEoT() ) {
+				do {
+					// events occur
 					if ( trk[i].cursor->isNoteOn() ) {
-						const smf::event & e = *trk[i].cursor;
-						notes.push_back(note(globaltime, e, 0));
+						notes.push_back(note(globaltime, *trk[i].cursor, 0));
+					} else if ( trk[i].cursor->isNoteOff() ) {
+						for(auto ptr = notes.rbegin(); ptr != notes.rend(); ++ptr) {
+							if ( ptr->channel == trk[i].cursor->channel()
+									and ptr->number == trk[i].cursor->notenumber() ) {
+								ptr->duration = globaltime - ptr->time;
+								break;
+							}
+						}
 					}
 					++trk[i].cursor;
-				}
+				} while ( trk[i].cursor->deltaTime() == 0 && ! trk[i].cursor->isEoT() );
 				//std::cout << std::endl;
 			}
 			trk[i].to_go = trk[i].cursor->deltaTime();

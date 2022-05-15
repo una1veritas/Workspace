@@ -225,14 +225,15 @@ public:
 
 typedef std::vector<smf::event> track;
 struct note {
-	uint32_t abstime;
-	const smf::event & evt;
+	uint32_t time;
+	uint8_t channel;
+	uint8_t number;
 	uint32_t duration;
 
-	note(uint32_t t, const smf::event & e, uint32_t d) : abstime(t), evt(e), duration(d) { }
+	note(uint32_t t, const smf::event & e, uint32_t d) : time(t), channel(e.channel()), number(e.notenumber()), duration(d) { }
 	friend std::ostream & operator<<(std::ostream & out, const note & n) {
 		out << "[";
-		out << n.abstime << ", " << n.evt.channel() << "." << n.evt.notename() << n.evt.octave() << ", " << n.duration;
+		out << std::dec << n.time << ", " << int(n.channel) << "." << int(n.number) << ", " << n.duration;
 		out << "]";
 		return out;
 	}
@@ -303,7 +304,7 @@ public:
 		return tracks[i];
 	}
 
-	std::vector<note> simplay();
+	std::vector<note> & playout(std::vector<note> & out);
 
 	friend std::ostream & operator<<(std::ostream & out, const score & midi) {
 		out << "smf";

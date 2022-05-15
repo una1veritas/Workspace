@@ -20,7 +20,8 @@ int main(int argc, char **argv) {
 
 	std::cout << midi << std::endl;
 
-	std::vector<smf::note> notes = midi.simplay();
+	std::vector<smf::note> notes;
+	midi.playout(notes);
 	std::cout << notes.size() << std::endl;
 	for(auto i = notes.begin(); i != notes.end(); ++i) {
 		std::cout << *i;
