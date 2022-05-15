@@ -24,7 +24,10 @@ int main(int argc, char **argv) {
 	midi.playout(notes);
 	std::cout << notes.size() << std::endl;
 	for(auto i = notes.begin(); i != notes.end(); ++i) {
-		std::cout << *i;
+		std::cout << *i ;
+		if ( i != notes.begin() and i->time < (i+1)->time ) {
+			std::cout << std::endl;
+		}
 	}
 	std::cout << std::endl;
 	std::cout << "SMPTE " << midi.isSMPTE() << " resolution = " << midi.resolution() << " format = " << midi.format() << std::endl;

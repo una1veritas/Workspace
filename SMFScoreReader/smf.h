@@ -19,6 +19,9 @@ uint32_t get_uint32BE(std::istreambuf_iterator<char> & itr);
 uint32_t get_uint16BE(std::istreambuf_iterator<char> & itr);
 uint32_t get_uint32VLQ(std::istreambuf_iterator<char> & itr);
 
+int octave(uint8_t notenum);
+const char * notename(uint8_t notenum);
+
 enum EVENT_TYPE {
 	MIDI_NOTEOFF = 0x80,
 	MIDI_NOTEON = 0x90,
@@ -32,27 +35,26 @@ enum EVENT_TYPE {
 	META = 0xff, 	// Meta
 };
 
+static constexpr char * namesofnote[] = {
+		(char *) "C",
+		(char *) "C#",
+		(char *) "D",
+		(char *) "D#",
+		(char *) "E",
+		(char *) "F",
+		(char *) "F#",
+		(char *) "G",
+		(char *) "G#",
+		(char *) "A",
+		(char *) "A#",
+		(char *) "B",
+		(char *) "",
+};
+
 struct event {
 	uint32_t delta;
 	uint8_t  status;
 	std::string data;
-
-
-	static constexpr char * namesofnote[] = {
-			(char *) "C",
-			(char *) "C#",
-			(char *) "D",
-			(char *) "D#",
-			(char *) "E",
-			(char *) "F",
-			(char *) "F#",
-			(char *) "G",
-			(char *) "G#",
-			(char *) "A",
-			(char *) "A#",
-			(char *) "B",
-			(char *) "",
-	};
 
 	event(void) {
 		clear();
@@ -118,7 +120,7 @@ struct event {
 
 	int octave() const {
 		if ( isNote() )
-			return data[0] / 12;
+			return smf::octave(data[0]);
 		return -2;
 	}
 
@@ -129,7 +131,7 @@ struct event {
 	const char * notename() const {
 		if ( !isNote() )
 			return namesofnote[12];
-		return namesofnote[data[0] % 12];
+		return smf::notename(data[0]);
 	}
 
 	int notenumber() const {
@@ -230,10 +232,11 @@ struct note {
 	uint8_t number;
 	uint32_t duration;
 
-	note(uint32_t t, const smf::event & e, uint32_t d) : time(t), channel(e.channel()), number(e.notenumber()), duration(d) { }
+	note(uint32_t t, const smf::event & e, uint32_t d = 0) : time(t), channel(e.channel()), number(e.notenumber()), duration(d) { }
 	friend std::ostream & operator<<(std::ostream & out, const note & n) {
 		out << "[";
-		out << std::dec << n.time << ", " << int(n.channel) << "." << int(n.number) << ", " << n.duration;
+		out << std::dec << n.time << ", " << int(n.channel) << ".";
+		out << smf::notename(n.number) << smf::octave(n.number) << ", " << n.duration;
 		out << "]";
 		return out;
 	}
@@ -308,9 +311,9 @@ public:
 
 	friend std::ostream & operator<<(std::ostream & out, const score & midi) {
 		out << "smf";
-		out << "(header: format = " << midi.format() << ", ntracks = " << midi.noftracks() << ", resolution = " << midi.resolution() << ") ";
+		out << "(header: format = " << std::dec << midi.format() << ", ntracks = " << midi.noftracks() << ", resolution = " << midi.resolution() << ") ";
 		for(uint16_t i = 0; i < midi.noftracks() ; ++i) {
-			out << std::endl << "track " << i << ": ";
+			out << std::endl << "track " << std::dec << i << ": ";
 			for(auto e = midi.tracks[i].cbegin(); e != midi.tracks[i].end() ; ++e) {
 				out << *e;
 			}
