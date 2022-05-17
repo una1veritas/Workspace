@@ -225,7 +225,6 @@ public:
 };
 */
 
-typedef std::vector<smf::event> track;
 struct note {
 	uint32_t time;
 	uint8_t channel;
@@ -242,6 +241,7 @@ struct note {
 	}
 };
 
+typedef std::vector<smf::event> track;
 class score {
 	uint16_t length, smfformat, ntracks, division;
 	std::vector<track> tracks;
@@ -307,7 +307,7 @@ public:
 		return tracks[i];
 	}
 
-	std::vector<note> & playout(std::vector<note> & out);
+	std::vector<smf::note> notes();
 
 	friend std::ostream & operator<<(std::ostream & out, const score & midi) {
 		out << "smf";

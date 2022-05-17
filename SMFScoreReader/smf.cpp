@@ -253,12 +253,18 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 	return out;
 }
 
-std::vector<smf::note> & smf::score::playout(std::vector<smf::note> & notes) {
+std::vector<smf::note> smf::score::notes() {
+	std::vector<smf::note> noteseq;
 	struct trkinfo {
 		std::vector<smf::event>::const_iterator cursor;
 		uint32_t to_go;
 	} trk[tracks.size()];
-	std::deque<uint32_t> seq[16];
+	struct {
+		struct {
+			bool noteon;
+			uint64_t index;
+		} key[128];
+	} emu[16];
 
 	for(int i = 0; i < noftracks(); ++i) {
 		trk[i].cursor = tracks[i].cbegin();
@@ -272,15 +278,14 @@ std::vector<smf::note> & smf::score::playout(std::vector<smf::note> & notes) {
 			const smf::event & evt = *trk[i].cursor;
 			std::cout << i << ": " << evt << " ";
 			if ( evt.isNoteOn() ) {
-				notes.push_back(note(globaltime, evt));
-				seq[evt.channel()].push_back(notes.size()-1);
+				noteseq.push_back(note(globaltime, evt));
+				emu[evt.channel()].key[evt.notenumber()].noteon = true;
+				emu[evt.channel()].key[evt.notenumber()].index = noteseq.size() - 1;
 			} else if ( evt.isNoteOff() ) {
-				for(auto i = seq[evt.channel()].begin(); i != seq[evt.channel()].end(); ++i) {
-					smf::note & n = notes[*i];
-					if ( n.channel == evt.channel() and n.number == evt.notenumber() ) {
-						n.duration = globaltime - n.time;
-						break;
-					}
+				if ( emu[evt.channel()].key[evt.notenumber()].noteon ) {
+					const uint64_t & idx = emu[evt.channel()].key[evt.notenumber()].index;
+					noteseq[idx].duration = globaltime - noteseq[idx].time;
+					emu[evt.channel()].key[evt.notenumber()].noteon = false;
 				}
 			}
 			++trk[i].cursor;
@@ -318,18 +323,16 @@ std::vector<smf::note> & smf::score::playout(std::vector<smf::note> & notes) {
 					// events occur
 
 					if ( evt.isNoteOn() ) {
-						notes.push_back(note(globaltime, evt));
-						seq[evt.channel()].push_back(notes.size()-1);
+						noteseq.push_back(note(globaltime, evt));
+						emu[evt.channel()].key[evt.notenumber()].noteon = true;
+						emu[evt.channel()].key[evt.notenumber()].index = noteseq.size() - 1;
 					} else if ( evt.isNoteOff() ) {
-						for(auto i = seq[evt.channel()].begin(); i != seq[evt.channel()].end(); ++i) {
-							smf::note & n = notes[*i];
-							if ( n.channel == evt.channel() and n.number == evt.notenumber() ) {
-								n.duration = globaltime - n.time;
-								break;
-							}
+						if ( emu[evt.channel()].key[evt.notenumber()].noteon ) {
+							const uint64_t & idx = emu[evt.channel()].key[evt.notenumber()].index;
+							noteseq[idx].duration = globaltime - noteseq[idx].time;
+							emu[evt.channel()].key[evt.notenumber()].noteon = false;
 						}
 					}
-
 					++trk[i].cursor;
 				} while ( trk[i].cursor->deltaTime() == 0 && ! trk[i].cursor->isEoT() );
 				//std::cout << std::endl;
@@ -339,5 +342,5 @@ std::vector<smf::note> & smf::score::playout(std::vector<smf::note> & notes) {
 		}
 	}
 
-	return notes;
+	return noteseq;
 }
