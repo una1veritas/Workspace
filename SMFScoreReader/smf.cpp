@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <deque>
 
 #include "smf.h"
 
@@ -41,6 +42,14 @@ uint32_t smf::get_uint32VLQ(std::istreambuf_iterator<char> & itr) {
 			break;
 	}
 	return res;
+}
+
+int smf::octave(uint8_t notenum) {
+	return (notenum / 12) - 1;
+}
+
+const char * smf::notename(uint8_t notenum) {
+	return smf::namesofnote[notenum % 12];
 }
 
 smf::event::event(std::istreambuf_iterator<char> & itr, uint8_t laststatus) {
@@ -154,68 +163,50 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 		out << "(";
 		if ( delta != 0 )
 			out << std::dec << delta << ", ";
-		out<< "M: ";
+		out<< "M ";
 		uint32_t tempo;
 		switch (data[0]) {
 		case 0x01:
 			out << "text: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			printData(out, 1);
 			break;
 		case 0x02:
-			out << "copyright: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			out << "(c): ";
+			printData(out, 1);
 			break;
 		case 0x03:
-			out << "seq. name: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			out << "seq.name: ";
+			printData(out, 1);
 			break;
 		case 0x04:
 			out << "instr: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			printData(out, 1);
 			break;
 		case 0x05:
 			out << "lyrics: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			printData(out, 1);
 			break;
 		case 0x06:
 			out << "marker: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			printData(out, 1);
 			break;
 		case 0x07:
 			out << "cue: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			printData(out, 1);
 			break;
 		case 0x08:
-			out << "program: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			out << "prog.: ";
+			printData(out, 1);
 			break;
 		case 0x09:
-			out << "device: ";
-			for(auto i = data.begin() + 1; i != data.end(); ++i) {
-				out << *i;
-			}
+			out << "dev.: ";
+			printData(out, 1);
 			break;
 		case 0x21:
 			out << "out port " << std::dec << int(data[1]);
 			break;
 		case 0x2f:
-			out << "eot";
+			out << "EoT";
 			break;
 		case 0x51:
 			tempo = uint8_t(data[1]);
@@ -226,8 +217,23 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 			out << "tempo 4th = " << std::dec << (60000000L/tempo);
 			break;
 		case 0x58:
-			out << "time signature " << std::dec << int(data[1]) << "/" << int(1<<data[2]);
+			out << "time sig.: " << std::dec << int(data[1]) << "/" << int(1<<data[2]);
 			out << ", " << int(data[3]) << " mclk., " << int(data[4]) << " 32nd";
+			break;
+		case 0x59:
+			out << "key sig.:";
+			if (data[0] == 0) {
+				out << "C ";
+			} else if (char(data[0]) < 0) {
+				out << int(-char(data[0])) << " flat(s) ";
+			} else {
+				out << int(data[0]) << "sharp(s) ";
+			}
+			if (data[1] == 0) {
+				out << "major";
+			} else {
+				out << "minor";
+			}
 			break;
 		default:
 			for(auto i = data.begin(); i != data.end(); ++i) {
@@ -245,4 +251,93 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 		// error.
 	}
 	return out;
+}
+
+std::vector<smf::note> & smf::score::playout(std::vector<smf::note> & notes) {
+	struct trkinfo {
+		std::vector<smf::event>::const_iterator cursor;
+		uint32_t to_go;
+	} trk[tracks.size()];
+	std::deque<uint32_t> seq[16];
+
+	for(int i = 0; i < noftracks(); ++i) {
+		trk[i].cursor = tracks[i].cbegin();
+	}
+	uint64_t globaltime = 0;
+	// zero global time events
+	for(uint32_t i = 0; i < noftracks(); ++i) {
+		trk[i].to_go = 0;
+		while ( trk[i].cursor->deltaTime() == 0 && ! trk[i].cursor->isEoT() ) {
+			// issue events
+			const smf::event & evt = *trk[i].cursor;
+			std::cout << i << ": " << evt << " ";
+			if ( evt.isNoteOn() ) {
+				notes.push_back(note(globaltime, evt));
+				seq[evt.channel()].push_back(notes.size()-1);
+			} else if ( evt.isNoteOff() ) {
+				for(auto i = seq[evt.channel()].begin(); i != seq[evt.channel()].end(); ++i) {
+					smf::note & n = notes[*i];
+					if ( n.channel == evt.channel() and n.number == evt.notenumber() ) {
+						n.duration = globaltime - n.time;
+						break;
+					}
+				}
+			}
+			++trk[i].cursor;
+		}
+		std::cout << std::endl;
+		if ( trk[i].cursor->isEoT() )
+			continue;
+		trk[i].to_go = trk[i].cursor->deltaTime();
+
+	}
+	uint64_t min_to_go;
+
+	while (true) {
+		min_to_go = 0;
+		for(uint32_t i = 0; i < noftracks(); ++i) {
+			if ( trk[i].cursor->isEoT() )
+				continue;
+			if ( min_to_go == 0 or trk[i].to_go < min_to_go ) {
+				min_to_go = trk[i].to_go;
+			}
+		}
+		//std::cout << "min_to_go = " << min_to_go << std::endl;
+		globaltime += min_to_go;
+		//std::cout << "global = " << globaltime << std::endl;
+		if (min_to_go == 0)
+			break;
+		for(uint32_t i = 0; i < noftracks(); ++i) {
+			if ( trk[i].cursor->isEoT() )
+				continue;
+			trk[i].to_go -= min_to_go;
+
+			if ( trk[i].to_go == 0 ) {
+				do {
+					const smf::event & evt = *trk[i].cursor;
+					// events occur
+
+					if ( evt.isNoteOn() ) {
+						notes.push_back(note(globaltime, evt));
+						seq[evt.channel()].push_back(notes.size()-1);
+					} else if ( evt.isNoteOff() ) {
+						for(auto i = seq[evt.channel()].begin(); i != seq[evt.channel()].end(); ++i) {
+							smf::note & n = notes[*i];
+							if ( n.channel == evt.channel() and n.number == evt.notenumber() ) {
+								n.duration = globaltime - n.time;
+								break;
+							}
+						}
+					}
+
+					++trk[i].cursor;
+				} while ( trk[i].cursor->deltaTime() == 0 && ! trk[i].cursor->isEoT() );
+				//std::cout << std::endl;
+				trk[i].to_go = trk[i].cursor->deltaTime();
+			}
+
+		}
+	}
+
+	return notes;
 }
