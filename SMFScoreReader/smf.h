@@ -232,6 +232,7 @@ struct note {
 	uint32_t duration;
 
 	note(uint32_t t, const smf::event & e, uint32_t d = 0) : time(t), channel(e.channel()), number(e.notenumber()), duration(d) { }
+
 	friend std::ostream & operator<<(std::ostream & out, const note & n) {
 		out << "[";
 		out << std::dec << n.time << ", " << int(n.channel) << ".";
@@ -241,10 +242,9 @@ struct note {
 	}
 };
 
-typedef std::vector<smf::event> track;
 class score {
 	uint16_t length, smfformat, ntracks, division;
-	std::vector<track> tracks;
+	std::vector<std::vector<smf::event>> tracks;
 
 	bool verify_signature(std::istreambuf_iterator<char> & itr, const std::string & sig) {
 		bool res = true;
@@ -303,7 +303,7 @@ public:
 		return ntracks;
 	}
 
-	track & track(int i) {
+	std::vector<smf::event> & track(int i) {
 		return tracks[i];
 	}
 
