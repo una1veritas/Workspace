@@ -13,9 +13,8 @@ int main(int argc, char **argv) {
 		std::cerr << "失敗" << std::endl;
 		return -1;
 	}
-	std::istreambuf_iterator<char> smfbuf(ifile);
 
-	smf::score midi(smfbuf);
+	smf::score midi(ifile);
 	ifile.close();
 
 	std::cout << midi << std::endl;

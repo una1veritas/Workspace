@@ -243,7 +243,7 @@ struct note {
 };
 
 class score {
-	uint16_t length, smfformat, ntracks, division;
+	uint16_t smfformat, ntracks, division;
 	std::vector<std::vector<smf::event>> tracks;
 
 	bool verify_signature(std::istreambuf_iterator<char> & itr, const std::string & sig) {
@@ -255,15 +255,22 @@ class score {
 	}
 
 public:
-	score(std::istreambuf_iterator<char> & itr) {
-		std::istreambuf_iterator<char>  end_itr;
+	score(std::istream & smffile) {
+		std::istreambuf_iterator<char> itr(smffile);
+		std::istreambuf_iterator<char> end_itr;
 
 		if ( verify_signature(itr, "MThd") ) {
-			length = get_uint32BE(itr);
-			//std::cout << "header" << std::endl;
+			get_uint32BE(itr);
+			// Always header length is 6.
 			smfformat = get_uint16BE(itr);
 			ntracks = get_uint16BE(itr);
 			division = get_uint16BE(itr);
+		} else {
+			smfformat = 0;
+			ntracks = 0;
+			division = 0;
+			tracks.clear();
+			return;
 		}
 		while (itr != end_itr) {
 			if ( verify_signature(itr, "MTrk") ) {
@@ -279,6 +286,12 @@ public:
 
 			}
 		}
+	}
+
+	operator bool() const {
+		if ( ntracks != 0 )
+			return true;
+		return false;
 	}
 
 	uint16_t format() const {

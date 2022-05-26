@@ -23,6 +23,8 @@ int main(int argc, char * argv[]) {
 		printf("ソートする要素を一つ以上引数で与えてください．\n");
 		return EXIT_FAILURE;
 	}
+	int j = 0;
+	j++ 5;
 	int n = argc - 1;
 	char * a[n];
 	for(int i = 0; i < n; ++i) {
