@@ -18,6 +18,7 @@ namespace smf {
 uint32_t get_uint32BE(std::istreambuf_iterator<char> & itr);
 uint32_t get_uint16BE(std::istreambuf_iterator<char> & itr);
 uint32_t get_uint32VLQ(std::istreambuf_iterator<char> & itr);
+bool check_str(const std::string & str, std::istreambuf_iterator<char> & itr);
 
 int octave(uint8_t notenum);
 const char * notename(uint8_t notenum);
@@ -55,6 +56,15 @@ struct event {
 	uint32_t delta;
 	uint8_t  status;
 	std::string data;
+
+
+	static int octave(uint8_t notenum) {
+		return (notenum / 12) - 1;
+	}
+
+	static const char * notename(uint8_t notenum) {
+		return smf::namesofnote[notenum % 12];
+	}
 
 	event(void) {
 		clear();
@@ -120,7 +130,7 @@ struct event {
 
 	int octave() const {
 		if ( isNote() )
-			return smf::octave(data[0]);
+			return smf::event::octave(data[0]);
 		return -2;
 	}
 
@@ -131,7 +141,7 @@ struct event {
 	const char * notename() const {
 		if ( !isNote() )
 			return namesofnote[12];
-		return smf::notename(data[0]);
+		return smf::event::notename(data[0]);
 	}
 
 	int notenumber() const {
@@ -236,7 +246,7 @@ struct note {
 	friend std::ostream & operator<<(std::ostream & out, const note & n) {
 		out << "[";
 		out << std::dec << n.time << ", " << int(n.channel) << ".";
-		out << smf::notename(n.number) << smf::octave(n.number) << ", " << n.duration;
+		out << smf::event::notename(n.number) << smf::event::octave(n.number) << ", " << n.duration;
 		out << "]";
 		return out;
 	}
@@ -246,22 +256,14 @@ class score {
 	uint16_t smfformat, ntracks, division;
 	std::vector<std::vector<smf::event>> tracks;
 
-	bool verify_signature(std::istreambuf_iterator<char> & itr, const std::string & sig) {
-		bool res = true;
-		for(auto i = sig.begin(); i != sig.end(); ++i, ++itr) {
-			res &= (*i == *itr);
-		}
-		return res;
-	}
-
 public:
 	score(std::istream & smffile) {
 		std::istreambuf_iterator<char> itr(smffile);
 		std::istreambuf_iterator<char> end_itr;
 
-		if ( verify_signature(itr, "MThd") ) {
+		if ( check_str("MThd", itr) ) {
 			get_uint32BE(itr);
-			// Always header length is 6.
+			// The header length is always 6.
 			smfformat = get_uint16BE(itr);
 			ntracks = get_uint16BE(itr);
 			division = get_uint16BE(itr);
@@ -273,7 +275,7 @@ public:
 			return;
 		}
 		while (itr != end_itr) {
-			if ( verify_signature(itr, "MTrk") ) {
+			if ( check_str("MTrk", itr) ) {
 				get_uint32BE(itr);
 				//std::cout << "track" << std::endl;
 				tracks.push_back(std::vector<event>());

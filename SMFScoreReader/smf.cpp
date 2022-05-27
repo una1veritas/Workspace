@@ -44,13 +44,15 @@ uint32_t smf::get_uint32VLQ(std::istreambuf_iterator<char> & itr) {
 	return res;
 }
 
-int smf::octave(uint8_t notenum) {
-	return (notenum / 12) - 1;
+bool smf::check_str(const std::string & str, std::istreambuf_iterator<char> & itr) {
+//		bool res = true;
+//		for(auto i = sig.begin(); i != sig.end(); ++i, ++itr) {
+//			res &= (*i == *itr);
+//		}
+//		return res;
+	return std::equal(str.begin(), str.end(), itr);
 }
 
-const char * smf::notename(uint8_t notenum) {
-	return smf::namesofnote[notenum % 12];
-}
 
 smf::event::event(std::istreambuf_iterator<char> & itr, uint8_t laststatus) {
 	delta = get_uint32VLQ(itr);
