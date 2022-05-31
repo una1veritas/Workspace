@@ -290,7 +290,7 @@ public:
 		}
 	}
 
-	operator bool() const {
+	bool empty(void) const {
 		if ( ntracks != 0 )
 			return true;
 		return false;

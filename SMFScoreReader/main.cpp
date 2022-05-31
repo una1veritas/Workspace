@@ -10,13 +10,15 @@ int main(int argc, char **argv) {
 	std::cout << "file: " << argv[1] << std::endl;
 	ifile.open(argv[1], (std::ios::in | std::ios::binary) );
 	if ( !ifile ) {
-		std::cerr << "失敗" << std::endl;
-		return -1;
+		std::cerr << "オープン失敗" << std::endl;
+		return EXIT_FAILURE;
 	}
-
 	smf::score midi(ifile);
 	ifile.close();
-
+	if ( ! midi.empty() ) {
+		std::cerr << "SMF読み込み失敗" << std::endl;
+		return EXIT_FAILURE;
+	}
 	std::cout << midi << std::endl;
 
 	std::vector<smf::note> notes = midi.notes();
