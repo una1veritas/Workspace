@@ -1,7 +1,7 @@
 import os, glob
 import io,sys
 
-path = u'/Users/sin/Dropbox/離散数学Ⅱ/離散数学Ⅱ-2021q4/quiz'
+path = u'/Users/sin/Dropbox/アルゴリズム設計Ａ/202204/reports'
 if path[-1] != '/' : path += '/'
 print('Looking for name list file in '+path+'.')
 if len(glob.glob(path+'seiseki*.csv')) == 1 :
