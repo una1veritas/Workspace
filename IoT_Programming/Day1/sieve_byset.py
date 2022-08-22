@@ -19,6 +19,6 @@ for i in range(2, n+1) :
 print("Input: " + str(n))
 parray = sorted(pset)
 if ith :
-    print(parray[ith+1])
+    print(parray[ith-1])
 else:
     print(parray)
