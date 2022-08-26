@@ -1,16 +1,24 @@
-import os, glob
-import io,sys
+import os, glob, io, sys
 
-path = u'/Users/sin/Dropbox/アルゴリズム設計Ａ/202204/reports'
-if path[-1] != '/' : path += '/'
-print('Looking for name list file in '+path+'.')
-if len(glob.glob(path+'seiseki*.csv')) == 1 :
-    namelistf = glob.glob(path+'seiseki*.csv')[0]
-    print('Found "'+namelistf+'" for registered students names.')
+if len(sys.argv[1]) == 0 :
+    print('arguments: [base directory path] [csv name list file name]', file=sys.stderr)
+    exit(1)
 else:
-    print('Not found name flie "namelist*.csv" at '+path+'. ', file=sys.stderr)
+    path = sys.argv[1]
+    if path[-1] != '/' : path += '/'
 
-print('Reading the list of registered students.')
+namelistf = ''
+if len(sys.argv[2]) != 0 :
+    namelistf = path+sys.argv[2]
+else:
+    if len(glob.glob(path+'seiseki*.csv')) == 1 :
+        namelistf = glob.glob(path+'seiseki*.csv')[0]
+        print('Found "'+namelistf+'" for registered students names.')
+if len(namelistf) == 0 :
+    print('Not found name flie "namelist*.csv" at '+path+'. ', file=sys.stderr)
+    exit(1)
+
+print('Reading the list of registered students from '+namelistf)
 db_registered = list()
 COMMENTESCAPE = '#'
 separator = ','
