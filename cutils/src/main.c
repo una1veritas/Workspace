@@ -11,7 +11,7 @@
 
 #include "cutils.h"
 
-uint32 dummy(uint32 x) {
+uint32_t dummy(uint32_t x) {
 	return x;
 }
 
@@ -158,7 +158,7 @@ int main(int argc, char * argv[]) {
 	printf("MIN:\n");
 	printf("lap = %ld, sum = %ld\n\n", (long)lap, sum);
 
-	int32 a, b, t;
+	int32_t a, b, t;
 	sum = 0;
 	lap = clock();
 	for(int i = 0; i < NUM-1; i++) {

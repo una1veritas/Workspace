@@ -14,31 +14,31 @@
 #include "cutils.h"
 
 
-	inline static uint64 rotl64(uint64 x) {
+	inline static uint64_t rotl64(uint64_t x) {
 		return x = (x<<1) | (x>>(-1&63));
 	}
 
-	inline static uint64 rotl64n(uint64_t x, const unsigned int n) {
+	inline static uint64_t rotl64n(uint64_t x, const unsigned int n) {
 		return x = (x<<n) | (x>>(-n & 63));
 	}
 
-	inline static uint64 rotr64(uint64 x) {
+	inline static uint64_t rotr64(uint64_t x) {
 		return x = (x>>1) | (x<<(-1&63));
 	}
 
-	inline static uint64 rotr64n(uint64_t x, const unsigned int n) {
+	inline static uint64_t rotr64n(uint64_t x, const unsigned int n) {
 		return x = (x>>n) | (x<<(-n & 63));
 	}
 
 
-uint32 pop32_SSE42(uint32 xu32)
+uint32_t pop32_SSE42(uint32_t xu32)
 {
     int ret;
     __asm__ volatile ("popcntl %1, %0" : "=r"(ret) : "r"(xu32) );
     return ret;
 }
 
-uint32 pop32_HD(uint32 bits)
+uint32_t pop32_HD(uint32_t bits)
 {
 	/* Hacker's Delight 2nd by H. S. Warren Jr., p. 81 -- */
     bits = (bits & 0x55555555) + (bits >> 1 & 0x55555555);
@@ -49,22 +49,22 @@ uint32 pop32_HD(uint32 bits)
 }
 
 
-uint32 nlz32_IEEEFP(uint32 x)
+uint32_t nlz32_IEEEFP(uint32_t x)
 {
 	/* Hacker's Delight 2nd by H. S. Warren Jr., 5.3, p. 104 -- */
 	double d = (double)x + 0.5;
-	uint32 *p = ((uint32*) &d) + 1;
+	uint32_t *p = ((uint32_t*) &d) + 1;
 	return 0x41e - (*p>>20);  // 31 - ((*(p+1)>>20) - 0x3FF)
 }
 
-uint32 nlz32_ABM(uint32 x)
+uint32_t nlz32_ABM(uint32_t x)
 {
     int ret;
     __asm__ volatile ("lzcnt %1, %0" : "=r" (ret) : "r" (x) );
     return ret;
 }
 
-uint32 nlz32_Harley(uint32 x) {
+uint32_t nlz32_Harley(uint32_t x) {
 	static char table[64] = {
 			32, 31, -1, 16, -1, 30,  3, -1,  15, -1, -1, -1, 29, 10, 2, -1,
 			-1, -1, 12, 14, 21, -1, 19, -1,  -1, 28, -1, 25, -1,  9, 1, -1,
@@ -80,25 +80,28 @@ uint32 nlz32_Harley(uint32 x) {
 	return table[x>>26];
 }
 
+int nlz64_gcc_builtin(uint64_t x) {
+    return __builtin_clzl(x);
+}
 
-uint32 ntz32_pop32(uint32 x) {
+uint32_t ntz32_pop32(uint32_t x) {
 	return 32 - POP32( x | -x);
 }
 
-uint32 ntz32_nlz32(uint32 x) {
+uint32_t ntz32_nlz32(uint32_t x) {
 	return 32 - NLZ32((~x) & (x-1));
 }
 
 
-uint32 ntz32_BMI1(uint32 x) {
+uint32_t ntz32_BMI1(uint32_t x) {
     int ret;
     __asm__ volatile ("tzcnt %1, %0" : "=r" (ret) : "r" (x));
     return ret;
 }
 
-uint32 ntz32_HD(uint32 x) {
+uint32_t ntz32_HD(uint32_t x) {
 	/* Hacker's Delight 2nd by H. S. Warren Jr. */
-	uint32 y, bz, b4, b3, b2, b1, b0;
+	uint32_t y, bz, b4, b3, b2, b1, b0;
 	y = x & -x;
 	bz = y ? 0 : 1;
 	b4 = (y & 0x0000ffff) ? 0 : 16;
@@ -110,44 +113,44 @@ uint32 ntz32_HD(uint32 x) {
 }
 
 
-uint32 c2pow32(uint32 x) {
+uint32_t c2pow32(uint32_t x) {
 	return (x != 0) * ( 1<<(32 - NLZ32(x-1)) );
 
 }
 
-uint32 f2pow32(uint32 x) {
+uint32_t f2pow32(uint32_t x) {
 	return (x != 0) * ( 1<<(31 - NLZ32(x)) );
 
 }
 
-uint32 flog32(uint32 x) {
+uint32_t flog32(uint32_t x) {
 	return 31 - NLZ32(x);
 
 }
 
-uint32 clog32(uint32 x) {
+uint32_t clog32(uint32_t x) {
 	return 32 - NLZ32(x - 1);
 }
 
-uint32 bitsize32(int32 x) {
+uint32_t bitsize32(int32_t x) {
 	x = x^(x>>31);
 	return 33 - NLZ32(x);
 }
 
-int32 doz32(int32 x, int32 y) {
+int32_t doz32(int32_t x, int32_t y) {
 	return (x-y)&-(x>=y);
 }
 
-int32 min32(int32 x, int32 y) {
+int32_t min32(int32_t x, int32_t y) {
 	return ((x^y)&-(x<=y))^y;
 }
 
-int32 max32(int32 x, int32 y) {
+int32_t max32(int32_t x, int32_t y) {
 	return ((x^y)&-(x>=y))^y;
 }
 
-void swap32_(int32 * x, int32 * y) {
-	int32 t = *x;
+void swap32_(int32_t * x, int32_t * y) {
+	int32_t t = *x;
 	*x = *y;
 	*y = t;
 }
