@@ -24,6 +24,7 @@ COMMENTESCAPE = '#'
 separator = ','
 with open(namelistf, encoding = "utf-8-sig") as f:
     for l in f.readlines():
+        l = l.strip('"')
         if l[0] == COMMENTESCAPE : continue
         fields = l.split(separator)
         # (sid, namestr, dep, grade)
@@ -35,6 +36,8 @@ db_registered.sort(key=(lambda x: x[0]))
 print('Found ' + str(len(db_registered))+' names of students.')
 for row in db_registered[:5] :
     print(row)
+if (len(db_registered) > 5) :
+    print("...")
 
 print('Collecting folder names.')
 db_folders = list()
@@ -54,6 +57,7 @@ print('Building attendance table...')
 att_table = dict()
 for folder in db_folders:
     submissiondirs = [d for d in glob.glob(path+folder+'/*')]
+    print(str(submissiondirs))
     for report_folder in submissiondirs:
         folder_sum = 0
         folder_count = 0
