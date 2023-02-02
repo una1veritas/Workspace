@@ -1,6 +1,6 @@
 import os, glob, io, sys
 
-if len(sys.argv[1]) == 0 :
+if len(sys.argv) <= 1 or len(sys.argv[1]) == 0 :
     print('arguments: [base directory path] [csv name list file name]', file=sys.stderr)
     exit(1)
 else:
