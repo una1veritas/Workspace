@@ -1,11 +1,11 @@
-import os, glob, io, sys
+import os, glob, sys
 
-if len(sys.argv) <= 1 or len(sys.argv[1]) == 0 :
+if len(sys.argv) <= 2 or len(sys.argv[1]) == 0 :
     print('arguments: [base directory path] [csv name list file name]', file=sys.stderr)
     exit(1)
 else:
-    path = sys.argv[1]
-    if path[-1] != '/' : path += '/'
+    path = os.path.dirname(sys.argv[1])
+    print(path, sys.argv[1])
 
 namelistf = ''
 if len(sys.argv[2]) != 0 :
@@ -36,8 +36,8 @@ db_registered.sort(key=(lambda x: x[0]))
 print('Found ' + str(len(db_registered))+' names of students.')
 for row in db_registered[:5] :
     print(row)
-if (len(db_registered) > 5) :
-    print("...")
+else:
+    print("...", end="\n\n")
 
 print('Collecting folder names.')
 db_folders = list()
@@ -48,7 +48,9 @@ db_folders.sort()
 if len(db_folders) :
     for folder in db_folders[:5]:
         print(folder)
-    print('Found ' + str(len(db_folders)) + ' folders for reports.')
+    else:
+        print("...")
+    print('Found ' + str(len(db_folders)) + ' folders for reports.', end="\n\n")
 else:
     print('No folders. stop.')
     exit()
@@ -56,20 +58,21 @@ else:
 print('Building attendance table...')
 att_table = dict()
 for folder in db_folders:
-    submissiondirs = [d for d in glob.glob(path+folder+'/*')]
-    print(str(submissiondirs))
-    for report_folder in submissiondirs:
+    submissions = [d for d in glob.glob(path)]
+    print(str(submissions))
+    break
+    for file_or_folder in submissions:
         folder_sum = 0
         folder_count = 0
-        with os.scandir(report_folder) as it:
+        with os.scandir(file_or_folder) as it:
             for entry in it:
                 if not entry.name.startswith('.') and entry.is_file() :
                     folder_count += 1
                     folder_sum += entry.stat().st_size
         if folder_sum < 16*1024 :
-            print(report_folder+'/'+entry.name)
+            print(file_or_folder+'/'+entry.name)
             print('warning! folder sum is '+str(round(folder_sum/1024,1))+', less than 16kB.')
-        sid = os.path.basename(report_folder).split('_')[0]
+        sid = os.path.basename(file_or_folder).split('_')[0]
         att_table[(folder,sid)] = folder_sum if folder_count > 0 else 'x'
 
 #print(att_table.keys())    
