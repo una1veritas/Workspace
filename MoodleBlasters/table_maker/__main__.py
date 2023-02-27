@@ -4,15 +4,19 @@ if len(sys.argv) <= 2 or len(sys.argv[1]) == 0 :
     print('arguments: [base directory path] [csv name list file name]', file=sys.stderr)
     exit(1)
 else:
-    path = os.path.dirname(sys.argv[1])
-    print(path, sys.argv[1])
+    if os.path.isdir(sys.argv[1]) :
+        path = sys.argv[1]
+    else:
+        path = os.path.dirname(sys.argv[1])
+print(sys.argv[1:])
+print("path = " + path)
 
 namelistf = ''
 if len(sys.argv[2]) != 0 :
-    namelistf = path+sys.argv[2]
+    namelistf = path+'/'+sys.argv[2]
 else:
     if len(glob.glob(path+'seiseki*.csv')) == 1 :
-        namelistf = glob.glob(path+'seiseki*.csv')[0]
+        namelistf = glob.glob(path+'/seiseki*.csv')[0]
         print('Found "'+namelistf+'" for registered students names.')
 if len(namelistf) == 0 :
     print('Not found name flie "namelist*.csv" at '+path+'. ', file=sys.stderr)
@@ -30,6 +34,7 @@ with open(namelistf, encoding = "utf-8-sig") as f:
         # (sid, namestr, dep, grade)
         db_registered.append( (fields[2], fields[1], fields[4], fields[6]) )
         #print(fields)
+
 db_registered.sort(key=(lambda x: x[0]))
 #for i in db_registered:
 #    print(i)
@@ -39,11 +44,11 @@ for row in db_registered[:5] :
 else:
     print("...", end="\n\n")
 
-print('Collecting folder names.')
+print('Collecting assignment folders.')
 db_folders = list()
-for fdname in glob.glob(path+'*'):
+for fdname in glob.glob(path+'/*'):
     if  os.path.isdir(fdname) : 
-        db_folders.append( ( os.path.basename(fdname) ) )
+        db_folders.append( fdname  )
 db_folders.sort()
 if len(db_folders) :
     for folder in db_folders[:5]:
@@ -52,14 +57,14 @@ if len(db_folders) :
         print("...")
     print('Found ' + str(len(db_folders)) + ' folders for reports.', end="\n\n")
 else:
-    print('No folders. stop.')
+    print('No assignment folders. stop.')
     exit()
 
 print('Building attendance table...')
 att_table = dict()
 for folder in db_folders:
-    submissions = [d for d in glob.glob(path)]
-    print(str(submissions))
+    submissions = [d for d in glob.glob(folder)]
+    print(folder, str(submissions))
     break
     for file_or_folder in submissions:
         folder_sum = 0
