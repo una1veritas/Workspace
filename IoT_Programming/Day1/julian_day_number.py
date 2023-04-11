@@ -19,10 +19,11 @@ if len(sys.argv) == 1 :
     exit(1) # 入力がない、エラー終了
 
 yyyymmdd = float(sys.argv[1])
+print(yyyymmdd)
 yyyy = int(yyyymmdd) // 10000
 mm = int(yyyymmdd) // 100 % 100
 dd = yyyymmdd % 100
 
-print(yyyy, mm, dd)
+print("yyyy = {}, mm = {}, dd = {}".format(yyyy, mm, dd))
 jd = JulianDate(yyyy, mm, dd)
 print(jd, DayOfWeek(jd))
