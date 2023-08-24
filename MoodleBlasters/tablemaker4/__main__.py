@@ -1,6 +1,9 @@
 import os, glob, sys
 
-dirpath = "/Users/sin/Dropbox/検索アルゴリズム論（DS+AI+MI）/2023"
+if os.name == 'posix' :
+    dirpath = u"/Users/sin/Dropbox/検索アルゴリズム論（DS+AI+MI）/2023"
+elif os.name == 'nt' :
+    dirpath = u'C:\\Users\\Sin Shimozono\\Dropbox\\検索アルゴリズム論（DS+AI+MI）\\2023'
 
 def read_registered_students(path):
 # 履修登録者名簿ファイル
@@ -29,7 +32,7 @@ def read_registered_students(path):
             print(line_counter)
     return table
 
-def inspect_reports(path):
+def inspect_reports(path, table):
     if not os.path.isdir(path) :
         print('error: this is not a directory path.')
         exit()
@@ -39,11 +42,19 @@ def inspect_reports(path):
         if os.path.isdir(each):
             assignment_folders.append(os.path.basename(each))
     assignment_folders.sort()
-    print(assignment_folders)
+    for folder in assignment_folders :
+        folderpath = os.path.join(path, folder)
+        for filepath in glob.glob(os.path.join(folderpath, '*')) :
+            filename = os.path.basename(filepath)
+            sid = filename.split('_')[1]
+            print(folder, sid, os.path.getsize(filepath))
+            
 
-inspect_reports(dirpath)
-exit()
 
-table = read_registered_students(dirpath)
-print(sorted([(each[4], each[7]) for each in table['cells']]))
+regtable = read_registered_students(dirpath)
+repotable = dict()
+for a_pair in sorted([(each[4], each[7]) for each in regtable['cells']]) :
+    repotable[a_pair[0]] = dict()
+
+inspect_reports(dirpath, repotable)
 print("finished.")
