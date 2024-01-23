@@ -5,13 +5,13 @@ if os.name == 'posix' :
 elif os.name == 'nt' :
     dirpath = u'C:\\Users\\Sin Shimozono\\Dropbox\\検索アルゴリズム論（DS+AI+MI）\\2023'
 
-def read_registered_students(path):
+def read_registered_students(path, meibofile = 'meibo*.csv'):
 # 履修登録者名簿ファイル
     table = dict()
     table['header'] = list() 
     table['cells'] = list()
     if os.path.isdir(path) :
-        fdname_list = glob.glob(os.path.join(path, 'meibo*.csv'))
+        fdname_list = glob.glob(os.path.join(path, meibofile))
         if not (0 < len(fdname_list) < 2) :
             print("error: couldn't find or specify the meibo*.csv file.") 
             exit()
@@ -30,6 +30,7 @@ def read_registered_students(path):
                     table['cells'].append(row)
                 line_counter += 1
             #print(line_counter)
+    #print(table)
     return table
 
 def inspect_reports(path):
@@ -92,10 +93,20 @@ def make_table(registered, reports):
                 ref[sid][1+assign_id] = submsize
     return result
 
-regtable = read_registered_students(dirpath)
+print(sys.argv)
+if (len(sys.argv) > 1) :
+    dirpath = sys.argv[1]
+if len(sys.argv) > 2 :
+    meibofile = sys.argv[2]
+outfile = 'result.txt'
+if len(sys.argv) > 3 :
+    outfile = sys.argv[3]
+regtable = read_registered_students(dirpath, meibofile)
+print(regtable)
 repotable = inspect_reports(dirpath)
+print(repotable)
 table = make_table(regtable, repotable)
-with open('result.txt', mode = 'w') as outfile:
+with open(outfile, mode = 'w') as outfile:
     for row in table:
         outfile.write(row[0])
         if len(row) > 1 :
