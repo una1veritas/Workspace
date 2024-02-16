@@ -55,7 +55,7 @@ def main(argv):
         db.append([sid, sname, supervisor, filepath])
         #print(db[-1])
     db.sort(key = itemgetter(0))
-    db.sort(key = itemgetter(2))
+    db.sort(key = itemgetter(1))
     for entry in db :
         print(entry)
     print(str(len(paths)) + " files in " + dirpath)
