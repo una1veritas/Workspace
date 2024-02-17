@@ -4,9 +4,7 @@ Created on 2024/01/20
 @author: Sin Shimozono
 '''
 import sys, os, glob, re
-import pypdf
 from openpyxl import Workbook, load_workbook
-from operator import itemgetter
 
 #row_heading 行を heading としてシートの内容を読み出す
 def btinfo_db(fname, row_heading = 1):
@@ -61,6 +59,8 @@ def main(argv):
         print("Failed to read workshhet file {}.".format(btinfofile))
         exit(1)
     
+    with open("tempout.csv", mode="w", encoding="utf-8") as outcsvf:
+        
     print("bye.")
     
     exit(0)
