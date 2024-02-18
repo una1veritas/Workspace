@@ -7,19 +7,17 @@ import sys, os, glob, re
 from openpyxl import Workbook, load_workbook
 
 def feedback_opening():
-    return '''<?xml version="1.0" encoding="UTF-8" ?>
+    return u'''<?xml version="1.0" encoding="UTF-8" ?>
 <FEEDBACK VERSION="200701" COMMENT="XML-Importfile for mod/feedback">
      <ITEMS>
 '''
 def feedback_closing():
-    return '''     </ITEMS>
+    return u'''     </ITEMS>
 </FEEDBACK>
 '''
 
-def feedback_session_header(start_id, gno, tspan, supers, id_eval = None):
-    if id_eval == None :
-        id_eval = start_id+1
-    tmpstr = '''          <ITEM TYPE="label" REQUIRED="0">
+def feedback_session_header(start_id, gno, tspan, supers):
+    tmpstr = u'''          <ITEM TYPE="label" REQUIRED="0">
                <ITEMID><![CDATA[{id_header}]]></ITEMID>
                <ITEMTEXT><![CDATA[]]></ITEMTEXT>
                <ITEMLABEL><![CDATA[]]></ITEMLABEL>
@@ -37,11 +35,11 @@ def feedback_session_header(start_id, gno, tspan, supers, id_eval = None):
                <DEPENDITEM><![CDATA[0]]></DEPENDITEM>
                <DEPENDVALUE><![CDATA[]]></DEPENDVALUE>
           </ITEM>
-'''.format(id_header=start_id, group_no = gno, time_span=tspan,supervisors=supers,id_evalhint= id_eval)
-    return (tmpstr, id_eval+1)
+'''.format(id_header=start_id, group_no = gno, time_span=tspan,supervisors=supers,id_evalhint= start_id+1)
+    return (tmpstr, start_id+2)
 
 def feedback_questions(start_id, sid, sname):
-    tmpstr = '''          <ITEM TYPE="label" REQUIRED="0">
+    tmpstr = u'''          <ITEM TYPE="label" REQUIRED="0">
                <ITEMID><![CDATA[{id_qheader}]]></ITEMID>
                <ITEMTEXT><![CDATA[]]></ITEMTEXT>
                <ITEMLABEL><![CDATA[]]></ITEMLABEL>
@@ -104,8 +102,6 @@ def feedback_questions(start_id, sid, sname):
                <DEPENDITEM><![CDATA[{id_q0}]]></DEPENDITEM>
                <DEPENDVALUE><![CDATA[YES]]></DEPENDVALUE>
           </ITEM>
-     </ITEMS>
-</FEEDBACK>
 '''.format(id_qheader=start_id, studentid=sid, studentname = sname, 
            id_q0 = start_id + 1, id_q1 = start_id + 2, id_q2 = start_id + 3,
            id_q3 = start_id + 4, id_q4 = start_id + 5, id_q5 = start_id + 7)
@@ -138,6 +134,31 @@ def btinfo_db(fname, row_heading = 1):
     #print(heading)
     return (column_dict, rows)
     
+def collect(tbl, col):
+    itemset = set()
+    result = list()
+    for r in tbl:
+        item = r[col]
+        if not item in itemset:
+            itemset.add(item)
+            result.append(item)
+    return result
+    
+def write_feedback_xml(group_no, start_time, end_time, supervisor, student_list, start_id = 1000):
+    id = start_id
+    if not os.path.isdir("xmlout") :
+        os.mkdir("xmlout")
+    outfilepath = os.path.join("xmlout", "feedback_group{}_{}.xml".format(group_no, supervisor))
+    with open(outfilepath, mode="w", encoding="utf-8") as outfile:
+        outfile.writelines(feedback_opening())
+        (tmpstr, id) = feedback_session_header(id, group_no, start_time+"--"+end_time, supervisor)
+        outfile.writelines(tmpstr)
+        for st in student_list:
+            (resstr, id) = feedback_questions(id, st[3], st[4])
+            outfile.writelines(resstr)
+        outfile.writelines(feedback_closing())
+    return
+    
 def main(argv):
     btinfofile = "";
     if len(argv) > 1 :
@@ -156,29 +177,54 @@ def main(argv):
         #btrows.sort(key=lambda x: x[btcolumn["終了"]]) # sort by 発表順番
         #btrows.sort(key=lambda x: x[btcolumn["グループ"]]) # sort by グループ
         #print(wb.sheetnames)
-        # print(btcolumn)
-        # for r in btrows:
-        #     print(r)
-        # print()
     except FileNotFoundError as e:
         print(e)
         print("Failed to read workshhet file {}.".format(btinfofile))
         exit(1)
     
-    print(btcolumn)
+    group_list = collect(btrows, btcolumn["グループ"])
+    supervisors_list = collect(btrows, btcolumn["指導教員"])
+    
     super = None
+    group = ""
+    start_time = ""
+    end_time = ""
+    item_id = 1000
+    student_list = list()
     for a_row in btrows:
         if a_row[btcolumn['学生番号']] is None :
-            print("rest")
+            print("休憩")
             continue
         next_super = a_row[btcolumn['指導教員']]
         if super is None :
+            # the 1st session
             super = next_super
+            start_time = ""
+            end_time = ""
+            student_list.clear()
         elif super != next_super :
             # new session
+            print(group, start_time, end_time, super, "{} students.".format(len(student_list)))
+            write_feedback_xml(group, start_time, end_time, super, student_list)
+            #
+            group = ""
             super = next_super
-        print(super, a_row)
+            start_time = ""
+            end_time = ""
+            student_list.clear()
+        
+        group = a_row[btcolumn['グループ']]
+        t = a_row[btcolumn['開始']].strftime("%H:%M")
+        if start_time == "" :
+            start_time = t 
+        end_time = a_row[btcolumn['終了']].strftime("%H:%M")
+        student_list.append(a_row)
+    else:
+        print(group, start_time, end_time, super, "{} students.".format(len(student_list)))
+        write_feedback_xml(group, start_time, end_time, super, student_list)
+
     print()
+    exit(0)
     for a_line in feedback_questions(1000,"123C5678","川津花子")[0].split("\n"):
         print(a_line)
 #    with open("tempout.csv", mode="w", encoding="utf-8") as outcsvf:
