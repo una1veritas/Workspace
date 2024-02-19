@@ -185,22 +185,45 @@ def main(argv):
     group_list = collect(btrows, btcolumn["グループ"])
     supervisors_list = collect(btrows, btcolumn["指導教員"])
     
-    btprogram = list()
+    super = None
+    group = ""
+    start_time = ""
+    end_time = ""
+    item_id = 1000
+    student_list = list()
     for a_row in btrows:
-        group = a_row[btcolumn['グループ']]
-        if len(btprogram) == 0:
-            btprogram.append( (group, list()) )
-        if btprogram[-1][0] != group :
-            btprogram.append( (group, list()) )
-        s_time = a_row[btcolumn['開始']].strftime("%H:%M")
-        e_time = a_row[btcolumn['終了']].strftime("%H:%M")
-        a_row[btcolumn['学生番号']] 
         if a_row[btcolumn['学生番号']] is None :
+            print("休憩")
             continue
-        super = a_row[btcolumn['指導教員']]
+        next_super = a_row[btcolumn['指導教員']]
+        if super is None :
+            # the 1st session
+            super = next_super
+            start_time = ""
+            end_time = ""
+            student_list.clear()
+        elif super != next_super :
+            # new session
+            print(group, start_time, end_time, super, "{} students.".format(len(student_list)))
+            write_feedback_xml(group, start_time, end_time, super, student_list)
+            #
+            group = ""
+            super = next_super
+            start_time = ""
+            end_time = ""
+            student_list.clear()
         
+        group = a_row[btcolumn['グループ']]
+        t = a_row[btcolumn['開始']].strftime("%H:%M")
+        if start_time == "" :
+            start_time = t 
+        end_time = a_row[btcolumn['終了']].strftime("%H:%M")
+        student_list.append(a_row)
+    else:
+        print(group, start_time, end_time, super, "{} students.".format(len(student_list)))
+        write_feedback_xml(group, start_time, end_time, super, student_list)
 
-    print(btprogram)
+    print()
     exit(0)
     for a_line in feedback_questions(1000,"123C5678","川津花子")[0].split("\n"):
         print(a_line)
