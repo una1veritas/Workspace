@@ -21,7 +21,7 @@ def feedback_session_header(start_id, gno, tspan, supers):
                <ITEMID><![CDATA[{id_header}]]></ITEMID>
                <ITEMTEXT><![CDATA[]]></ITEMTEXT>
                <ITEMLABEL><![CDATA[]]></ITEMLABEL>
-               <PRESENTATION><![CDATA[<h4>グループ{group_no}, {time_span} ({supervisors})</h4>]]></PRESENTATION>
+               <PRESENTATION><![CDATA[<h3>グループ{group_no}, {time_span} ({supervisors})</h3>]]></PRESENTATION>
                <OPTIONS><![CDATA[]]></OPTIONS>
                <DEPENDITEM><![CDATA[0]]></DEPENDITEM>
                <DEPENDVALUE><![CDATA[]]></DEPENDVALUE>
@@ -144,18 +144,21 @@ def collect(tbl, col):
             result.append(item)
     return result
     
-def write_feedback_xml(group_no, start_time, end_time, supervisor, student_list, start_id = 1000):
+def write_feedback_xml(group_list, start_id = 1000):
     id = start_id
+    group_no = group_list[0][0][0]
     if not os.path.isdir("xmlout") :
         os.mkdir("xmlout")
-    outfilepath = os.path.join("xmlout", "feedback_group{}_{}.xml".format(group_no, supervisor))
+    outfilepath = os.path.join("xmlout", "feedback_group{}.xml".format(group_no))
     with open(outfilepath, mode="w", encoding="utf-8") as outfile:
         outfile.writelines(feedback_opening())
-        (tmpstr, id) = feedback_session_header(id, group_no, start_time+"--"+end_time, supervisor)
-        outfile.writelines(tmpstr)
-        for st in student_list:
-            (resstr, id) = feedback_questions(id, st[3], st[4])
-            outfile.writelines(resstr)
+        for session in group_list:
+            (group_no, start_time, end_time, supervisor) = session[0]
+            (tmpstr, id) = feedback_session_header(id, group_no, start_time+"--"+end_time, supervisor)
+            outfile.writelines(tmpstr)
+            for st in session[1:]:
+                (resstr, id) = feedback_questions(id, st[0], st[1])
+                outfile.writelines(resstr)
         outfile.writelines(feedback_closing())
     return
     
@@ -183,34 +186,37 @@ def main(argv):
         exit(1)
     
     group_list = collect(btrows, btcolumn["グループ"])
-    supervisors_list = collect(btrows, btcolumn["指導教員"])
-    
-    btprogram = list()
+        
+    btprog = list()
+    prev_group = None
+    prev_super = None
+    start_time = None
+    end_time = None
     for a_row in btrows:
-        group = a_row[btcolumn['グループ']]
-        if len(btprogram) == 0:
-            btprogram.append( (group, list()) )
-        if btprogram[-1][0] != group :
-            btprogram.append( (group, list()) )
+        group = a_row[btcolumn["グループ"]]
+        super = a_row[btcolumn['指導教員']]
         s_time = a_row[btcolumn['開始']].strftime("%H:%M")
         e_time = a_row[btcolumn['終了']].strftime("%H:%M")
         s_id = a_row[btcolumn['学生番号']] 
-        s_name = a_row[btcolumn['学生氏名']] 
-        if a_row[btcolumn['学生番号']] is None :
-            continue
-        super = a_row[btcolumn['指導教員']]
-        if len(btprogram[-1][1]) == 0 :
-            btprogram[-1][1].append( (super, list()) )
-        if btprogram[-1][1][0] != super :
-            btprogram[-1][1].append( (super, list()) )
-        btprogram[-1][1].append([s_id, s_name])
+        s_name = a_row[btcolumn['学生氏名']]
+        if prev_group != group :
+            # new group
+            btprog.append(list())
+            prev_group = group
+        if prev_super != super :
+            prev_super = super
+            start_time = s_time
+            end_time = e_time
+            btprog[-1].append([[group, start_time, end_time, super]])
+        if end_time < e_time :
+            end_time = e_time
+            btprog[-1][-1][0][2] = end_time
+        btprog[-1][-1].append( (s_id, s_name) )
 
-    print(btprogram)
-    exit(0)
-    for a_line in feedback_questions(1000,"123C5678","川津花子")[0].split("\n"):
-        print(a_line)
-#    with open("tempout.csv", mode="w", encoding="utf-8") as outcsvf:
+    for s in btprog:
+        write_feedback_xml(s, start_id = 1000)
         
+            
     print("bye.")
     
     exit(0)
