@@ -194,11 +194,16 @@ def main(argv):
             btprogram.append( (group, list()) )
         s_time = a_row[btcolumn['開始']].strftime("%H:%M")
         e_time = a_row[btcolumn['終了']].strftime("%H:%M")
-        a_row[btcolumn['学生番号']] 
+        s_id = a_row[btcolumn['学生番号']] 
+        s_name = a_row[btcolumn['学生氏名']] 
         if a_row[btcolumn['学生番号']] is None :
             continue
         super = a_row[btcolumn['指導教員']]
-        
+        if len(btprogram[-1][1]) == 0 :
+            btprogram[-1][1].append( (super, list()) )
+        if btprogram[-1][1][0] != super :
+            btprogram[-1][1].append( (super, list()) )
+        btprogram[-1][1].append([s_id, s_name])
 
     print(btprogram)
     exit(0)
