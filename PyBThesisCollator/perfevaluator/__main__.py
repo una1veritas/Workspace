@@ -122,19 +122,23 @@ def main(argv):
             evdict[sid+"-A"+str(i)] = point[val]
         evaltable[-1].append(evdict)
     
-    #
+    print(evaltable)
     for c in ('sid', 's1', 's2', 's3', 's4', 's5'):
         print(c, end=",")
     print()
     for sid, evdict in evaltable:
-        print(sid, end=",")
+        print(sid, end=",,") # with an empty cell
         keys = sorted(evdict.keys())
         for k in keys[:5]:
             print(evdict[k], end=",")
+        print(',', end='') # supervisor total
         for lk in keys[5:]:
+            #print(lk)
             for p in evdict[lk]:
                 print(p,end=',')
+            print(',', end='') # Qn total
         print()
-        
+    
 if __name__ == '__main__':
     main(sys.argv)
+    
