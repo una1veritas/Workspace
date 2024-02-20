@@ -18,7 +18,7 @@ def read_xlsx(fname, row_heading = 1):
         return None
     wsheet = wbook[wsheetnames[0]]
     heading = list()
-    regexpr = re.compile('\([0123456789C-]+\)')
+    regexpr = re.compile(u'\([0123456789C-]+\)')
     for cellname in [xlrd.colname(c)+"1" for c in range(0, wsheet.max_column)]:
         colname = wsheet[cellname].value
         res = regexpr.search(colname)
@@ -93,7 +93,7 @@ def main(argv):
         exit(1)
     
     db = read_xlsx(filepath)
-    
+    print('Reading xlsx data file done.')
     (coldict, table) = db
     heading = [a_pair[0] for a_pair in sorted(coldict.items(), key=lambda x: x[1])]
     sidlist = [col.split('-')[0] for col in heading[5:] if col.endswith('-0')]
@@ -110,7 +110,7 @@ def main(argv):
             continue # break
         else:
             super_row = r[0]
-            print("Supervisor is "+table[super_row][0]+" at row "+str(super_row)+ " for "+sid+".")        
+            # print(sid + " supervised by " + table[super_row][0]+".")        
         evaltable.append([sid])
         evdict = dict()
         for i in range(1,5+1):
@@ -121,23 +121,33 @@ def main(argv):
             evdict[sid+"-J"+str(i)] = col
             evdict[sid+"-A"+str(i)] = point[val]
         evaltable[-1].append(evdict)
+    print('Re arranging data done.')
     
-    print(evaltable)
-    for c in ('sid', 's1', 's2', 's3', 's4', 's5'):
-        print(c, end=",")
-    print()
-    for sid, evdict in evaltable:
-        print(sid, end=",,") # with an empty cell
-        keys = sorted(evdict.keys())
-        for k in keys[:5]:
-            print(evdict[k], end=",")
-        print(',', end='') # supervisor total
-        for lk in keys[5:]:
-            #print(lk)
-            for p in evdict[lk]:
-                print(p,end=',')
-            print(',', end='') # Qn total
-        print()
+    filename = os.path.basename(filepath).split(".")
+    filename [-1] = 'csv'
+    filename = '.'.join(filename)
+    print('writing out to ' + filename)
+    if not os.path.isdir(os.path.join(".","csvout")) :
+        os.mkdir(os.path.join(".","csvout"))
+    
+    #print(evaltable)
+    with open(os.path.join(".","csvout",filename), mode="w", encoding="utf-8") as outf:
+        for c in ('sid', 'total', 'sQ1', 'sQ2', 'sQ3', 'sQ4', 'sQ5', 'Q1-AVR', 'Q1-J1', 'Q1-J2', ):
+            outf.write(c + ',')
+        outf.write('\n')
+        for sid, evdict in evaltable:
+            outf.write(sid + ',,') # with an empty cell
+            keys = sorted(evdict.keys())
+            for k in keys[:5]:
+                outf.write(str(evdict[k]) + ',')
+            outf.write(',') # supervisor total
+            for lk in keys[5:]:
+                #print(lk)
+                for p in evdict[lk]:
+                    outf.write(str(p) + ',')
+                outf.write(',') # Qn total
+            outf.write('\n')
+    print('Bye.')
     
 if __name__ == '__main__':
     main(sys.argv)
