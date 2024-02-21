@@ -127,11 +127,11 @@ def main(argv):
     filename [-1] = 'csv'
     filename = '.'.join(filename)
     print('writing out to ' + filename)
-    if not os.path.isdir(os.path.join(".","csvout")) :
-        os.mkdir(os.path.join(".","csvout"))
+    if not os.path.isdir(os.path.join(".","perfout")) :
+        os.mkdir(os.path.join(".","perfout"))
     
     #print(evaltable)
-    with open(os.path.join(".","csvout",filename), mode="w", encoding="utf-8") as outf:
+    with open(os.path.join(".","perfout",filename), mode="w", encoding="utf-8") as outf:
         for c in ('sid', 'total', 'sQ1', 'sQ2', 'sQ3', 'sQ4', 'sQ5', 'Q1-AVR', 'Q1-J1', 'Q1-J2', ):
             outf.write(c + ',')
         outf.write('\n')
