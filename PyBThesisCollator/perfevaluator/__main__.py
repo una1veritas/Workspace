@@ -89,7 +89,7 @@ def main(argv):
         print("File " + filepath + " is not a xlsx.")
         exit(1)        
     if not os.path.isfile(filepath) :
-        print("Directory" + filepath + " does not exit.")
+        print("File path " + filepath + " does not exit.")
         exit(1)
     
     db = read_xlsx(filepath)
@@ -97,7 +97,7 @@ def main(argv):
     (coldict, table) = db
     heading = [a_pair[0] for a_pair in sorted(coldict.items(), key=lambda x: x[1])]
     sidlist = [col.split('-')[0] for col in heading[5:] if col.endswith('-0')]
-    point = {'A':100, 'B':90, 'C':80, 'D':70, 'E':60, 'X':0, None: 0}
+    point = {'A':'100', 'B':'90', 'C':'80', 'D':'70', 'E':'60', 'X':'0', None: ''}
     evaltable = list()
     for sid in sidlist:
         r = db_findrow(db, coldict[sid+"-0"], "YES")
@@ -132,20 +132,20 @@ def main(argv):
     
     #print(evaltable)
     with open(os.path.join(".","perfout",filename), mode="w", encoding="utf-8") as outf:
-        for c in ('sid', 'total', 'sQ1', 'sQ2', 'sQ3', 'sQ4', 'sQ5', 'Q1-AVR', 'Q1-J1', 'Q1-J2', ):
+        for c in ('sid', 'total', 's-subtotal', 'sQ1', 'sQ2', 'sQ3', 'sQ4', 'sQ5', 'Q1-Q5 subtotal', 'Q1-AVR', 'Q1-J1', 'Q1-J2', ):
             outf.write(c + ',')
         outf.write('\n')
         for sid, evdict in evaltable:
-            outf.write(sid + ',,') # with an empty cell
+            outf.write(sid + ',,,') # with an empty cells
             keys = sorted(evdict.keys())
             for k in keys[:5]:
-                outf.write(str(evdict[k]) + ',')
-            outf.write(',') # supervisor total
+                outf.write(evdict[k] + ',')
+            outf.write(',,') # supervisor total
             for lk in keys[5:]:
                 #print(lk)
                 for p in evdict[lk]:
-                    outf.write(str(p) + ',')
-                outf.write(',') # Qn total
+                    outf.write(p + ',')
+                outf.write(',') # Qn average
             outf.write('\n')
     print('Bye.')
     
