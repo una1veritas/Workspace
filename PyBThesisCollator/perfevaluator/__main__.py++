@@ -128,12 +128,11 @@ def main(argv):
     filename[-2] += '-tr'
     filename = '.'.join(filename)
     print('writing out to ' + filename)
-    outdirname = 'perfout'
-    if not os.path.isdir(os.path.join(".",outdirname)) :
-        os.mkdir(os.path.join(".",outdirname))
+    if not os.path.isdir(os.path.join(".","csvout")) :
+        os.mkdir(os.path.join(".","csvout"))
     
     #print(evaltable)
-    with open(os.path.join(".",outdirname,filename), mode="w", encoding="utf-8") as outf:
+    with open(os.path.join(".","csvout",filename), mode="w", encoding="utf-8") as outf:
         for c in ('sid', 'total', 'best presentation', 's-subtotal', 'sQ1', 'sQ2', 'sQ3', 'sQ4', 'sQ5', 'Q1-Q5 subtotal', 'Q1-AVR', 'Q1-J1', 'Q1-J2', ):
             outf.write(c + ',')
         outf.write('\n')
