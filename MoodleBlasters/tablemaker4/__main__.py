@@ -60,11 +60,12 @@ def make_table(registered, reports):
     sidpos = -1
     #print(registered['header'])
     for pos in range(len(registered['header'])):
-        if registered['header'][pos] == u'学生番号' :
+        if registered['header'][pos] == u'学生番号' or \
+        registered['header'][pos] == 'sid' :
             sidpos = pos
             break
     if sidpos == -1 :
-        print('error: can''t find id in regtable header.')
+        print('error: can\'t find id in regtable header.')
         exit()
     for entry in registered['cells']:
         students.append(entry[sidpos])
