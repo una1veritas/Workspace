@@ -38,6 +38,7 @@ def get_gpa_dict(filename = dict()) :
         for a_line in f:
             items = a_line.strip().split(',')
             if items[4] == '学生番号' : continue
+            if items[4] == '' : continue
             try:
                 gpa_dict[items[4]] = float(items[16]) + float(items[17])/1000
             except ValueError:
@@ -53,7 +54,7 @@ def assign_by_gpa_first(gpadict, survey_dict):
     for sid, sgpa in gpasorted:
         #print(sid, sgpa)
         if sid not in survey_dict:
-            print("Error: No desire found for " + sid)
+            print("Error: No desire found for ",sid, sgpa)
             continue
         desired = survey_dict[sid]
         #print(sid, desired)
@@ -70,12 +71,33 @@ def assign_by_gpa_first(gpadict, survey_dict):
             sid_set.remove(sid)
             break
     print("average = ", sum/count)
+    print("remained = ", sid_set)
     return assign
 
 def assign_by_desire_first(gpa_dict, svy_dict):
     gpasorted = sorted(gpa_dict.items(), key = lambda x: x[1], reverse = True)
+    set_students = set(gpa_dict.keys())
+    labs_determined = set()
     assign = dict()
-    # for i in range()
+    for i in range(10) :
+        print("desired rank ", i)
+        print(len(labs_determined), len(set_students))
+        for sid in set_students:
+            if sid in svy_dict and i < len(svy_dict[sid]) :
+                lid, lname = svy_dict[sid][i]
+                if lid not in assign :
+                    assign[lid] = list()
+                if len(assign[lid]) < 6 :
+                    assign[lid].append((sid, gpa_dict[sid]))
+        print(assign)
+        for lid in assign:
+            if lid in labs_determined : continue 
+            if len(assign[lid]) >= 6 :
+                assign[lid] = assign[lid][:6]
+                labs_determined.add(lid)
+            for stu in assign[lid] :
+                if stu[0] in set_students:
+                    set_students.remove(stu[0])
     return assign
     
 if __name__ == '__main__':
@@ -87,4 +109,7 @@ if __name__ == '__main__':
     
     for lid, assigned in assignment.items():
         print(lid, assigned)
+    
+    assign_by_desire_first(gpa_dict, survey_dict)
+    
     exit(0)
