@@ -56,6 +56,8 @@ def assign_by_gpa_first(gpadict, survey_dict):
     sid_set = set([sid for sid, sgpa in gpasorted])
     sum = 0
     count = 0
+    first_desired = 0
+    second_desired = 0
     for sid, sgpa in gpasorted:
         #print(sid, sgpa)
         if sid not in survey_dict:
@@ -71,10 +73,16 @@ def assign_by_gpa_first(gpadict, survey_dict):
             if len(assign[lid]) >= LAB_ASSIGNMENT_UPPERBPUND :
                 continue
             assign[lid].append( (sid, math.ceil(sgpa*1000)/1000 ) )
+            if i == 0 :
+                first_desired += 1
+            elif i == 1:
+                second_desired += 1
             sum += i + 1
             count += 1
             sid_set.remove(sid)
             break
+    print("the first desired assignment by gpa first order = ", first_desired)
+    print("the second desired assignment by gpa first order = ", second_desired)
     print("gpa first satisfaction average = ", sum/count)
     print("remained = ", sid_set)
     return assign
