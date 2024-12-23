@@ -163,13 +163,15 @@ def main(tsp=None):
                 pygame.quit()
                 sys.exit()
             elif evt.type == KEYDOWN :
+                #print(evt)
+                '''Start/Stop computation if 's' key is pressed.'''
                 if pygame.key.get_pressed()[K_s] :
                     optimization_run = not optimization_run
 
 
 if __name__ == "__main__" :
     w, h = pygame.display.get_surface().get_size()
-    t = tsp2D(200, area=(w,h))
+    t = tsp2D(500, area=(w,h))
     main(t)
 
 
