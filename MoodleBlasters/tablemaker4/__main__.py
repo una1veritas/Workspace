@@ -1,11 +1,11 @@
 import os, glob, sys
 
 if os.name == 'posix' :
-    dirpath = u"/Users/sin/Dropbox/検索アルゴリズム論（DS+AI+MI）/2023"
+    dirpath = u"/Users/sin/Dropbox/オートマトンと言語理論/2024/演習課題/"
 elif os.name == 'nt' :
     dirpath = u'C:\\Users\\Sin Shimozono\\Dropbox\\検索アルゴリズム論（DS+AI+MI）\\2023'
 
-def read_registered_students(path, meibofile = 'meibo*.csv'):
+def read_registered_students(path, meibofile = 'registered*.csv'):
 # 履修登録者名簿ファイル
     table = dict()
     table['header'] = list() 
