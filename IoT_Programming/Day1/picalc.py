@@ -11,7 +11,7 @@ prev = 0
 sgn = -1
 
 i = 1
-while 2*abs(pi4-prev) > 0.01: #error:
+while 2*abs(pi4-prev) > 0.00000001: #error:
     prev = pi4
     pi4 += sgn/(2*i+1)
     sgn = -sgn
