@@ -39,6 +39,11 @@ def read_quiz_answers(input_csv_filepath, intensions_max=24):
     #print(tbl)
     return pd.DataFrame(tbl, columns=column_names)
 
+def df_dict(df, s_column, key, v_column, err_value = None):
+    row = df[df[s_column] == key][v_column]
+    if row.shape[0] > 0 :
+        return row.values[0]
+    return err_value
 
 # haizoku_chosa
 # 入出力ファイル名
@@ -55,10 +60,9 @@ labs_assignments_filename = "labs_assignments.csv"
 # 6. 出力：各学生の配属情報
 students_assignments_filename = "students_assignments.csv"
 
-total_students = 100
 maximum_intensions = 24
 default_lab_capacity = float('inf')
-default_lab_capacity_motivation = 1  # 配属希望理由書にもとづく配属人数枠
+default_lab_capacity_motivation = 3  # 配属希望理由書にもとづく配属人数枠
 
 if __name__ == '__main__':
     # CSVファイルのパスを指定
@@ -74,21 +78,22 @@ if __name__ == '__main__':
     # CSVファイルに書き出す
     intension_df.to_csv(csv_outfile_path, index=False, encoding='utf-8-sig')
     print('students\' intension has written to '+csv_outfile_path)
-    #print(intension_df)
         
     labs_df = pd.read_csv(labs_info_filename, encoding='utf-8-sig',keep_default_na=False, na_filter=False)
-    labs = dict() # row['研究室番号'] : [row['研究室名'], row['指導教員所属'], int(row['最大配属人数'])]
+    labs = dict() 
+    # int(row['研究室番号']) : [row['研究室ラベル'],[row['指導教員名'], row['指導教員所属'], int(row['最大配属人数'])]
     for _, row in labs_df.iterrows():
-        if len(row['研究室番号']) == 0 :
+        if len(row['研究室ラベル']) == 0 :
+            '''ignore the row'''
             continue
-        labid = int(row['研究室番号'])
+        lablabel = row['研究室ラベル']
         if row['最大配属人数'] != '' and int(row['最大配属人数']) == 0 :
             continue
         elif row['最大配属人数'] != '' :  
-            labs[labid] = [row['研究室名'], row['指導教員所属'], int(row['最大配属人数'])]
+            labs[lablabel] = [row['指導教員所属'], int(row['最大配属人数'])]
         else:
-            labs[labid] = [row['研究室名'], row['指導教員所属'], default_lab_capacity]
-    #print(labs.items())
+            labs[lablabel] = [row['指導教員所属'], default_lab_capacity]
+    print(labs.items())
 
     students_df = pd.read_csv(STUDENTS_GRADEINFO_FILEPATH, encoding='utf-8-sig',keep_default_na=False, na_filter=False)
     #print(students_df)
@@ -109,13 +114,14 @@ if __name__ == '__main__':
             students[sid].append(ilist)
     #print(students.items())
     
-    # statistics : 配属人数の決定
+    '''配属人数の決定'''
     assignments = dict()
     for key, labinfo in labs.items():
-        labname = '{:02}：'.format(key) + labinfo[0]
+        labname = key
         assignments[labname] = dict()
-        assignments[labname]['vote'] = [(0, 0) for _ in range(maximum_intensions)]
-        print(key, labinfo, labname)
+        assignments[labname]['votes'] = [0 for _ in range(maximum_intensions)]
+        assignments[labname]['gpa'] = [0.0 for _ in range(maximum_intensions)]
+        assignments[labname]['capa'] = labinfo[1]
     for _, row in intension_df.iterrows():
         intension_list = row.tolist()[4:]
         for rank in range(len(intension_list)) :
@@ -123,12 +129,28 @@ if __name__ == '__main__':
             if len(lab) == 0 :
                 continue
             if lab not in assignments:
-                print('error: not recoginized lab', lab, rank)
+                print('error: not recoginized lab label', lab, rank)
                 break
-            popcount, highestgpa = assignments[lab]['vote'][rank]
-            assignments[lab]['vote'][rank] = (popcount+1, max(highestgpa, students[row['学生番号']][1]))
-    for each in sorted(assignments.items(), reverse=True, key = lambda x: x[1]['vote']) :
-        if int(each[0].split('：')[0]) < 30 :
-            print(each)
-        # else:
-        #     print("> " + str(each))
+            popcount = assignments[lab]['votes'][rank]
+            highestgpa = assignments[lab]['gpa'][rank]
+            assignments[lab]['votes'][rank] = popcount+1
+            assignments[lab]['gpa'][rank] = max(highestgpa, students[row['学生番号']][1])
+
+    stats = dict()
+    stats['配属希望者数数'] = intension_df.shape[0]
+    stats['人数可変の研究室数'] = 0
+    stats['人数固定の研究室への総配属人数'] = 0
+    stats['学科外の研究室への総配属人数'] = 0
+    for each in sorted(assignments.items(), reverse=True, key = lambda x: (x[1]['capa'], x[1]['votes'], x[1]['gpa'])) :
+        affil = df_dict(labs_df, '研究室ラベル', each[0], '指導教員所属') 
+        max_capa = df_dict(labs_df, '研究室ラベル', each[0], '最大配属人数') 
+        if affil == '知能情報工学科' :
+            if max_capa == '' :
+                stats['人数可変の研究室数'] += 1
+            else:
+                stats['人数固定の研究室への総配属人数'] += int(max_capa)
+        if affil != '知能情報工学科' and each[1]['votes'][0] > 0 :
+            stats['学科外の研究室への総配属人数'] += 1
+    stats['人数上限を+1する研究室数'] = (stats['配属希望者数数'] - stats['学科外の研究室への総配属人数'] - stats['人数固定の研究室への総配属人数']) % stats['人数可変の研究室数']
+    print(stats)
+    
