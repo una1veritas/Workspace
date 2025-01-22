@@ -78,8 +78,12 @@ if __name__ == '__main__':
     # CSVファイルに書き出す
     intension_df.to_csv(csv_outfile_path, index=False, encoding='utf-8-sig')
     print('students\' intension has written to '+csv_outfile_path)
-        
+    
+    # 研究室番号, 研究室ラベル, 指導教員名, 指導教員所属, 最大配属人数, 知能情報工学概論での研究室紹介
     labs_df = pd.read_csv(labs_info_filename, encoding='utf-8-sig',keep_default_na=False, na_filter=False)
+    labs_df = labs_df.drop(labs_df.index[labs_df['最大配属人数'] == '0'].tolist())
+    labs_df = labs_df.drop(labs_df.index[labs_df['研究室ラベル'] == ''].tolist())
+    #print(labs_df)
     labs = dict() 
     # int(row['研究室番号']) : [row['研究室ラベル'],[row['指導教員名'], row['指導教員所属'], int(row['最大配属人数'])]
     for _, row in labs_df.iterrows():
@@ -96,11 +100,13 @@ if __name__ == '__main__':
     print(labs.items())
 
     students_df = pd.read_csv(STUDENTS_GRADEINFO_FILEPATH, encoding='utf-8-sig',keep_default_na=False, na_filter=False)
-    #print(students_df)
+    students_df = students_df[ ['学生番号', '氏名', 'GPA値'] ]
     students = dict()
     for _, row in students_df.iterrows() :
+        if len(row['学生番号']) == 0 :
+            continue
         sid = str(row['学生番号'])
-        students[sid] = [str(row['氏名']), float(row['成績']), _] 
+        students[sid] = [str(row['氏名']), float(row['GPA値']), _] 
         intensions = intension_df.loc[intension_df['学生番号']==sid]
         if intensions.empty :
             print('error: empty intension ',sid,students[sid])
@@ -116,12 +122,12 @@ if __name__ == '__main__':
     
     '''配属人数の決定'''
     assignments = dict()
-    for key, labinfo in labs.items():
+    for key, info in labs.items():
         labname = key
         assignments[labname] = dict()
         assignments[labname]['votes'] = [0 for _ in range(maximum_intensions)]
         assignments[labname]['gpa'] = [0.0 for _ in range(maximum_intensions)]
-        assignments[labname]['capa'] = labinfo[1]
+        assignments[labname]['capa'] = info[1]
     for _, row in intension_df.iterrows():
         intension_list = row.tolist()[4:]
         for rank in range(len(intension_list)) :
