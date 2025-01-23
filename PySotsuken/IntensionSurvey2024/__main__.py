@@ -141,7 +141,15 @@ if __name__ == '__main__':
             highestgpa = assignments[lab]['gpa'][rank]
             assignments[lab]['votes'][rank] = popcount+1
             assignments[lab]['gpa'][rank] = max(highestgpa, students[row['学生番号']][1])
-
+    
+    with open('prevote-stats.csv', mode='w', encoding='utf-8-sig') as f :
+        f.write('研究室ラベル,第1希望,第2希望,第3希望,第4希望,第5希望,第6希望'+ '\n')
+        for key, value in assignments.items() :
+            f.write('{0}'.format(key))
+            for i in range(6):
+                f.write(',{0}'.format(value['votes'][i]))
+            f.write('\n')
+        
     stats = dict()
     stats['配属希望者数数'] = intension_df.shape[0]
     stats['人数可変の研究室数'] = 0
