@@ -4,9 +4,44 @@ Created on 2025/01/18
 @author: sin
 '''
 import pandas as pd
-import re
-import sys
-from _sqlite3 import SQLITE_CONSTRAINT_ROWID
+import re, sys
+
+# haizoku_chosa
+# 入出力ファイル名
+# 1. 入力：研究室情報
+LABS_INFO_FILEPATH = "labs_info-2024.csv"
+# 2. 入力：学生成績等情報
+STUDENTS_GRADEINFO_FILEPATH = "students_grade_info-2023.csv"
+# 3. 入力：学生の配属希望
+STUDENTS_ASSIGNMENT_INTENTION_FILEPATH = "students_intentions-2023.csv"
+# 4. 入出力：教員による配属希望理由書にもとづく学生の選択
+SUPERVISORS_INTENTION_FILEPATH = "labs_preference.csv"
+# 5. 出力：各研究室の配属情報
+labs_assignments_filename = "labs_assignments.csv"
+# 6. 出力：各学生の配属情報
+students_assignments_filename = "students_assignments.csv"
+
+max_intentionlist_length = 24
+default_lab_capacity = float('inf')
+default_lab_capacity_bymotivation = 3  # 配属希望理由書にもとづく配属人数枠
+
+def df_dict(df, s_column, key, v_column, err_value = None):
+    row = df[df[s_column] == key][v_column]
+    if row.shape[0] > 0 :
+        return row.values[0]
+    return err_value
+
+# Define a function to convert values to int or float
+def try_to_numeric(value):
+    try:
+        return int(value)
+    except ValueError:
+        if len(str(value)) == 0 :
+            return float('inf')
+        try:
+            return float(value)
+        except ValueError:
+            return value
 
 def read_quiz_answers(input_csv_filepath, intensions_max=24):
     # 括弧内の単語を抽出する正規表現パターン
@@ -39,31 +74,16 @@ def read_quiz_answers(input_csv_filepath, intensions_max=24):
     #print(tbl)
     return pd.DataFrame(tbl, columns=column_names)
 
-def df_dict(df, s_column, key, v_column, err_value = None):
-    row = df[df[s_column] == key][v_column]
-    if row.shape[0] > 0 :
-        return row.values[0]
-    return err_value
-
-# haizoku_chosa
-# 入出力ファイル名
-# 1. 入力：研究室情報
-labs_info_filename = "labs_info-2024.csv"
-# 2. 入力：学生成績等情報
-STUDENTS_GRADEINFO_FILEPATH = "students_info-2024.csv"
-# 3. 入力：学生の配属希望
-students_preference_filename = "students_preference-2024.csv"
-# 4. 入出力：教員による配属希望理由書にもとづく学生の選択
-labs_preference_filename = "labs_preference.csv"
-# 5. 出力：各研究室の配属情報
-labs_assignments_filename = "labs_assignments.csv"
-# 6. 出力：各学生の配属情報
-students_assignments_filename = "students_assignments.csv"
-
-maximum_intensions = 24
-default_lab_capacity = float('inf')
-default_lab_capacity_motivation = 3  # 配属希望理由書にもとづく配属人数枠
-
+def df_to_dict(df, index_column, value_columns = []):
+    dy = dict()
+    for _, row in df.iterrows():
+        if len(row[index_column]) == 0 :
+            '''ignore the row'''
+            continue
+        key = row[index_column]
+        dy[key] = [row[col] for col in value_columns]
+    return dy
+    
 if __name__ == '__main__':
     # CSVファイルのパスを指定
     csv_file_path = 'テスト形式配属希望調査.csv'
@@ -74,59 +94,33 @@ if __name__ == '__main__':
         csv_outfile_path = sys.argv[2]
     
     #intension_df = read_quiz_answers(csv_file_path)
-    intension_df = pd.read_csv(students_preference_filename, encoding='utf-8-sig',keep_default_na=False, na_filter=False)
+    intension_df = pd.read_csv(STUDENTS_ASSIGNMENT_INTENTION_FILEPATH, encoding='utf-8-sig', keep_default_na=False, na_filter=False)
     # CSVファイルに書き出す
     intension_df.to_csv(csv_outfile_path, index=False, encoding='utf-8-sig')
     print('students\' intension has written to '+csv_outfile_path)
     
     # 研究室番号, 研究室ラベル, 指導教員名, 指導教員所属, 最大配属人数, 知能情報工学概論での研究室紹介
-    labs_df = pd.read_csv(labs_info_filename, encoding='utf-8-sig',keep_default_na=False, na_filter=False)
-    labs_df = labs_df.drop(labs_df.index[labs_df['最大配属人数'] == '0'].tolist())
+    labs_df = pd.read_csv(LABS_INFO_FILEPATH, converters={'最大配属人数':try_to_numeric}, encoding='utf-8-sig',keep_default_na=False, na_filter=False)
+    labs_df = labs_df.drop(labs_df.index[labs_df['最大配属人数'] == 0].tolist())
     labs_df = labs_df.drop(labs_df.index[labs_df['研究室ラベル'] == ''].tolist())
     #print(labs_df)
-    labs = dict() 
-    # int(row['研究室番号']) : [row['研究室ラベル'],[row['指導教員名'], row['指導教員所属'], int(row['最大配属人数'])]
-    for _, row in labs_df.iterrows():
-        if len(row['研究室ラベル']) == 0 :
-            '''ignore the row'''
-            continue
-        lablabel = row['研究室ラベル']
-        if row['最大配属人数'] != '' and int(row['最大配属人数']) == 0 :
-            continue
-        elif row['最大配属人数'] != '' :  
-            labs[lablabel] = [row['指導教員所属'], int(row['最大配属人数'])]
-        else:
-            labs[lablabel] = [row['指導教員所属'], default_lab_capacity]
+    labs = df_to_dict(labs_df, '研究室ラベル', ['指導教員所属', '最大配属人数'])
     print(labs.items())
 
     students_df = pd.read_csv(STUDENTS_GRADEINFO_FILEPATH, encoding='utf-8-sig',keep_default_na=False, na_filter=False)
-    students_df = students_df[ ['学生番号', '氏名', 'GPA値'] ]
-    students = dict()
-    for _, row in students_df.iterrows() :
-        if len(row['学生番号']) == 0 :
-            continue
-        sid = str(row['学生番号'])
-        students[sid] = [str(row['氏名']), float(row['GPA値']), _] 
-        intensions = intension_df.loc[intension_df['学生番号']==sid]
-        if intensions.empty :
-            print('error: empty intension ',sid,students[sid])
-        else:
-            ilist = list()
-            for i in intensions.iloc[0].tolist()[4:] :
-                if len(i) == 0 : continue
-                a_pair = i.split('：')
-                a_pair[0] = int(a_pair[0])
-                ilist.append(tuple(a_pair))
-            students[sid].append(ilist)
-    #print(students.items())
+    #students_df = students_df[['学生番号', '学生氏名', '学年', '通計GPA評価']]
+    students_df = students_df[['学生番号', '氏名', 'GPA値']]
+    #students_df.rename(columns={'通計GPA評価': 'GPA値', '学生氏名': '氏名'}, inplace=True)
+    print(students_df.columns)
+    #exit(1)
     
     '''配属人数の決定'''
     assignments = dict()
     for key, info in labs.items():
         labname = key
         assignments[labname] = dict()
-        assignments[labname]['votes'] = [0 for _ in range(maximum_intensions)]
-        assignments[labname]['gpa'] = [0.0 for _ in range(maximum_intensions)]
+        assignments[labname]['votes'] = [0 for _ in range(max_intentionlist_length)]
+        assignments[labname]['gpa'] = [0.0 for _ in range(max_intentionlist_length)]
         assignments[labname]['capa'] = info[1]
     for _, row in intension_df.iterrows():
         intension_list = row.tolist()[4:]
@@ -140,7 +134,9 @@ if __name__ == '__main__':
             popcount = assignments[lab]['votes'][rank]
             highestgpa = assignments[lab]['gpa'][rank]
             assignments[lab]['votes'][rank] = popcount+1
-            assignments[lab]['gpa'][rank] = max(highestgpa, students[row['学生番号']][1])
+            if df_dict(students_df,'学生番号', row['学生番号'], 'GPA値') == None :
+                print(row['学生番号'])
+            assignments[lab]['gpa'][rank] = max(highestgpa, df_dict(students_df,'学生番号', row['学生番号'], 'GPA値'))
     
     with open('prevote-stats.csv', mode='w', encoding='utf-8-sig') as f :
         f.write('研究室ラベル,第1希望,第2希望,第3希望,第4希望,第5希望,第6希望'+ '\n')
@@ -159,7 +155,7 @@ if __name__ == '__main__':
         affil = df_dict(labs_df, '研究室ラベル', each[0], '指導教員所属') 
         max_capa = df_dict(labs_df, '研究室ラベル', each[0], '最大配属人数') 
         if affil == '知能情報工学科' :
-            if max_capa == '' :
+            if max_capa == float('inf') :
                 stats['人数可変の研究室数'] += 1
             else:
                 stats['人数固定の研究室への総配属人数'] += int(max_capa)
