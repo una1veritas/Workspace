@@ -93,8 +93,8 @@ if __name__ == '__main__':
     if len(sys.argv) > 2 :
         csv_outfile_path = sys.argv[2]
     
-    #intension_df = read_quiz_answers(csv_file_path)
-    intension_df = pd.read_csv(STUDENTS_ASSIGNMENT_INTENTION_FILEPATH, encoding='utf-8-sig', keep_default_na=False, na_filter=False)
+    intension_df = read_quiz_answers(csv_file_path)
+    #intension_df = pd.read_csv(STUDENTS_ASSIGNMENT_INTENTION_FILEPATH, encoding='utf-8-sig', keep_default_na=False, na_filter=False)
     # CSVファイルに書き出す
     intension_df.to_csv(csv_outfile_path, index=False, encoding='utf-8-sig')
     print('students\' intension has written to '+csv_outfile_path)
