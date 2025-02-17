@@ -37,12 +37,13 @@ def read_quiz_answers(input_csv_filepath, errlog_filename='read_quiz_answer_err.
 
 if __name__ == '__main__':
     print(sys.argv)
-    if not len(sys.argv) > 1 :
+    if not len(sys.argv) > 2 :
         print('requires quiz anser CSV file.')
         exit(1)
     
-    STUDENTS_ASSIGNMENT_INTENTION_FILEPATH = 'students_intentions-2024.csv'
-    intension_df = read_quiz_answers(sys.argv[1])
+    STUDENTS_QUIZ_FILEPATH = sys.argv[1]
+    intension_df = read_quiz_answers(STUDENTS_QUIZ_FILEPATH)
     # CSVファイルに書き出す
+    STUDENTS_ASSIGNMENT_INTENTION_FILEPATH = sys.argv[2]
     intension_df.to_csv(STUDENTS_ASSIGNMENT_INTENTION_FILEPATH, index=False, encoding='utf-8-sig')
     print('students\' intension has been loaded and written to '+STUDENTS_ASSIGNMENT_INTENTION_FILEPATH)
