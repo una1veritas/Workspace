@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 def find_min_hub_cover(g : nx) -> set :
     remained = g.copy()
     hcover = set()
-    while len(remained.nodes) > 0 :
+    while len(remained.edges) > 0 :
         node_ordered = sorted(remained.nodes, reverse=True, key=lambda x: g.degree(x))
         print(node_ordered)
         break
