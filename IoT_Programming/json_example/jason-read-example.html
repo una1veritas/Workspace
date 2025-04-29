@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Read Local JSON</title>
+</head>
+<body>
+    <h1>JSON Content</h1>
+    <div id="output"></div>
+
+    <script>
+        // Function to fetch and display JSON content
+        async function fetchAndDisplayJSON() {
+            try {
+                // Specify the path to your JSON file
+                const response = await fetch('data.json');
+
+                // Check if the file was fetched successfully
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                // Parse the JSON data
+                const data = await response.json();
+
+                // Display the JSON content on the page
+                const outputDiv = document.getElementById('output');
+                outputDiv.innerHTML = '<pre>' + JSON.stringify(data, null, 4) + '</pre>';
+            } catch (error) {
+                console.error('Error fetching or displaying JSON:', error);
+            }
+        }
+
+        // Call the function to fetch and display the JSON file
+        fetchAndDisplayJSON();
+    </script>
+</body>
+</html>
