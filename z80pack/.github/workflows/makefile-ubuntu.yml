@@ -1,0 +1,30 @@
+name: Makefile CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: sudo apt install libjpeg-turbo8-dev libglu1-mesa-dev
+
+    - name: Build binaries
+      run: make
+
+    - name: Make artifact
+      run: touch z80pack-ubuntu-artifact.tar.gz; tar --exclude='.git/config' --exclude=z80pack-ubuntu-artifact.tar.gz -czf z80pack-ubuntu-artifact.tar.gz .
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4.3.4
+      with:
+         name: z80pack-ubuntu
+         path: ./z80pack-ubuntu-artifact.tar.gz

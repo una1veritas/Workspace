@@ -1,0 +1,59 @@
+This is a Raspberry Pi Pico research machine I have build on a breadboard.
+For hardware description read:
+
+	doc/README-pico.txt
+
+If you don't want to build a machine your self, there are ready fabricated
+systems on PCB available, which can run the software. I have implemented
+picosim also on these:
+
+	https://github.com/udo-munk/RP2xxx-GEEK-80
+	https://github.com/udo-munk/Pico-Eval-Board-80
+
+To build the software you need to have the SDK 2.1.1 for RP2040/RP2350 devices
+installed and configured. The SDK manual has detailed instructions how
+to install on all major PC platforms, it is available here:
+
+https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html
+
+Now you can build picosim for the Pico RP2040 with these commands:
+
+	cd z80pack/picosim/srcsim
+	mkdir build
+	cd build
+	cmake -G "Unix Makefiles" ..
+	make -j
+
+To build picosim for the Pico 2 RP2350 (you can also use
+PICO_PLATFORM=rp2350-riscv if you have the appropriate RISC-V toolchain
+installed):
+
+	cd z80pack/picosim/srcsim
+	mkdir build
+	cd build
+	cmake -D PICO_PLATFORM=rp2350-arm-s -G "Unix Makefiles" ..
+	make -j
+
+The machine is configured for USB UART so that no additional parts are needed
+to hook up a terminal. The default UART also is enabled, to use connect a
+TTL/USB adapter or a pico probe to the default UART pins for the board
+(GP0 & GP1).
+
+This machine can be used with Pico and Pico W boards, it is setup
+for a Pico board. To setup for a Pico W comment/uncomment the lines
+in CMakeLists.txt.
+A Pico W tries to connect to WiFi and if that worked tries to get date/time via NTP
+over the WiFi connection. The date/time is used to set the system clock then.
+This also should work with a Pico 2 W, but has not been tested yet, need to get a board
+sometime.
+
+Preparing a MicroSD card:
+In the root directory of the card create these directories:
+CONF80
+CODE80
+DISKS80
+
+Into the CODE80 directory copy all the .bin files from src-examples.
+Into the DISKS80 directory copy the disk images from disks.
+CONF80 is used to save the configuration, nothing more to do there,
+the directory must exist though.

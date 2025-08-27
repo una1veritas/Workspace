@@ -28,6 +28,17 @@ endif
 
 -include ../makefile.defs
 
+OPTIONAL_TOOL_DEPS := \
+$(wildcard ../makefile.defs) \
+$(wildcard ../makefile.init) \
+$(wildcard ../makefile.targets) \
+
+
+BUILD_ARTIFACT_NAME := avrmega2560test
+BUILD_ARTIFACT_EXTENSION := elf
+BUILD_ARTIFACT_PREFIX :=
+BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
+
 # Add inputs and outputs from these tool invocations to the build variables 
 LSS += \
 avrmega2560test.lss \
@@ -37,23 +48,26 @@ sizedummy \
 
 
 # All Target
-all: avrmega2560test.elf secondary-outputs
+all: main-build
+
+# Main-build Target
+main-build: avrmega2560test.elf secondary-outputs
 
 # Tool invocations
-avrmega2560test.elf: $(OBJS) $(USER_OBJS)
+avrmega2560test.elf: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: AVR C Linker'
 	avr-gcc -Wl,-Map,avrmega2560test.map -mmcu=atmega16 -o "avrmega2560test.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-avrmega2560test.lss: avrmega2560test.elf
+avrmega2560test.lss: avrmega2560test.elf makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Invoking: AVR Create Extended Listing'
 	-avr-objdump -h -S avrmega2560test.elf  >"avrmega2560test.lss"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-sizedummy: avrmega2560test.elf
+sizedummy: avrmega2560test.elf makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Invoking: Print Size'
 	-avr-size --format=avr --mcu=atmega16 avrmega2560test.elf
 	@echo 'Finished building: $@'
@@ -66,7 +80,6 @@ clean:
 
 secondary-outputs: $(LSS) $(SIZEDUMMY)
 
-.PHONY: all clean dependents
-.SECONDARY:
+.PHONY: all clean dependents main-build
 
 -include ../makefile.targets

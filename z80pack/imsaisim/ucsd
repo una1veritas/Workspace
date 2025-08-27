@@ -1,0 +1,10 @@
+#!/bin/sh
+
+rm -f disks/drive[abc].dsk
+ln disks/library/ucsd-iv-1.dsk disks/drivea.dsk
+ln disks/library/ucsd-iv-2.dsk disks/driveb.dsk
+ln disks/library/ucsd-iv-interp.dsk disks/drivec.dsk
+
+BOOTENV=`sed '/^#/d;s/#.*$//;' conf/boot.conf | xargs`
+
+env $BOOTENV ./imsaisim -R $*
