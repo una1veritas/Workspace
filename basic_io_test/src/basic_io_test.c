@@ -11,23 +11,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-char hextonibble(const char c) {
-	char a = c;
-	if (a > 'a' - 1)
-		a &= 0xdf;
+char toupper(char a) {
+	if ( a < 'a' )
+		return a;
+	if ( a < 'z'+1 )
+		return a & 0xdf;
+	return a;
+}
+
+char hex2nib(char a) {
 	if (a < '9' + 1) {
 		a -= '0';
 		if ( a < 0 )
 			return -1;
-	} else if (a < 'F' + 1) {
-		a -= 'A';
-		if ( a < 0 )
+		return a;
+	} else {
+		a = toupper(a);
+		if (a < 'F' + 1) {
+			a -= 'A';
+			if ( a < 0 )
+				return -1;
+			a += 10;
+			return a;
+		} else
 			return -1;
-		a += 10;
 	}
-	if ( a > 15 )
-		return -1;
-	return a;
 }
 
 int main(const int argc, const char * argv[]) {
@@ -37,13 +45,13 @@ int main(const int argc, const char * argv[]) {
 		return EXIT_SUCCESS;
 	printf("input %s\n", argv[1]);
 	for(const char * ptr = argv[1]; *ptr; ++ptr) {
-		char u = hextonibble(*ptr);
+		char u = hex2nib(*ptr);
 		printf("%d ", u);
 	}
 
 	printf("\nfor all the chars.\n");
 	for(char c = 0x20; c < 0x7f; ++c) {
-		char u = hextonibble(c);
+		char u = hex2nib(c);
 		if ( u == -1 ) {
 			printf("%c --> error\n", c);
 		} else {
