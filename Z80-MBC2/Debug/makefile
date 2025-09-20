@@ -8,6 +8,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include DEVEL/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -64,14 +65,14 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := uart_mega
+BUILD_ARTIFACT_NAME := Z80-MBC2
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 LSS += \
-uart_mega.lss \
+Z80-MBC2.lss \
 
 SIZEDUMMY += \
 sizedummy \
@@ -81,31 +82,31 @@ sizedummy \
 all: main-build
 
 # Main-build Target
-main-build: uart_mega.elf secondary-outputs
+main-build: Z80-MBC2.elf secondary-outputs
 
 # Tool invocations
-uart_mega.elf: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
+Z80-MBC2.elf: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: AVR C++ Linker'
-	avr-g++ -Wl,-Map,uart_mega.map,--cref -mrelax -Wl,--gc-sections -mmcu=atmega16 -o "uart_mega.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	avr-g++ -Wl,-Map,Z80-MBC2.map,--cref -mrelax -Wl,--gc-sections -mmcu=atmega16 -o "Z80-MBC2.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-uart_mega.lss: uart_mega.elf makefile objects.mk $(OPTIONAL_TOOL_DEPS)
+Z80-MBC2.lss: Z80-MBC2.elf makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Invoking: AVR Create Extended Listing'
-	-avr-objdump -h -S uart_mega.elf  >"uart_mega.lss"
+	-avr-objdump -h -S Z80-MBC2.elf  >"Z80-MBC2.lss"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-sizedummy: uart_mega.elf makefile objects.mk $(OPTIONAL_TOOL_DEPS)
+sizedummy: Z80-MBC2.elf makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Invoking: Print Size'
-	-avr-size --format=avr --mcu=atmega16 uart_mega.elf
+	-avr-size --format=avr --mcu=atmega16 Z80-MBC2.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(CCM_DEPS)$(C_UPPER_DEPS)$(S_DEPS)$(PDE_DEPS)$(CXXM_DEPS)$(LSS)$(C_DEPS)$(CC_DEPS)$(ELFS)$(C++_DEPS)$(OBJS)$(CXX_DEPS)$(ASM_DEPS)$(INO_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS)$(C++M_DEPS)$(CPP_DEPS) uart_mega.elf
+	-$(RM) $(CCM_DEPS)$(C_UPPER_DEPS)$(S_DEPS)$(PDE_DEPS)$(CXXM_DEPS)$(LSS)$(C_DEPS)$(CC_DEPS)$(ELFS)$(C++_DEPS)$(OBJS)$(CXX_DEPS)$(ASM_DEPS)$(INO_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS)$(C++M_DEPS)$(CPP_DEPS) Z80-MBC2.elf
 	-@echo ' '
 
 secondary-outputs: $(LSS) $(SIZEDUMMY)
