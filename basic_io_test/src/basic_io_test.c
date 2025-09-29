@@ -19,21 +19,21 @@ char upper_case(char a) {
 	return a;
 }
 
-char hex2nib(char a) {
+int hex2nib(char a) {
 	if ( a < '0' )
-		return a | 0x80;
+		return a - 255;
 	if (a < '9' + 1) {
 		a -= '0';
 		return a;
 	}
-	a = upper_case(a);
+	a &= 0xdf;
 	if ( a < 'A' )
-		return a | 0x80;
+		return a - 255;
 	if ( a < 'F' + 1) {
 		a -= 'A' - 10;
 		return a;
 	}
-	return a | 0x80;
+	return a - 255;
 }
 
 int main(const int argc, const char * argv[]) {
@@ -42,14 +42,14 @@ int main(const int argc, const char * argv[]) {
 	if (argc > 1) {
 		printf("input %s\n", argv[1]);
 		for(const char * ptr = argv[1]; *ptr; ++ptr) {
-			unsigned char u = hex2nib(*ptr);
+			int u = hex2nib(*ptr);
 			printf("%d ", u);
 		}
 	}
 
 	printf("\nfor all the chars.\n");
 	for(unsigned char c = 0x20; c < 0x7f; ++c) {
-		unsigned char u = hex2nib(c);
+		int u = hex2nib(c);
 		printf("%c --> %d\n", c, u);
 	}
 
