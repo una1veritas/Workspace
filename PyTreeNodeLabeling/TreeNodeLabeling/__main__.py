@@ -3,45 +3,39 @@ Created on 2025/10/18
 
 @author: sin
 '''
+import pandas as pd
+import numpy as np
 import math
+import itertools
 
-def read_csv(fname):
-    tbl = list()
-    with open(fname, "r") as file:
-        for each in file:
-            row = each.strip().split(',')
-            tbl.append(row)
-    return tbl
+def divide_by_property(tbl, col_name):
+    tix = tbl[0].index(col_name) # raise an error if not appears in column name
+    val2rows = dict()
+    for rix in range(1, len(tbl[1:])):
+        propval = tbl[rix][tix]
+        if propval not in val2rows : val2rows[propval] = list()
+        val2rows[propval].append(rix)
+    return val2rows
 
-def property_values(tbl, col_name):
-    tix = -1
-    for cix in range(len(tbl[0])):
-        if tbl[0][cix] == col_name :
-            tix = cix
-            break
-    if tix == -1 : raise ValueError(f'No such a property: {col_name}')
-    valcounts = dict()
-    for each in tbl[1:]:
-        val = each[tix]
-        if val not in valcounts : valcounts[val] = 0
-        valcounts[val] += 1
-    return valcounts
+def class_purity(tbl, col_name):
+    val2rows = divide_by_property(tbl, col_name)
+    return
 
-def best_query(tbl):
-    クラスをつかってないやん
+def best_query(df):
     best_gain = 0.0
     best_col = None
-    for col in tbl[0][:-1]: # for each column title
-        d = property_values(tbl, col)
-        total = sum(d.values())
-        gain = 0.0
-        for pval, count in d.items():
-            gain += -count/total * math.log(2, count/total) if count > 0 else 0
-        if not best_col or (best_col and best_gain < gain) :
-            best_col = col
-            best_gain = gain
-    
-    return best_col, best_gain            
+    decisions = df.columns[-1], list(df[df.columns[-1]].value_counts().index)
+    for col in df.columns[:-1]: 
+        '''compute inf gain for col'''
+        col_val_count = df[col].value_counts()
+        total_rows = col_val_count.sum()
+        proddict = dict()
+        for val in col_val_count.keys():
+            proddict[val] = dict()
+            for dname in decisions[1]:
+                proddict[val][dname] = len(df[(df[col] == val) & (df[decisions[0]] == dname)])
+        print(col, proddict)            
+    return best_col, best_gain
     
 def separate_by_query(tbl, query):
     tbldict = dict()
@@ -71,11 +65,13 @@ class DecisionTree:
         tbls = separate_by_query(tbl, query)
         if len(tbls) > 1 :
             self.root = QueryNode(query, tbls.keys())
-        else:
+        
             
             
 if __name__ == '__main__':
-    tbl = read_csv('golf-dataset.csv')
-    query, infgain = best_query(tbl)
-    tbls = separate_by_query(tbl, query)
-    print(tbls)
+    df = pd.read_csv('golf-dataset.csv')
+    query, infgain = best_query(df)
+    exit(1)
+    dflist = separate_by_query(df, query)
+    for each in dflist: print(each)
+    
