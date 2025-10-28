@@ -67,7 +67,7 @@ def find_min_hub_cover(g : Graph) -> set :
         
 if __name__ == '__main__':
     # Create a random graph
-    G = nx.erdos_renyi_graph(n=20, p=0.2)  # n: number of nodes, p: probability of edge creation
+    G = nx.erdos_renyi_graph(n=16, p=0.2)  # n: number of nodes, p: probability of edge creation
     '''Random Graphs: nx.erdos_renyi_graph(n, p)
     Barabási–Albert Graphs: nx.barabasi_albert_graph(n, m)
     Small-world Networks: nx.watts_strogatz_graph(n, k, p)
@@ -83,38 +83,51 @@ if __name__ == '__main__':
     
     hcover = find_min_hub_cover(graph)
     print(hcover)
- 
+    remained = graph.nodes - hcover
+    print()
+    
     cnt = 0
-    dq = deque()
+    deq = deque()
+    deqlen_limit = 5
+    nodes_list = list(graph.nodes)
+    hcov_lst = list(hcover)
+    rem_lst = list(remained)
+    print("hcov = ", hcov_lst, "\nrem = ", rem_lst)
+    last = None
     while True :
-        if dq :
-            if len(dq) & 1 == 0 :
-                node = list(hcover - set(dq))[0]
-                dq.append(node)
-            else:
-                node = list(graph.nodes - hcover - set(dq))[0]
-                dq.append(node)
-        else:
-            node = list(hcover)[0]
-            dq.append(node)
+        ''' reduce deq '''
+        if len(deq) == deqlen_limit :
+            last = deq.pop()
+            #print(last, deq)
+        cnt += 1
+        if (cnt > 100000) : 
+            print('abandoned.')
+            break
+        ''' extend deq '''
+        if len(deq) < deqlen_limit :
+            startix = 0
+            if len(deq) & 1 == 0 : 
+                ''' even: 0, 2, ... from hcover nodes '''
+                hcov_cand = [e for e in hcov_lst if e not in deq]
+                if last :
+                    startix = hcov_cand.index(last) + 1
+                    if not startix < len(hcov_cand) :
+                        last = deq.pop()
+                        continue
+                deq.append(hcov_cand[startix])
+                last = None
+            else: 
+                ''' odd, from remained nodes '''
+                rem_cand = [e for e in rem_lst if e not in deq]
+                if last :
+                    startix = rem_cand.index(last) + 1
+                    if not startix < len(rem_cand) :
+                        last = deq.pop()
+                        continue
+                deq.append(rem_cand[startix])
+                last = None
         
-        if len(dq) < 5 :
-            print(dq)
-        else:
-            print(dq)
-            last = dq.pop()
-            if len(dq) & 1 == 0 :
-                lst = list(hcover - set(dq))
-                print(dq, lst)
-                ix = lst.index(last)
-                if ix + 1 == len(lst):
-                    break
-                dq.append(lst[ix + 1])
-            else:
-                lst =  list(graph.nodes - hcover - set(dq))[0]
-                print(dq, lst)
-                ix = lst.index(last)
-                if ix + 1 == len(lst):
-                    break
-                dq.append(lst[ix + 1])
-                
+        print(cnt, deq)
+        
+    print('finished?', cnt)
+    
