@@ -8,6 +8,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from itertools import combinations
 from collections import deque
+import time
 
 class Graph:
     def __init__(self, nxgraph : nx) :
@@ -67,7 +68,7 @@ def find_min_hub_cover(g : Graph) -> set :
         
 if __name__ == '__main__':
     # Create a random graph
-    G = nx.erdos_renyi_graph(n=16, p=0.2)  # n: number of nodes, p: probability of edge creation
+    G = nx.erdos_renyi_graph(n=250, p=0.2)  # n: number of nodes, p: probability of edge creation
     '''Random Graphs: nx.erdos_renyi_graph(n, p)
     Barabási–Albert Graphs: nx.barabasi_albert_graph(n, m)
     Small-world Networks: nx.watts_strogatz_graph(n, k, p)
@@ -87,46 +88,57 @@ if __name__ == '__main__':
     print()
     
     cnt = 0
-    deq = deque()
-    deqlen_limit = 5
-    hcov_lst = list(hcover)
-    rem_lst = list(remained)
+    loop_lim = float('inf') # 20000
+    deqs = deque()
+    depth_limit = 5
+    hcov_lst = sorted(list(hcover)) # make sorted for debug
+    rem_lst = sorted(list(remained))
     print("hcov = ", hcov_lst, "\nrem = ", rem_lst)
     last = None
+    deqs.append(hcov_lst.copy())
+    
+    #lastone = []
+    start = time.perf_counter()
     while True :
-        ''' reduce deq '''
-        if len(deq) == deqlen_limit :
-            last = deq.pop()
-            #print(last, deq)
-        cnt += 1
-        if (cnt > 100000) : 
-            print('abandoned.')
-            break
-        ''' extend deq '''
-        if len(deq) < deqlen_limit :
-            startix = 0
-            if len(deq) & 1 == 0 : 
-                ''' even: 0, 2, ... from hcover nodes '''
-                hcov_cand = [e for e in hcov_lst if e not in deq]
-                if last :
-                    startix = hcov_cand.index(last) + 1
-                    if not startix < len(hcov_cand) :
-                        last = deq.pop()
-                        continue
-                deq.append(hcov_cand[startix])
-                last = None
+        
+        ''' extend deqs '''
+        if len(deqs) < depth_limit :
+            selected = [deq[0] for deq in deqs]
+            if len(deqs) & 1 == 0 : 
+                ''' adding odd-th candidates, from hcover '''
+                deqs.append([v for v in hcov_lst if v not in selected])
             else: 
-                ''' odd, from remained nodes '''
-                rem_cand = [e for e in rem_lst if e not in deq]
-                if last :
-                    startix = rem_cand.index(last) + 1
-                    if not startix < len(rem_cand) :
-                        last = deq.pop()
-                        continue
-                deq.append(rem_cand[startix])
-                last = None
+                ''' adding even-th candidates, from remeined '''
+                deqs.append([v for v in rem_lst if v not in selected])
         
-        print(cnt, deq)
+        ''' enumerate it '''
+        if len(deqs) == depth_limit :
+            selected = [deq[0] for deq in deqs]
+            if cnt & 0xfffff == 0 :
+                print(cnt>>10, deqs)            
+                #print(selected)
+            # if lastone :
+            #     if not (lastone < selected) :
+            #         raise ValueError('something going wrong!') 
+            # lastone = selected
+            deqs[-1].pop(0)
+
+        ''' go next or reduce deqs '''
+        while len(deqs[-1]) == 0 :
+            deqs.pop()
+            if len(deqs) == 0 :
+                break
+            deqs[-1].pop(0)
         
+        if len(deqs) == 0 :
+            break
+        
+        ''' debug '''
+        cnt += 1
+        # if cnt > loop_lim : 
+        #     break
+
+    end = time.perf_counter()
+    print(f"Elapsed: {end - start:.6f} seconds")
     print('finished?', cnt)
     
