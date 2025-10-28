@@ -89,7 +89,6 @@ if __name__ == '__main__':
     cnt = 0
     deq = deque()
     deqlen_limit = 5
-    nodes_list = list(graph.nodes)
     hcov_lst = list(hcover)
     rem_lst = list(remained)
     print("hcov = ", hcov_lst, "\nrem = ", rem_lst)
