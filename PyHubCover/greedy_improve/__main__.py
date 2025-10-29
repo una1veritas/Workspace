@@ -50,25 +50,43 @@ class Graph:
         if a_node in an_edge:
             return True
         return (a_node in self.adjnodes[an_edge[0]]) and (a_node in self.adjnodes[an_edge[1]])
+    
+    def hub_coverable_edges(self, a_node):
+        edge_set = set()
+        for adj in self.adjnodes[a_node]:
+            if a_node < adj :
+                edge_set.add( (a_node, adj) )
+            else:
+                edge_set.add( (adj, a_node) )
+            for adjadj in self.adjnodes[adj]:
+                if adjadj in self.adjnodes[a_node]:
+                    if adj < adjadj :
+                        edge_set.add( (adj, adjadj) )
+                    else:
+                        edge_set.add( (adjadj, adj) )
+        return edge_set
        
 def find_min_hub_cover(g : Graph) -> set :
     remained_edges = g.edge_set()
     remained_nodes = g.nodes
     hcover = set()
     while len(remained_edges) > 0 :
-        covercounts = sorted([ (v, len([ e for e in remained_edges if g.in_triangle(v, e)])) for v in remained_nodes], 
-                             reverse=True, key=lambda x: x[1] )
-        print(covercounts)
-        v = covercounts[0][0]
-        
-        remained_edges = set([e for e in remained_edges if not g.in_triangle(v, e)])
+        best_count = 0
+        best_v = None
+        for v in remained_nodes:
+            count = len(g.hub_coverable_edges(v))
+            if count > best_count :
+                best_v = v
+                best_count = count
+        v = best_v
+        remained_edges -= g.hub_coverable_edges(v)
         hcover.add(v)
         remained_nodes.remove(v)
     return hcover
         
 if __name__ == '__main__':
     # Create a random graph
-    G = nx.erdos_renyi_graph(n=250, p=0.2)  # n: number of nodes, p: probability of edge creation
+    G = nx.erdos_renyi_graph(n=500, p=0.2)  # n: number of nodes, p: probability of edge creation
     '''Random Graphs: nx.erdos_renyi_graph(n, p)
     Barabási–Albert Graphs: nx.barabasi_albert_graph(n, m)
     Small-world Networks: nx.watts_strogatz_graph(n, k, p)
@@ -90,7 +108,7 @@ if __name__ == '__main__':
     cnt = 0
     loop_lim = float('inf') # 20000
     deqs = deque()
-    depth_limit = 5
+    depth_limit = 3
     hcov_lst = sorted(list(hcover)) # make sorted for debug
     rem_lst = sorted(list(remained))
     print("hcov = ", hcov_lst, "\nrem = ", rem_lst)
@@ -115,8 +133,8 @@ if __name__ == '__main__':
         if len(deqs) == depth_limit :
             selected = [deq[0] for deq in deqs]
             if cnt & 0xfffff == 0 :
-                print(cnt>>10, deqs)            
-                #print(selected)
+                print(cnt>>10, deqs)
+                print(selected)
             # if lastone :
             #     if not (lastone < selected) :
             #         raise ValueError('something going wrong!') 
