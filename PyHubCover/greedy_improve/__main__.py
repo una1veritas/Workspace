@@ -91,7 +91,7 @@ def find_min_hub_cover(g : Graph) -> set :
         
 if __name__ == '__main__':
     # Create a random graph
-    G = nx.erdos_renyi_graph(n=200, p=0.33)  # n: number of nodes, p: probability of edge creation
+    G = nx.erdos_renyi_graph(n=500, p=0.33)  # n: number of nodes, p: probability of edge creation
     '''Random Graphs: nx.erdos_renyi_graph(n, p)
     Barabási–Albert Graphs: nx.barabasi_albert_graph(n, m)
     Small-world Networks: nx.watts_strogatz_graph(n, k, p)
