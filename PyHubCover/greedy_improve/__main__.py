@@ -51,64 +51,73 @@ class Graph:
             return True
         return (a_node in self.adjnodes[an_edge[0]]) and (a_node in self.adjnodes[an_edge[1]])
     
-    def hub_coverable_edges(self, a_node):
-        edge_set = set()
+    def hub_covering_edges(self, a_node):
+        edges = set()
         for adj in self.adjnodes[a_node]:
             if a_node < adj :
-                edge_set.add( (a_node, adj) )
+                edges.add( (a_node, adj) )
             else:
-                edge_set.add( (adj, a_node) )
+                edges.add( (adj, a_node) )
             for adjadj in self.adjnodes[adj]:
                 if adjadj in self.adjnodes[a_node]:
                     if adj < adjadj :
-                        edge_set.add( (adj, adjadj) )
+                        edges.add( (adj, adjadj) )
                     else:
-                        edge_set.add( (adjadj, adj) )
-        return edge_set
+                        edges.add( (adjadj, adj) )
+        return edges
        
 def find_min_hub_cover(g : Graph) -> set :
     remained_edges = g.edge_set()
-    remained_nodes = g.nodes
     hcover = set()
+    cover_edges = dict()   # ''' keys == remained nodes, the union of all values == remained edges'''
+    for v in g.nodes:
+        cover_edges[v] = g.hub_covering_edges(v)
     while len(remained_edges) > 0 :
-        best_count = 0
-        best_v = None
-        for v in remained_nodes:
-            count = len(g.hub_coverable_edges(v))
-            if count > best_count :
-                best_v = v
-                best_count = count
-        v = best_v
-        remained_edges -= g.hub_coverable_edges(v)
-        hcover.add(v)
-        remained_nodes.remove(v)
+        best = 0
+        node = None
+        for v, covedges in cover_edges.items():
+            count = len(covedges)
+            if count > best :
+                best = count
+                node = v
+        new_covered = cover_edges.pop(node)
+        for v in list(cover_edges.keys()):
+            cover_edges[v] -= new_covered
+            if len(cover_edges[v]) == 0 :
+                cover_edges.pop(v)
+        hcover.add(node)
+        remained_edges -= new_covered
     return hcover
         
 if __name__ == '__main__':
     # Create a random graph
-    G = nx.erdos_renyi_graph(n=500, p=0.2)  # n: number of nodes, p: probability of edge creation
+    G = nx.erdos_renyi_graph(n=200, p=0.33)  # n: number of nodes, p: probability of edge creation
     '''Random Graphs: nx.erdos_renyi_graph(n, p)
     Barabási–Albert Graphs: nx.barabasi_albert_graph(n, m)
     Small-world Networks: nx.watts_strogatz_graph(n, k, p)
     '''
-    # Visualize the graph
-    # nx.draw(G, with_labels=True, node_color="lightblue", node_size=500, font_size=10)
-    # plt.show()    
-    # Save the graph to a file
-    #nx.write_gml(G, "graph.gml")
     
     graph = Graph(G)
     print(graph)
     
+    start = time.perf_counter()
     hcover = find_min_hub_cover(graph)
-    print(hcover)
+    end = time.perf_counter()
+    print("HubCover = ", hcover, "\nsize = ", len(hcover))
+    print(f"Elapsed: {end - start:.6f} seconds")
     remained = graph.nodes - hcover
     print()
+
+    # Visualize the graph
+    nx.draw(G, with_labels=True, node_color="lightblue", node_size=500, font_size=10)
+    plt.show()    
+    # Save the graph to a file
+    #nx.write_gml(G, "graph.gml")
     
     cnt = 0
     loop_lim = float('inf') # 20000
     deqs = deque()
-    depth_limit = 3
+    depth_limit = 5
     hcov_lst = sorted(list(hcover)) # make sorted for debug
     rem_lst = sorted(list(remained))
     print("hcov = ", hcov_lst, "\nrem = ", rem_lst)
@@ -132,9 +141,9 @@ if __name__ == '__main__':
         ''' enumerate it '''
         if len(deqs) == depth_limit :
             selected = [deq[0] for deq in deqs]
-            if cnt & 0xfffff == 0 :
-                print(cnt>>10, deqs)
-                print(selected)
+            # if cnt & 0x7fffff == 0 :
+            #     print(cnt>>10, deqs)
+            #     print(selected)
             # if lastone :
             #     if not (lastone < selected) :
             #         raise ValueError('something going wrong!') 
