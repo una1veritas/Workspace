@@ -6,7 +6,7 @@ Created on 2025/10/27
 
 import networkx as nx
 import matplotlib.pyplot as plt
-from itertools import combinations
+# from itertools import combinations
 from collections import deque
 import time
 
@@ -69,9 +69,12 @@ class Graph:
 def find_min_hub_cover(g : Graph) -> set :
     remained_edges = g.edge_set()
     hcover = set()
-    cover_edges = dict()   # ''' keys == remained nodes, the union of all values == remained edges'''
-    for v in g.nodes:
-        cover_edges[v] = g.hub_covering_edges(v)
+    cover_edges = { v: set() for v in g.nodes}   # ''' keys == remained nodes, the union of all values == remained edges'''
+    for (u, v) in g.edge_set():
+        cover_edges[u].add( (u, v) )
+        cover_edges[v].add( (u, v) )
+        for w in g.adjnodes[u] & g.adjnodes[v] :
+            cover_edges[w].add( (u, v) )
     while len(remained_edges) > 0 :
         best = 0
         node = None
@@ -81,24 +84,27 @@ def find_min_hub_cover(g : Graph) -> set :
                 best = count
                 node = v
         new_covered = cover_edges.pop(node)
-        for v in list(cover_edges.keys()):
+        no_edges = list()
+        for v in cover_edges.keys():
             cover_edges[v] -= new_covered
             if len(cover_edges[v]) == 0 :
-                cover_edges.pop(v)
+                no_edges.append(v)
+        for v in no_edges:
+            cover_edges.pop(v)
         hcover.add(node)
         remained_edges -= new_covered
     return hcover
         
 if __name__ == '__main__':
     # Create a random graph
-    G = nx.erdos_renyi_graph(n=500, p=0.33)  # n: number of nodes, p: probability of edge creation
+    G = nx.erdos_renyi_graph(n=1023, p=0.7)  # n: number of nodes, p: probability of edge creation
     '''Random Graphs: nx.erdos_renyi_graph(n, p)
     Barabási–Albert Graphs: nx.barabasi_albert_graph(n, m)
     Small-world Networks: nx.watts_strogatz_graph(n, k, p)
     '''
     
     graph = Graph(G)
-    print(graph)
+    print(f'the number of nodes = {len(graph.nodes)}, the number of edges = {len(graph.edge_set())} ')
     
     start = time.perf_counter()
     hcover = find_min_hub_cover(graph)
@@ -109,10 +115,12 @@ if __name__ == '__main__':
     print()
 
     # Visualize the graph
-    nx.draw(G, with_labels=True, node_color="lightblue", node_size=500, font_size=10)
-    plt.show()    
+    #nx.draw(G, with_labels=True, node_color="lightblue", node_size=500, font_size=10)
+    #plt.show()    
     # Save the graph to a file
     #nx.write_gml(G, "graph.gml")
+    
+    exit(0)
     
     cnt = 0
     loop_lim = float('inf') # 20000
