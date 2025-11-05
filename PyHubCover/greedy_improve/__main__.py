@@ -115,8 +115,8 @@ if __name__ == '__main__':
     print()
 
     # Visualize the graph
-    #nx.draw(G, with_labels=True, node_color="lightblue", node_size=500, font_size=10)
-    #plt.show()    
+    nx.draw(G, with_labels=True, node_color="lightblue", node_size=500, font_size=10)
+    plt.show()    
     # Save the graph to a file
     #nx.write_gml(G, "graph.gml")
     
