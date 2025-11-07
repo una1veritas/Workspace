@@ -13,84 +13,88 @@ import time
 class Graph:
     def __init__(self, nxgraph : nx) :
         self.nodes = set(nxgraph.nodes)
-        self.adjnodes = dict()
-        for e in nxgraph.edges:
-            if e[0] not in self.adjnodes :
-                self.adjnodes[e[0]] = set()
-            self.adjnodes[e[0]].add(e[1])
-            if e[1] not in self.adjnodes :
-                self.adjnodes[e[1]] = set()
-            self.adjnodes[e[1]].add(e[0])
+        self.edges = set()
+        self.adjdict = dict()
+        for (u, v) in nxgraph.edges:
+            if u < v :
+                self.edges.add( (u, v) )
+            else:
+                self.edges.add( (v, u) )
+            if u not in self.adjdict :
+                self.adjdict[u] = set()
+            self.adjdict[u].add(v)
+            if v not in self.adjdict :
+                self.adjdict[v] = set()
+            self.adjdict[v].add(u)
     
     def __str__(self):
         outstr = "Graph("
         outstr += str(self.nodes)
         outstr += ", "
-        outstr += str(self.edge_set())
+        outstr += str(self.edges)
         outstr += ") "
         return outstr
     
-    def edge_set(self):
-        edge_pairs = set()
-        for node in self.nodes:
-            if node not in self.adjnodes :
-                continue
-            for adjnode in self.adjnodes[node]:
-                if node < adjnode :
-                    edge_pairs.add( (node, adjnode) )
-        return edge_pairs
-    
     def degree(self, node):
-        return len(self.adjnodes[node])
+        return len(self.adjdict[node])
     
-    def adjacents(self, node):
-        return self.adjnodes[node]
+    def adjacent_node_set(self, node):
+        return self.adjdict[node]
     
+    def adjacent(self, u, v):
+        return v in self.adjdict[u]
+    
+    '''
     def in_triangle(self, a_node, an_edge):
         if a_node in an_edge:
             return True
-        return (a_node in self.adjnodes[an_edge[0]]) and (a_node in self.adjnodes[an_edge[1]])
+        return (a_node in self.adjdict[an_edge[0]]) and (a_node in self.adjdict[an_edge[1]])
     
-    def hub_covering_edges(self, a_node):
-        edges = set()
-        for adj in self.adjnodes[a_node]:
+    def edges_within_triangles(self, a_node):
+        in_triangles = set()
+        for adj in self.adjdict[a_node]:
             if a_node < adj :
-                edges.add( (a_node, adj) )
+                in_triangles.add( (a_node, adj) )
             else:
-                edges.add( (adj, a_node) )
-            for adjadj in self.adjnodes[adj]:
-                if adjadj in self.adjnodes[a_node]:
+                in_triangles.add( (adj, a_node) )
+            for adjadj in self.adjdict[adj]:
+                if adjadj in self.adjdict[a_node]:
                     if adj < adjadj :
-                        edges.add( (adj, adjadj) )
+                        in_triangles.add( (adj, adjadj) )
                     else:
-                        edges.add( (adjadj, adj) )
-        return edges
-       
+                        in_triangles.add( (adjadj, adj) )
+        return in_triangles
+    '''
+    
 def find_min_hub_cover(g : Graph) -> set :
-    remained_edges = g.edge_set()
+    remained_edges = g.edges.copy()
     hcover = set()
-    cover_edges = { v: set() for v in g.nodes}   # ''' keys == remained nodes, the union of all values == remained edges'''
-    for (u, v) in g.edge_set():
-        cover_edges[u].add( (u, v) )
-        cover_edges[v].add( (u, v) )
-        for w in g.adjnodes[u] & g.adjnodes[v] :
-            cover_edges[w].add( (u, v) )
+    coverables = dict()
+    for (u, v) in g.edges :
+        if u not in coverables: coverables[u] = set()
+        if v not in coverables: coverables[v] = set()
+        coverables[u].add( (u, v) )
+        coverables[v].add( (u, v) )
+        for w in g.adjdict[u] & g.adjdict[v] :
+            if w not in coverables: coverables[w] = set()
+            coverables[w].add( (u, v) )
+
     while len(remained_edges) > 0 :
         best = 0
         node = None
-        for v, covedges in cover_edges.items():
-            count = len(covedges)
+        for v, edges in coverables.items():
+            count = len(edges)
             if count > best :
                 best = count
                 node = v
-        new_covered = cover_edges.pop(node)
+        new_covered = coverables.pop(node)
         no_edges = list()
-        for v in cover_edges.keys():
-            cover_edges[v] -= new_covered
-            if len(cover_edges[v]) == 0 :
+        for v in coverables.keys():
+            coverables[v] -= new_covered
+            if len(coverables[v]) == 0 :
                 no_edges.append(v)
         for v in no_edges:
-            cover_edges.pop(v)
+            coverables.pop(v)
         hcover.add(node)
         remained_edges -= new_covered
     return hcover
@@ -104,7 +108,7 @@ if __name__ == '__main__':
     '''
     
     graph = Graph(G)
-    print(f'the number of nodes = {len(graph.nodes)}, the number of edges = {len(graph.edge_set())} ')
+    print(f'the number of nodes = {len(graph.nodes)}, the number of edges = {len(graph.edges)} ')
     
     start = time.perf_counter()
     hcover = find_min_hub_cover(graph)
