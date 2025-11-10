@@ -78,7 +78,6 @@ def find_min_hub_cover(g : Graph) -> set :
         for w in g.adjdict[u] & g.adjdict[v] :
             if w not in coverables: coverables[w] = set()
             coverables[w].add( (u, v) )
-
     while len(remained_edges) > 0 :
         best = 0
         node = None
