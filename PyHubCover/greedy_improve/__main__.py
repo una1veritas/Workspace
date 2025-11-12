@@ -166,7 +166,7 @@ if __name__ == '__main__':
     Small-world Networks: nx.watts_strogatz_graph(n, k, p)
     '''
     
-    graph = UndirectedGraph(node_size = 23, random_graph=True, probability = 0.3, degree_bound = 3)
+    graph = UndirectedGraph(node_size = 64, random_graph=True, probability = 0.3, degree_bound = 3)
     print(f'the number of nodes = {len(graph.nodes)}, the number of edges = {len(graph.edges)} ')
     if len(graph.nodes) < 100 : print(graph)
         
