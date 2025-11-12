@@ -34,6 +34,9 @@ class UndirectedGraph:
         
         def __str__(self):
             return f'({self.nodes[0]}, {self.nodes[1]})'
+        
+        def __repr__(self):
+            return f'Edge({self.nodes[0]}, {self.nodes[1]})'
 
         def __hash__(self):
             return (hash(self.nodes[0]) <<16 + hash(self.nodes[0])) ^ (hash(self.nodes[1] <<16) + hash(self.nodes[1])) 
@@ -47,11 +50,14 @@ class UndirectedGraph:
         def __len__(self):
             return 2
                 
-    def __init__(self, nodes = None, edges = None) :
-        self.nodes = nodes if nodes else set()
-        self.edges = edges if edges else set()
-        if self.nodes and self.edges :
-            self.adjnodes = dict()
+    def __init__(self, nodes = None, edges = None, random_graph = False, node_size = None, probability = None, degree_bound = None) :
+        self.nodes = set(nodes) if nodes else set()
+        self.edges = set()
+        self.adjnodes = dict()
+        if random_graph == False:
+            if edges :
+                for ea in edges :
+                    self.edges.add(self.Edge(ea[0], ea[1]))
             for u, v in edges:
                 if u not in self.adjnodes :
                     self.adjnodes[u] = set()
@@ -59,10 +65,31 @@ class UndirectedGraph:
                 if v not in self.adjnodes :
                     self.adjnodes[v] = set()
                 self.adjnodes[v].add(u)
+        else:
+        #def random_graph(self, size, p = 0.5, degree_bound = None):
+            self.clear()
+            self.nodes = set(range(0, node_size))
+            degree_bound = len(self.nodes) if degree_bound == None else int(degree_bound)
+            #print('degreebound = ', degree_bound)
+            pairs = set([(u, v) for (u, v) in itertools.combinations(self.nodes, 2)])
+            while len(pairs) :
+                pair_list = list(pairs)
+                (u, v) = random.choice(pair_list)
+                if random.random() <= probability :
+                    if (u not in self.adjnodes or len(self.adjnodes[u]) < degree_bound) and \
+                    ( v not in self.adjnodes or len(self.adjnodes[v]) < degree_bound) :
+                        self.add_edge(u, v)
+                pairs.remove( (u, v) )
+
     
+    def clear(self):
+        self.nodes.clear()
+        self.edges.clear()
+        self.adjnodes.clear()
+        
     def add_edge(self, u, v):
         if u in self.nodes and v in self.nodes :
-            self.edges.add(UndirectedGraph.Edge(u, v))
+            self.edges.add(self.Edge(u, v))
             if u not in self.adjnodes :
                 self.adjnodes[u] = set()
             self.adjnodes[u].add(v)
@@ -70,17 +97,8 @@ class UndirectedGraph:
                 self.adjnodes[v] = set()
             self.adjnodes[v].add(u)
         else:
-            raise ValueError('an Edge must have two nodes as its end-points.')
-    
-    def random_graph(self, size, p = 0.5, degree_bound = None):
-        self.nodes = set(range(0,size))
-        degree_bound = len(self.nodes) if degree_bound == None else int(degree_bound)
-        for (u, v) in itertools.combinations(self.nodes, 2): 
-            if random.random() > p :
-                print(self.degree(u), self.degree(v))
-                if self.degree(u) < degree_bound and self.degree(v) < degree_bound :
-                    self.add_edge(u, v)
-    
+            raise ValueError('an Edge must be a pair of nodes.')
+             
     def __str__(self):
         outstr = "Graph("
         outstr += str(self.nodes)
@@ -142,19 +160,16 @@ def find_min_hub_cover(g : UndirectedGraph) -> set :
         
 if __name__ == '__main__':
     # Create a random graph
-    G = nx.erdos_renyi_graph(n=23, p=0.2)  # n: number of nodes, p: probability of edge creation
+    #G = nx.erdos_renyi_graph(n=23, p=0.2)  # n: number of nodes, p: probability of edge creation
     '''Random Graphs: nx.erdos_renyi_graph(n, p)
     Barabási–Albert Graphs: nx.barabasi_albert_graph(n, m)
     Small-world Networks: nx.watts_strogatz_graph(n, k, p)
     '''
     
-    graph = UndirectedGraph(G.nodes, G.edges)
+    graph = UndirectedGraph(node_size = 23, random_graph=True, probability = 0.3, degree_bound = 3)
     print(f'the number of nodes = {len(graph.nodes)}, the number of edges = {len(graph.edges)} ')
     if len(graph.nodes) < 100 : print(graph)
-    
-    graph.random_graph(16, 0.2, 3)
-    print(graph)
-    
+        
     exit(0)
     
     start = time.perf_counter()
