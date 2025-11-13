@@ -108,9 +108,12 @@ class UndirectedGraph:
         return outstr
     
     def degree(self, node):
-        return len(self.adjacents(node))
+        return len(self.adjacent_nodes(node))
     
-    def adjacents(self, node):
+    def adjacent(self, u, v):
+        return self.Edge(u,v) in self.edges
+    
+    def adjacent_nodes(self, node):
         if node not in self.adjnodes :
             return set()
         return self.adjnodes[node]
@@ -131,13 +134,10 @@ class UndirectedGraph:
        
 def find_min_hub_cover(g : UndirectedGraph) -> set :
     remained_edges = g.edges
-    hcover = set()
-    cover_edges = { v: set() for v in g.nodes}   # ''' keys == remained nodes, the union of all values == remained edges'''
-    for (u, v) in g.edges:
-        cover_edges[u].add( (u, v) )
-        cover_edges[v].add( (u, v) )
-        for w in g.adjnodes[u] & g.adjnodes[v] :
-            cover_edges[w].add( (u, v) )
+    cover = set()
+    covering_edges = dict()
+    for v in g.nodes:
+        covering_edges[v] = set([])
     while len(remained_edges) > 0 :
         best = 0
         node = None
@@ -170,7 +170,6 @@ if __name__ == '__main__':
     print(f'the number of nodes = {len(graph.nodes)}, the number of edges = {len(graph.edges)} ')
     if len(graph.nodes) < 100 : print(graph)
         
-    exit(0)
     
     start = time.perf_counter()
     hcover = find_min_hub_cover(graph)
