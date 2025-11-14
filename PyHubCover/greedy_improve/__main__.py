@@ -8,9 +8,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import itertools 
 from collections import deque
-import time
-import random
-from itertools import combinations
+import time, math, random
 
 class UndirectedGraph:
     
@@ -27,13 +25,16 @@ class UndirectedGraph:
                 raise ValueError('nodes of an edge must be comparable.')
         
         def __eq__(self, another):
-            return isinstance(another, self) and (self.nodes == another.nodes)
+            return isinstance(another, UndirectedGraph.Edge) and (self.nodes == another.nodes)
         
         def __ne__(self, another):
             return self.__eq__(another)
         
         def __str__(self):
             return f'({self.nodes[0]}, {self.nodes[1]})'
+        
+        def __repr__(self):
+            return f'Edge({self.nodes[0]}, {self.nodes[1]})'
 
         def __hash__(self):
             return (hash(self.nodes[0]) <<16 + hash(self.nodes[0])) ^ (hash(self.nodes[1] <<16) + hash(self.nodes[1])) 
@@ -44,25 +45,57 @@ class UndirectedGraph:
         def __getiten(self, i):
             return self.nodes[i]
         
+        def __iter__(self):
+            return self.nodes
+        
+        def __next__(self):
+            for v in self.nodes:
+                yield v
+            raise StopIteration()
+        
         def __len__(self):
             return 2
-                
-    def __init__(self, nodes = None, edges = None) :
-        self.nodes = nodes if nodes else set()
-        self.edges = edges if edges else set()
-        if self.nodes and self.edges :
-            self.adjnodes = dict()
-            for u, v in edges:
-                if u not in self.adjnodes :
-                    self.adjnodes[u] = set()
-                self.adjnodes[u].add(v)
-                if v not in self.adjnodes :
-                    self.adjnodes[v] = set()
-                self.adjnodes[v].add(u)
+        
+        def pair(self):
+                return self.nodes
+    def __init__(self, nodes = None, edges = None, degree_bound = None) :
+        self.adjnodes = dict()
+        if isinstance(nodes, int) :
+            self.nodes = set([_ for _ in range(nodes)])
+        else:
+            if nodes :
+                self.nodes = nodes
+            else:
+                ValueError('Nothing for nodes specified.')
+        if edges :
+            if isinstance(edges, (tuple, list, set)) :
+                self.edges = set()
+                for ea in edges:
+                    self.edges.add(self.Edge(ea))
+            else:
+                raise ValueError('supplied non-collection object as edges.')
+        else:
+            self.edges = set()
+            if not degree_bound :
+                degree_bound = math.sqrt(len(self.nodes))
+            pairs = set([(u, v) for (u, v) in itertools.combinations(self.nodes, 2)])
+            while len(pairs) :
+                pair_list = list(pairs)
+                (u, v) = random.choice(pair_list)
+                if self.degree(u) < degree_bound and self.degree(u) < degree_bound :
+                    if not self.adjacent(u, v) :
+                        self.add_edge(u, v)
+                pairs.remove( (u, v) )
+
     
+    def clear(self):
+        self.nodes.clear()
+        self.edges.clear()
+        self.adjnodes.clear()
+        
     def add_edge(self, u, v):
         if u in self.nodes and v in self.nodes :
-            self.edges.add(UndirectedGraph.Edge(u, v))
+            self.edges.add(self.Edge(u, v))
             if u not in self.adjnodes :
                 self.adjnodes[u] = set()
             self.adjnodes[u].add(v)
@@ -70,17 +103,8 @@ class UndirectedGraph:
                 self.adjnodes[v] = set()
             self.adjnodes[v].add(u)
         else:
-            raise ValueError('an Edge must have two nodes as its end-points.')
-    
-    def random_graph(self, size, p = 0.5, degree_bound = None):
-        self.nodes = set(range(0,size))
-        degree_bound = len(self.nodes) if degree_bound == None else int(degree_bound)
-        for (u, v) in itertools.combinations(self.nodes, 2): 
-            if random.random() > p :
-                print(self.degree(u), self.degree(v))
-                if self.degree(u) < degree_bound and self.degree(v) < degree_bound :
-                    self.add_edge(u, v)
-    
+            raise ValueError('an Edge must be a pair of nodes.')
+             
     def __str__(self):
         outstr = "Graph("
         outstr += str(self.nodes)
@@ -90,72 +114,65 @@ class UndirectedGraph:
         return outstr
     
     def degree(self, node):
-        return len(self.adjacents(node))
+        return len(self.adjacent_nodes(node))
     
-    def adjacents(self, node):
+    def adjacent(self, u, v):
+        return self.Edge(u,v) in self.edges
+    
+    def adjacent_nodes(self, node):
         if node not in self.adjnodes :
             return set()
         return self.adjnodes[node]
     
-    def in_triangle(self, a_node, an_edge):
-        if a_node in an_edge:
-            return True
-        return (a_node in self.adjnodes[an_edge[0]]) and (a_node in self.adjnodes[an_edge[1]])
-    
-    def hub_covering_edges(self, a_node):
+    def edges_within_triangle(self, a_node):
+        if a_node not in self.nodes :
+            return set([])
         edges = set()
-        for adj in self.adjnodes[a_node]:
-            edges.add( UndirectedGraph.Edge(a_node, adj) )
-            for adjadj in self.adjnodes[adj]:
-                if adjadj in self.adjnodes[a_node]:
-                    edges.add( UndirectedGraph.Edge(adj, adjadj) )
+        for adj in self.adjacent_nodes(a_node):
+            edges.add(self.Edge(a_node, adj))
+        for u, v in itertools.combinations(list(self.adjacent_nodes(a_node)), 2) :
+            if self.adjacent(u, v) :
+                edges.add(self.Edge(u,v))
         return edges
        
 def find_min_hub_cover(g : UndirectedGraph) -> set :
-    remained_edges = g.edges
-    hcover = set()
-    cover_edges = { v: set() for v in g.nodes}   # ''' keys == remained nodes, the union of all values == remained edges'''
-    for (u, v) in g.edges:
-        cover_edges[u].add( (u, v) )
-        cover_edges[v].add( (u, v) )
-        for w in g.adjnodes[u] & g.adjnodes[v] :
-            cover_edges[w].add( (u, v) )
-    while len(remained_edges) > 0 :
+    remaining = g.edges.copy()
+    hubcover = set()
+    coverable_edges = dict()
+    for v in g.nodes:
+        coverable_edges[v] = g.edges_within_triangle(v)
+    while len(remaining) > 0 :
         best = 0
         node = None
-        for v, covedges in cover_edges.items():
+        for v, covedges in coverable_edges.items():
             count = len(covedges)
             if count > best :
                 best = count
                 node = v
-        new_covered = cover_edges.pop(node)
+        new_covered = coverable_edges.pop(node)
         no_edges = list()
-        for v in cover_edges.keys():
-            cover_edges[v] -= new_covered
-            if len(cover_edges[v]) == 0 :
+        for v in coverable_edges.keys():
+            coverable_edges[v] -= new_covered
+            if len(coverable_edges[v]) == 0 :
                 no_edges.append(v)
         for v in no_edges:
-            cover_edges.pop(v)
-        hcover.add(node)
-        remained_edges -= new_covered
-    return hcover
+            coverable_edges.pop(v)
+        hubcover.add(node)
+        remaining -= new_covered
+    return hubcover
         
 if __name__ == '__main__':
     # Create a random graph
-    G = nx.erdos_renyi_graph(n=23, p=0.2)  # n: number of nodes, p: probability of edge creation
+    #G = nx.erdos_renyi_graph(n=23, p=0.2)  # n: number of nodes, p: probability of edge creation
     '''Random Graphs: nx.erdos_renyi_graph(n, p)
     Barabási–Albert Graphs: nx.barabasi_albert_graph(n, m)
     Small-world Networks: nx.watts_strogatz_graph(n, k, p)
     '''
     
-    graph = UndirectedGraph(G.nodes, G.edges)
-    print(f'the number of nodes = {len(graph.nodes)}, the number of edges = {len(graph.edges)} ')
-    if len(graph.nodes) < 100 : print(graph)
-    
-    graph.random_graph(16, 0.2, 3)
-    print(graph)
-    
-    exit(0)
+    graph = UndirectedGraph(nodes = 64, degree_bound = 4)
+    print(f'the number of nodes = {len(graph.nodes)},\nthe number of edges = {len(graph.edges)} ')
+    if len(graph.nodes) < 100 : 
+        print(graph)
     
     start = time.perf_counter()
     hcover = find_min_hub_cover(graph)
@@ -166,8 +183,13 @@ if __name__ == '__main__':
     print()
 
     # Visualize the graph
-    nx.draw(G, with_labels=True, node_color="lightblue", node_size=500, font_size=10)
-    plt.show()    
+    nxg = nx.Graph()
+    nxg.add_nodes_from(graph.nodes)
+    print(graph.edges)
+    nxg.add_edges_from([ e.pair() for e in graph.edges])
+    nx.draw(nxg, with_labels=True, node_color="lightblue", edge_color="black",node_size=100, font_size=10)
+    print(len(nxg.edges))
+    plt.show()
     # Save the graph to a file
     #nx.write_gml(G, "graph.gml")
     
