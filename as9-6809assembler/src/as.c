@@ -12,12 +12,16 @@
 #include <ctype.h>
 
 #include "as.h"
+#include "do9.h"
+#include "ffwd.h"
+#include "symtab.h"
 #include "util.h"
 #include "output.h"
+#include "pseudo.h"
 
 static char *rcs_id = "Mirage asm09 2012 <gordon@gjcp.net>";
 
-char mapdn();
+//char mapdn();
 char *alloc();
 void PrintHelp (char *pszName);
 /*
@@ -145,7 +149,7 @@ void PrintHelp (char *pszName)
 void initialize(void)
 {
 
-	int	i = 0;
+	//int	i = 0;
 
 #ifdef DEBUG
 	printf("Initializing\n");
@@ -164,7 +168,7 @@ void initialize(void)
 	localinit();	/* target machine specific init. */
 }
 
-re_init()
+void re_init()
 {
 #ifdef DEBUG
 	printf("Reinitializing\n");
@@ -177,8 +181,8 @@ re_init()
 	fwdreinit();
 }
 
-make_pass() {
-	char	*fgets();
+void make_pass() {
+	//char	*fgets();
 
 #ifdef DEBUG
 	printf("Pass %d\n",Pass);
@@ -201,11 +205,11 @@ make_pass() {
 /*
  *	parse_line --- split input line into label, op and operand
  */
-parse_line()
+int parse_line()
 {
 	register char *ptrfrm = Line;
 	register char *ptrto = Label;
-	char	*skip_white();
+	//char	*skip_white();
 
 	if( *ptrfrm == '*' || *ptrfrm == '\n' )
 		return(0);	/* a comment line */
@@ -240,10 +244,10 @@ parse_line()
 /*
  *	process --- determine mnemonic class and act on it
  */
-process()
+void process()
 {
 	register struct oper *i;
-	struct oper *mne_look();
+	//struct oper *mne_look();
 
 	Old_pc = Pc;		/* setup `old' program counter */
 	Optr = Operand; 	/* point to beginning of operand field */

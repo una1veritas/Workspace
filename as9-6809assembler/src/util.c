@@ -14,8 +14,8 @@ char	*str;
  *	error --- error in a line
  *			print line number and error
  */
-error(str)
-char	*str;
+void error(char * str)
+//char	*str;
 {
 	if(N_files > 1)
 		printf("%s,",cur_file);
@@ -42,8 +42,8 @@ char	*str;
 /*
  *	delim --- check if character is a delimiter
  */
-delim(c)
-char	c;
+int delim(char c)
+//char	c;
 {
 	if( any(c," \t\n\r"))
 		return(YES);
@@ -53,8 +53,8 @@ char	c;
 /*
  *	skip_white --- move pointer to next non-whitespace char
  */
-char *skip_white(ptr)
-char	*ptr;
+char *skip_white(char * ptr)
+//char	*ptr;
 {
 	while(*ptr==BLANK || *ptr==TAB)
 		ptr++;
@@ -64,8 +64,8 @@ char	*ptr;
 /*
  *	eword --- emit a word to code file
  */
-eword(wd)
-int	wd;
+void eword(int wd)
+//int	wd;
 {
 	emit(hibyte(wd));
 	emit(lobyte(wd));
@@ -74,7 +74,7 @@ int	wd;
 /*
  *	emit --- emit a byte to code file
  */
-emit(byte)
+void emit(int byte)
 {
 #ifdef DEBUG
 	printf("%2x @ %4x\n",byte,Pc);
@@ -94,7 +94,7 @@ emit(byte)
 /*
  *	f_record --- flush record out in `S1' format
  */
-f_record()
+void f_record()
 {
 	int	i;
 	int	chksum;
@@ -137,7 +137,7 @@ int	byte;
 /*
  *	print_line --- pretty print input line
  */
-print_line()
+void print_line()
 {
 	int	i;
 	register char *ptr;
@@ -187,8 +187,8 @@ char	*str;
 /*
  *	mapdn --- convert A-Z to a-z
  */
-char mapdn(c)
-char c;
+char mapdn(char c)
+//char c;
 {
 	if( c >= 'A' && c <= 'Z')
 		return(c+040);
@@ -198,16 +198,16 @@ char c;
 /*
  *	lobyte --- return low byte of an int
  */
-lobyte(i)
-int i;
+unsigned char lobyte(int i)
+//int i;
 {
 	return(i&0xFF);
 }
 /*
  *	hibyte --- return high byte of an int
  */
-hibyte(i)
-int i;
+unsigned char hibyte(int i)
+//int i;
 {
 	return((i>>8)&0xFF);
 }
@@ -215,8 +215,8 @@ int i;
 /*
  *	head --- is str2 the head of str1?
  */
-head(str1,str2)
-char *str1,*str2;
+int head(char * str1, char * str2)
+//char *str1,*str2;
 {
 	while( *str1 != EOS && *str2 != EOS){
 		if( *str1 != *str2 )break;

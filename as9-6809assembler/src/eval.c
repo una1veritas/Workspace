@@ -37,7 +37,7 @@
  *      ascii constant ::= ''' any printing char;
  *
  */
-eval()
+int eval()
 {
 	int     left,right;     /* left and right terms for expression */
 	char    o;              /* operator character */

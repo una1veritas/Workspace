@@ -2,6 +2,8 @@
  *      machine independent definitions and global variables
  */
 
+#include <stdio.h>
+
 #define TRUE (1==1)
 #define FALSE (1==0)
 
@@ -133,3 +135,6 @@ char    Obj_name[64];
 void initialize(void);
 void make_pass(void);
 void re_init(void);
+int parse_line(void);
+void process();
+
