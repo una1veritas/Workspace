@@ -7,7 +7,6 @@ Created on 2025/10/27
 import networkx as nx
 import matplotlib.pyplot as plt
 import itertools 
-from collections import deque
 import time, math, random
 
 class UndirectedGraph:
@@ -119,11 +118,26 @@ class UndirectedGraph:
         outstr += ") "
         return outstr
     
+    def __len__(self):
+        return len(self.nodes)
+    
     def edge_pairs(self):
         return [e.pair() for e in self.edges]
     
     def degree(self, node):
         return len(self.adjacent_nodes(node))
+    
+    def maximum_degree(self):
+        return max([self.degree(v) for v in self.nodes])
+    
+    def stats(self):
+        dsum = 0
+        dmax = 0
+        for v in self.nodes:
+            d = self.degree(v)
+            dmax = dmax if dmax >= d else d
+            dsum += d
+        return {'maximum_degree':dmax, 'average_degree': dsum/len(self)}
     
     def adjacent(self, u, v):
         return self.Edge(u,v) in self.edges
@@ -144,17 +158,18 @@ class UndirectedGraph:
                 edges.add(self.Edge(u,v))
         return edges
        
-def find_min_hub_cover(g : UndirectedGraph, precover = None) -> set :
+def find_min_hub_cover(g : UndirectedGraph, hubcover = None) -> set :
     remaining = g.edges.copy()
     covered = set()
     coverable_edges = dict()
-    if precover :
-        hubcover = set(precover)
+    if hubcover :
+        hubcover = set(hubcover)
         for v in hubcover:
-            covered = covered.union(g.edges_within_triangle(v))
+            for e in g.edges_within_triangle(v):
+                covered.add(e)
+        remaining = remaining - covered
     else:
-        hubcover = set()
-    
+        hubcover = set()    
     for v in g.nodes - hubcover:
         coverable_edges[v] = g.edges_within_triangle(v) - covered
     
@@ -177,7 +192,20 @@ def find_min_hub_cover(g : UndirectedGraph, precover = None) -> set :
         hubcover.add(node)
         remaining -= new_covered
     return hubcover
-        
+    
+def neighbor(g: UndirectedGraph, hcover, node):
+    dist1 = g.adjacent_nodes(node)
+    dist2 = set()
+    for u in dist1:
+        dist2 = dist2 | g.adjacent_nodes(u)
+    dist3 = set()
+    for u in dist2:
+        dist3 = dist3 | g.adjacent_nodes(u)
+    adjs = dist1 | dist2 | dist3
+    hcover = hcover - adjs
+    hcover = find_min_hub_cover(g, hcover)
+    return hcover
+
 if __name__ == '__main__':
     # Create a random graph
     #G = nx.erdos_renyi_graph(n=23, p=0.2)  # n: number of nodes, p: probability of edge creation
@@ -186,20 +214,21 @@ if __name__ == '__main__':
     Small-world Networks: nx.watts_strogatz_graph(n, k, p)
     '''
     
-    graph = UndirectedGraph(nodes = 511, degree_bound = 4)
+    graph = UndirectedGraph(nodes = 3580, degree_bound = 4)
     print(f'the number of nodes = {len(graph.nodes)},\nthe number of edges = {len(graph.edges)} ')
     if len(graph.nodes) < 100 : 
         print(graph)
+    print(graph.stats())
 
     # Visualize the graph
-    nxg = nx.Graph()
-    nxg.add_nodes_from(graph.nodes)
-    nxg.add_edges_from(graph.edge_pairs())
-    nx.draw(nxg, with_labels=True, node_color="lightblue", edge_color="black",node_size=100, font_size=10)
-    print(len(nxg.edges))
-    plt.show()
-    # Save the graph to a file
-    #nx.write_gml(G, "graph.gml")
+    if len(graph) < 1000 :
+        nxg = nx.Graph()
+        nxg.add_nodes_from(graph.nodes)
+        nxg.add_edges_from(graph.edge_pairs())
+        nx.draw(nxg, with_labels=True, node_color="lightblue", edge_color="black",node_size=100, font_size=10)
+        plt.show()
+        # Save the graph to a file
+        #nx.write_gml(G, "graph.gml")
     
     print('starting greedy.')
     start = time.perf_counter()
@@ -207,25 +236,35 @@ if __name__ == '__main__':
     end = time.perf_counter()
     print("HubCover = ", hcover, "\nsize = ", len(hcover))
     print(f"Elapsed: {end - start:.6f} seconds")
-    remained = graph.nodes - hcover
-    print(remained)
-    
-    v = random.choice(list(graph.nodes))
-    print(v)
-    adj1 = graph.adjacent_nodes(v)
-    adj2 = set()
-    for u in adj1:
-        for w in graph.adjacent_nodes(u):
-            adj2.add(w)  
-    adjs = adj1.union(adj2)
-    hcover = hcover - adjs
-    hcover = find_min_hub_cover(graph, hcover)
-    print(hcover)
+
+    size_at_start = len(hcover)
+    nodelst = list(graph.nodes)
+    imprv = 0
+    start = time.perf_counter()
+    startidx = random.randint(0, len(nodelst) - 1)
+    while True:
+        for idx in range(len(nodelst)):
+            v = nodelst[(startidx + idx) % len(nodelst)]
+            new_hcover = neighbor(graph, hcover, v)
+            if len(new_hcover) < len(hcover) :
+                hcover = new_hcover
+                print(f'updated, size {len(hcover)}, from node {v}')
+                imprv += 1
+                startidx = (startidx + idx + 1) % len(nodelst)
+                break
+        else:
+            print(f'arrived at a local optimum.')
+            break
+    end = time.perf_counter()
+    print("HubCover = ", hcover, "\nsize = ", len(hcover))
+    print(f'Improved {imprv} times,', end='')
+    rate = (1.0 - float(len(hcover))/size_at_start)*100
+    print(f'{-rate:5.2}%')
+    print(f"Elapsed: {end - start:.6f} seconds")
+        
     exit(0)
     
     '''
-    exit(0)
-    
     cnt = 0
     loop_lim = float('inf') # 20000
     deqs = deque()
