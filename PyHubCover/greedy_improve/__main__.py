@@ -91,6 +91,8 @@ class UndirectedGraph:
                         break
                     if self.degree(v) == degree_bound :
                         ulist.remove(v)
+                        if len(ulist) == 0 :
+                            break
 
     def clear(self):
         self.nodes.clear()
@@ -142,12 +144,20 @@ class UndirectedGraph:
                 edges.add(self.Edge(u,v))
         return edges
        
-def find_min_hub_cover(g : UndirectedGraph) -> set :
+def find_min_hub_cover(g : UndirectedGraph, precover = None) -> set :
     remaining = g.edges.copy()
-    hubcover = set()
+    covered = set()
     coverable_edges = dict()
-    for v in g.nodes:
-        coverable_edges[v] = g.edges_within_triangle(v)
+    if precover :
+        hubcover = set(precover)
+        for v in hubcover:
+            covered = covered.union(g.edges_within_triangle(v))
+    else:
+        hubcover = set()
+    
+    for v in g.nodes - hubcover:
+        coverable_edges[v] = g.edges_within_triangle(v) - covered
+    
     while len(remaining) > 0 :
         best = 0
         node = None
@@ -208,8 +218,9 @@ if __name__ == '__main__':
         for w in graph.adjacent_nodes(u):
             adj2.add(w)  
     adjs = adj1.union(adj2)
-    print(adjs)
-    
+    hcover = hcover - adjs
+    hcover = find_min_hub_cover(graph, hcover)
+    print(hcover)
     exit(0)
     
     '''
