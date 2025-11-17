@@ -17,18 +17,17 @@ class UndirectedGraph:
             try:
                 if u == v :
                     raise ValueError('an Edge of simple graph should not the self-loop.')
-                if u < v :
-                    self.nodes = (u, v)
-                else:
-                    self.nodes = (v, u)
+                self.nodes = (u, v)
             except:
                 raise ValueError('nodes of an edge must be comparable.')
         
         def __eq__(self, another):
-            return isinstance(another, UndirectedGraph.Edge) and (self.nodes == another.nodes)
+            if not isinstance(another, UndirectedGraph.Edge) :
+                return False
+            return self.nodes[0] in another.nodes and self.nodes[0] in another.nodes 
         
         def __ne__(self, another):
-            return self.__eq__(another)
+            return not self.__eq__(another)
         
         def __str__(self):
             return f'({self.nodes[0]}, {self.nodes[1]})'
@@ -37,7 +36,7 @@ class UndirectedGraph:
             return f'Edge({self.nodes[0]}, {self.nodes[1]})'
 
         def __hash__(self):
-            return (hash(self.nodes[0]) <<16 + hash(self.nodes[0])) ^ (hash(self.nodes[1] <<16) + hash(self.nodes[1])) 
+            return hash(self.nodes[0]) ^ hash(self.nodes[1])
         
         def __contains__(self, node):
             return node in self.nodes
@@ -58,6 +57,7 @@ class UndirectedGraph:
         
         def pair(self):
                 return self.nodes
+    
     def __init__(self, nodes = None, edges = None, degree_bound = None) :
         self.adjnodes = dict()
         if isinstance(nodes, int) :
@@ -78,16 +78,20 @@ class UndirectedGraph:
             self.edges = set()
             if not degree_bound :
                 degree_bound = math.sqrt(len(self.nodes))
-            pairs = set([(u, v) for (u, v) in itertools.combinations(self.nodes, 2)])
-            while len(pairs) :
-                pair_list = list(pairs)
-                (u, v) = random.choice(pair_list)
-                if self.degree(u) < degree_bound and self.degree(u) < degree_bound :
-                    if not self.adjacent(u, v) :
-                        self.add_edge(u, v)
-                pairs.remove( (u, v) )
+            ulist = list(self.nodes)
+            while len(ulist) > 1:
+                u = random.choice(ulist)
+                ulist.remove(u)
+                for _ in range(degree_bound):
+                    v = random.choice(ulist)
+                    if self.degree(u) < degree_bound and self.degree(v) < degree_bound :
+                        if not self.adjacent(u, v) :
+                            self.add_edge(u, v)
+                    if self.degree(u) == degree_bound :
+                        break
+                    if self.degree(v) == degree_bound :
+                        ulist.remove(v)
 
-    
     def clear(self):
         self.nodes.clear()
         self.edges.clear()
@@ -112,6 +116,9 @@ class UndirectedGraph:
         outstr += str(self.edges)
         outstr += ") "
         return outstr
+    
+    def edge_pairs(self):
+        return [e.pair() for e in self.edges]
     
     def degree(self, node):
         return len(self.adjacent_nodes(node))
@@ -169,30 +176,43 @@ if __name__ == '__main__':
     Small-world Networks: nx.watts_strogatz_graph(n, k, p)
     '''
     
-    graph = UndirectedGraph(nodes = 64, degree_bound = 4)
+    graph = UndirectedGraph(nodes = 511, degree_bound = 4)
     print(f'the number of nodes = {len(graph.nodes)},\nthe number of edges = {len(graph.edges)} ')
     if len(graph.nodes) < 100 : 
         print(graph)
-    
-    start = time.perf_counter()
-    hcover = find_min_hub_cover(graph)
-    end = time.perf_counter()
-    print("HubCover = ", hcover, "\nsize = ", len(hcover))
-    print(f"Elapsed: {end - start:.6f} seconds")
-    remained = graph.nodes - hcover
-    print()
 
     # Visualize the graph
     nxg = nx.Graph()
     nxg.add_nodes_from(graph.nodes)
-    print(graph.edges)
-    nxg.add_edges_from([ e.pair() for e in graph.edges])
+    nxg.add_edges_from(graph.edge_pairs())
     nx.draw(nxg, with_labels=True, node_color="lightblue", edge_color="black",node_size=100, font_size=10)
     print(len(nxg.edges))
     plt.show()
     # Save the graph to a file
     #nx.write_gml(G, "graph.gml")
     
+    print('starting greedy.')
+    start = time.perf_counter()
+    hcover = find_min_hub_cover(graph)
+    end = time.perf_counter()
+    print("HubCover = ", hcover, "\nsize = ", len(hcover))
+    print(f"Elapsed: {end - start:.6f} seconds")
+    remained = graph.nodes - hcover
+    print(remained)
+    
+    v = random.choice(list(graph.nodes))
+    print(v)
+    adj1 = graph.adjacent_nodes(v)
+    adj2 = set()
+    for u in adj1:
+        for w in graph.adjacent_nodes(u):
+            adj2.add(w)  
+    adjs = adj1.union(adj2)
+    print(adjs)
+    
+    exit(0)
+    
+    '''
     exit(0)
     
     cnt = 0
@@ -209,17 +229,17 @@ if __name__ == '__main__':
     start = time.perf_counter()
     while True :
         
-        ''' extend deqs '''
+        # extend deqs 
         if len(deqs) < depth_limit :
             selected = [deq[0] for deq in deqs]
             if len(deqs) & 1 == 0 : 
-                ''' adding odd-th candidates, from hcover '''
+                # adding odd-th candidates, from hcover 
                 deqs.append([v for v in hcov_lst if v not in selected])
             else: 
-                ''' adding even-th candidates, from remeined '''
+                # adding even-th candidates, from remeined 
                 deqs.append([v for v in rem_lst if v not in selected])
         
-        ''' enumerate it '''
+        # enumerate it 
         if len(deqs) == depth_limit :
             selected = [deq[0] for deq in deqs]
             # if cnt & 0x7fffff == 0 :
@@ -231,7 +251,7 @@ if __name__ == '__main__':
             # lastone = selected
             deqs[-1].pop(0)
 
-        ''' go next or reduce deqs '''
+        # go next or reduce deqs 
         while len(deqs[-1]) == 0 :
             deqs.pop()
             if len(deqs) == 0 :
@@ -241,7 +261,7 @@ if __name__ == '__main__':
         if len(deqs) == 0 :
             break
         
-        ''' debug '''
+        # debug 
         cnt += 1
         # if cnt > loop_lim : 
         #     break
@@ -249,4 +269,4 @@ if __name__ == '__main__':
     end = time.perf_counter()
     print(f"Elapsed: {end - start:.6f} seconds")
     print('finished?', cnt)
-    
+    '''
