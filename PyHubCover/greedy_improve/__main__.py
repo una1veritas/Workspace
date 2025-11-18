@@ -57,10 +57,10 @@ class UndirectedGraph:
         def pair(self):
                 return self.nodes
     
-    def __init__(self, nodes = None, edges = None, degree_bound = None) :
+    def __init__(self, nodes = None, edges = None, max_degree = None, ev_ratio = None) :
         self.adjnodes = dict()
         if isinstance(nodes, int) :
-            self.nodes = set([_ for _ in range(nodes)])
+            self.nodes = set(range(nodes))
         else:
             if nodes :
                 self.nodes = nodes
@@ -75,23 +75,31 @@ class UndirectedGraph:
                 raise ValueError('supplied non-collection object as edges.')
         else:
             self.edges = set()
-            if not degree_bound :
-                degree_bound = math.sqrt(len(self.nodes))
-            ulist = list(self.nodes)
-            while len(ulist) > 1:
-                u = random.choice(ulist)
-                ulist.remove(u)
-                for _ in range(degree_bound):
-                    v = random.choice(ulist)
-                    if self.degree(u) < degree_bound and self.degree(v) < degree_bound :
-                        if not self.adjacent(u, v) :
-                            self.add_edge(u, v)
-                    if self.degree(u) == degree_bound :
-                        break
-                    if self.degree(v) == degree_bound :
-                        ulist.remove(v)
-                        if len(ulist) == 0 :
+            if ev_ratio :
+                ratio = float(ev_ratio)
+                pairs = [pair for pair in itertools.combinations(list(self.nodes),2)]
+                while len(self.edges)/len(self.nodes) < ratio :
+                    edge = random.choice(pairs)
+                    self.add_edge(edge[0], edge[1])
+                
+            else:
+                if not max_degree :
+                    max_degree = math.sqrt(len(self.nodes))
+                ulist = list(self.nodes)
+                while len(ulist) > 1:
+                    u = random.choice(ulist)
+                    ulist.remove(u)
+                    for _ in range(max_degree):
+                        v = random.choice(ulist)
+                        if self.degree(u) < max_degree and self.degree(v) < max_degree :
+                            if not self.adjacent(u, v) :
+                                self.add_edge(u, v)
+                        if self.degree(u) == max_degree :
                             break
+                        if self.degree(v) == max_degree :
+                            ulist.remove(v)
+                            if len(ulist) == 0 :
+                                break
 
     def clear(self):
         self.nodes.clear()
@@ -181,6 +189,8 @@ def find_min_hub_cover(g : UndirectedGraph, hubcover = None) -> set :
             if count > best :
                 best = count
                 node = v
+        if node == None : 
+            break
         new_covered = coverable_edges.pop(node)
         no_edges = list()
         for v in coverable_edges.keys():
@@ -214,9 +224,9 @@ if __name__ == '__main__':
     Small-world Networks: nx.watts_strogatz_graph(n, k, p)
     '''
     
-    graph = UndirectedGraph(nodes = 3580, degree_bound = 4)
+    graph = UndirectedGraph(nodes = 2000, ev_ratio = 3)
     print(f'the number of nodes = {len(graph.nodes)},\nthe number of edges = {len(graph.edges)} ')
-    if len(graph.nodes) < 100 : 
+    if len(graph.nodes) < 128 : 
         print(graph)
     print(graph.stats())
 
@@ -230,13 +240,14 @@ if __name__ == '__main__':
         # Save the graph to a file
         #nx.write_gml(G, "graph.gml")
     
-    print('starting greedy.')
+    print('starting greedy algorithm.')
     start = time.perf_counter()
     hcover = find_min_hub_cover(graph)
     end = time.perf_counter()
     print("HubCover = ", hcover, "\nsize = ", len(hcover))
     print(f"Elapsed: {end - start:.6f} seconds")
 
+    print('\nstarting local search improvement loop.')
     size_at_start = len(hcover)
     nodelst = list(graph.nodes)
     imprv = 0
@@ -256,11 +267,11 @@ if __name__ == '__main__':
             print(f'arrived at a local optimum.')
             break
     end = time.perf_counter()
+    print(f"Elapsed: {end - start:.6f} seconds")
     print("HubCover = ", hcover, "\nsize = ", len(hcover))
     print(f'Improved {imprv} times,', end='')
     rate = (1.0 - float(len(hcover))/size_at_start)*100
     print(f'{-rate:5.2}%')
-    print(f"Elapsed: {end - start:.6f} seconds")
         
     exit(0)
     
