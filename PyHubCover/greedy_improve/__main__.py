@@ -145,7 +145,7 @@ class UndirectedGraph:
             d = self.degree(v)
             dmax = dmax if dmax >= d else d
             dsum += d
-        return {'maximum_degree':dmax, 'average_degree': dsum/len(self)}
+        return {'maximum_degree':dmax, 'average_degree': dsum/len(self), 'Edges_Nodes_ratio': len(self.edges)/len(self)}
     
     def adjacent(self, u, v):
         return self.Edge(u,v) in self.edges
@@ -165,7 +165,13 @@ class UndirectedGraph:
             if self.adjacent(u, v) :
                 edges.add(self.Edge(u,v))
         return edges
-       
+    
+    def is_hubcovered_by(self, node_set):
+        remaining = set(self.edges)
+        for v in node_set:
+            remaining -= self.edges_within_triangle(v)
+        return len(remaining) == 0
+    
 def find_min_hub_cover(g : UndirectedGraph, hubcover = None) -> set :
     remaining = g.edges.copy()
     covered = set()
@@ -224,7 +230,7 @@ if __name__ == '__main__':
     Small-world Networks: nx.watts_strogatz_graph(n, k, p)
     '''
     
-    graph = UndirectedGraph(nodes = 2000, ev_ratio = 3)
+    graph = UndirectedGraph(nodes = 4095, ev_ratio = 3)
     print(f'the number of nodes = {len(graph.nodes)},\nthe number of edges = {len(graph.edges)} ')
     if len(graph.nodes) < 128 : 
         print(graph)
@@ -272,7 +278,8 @@ if __name__ == '__main__':
     print(f'Improved {imprv} times,', end='')
     rate = (1.0 - float(len(hcover))/size_at_start)*100
     print(f'{-rate:5.2}%')
-        
+    print(graph.is_hubcovered_by(hcover))
+    
     exit(0)
     
     '''
