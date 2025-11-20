@@ -1,0 +1,27 @@
+asw -L vtl88_cnv.asm
+
+p2hex vtl88_cnv.p vtl88_cnv.hex -segment code
+
+オーバーラップのワーニングが出るが、ヘキサファイルは
+ファイルヘッダー、コードの２パート分出力される
+
+p2bin vtl88_cnv.p vtl88_data.bin -segment data
+
+
+vtl88_cnv.hexをエディタで開いて、
+ファイルヘッダ部と、コード部を2つのファイルに分割する
+
+ファイルヘッダ部：vtl88_header.hexとしてセーブ
+コード部：　　　　vtl88_code.hexとしてセーブ
+
+xeditで、上記2つのファイルを読み込んで、バイナリとしてセーブ
+
+最終的に3つのファイル
+vtl88_header.bin
+vtl88_code.bin
+vtl88_data.bin
+ができていることを確認する
+
+最後にpwershellのコマンドで３つのbinファイルを１つのvtl88.cmdとして結合する
+
+Get-Content vtl88_*.bin -Encoding Byte | Set-Content vtl88.cmd -Encoding Byte
