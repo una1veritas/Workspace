@@ -27,7 +27,7 @@
 #include "../src/picconfig.h"
 #include <xc.h>
 #include <stdint.h>
-#include "../fatfs/ff.h"
+#include "fatfs/ff.h"
 
 //
 // Configlations
