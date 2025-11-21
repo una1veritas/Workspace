@@ -209,16 +209,15 @@ def find_min_hub_cover(g : UndirectedGraph, hubcover = None) -> set :
         remaining -= new_covered
     return hubcover
     
-def neighbor(g: UndirectedGraph, hcover, node):
-    dist1 = g.adjacent_nodes(node)
-    dist2 = set()
-    for u in dist1:
-        dist2 = dist2 | g.adjacent_nodes(u)
-    dist3 = set()
-    for u in dist2:
-        dist3 = dist3 | g.adjacent_nodes(u)
-    adjs = dist1 | dist2 | dist3
-    hcover = hcover - adjs
+def neighbor(g: UndirectedGraph, hcover, node, degree = 2):
+    nth_adjacent_sets = [{node}, g.adjacent_nodes(node)]
+    for _ in range(2, degree) :
+        next_set = set()
+        for v in nth_adjacent_sets[-1]:
+            next_set = next_set | g.adjacent_nodes(v)
+        nth_adjacent_sets.append(next_set - nth_adjacent_sets[-1])
+    for a_set in nth_adjacent_sets:
+        hcover = hcover - a_set
     hcover = find_min_hub_cover(g, hcover)
     return hcover
 
@@ -230,7 +229,7 @@ if __name__ == '__main__':
     Small-world Networks: nx.watts_strogatz_graph(n, k, p)
     '''
     
-    graph = UndirectedGraph(nodes = 4095, ev_ratio = 3)
+    graph = UndirectedGraph(nodes = 2047, ev_ratio = 3)
     print(f'the number of nodes = {len(graph.nodes)},\nthe number of edges = {len(graph.edges)} ')
     if len(graph.nodes) < 128 : 
         print(graph)
@@ -250,7 +249,10 @@ if __name__ == '__main__':
     start = time.perf_counter()
     hcover = find_min_hub_cover(graph)
     end = time.perf_counter()
-    print("HubCover = ", hcover, "\nsize = ", len(hcover))
+    if len(hcover) < 40 :
+        print("HubCover = ", hcover, "\nsize = ", len(hcover))
+    else:
+        print("HubCover = ", sorted(hcover)[:20],"...",sorted(hcover)[-20:], "\nsize = ", len(hcover))
     print(f"Elapsed: {end - start:.6f} seconds")
 
     print('\nstarting local search improvement loop.')
@@ -262,7 +264,7 @@ if __name__ == '__main__':
     while True:
         for idx in range(len(nodelst)):
             v = nodelst[(startidx + idx) % len(nodelst)]
-            new_hcover = neighbor(graph, hcover, v)
+            new_hcover = neighbor(graph, hcover, v, 5)
             if len(new_hcover) < len(hcover) :
                 hcover = new_hcover
                 print(f'updated, size {len(hcover)}, from node {v}')
@@ -274,67 +276,13 @@ if __name__ == '__main__':
             break
     end = time.perf_counter()
     print(f"Elapsed: {end - start:.6f} seconds")
-    print("HubCover = ", hcover, "\nsize = ", len(hcover))
+    if len(hcover) < 40 :
+        print("HubCover = ", hcover, "\nsize = ", len(hcover))
+    else:
+        print("HubCover = ", sorted(hcover)[:20],"...",sorted(hcover)[-20:], "\nsize = ", len(hcover))
     print(f'Improved {imprv} times,', end='')
     rate = (1.0 - float(len(hcover))/size_at_start)*100
     print(f'{-rate:5.2}%')
     print(graph.is_hubcovered_by(hcover))
     
-    exit(0)
     
-    '''
-    cnt = 0
-    loop_lim = float('inf') # 20000
-    deqs = deque()
-    depth_limit = 5
-    hcov_lst = sorted(list(hcover)) # make sorted for debug
-    rem_lst = sorted(list(remained))
-    print("hcov = ", hcov_lst, "\nrem = ", rem_lst)
-    last = None
-    deqs.append(hcov_lst.copy())
-    
-    #lastone = []
-    start = time.perf_counter()
-    while True :
-        
-        # extend deqs 
-        if len(deqs) < depth_limit :
-            selected = [deq[0] for deq in deqs]
-            if len(deqs) & 1 == 0 : 
-                # adding odd-th candidates, from hcover 
-                deqs.append([v for v in hcov_lst if v not in selected])
-            else: 
-                # adding even-th candidates, from remeined 
-                deqs.append([v for v in rem_lst if v not in selected])
-        
-        # enumerate it 
-        if len(deqs) == depth_limit :
-            selected = [deq[0] for deq in deqs]
-            # if cnt & 0x7fffff == 0 :
-            #     print(cnt>>10, deqs)
-            #     print(selected)
-            # if lastone :
-            #     if not (lastone < selected) :
-            #         raise ValueError('something going wrong!') 
-            # lastone = selected
-            deqs[-1].pop(0)
-
-        # go next or reduce deqs 
-        while len(deqs[-1]) == 0 :
-            deqs.pop()
-            if len(deqs) == 0 :
-                break
-            deqs[-1].pop(0)
-        
-        if len(deqs) == 0 :
-            break
-        
-        # debug 
-        cnt += 1
-        # if cnt > loop_lim : 
-        #     break
-
-    end = time.perf_counter()
-    print(f"Elapsed: {end - start:.6f} seconds")
-    print('finished?', cnt)
-    '''
