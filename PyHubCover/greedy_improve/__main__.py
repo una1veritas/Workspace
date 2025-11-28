@@ -12,18 +12,21 @@ import time, math, random
 class UndirectedGraph:
     
     class Edge:
-        def __init__(self, u, v):
+        def __init__(self, u, v, items = None):
             try:
-                if u == v :
-                    raise ValueError('an Edge of simple graph should not the self-loop.')
-                self.nodes = (u, v)
+                if items == None :
+                    if u == v :
+                        raise ValueError('an Edge of simple graph should not be a self-loop.')
+                    self.nodes = (u, v)
+                else:
+                    self.nodes = (items[0], items[1])
             except:
                 raise ValueError('nodes of an edge must be comparable.')
         
         def __eq__(self, another):
             if not isinstance(another, UndirectedGraph.Edge) :
                 return False
-            return self.nodes[0] in another.nodes and self.nodes[0] in another.nodes 
+            return self.nodes[0] in another.nodes and self.nodes[1] in another.nodes 
         
         def __ne__(self, another):
             return not self.__eq__(another)
@@ -63,18 +66,17 @@ class UndirectedGraph:
             self.nodes = set(range(nodes))
         else:
             if nodes :
-                self.nodes = nodes
+                self.nodes = set(nodes)
             else:
                 ValueError('Nothing for nodes specified.')
+        self.edges = set()
         if edges :
             if isinstance(edges, (tuple, list, set)) :
-                self.edges = set()
                 for ea in edges:
                     self.edges.add(self.Edge(ea))
             else:
                 raise ValueError('supplied non-collection object as edges.')
         else:
-            self.edges = set()
             if ev_ratio :
                 ratio = float(ev_ratio)
                 pairs = [pair for pair in itertools.combinations(list(self.nodes),2)]
@@ -209,9 +211,9 @@ def find_min_hub_cover(g : UndirectedGraph, hubcover = None) -> set :
         remaining -= new_covered
     return hubcover
     
-def neighbor(g: UndirectedGraph, hcover, node, degree = 2):
+def neighbor(g: UndirectedGraph, hcover, node, distance = 2):
     nth_adjacent_sets = [{node}, g.adjacent_nodes(node)]
-    for _ in range(2, degree) :
+    for _ in range(2, distance) :
         next_set = set()
         for v in nth_adjacent_sets[-1]:
             next_set = next_set | g.adjacent_nodes(v)
@@ -264,7 +266,7 @@ if __name__ == '__main__':
     while True:
         for idx in range(len(nodelst)):
             v = nodelst[(startidx + idx) % len(nodelst)]
-            new_hcover = neighbor(graph, hcover, v, 5)
+            new_hcover = neighbor(graph, hcover, v, 3)
             if len(new_hcover) < len(hcover) :
                 hcover = new_hcover
                 print(f'updated, size {len(hcover)}, from node {v}')
