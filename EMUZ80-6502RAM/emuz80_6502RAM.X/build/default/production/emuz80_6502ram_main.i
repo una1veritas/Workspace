@@ -28978,6 +28978,7 @@ unsigned char __t1rd16on(void);
 unsigned char __t3rd16on(void);
 # 34 "/Applications/microchip/xc8/v3.00/pic/include/xc.h" 2 3
 # 83 "emuz80_6502ram_main.c" 2
+
 # 1 "/Applications/microchip/xc8/v3.00/pic/include/c99/stdio.h" 1 3
 # 24 "/Applications/microchip/xc8/v3.00/pic/include/c99/stdio.h" 3
 # 1 "/Applications/microchip/xc8/v3.00/pic/include/c99/bits/alltypes.h" 1 3
@@ -29130,7 +29131,7 @@ char *ctermid(char *);
 
 
 char *tempnam(const char *, const char *);
-# 84 "emuz80_6502ram_main.c" 2
+# 85 "emuz80_6502ram_main.c" 2
 # 1 "/Applications/microchip/xc8/v3.00/pic/include/c99/inttypes.h" 1 3
 # 13 "/Applications/microchip/xc8/v3.00/pic/include/c99/inttypes.h" 3
 # 1 "/Applications/microchip/xc8/v3.00/pic/include/c99/bits/alltypes.h" 1 3
@@ -29143,8 +29144,8 @@ imaxdiv_t imaxdiv(intmax_t, intmax_t);
 
 intmax_t strtoimax(const char *restrict, char **restrict, int);
 uintmax_t strtoumax(const char *restrict, char **restrict, int);
-# 85 "emuz80_6502ram_main.c" 2
-# 96 "emuz80_6502ram_main.c"
+# 86 "emuz80_6502ram_main.c" 2
+# 97 "emuz80_6502ram_main.c"
 extern const unsigned char rom[];
 
 
@@ -29155,16 +29156,18 @@ union {
   unsigned char h;
  };
 } ab;
-
-
+# 122 "emuz80_6502ram_main.c"
 void putch(char c) {
     while(!U3TXIF);
     U3TXB = c;
 }
-# 122 "emuz80_6502ram_main.c"
+# 136 "emuz80_6502ram_main.c"
 void __attribute__((picinterrupt(("irq(default),base(8)")))) Default_ISR(){}
 
-void setup() {
+void setup_clock() {
+
+
+
 
 
  OSCFRQ = 0x08;
@@ -29174,8 +29177,10 @@ void setup_6502_interface() {
 
 
  RA3PPS = 0x3f;
- ANSELA3 = 0;
- TRISA3 = 0;
+
+    ANSELAbits.ANSELA3 = 0;
+
+    TRISAbits.TRISA3 = 0;
  NCO1INC = (unsigned int)(2000000UL / 30.5175781);
  NCO1CLK = 0x00;
  NCO1PFM = 0;
@@ -29191,6 +29196,7 @@ void setup_6502_interface() {
  ANSELE0 = 0;
  LATE0 = 0;
  TRISE0 = 0;
+
 
 
  ANSELD = 0x00;
@@ -29232,7 +29238,7 @@ void setup_6502_interface() {
  TRISA5 = 0;
 
 
- U3BRG = 68;
+ U3BRG = 416;
  U3RXEN = 1;
  U3TXEN = 1;
 
@@ -29372,50 +29378,98 @@ void setup_InterruptVectorTable() {
  IVTLOCKbits.IVTLOCKED = 0x01;
 }
 
+uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
+    uint32_t stopaddr = endaddr;
+    uint8_t val, wval;
+    (WPUD = 0x00, WPUB = 0x00, TRISD = 0x00, TRISB = 0x00);
+ for(uint32_t i = startaddr; i < endaddr; i++) {
+        ab.w = (uint16_t) (startaddr+i);
+  LATD = ab.h;
+  LATB = ab.l;
+        LATA5 = 0;
+        (WPUC = 0xff, TRISC = 0xff);
+        val = PORTC;
+  LATA5 = 1;
 
-void main(void) {
-
-
-
-    setup();
-    setup_6502_interface();
-
-    printf("Transferring ROM data %dk bytes to SRAM...\r\n",0x4000/1024);
- for(uint16_t i = 0; i < 0x4000; i++) {
-
-        ab.w = i+0xC000;
-  LATD =
-                ab.h;
-  LATB =
-                ab.l;
-        LATC = rom[i];
+        wval = val^0x55;
+        (WPUC = 0x00, TRISC = 0x00);
+        LATC = wval;
+        LATA2 = 0;
         _delay((unsigned long)((1)*(64000000UL/4000000.0)));
+  LATA2 = 1;
+
+        (WPUC = 0xff, TRISC = 0xff);
+        LATA5 = 0;
+        val = PORTC;
+  LATA5 = 1;
+
+        if (wval != val) {
+            printf("error at %04lx: written %02x, read %02x.\r\n", i+0xC000, rom[i],val);
+            stopaddr = startaddr+i;
+            break;
+        }
+
+        wval ^= 0x55;
+        (WPUC = 0x00, TRISC = 0x00);
+        LATC = wval;
+        LATA2 = 0;
+        _delay((unsigned long)((1)*(64000000UL/4000000.0)));
+  LATA2 = 1;
+
+ }
+    return stopaddr;
+}
+
+uint32_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size) {
+    printf("Transferring data (%luk bytes) to SRAM...\r\n",size/1024);
+
+    (WPUD = 0x00, WPUB = 0x00, TRISD = 0x00, TRISB = 0x00);
+    (WPUC = 0x00, TRISC = 0x00);
+ for(uint32_t i = 0; i < size; i++) {
+  ab.w = (uint16_t) (startaddr + i);
+  LATD = ab.h;
+  LATB = ab.l;
+        LATC = arr[i];
   LATA2 = 0;
         _delay((unsigned long)((1)*(64000000UL/4000000.0)));
   LATA2 = 1;
     }
 
-    uint16_t counter = 0;
-    TRISC = 0xff;
-    WPUC = 0xff;
- for(uint16_t i = 0; i < 0x4000; i++) {
-        ab.w = i+0xC000;
-  LATD =
-                ab.h;
-  LATB =
-                ab.l;
-        _delay((unsigned long)((1)*(64000000UL/4000000.0)));
+
+    uint8_t val;
+    uint32_t errcount = 0;
+    (WPUC = 0xff, TRISC = 0xff);
+ for(uint32_t i = 0; i < size; i++) {
+  ab.w = (uint16_t) (startaddr + i);
+  LATD = ab.h;
+  LATB = ab.l;
   LATA5 = 0;
-        _delay((unsigned long)((2)*(64000000UL/4000000.0)));
-  uint8_t val = PORTC;
+        _delay((unsigned long)((1)*(64000000UL/4000000.0)));
+        val = PORTC;
   LATA5 = 1;
-        if (rom[i] != val) {
-            printf("error at %04x: written %02x, read %02x.\r\n", i+0xC000, rom[i],val);
-            counter += 1;
-            while (counter > 100) {}
+        if (arr[i] != val) {
+            errcount += 1;
         }
- }
-    printf("done.\r\n");
+    }
+    if ( errcount == 0 ) {
+        printf("transfer and verify done.\r\n");
+    } else {
+        printf("%lu errors detected.\r\n", errcount);
+    }
+    return errcount;
+}
+
+
+void main(void) {
+
+
+
+    setup_clock();
+    setup_6502_interface();
+
+    uint32_t stopaddr = memory_check(0, 0x10000);
+    printf("stopaddr = %04lx.\r\n", stopaddr);
+    transfer_to_sram(rom, 0xC000, 0x4000);
 
     setup_busmode_6502();
 

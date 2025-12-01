@@ -22,7 +22,7 @@
 
 // CONFIG1
 #pragma config FEXTOSC = OFF	// External Oscillator Selection (Oscillator not enabled)
-#pragma config RSTOSC = HFINTOSC_64MHZ// Reset Oscillator Selection (HFINTOSC with HFFRQ = 64 MHz and CDIV = 1:1)
+#pragma config RSTOSC = HFINTOSC_64MHZ  // Reset Oscillator Selection (HFINTOSC with HFFRQ = 64 MHz and CDIV = 1:1)
 
 // CONFIG2
 #pragma config CLKOUTEN = OFF	// Clock out Enable bit (CLKOUT function is disabled)
@@ -80,6 +80,7 @@
 // Use project enums instead of #define for ON and OFF.
 
 #include <xc.h>
+
 #include <stdio.h>
 #include <inttypes.h>
 
@@ -104,6 +105,19 @@ union {
 	};
 } ab;
 
+#define DATABUS_MODE_INPUT    (WPUC = 0xff, TRISC = 0xff)	
+#define DATABUS_MODE_OUTPUT    (WPUC = 0x00, TRISC = 0x00)
+#define DATABUS_INPUT     PORTC
+#define DATABUS_OUTPUT    LATC
+// Set as input(default)
+#define ADDRBUS_MODE_INTPUT 	(WPUD = 0xff, WPUB = 0xff, TRISD = 0xff, LTRISB = 0xff)
+// Set as output
+#define ADDRBUS_MODE_OUTPUT 	(WPUD = 0x00, WPUB = 0x00, TRISD = 0x00, TRISB = 0x00)
+// Set as output
+#define ADDRBUS_HIGH     LATD
+#define ADDRBUS_LOW      LATB
+
+
 // UART3 Transmit
 void putch(char c) {
     while(!U3TXIF);		// Wait or Tx interrupt flag set
@@ -121,8 +135,11 @@ char getch(void) {
 // Never called, logically
 void __interrupt(irq(default),base(8)) Default_ISR(){}
 
-void setup() {
-    
+void setup_clock() {
+    /* set HFINTOSC Oscillator */
+    //OSCCON1bits.NOSC = 6;
+    /* set HFFRQ to 1 MHz */
+    //OSCFRQbits.HFFRQ = 0;
 	// System initialize
 	OSCFRQ = 0x08;	// 64MHz internal OSC
 }
@@ -131,8 +148,10 @@ void setup_6502_interface() {
 
     // 6502 clock (RA3) by NCO FDC mode
 	RA3PPS = 0x3f;	// RA1 assign NCO1
-	ANSELA3 = 0;	// Disable analog function
-	TRISA3 = 0;		// NCO output pin
+	//ANSELA3 = 0;	// Disable analog function
+    ANSELAbits.ANSELA3 = 0;
+	//TRISA3 = 0;		// NCO output pin
+    TRISAbits.TRISA3 = 0;
 	NCO1INC = (unsigned int)(CLK_6502 / 30.5175781);
 	NCO1CLK = 0x00; // Clock source Fosc
 	NCO1PFM = 0;	// FDC mode
@@ -150,6 +169,7 @@ void setup_6502_interface() {
 	TRISE0 = 0;		// Set as output
 
 	// Address bus A15-A8 pin
+    // setting the whole 8 bits on port
 	ANSELD = 0x00;	// Disable analog function
 	LATD = 0x00;
 	TRISD = 0x00;	// Set as output
@@ -189,7 +209,7 @@ void setup_6502_interface() {
 	TRISA5 = 0;		// Set as output
 
 	// UART3 initialize
-	U3BRG = 68; // 57600  //416;	// Console Serial Baud rate 9600bps @ 64MHz
+	U3BRG = 416; // 19200  //416;	// Console Serial Baud rate 9600bps @ 64MHz
 	U3RXEN = 1;		// Receiver enable
 	U3TXEN = 1;		// Transmitter enable
 
@@ -329,50 +349,98 @@ void setup_InterruptVectorTable() {
 	IVTLOCKbits.IVTLOCKED = 0x01;
 }
 
-// main routine
-void main(void) {
-
-	//unsigned int i;
-    
-    setup();
-    setup_6502_interface(); // 	// BE (RE0) output pin LOW
-    
-    printf("Transferring ROM data %dk bytes to SRAM...\r\n",ROM_SIZE/1024);
-	for(uint16_t i = 0; i < ROM_SIZE; i++) {
-		//uint16_t addr = i+ROM_TOP; //
-        ab.w = i+ROM_TOP;
-		LATD = //((uint8_t *)&addr)[1]; //
-                ab.h;
-		LATB = //((uint8_t *)&addr)[0]; //
-                ab.l;
-        LATC = rom[i];
+uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
+    uint32_t stopaddr = endaddr;
+    uint8_t val, wval;
+    ADDRBUS_MODE_OUTPUT;
+	for(uint32_t i = startaddr; i < endaddr; i++) {
+        ab.w = (uint16_t) (startaddr+i);
+		LATD = ab.h;
+		LATB = ab.l;
+        LATA5 = 0;		// _OE=0
+        DATABUS_MODE_INPUT;
+        val = DATABUS_INPUT;
+		LATA5 = 1;		// _OE=1
+        
+        wval = val^0x55;
+        DATABUS_MODE_OUTPUT;
+        DATABUS_OUTPUT = wval;
+        LATA2 = 0;		// /WE=0
         __delay_us(1);
+		LATA2 = 1;		// /WE=1
+        
+        DATABUS_MODE_INPUT;
+        LATA5 = 0;		// _OE=0
+        val = DATABUS_INPUT;
+		LATA5 = 1;		// _OE=1
+        
+        if (wval != val) {
+            printf("error at %04lx: written %02x, read %02x.\r\n", i+ROM_TOP, rom[i],val);
+            stopaddr = startaddr+i;
+            break;
+        }
+        
+        wval ^= 0x55;
+        DATABUS_MODE_OUTPUT;
+        DATABUS_OUTPUT = wval;
+        LATA2 = 0;		// /WE=0
+        __delay_us(1);
+		LATA2 = 1;		// /WE=1
+        
+	}
+    return stopaddr;
+}
+
+uint32_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size) {
+    printf("Transferring data (%luk bytes) to SRAM...\r\n",size/1024);
+    
+    ADDRBUS_MODE_OUTPUT;
+    DATABUS_MODE_OUTPUT;
+	for(uint32_t i = 0; i < size; i++) {
+		ab.w = (uint16_t) (startaddr + i);
+		ADDRBUS_HIGH = ab.h;
+		ADDRBUS_LOW  = ab.l;
+        DATABUS_OUTPUT = arr[i];
 		LATA2 = 0;		// /WE=0
         __delay_us(1);
 		LATA2 = 1;		// /WE=1
     }
     
-    uint16_t counter = 0;
-    TRISC = 0xff;  // INPUT (default))
-    WPUC = 0xff;	// Week pull up
-	for(uint16_t i = 0; i < ROM_SIZE; i++) {
-        ab.w = i+ROM_TOP;
-		LATD = //((uint8_t *)&addr)[1]; //
-                ab.h;
-		LATB = //((uint8_t *)&addr)[0]; //
-                ab.l;
-        __delay_us(1);
+    // verify
+    uint8_t val;
+    uint32_t errcount = 0;
+    DATABUS_MODE_INPUT;
+	for(uint32_t i = 0; i < size; i++) {
+		ab.w = (uint16_t) (startaddr + i);
+		ADDRBUS_HIGH = ab.h;
+		ADDRBUS_LOW  = ab.l;
 		LATA5 = 0;		// _OE=0
-        __delay_us(2);
-		uint8_t val = PORTC;
+        __delay_us(1);
+        val = DATABUS_INPUT;
 		LATA5 = 1;		// _OE=1
-        if (rom[i] != val) {
-            printf("error at %04x: written %02x, read %02x.\r\n", i+ROM_TOP, rom[i],val);
-            counter += 1;
-            while (counter > 100) {}
+        if (arr[i] != val) {
+            errcount += 1;
         }
-	}
-    printf("done.\r\n");
+    }
+    if ( errcount == 0 ) {
+        printf("transfer and verify done.\r\n");
+    } else {
+        printf("%lu errors detected.\r\n", errcount);
+    }
+    return errcount;
+}
+
+// main routine
+void main(void) {
+
+	//unsigned int i;
+    
+    setup_clock();
+    setup_6502_interface(); // 	// BE (RE0) output pin LOW
+    
+    uint32_t stopaddr = memory_check(0, 0x10000);
+    printf("stopaddr = %04lx.\r\n", stopaddr);
+    transfer_to_sram(rom, ROM_TOP, ROM_SIZE);
     
     setup_busmode_6502();
     

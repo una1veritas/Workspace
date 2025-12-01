@@ -5,18 +5,14 @@
 [d frameptr 1249 ]
 "4 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/__fpclassifyf.c
 [v ___fpclassifyf __fpclassifyf `(i  1 e 2 0 ]
-"1 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/abs.c
-[v _abs abs `(i  1 e 2 0 ]
-"7 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/awdiv.c
-[v ___awdiv __awdiv `(i  1 e 2 0 ]
-"7 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/awmod.c
-[v ___awmod __awmod `(i  1 e 2 0 ]
+"7 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/__lldiv.c
+[v ___lldiv __lldiv `(ul  1 e 4 0 ]
 "193 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/doprnt.c
 [v _pad pad `(v  1 s 1 pad ]
-"513
-[v _dtoa dtoa `(v  1 s 1 dtoa ]
 "587
 [v _efgtoa efgtoa `(v  1 s 1 efgtoa ]
+"1001
+[v _utoa utoa `(v  1 s 1 utoa ]
 "1055
 [v _xtoa xtoa `(v  1 s 1 xtoa ]
 "1158
@@ -47,6 +43,8 @@
 [v ___ftsub __ftsub `(f  1 e 4 0 ]
 "1 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/labs.c
 [v _labs labs `(l  1 e 4 0 ]
+"7 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/llmod.c
+[v ___llmod __llmod `(ul  1 e 4 0 ]
 "4 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/memcpy.c
 [v _memcpy memcpy `(*.39v  1 e 3 0 ]
 "8 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/nf_fputc.c
@@ -71,21 +69,25 @@
 [v ___omul __omul `(uo  1 e 8 0 ]
 "10 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/xxtofl.c
 [v ___xxtofl __xxtofl `(d  1 e 4 0 ]
-"108 /Users/sin/Downloads/EMUZ80-6502RAM-main/emuz80_6502RAM.X/emuz80_6502ram_main.c
+"122 /Users/sin/Documents/Workspace/EMUZ80-6502RAM/emuz80_6502RAM.X/emuz80_6502ram_main.c
 [v _putch putch `(v  1 e 1 0 ]
-"122
+"136
 [v _Default_ISR Default_ISR `IIH(v  1 e 1 0 ]
-"124
-[v _setup setup `(v  1 e 1 0 ]
-"130
+"138
+[v _setup_clock setup_clock `(v  1 e 1 0 ]
+"147
 [v _setup_6502_interface setup_6502_interface `(v  1 e 1 0 ]
-"212
+"232
 [v _setup_CLC setup_CLC `(v  1 e 1 0 ]
-"300
+"320
 [v _setup_busmode_6502 setup_busmode_6502 `(v  1 e 1 0 ]
-"317
+"337
 [v _setup_InterruptVectorTable setup_InterruptVectorTable `(v  1 e 1 0 ]
-"333
+"352
+[v _memory_check memory_check `(ul  1 e 4 0 ]
+"394
+[v _transfer_to_sram transfer_to_sram `(ul  1 e 4 0 ]
+"434
 [v _main main `(v  1 e 1 0 ]
 "5390 /Applications/microchip/xc8/v3.00/pic/include/proc/pic18f47q43.h
 [v _OSCFRQ OSCFRQ `VEuc  1 e 1 @177 ]
@@ -139,6 +141,20 @@
 [v _U3TXB U3TXB `VEuc  1 e 1 @713 ]
 "19032
 [v _U3BRG U3BRG `VEus  1 e 2 @724 ]
+[s S34 . 1 `uc 1 ANSELA0 1 0 :1:0 
+`uc 1 ANSELA1 1 0 :1:1 
+`uc 1 ANSELA2 1 0 :1:2 
+`uc 1 ANSELA3 1 0 :1:3 
+`uc 1 ANSELA4 1 0 :1:4 
+`uc 1 ANSELA5 1 0 :1:5 
+`uc 1 ANSELA6 1 0 :1:6 
+`uc 1 ANSELA7 1 0 :1:7 
+]
+"39526
+[u S43 . 1 `S34 1 . 1 0 ]
+"39526
+"39526
+[v _ANSELAbits ANSELAbits `VES43  1 e 1 @1024 ]
 "40005
 [v _ANSELB ANSELB `VEuc  1 e 1 @1032 ]
 "40067
@@ -158,13 +174,13 @@
 [v _NCO1CLK NCO1CLK `VEuc  1 e 1 @1095 ]
 "44236
 [v _IVTLOCK IVTLOCK `VEuc  1 e 1 @1113 ]
-[s S107 . 1 `uc 1 IVTLOCKED 1 0 :1:0 
+[s S147 . 1 `uc 1 IVTLOCKED 1 0 :1:0 
 ]
 "44246
-[u S109 . 1 `S107 1 . 1 0 ]
+[u S149 . 1 `S147 1 . 1 0 ]
 "44246
 "44246
-[v _IVTLOCKbits IVTLOCKbits `VES109  1 e 1 @1113 ]
+[v _IVTLOCKbits IVTLOCKbits `VES149  1 e 1 @1113 ]
 "44434
 [v _IVTBASE IVTBASE `VEum  1 e 3 @1117 ]
 "47681
@@ -175,6 +191,20 @@
 [v _LATC LATC `VEuc  1 e 1 @1216 ]
 "48231
 [v _LATD LATD `VEuc  1 e 1 @1217 ]
+[s S55 . 1 `uc 1 TRISA0 1 0 :1:0 
+`uc 1 TRISA1 1 0 :1:1 
+`uc 1 TRISA2 1 0 :1:2 
+`uc 1 TRISA3 1 0 :1:3 
+`uc 1 TRISA4 1 0 :1:4 
+`uc 1 TRISA5 1 0 :1:5 
+`uc 1 TRISA6 1 0 :1:6 
+`uc 1 TRISA7 1 0 :1:7 
+]
+"48342
+[u S64 . 1 `S55 1 . 1 0 ]
+"48342
+"48342
+[v _TRISAbits TRISAbits `VES64  1 e 1 @1222 ]
 "48387
 [v _TRISB TRISB `VEuc  1 e 1 @1223 ]
 "48449
@@ -191,8 +221,6 @@
 [v _ANSELA0 ANSELA0 `VEb  1 e 0 @8192 ]
 "52022
 [v _ANSELA2 ANSELA2 `VEb  1 e 0 @8194 ]
-"52025
-[v _ANSELA3 ANSELA3 `VEb  1 e 0 @8195 ]
 "52028
 [v _ANSELA4 ANSELA4 `VEb  1 e 0 @8196 ]
 "52031
@@ -237,8 +265,6 @@
 [v _TRISA0 TRISA0 `VEb  1 e 0 @9776 ]
 "60428
 [v _TRISA2 TRISA2 `VEb  1 e 0 @9778 ]
-"60431
-[v _TRISA3 TRISA3 `VEb  1 e 0 @9779 ]
 "60434
 [v _TRISA4 TRISA4 `VEb  1 e 0 @9780 ]
 "60437
@@ -269,79 +295,110 @@
 "185
 [v _dbuf dbuf `[80]uc  1 s 80 dbuf ]
 [s S24 . 2 `uc 1 l 1 0 `uc 1 h 1 1 ]
-"105 /Users/sin/Downloads/EMUZ80-6502RAM-main/emuz80_6502RAM.X/emuz80_6502ram_main.c
+"106 /Users/sin/Documents/Workspace/EMUZ80-6502RAM/emuz80_6502RAM.X/emuz80_6502ram_main.c
 [u S27 . 2 `ui 1 w 2 0 `S24 1 . 2 0 ]
 [v _ab ab `S27  1 e 2 0 ]
-"424
+"492
 [v _rom rom `C[16384]uc  1 e 16384 0 ]
-"333
+"434
 [v _main main `(v  1 e 1 0 ]
 {
-"367
-[v main@val val `uc  1 a 1 82 ]
-"358
-[v main@i_164 i `us  1 a 2 85 ]
-"341
-[v main@i i `us  1 a 2 83 ]
-"355
-[v main@counter counter `us  1 a 2 80 ]
-"422
+"441
+[v main@stopaddr stopaddr `ul  1 a 4 107 ]
+"490
 } 0
-"300
+"394
+[v _transfer_to_sram transfer_to_sram `(ul  1 e 4 0 ]
+{
+"413
+[v transfer_to_sram@i_226 i `ul  1 a 4 103 ]
+"399
+[v transfer_to_sram@i i `ul  1 a 4 99 ]
+"411
+[v transfer_to_sram@errcount errcount `ul  1 a 4 95 ]
+"410
+[v transfer_to_sram@val val `uc  1 a 1 94 ]
+"394
+[v transfer_to_sram@arr arr `*.32Cuc  1 p 2 80 ]
+[v transfer_to_sram@startaddr startaddr `ul  1 p 4 82 ]
+[v transfer_to_sram@size size `ul  1 p 4 86 ]
+"431
+} 0
+"138
+[v _setup_clock setup_clock `(v  1 e 1 0 ]
+{
+"145
+} 0
+"320
 [v _setup_busmode_6502 setup_busmode_6502 `(v  1 e 1 0 ]
 {
-"315
+"335
 } 0
-"317
+"337
 [v _setup_InterruptVectorTable setup_InterruptVectorTable `(v  1 e 1 0 ]
 {
-"330
+"350
 } 0
-"212
+"232
 [v _setup_CLC setup_CLC `(v  1 e 1 0 ]
 {
-"298
+"318
 } 0
-"130
+"147
 [v _setup_6502_interface setup_6502_interface `(v  1 e 1 0 ]
 {
-"210
+"230
+} 0
+"352
+[v _memory_check memory_check `(ul  1 e 4 0 ]
+{
+"356
+[v memory_check@i i `ul  1 a 4 94 ]
+"353
+[v memory_check@stopaddr stopaddr `ul  1 a 4 88 ]
+"354
+[v memory_check@wval wval `uc  1 a 1 93 ]
+[v memory_check@val val `uc  1 a 1 92 ]
+"352
+[v memory_check@startaddr startaddr `ul  1 p 4 80 ]
+[v memory_check@endaddr endaddr `ul  1 p 4 84 ]
+"392
 } 0
 "5 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/printf.c
 [v _printf printf `(i  1 e 2 0 ]
 {
 "8
-[v printf@ap ap `[1]*.39v  1 a 2 74 ]
+[v printf@ap ap `[1]*.39v  1 a 2 78 ]
 "5
-[v printf@fmt fmt `*.32Cuc  1 p 2 66 ]
+[v printf@fmt fmt `*.32Cuc  1 p 2 68 ]
 "13
 } 0
 "1817 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/doprnt.c
 [v _vfprintf vfprintf `(i  1 e 2 0 ]
 {
 "1820
-[v vfprintf@cfmt cfmt `*.32uc  1 a 2 64 ]
-[s S637 _IO_FILE 0 ]
+[v vfprintf@cfmt cfmt `*.32uc  1 a 2 93 ]
+[s S709 _IO_FILE 0 ]
 "1817
-[v vfprintf@fp fp `*.39S637  1 p 2 58 ]
-[v vfprintf@fmt fmt `*.32Cuc  1 p 2 60 ]
-[v vfprintf@ap ap `*.39*.39v  1 p 2 62 ]
+[v vfprintf@fp fp `*.39S709  1 p 2 62 ]
+[v vfprintf@fmt fmt `*.32Cuc  1 p 2 64 ]
+[v vfprintf@ap ap `*.39*.39v  1 p 2 66 ]
 "1840
 } 0
 "1177
 [v _vfpfcnvrt vfpfcnvrt `(v  1 s 1 vfpfcnvrt ]
 {
-[u S692 . 4 `i 1 sint 2 0 `ui 1 uint 2 0 `d 1 f 4 0 ]
+[u S759 . 4 `l 1 sint 4 0 `ul 1 uint 4 0 `d 1 f 4 0 ]
 "1188
-[v vfpfcnvrt@convarg convarg `S692  1 a 4 52 ]
+[v vfpfcnvrt@convarg convarg `S759  1 a 4 55 ]
 "1179
-[v vfpfcnvrt@cp cp `*.32uc  1 a 2 56 ]
-[v vfpfcnvrt@c c `uc  1 a 1 51 ]
+[v vfpfcnvrt@cp cp `*.32uc  1 a 2 60 ]
+[v vfpfcnvrt@c c `uc  1 a 1 59 ]
 "1180
-[v vfpfcnvrt@done done `a  1 a 1 50 ]
-[s S637 _IO_FILE 0 ]
+[v vfpfcnvrt@done done `a  1 a 1 54 ]
+[s S709 _IO_FILE 0 ]
 "1177
-[v vfpfcnvrt@fp fp `*.39S637  1 p 2 44 ]
+[v vfpfcnvrt@fp fp `*.39S709  1 p 2 44 ]
 [v vfpfcnvrt@fmt fmt `*.39*.32uc  1 p 2 46 ]
 [v vfpfcnvrt@ap ap `*.39*.39v  1 p 2 48 ]
 "1814
@@ -350,19 +407,55 @@
 [v _xtoa xtoa `(v  1 s 1 xtoa ]
 {
 "1063
-[v xtoa@i i `i  1 a 2 38 ]
-[v xtoa@w w `i  1 a 2 35 ]
+[v xtoa@i i `i  1 a 2 41 ]
+[v xtoa@w w `i  1 a 2 38 ]
 "1065
-[v xtoa@p p `i  1 a 2 33 ]
+[v xtoa@p p `i  1 a 2 36 ]
 "1059
-[v xtoa@c c `uc  1 a 1 37 ]
-[s S637 _IO_FILE 0 ]
+[v xtoa@c c `uc  1 a 1 40 ]
+[s S709 _IO_FILE 0 ]
 "1055
-[v xtoa@fp fp `*.39S637  1 p 2 26 ]
-[v xtoa@d d `ui  1 p 2 28 ]
+[v xtoa@fp fp `*.39S709  1 p 2 26 ]
+[v xtoa@d d `ul  1 p 4 28 ]
 "1153
 } 0
-"1158
+"1001
+[v _utoa utoa `(v  1 s 1 utoa ]
+{
+"1003
+[v utoa@i i `i  1 a 2 36 ]
+[v utoa@w w `i  1 a 2 34 ]
+"1005
+[v utoa@p p `i  1 a 2 32 ]
+[s S709 _IO_FILE 0 ]
+"1001
+[v utoa@fp fp `*.39S709  1 p 2 26 ]
+[v utoa@d d `ul  1 p 4 28 ]
+"1047
+} 0
+"7 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/llmod.c
+[v ___llmod __llmod `(ul  1 e 4 0 ]
+{
+"10
+[v ___llmod@counter counter `uc  1 a 1 8 ]
+"7
+[v ___llmod@dividend dividend `ul  1 p 4 0 ]
+[v ___llmod@divisor divisor `ul  1 p 4 4 ]
+"25
+} 0
+"7 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/__lldiv.c
+[v ___lldiv __lldiv `(ul  1 e 4 0 ]
+{
+"10
+[v ___lldiv@quotient quotient `ul  1 a 4 8 ]
+"11
+[v ___lldiv@counter counter `uc  1 a 1 12 ]
+"7
+[v ___lldiv@dividend dividend `ul  1 p 4 0 ]
+[v ___lldiv@divisor divisor `ul  1 p 4 4 ]
+"30
+} 0
+"1158 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/doprnt.c
 [v _read_prec_or_width read_prec_or_width `(i  1 s 2 read_prec_or_width ]
 {
 "1164
@@ -377,15 +470,15 @@
 "587
 [v _efgtoa efgtoa `(v  1 s 1 efgtoa ]
 {
-[u S655 flui 4 `d 1 f 4 0 `l 1 u 4 0 ]
+[u S722 flui 4 `d 1 f 4 0 `l 1 u 4 0 ]
 "592
-[v efgtoa@u u `S655  1 a 4 40 ]
-[v efgtoa@g g `S655  1 a 4 34 ]
+[v efgtoa@u u `S722  1 a 4 40 ]
+[v efgtoa@g g `S722  1 a 4 34 ]
 "591
 [v efgtoa@l l `d  1 a 4 27 ]
 [v efgtoa@h h `d  1 a 4 23 ]
 "592
-[v efgtoa@ou ou `S655  1 a 4 19 ]
+[v efgtoa@ou ou `S722  1 a 4 19 ]
 "590
 [v efgtoa@n n `i  1 a 2 38 ]
 [v efgtoa@i i `i  1 a 2 31 ]
@@ -401,9 +494,9 @@
 [v efgtoa@nmode nmode `uc  1 a 1 10 ]
 [v efgtoa@mode mode `uc  1 a 1 9 ]
 [v efgtoa@pp pp `uc  1 a 1 8 ]
-[s S637 _IO_FILE 0 ]
+[s S709 _IO_FILE 0 ]
 "587
-[v efgtoa@fp fp `*.39S637  1 p 2 84 ]
+[v efgtoa@fp fp `*.39S709  1 p 2 84 ]
 [v efgtoa@f f `d  1 p 4 86 ]
 [v efgtoa@c c `uc  1 p 1 90 ]
 "868
@@ -417,6 +510,49 @@
 [v strcpy@dest dest `*.39uc  1 p 2 0 ]
 [v strcpy@src src `*.32Cuc  1 p 2 2 ]
 "8
+} 0
+"193 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/doprnt.c
+[v _pad pad `(v  1 s 1 pad ]
+{
+"195
+[v pad@i i `i  1 a 2 24 ]
+[s S709 _IO_FILE 0 ]
+"193
+[v pad@fp fp `*.39S709  1 p 2 17 ]
+[v pad@buf buf `*.39uc  1 p 2 19 ]
+[v pad@p p `i  1 p 2 21 ]
+"226
+} 0
+"8 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/nf_fputs.c
+[v _fputs fputs `(i  1 e 2 0 ]
+{
+"11
+[v fputs@i i `i  1 a 2 15 ]
+"10
+[v fputs@c c `uc  1 a 1 14 ]
+"8
+[v fputs@s s `*.39Cuc  1 p 2 10 ]
+[u S687 . 2 `*.39uc 1 buffer 2 0 `*.39Cuc 1 source 2 0 ]
+[s S690 _IO_FILE 11 `S687 1 . 2 0 `i 1 count 2 2 `[3]uc 1 ungetbuf 3 4 `i 1 ungetcnt 2 7 `i 1 limit 2 9 ]
+[v fputs@fp fp `*.39S690  1 p 2 12 ]
+"19
+} 0
+"8 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/nf_fputc.c
+[v _fputc fputc `(i  1 e 2 0 ]
+{
+[v fputc@c c `i  1 p 2 1 ]
+[u S687 . 2 `*.39uc 1 buffer 2 0 `*.39Cuc 1 source 2 0 ]
+[s S690 _IO_FILE 11 `S687 1 . 2 0 `i 1 count 2 2 `[3]uc 1 ungetbuf 3 4 `i 1 ungetcnt 2 7 `i 1 limit 2 9 ]
+[v fputc@fp fp `*.39S690  1 p 2 3 ]
+"24
+} 0
+"122 /Users/sin/Documents/Workspace/EMUZ80-6502RAM/emuz80_6502RAM.X/emuz80_6502ram_main.c
+[v _putch putch `(v  1 e 1 0 ]
+{
+[v putch@c c `uc  1 p 1 wreg ]
+[v putch@c c `uc  1 p 1 wreg ]
+[v putch@c c `uc  1 p 1 0 ]
+"125
 } 0
 "4 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/memcpy.c
 [v _memcpy memcpy `(*.39v  1 e 3 0 ]
@@ -442,9 +578,9 @@
 "3 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/floorf.c
 [v _floorf floorf `(f  1 e 4 0 ]
 {
-[u S786 . 4 `f 1 f 4 0 `ul 1 i 4 0 ]
+[u S851 . 4 `f 1 f 4 0 `ul 1 i 4 0 ]
 "5
-[v floorf@u u `S786  1 a 4 80 ]
+[v floorf@u u `S851  1 a 4 80 ]
 "7
 [v floorf@m m `ul  1 a 4 74 ]
 "6
@@ -452,21 +588,21 @@
 "3
 [v floorf@x x `f  1 p 4 64 ]
 "4
-[v floorf@F521 F521 `S786  1 s 4 F521 ]
+[v floorf@F521 F521 `S851  1 s 4 F521 ]
 "27
 } 0
 "4 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/__fpclassifyf.c
 [v ___fpclassifyf __fpclassifyf `(i  1 e 2 0 ]
 {
-[u S786 . 4 `f 1 f 4 0 `ul 1 i 4 0 ]
+[u S851 . 4 `f 1 f 4 0 `ul 1 i 4 0 ]
 "6
-[v ___fpclassifyf@u u `S786  1 a 4 10 ]
+[v ___fpclassifyf@u u `S851  1 a 4 10 ]
 "7
 [v ___fpclassifyf@e e `i  1 a 2 8 ]
 "4
 [v ___fpclassifyf@x x `f  1 p 4 0 ]
 "5
-[v ___fpclassifyf@F465 F465 `S786  1 s 4 F465 ]
+[v ___fpclassifyf@F465 F465 `S851  1 s 4 F465 ]
 "11
 } 0
 "43 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/fltol.c
@@ -511,17 +647,17 @@
 "8 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/sprcmul.c
 [v ___flmul __flmul `(d  1 e 4 0 ]
 {
-[s S476 . 4 `uc 1 a 1 0 `uc 1 b 1 1 `uc 1 c 1 2 `uc 1 d 1 3 ]
+[s S548 . 4 `uc 1 a 1 0 `uc 1 b 1 1 `uc 1 c 1 2 `uc 1 d 1 3 ]
 "13
-[s S481 . 4 `s 1 wordA 2 0 `s 1 wordB 2 2 ]
-[u S484 . 4 `l 1 i 4 0 `d 1 f 4 0 `S476 1 fAsBytes 4 0 `S481 1 fAsWords 4 0 ]
-[v ___flmul@prod prod `S484  1 a 4 33 ]
+[s S553 . 4 `s 1 wordA 2 0 `s 1 wordB 2 2 ]
+[u S556 . 4 `l 1 i 4 0 `d 1 f 4 0 `S548 1 fAsBytes 4 0 `S553 1 fAsWords 4 0 ]
+[v ___flmul@prod prod `S556  1 a 4 33 ]
 "12
 [v ___flmul@grs grs `ul  1 a 4 28 ]
-[s S552 . 2 `uc 1 a 1 0 `uc 1 b 1 1 ]
+[s S624 . 2 `uc 1 a 1 0 `uc 1 b 1 1 ]
 "14
-[u S555 . 2 `s 1 i 2 0 `us 1 n 2 0 `S552 1 nAsBytes 2 0 ]
-[v ___flmul@temp temp `S555  1 a 2 37 ]
+[u S627 . 2 `s 1 i 2 0 `us 1 n 2 0 `S624 1 nAsBytes 2 0 ]
+[v ___flmul@temp temp `S627  1 a 2 37 ]
 "10
 [v ___flmul@bexp bexp `uc  1 a 1 32 ]
 "11
@@ -567,100 +703,6 @@
 [v ___fldiv@a a `d  1 p 4 43 ]
 "185
 } 0
-"513 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/doprnt.c
-[v _dtoa dtoa `(v  1 s 1 dtoa ]
-{
-"516
-[v dtoa@i i `i  1 a 2 37 ]
-[v dtoa@w w `i  1 a 2 34 ]
-"518
-[v dtoa@p p `i  1 a 2 32 ]
-"515
-[v dtoa@s s `uc  1 a 1 36 ]
-[s S637 _IO_FILE 0 ]
-"513
-[v dtoa@fp fp `*.39S637  1 p 2 26 ]
-[v dtoa@d d `i  1 p 2 28 ]
-"583
-} 0
-"193
-[v _pad pad `(v  1 s 1 pad ]
-{
-"195
-[v pad@i i `i  1 a 2 24 ]
-[s S637 _IO_FILE 0 ]
-"193
-[v pad@fp fp `*.39S637  1 p 2 17 ]
-[v pad@buf buf `*.39uc  1 p 2 19 ]
-[v pad@p p `i  1 p 2 21 ]
-"226
-} 0
-"8 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/nf_fputs.c
-[v _fputs fputs `(i  1 e 2 0 ]
-{
-"11
-[v fputs@i i `i  1 a 2 15 ]
-"10
-[v fputs@c c `uc  1 a 1 14 ]
-"8
-[v fputs@s s `*.39Cuc  1 p 2 10 ]
-[u S615 . 2 `*.39uc 1 buffer 2 0 `*.39Cuc 1 source 2 0 ]
-[s S618 _IO_FILE 11 `S615 1 . 2 0 `i 1 count 2 2 `[3]uc 1 ungetbuf 3 4 `i 1 ungetcnt 2 7 `i 1 limit 2 9 ]
-[v fputs@fp fp `*.39S618  1 p 2 12 ]
-"19
-} 0
-"8 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/nf_fputc.c
-[v _fputc fputc `(i  1 e 2 0 ]
-{
-[v fputc@c c `i  1 p 2 1 ]
-[u S615 . 2 `*.39uc 1 buffer 2 0 `*.39Cuc 1 source 2 0 ]
-[s S618 _IO_FILE 11 `S615 1 . 2 0 `i 1 count 2 2 `[3]uc 1 ungetbuf 3 4 `i 1 ungetcnt 2 7 `i 1 limit 2 9 ]
-[v fputc@fp fp `*.39S618  1 p 2 3 ]
-"24
-} 0
-"108 /Users/sin/Downloads/EMUZ80-6502RAM-main/emuz80_6502RAM.X/emuz80_6502ram_main.c
-[v _putch putch `(v  1 e 1 0 ]
-{
-[v putch@c c `uc  1 p 1 wreg ]
-[v putch@c c `uc  1 p 1 wreg ]
-[v putch@c c `uc  1 p 1 0 ]
-"111
-} 0
-"1 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/abs.c
-[v _abs abs `(i  1 e 2 0 ]
-{
-[v abs@a a `i  1 p 2 6 ]
-"4
-} 0
-"7 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/awmod.c
-[v ___awmod __awmod `(i  1 e 2 0 ]
-{
-"10
-[v ___awmod@sign sign `uc  1 a 1 5 ]
-[v ___awmod@counter counter `uc  1 a 1 4 ]
-"7
-[v ___awmod@dividend dividend `i  1 p 2 0 ]
-[v ___awmod@divisor divisor `i  1 p 2 2 ]
-"34
-} 0
-"7 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/awdiv.c
-[v ___awdiv __awdiv `(i  1 e 2 0 ]
-{
-"10
-[v ___awdiv@quotient quotient `i  1 a 2 6 ]
-"11
-[v ___awdiv@sign sign `uc  1 a 1 5 ]
-[v ___awdiv@counter counter `uc  1 a 1 4 ]
-"7
-[v ___awdiv@dividend dividend `i  1 p 2 0 ]
-[v ___awdiv@divisor divisor `i  1 p 2 2 ]
-"41
-} 0
-"124 /Users/sin/Downloads/EMUZ80-6502RAM-main/emuz80_6502RAM.X/emuz80_6502ram_main.c
-[v _setup setup `(v  1 e 1 0 ]
-{
-"128
-} 0
 "10 /Applications/microchip/xc8/v3.00/pic/sources/c99/common/xxtofl.c
 [v ___xxtofl __xxtofl `(d  1 e 4 0 ]
 {
@@ -676,7 +718,7 @@
 [v ___xxtofl@sign sign `uc  1 p 1 8 ]
 "44
 } 0
-"122 /Users/sin/Downloads/EMUZ80-6502RAM-main/emuz80_6502RAM.X/emuz80_6502ram_main.c
+"136 /Users/sin/Documents/Workspace/EMUZ80-6502RAM/emuz80_6502RAM.X/emuz80_6502ram_main.c
 [v _Default_ISR Default_ISR `IIH(v  1 e 1 0 ]
 {
 } 0
