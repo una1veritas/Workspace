@@ -1,0 +1,27 @@
+asw -L ttbasic_cnv.asm
+
+p2hex ttbasic_cnv.p ttbasic_cnv.hex -segment code
+
+オーバーラップのワーニングが出るが、ヘキサファイルは
+ファイルヘッダー、コードの２パート分出力される
+
+p2bin ttbasic_cnv.p ttbasic_data.bin -segment data
+
+
+ttbasic_cnv.hexをエディタで開いて、
+ファイルヘッダ部と、コード部を2つのファイルに分割する
+
+ファイルヘッダ部：ttbasic_aheader.hexとしてセーブ
+コード部：　　　　ttbasic_code.hexとしてセーブ
+
+xeditで、上記2つのファイルを読み込んで、バイナリとしてセーブ
+
+最終的に3つのファイル
+ttbasic_aheader.bin
+ttbasic_code.bin
+ttbasic_data.bin
+ができていることを確認する
+
+最後にpwershellのコマンドで３つのbinファイルを１つのttbasic.cmdとして結合する
+
+Get-Content ttbasic_*.bin -Encoding Byte | Set-Content ttbasic.cmd -Encoding Byte
