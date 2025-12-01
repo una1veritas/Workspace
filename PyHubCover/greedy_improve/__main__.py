@@ -231,7 +231,7 @@ if __name__ == '__main__':
     Small-world Networks: nx.watts_strogatz_graph(n, k, p)
     '''
     
-    graph = UndirectedGraph(nodes = 2047, ev_ratio = 3)
+    graph = UndirectedGraph(nodes = 256, ev_ratio = 3)
     print(f'the number of nodes = {len(graph.nodes)},\nthe number of edges = {len(graph.edges)} ')
     if len(graph.nodes) < 128 : 
         print(graph)
@@ -242,8 +242,13 @@ if __name__ == '__main__':
         nxg = nx.Graph()
         nxg.add_nodes_from(graph.nodes)
         nxg.add_edges_from(graph.edge_pairs())
-        nx.draw(nxg, with_labels=True, node_color="lightblue", edge_color="black",node_size=100, font_size=10)
-        plt.show()
+        is_planar, embedding = nx.check_planarity(nxg)
+        print("Is planar?", is_planar)
+        print("embedding = ", embedding)
+        plt.ion()  # Turn on interactive mode
+        fig, ax = plt.subplots()
+        nx.draw(nxg, ax=ax, with_labels=True, node_color="lightblue", edge_color="black",node_size=100, font_size=10)
+        plt.draw()
         # Save the graph to a file
         #nx.write_gml(G, "graph.gml")
     
@@ -276,7 +281,17 @@ if __name__ == '__main__':
         else:
             print(f'arrived at a local optimum.')
             break
+        if len(graph) < 1000 :
+            nxg = nx.Graph()
+            nxg.add_nodes_from(graph.nodes)
+            nxg.add_edges_from(graph.edge_pairs())
+            ax.clear()
+            nx.draw(nxg, ax=ax, with_labels=True, node_color="lightblue", edge_color="black",node_size=100, font_size=10)
+            plt.draw()
+            plt.pause(1)
     end = time.perf_counter()
+    if len(graph) < 1000:
+        plt.ioff()
     print(f"Elapsed: {end - start:.6f} seconds")
     if len(hcover) < 40 :
         print("HubCover = ", hcover, "\nsize = ", len(hcover))
