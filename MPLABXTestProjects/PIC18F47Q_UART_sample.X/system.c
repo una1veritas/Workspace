@@ -22,7 +22,7 @@ void SYSTEM_Initialize(void)
     CLOCK_Initialize();
     PIN_MANAGER_Initialize();
     UART3_Initialize();
-    INTERRUPT_Initialize();
+    //INTERRUPT_Initialize();
 }
 
 void CLOCK_Initialize(void)
@@ -142,7 +142,9 @@ void PIN_MANAGER_Initialize(void)
 
 
 }
-  
+
+/*
 void PIN_MANAGER_IOC(void)
 {
 }
+ * */

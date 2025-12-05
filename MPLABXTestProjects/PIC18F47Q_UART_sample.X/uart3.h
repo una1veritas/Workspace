@@ -42,16 +42,17 @@
  * The UART error status necessitates checking the bitfield and accessing the status within the group byte therefore the use of a union is essential.
  */
  /* cppcheck-suppress misra-c2012-19.2 */
+/*
 typedef union {
     struct {
-        uint8_t perr : 1;     /**<This is a bit field for Parity Error status*/
-        uint8_t ferr : 1;     /**<This is a bit field for Framing Error status*/
-        uint8_t oerr : 1;     /**<This is a bit field for Overfrun Error status*/
-        uint8_t reserved : 5; /**<Reserved*/
+        uint8_t perr : 1;     //<This is a bit field for Parity Error status*
+        uint8_t ferr : 1;     //<This is a bit field for Framing Error status*
+        uint8_t oerr : 1;     //<This is a bit field for Overfrun Error status*
+        uint8_t reserved : 5; //<Reserved*
     };
-    size_t status;            /**<Group byte for status errors*/
+    size_t status;            //<Group byte for status errors*
 }uart3_status_t;
-
+*/
 /**
  * @ingroup uart3
  * @brief Initializes the UART3 module. This routine is called
@@ -93,7 +94,7 @@ void UART3_Disable(void);
  * @param None.
  * @return None.
  */
-void UART3_TransmitEnable(void);
+//void UART3_TransmitEnable(void);
 
 /**
  * @ingroup uart3
@@ -101,7 +102,7 @@ void UART3_TransmitEnable(void);
  * @param None.
  * @return None.
  */
-void UART3_TransmitDisable(void);
+//void UART3_TransmitDisable(void);
 
 /**
  * @ingroup uart3
@@ -110,7 +111,7 @@ void UART3_TransmitDisable(void);
  * @param None.
  * @return None.
  */
-void UART3_ReceiveEnable(void);
+//void UART3_ReceiveEnable(void);
 
 /**
  * @ingroup uart3
@@ -118,7 +119,7 @@ void UART3_ReceiveEnable(void);
  * @param None.
  * @return None.
  */
-void UART3_ReceiveDisable(void);
+//void UART3_ReceiveDisable(void);
 
 /**
  * @ingroup uart3
@@ -174,7 +175,7 @@ void UART3_ReceiveInterruptDisable(void);
  * @param bool enable
  * @return None.
  */
-void UART3_AutoBaudSet(bool enable);
+//void UART3_AutoBaudSet(bool enable);
 
 
 /**
@@ -183,7 +184,7 @@ void UART3_AutoBaudSet(bool enable);
  * @param None.
  * @return None.
  */
-bool UART3_AutoBaudQuery(void);
+//bool UART3_AutoBaudQuery(void);
 
 /**
  * @ingroup uart3
@@ -191,7 +192,7 @@ bool UART3_AutoBaudQuery(void);
  * @param None.
  * @return None.
  */
-void UART3_AutoBaudDetectCompleteReset(void);
+//void UART3_AutoBaudDetectCompleteReset(void);
 
 /**
  * @ingroup uart3
@@ -199,7 +200,7 @@ void UART3_AutoBaudDetectCompleteReset(void);
  * @param None.
  * @return None.
  */
-bool UART3_IsAutoBaudDetectOverflow(void);
+//bool UART3_IsAutoBaudDetectOverflow(void);
 
 /**
  * @ingroup uart3
@@ -207,7 +208,7 @@ bool UART3_IsAutoBaudDetectOverflow(void);
  * @param None.
  * @return None.
  */
-void UART3_AutoBaudDetectOverflowReset(void);
+//void UART3_AutoBaudDetectOverflowReset(void);
 
 /**
  * @ingroup uart3
@@ -244,7 +245,7 @@ bool UART3_IsTxDone(void);
  * @param None.
  * @return Status of the last read byte. See the uart3_status_t struct for more details.
  */
-size_t UART3_ErrorGet(void);
+//size_t UART3_ErrorGet(void);
 
 /**
  * @ingroup uart3
@@ -272,7 +273,7 @@ void UART3_Write(uint8_t txData);
  * @param callbackHandler - Function pointer called when the framing error condition occurs
  * @return None.
  */
-void UART3_FramingErrorCallbackRegister(void (* callbackHandler)(void));
+//void UART3_FramingErrorCallbackRegister(void (* callbackHandler)(void));
 
 /**
  * @ingroup uart3
@@ -280,7 +281,7 @@ void UART3_FramingErrorCallbackRegister(void (* callbackHandler)(void));
  * @param callbackHandler - Function pointer called when the overrun error condition occurs
  * @return None.
  */
-void UART3_OverrunErrorCallbackRegister(void (* callbackHandler)(void));
+//void UART3_OverrunErrorCallbackRegister(void (* callbackHandler)(void));
 
 /**
  * @ingroup uart3
@@ -288,7 +289,7 @@ void UART3_OverrunErrorCallbackRegister(void (* callbackHandler)(void));
  * @param callbackHandler - Function pointer called when the parity error condition occurs
  * @return None.
  */
-void UART3_ParityErrorCallbackRegister(void (* callbackHandler)(void));
+//void UART3_ParityErrorCallbackRegister(void (* callbackHandler)(void));
 
 /**
  * @ingroup uart3
@@ -305,7 +306,7 @@ extern void (*UART3_TxInterruptHandler)(void);
  * @param callbackHandler - Function pointer called when the transmitter interrupt condition occurs
  * @return None.
  */
-void UART3_TxCompleteCallbackRegister(void (* callbackHandler)(void));
+//void UART3_TxCompleteCallbackRegister(void (* callbackHandler)(void));
 
 /**
  * @ingroup uart3
@@ -329,7 +330,7 @@ extern void (*UART3_RxInterruptHandler)(void);
  * @param callbackHandler - Function pointer called when the receiver interrupt condition occurs
  * @return None.
  */
-void UART3_RxCompleteCallbackRegister(void (* callbackHandler)(void));
+//void UART3_RxCompleteCallbackRegister(void (* callbackHandler)(void));
 
 /**
  * @ingroup uart3

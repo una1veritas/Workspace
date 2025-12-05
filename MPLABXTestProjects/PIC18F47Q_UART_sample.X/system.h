@@ -78,14 +78,14 @@ void CLOCK_Initialize(void);
 
 void PIN_MANAGER_Initialize (void);
 
-void PIN_MANAGER_IOC(void);
+//void PIN_MANAGER_IOC(void);
 
 #define INTERRUPT_GlobalInterruptEnable() (INTCON0bits.GIE = 1)
 #define INTERRUPT_GlobalInterruptDisable() (INTCON0bits.GIE = 0)
 #define INTERRUPT_GlobalInterruptStatus() (INTCON0bits.GIE)
 
 void INTERRUPT_Initialize (void);
-
+/*
 #define EXT_INT0_InterruptFlagClear()       (PIR1bits.INT0IF = 0)
 #define EXT_INT0_InterruptDisable()     (PIE1bits.INT0IE = 0)
 #define EXT_INT0_InterruptEnable()       (PIE1bits.INT0IE = 1)
@@ -117,7 +117,7 @@ void INT2_CallBack(void);
 void INT2_SetInterruptHandler(void (* InterruptHandler)(void));
 extern void (*INT2_InterruptHandler)(void);
 void INT2_DefaultInterruptHandler(void);
-
+*/
 
 void SYSTEM_Initialize(void);
 
