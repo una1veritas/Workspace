@@ -29,19 +29,13 @@ static volatile uint8_t uart3RxHead = 0;
 static volatile uint8_t uart3RxTail = 0;
 static volatile uint8_t uart3RxCount;
 static volatile uint8_t uart3RxBuffer[UART3_RX_BUFFER_SIZE];
-/**
- * @misradeviation{@advisory,19.2}
- * The UART error status necessitates checking the bitfield and accessing the status within the group byte therefore the use of a union is essential.
- */
- /* cppcheck-suppress misra-c2012-19.2 */
-//static volatile uart3_status_t uart3RxStatusBuffer[UART3_RX_BUFFER_SIZE];
 
  /**
  * @misradeviation{@advisory,19.2}
  * The UART error status necessitates checking the bitfield and accessing the status within the group byte therefore the use of a union is essential.
  */
  /* cppcheck-suppress misra-c2012-19.2 */
-//static volatile uart3_status_t uart3RxLastError;
+static volatile uart3_status_t uart3RxLastError;
 
 /**
   Section: UART3 APIs
@@ -89,11 +83,8 @@ void UART3_Initialize(void)
     //TXCIE disabled; RXFOIE disabled; RXBKIE disabled; FERIE disabled; CERIE disabled; ABDOVE disabled; PERIE disabled; TXMTIE disabled; 
     U3ERRIE = 0x0;
 
-//    UART3_FramingErrorCallbackRegister(UART3_DefaultFramingErrorCallback);
-//    UART3_OverrunErrorCallbackRegister(UART3_DefaultOverrunErrorCallback);
-//    UART3_ParityErrorCallbackRegister(UART3_DefaultParityErrorCallback);
-
-//    uart3RxLastError.status = 0;  
+    uart3RxLastError.status = 0;  
+    
     uart3RxHead = 0;
     uart3RxTail = 0;
     uart3RxCount = 0;
@@ -127,23 +118,7 @@ void UART3_Enable(void) {
 void UART3_Disable(void) {
     U3CON1bits.ON = 0; 
 }
-/*
-void UART3_TransmitEnable(void) {
-    U3CON0bits.TXEN = 1;
-}
 
-void UART3_TransmitDisable(void) {
-    U3CON0bits.TXEN = 0;
-}
-
-void UART3_ReceiveEnable(void) {
-    U3CON0bits.RXEN = 1;
-}
-
-void UART3_ReceiveDisable(void) {
-    U3CON0bits.RXEN = 0;
-}
-*/
 void UART3_SendBreakControlEnable(void) {
     U3CON1bits.SENDB = 1;
 }
@@ -165,20 +140,34 @@ bool UART3_IsRxReady(void) {
     return (uart3RxCount ? true : false);
 }
 
-bool UART3_IsTxReady(void) {
-    return U3TXIF;
+bool UART3_IsTxReady(void)
+{
+    return (bool)(U3FIFObits.TXBE && U3CON0bits.TXEN);
 }
 
-bool UART3_IsTxDone(void) {
+bool UART3_IsTxDone(void)
+{
     return U3ERRIRbits.TXMTIF;
 }
-/*
-size_t UART3_ErrorGet(void) {
-//    uart3RxLastError.status = uart3RxStatusBuffer[(uart3RxTail) & UART3_RX_BUFFER_MASK].status;
 
-    return U3ERRIRbits;
+size_t UART3_ErrorGet(void)
+{
+    uart3RxLastError.status = 0;
+    
+    if(true == U3ERRIRbits.FERIF) {
+        uart3RxLastError.ferr = 1;
+    }
+    
+    if(true == U3ERRIRbits.RXFOIF) {
+        uart3RxLastError.oerr = 1;
+    }
+    
+    if(true == U3ERRIRbits.PERIF) {
+        uart3RxLastError.perr = 1;
+    }
+
+    return uart3RxLastError.status;
 }
-*/
 
 uint8_t UART3_Read(void) {
     uint8_t readValue  = 0;

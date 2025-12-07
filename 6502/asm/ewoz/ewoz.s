@@ -40,8 +40,8 @@ MULTIPORT = 1
 ; Lines with comments starting with "*" indicate code changes from the original WozMon.
 
 .if .defined(MULTIPORT)
-ACIA        = $C000
-ACIA_CTRL   = ACIA+3
+ACIA        = $B019 ;$C000
+ACIA_CTRL   = ACIA - 1 ;ACIA+3
 ACIA_CMD    = ACIA+2
 ACIA_SR     = ACIA+1
 ACIA_DAT    = ACIA
@@ -69,7 +69,7 @@ COUNTER     = $2E
 CRC         = $2F
 CRCCHECK    = $30
 
-            .org $7000
+            .org $F000     ; $7000
             .export RESET
 
 RESET:      CLD             ; Clear decimal arithmetic mode.

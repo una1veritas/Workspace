@@ -1,4 +1,4 @@
-# 1 "uart.c"
+# 1 "uart3.c"
 # 1 "<built-in>" 1
 # 1 "<built-in>" 3
 # 295 "<built-in>" 3
@@ -6,10 +6,7 @@
 # 1 "<built-in>" 2
 # 1 "/Applications/microchip/xc8/v3.10/pic/include/language_support.h" 1 3
 # 2 "<built-in>" 2
-# 1 "uart.c" 2
-
-
-
+# 1 "uart3.c" 2
 
 # 1 "/Applications/microchip/xc8/v3.10/pic/include/xc.h" 1 3
 # 18 "/Applications/microchip/xc8/v3.10/pic/include/xc.h" 3
@@ -28922,226 +28919,56 @@ __attribute__((__unsupported__("The READTIMER" "0" "() macro is not available wi
 unsigned char __t1rd16on(void);
 unsigned char __t3rd16on(void);
 # 34 "/Applications/microchip/xc8/v3.10/pic/include/xc.h" 2 3
-# 6 "uart.c" 2
-# 1 "./uart.h" 1
-# 15 "./uart.h"
-typedef union {
-    struct {
-        uint8_t perr : 1;
-        uint8_t ferr : 1;
-        uint8_t oerr : 1;
-        uint8_t reserved : 5;
-    };
-    size_t status;
-}uart3_status_t;
+# 3 "uart3.c" 2
 
-void uart_tx(char c);
-int uart_rx(void);
-void devio_init(void);
-# 7 "uart.c" 2
+# 1 "./uart3.h" 1
+# 21 "./uart3.h"
+void setup_UART3(void);
+uint8_t UART3_IR_status(void);
+uint8_t UART3_Read(void);
+void UART3_Write(uint8_t txData);
+int getch(void);
+void putch(char txData);
+# 5 "uart3.c" 2
 
+void setup_UART3() {
 
+ U3BRG = 68;
+ U3RXEN = 1;
+ U3TXEN = 1;
 
 
+ ANSELA7 = 0;
+ TRISA7 = 1;
+ U3RXPPS = 0x07;
 
 
-unsigned char rx_buf[128];
-unsigned int rx_wp, rx_rp, rx_cnt;
-static volatile uint8_t uart3RxHead = 0;
-static volatile uint8_t uart3RxTail = 0;
-static volatile uint8_t uart3RxCount;
-static volatile uint8_t uart3RxBuffer[(128U)];
+ ANSELA6 = 0;
+ LATA6 = 1;
+ TRISA6 = 0;
+ RA6PPS = 0x26;
 
-static volatile uart3_status_t uart3RxStatusBuffer[(128U)];
-static volatile uart3_status_t uart3RxLastError;
-
-
-void (*UART3_RxInterruptHandler)(void);
-static void (*UART3_RxCompleteInterruptHandler)(void) = ((void*)0);
-
-void UART3_TransmitISR (void);
-void UART3_ReceiveISR(void);
-
-void UART3_Initialize(void)
-{
-    PIE9bits.U3RXIE = 0;
-    UART3_RxInterruptHandler = UART3_ReceiveISR;
-
-
-
-
-
-
-    U3P1L = 0x0;
-
-    U3P2L = 0x0;
-
-    U3P3L = 0x0;
-
-    U3CON0 = 0xB0;
-
-    U3CON1 = 0x80;
-
-    U3CON2 = 0x0;
-
-    U3BRGL = 0x15;
-
-    U3BRGH = 0x1;
-
-    U3FIFO = 0x2E;
-
-    U3UIR = 0x0;
-
-    U3ERRIR = 0x80;
-
-    U3ERRIE = 0x0;
-
-    uart3RxLastError.status = 0;
-    uart3RxHead = 0;
-    uart3RxTail = 0;
-    uart3RxCount = 0;
-
-    PIE9bits.U3RXIE = 1;
+ U3ON = 1;
 }
 
-
-
-
-
-void __attribute__((picinterrupt(("irq(U3RX),base(8)")))) URT3Rx_ISR(){
-
- unsigned char rx_data;
-
- rx_data = U3RXB;
-
- if (rx_cnt < 128) {
-  rx_buf[rx_wp] = rx_data;
-  rx_wp = (rx_wp + 1) & (128 - 1);
-  rx_cnt++;
- }
+uint8_t UART3_IR_status(void) {
+    return PIR9 & 0x0f;
 }
 
-
-
-
-
-void uart_tx(char c) {
-    while(!U3TXIF);
-    U3TXB = c;
+uint8_t UART3_Read(void){
+    return U3RXB;
 }
 
-
-int uart_rx(void) {
- char c;
-
- while(!rx_cnt);
- GIE = 0;
- c = rx_buf[rx_rp];
- rx_rp = (rx_rp + 1) & ( 128 - 1);
- rx_cnt--;
- GIE = 1;
-    return c;
+void UART3_Write(uint8_t txData){
+    U3TXB = txData;
 }
 
-void devio_init(void) {
- rx_wp = 0;
- rx_rp = 0;
- rx_cnt = 0;
-    U3RXIE = 1;
-}
-
-void UART3_ReceiveInterruptEnable(void) {
-    PIE9bits.U3RXIE = 1;
-}
-
-void UART3_ReceiveInterruptDisable(void) {
-    PIE9bits.U3RXIE = 0;
-}
-
-bool UART3_IsRxReady(void) {
-    return (uart3RxCount ? true : false);
-}
-
-bool UART3_IsTxReady(void) {
-    return (uart3TxBufferRemaining ? true : false);
-}
-
-bool UART3_IsTxDone(void) {
-    return U3ERRIRbits.TXMTIF;
-}
-
-size_t UART3_ErrorGet(void) {
-    uart3RxLastError.status = uart3RxStatusBuffer[(uart3RxTail) & ((128U) - 1U)].status;
-
-    return uart3RxLastError.status;
-}
-
-uint8_t UART3_Read(void) {
-    uint8_t readValue = 0;
-    uint8_t tempRxTail;
-
-    readValue = uart3RxBuffer[uart3RxTail];
-    tempRxTail = (uart3RxTail + 1U) & ((128U) - 1U);
-    uart3RxTail = tempRxTail;
-    PIE9bits.U3RXIE = 0;
-    if (0U != uart3RxCount) {
-        uart3RxCount--;
-    }
-    PIE9bits.U3RXIE = 1;
-    return readValue;
-}
-
-
-void UART3_ReceiveISR(void) {
-    uint8_t regValue;
-    uint8_t tempRxHead;
-
-
-    uart3RxStatusBuffer[uart3RxHead].status = 0;
-
-    if(true == U3ERRIRbits.FERIF) {
-        uart3RxStatusBuffer[uart3RxHead].ferr = 1;
-        if(((void*)0) != UART3_FramingErrorHandler) {
-            UART3_FramingErrorHandler();
-        }
-    }
-    if(true == U3ERRIRbits.RXFOIF) {
-        uart3RxStatusBuffer[uart3RxHead].oerr = 1;
-        if(((void*)0) != UART3_OverrunErrorHandler) {
-            UART3_OverrunErrorHandler();
-        }
-    }
-    if(true == U3ERRIRbits.PERIF) {
-        uart3RxStatusBuffer[uart3RxHead].perr = 1;
-        if (((void*)0) != UART3_ParityErrorHandler) {
-            UART3_ParityErrorHandler();
-        }
-    }
-
-    regValue = U3RXB;
-
-    tempRxHead = (uart3RxHead + 1U) & ((128U) - 1U);
-    if (tempRxHead == uart3RxTail) {
-
- } else {
-        uart3RxBuffer[uart3RxHead] = regValue;
-  uart3RxHead = tempRxHead;
-  uart3RxCount++;
- }
-
-    if (((void*)0) != UART3_RxCompleteInterruptHandler) {
-        (*UART3_RxCompleteInterruptHandler)();
-    }
-}
-
-
-int getch(void) {
-    while(!(UART3_IsRxReady())) { }
+int getch(void){
+    while(!((!U3FIFObits.RXBE))) { }
     return UART3_Read();
 }
 
-
 void putch(char txData) {
-    while(!(UART3_IsTxReady())) { }
+    while(!((U3FIFObits.TXBE && U3CON0bits.TXEN))) { }
     return UART3_Write(txData);
 }

@@ -2,7 +2,7 @@
 all: basic.mon
 
 basic.mon: basic.bin
-	bintomon -v -l 0x5000 basic.bin >basic.mon
+	bintomon -v -l 0xc000 basic.bin >basic.mon
 
 basic.bin: basic.o
 	ld65 -C ~/share/cc65/cfg/none.cfg -vm -m basic.map -o basic.bin basic.o

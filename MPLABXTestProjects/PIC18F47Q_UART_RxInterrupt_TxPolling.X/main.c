@@ -38,11 +38,11 @@ int main(void)
 {
     SYSTEM_Initialize();
     
-    printf("\r\nHello World!\r\n");
+    printf("\e[H\e[2J");
+    printf("Hello World!\r\n");
     printf("Type characters in the terminal, to have them echoed back ...\r\n");
 
-    //UART3_RxCompleteCallbackRegister(&UART_echoCharacters);
-    INTERRUPT_GlobalInterruptEnable();
+    INTERRUPT_GlobalInterruptEnable(); //INTCON0bits.GIE = 1
     
     for(;;) {
         while ( UART3_IsRxReady() ) {

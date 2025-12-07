@@ -28979,7 +28979,6 @@ unsigned char __t1rd16on(void);
 unsigned char __t3rd16on(void);
 # 34 "/Applications/microchip/xc8/v3.10/pic/include/xc.h" 2 3
 # 25 "emuz80_6502ram_main.c" 2
-
 # 1 "/Applications/microchip/xc8/v3.10/pic/include/c99/stdio.h" 1 3
 # 24 "/Applications/microchip/xc8/v3.10/pic/include/c99/stdio.h" 3
 # 1 "/Applications/microchip/xc8/v3.10/pic/include/c99/bits/alltypes.h" 1 3
@@ -29132,7 +29131,7 @@ char *ctermid(char *);
 
 
 char *tempnam(const char *, const char *);
-# 27 "emuz80_6502ram_main.c" 2
+# 26 "emuz80_6502ram_main.c" 2
 # 1 "/Applications/microchip/xc8/v3.10/pic/include/c99/inttypes.h" 1 3
 # 13 "/Applications/microchip/xc8/v3.10/pic/include/c99/inttypes.h" 3
 # 1 "/Applications/microchip/xc8/v3.10/pic/include/c99/bits/alltypes.h" 1 3
@@ -29145,26 +29144,20 @@ imaxdiv_t imaxdiv(intmax_t, intmax_t);
 
 intmax_t strtoimax(const char *restrict, char **restrict, int);
 uintmax_t strtoumax(const char *restrict, char **restrict, int);
-# 28 "emuz80_6502ram_main.c" 2
+# 27 "emuz80_6502ram_main.c" 2
 
-# 1 "./uart.h" 1
-# 15 "./uart.h"
-typedef union {
-    struct {
-        uint8_t perr : 1;
-        uint8_t ferr : 1;
-        uint8_t oerr : 1;
-        uint8_t reserved : 5;
-    };
-    size_t status;
-}uart3_status_t;
+# 1 "./uart3.h" 1
+# 21 "./uart3.h"
+void setup_UART3(void);
+uint8_t UART3_IR_status(void);
+uint8_t UART3_Read(void);
+void UART3_Write(uint8_t txData);
+int getch(void);
+void putch(char txData);
+# 29 "emuz80_6502ram_main.c" 2
+# 52 "emuz80_6502ram_main.c"
+extern const unsigned char rom_EhBASIC[];
 
-void uart_tx(char c);
-int uart_rx(void);
-void devio_init(void);
-# 30 "emuz80_6502ram_main.c" 2
-# 42 "emuz80_6502ram_main.c"
-extern const unsigned char rom[];
 
 
 union {
@@ -29174,28 +29167,14 @@ union {
   unsigned char h;
  };
 } ab;
-# 69 "emuz80_6502ram_main.c"
-void putch(char c) {
-    while(!U3TXIF);
-    U3TXB = c;
-}
-
-
-
-int getch(void) {
-    while(!U3RXIF);
-    return U3RXB;
-}
-
-
-
+# 79 "emuz80_6502ram_main.c"
 void __attribute__((picinterrupt(("irq(default),base(8)")))) Default_ISR(){}
 
 void setup_clock() {
 
+    OSCCON1bits.NOSC = 6;
 
-
-
+    OSCFRQbits.HFFRQ = 0;
 
  OSCFRQ = 0x08;
 }
@@ -29203,16 +29182,17 @@ void setup_clock() {
 void setup_6502_interface() {
 
 
- RA3PPS = 0x3f;
 
+ RA3PPS = 0x3f;
     ANSELAbits.ANSELA3 = 0;
 
     TRISAbits.TRISA3 = 0;
  NCO1INC = (unsigned int)(2000000UL / 30.5175781);
- NCO1CLK = 0x00;
+ NCO1CLK = 0x01;
  NCO1PFM = 0;
  NCO1OUT = 1;
  NCO1EN = 1;
+
 
 
  ANSELE2 = 0;
@@ -29264,25 +29244,6 @@ void setup_6502_interface() {
  LATA5 = 1;
  TRISA5 = 0;
 
-
- U3BRG = 68;
- U3RXEN = 1;
- U3TXEN = 1;
-
-
- ANSELA7 = 0;
- TRISA7 = 1;
- U3RXPPS = 0x07;
-
-
- ANSELA6 = 0;
- LATA6 = 1;
- TRISA6 = 0;
- RA6PPS = 0x26;
-
- U3ON = 1;
-
-    printf("\r\nSystem initialized. \r\nHello, UART enabled.\r\n");
 }
 
 void setup_CLC() {
@@ -29431,7 +29392,7 @@ uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
   LATA5 = 1;
 
         if (wval != val) {
-            printf("error at %04lx: written %02x, read %02x.\r\n", i+0xC000, rom[i],val);
+            printf("error at %04lx: written %02x, read %02x.\r\n", i+0xC000, rom_EhBASIC[i],val);
             stopaddr = startaddr+i;
             break;
         }
@@ -29493,20 +29454,21 @@ void main(void) {
 
     setup_clock();
     setup_6502_interface();
+    setup_UART3();
+    printf("\e[H\e[2JHello, System initialized. UART3 enabled.\r\n");
 
     uint32_t stopaddr = memory_check(0, 0x10000);
     printf("stopaddr = %04lx.\r\n", stopaddr);
-    transfer_to_sram(rom, 0xC000, 0x4000);
+    transfer_to_sram(rom_EhBASIC, 0xC000, 0x4000);
 
     setup_busmode_6502();
-
  printf("\r\nMEZ6502RAM %2.3fMHz\r\n",NCO1INC * 30.5175781 / 1000000);
 
     setup_CLC();
     setup_InterruptVectorTable();
 
 
-    printf("\r\nStarting 65C02...\r\n");
+    printf("\r\nStarting 65C02CPU.\r\n");
 
  GIE = 1;
  LATE0 = 1;
@@ -29517,24 +29479,26 @@ void main(void) {
   ab.h = PORTD;
   ab.l = PORTB;
 
+  if ( !RA4 ) {
 
-  if (!RA4) {
-   if(ab.w == 0xB019) {
-                while(!U3TXIF);
-                U3TXB = PORTC;
+   if( ab.w == 0xB019 || ab.w == 0xB000 ) {
+
+                putch(PORTC);
             }
-
 
    G3POL = 1;
    G3POL = 0;
   } else {
 
    (WPUC = 0x00, TRISC = 0x00);
-   if(ab.w == 0xB018) {
-    LATC = PIR9;
-   } else if(ab.w == 0xB019) {
-                while(!U3RXIF);
-    LATC = U3RXB;
+   if( ab.w == 0xB018 ) {
+    LATC = UART3_IR_status();
+            } else if ( ab.w == 0xB001 ) {
+                LATC = ((!U3FIFObits.RXBE) ? (1<<3) : 0 );
+   } else if(ab.w == 0xB019 || ab.w == 0xB000 ) {
+
+
+    LATC = (uint8_t) getch();
    } else {
     LATC = 0xff;
             }

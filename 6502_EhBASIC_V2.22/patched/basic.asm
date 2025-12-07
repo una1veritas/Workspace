@@ -628,7 +628,7 @@ LAB_2DB6
       INC   Smeml             ; increment start of mem low byte
 
 ; these two lines are only needed if Ram_base is $xxFF
-      .IF   Ram_base&$FF==$FF
+      .IF   Ram_base & $FF = $FF ;Ram_base&$FF==$FF
       BNE   LAB_2E05          ; branch if no rollover
       INC   Smemh             ; increment start of mem high byte
 LAB_2E05
@@ -1216,7 +1216,7 @@ LAB_142A
       INY                     ; adjust for line copy
 ; *** begin patch for when Ibuffs is $xx00 - Daryl Rictor ***
 ; *** insert
-      .IF   Ibuffs&$FF==0
+      .IF   Ibuffs & $FF = 0     ; Ibuffs&$FF==0
       LDA   Bpntrl            ; test for $00
       BNE   LAB_142P          ; not $00
       DEC   Bpntrh            ; allow for increment when $xx00
@@ -1554,7 +1554,7 @@ LAB_15B3
                              
 ; *** begin patch  2.22p5.3   potential return address -$100 (page not incremented) ***
 ; *** add
-   .IF [* & $FF] == $FD
+   .IF (* & $FF) = $FD       ;[* & $FF] == $FD
       NOP                     ; return address of JSR +1 (on  next page)
    .ENDIF  
 ; *** end   patch  2.22p5.3   potential return address -$100 (page not incremented) ***
@@ -1633,7 +1633,7 @@ LAB_1602
       JMP   LAB_LET           ; else go do implied LET
 
 LAB_1609
-      CMP   #[TK_TAB-$80]*2   ; compare normalised token * 2 with TAB
+      CMP   #(TK_TAB-$80)*2	; ((*&$FF) = $FD)   ; [* & $FF] == $FD; compare normalised token * 2 with TAB
       BCS   LAB_15D9          ; branch if A>=TAB (do syntax error then warm start)
                               ; only tokens before TAB can start a line
       TAY                     ; copy to index
@@ -3108,7 +3108,7 @@ LAB_1B43
                               ; now push sign, round FAC1 and put on stack
 ; *** begin patch  2.22p5.3   potential return address -$100 (page not incremented) ***
 ; *** add
-   .IF [* & $FF] == $FD
+   .IF (* & $FF) = $FD
       NOP                     ; return address of JSR +1 (on  next page)
    .ENDIF  
 ; *** end   patch  2.22p5.3   potential return address -$100 (page not incremented) ***
@@ -3345,9 +3345,9 @@ LAB_1C13
 ; *** with
       TAX                     ; save to trap concatenate
       PLA                     ; dump return address high byte
-      CPX   #<[LAB_224Da+2]   ; from concatenate low return address?
+      CPX   #<(LAB_224Da+2)   ; from concatenate low return address?
       BNE   LAB_1C13b         ; No - continue!
-      CMP   #>[LAB_224Da+2]   ; from concatenate high return address?
+      CMP   #>(LAB_224Da+2)   ; from concatenate high return address?
       BEQ   LAB_1C13a         ; Yes - error!
 LAB_1C13b
       JMP   LAB_1B1D          ; execute function then continue evaluation

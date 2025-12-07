@@ -7,8 +7,11 @@
 # 1 "/Applications/microchip/xc8/v3.10/pic/include/language_support.h" 1 3
 # 2 "<built-in>" 2
 # 1 "rom.c" 2
+const unsigned char rom_ewoz[] = {
 
-const unsigned char rom[] = {
+};
+
+const unsigned char rom_EhBASIC[] = {
 
 
 
