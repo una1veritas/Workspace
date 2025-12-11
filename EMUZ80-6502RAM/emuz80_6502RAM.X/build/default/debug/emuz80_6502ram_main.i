@@ -29155,7 +29155,7 @@ void UART3_Write(uint8_t txData);
 int getch(void);
 void putch(char txData);
 # 29 "emuz80_6502ram_main.c" 2
-# 52 "emuz80_6502ram_main.c"
+# 75 "emuz80_6502ram_main.c"
 extern const unsigned char rom_EhBASIC[];
 
 
@@ -29167,7 +29167,7 @@ union {
   unsigned char h;
  };
 } ab;
-# 79 "emuz80_6502ram_main.c"
+# 102 "emuz80_6502ram_main.c"
 void __attribute__((picinterrupt(("irq(default),base(8)")))) Default_ISR(){}
 
 void setup_clock() {
@@ -29481,7 +29481,7 @@ void main(void) {
 
   if ( !RA4 ) {
 
-   if( ab.w == 0xB019 || ab.w == 0xB000 ) {
+   if( ab.w == 0xB019 || ab.w == (0xB000 +1) ) {
 
                 putch(PORTC);
             }
@@ -29493,9 +29493,9 @@ void main(void) {
    (WPUC = 0x00, TRISC = 0x00);
    if( ab.w == 0xB018 ) {
     LATC = UART3_IR_status();
-            } else if ( ab.w == 0xB001 ) {
-                LATC = ((!U3FIFObits.RXBE) ? (1<<3) : 0 );
-   } else if(ab.w == 0xB019 || ab.w == 0xB000 ) {
+            } else if ( ab.w == (0xB000) ) {
+                LATC = ((!U3FIFObits.RXBE) ? 1 : 0 ) | ((U3FIFObits.TXBE && U3CON0bits.TXEN) ? 0 : 2 );
+   } else if(ab.w == 0xB019 || ab.w == (0xB000 +1) ) {
 
 
     LATC = (uint8_t) getch();

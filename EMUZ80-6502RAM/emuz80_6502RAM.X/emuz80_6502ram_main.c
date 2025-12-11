@@ -35,14 +35,39 @@
 
 #define UART_CREG   0xB018	// Control REG
 #define UART_DREG   0xB019	// Data REG
-#define ACIA_DAT    0xB000	// R/W
-#define ACIA_STA    0xB001	// SR
-#define ACIA_CMD    0xB002	//
-#define ACIA_CTL    0xB003	//
-/*
+
+#define ACIA_6850
+
+#ifdef ACIA_6551
+#define ACIA        0xB000
+#define ACIA_DATA   (ACIA)
+#define ACIA_STAT   (ACIA+1)
+#define ACIA_CMD    (ACIA+2)
+#define ACIA_CTL    (ACIA+3)
+#endif // ACIA_6551
+
+#ifdef ACIA_6850
+#define ACIA        0xB000
+// RS LOW
+#define ACIA_STA    (ACIA)
+#define ACIA_CTL    (ACIA)
+// RS HIGH
+#define ACIA_DAT    (ACIA+1)
+#define RXD_REG_FULL    1
+#define TXD_REG_EMPTY   2
+// bit 2 = DCD, CTS, Framing err, Receiver over run, parity error, irq
+#endif // ACIA_6850
+
+// 6551 type ACIA
+/* ACIA 6551 RS1 and RS0 register map
+ * 0 0 TX data /RX data
+ * 0 1 programmed reset / Status
+ * 1 0 command
+ * 1 1 Control
+ * 
  * ACIA (6551) Status Reg.
  * bits
- * 0 -- parity err, 1 -- framin err, 2 -- overrun,
+ * 0 -- parity err, 1 -- framing err, 2 -- overrun,
  * 3 -- Receive Data Reg. full
  * 4 -- Transmit Data Reg. empty
  * 5, 6, 7 --- /DCD, /DSR, /IRQ
@@ -386,9 +411,9 @@ void main(void) {
 		while(CLC5OUT); //RDY == 1  // waiting for $Bxxx is on address bus.
 		ab.h = PORTD;				// Read address high
 		ab.l = PORTB;				// Read address low
-		//6502 -> PIC IO write cycle
+		//6502 Write -> PIC IO read
 		if ( !W65C02_RW ) /*(!RA4)*/ {
-            // 6502 Write then PIC Read and Out
+            // 6502 Write / PIC Read
 			if( ab.w == UART_DREG || ab.w == ACIA_DAT ) {	// U3TXB
                 //while(!U3TXIF);
                 putch(PORTC); //U3TXB = PORTC;			// Write into	U3TXB
@@ -397,12 +422,12 @@ void main(void) {
 			G3POL = 1;
 			G3POL = 0;
 		} else {
-    		//PIC In and Write then 6502 Read
+    		//PIC Write / 6502 Read
 			DATABUS_MODE_OUTPUT; //TRISC = 0x00;				// Set Data Bus as output
 			if( ab.w == UART_CREG ) {		// PIR9
 				LATC = UART3_IR_status(); // PIR9	// Out Peripheral Request Register 9, PIR9
             } else if ( ab.w == ACIA_STA ) {
-                LATC = (UART3_IsRxReady() ? (1<<3) : 0 );
+                LATC = (UART3_IsRxReady() ? RXD_REG_FULL : 0 ) | (UART3_IsTxReady() ? 0 : TXD_REG_EMPTY );
 			} else if(ab.w == UART_DREG || ab.w == ACIA_DAT ) {	
                 // U3RXB
                 //while(!U3RXIF);
