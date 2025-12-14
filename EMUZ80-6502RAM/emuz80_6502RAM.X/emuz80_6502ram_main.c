@@ -302,17 +302,6 @@ void setup_InterruptVectorTable() {
 	IVTLOCKbits.IVTLOCKED = 0x01;
 }
 
-inline uint8_t sram_read(uint16_t addr) {
-    uint8_t val;
-    LATD = *(((uint8_t *)&addr)+1);
-    LATB = addr&0x0ff;
-    LATA5 = 0;		// _OE=0
-    DATABUS_MODE_INPUT;
-    val = DATABUS_RD_REG;
-    LATA5 = 1;		// _OE=1
-    return val;
-}
-
 uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
     uint32_t stopaddr = endaddr;
     uint8_t val, wval;
