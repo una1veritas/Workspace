@@ -1,6 +1,3 @@
-const unsigned char rom_ewoz[] = {
-    
-};
 
 const unsigned char rom_EhBASIC[] = {
 // Enhanced 6502 BASIC 2.22p5a
