@@ -78,7 +78,6 @@
 #define ROM_SIZE        0x4000
 
 extern const unsigned char rom_EhBASIC[];
-extern const unsigned char rom_bbcbasic2[];
 #define ROM rom_EhBASIC
 
 //Address Bus

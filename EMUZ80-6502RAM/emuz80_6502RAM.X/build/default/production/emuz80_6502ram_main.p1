@@ -1,10 +1,10 @@
 Version 4.0 HI-TECH Software Intermediate Code
-"87 emuz80_6502ram_main.c
-[; ;emuz80_6502ram_main.c: 87:  struct {
+"86 emuz80_6502ram_main.c
+[; ;emuz80_6502ram_main.c: 86:  struct {
 [s S2403 `uc 1 `uc 1 ]
 [n S2403 . l h ]
-"85
-[; ;emuz80_6502ram_main.c: 85: union {
+"84
+[; ;emuz80_6502ram_main.c: 84: union {
 [u S2402 `ui 1 `S2403 1 ]
 [n S2402 . w . ]
 [t ~ __interrupt . k ]
@@ -2926,578 +2926,578 @@ Version 4.0 HI-TECH Software Intermediate Code
 "50169
 [; ;/Users/sin/.mchp_packs/Microchip/PIC18F-Q_DFP/1.28.451/xc8/pic/include/proc/pic18f47q43.h: 50169: __asm("TOSU equ 04FFh");
 [; <" TOSU equ 04FFh ;# ">
-"91 emuz80_6502ram_main.c
-[; ;emuz80_6502ram_main.c: 91: } ab;
+"90 emuz80_6502ram_main.c
+[; ;emuz80_6502ram_main.c: 90: } ab;
 [v _ab `S2402 ~T0 @X0 1 e ]
 [v $root$_Default_ISR `(v ~T0 @X0 0 e ]
-"108
-[; ;emuz80_6502ram_main.c: 108: void __attribute__((picinterrupt(("irq(default),base(8)")))) Default_ISR(){}
+"107
+[; ;emuz80_6502ram_main.c: 107: void __attribute__((picinterrupt(("irq(default),base(8)")))) Default_ISR(){}
 [v _Default_ISR `(v ~T1 @X0 1 ef ]
 {
 [e :U _Default_ISR ]
 [f ]
 [e :UE 2404 ]
 }
-"110
-[; ;emuz80_6502ram_main.c: 110: void setup_clock() {
+"109
+[; ;emuz80_6502ram_main.c: 109: void setup_clock() {
 [v _setup_clock `(v ~T0 @X0 1 ef ]
 {
 [e :U _setup_clock ]
 [f ]
-"112
-[; ;emuz80_6502ram_main.c: 112:     OSCCON1bits.NOSC = 6;
+"111
+[; ;emuz80_6502ram_main.c: 111:     OSCCON1bits.NOSC = 6;
 [e = . . _OSCCON1bits 0 1 -> -> 6 `i `uc ]
-"114
-[; ;emuz80_6502ram_main.c: 114:     OSCFRQbits.HFFRQ = 0;
+"113
+[; ;emuz80_6502ram_main.c: 113:     OSCFRQbits.HFFRQ = 0;
 [e = . . _OSCFRQbits 0 0 -> -> 0 `i `uc ]
-"116
-[; ;emuz80_6502ram_main.c: 116:  OSCFRQ = 0x08;
+"115
+[; ;emuz80_6502ram_main.c: 115:  OSCFRQ = 0x08;
 [e = _OSCFRQ -> -> 8 `i `uc ]
-"117
-[; ;emuz80_6502ram_main.c: 117: }
+"116
+[; ;emuz80_6502ram_main.c: 116: }
 [e :UE 2405 ]
 }
-"119
-[; ;emuz80_6502ram_main.c: 119: void setup_6502_interface() {
+"118
+[; ;emuz80_6502ram_main.c: 118: void setup_6502_interface() {
 [v _setup_6502_interface `(v ~T0 @X0 1 ef ]
 {
 [e :U _setup_6502_interface ]
 [f ]
-"123
-[; ;emuz80_6502ram_main.c: 123:  RA3PPS = 0x3f;
+"122
+[; ;emuz80_6502ram_main.c: 122:  RA3PPS = 0x3f;
 [e = _RA3PPS -> -> 63 `i `uc ]
-"124
-[; ;emuz80_6502ram_main.c: 124:     ANSELAbits.ANSELA3 = 0;
+"123
+[; ;emuz80_6502ram_main.c: 123:     ANSELAbits.ANSELA3 = 0;
 [e = . . _ANSELAbits 0 3 -> -> 0 `i `uc ]
-"126
-[; ;emuz80_6502ram_main.c: 126:     TRISAbits.TRISA3 = 0;
+"125
+[; ;emuz80_6502ram_main.c: 125:     TRISAbits.TRISA3 = 0;
 [e = . . _TRISAbits 0 3 -> -> 0 `i `uc ]
-"127
-[; ;emuz80_6502ram_main.c: 127:  NCO1INC = (unsigned int)(2000000UL / 30.5175781);
+"126
+[; ;emuz80_6502ram_main.c: 126:  NCO1INC = (unsigned int)(2000000UL / 30.5175781);
 [e = _NCO1INC -> -> / -> -> 2000000 `ul `d .30.5175781 `ui `um ]
-"128
-[; ;emuz80_6502ram_main.c: 128:  NCO1CLK = 0x01;
+"127
+[; ;emuz80_6502ram_main.c: 127:  NCO1CLK = 0x01;
 [e = _NCO1CLK -> -> 1 `i `uc ]
-"129
-[; ;emuz80_6502ram_main.c: 129:  NCO1PFM = 0;
+"128
+[; ;emuz80_6502ram_main.c: 128:  NCO1PFM = 0;
 [e = _NCO1PFM -> -> 0 `i `b ]
-"130
-[; ;emuz80_6502ram_main.c: 130:  NCO1OUT = 1;
+"129
+[; ;emuz80_6502ram_main.c: 129:  NCO1OUT = 1;
 [e = _NCO1OUT -> -> 1 `i `b ]
-"131
-[; ;emuz80_6502ram_main.c: 131:  NCO1EN = 1;
+"130
+[; ;emuz80_6502ram_main.c: 130:  NCO1EN = 1;
 [e = _NCO1EN -> -> 1 `i `b ]
-"135
-[; ;emuz80_6502ram_main.c: 135:  ANSELE2 = 0;
+"134
+[; ;emuz80_6502ram_main.c: 134:  ANSELE2 = 0;
 [e = _ANSELE2 -> -> 0 `i `b ]
-"136
-[; ;emuz80_6502ram_main.c: 136:  LATE2 = 0;
+"135
+[; ;emuz80_6502ram_main.c: 135:  LATE2 = 0;
 [e = _LATE2 -> -> 0 `i `b ]
-"137
-[; ;emuz80_6502ram_main.c: 137:  TRISE2 = 0;
+"136
+[; ;emuz80_6502ram_main.c: 136:  TRISE2 = 0;
 [e = _TRISE2 -> -> 0 `i `b ]
-"140
-[; ;emuz80_6502ram_main.c: 140:  ANSELE0 = 0;
+"139
+[; ;emuz80_6502ram_main.c: 139:  ANSELE0 = 0;
 [e = _ANSELE0 -> -> 0 `i `b ]
-"141
-[; ;emuz80_6502ram_main.c: 141:  LATE0 = 0;
+"140
+[; ;emuz80_6502ram_main.c: 140:  LATE0 = 0;
 [e = _LATE0 -> -> 0 `i `b ]
-"142
-[; ;emuz80_6502ram_main.c: 142:  TRISE0 = 0;
+"141
+[; ;emuz80_6502ram_main.c: 141:  TRISE0 = 0;
 [e = _TRISE0 -> -> 0 `i `b ]
-"146
-[; ;emuz80_6502ram_main.c: 146:  ANSELD = 0x00;
+"145
+[; ;emuz80_6502ram_main.c: 145:  ANSELD = 0x00;
 [e = _ANSELD -> -> 0 `i `uc ]
-"147
-[; ;emuz80_6502ram_main.c: 147:  LATD = 0x00;
+"146
+[; ;emuz80_6502ram_main.c: 146:  LATD = 0x00;
 [e = _LATD -> -> 0 `i `uc ]
-"148
-[; ;emuz80_6502ram_main.c: 148:  TRISD = 0x00;
+"147
+[; ;emuz80_6502ram_main.c: 147:  TRISD = 0x00;
 [e = _TRISD -> -> 0 `i `uc ]
-"151
-[; ;emuz80_6502ram_main.c: 151:  ANSELB = 0x00;
+"150
+[; ;emuz80_6502ram_main.c: 150:  ANSELB = 0x00;
 [e = _ANSELB -> -> 0 `i `uc ]
-"152
-[; ;emuz80_6502ram_main.c: 152:  LATB = 0x00;
+"151
+[; ;emuz80_6502ram_main.c: 151:  LATB = 0x00;
 [e = _LATB -> -> 0 `i `uc ]
-"153
-[; ;emuz80_6502ram_main.c: 153:  TRISB = 0x00;
+"152
+[; ;emuz80_6502ram_main.c: 152:  TRISB = 0x00;
 [e = _TRISB -> -> 0 `i `uc ]
-"156
-[; ;emuz80_6502ram_main.c: 156:  ANSELC = 0x00;
+"155
+[; ;emuz80_6502ram_main.c: 155:  ANSELC = 0x00;
 [e = _ANSELC -> -> 0 `i `uc ]
-"157
-[; ;emuz80_6502ram_main.c: 157:  LATC = 0x00;
+"156
+[; ;emuz80_6502ram_main.c: 156:  LATC = 0x00;
 [e = _LATC -> -> 0 `i `uc ]
-"158
-[; ;emuz80_6502ram_main.c: 158:  TRISC = 0x00;
+"157
+[; ;emuz80_6502ram_main.c: 157:  TRISC = 0x00;
 [e = _TRISC -> -> 0 `i `uc ]
-"162
-[; ;emuz80_6502ram_main.c: 162:  ANSELA0 = 0;
+"161
+[; ;emuz80_6502ram_main.c: 161:  ANSELA0 = 0;
 [e = _ANSELA0 -> -> 0 `i `b ]
-"163
-[; ;emuz80_6502ram_main.c: 163:  RA0PPS = 0x00;
+"162
+[; ;emuz80_6502ram_main.c: 162:  RA0PPS = 0x00;
 [e = _RA0PPS -> -> 0 `i `uc ]
-"164
-[; ;emuz80_6502ram_main.c: 164:  LATA0 = 1;
+"163
+[; ;emuz80_6502ram_main.c: 163:  LATA0 = 1;
 [e = _LATA0 -> -> 1 `i `b ]
-"165
-[; ;emuz80_6502ram_main.c: 165:  TRISA0 = 0;
+"164
+[; ;emuz80_6502ram_main.c: 164:  TRISA0 = 0;
 [e = _TRISA0 -> -> 0 `i `b ]
-"168
-[; ;emuz80_6502ram_main.c: 168:  ANSELA4 = 0;
+"167
+[; ;emuz80_6502ram_main.c: 167:  ANSELA4 = 0;
 [e = _ANSELA4 -> -> 0 `i `b ]
-"169
-[; ;emuz80_6502ram_main.c: 169:  WPUA4 = 1;
+"168
+[; ;emuz80_6502ram_main.c: 168:  WPUA4 = 1;
 [e = _WPUA4 -> -> 1 `i `b ]
-"170
-[; ;emuz80_6502ram_main.c: 170:  TRISA4 = 1;
+"169
+[; ;emuz80_6502ram_main.c: 169:  TRISA4 = 1;
 [e = _TRISA4 -> -> 1 `i `b ]
-"173
-[; ;emuz80_6502ram_main.c: 173:  ANSELA2 = 0;
+"172
+[; ;emuz80_6502ram_main.c: 172:  ANSELA2 = 0;
 [e = _ANSELA2 -> -> 0 `i `b ]
-"174
-[; ;emuz80_6502ram_main.c: 174:  RA2PPS = 0x00;
+"173
+[; ;emuz80_6502ram_main.c: 173:  RA2PPS = 0x00;
 [e = _RA2PPS -> -> 0 `i `uc ]
-"175
-[; ;emuz80_6502ram_main.c: 175:  LATA2 = 1;
+"174
+[; ;emuz80_6502ram_main.c: 174:  LATA2 = 1;
 [e = _LATA2 -> -> 1 `i `b ]
-"176
-[; ;emuz80_6502ram_main.c: 176:  TRISA2 = 0;
+"175
+[; ;emuz80_6502ram_main.c: 175:  TRISA2 = 0;
 [e = _TRISA2 -> -> 0 `i `b ]
-"179
-[; ;emuz80_6502ram_main.c: 179:  ANSELA5 = 0;
+"178
+[; ;emuz80_6502ram_main.c: 178:  ANSELA5 = 0;
 [e = _ANSELA5 -> -> 0 `i `b ]
-"180
-[; ;emuz80_6502ram_main.c: 180:  RA5PPS = 0x00;
+"179
+[; ;emuz80_6502ram_main.c: 179:  RA5PPS = 0x00;
 [e = _RA5PPS -> -> 0 `i `uc ]
-"181
-[; ;emuz80_6502ram_main.c: 181:  LATA5 = 1;
+"180
+[; ;emuz80_6502ram_main.c: 180:  LATA5 = 1;
 [e = _LATA5 -> -> 1 `i `b ]
-"182
-[; ;emuz80_6502ram_main.c: 182:  TRISA5 = 0;
+"181
+[; ;emuz80_6502ram_main.c: 181:  TRISA5 = 0;
 [e = _TRISA5 -> -> 0 `i `b ]
-"184
-[; ;emuz80_6502ram_main.c: 184: }
+"183
+[; ;emuz80_6502ram_main.c: 183: }
 [e :UE 2406 ]
 }
-"186
-[; ;emuz80_6502ram_main.c: 186: void setup_CLC() {
+"185
+[; ;emuz80_6502ram_main.c: 185: void setup_CLC() {
 [v _setup_CLC `(v ~T0 @X0 1 ef ]
 {
 [e :U _setup_CLC ]
 [f ]
-"190
-[; ;emuz80_6502ram_main.c: 190:  CLCIN2PPS = 0x1f;
+"189
+[; ;emuz80_6502ram_main.c: 189:  CLCIN2PPS = 0x1f;
 [e = _CLCIN2PPS -> -> 31 `i `uc ]
-"191
-[; ;emuz80_6502ram_main.c: 191:  CLCIN3PPS = 0x1e;
+"190
+[; ;emuz80_6502ram_main.c: 190:  CLCIN3PPS = 0x1e;
 [e = _CLCIN3PPS -> -> 30 `i `uc ]
-"192
-[; ;emuz80_6502ram_main.c: 192:  CLCIN4PPS = 0x04;
+"191
+[; ;emuz80_6502ram_main.c: 191:  CLCIN4PPS = 0x04;
 [e = _CLCIN4PPS -> -> 4 `i `uc ]
-"193
-[; ;emuz80_6502ram_main.c: 193:  CLCIN6PPS = 0x1d;
+"192
+[; ;emuz80_6502ram_main.c: 192:  CLCIN6PPS = 0x1d;
 [e = _CLCIN6PPS -> -> 29 `i `uc ]
-"194
-[; ;emuz80_6502ram_main.c: 194:  CLCIN7PPS = 0x1c;
+"193
+[; ;emuz80_6502ram_main.c: 193:  CLCIN7PPS = 0x1c;
 [e = _CLCIN7PPS -> -> 28 `i `uc ]
-"197
-[; ;emuz80_6502ram_main.c: 197:  CLCSELECT = 0;
+"196
+[; ;emuz80_6502ram_main.c: 196:  CLCSELECT = 0;
 [e = _CLCSELECT -> -> 0 `i `uc ]
-"198
-[; ;emuz80_6502ram_main.c: 198:  CLCnCON = 0x00;
+"197
+[; ;emuz80_6502ram_main.c: 197:  CLCnCON = 0x00;
 [e = _CLCnCON -> -> 0 `i `uc ]
+"199
+[; ;emuz80_6502ram_main.c: 199:  CLCnSEL0 = 53;
+[e = _CLCnSEL0 -> -> 53 `i `uc ]
 "200
-[; ;emuz80_6502ram_main.c: 200:  CLCnSEL0 = 53;
-[e = _CLCnSEL0 -> -> 53 `i `uc ]
+[; ;emuz80_6502ram_main.c: 200:  CLCnSEL1 = 4;
+[e = _CLCnSEL1 -> -> 4 `i `uc ]
 "201
-[; ;emuz80_6502ram_main.c: 201:  CLCnSEL1 = 4;
-[e = _CLCnSEL1 -> -> 4 `i `uc ]
+[; ;emuz80_6502ram_main.c: 201:  CLCnSEL2 = 42;
+[e = _CLCnSEL2 -> -> 42 `i `uc ]
 "202
-[; ;emuz80_6502ram_main.c: 202:  CLCnSEL2 = 42;
-[e = _CLCnSEL2 -> -> 42 `i `uc ]
-"203
-[; ;emuz80_6502ram_main.c: 203:  CLCnSEL3 = 55;
+[; ;emuz80_6502ram_main.c: 202:  CLCnSEL3 = 55;
 [e = _CLCnSEL3 -> -> 55 `i `uc ]
+"204
+[; ;emuz80_6502ram_main.c: 204:  CLCnGLS0 = 0x02;
+[e = _CLCnGLS0 -> -> 2 `i `uc ]
 "205
-[; ;emuz80_6502ram_main.c: 205:  CLCnGLS0 = 0x02;
-[e = _CLCnGLS0 -> -> 2 `i `uc ]
-"206
-[; ;emuz80_6502ram_main.c: 206:  CLCnGLS1 = 0x08;
+[; ;emuz80_6502ram_main.c: 205:  CLCnGLS1 = 0x08;
 [e = _CLCnGLS1 -> -> 8 `i `uc ]
+"206
+[; ;emuz80_6502ram_main.c: 206:  CLCnGLS2 = 0x20;
+[e = _CLCnGLS2 -> -> 32 `i `uc ]
 "207
-[; ;emuz80_6502ram_main.c: 207:  CLCnGLS2 = 0x20;
-[e = _CLCnGLS2 -> -> 32 `i `uc ]
-"208
-[; ;emuz80_6502ram_main.c: 208:  CLCnGLS3 = 0x80;
+[; ;emuz80_6502ram_main.c: 207:  CLCnGLS3 = 0x80;
 [e = _CLCnGLS3 -> -> 128 `i `uc ]
+"209
+[; ;emuz80_6502ram_main.c: 209:  CLCnPOL = 0x80;
+[e = _CLCnPOL -> -> 128 `i `uc ]
 "210
-[; ;emuz80_6502ram_main.c: 210:  CLCnPOL = 0x80;
-[e = _CLCnPOL -> -> 128 `i `uc ]
-"211
-[; ;emuz80_6502ram_main.c: 211:  CLCnCON = 0x82;
+[; ;emuz80_6502ram_main.c: 210:  CLCnCON = 0x82;
 [e = _CLCnCON -> -> 130 `i `uc ]
-"214
-[; ;emuz80_6502ram_main.c: 214:  CLCSELECT = 1;
+"213
+[; ;emuz80_6502ram_main.c: 213:  CLCSELECT = 1;
 [e = _CLCSELECT -> -> 1 `i `uc ]
-"215
-[; ;emuz80_6502ram_main.c: 215:  CLCnCON = 0x00;
+"214
+[; ;emuz80_6502ram_main.c: 214:  CLCnCON = 0x00;
 [e = _CLCnCON -> -> 0 `i `uc ]
+"216
+[; ;emuz80_6502ram_main.c: 216:  CLCnSEL0 = 53;
+[e = _CLCnSEL0 -> -> 53 `i `uc ]
 "217
-[; ;emuz80_6502ram_main.c: 217:  CLCnSEL0 = 53;
-[e = _CLCnSEL0 -> -> 53 `i `uc ]
-"218
-[; ;emuz80_6502ram_main.c: 218:  CLCnSEL1 = 4;
+[; ;emuz80_6502ram_main.c: 217:  CLCnSEL1 = 4;
 [e = _CLCnSEL1 -> -> 4 `i `uc ]
-"219
-[; ;emuz80_6502ram_main.c: 219:  CLCnSEL2 = 42;
+"218
+[; ;emuz80_6502ram_main.c: 218:  CLCnSEL2 = 42;
 [e = _CLCnSEL2 -> -> 42 `i `uc ]
-"220
-[; ;emuz80_6502ram_main.c: 220:  CLCnSEL3 = 55;
+"219
+[; ;emuz80_6502ram_main.c: 219:  CLCnSEL3 = 55;
 [e = _CLCnSEL3 -> -> 55 `i `uc ]
+"221
+[; ;emuz80_6502ram_main.c: 221:  CLCnGLS0 = 0x02;
+[e = _CLCnGLS0 -> -> 2 `i `uc ]
 "222
-[; ;emuz80_6502ram_main.c: 222:  CLCnGLS0 = 0x02;
-[e = _CLCnGLS0 -> -> 2 `i `uc ]
+[; ;emuz80_6502ram_main.c: 222:  CLCnGLS1 = 0x04;
+[e = _CLCnGLS1 -> -> 4 `i `uc ]
 "223
-[; ;emuz80_6502ram_main.c: 223:  CLCnGLS1 = 0x04;
-[e = _CLCnGLS1 -> -> 4 `i `uc ]
+[; ;emuz80_6502ram_main.c: 223:  CLCnGLS2 = 0x20;
+[e = _CLCnGLS2 -> -> 32 `i `uc ]
 "224
-[; ;emuz80_6502ram_main.c: 224:  CLCnGLS2 = 0x20;
-[e = _CLCnGLS2 -> -> 32 `i `uc ]
-"225
-[; ;emuz80_6502ram_main.c: 225:  CLCnGLS3 = 0x80;
+[; ;emuz80_6502ram_main.c: 224:  CLCnGLS3 = 0x80;
 [e = _CLCnGLS3 -> -> 128 `i `uc ]
+"226
+[; ;emuz80_6502ram_main.c: 226:  CLCnPOL = 0x80;
+[e = _CLCnPOL -> -> 128 `i `uc ]
 "227
-[; ;emuz80_6502ram_main.c: 227:  CLCnPOL = 0x80;
-[e = _CLCnPOL -> -> 128 `i `uc ]
-"228
-[; ;emuz80_6502ram_main.c: 228:  CLCnCON = 0x82;
+[; ;emuz80_6502ram_main.c: 227:  CLCnCON = 0x82;
 [e = _CLCnCON -> -> 130 `i `uc ]
-"231
-[; ;emuz80_6502ram_main.c: 231:  CLCSELECT = 2;
+"230
+[; ;emuz80_6502ram_main.c: 230:  CLCSELECT = 2;
 [e = _CLCSELECT -> -> 2 `i `uc ]
-"232
-[; ;emuz80_6502ram_main.c: 232:  CLCnCON = 0x00;
+"231
+[; ;emuz80_6502ram_main.c: 231:  CLCnCON = 0x00;
 [e = _CLCnCON -> -> 0 `i `uc ]
-"234
-[; ;emuz80_6502ram_main.c: 234:  CLCnSEL0 = 2;
+"233
+[; ;emuz80_6502ram_main.c: 233:  CLCnSEL0 = 2;
 [e = _CLCnSEL0 -> -> 2 `i `uc ]
-"235
-[; ;emuz80_6502ram_main.c: 235:  CLCnSEL1 = 3;
+"234
+[; ;emuz80_6502ram_main.c: 234:  CLCnSEL1 = 3;
 [e = _CLCnSEL1 -> -> 3 `i `uc ]
-"236
-[; ;emuz80_6502ram_main.c: 236:  CLCnSEL2 = 6;
+"235
+[; ;emuz80_6502ram_main.c: 235:  CLCnSEL2 = 6;
 [e = _CLCnSEL2 -> -> 6 `i `uc ]
-"237
-[; ;emuz80_6502ram_main.c: 237:  CLCnSEL3 = 7;
+"236
+[; ;emuz80_6502ram_main.c: 236:  CLCnSEL3 = 7;
 [e = _CLCnSEL3 -> -> 7 `i `uc ]
-"239
-[; ;emuz80_6502ram_main.c: 239:  CLCnGLS0 = 0x02;
+"238
+[; ;emuz80_6502ram_main.c: 238:  CLCnGLS0 = 0x02;
 [e = _CLCnGLS0 -> -> 2 `i `uc ]
-"240
-[; ;emuz80_6502ram_main.c: 240:  CLCnGLS1 = 0x04;
+"239
+[; ;emuz80_6502ram_main.c: 239:  CLCnGLS1 = 0x04;
 [e = _CLCnGLS1 -> -> 4 `i `uc ]
-"241
-[; ;emuz80_6502ram_main.c: 241:  CLCnGLS2 = 0x20;
+"240
+[; ;emuz80_6502ram_main.c: 240:  CLCnGLS2 = 0x20;
 [e = _CLCnGLS2 -> -> 32 `i `uc ]
-"242
-[; ;emuz80_6502ram_main.c: 242:  CLCnGLS3 = 0x80;
+"241
+[; ;emuz80_6502ram_main.c: 241:  CLCnGLS3 = 0x80;
 [e = _CLCnGLS3 -> -> 128 `i `uc ]
-"244
-[; ;emuz80_6502ram_main.c: 244:  CLCnPOL = 0x80;
+"243
+[; ;emuz80_6502ram_main.c: 243:  CLCnPOL = 0x80;
 [e = _CLCnPOL -> -> 128 `i `uc ]
-"245
-[; ;emuz80_6502ram_main.c: 245:  CLCnCON = 0x82;
+"244
+[; ;emuz80_6502ram_main.c: 244:  CLCnCON = 0x82;
 [e = _CLCnCON -> -> 130 `i `uc ]
-"248
-[; ;emuz80_6502ram_main.c: 248:  CLCSELECT = 4;
+"247
+[; ;emuz80_6502ram_main.c: 247:  CLCSELECT = 4;
 [e = _CLCSELECT -> -> 4 `i `uc ]
-"249
-[; ;emuz80_6502ram_main.c: 249:  CLCnCON = 0x00;
+"248
+[; ;emuz80_6502ram_main.c: 248:  CLCnCON = 0x00;
 [e = _CLCnCON -> -> 0 `i `uc ]
-"251
-[; ;emuz80_6502ram_main.c: 251:  CLCnSEL0 = 53;
+"250
+[; ;emuz80_6502ram_main.c: 250:  CLCnSEL0 = 53;
 [e = _CLCnSEL0 -> -> 53 `i `uc ]
-"252
-[; ;emuz80_6502ram_main.c: 252:  CLCnSEL1 = 127;
+"251
+[; ;emuz80_6502ram_main.c: 251:  CLCnSEL1 = 127;
 [e = _CLCnSEL1 -> -> 127 `i `uc ]
-"253
-[; ;emuz80_6502ram_main.c: 253:  CLCnSEL2 = 127;
+"252
+[; ;emuz80_6502ram_main.c: 252:  CLCnSEL2 = 127;
 [e = _CLCnSEL2 -> -> 127 `i `uc ]
-"254
-[; ;emuz80_6502ram_main.c: 254:  CLCnSEL3 = 127;
+"253
+[; ;emuz80_6502ram_main.c: 253:  CLCnSEL3 = 127;
 [e = _CLCnSEL3 -> -> 127 `i `uc ]
-"256
-[; ;emuz80_6502ram_main.c: 256:  CLCnGLS0 = 0x1;
+"255
+[; ;emuz80_6502ram_main.c: 255:  CLCnGLS0 = 0x1;
 [e = _CLCnGLS0 -> -> 1 `i `uc ]
-"257
-[; ;emuz80_6502ram_main.c: 257:  CLCnGLS1 = 0x0;
+"256
+[; ;emuz80_6502ram_main.c: 256:  CLCnGLS1 = 0x0;
 [e = _CLCnGLS1 -> -> 0 `i `uc ]
-"258
-[; ;emuz80_6502ram_main.c: 258:  CLCnGLS2 = 0x0;
+"257
+[; ;emuz80_6502ram_main.c: 257:  CLCnGLS2 = 0x0;
 [e = _CLCnGLS2 -> -> 0 `i `uc ]
-"259
-[; ;emuz80_6502ram_main.c: 259:  CLCnGLS3 = 0x0;
+"258
+[; ;emuz80_6502ram_main.c: 258:  CLCnGLS3 = 0x0;
 [e = _CLCnGLS3 -> -> 0 `i `uc ]
-"261
-[; ;emuz80_6502ram_main.c: 261:  CLCnPOL = 0x82;
+"260
+[; ;emuz80_6502ram_main.c: 260:  CLCnPOL = 0x82;
 [e = _CLCnPOL -> -> 130 `i `uc ]
-"262
-[; ;emuz80_6502ram_main.c: 262:  CLCnCON = 0x84;
+"261
+[; ;emuz80_6502ram_main.c: 261:  CLCnCON = 0x84;
 [e = _CLCnCON -> -> 132 `i `uc ]
-"267
-[; ;emuz80_6502ram_main.c: 267:  RA5PPS = 0x01;
+"266
+[; ;emuz80_6502ram_main.c: 266:  RA5PPS = 0x01;
 [e = _RA5PPS -> -> 1 `i `uc ]
-"268
-[; ;emuz80_6502ram_main.c: 268:  RA2PPS = 0x02;
+"267
+[; ;emuz80_6502ram_main.c: 267:  RA2PPS = 0x02;
 [e = _RA2PPS -> -> 2 `i `uc ]
-"269
-[; ;emuz80_6502ram_main.c: 269:  RA0PPS = 0x05;
+"268
+[; ;emuz80_6502ram_main.c: 268:  RA0PPS = 0x05;
 [e = _RA0PPS -> -> 5 `i `uc ]
-"271
-[; ;emuz80_6502ram_main.c: 271:     printf("CLC setup finished.\r\n");
+"270
+[; ;emuz80_6502ram_main.c: 270:     printf("CLC setup finished.\r\n");
 [e ( _printf :s 1C ]
-"272
-[; ;emuz80_6502ram_main.c: 272: }
+"271
+[; ;emuz80_6502ram_main.c: 271: }
 [e :UE 2407 ]
 }
-"274
-[; ;emuz80_6502ram_main.c: 274: void setup_busmode_6502() {
+"273
+[; ;emuz80_6502ram_main.c: 273: void setup_busmode_6502() {
 [v _setup_busmode_6502 `(v ~T0 @X0 1 ef ]
 {
 [e :U _setup_busmode_6502 ]
 [f ]
-"276
-[; ;emuz80_6502ram_main.c: 276:  ANSELD = 0x00;
+"275
+[; ;emuz80_6502ram_main.c: 275:  ANSELD = 0x00;
 [e = _ANSELD -> -> 0 `i `uc ]
-"277
-[; ;emuz80_6502ram_main.c: 277:  WPUD = 0xff;
+"276
+[; ;emuz80_6502ram_main.c: 276:  WPUD = 0xff;
 [e = _WPUD -> -> 255 `i `uc ]
-"278
-[; ;emuz80_6502ram_main.c: 278:  TRISD = 0xff;
+"277
+[; ;emuz80_6502ram_main.c: 277:  TRISD = 0xff;
 [e = _TRISD -> -> 255 `i `uc ]
-"281
-[; ;emuz80_6502ram_main.c: 281:  ANSELB = 0x00;
+"280
+[; ;emuz80_6502ram_main.c: 280:  ANSELB = 0x00;
 [e = _ANSELB -> -> 0 `i `uc ]
-"282
-[; ;emuz80_6502ram_main.c: 282:  WPUB = 0xff;
+"281
+[; ;emuz80_6502ram_main.c: 281:  WPUB = 0xff;
 [e = _WPUB -> -> 255 `i `uc ]
-"283
-[; ;emuz80_6502ram_main.c: 283:  TRISB = 0xff;
+"282
+[; ;emuz80_6502ram_main.c: 282:  TRISB = 0xff;
 [e = _TRISB -> -> 255 `i `uc ]
-"286
-[; ;emuz80_6502ram_main.c: 286:  ANSELC = 0x00;
+"285
+[; ;emuz80_6502ram_main.c: 285:  ANSELC = 0x00;
 [e = _ANSELC -> -> 0 `i `uc ]
-"287
-[; ;emuz80_6502ram_main.c: 287:  WPUC = 0xff;
+"286
+[; ;emuz80_6502ram_main.c: 286:  WPUC = 0xff;
 [e = _WPUC -> -> 255 `i `uc ]
-"288
-[; ;emuz80_6502ram_main.c: 288:  TRISC = 0xff;
+"287
+[; ;emuz80_6502ram_main.c: 287:  TRISC = 0xff;
 [e = _TRISC -> -> 255 `i `uc ]
-"289
-[; ;emuz80_6502ram_main.c: 289: }
+"288
+[; ;emuz80_6502ram_main.c: 288: }
 [e :UE 2408 ]
 }
-"291
-[; ;emuz80_6502ram_main.c: 291: void setup_InterruptVectorTable() {
+"290
+[; ;emuz80_6502ram_main.c: 290: void setup_InterruptVectorTable() {
 [v _setup_InterruptVectorTable `(v ~T0 @X0 1 ef ]
 {
 [e :U _setup_InterruptVectorTable ]
 [f ]
+"292
+[; ;emuz80_6502ram_main.c: 292:  IVTLOCK = 0x55;
+[e = _IVTLOCK -> -> 85 `i `uc ]
 "293
-[; ;emuz80_6502ram_main.c: 293:  IVTLOCK = 0x55;
-[e = _IVTLOCK -> -> 85 `i `uc ]
+[; ;emuz80_6502ram_main.c: 293:  IVTLOCK = 0xAA;
+[e = _IVTLOCK -> -> 170 `i `uc ]
 "294
-[; ;emuz80_6502ram_main.c: 294:  IVTLOCK = 0xAA;
-[e = _IVTLOCK -> -> 170 `i `uc ]
-"295
-[; ;emuz80_6502ram_main.c: 295:  IVTLOCKbits.IVTLOCKED = 0x00;
+[; ;emuz80_6502ram_main.c: 294:  IVTLOCKbits.IVTLOCKED = 0x00;
 [e = . . _IVTLOCKbits 0 0 -> -> 0 `i `uc ]
-"298
-[; ;emuz80_6502ram_main.c: 298:  IVTBASE = 0x000008;
+"297
+[; ;emuz80_6502ram_main.c: 297:  IVTBASE = 0x000008;
 [e = _IVTBASE -> -> -> 8 `i `m `um ]
-"301
-[; ;emuz80_6502ram_main.c: 301:  IVTLOCK = 0x55;
+"300
+[; ;emuz80_6502ram_main.c: 300:  IVTLOCK = 0x55;
 [e = _IVTLOCK -> -> 85 `i `uc ]
-"302
-[; ;emuz80_6502ram_main.c: 302:  IVTLOCK = 0xAA;
+"301
+[; ;emuz80_6502ram_main.c: 301:  IVTLOCK = 0xAA;
 [e = _IVTLOCK -> -> 170 `i `uc ]
-"303
-[; ;emuz80_6502ram_main.c: 303:  IVTLOCKbits.IVTLOCKED = 0x01;
+"302
+[; ;emuz80_6502ram_main.c: 302:  IVTLOCKbits.IVTLOCKED = 0x01;
 [e = . . _IVTLOCKbits 0 0 -> -> 1 `i `uc ]
-"304
-[; ;emuz80_6502ram_main.c: 304: }
+"303
+[; ;emuz80_6502ram_main.c: 303: }
 [e :UE 2409 ]
 }
-[v F17319 `(uc ~T0 @X0 1 tf1`us ]
-"306
-[; ;emuz80_6502ram_main.c: 306: __attribute__((inline)) uint8_t sram_read(uint16_t addr) {
-[v _sram_read `TF17319 ~T0 @X0 1 e ]
+[v F17318 `(uc ~T0 @X0 1 tf1`us ]
+"305
+[; ;emuz80_6502ram_main.c: 305: __attribute__((inline)) uint8_t sram_read(uint16_t addr) {
+[v _sram_read `TF17318 ~T0 @X0 1 e ]
 {
 [e :U _sram_read ]
 [v _addr `us ~T0 @X0 1 r1 ]
 [f ]
-"307
-[; ;emuz80_6502ram_main.c: 307:     uint8_t val;
+"306
+[; ;emuz80_6502ram_main.c: 306:     uint8_t val;
 [v _val `uc ~T0 @X0 1 a ]
-"308
-[; ;emuz80_6502ram_main.c: 308:     LATD = *(((uint8_t *)&addr)+1);
+"307
+[; ;emuz80_6502ram_main.c: 307:     LATD = *(((uint8_t *)&addr)+1);
 [e = _LATD *U + -> &U _addr `*uc * -> -> 1 `i `x -> -> # *U -> &U _addr `*uc `i `x ]
-"309
-[; ;emuz80_6502ram_main.c: 309:     LATB = addr&0x0ff;
+"308
+[; ;emuz80_6502ram_main.c: 308:     LATB = addr&0x0ff;
 [e = _LATB -> & -> _addr `ui -> -> 255 `i `ui `uc ]
-"310
-[; ;emuz80_6502ram_main.c: 310:     LATA5 = 0;
+"309
+[; ;emuz80_6502ram_main.c: 309:     LATA5 = 0;
 [e = _LATA5 -> -> 0 `i `b ]
-"311
-[; ;emuz80_6502ram_main.c: 311:     (WPUC = 0xff, TRISC = 0xff);
+"310
+[; ;emuz80_6502ram_main.c: 310:     (WPUC = 0xff, TRISC = 0xff);
 [e ; = _WPUC -> -> 255 `i `uc = _TRISC -> -> 255 `i `uc ]
-"312
-[; ;emuz80_6502ram_main.c: 312:     val = PORTC;
+"311
+[; ;emuz80_6502ram_main.c: 311:     val = PORTC;
 [e = _val _PORTC ]
-"313
-[; ;emuz80_6502ram_main.c: 313:     LATA5 = 1;
+"312
+[; ;emuz80_6502ram_main.c: 312:     LATA5 = 1;
 [e = _LATA5 -> -> 1 `i `b ]
-"314
-[; ;emuz80_6502ram_main.c: 314:     return val;
+"313
+[; ;emuz80_6502ram_main.c: 313:     return val;
 [e ) _val ]
 [e $UE 2410  ]
-"315
-[; ;emuz80_6502ram_main.c: 315: }
+"314
+[; ;emuz80_6502ram_main.c: 314: }
 [e :UE 2410 ]
 }
-"317
-[; ;emuz80_6502ram_main.c: 317: uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
+"316
+[; ;emuz80_6502ram_main.c: 316: uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
 [v _memory_check `(ul ~T0 @X0 1 ef2`ul`ul ]
 {
 [e :U _memory_check ]
 [v _startaddr `ul ~T0 @X0 1 r1 ]
 [v _endaddr `ul ~T0 @X0 1 r2 ]
 [f ]
-"318
-[; ;emuz80_6502ram_main.c: 318:     uint32_t stopaddr = endaddr;
+"317
+[; ;emuz80_6502ram_main.c: 317:     uint32_t stopaddr = endaddr;
 [v _stopaddr `ul ~T0 @X0 1 a ]
 [e = _stopaddr _endaddr ]
-"319
-[; ;emuz80_6502ram_main.c: 319:     uint8_t val, wval;
+"318
+[; ;emuz80_6502ram_main.c: 318:     uint8_t val, wval;
 [v _val `uc ~T0 @X0 1 a ]
 [v _wval `uc ~T0 @X0 1 a ]
-"320
-[; ;emuz80_6502ram_main.c: 320:     (WPUD = 0x00, WPUB = 0x00, TRISD = 0x00, TRISB = 0x00);
+"319
+[; ;emuz80_6502ram_main.c: 319:     (WPUD = 0x00, WPUB = 0x00, TRISD = 0x00, TRISB = 0x00);
 [e ; ; ; = _WPUD -> -> 0 `i `uc = _WPUB -> -> 0 `i `uc = _TRISD -> -> 0 `i `uc = _TRISB -> -> 0 `i `uc ]
-"321
-[; ;emuz80_6502ram_main.c: 321:  for(uint32_t i = startaddr; i < endaddr; i++) {
+"320
+[; ;emuz80_6502ram_main.c: 320:  for(uint32_t i = startaddr; i < endaddr; i++) {
 {
 [v _i `ul ~T0 @X0 1 a ]
 [e = _i _startaddr ]
 [e $U 2415  ]
 [e :U 2412 ]
 {
-"322
-[; ;emuz80_6502ram_main.c: 322:         ab.w = (uint16_t) (startaddr+i);
+"321
+[; ;emuz80_6502ram_main.c: 321:         ab.w = (uint16_t) (startaddr+i);
 [e = . _ab 0 -> -> + _startaddr _i `us `ui ]
-"323
-[; ;emuz80_6502ram_main.c: 323:   LATD = ab.h;
+"322
+[; ;emuz80_6502ram_main.c: 322:   LATD = ab.h;
 [e = _LATD . . _ab 1 1 ]
-"324
-[; ;emuz80_6502ram_main.c: 324:   LATB = ab.l;
+"323
+[; ;emuz80_6502ram_main.c: 323:   LATB = ab.l;
 [e = _LATB . . _ab 1 0 ]
+"324
+[; ;emuz80_6502ram_main.c: 324:         LATA5 = 0;
+[e = _LATA5 -> -> 0 `i `b ]
 "325
-[; ;emuz80_6502ram_main.c: 325:         LATA5 = 0;
-[e = _LATA5 -> -> 0 `i `b ]
+[; ;emuz80_6502ram_main.c: 325:         (WPUC = 0xff, TRISC = 0xff);
+[e ; = _WPUC -> -> 255 `i `uc = _TRISC -> -> 255 `i `uc ]
 "326
-[; ;emuz80_6502ram_main.c: 326:         (WPUC = 0xff, TRISC = 0xff);
-[e ; = _WPUC -> -> 255 `i `uc = _TRISC -> -> 255 `i `uc ]
+[; ;emuz80_6502ram_main.c: 326:         val = PORTC;
+[e = _val _PORTC ]
 "327
-[; ;emuz80_6502ram_main.c: 327:         val = PORTC;
-[e = _val _PORTC ]
-"328
-[; ;emuz80_6502ram_main.c: 328:   LATA5 = 1;
+[; ;emuz80_6502ram_main.c: 327:   LATA5 = 1;
 [e = _LATA5 -> -> 1 `i `b ]
-"330
-[; ;emuz80_6502ram_main.c: 330:         wval = val^0x55;
+"329
+[; ;emuz80_6502ram_main.c: 329:         wval = val^0x55;
 [e = _wval -> ^ -> _val `i -> 85 `i `uc ]
-"331
-[; ;emuz80_6502ram_main.c: 331:         (WPUC = 0x00, TRISC = 0x00);
+"330
+[; ;emuz80_6502ram_main.c: 330:         (WPUC = 0x00, TRISC = 0x00);
 [e ; = _WPUC -> -> 0 `i `uc = _TRISC -> -> 0 `i `uc ]
-"332
-[; ;emuz80_6502ram_main.c: 332:         LATC = wval;
+"331
+[; ;emuz80_6502ram_main.c: 331:         LATC = wval;
 [e = _LATC _wval ]
-"333
-[; ;emuz80_6502ram_main.c: 333:         LATA2 = 0;
+"332
+[; ;emuz80_6502ram_main.c: 332:         LATA2 = 0;
 [e = _LATA2 -> -> 0 `i `b ]
-"334
-[; ;emuz80_6502ram_main.c: 334:         _delay((unsigned long)((1)*(64000000UL/4000000.0)));
+"333
+[; ;emuz80_6502ram_main.c: 333:         _delay((unsigned long)((1)*(64000000UL/4000000.0)));
 [e ( __delay (1 -> * -> -> 1 `i `d / -> -> 64000000 `ul `d .4000000.0 `ul ]
-"335
-[; ;emuz80_6502ram_main.c: 335:   LATA2 = 1;
+"334
+[; ;emuz80_6502ram_main.c: 334:   LATA2 = 1;
 [e = _LATA2 -> -> 1 `i `b ]
-"337
-[; ;emuz80_6502ram_main.c: 337:         (WPUC = 0xff, TRISC = 0xff);
+"336
+[; ;emuz80_6502ram_main.c: 336:         (WPUC = 0xff, TRISC = 0xff);
 [e ; = _WPUC -> -> 255 `i `uc = _TRISC -> -> 255 `i `uc ]
-"338
-[; ;emuz80_6502ram_main.c: 338:         LATA5 = 0;
+"337
+[; ;emuz80_6502ram_main.c: 337:         LATA5 = 0;
 [e = _LATA5 -> -> 0 `i `b ]
-"339
-[; ;emuz80_6502ram_main.c: 339:         val = PORTC;
+"338
+[; ;emuz80_6502ram_main.c: 338:         val = PORTC;
 [e = _val _PORTC ]
-"340
-[; ;emuz80_6502ram_main.c: 340:   LATA5 = 1;
+"339
+[; ;emuz80_6502ram_main.c: 339:   LATA5 = 1;
 [e = _LATA5 -> -> 1 `i `b ]
-"342
-[; ;emuz80_6502ram_main.c: 342:         if (wval != val) {
+"341
+[; ;emuz80_6502ram_main.c: 341:         if (wval != val) {
 [e $ ! != -> _wval `i -> _val `i 2416  ]
 {
-"343
-[; ;emuz80_6502ram_main.c: 343:             printf("error at %04lx: written %02x, read %02x.\r\n", i,wval,val);
+"342
+[; ;emuz80_6502ram_main.c: 342:             printf("error at %04lx: written %02x, read %02x.\r\n", i,wval,val);
 [e ( _printf , , , (. :s 2C _i -> _wval `i -> _val `i ]
-"344
-[; ;emuz80_6502ram_main.c: 344:             stopaddr = startaddr+i;
+"343
+[; ;emuz80_6502ram_main.c: 343:             stopaddr = startaddr+i;
 [e = _stopaddr + _startaddr _i ]
-"345
-[; ;emuz80_6502ram_main.c: 345:             break;
+"344
+[; ;emuz80_6502ram_main.c: 344:             break;
 [e $U 2413  ]
-"346
-[; ;emuz80_6502ram_main.c: 346:         }
+"345
+[; ;emuz80_6502ram_main.c: 345:         }
 }
 [e :U 2416 ]
-"348
-[; ;emuz80_6502ram_main.c: 348:         wval ^= 0x55;
+"347
+[; ;emuz80_6502ram_main.c: 347:         wval ^= 0x55;
 [e =^ _wval -> -> 85 `i `uc ]
-"349
-[; ;emuz80_6502ram_main.c: 349:         (WPUC = 0x00, TRISC = 0x00);
+"348
+[; ;emuz80_6502ram_main.c: 348:         (WPUC = 0x00, TRISC = 0x00);
 [e ; = _WPUC -> -> 0 `i `uc = _TRISC -> -> 0 `i `uc ]
-"350
-[; ;emuz80_6502ram_main.c: 350:         LATC = wval;
+"349
+[; ;emuz80_6502ram_main.c: 349:         LATC = wval;
 [e = _LATC _wval ]
-"351
-[; ;emuz80_6502ram_main.c: 351:         LATA2 = 0;
+"350
+[; ;emuz80_6502ram_main.c: 350:         LATA2 = 0;
 [e = _LATA2 -> -> 0 `i `b ]
-"352
-[; ;emuz80_6502ram_main.c: 352:         _delay((unsigned long)((1)*(64000000UL/4000000.0)));
+"351
+[; ;emuz80_6502ram_main.c: 351:         _delay((unsigned long)((1)*(64000000UL/4000000.0)));
 [e ( __delay (1 -> * -> -> 1 `i `d / -> -> 64000000 `ul `d .4000000.0 `ul ]
-"353
-[; ;emuz80_6502ram_main.c: 353:   LATA2 = 1;
+"352
+[; ;emuz80_6502ram_main.c: 352:   LATA2 = 1;
 [e = _LATA2 -> -> 1 `i `b ]
-"355
-[; ;emuz80_6502ram_main.c: 355:  }
+"354
+[; ;emuz80_6502ram_main.c: 354:  }
 }
 [e ++ _i -> -> -> 1 `i `l `ul ]
 [e :U 2415 ]
 [e $ < _i _endaddr 2412  ]
 [e :U 2413 ]
 }
-"356
-[; ;emuz80_6502ram_main.c: 356:     return stopaddr;
+"355
+[; ;emuz80_6502ram_main.c: 355:     return stopaddr;
 [e ) _stopaddr ]
 [e $UE 2411  ]
-"357
-[; ;emuz80_6502ram_main.c: 357: }
+"356
+[; ;emuz80_6502ram_main.c: 356: }
 [e :UE 2411 ]
 }
-"359
-[; ;emuz80_6502ram_main.c: 359: uint32_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size) {
+"358
+[; ;emuz80_6502ram_main.c: 358: uint32_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size) {
 [v _transfer_to_sram `(ul ~T0 @X0 1 ef3`*Cuc`ul`ul ]
 {
 [e :U _transfer_to_sram ]
@@ -3505,308 +3505,308 @@ Version 4.0 HI-TECH Software Intermediate Code
 [v _startaddr `ul ~T0 @X0 1 r2 ]
 [v _size `ul ~T0 @X0 1 r3 ]
 [f ]
-"360
-[; ;emuz80_6502ram_main.c: 360:     printf("Transferring data (%luk bytes) to SRAM...\r\n",size/1024);
+"359
+[; ;emuz80_6502ram_main.c: 359:     printf("Transferring data (%luk bytes) to SRAM...\r\n",size/1024);
 [e ( _printf , (. :s 3C / _size -> -> -> 1024 `i `l `ul ]
-"362
-[; ;emuz80_6502ram_main.c: 362:     (WPUD = 0x00, WPUB = 0x00, TRISD = 0x00, TRISB = 0x00);
+"361
+[; ;emuz80_6502ram_main.c: 361:     (WPUD = 0x00, WPUB = 0x00, TRISD = 0x00, TRISB = 0x00);
 [e ; ; ; = _WPUD -> -> 0 `i `uc = _WPUB -> -> 0 `i `uc = _TRISD -> -> 0 `i `uc = _TRISB -> -> 0 `i `uc ]
-"363
-[; ;emuz80_6502ram_main.c: 363:     (WPUC = 0x00, TRISC = 0x00);
+"362
+[; ;emuz80_6502ram_main.c: 362:     (WPUC = 0x00, TRISC = 0x00);
 [e ; = _WPUC -> -> 0 `i `uc = _TRISC -> -> 0 `i `uc ]
-"364
-[; ;emuz80_6502ram_main.c: 364:  for(uint32_t i = 0; i < size; i++) {
+"363
+[; ;emuz80_6502ram_main.c: 363:  for(uint32_t i = 0; i < size; i++) {
 {
 [v _i `ul ~T0 @X0 1 a ]
 [e = _i -> -> -> 0 `i `l `ul ]
 [e $U 2421  ]
 [e :U 2418 ]
 {
-"365
-[; ;emuz80_6502ram_main.c: 365:   ab.w = (uint16_t) (startaddr + i);
+"364
+[; ;emuz80_6502ram_main.c: 364:   ab.w = (uint16_t) (startaddr + i);
 [e = . _ab 0 -> -> + _startaddr _i `us `ui ]
-"366
-[; ;emuz80_6502ram_main.c: 366:   LATD = ab.h;
+"365
+[; ;emuz80_6502ram_main.c: 365:   LATD = ab.h;
 [e = _LATD . . _ab 1 1 ]
-"367
-[; ;emuz80_6502ram_main.c: 367:   LATB = ab.l;
+"366
+[; ;emuz80_6502ram_main.c: 366:   LATB = ab.l;
 [e = _LATB . . _ab 1 0 ]
-"368
-[; ;emuz80_6502ram_main.c: 368:         LATC = arr[i];
+"367
+[; ;emuz80_6502ram_main.c: 367:         LATC = arr[i];
 [e = _LATC *U + _arr * -> _i `ux -> -> # *U _arr `ui `ux ]
-"369
-[; ;emuz80_6502ram_main.c: 369:   LATA2 = 0;
+"368
+[; ;emuz80_6502ram_main.c: 368:   LATA2 = 0;
 [e = _LATA2 -> -> 0 `i `b ]
-"370
-[; ;emuz80_6502ram_main.c: 370:         _delay((unsigned long)((1)*(64000000UL/4000000.0)));
+"369
+[; ;emuz80_6502ram_main.c: 369:         _delay((unsigned long)((1)*(64000000UL/4000000.0)));
 [e ( __delay (1 -> * -> -> 1 `i `d / -> -> 64000000 `ul `d .4000000.0 `ul ]
-"371
-[; ;emuz80_6502ram_main.c: 371:   LATA2 = 1;
+"370
+[; ;emuz80_6502ram_main.c: 370:   LATA2 = 1;
 [e = _LATA2 -> -> 1 `i `b ]
-"372
-[; ;emuz80_6502ram_main.c: 372:     }
+"371
+[; ;emuz80_6502ram_main.c: 371:     }
 }
 [e ++ _i -> -> -> 1 `i `l `ul ]
 [e :U 2421 ]
 [e $ < _i _size 2418  ]
 [e :U 2419 ]
 }
-"375
-[; ;emuz80_6502ram_main.c: 375:     uint8_t val;
+"374
+[; ;emuz80_6502ram_main.c: 374:     uint8_t val;
 [v _val `uc ~T0 @X0 1 a ]
-"376
-[; ;emuz80_6502ram_main.c: 376:     uint32_t errcount = 0;
+"375
+[; ;emuz80_6502ram_main.c: 375:     uint32_t errcount = 0;
 [v _errcount `ul ~T0 @X0 1 a ]
 [e = _errcount -> -> -> 0 `i `l `ul ]
-"377
-[; ;emuz80_6502ram_main.c: 377:     (WPUC = 0xff, TRISC = 0xff);
+"376
+[; ;emuz80_6502ram_main.c: 376:     (WPUC = 0xff, TRISC = 0xff);
 [e ; = _WPUC -> -> 255 `i `uc = _TRISC -> -> 255 `i `uc ]
-"378
-[; ;emuz80_6502ram_main.c: 378:  for(uint32_t i = 0; i < size; i++) {
+"377
+[; ;emuz80_6502ram_main.c: 377:  for(uint32_t i = 0; i < size; i++) {
 {
 [v _i `ul ~T0 @X0 1 a ]
 [e = _i -> -> -> 0 `i `l `ul ]
 [e $U 2425  ]
 [e :U 2422 ]
 {
-"379
-[; ;emuz80_6502ram_main.c: 379:   ab.w = (uint16_t) (startaddr + i);
+"378
+[; ;emuz80_6502ram_main.c: 378:   ab.w = (uint16_t) (startaddr + i);
 [e = . _ab 0 -> -> + _startaddr _i `us `ui ]
-"380
-[; ;emuz80_6502ram_main.c: 380:   LATD = ab.h;
+"379
+[; ;emuz80_6502ram_main.c: 379:   LATD = ab.h;
 [e = _LATD . . _ab 1 1 ]
-"381
-[; ;emuz80_6502ram_main.c: 381:   LATB = ab.l;
+"380
+[; ;emuz80_6502ram_main.c: 380:   LATB = ab.l;
 [e = _LATB . . _ab 1 0 ]
-"382
-[; ;emuz80_6502ram_main.c: 382:   LATA5 = 0;
+"381
+[; ;emuz80_6502ram_main.c: 381:   LATA5 = 0;
 [e = _LATA5 -> -> 0 `i `b ]
-"383
-[; ;emuz80_6502ram_main.c: 383:         _delay((unsigned long)((1)*(64000000UL/4000000.0)));
+"382
+[; ;emuz80_6502ram_main.c: 382:         _delay((unsigned long)((1)*(64000000UL/4000000.0)));
 [e ( __delay (1 -> * -> -> 1 `i `d / -> -> 64000000 `ul `d .4000000.0 `ul ]
-"384
-[; ;emuz80_6502ram_main.c: 384:         val = PORTC;
+"383
+[; ;emuz80_6502ram_main.c: 383:         val = PORTC;
 [e = _val _PORTC ]
-"385
-[; ;emuz80_6502ram_main.c: 385:   LATA5 = 1;
+"384
+[; ;emuz80_6502ram_main.c: 384:   LATA5 = 1;
 [e = _LATA5 -> -> 1 `i `b ]
-"386
-[; ;emuz80_6502ram_main.c: 386:         if (arr[i] != val) {
+"385
+[; ;emuz80_6502ram_main.c: 385:         if (arr[i] != val) {
 [e $ ! != -> *U + _arr * -> _i `ux -> -> # *U _arr `ui `ux `i -> _val `i 2426  ]
 {
-"387
-[; ;emuz80_6502ram_main.c: 387:             errcount += 1;
+"386
+[; ;emuz80_6502ram_main.c: 386:             errcount += 1;
 [e =+ _errcount -> -> -> 1 `i `l `ul ]
-"388
-[; ;emuz80_6502ram_main.c: 388:         }
+"387
+[; ;emuz80_6502ram_main.c: 387:         }
 }
 [e :U 2426 ]
-"389
-[; ;emuz80_6502ram_main.c: 389:     }
+"388
+[; ;emuz80_6502ram_main.c: 388:     }
 }
 [e ++ _i -> -> -> 1 `i `l `ul ]
 [e :U 2425 ]
 [e $ < _i _size 2422  ]
 [e :U 2423 ]
 }
-"390
-[; ;emuz80_6502ram_main.c: 390:     if ( errcount == 0 ) {
+"389
+[; ;emuz80_6502ram_main.c: 389:     if ( errcount == 0 ) {
 [e $ ! == _errcount -> -> -> 0 `i `l `ul 2427  ]
 {
-"391
-[; ;emuz80_6502ram_main.c: 391:         printf("transfer and verify done.\r\n");
+"390
+[; ;emuz80_6502ram_main.c: 390:         printf("transfer and verify done.\r\n");
 [e ( _printf :s 4C ]
-"392
-[; ;emuz80_6502ram_main.c: 392:     } else {
+"391
+[; ;emuz80_6502ram_main.c: 391:     } else {
 }
 [e $U 2428  ]
 [e :U 2427 ]
 {
-"393
-[; ;emuz80_6502ram_main.c: 393:         printf("%lu errors detected.\r\n", errcount);
+"392
+[; ;emuz80_6502ram_main.c: 392:         printf("%lu errors detected.\r\n", errcount);
 [e ( _printf , (. :s 5C _errcount ]
-"394
-[; ;emuz80_6502ram_main.c: 394:     }
+"393
+[; ;emuz80_6502ram_main.c: 393:     }
 }
 [e :U 2428 ]
-"395
-[; ;emuz80_6502ram_main.c: 395:     return errcount;
+"394
+[; ;emuz80_6502ram_main.c: 394:     return errcount;
 [e ) _errcount ]
 [e $UE 2417  ]
-"396
-[; ;emuz80_6502ram_main.c: 396: }
+"395
+[; ;emuz80_6502ram_main.c: 395: }
 [e :UE 2417 ]
 }
 [v $root$_main `(v ~T0 @X0 0 e ]
-"399
-[; ;emuz80_6502ram_main.c: 399: void main(void) {
+"398
+[; ;emuz80_6502ram_main.c: 398: void main(void) {
 [v _main `(v ~T0 @X0 1 ef ]
 {
 [e :U _main ]
 [f ]
-"403
-[; ;emuz80_6502ram_main.c: 403:     setup_clock();
+"402
+[; ;emuz80_6502ram_main.c: 402:     setup_clock();
 [e ( _setup_clock ..  ]
-"404
-[; ;emuz80_6502ram_main.c: 404:     setup_6502_interface();
+"403
+[; ;emuz80_6502ram_main.c: 403:     setup_6502_interface();
 [e ( _setup_6502_interface ..  ]
-"405
-[; ;emuz80_6502ram_main.c: 405:     setup_UART3();
+"404
+[; ;emuz80_6502ram_main.c: 404:     setup_UART3();
 [e ( _setup_UART3 ..  ]
-"406
-[; ;emuz80_6502ram_main.c: 406:     printf("\e[H\e[2JHello, System initialized. UART3 enabled.\r\n");
+"405
+[; ;emuz80_6502ram_main.c: 405:     printf("\e[H\e[2JHello, System initialized. UART3 enabled.\r\n");
 [e ( _printf :s 6C ]
-"408
-[; ;emuz80_6502ram_main.c: 408:     uint32_t stopaddr = memory_check(0, 0x10000);
+"407
+[; ;emuz80_6502ram_main.c: 407:     uint32_t stopaddr = memory_check(0, 0x10000);
 [v _stopaddr `ul ~T0 @X0 1 a ]
 [e = _stopaddr ( _memory_check (2 , -> -> -> 0 `i `l `ul -> -> 65536 `l `ul ]
-"409
-[; ;emuz80_6502ram_main.c: 409:     printf("stopaddr = %04lx.\r\n", stopaddr);
+"408
+[; ;emuz80_6502ram_main.c: 408:     printf("stopaddr = %04lx.\r\n", stopaddr);
 [e ( _printf , (. :s 7C _stopaddr ]
-"410
-[; ;emuz80_6502ram_main.c: 410:     transfer_to_sram(rom_EhBASIC, 0xC000, 0x4000);
+"409
+[; ;emuz80_6502ram_main.c: 409:     transfer_to_sram(rom_EhBASIC, 0xC000, 0x4000);
 [e ( _transfer_to_sram (3 , , &U _rom_EhBASIC -> -> 49152 `ui `ul -> -> -> 16384 `i `l `ul ]
-"412
-[; ;emuz80_6502ram_main.c: 412:     setup_busmode_6502();
+"411
+[; ;emuz80_6502ram_main.c: 411:     setup_busmode_6502();
 [e ( _setup_busmode_6502 ..  ]
-"413
-[; ;emuz80_6502ram_main.c: 413:  printf("\r\nMEZ6502RAM %2.3fMHz\r\n",NCO1INC * 30.5175781 / 1000000);
+"412
+[; ;emuz80_6502ram_main.c: 412:  printf("\r\nMEZ6502RAM %2.3fMHz\r\n",NCO1INC * 30.5175781 / 1000000);
 [e ( _printf , (. :s 8C / * -> _NCO1INC `d .30.5175781 -> -> 1000000 `l `d ]
-"415
-[; ;emuz80_6502ram_main.c: 415:     setup_CLC();
+"414
+[; ;emuz80_6502ram_main.c: 414:     setup_CLC();
 [e ( _setup_CLC ..  ]
-"416
-[; ;emuz80_6502ram_main.c: 416:     setup_InterruptVectorTable();
+"415
+[; ;emuz80_6502ram_main.c: 415:     setup_InterruptVectorTable();
 [e ( _setup_InterruptVectorTable ..  ]
-"419
-[; ;emuz80_6502ram_main.c: 419:     printf("\r\nStarting 65C02CPU.\r\n");
+"418
+[; ;emuz80_6502ram_main.c: 418:     printf("\r\nStarting 65C02CPU.\r\n");
 [e ( _printf :s 9C ]
-"421
-[; ;emuz80_6502ram_main.c: 421:  GIE = 1;
+"420
+[; ;emuz80_6502ram_main.c: 420:  GIE = 1;
 [e = _GIE -> -> 1 `i `b ]
-"422
-[; ;emuz80_6502ram_main.c: 422:  LATE0 = 1;
+"421
+[; ;emuz80_6502ram_main.c: 421:  LATE0 = 1;
 [e = _LATE0 -> -> 1 `i `b ]
-"423
-[; ;emuz80_6502ram_main.c: 423:  LATE2 = 1;
+"422
+[; ;emuz80_6502ram_main.c: 422:  LATE2 = 1;
 [e = _LATE2 -> -> 1 `i `b ]
-"425
-[; ;emuz80_6502ram_main.c: 425:  while(1){
+"424
+[; ;emuz80_6502ram_main.c: 424:  while(1){
 [e :U 2431 ]
 {
-"426
-[; ;emuz80_6502ram_main.c: 426:   while(CLC5OUT);
+"425
+[; ;emuz80_6502ram_main.c: 425:   while(CLC5OUT);
 [e $U 2433  ]
 [e :U 2434 ]
 [e :U 2433 ]
 [e $ _CLC5OUT 2434  ]
 [e :U 2435 ]
-"427
-[; ;emuz80_6502ram_main.c: 427:   ab.h = PORTD;
+"426
+[; ;emuz80_6502ram_main.c: 426:   ab.h = PORTD;
 [e = . . _ab 1 1 _PORTD ]
-"428
-[; ;emuz80_6502ram_main.c: 428:   ab.l = PORTB;
+"427
+[; ;emuz80_6502ram_main.c: 427:   ab.l = PORTB;
 [e = . . _ab 1 0 _PORTB ]
-"430
-[; ;emuz80_6502ram_main.c: 430:   if ( !RA4 ) {
+"429
+[; ;emuz80_6502ram_main.c: 429:   if ( !RA4 ) {
 [e $ ! ! _RA4 2436  ]
 {
-"432
-[; ;emuz80_6502ram_main.c: 432:    if( ab.w == 0xB019 || ab.w == (0xB000 +1) ) {
+"431
+[; ;emuz80_6502ram_main.c: 431:    if( ab.w == 0xB019 || ab.w == (0xB000 +1) ) {
 [e $ ! || == . _ab 0 -> 45081 `ui == . _ab 0 + -> 45056 `ui -> -> 1 `i `ui 2437  ]
 {
-"434
-[; ;emuz80_6502ram_main.c: 434:                 putch(PORTC);
+"433
+[; ;emuz80_6502ram_main.c: 433:                 putch(PORTC);
 [e ( _putch (1 -> _PORTC `uc ]
-"435
-[; ;emuz80_6502ram_main.c: 435:             }
+"434
+[; ;emuz80_6502ram_main.c: 434:             }
 }
 [e :U 2437 ]
-"437
-[; ;emuz80_6502ram_main.c: 437:    G3POL = 1;
+"436
+[; ;emuz80_6502ram_main.c: 436:    G3POL = 1;
 [e = _G3POL -> -> 1 `i `b ]
-"438
-[; ;emuz80_6502ram_main.c: 438:    G3POL = 0;
+"437
+[; ;emuz80_6502ram_main.c: 437:    G3POL = 0;
 [e = _G3POL -> -> 0 `i `b ]
-"439
-[; ;emuz80_6502ram_main.c: 439:   } else {
+"438
+[; ;emuz80_6502ram_main.c: 438:   } else {
 }
 [e $U 2438  ]
 [e :U 2436 ]
 {
-"441
-[; ;emuz80_6502ram_main.c: 441:    (WPUC = 0x00, TRISC = 0x00);
+"440
+[; ;emuz80_6502ram_main.c: 440:    (WPUC = 0x00, TRISC = 0x00);
 [e ; = _WPUC -> -> 0 `i `uc = _TRISC -> -> 0 `i `uc ]
-"442
-[; ;emuz80_6502ram_main.c: 442:    if( ab.w == 0xB018 ) {
+"441
+[; ;emuz80_6502ram_main.c: 441:    if( ab.w == 0xB018 ) {
 [e $ ! == . _ab 0 -> 45080 `ui 2439  ]
 {
-"443
-[; ;emuz80_6502ram_main.c: 443:     LATC = UART3_IR_status();
+"442
+[; ;emuz80_6502ram_main.c: 442:     LATC = UART3_IR_status();
 [e = _LATC ( _UART3_IR_status ..  ]
-"444
-[; ;emuz80_6502ram_main.c: 444:             } else if ( ab.w == (0xB000) ) {
+"443
+[; ;emuz80_6502ram_main.c: 443:             } else if ( ab.w == (0xB000) ) {
 }
 [e $U 2440  ]
 [e :U 2439 ]
 [e $ ! == . _ab 0 -> 45056 `ui 2441  ]
 {
-"445
-[; ;emuz80_6502ram_main.c: 445:                 LATC = ((!U3FIFObits.RXBE) ? (1<<0) : 0 ) | ((U3FIFObits.TXBE && U3CON0bits.TXEN) ? (1<<1) : 0);
+"444
+[; ;emuz80_6502ram_main.c: 444:                 LATC = ((!U3FIFObits.RXBE) ? (1<<0) : 0 ) | ((U3FIFObits.TXBE && U3CON0bits.TXEN) ? (1<<1) : 0);
 [e = _LATC -> | ? ! != -> . . _U3FIFObits 0 1 `i -> 0 `i : << -> 1 `i -> 0 `i -> 0 `i ? && != -> . . _U3FIFObits 0 5 `i -> 0 `i != -> . . _U3CON0bits 3 2 `i -> 0 `i : << -> 1 `i -> 1 `i -> 0 `i `uc ]
-"446
-[; ;emuz80_6502ram_main.c: 446:    } else if(ab.w == 0xB019 || ab.w == (0xB000 +1) ) {
+"445
+[; ;emuz80_6502ram_main.c: 445:    } else if(ab.w == 0xB019 || ab.w == (0xB000 +1) ) {
 }
 [e $U 2442  ]
 [e :U 2441 ]
 [e $ ! || == . _ab 0 -> 45081 `ui == . _ab 0 + -> 45056 `ui -> -> 1 `i `ui 2443  ]
 {
-"449
-[; ;emuz80_6502ram_main.c: 449:     LATC = (uint8_t) getch();
+"448
+[; ;emuz80_6502ram_main.c: 448:     LATC = (uint8_t) getch();
 [e = _LATC -> ( _getch ..  `uc ]
-"450
-[; ;emuz80_6502ram_main.c: 450:    } else {
+"449
+[; ;emuz80_6502ram_main.c: 449:    } else {
 }
 [e $U 2444  ]
 [e :U 2443 ]
 {
-"451
-[; ;emuz80_6502ram_main.c: 451:     LATC = 0xff;
+"450
+[; ;emuz80_6502ram_main.c: 450:     LATC = 0xff;
 [e = _LATC -> -> 255 `i `uc ]
-"452
-[; ;emuz80_6502ram_main.c: 452:             }
+"451
+[; ;emuz80_6502ram_main.c: 451:             }
 }
 [e :U 2444 ]
 [e :U 2442 ]
 [e :U 2440 ]
-"454
-[; ;emuz80_6502ram_main.c: 454:    while(RA3);
+"453
+[; ;emuz80_6502ram_main.c: 453:    while(RA3);
 [e $U 2445  ]
 [e :U 2446 ]
 [e :U 2445 ]
 [e $ _RA3 2446  ]
 [e :U 2447 ]
-"456
-[; ;emuz80_6502ram_main.c: 456:    G3POL = 1;
+"455
+[; ;emuz80_6502ram_main.c: 455:    G3POL = 1;
 [e = _G3POL -> -> 1 `i `b ]
-"457
-[; ;emuz80_6502ram_main.c: 457:    (WPUC = 0xff, TRISC = 0xff);
+"456
+[; ;emuz80_6502ram_main.c: 456:    (WPUC = 0xff, TRISC = 0xff);
 [e ; = _WPUC -> -> 255 `i `uc = _TRISC -> -> 255 `i `uc ]
-"458
-[; ;emuz80_6502ram_main.c: 458:    G3POL = 0;
+"457
+[; ;emuz80_6502ram_main.c: 457:    G3POL = 0;
 [e = _G3POL -> -> 0 `i `b ]
-"459
-[; ;emuz80_6502ram_main.c: 459:   }
+"458
+[; ;emuz80_6502ram_main.c: 458:   }
 }
 [e :U 2438 ]
-"460
-[; ;emuz80_6502ram_main.c: 460:  }
+"459
+[; ;emuz80_6502ram_main.c: 459:  }
 }
 [e :U 2430 ]
 [e $U 2431  ]
 [e :U 2432 ]
-"461
-[; ;emuz80_6502ram_main.c: 461: }
+"460
+[; ;emuz80_6502ram_main.c: 460: }
 [e :UE 2429 ]
 }
 [p f _printf 12690452 ]

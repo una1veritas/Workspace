@@ -29157,7 +29157,6 @@ void putch(char txData);
 # 29 "emuz80_6502ram_main.c" 2
 # 80 "emuz80_6502ram_main.c"
 extern const unsigned char rom_EhBASIC[];
-extern const unsigned char rom_bbcbasic2[];
 
 
 
@@ -29168,7 +29167,7 @@ union {
   unsigned char h;
  };
 } ab;
-# 108 "emuz80_6502ram_main.c"
+# 107 "emuz80_6502ram_main.c"
 void __attribute__((picinterrupt(("irq(default),base(8)")))) Default_ISR(){}
 
 void setup_clock() {
