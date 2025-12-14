@@ -407,6 +407,7 @@ void main(void) {
 			if( ab.w == UART_CREG ) {		// PIR9
 				LATC = UART3_IR_status(); // PIR9	// Out Peripheral Request Register 9, PIR9
             } else if ( ab.w == ACIA_STA ) {
+				printf("ACIA_STA read\r\n");
                 LATC = (UART3_IsRxReady() ? ACIA_RDRE : 0 ) | (UART3_IsTxReady() ? ACIA_TDRE : 0 );
 			} else if(ab.w == UART_DREG || ab.w == ACIA_DAT ) {	
                 // U3RXB
