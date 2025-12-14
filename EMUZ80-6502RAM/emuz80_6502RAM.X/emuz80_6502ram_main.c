@@ -35,9 +35,7 @@
 
 #define UART_CREG   0xB018	// Control REG
 #define UART_DREG   0xB019	// Data REG
-// data register と status/command register のアドレスを
-// 入れ換えると、使用されていないはずなのに通信に不具合がでる。
-// min_mon または ehbasic に 0xb001 への参照ルーチンが残っているのか？
+
 #define ACIA_DAT    0xB000
 #define ACIA_STA    0xB001
 //#define ACIA_CMD    0xB002	//
@@ -391,10 +389,10 @@ void main(void) {
 		while(CLC5OUT); //RDY == 1  // waiting for $Bxxx is on address bus.
 		ab.h = PORTD;				// Read address high
 		ab.l = PORTB;				// Read address low
-		//6502 -> PIC IO write cycle
+        //6502 -> PIC IO write cycle
 		if ( !W65C02_RW ) /*(!RA4)*/ {
             // 6502 Write then PIC Read and Out
-			if( ab.w == UART_DREG || ab.w == ACIA_DAT ) {	// U3TXB
+			if( ab.w == UART_DREG /* || ab.w == ACIA_DAT */ ) {	// U3TXB
                 //while(!U3TXIF);
                 putch(PORTC); //U3TXB = PORTC;			// Write into	U3TXB
             }
@@ -406,10 +404,10 @@ void main(void) {
 			DATABUS_MODE_OUTPUT; //TRISC = 0x00;				// Set Data Bus as output
 			if( ab.w == UART_CREG ) {		// PIR9
 				LATC = UART3_IR_status(); // PIR9	// Out Peripheral Request Register 9, PIR9
-            } else if ( ab.w == ACIA_STA ) {
-				printf("ACIA_STA read\r\n");
+            } /* else if ( ab.w == ACIA_STA ) {
+				//printf("ACIA_STA read\r\n");
                 LATC = (UART3_IsRxReady() ? ACIA_RDRE : 0 ) | (UART3_IsTxReady() ? ACIA_TDRE : 0 );
-			} else if(ab.w == UART_DREG || ab.w == ACIA_DAT ) {	
+			} */ else if(ab.w == UART_DREG /* || ab.w == ACIA_DAT */ ) {	
                 // U3RXB
                 //while(!U3RXIF);
 				LATC = (uint8_t) getch(); //LATC = U3RXB;			// Out U3RXB
