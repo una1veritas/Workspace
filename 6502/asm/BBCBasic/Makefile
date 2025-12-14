@@ -4,7 +4,7 @@ basic2.run: basic2.bin
 	srec_cat basic2.bin -binary -offset 0xc000 -o basic2.run
 
 basic2.bin: basic2.o
-	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m basic2.map -o basic2.bin basic2.o
+	ld65 -C none.cfg -vm -m basic2.map -o basic2.bin basic2.o
 
 basic2.o: basic2.asm mos.asm
 	ca65 -g -l basic2.lst -o basic2.o basic2.asm

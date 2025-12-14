@@ -30,8 +30,6 @@
 #define _XTAL_FREQ 64000000UL
 
 #define CLK_6502_FREQ   2000000UL	// 6502 clock frequency(Max 16MHz) 1MHz=1000000UL
-#define ROM_TOP         0xC000		// ROM TOP Address
-#define ROM_SIZE        0x4000		// 16K bytes
 
 #define UART_CREG   0xB018	// Control REG
 #define UART_DREG   0xB019	// Data REG
@@ -53,8 +51,8 @@
 #define ACIA_CTL    (ACIA)
 // RS HIGH
 #define ACIA_DAT    (ACIA+1)
-#define RXD_REG_FULL    1
-#define TXD_REG_EMPTY   2
+#define RXD_REG_FULL    (1<<0)
+#define TXD_REG_EMPTY   (1<<1)
 // bit 2 = DCD, CTS, Framing err, Receiver over run, parity error, irq
 #endif // ACIA_6850
 
@@ -74,8 +72,14 @@
  */
 
 //6502 ROM equivalent, see end of this file
+//#define ROM_TOP         0xC000		// ROM TOP Address
+//#define ROM_SIZE        0x4000		// 16K bytes
+#define ROM_LOAD_ADDR   0xC000
+#define ROM_SIZE        0x4000
+
 extern const unsigned char rom_EhBASIC[];
-#define rom rom_EhBASIC
+extern const unsigned char rom_bbcbasic2[];
+#define ROM rom_EhBASIC
 
 //Address Bus
 union {
@@ -299,6 +303,17 @@ void setup_InterruptVectorTable() {
 	IVTLOCKbits.IVTLOCKED = 0x01;
 }
 
+inline uint8_t sram_read(uint16_t addr) {
+    uint8_t val;
+    LATD = *(((uint8_t *)&addr)+1);
+    LATB = addr&0x0ff;
+    LATA5 = 0;		// _OE=0
+    DATABUS_MODE_INPUT;
+    val = DATABUS_RD_REG;
+    LATA5 = 1;		// _OE=1
+    return val;
+}
+
 uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
     uint32_t stopaddr = endaddr;
     uint8_t val, wval;
@@ -325,7 +340,7 @@ uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
 		LATA5 = 1;		// _OE=1
         
         if (wval != val) {
-            printf("error at %04lx: written %02x, read %02x.\r\n", i+ROM_TOP, rom[i],val);
+            printf("error at %04lx: written %02x, read %02x.\r\n", i,wval,val);
             stopaddr = startaddr+i;
             break;
         }
@@ -392,7 +407,7 @@ void main(void) {
 
     uint32_t stopaddr = memory_check(0, 0x10000);
     printf("stopaddr = %04lx.\r\n", stopaddr);
-    transfer_to_sram(rom, ROM_TOP, ROM_SIZE);
+    transfer_to_sram(ROM, ROM_LOAD_ADDR, ROM_SIZE);
     
     setup_busmode_6502();
 	printf("\r\nMEZ6502RAM %2.3fMHz\r\n",NCO1INC * 30.5175781 / 1000000);
@@ -427,7 +442,7 @@ void main(void) {
 			if( ab.w == UART_CREG ) {		// PIR9
 				LATC = UART3_IR_status(); // PIR9	// Out Peripheral Request Register 9, PIR9
             } else if ( ab.w == ACIA_STA ) {
-                LATC = (UART3_IsRxReady() ? RXD_REG_FULL : 0 ) | (UART3_IsTxReady() ? 0 : TXD_REG_EMPTY );
+                LATC = (UART3_IsRxReady() ? RXD_REG_FULL : 0 ) | (UART3_IsTxReady() ? TXD_REG_EMPTY : 0);
 			} else if(ab.w == UART_DREG || ab.w == ACIA_DAT ) {	
                 // U3RXB
                 //while(!U3RXIF);

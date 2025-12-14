@@ -1,4 +1,4 @@
-# 1 "emuz80_6502ram_main.c"
+# 1 "uart3.c"
 # 1 "<built-in>" 1
 # 1 "<built-in>" 3
 # 295 "<built-in>" 3
@@ -6,66 +6,7 @@
 # 1 "<built-in>" 2
 # 1 "/Applications/microchip/xc8/v3.10/pic/include/language_support.h" 1 3
 # 2 "<built-in>" 2
-# 1 "emuz80_6502ram_main.c" 2
-# 22 "emuz80_6502ram_main.c"
-# 1 "./config.h" 1
-# 18 "./config.h"
-#pragma config FEXTOSC = OFF
-#pragma config RSTOSC = HFINTOSC_64MHZ
-
-
-#pragma config CLKOUTEN = OFF
-#pragma config PR1WAY = ON
-#pragma config CSWEN = ON
-#pragma config FCMEN = ON
-
-
-
-
-
-
-
-#pragma config MCLRE = EXTMCLR
-#pragma config PWRTS = PWRT_OFF
-#pragma config MVECEN = ON
-#pragma config IVT1WAY = ON
-#pragma config LPBOREN = OFF
-#pragma config BOREN = SBORDIS
-
-
-#pragma config BORV = VBOR_1P9
-#pragma config ZCD = OFF
-#pragma config PPS1WAY = OFF
-#pragma config STVREN = ON
-#pragma config LVP = ON
-#pragma config XINST = OFF
-
-
-#pragma config WDTCPS = WDTCPS_31
-#pragma config WDTE = OFF
-
-
-#pragma config WDTCWS = WDTCWS_7
-#pragma config WDTCCS = SC
-
-
-#pragma config BBSIZE = BBSIZE_512
-#pragma config BBEN = OFF
-#pragma config SAFEN = OFF
-
-#pragma config DEBUG = OFF
-
-
-
-#pragma config WRTB = OFF
-#pragma config WRTC = OFF
-#pragma config WRTD = OFF
-#pragma config WRTSAF = OFF
-#pragma config WRTAPP = OFF
-
-
-#pragma config CP = OFF
-# 23 "emuz80_6502ram_main.c" 2
+# 1 "uart3.c" 2
 
 # 1 "/Applications/microchip/xc8/v3.10/pic/include/xc.h" 1 3
 # 18 "/Applications/microchip/xc8/v3.10/pic/include/xc.h" 3
@@ -28978,173 +28919,7 @@ __attribute__((__unsupported__("The READTIMER" "0" "() macro is not available wi
 unsigned char __t1rd16on(void);
 unsigned char __t3rd16on(void);
 # 34 "/Applications/microchip/xc8/v3.10/pic/include/xc.h" 2 3
-# 25 "emuz80_6502ram_main.c" 2
-# 1 "/Applications/microchip/xc8/v3.10/pic/include/c99/stdio.h" 1 3
-# 24 "/Applications/microchip/xc8/v3.10/pic/include/c99/stdio.h" 3
-# 1 "/Applications/microchip/xc8/v3.10/pic/include/c99/bits/alltypes.h" 1 3
-# 12 "/Applications/microchip/xc8/v3.10/pic/include/c99/bits/alltypes.h" 3
-typedef void * va_list[1];
-
-
-
-
-typedef void * __isoc_va_list[1];
-# 143 "/Applications/microchip/xc8/v3.10/pic/include/c99/bits/alltypes.h" 3
-typedef __int24 ssize_t;
-# 255 "/Applications/microchip/xc8/v3.10/pic/include/c99/bits/alltypes.h" 3
-typedef long long off_t;
-# 409 "/Applications/microchip/xc8/v3.10/pic/include/c99/bits/alltypes.h" 3
-typedef struct _IO_FILE FILE;
-# 25 "/Applications/microchip/xc8/v3.10/pic/include/c99/stdio.h" 2 3
-# 52 "/Applications/microchip/xc8/v3.10/pic/include/c99/stdio.h" 3
-typedef union _G_fpos64_t {
- char __opaque[16];
- double __align;
-} fpos_t;
-
-extern FILE *const stdin;
-extern FILE *const stdout;
-extern FILE *const stderr;
-
-
-
-
-
-FILE *fopen(const char *restrict, const char *restrict);
-FILE *freopen(const char *restrict, const char *restrict, FILE *restrict);
-int fclose(FILE *);
-
-int remove(const char *);
-int rename(const char *, const char *);
-
-int feof(FILE *);
-int ferror(FILE *);
-int fflush(FILE *);
-void clearerr(FILE *);
-
-int fseek(FILE *, long, int);
-long ftell(FILE *);
-void rewind(FILE *);
-
-int fgetpos(FILE *restrict, fpos_t *restrict);
-int fsetpos(FILE *, const fpos_t *);
-
-size_t fread(void *restrict, size_t, size_t, FILE *restrict);
-size_t fwrite(const void *restrict, size_t, size_t, FILE *restrict);
-
-int fgetc(FILE *);
-int getc(FILE *);
-int getchar(void);
-
-
-
-
-
-int ungetc(int, FILE *);
-int getch(void);
-
-int fputc(int, FILE *);
-int putc(int, FILE *);
-int putchar(int);
-
-
-
-
-
-void putch(char);
-
-char *fgets(char *restrict, int, FILE *restrict);
-
-char *gets(char *);
-
-
-int fputs(const char *restrict, FILE *restrict);
-int puts(const char *);
-
-__attribute__((__format__(__printf__, 1, 2)))
-int printf(const char *restrict, ...);
-__attribute__((__format__(__printf__, 2, 3)))
-int fprintf(FILE *restrict, const char *restrict, ...);
-__attribute__((__format__(__printf__, 2, 3)))
-int sprintf(char *restrict, const char *restrict, ...);
-__attribute__((__format__(__printf__, 3, 4)))
-int snprintf(char *restrict, size_t, const char *restrict, ...);
-
-__attribute__((__format__(__printf__, 1, 0)))
-int vprintf(const char *restrict, __isoc_va_list);
-int vfprintf(FILE *restrict, const char *restrict, __isoc_va_list);
-__attribute__((__format__(__printf__, 2, 0)))
-int vsprintf(char *restrict, const char *restrict, __isoc_va_list);
-__attribute__((__format__(__printf__, 3, 0)))
-int vsnprintf(char *restrict, size_t, const char *restrict, __isoc_va_list);
-
-__attribute__((__format__(__scanf__, 1, 2)))
-int scanf(const char *restrict, ...);
-__attribute__((__format__(__scanf__, 2, 3)))
-int fscanf(FILE *restrict, const char *restrict, ...);
-__attribute__((__format__(__scanf__, 2, 3)))
-int sscanf(const char *restrict, const char *restrict, ...);
-
-__attribute__((__format__(__scanf__, 1, 0)))
-int vscanf(const char *restrict, __isoc_va_list);
-int vfscanf(FILE *restrict, const char *restrict, __isoc_va_list);
-__attribute__((__format__(__scanf__, 2, 0)))
-int vsscanf(const char *restrict, const char *restrict, __isoc_va_list);
-
-void perror(const char *);
-
-int setvbuf(FILE *restrict, char *restrict, int, size_t);
-void setbuf(FILE *restrict, char *restrict);
-
-char *tmpnam(char *);
-FILE *tmpfile(void);
-
-
-
-
-FILE *fmemopen(void *restrict, size_t, const char *restrict);
-FILE *open_memstream(char **, size_t *);
-FILE *fdopen(int, const char *);
-FILE *popen(const char *, const char *);
-int pclose(FILE *);
-int fileno(FILE *);
-int fseeko(FILE *, off_t, int);
-off_t ftello(FILE *);
-int dprintf(int, const char *restrict, ...);
-int vdprintf(int, const char *restrict, __isoc_va_list);
-void flockfile(FILE *);
-int ftrylockfile(FILE *);
-void funlockfile(FILE *);
-int getc_unlocked(FILE *);
-int getchar_unlocked(void);
-int putc_unlocked(int, FILE *);
-int putchar_unlocked(int);
-ssize_t getdelim(char **restrict, size_t *restrict, int, FILE *restrict);
-ssize_t getline(char **restrict, size_t *restrict, FILE *restrict);
-int renameat(int, const char *, int, const char *);
-char *ctermid(char *);
-
-
-
-
-
-
-
-char *tempnam(const char *, const char *);
-# 26 "emuz80_6502ram_main.c" 2
-# 1 "/Applications/microchip/xc8/v3.10/pic/include/c99/inttypes.h" 1 3
-# 13 "/Applications/microchip/xc8/v3.10/pic/include/c99/inttypes.h" 3
-# 1 "/Applications/microchip/xc8/v3.10/pic/include/c99/bits/alltypes.h" 1 3
-# 14 "/Applications/microchip/xc8/v3.10/pic/include/c99/inttypes.h" 2 3
-
-typedef struct { intmax_t quot, rem; } imaxdiv_t;
-
-intmax_t imaxabs(intmax_t);
-imaxdiv_t imaxdiv(intmax_t, intmax_t);
-
-intmax_t strtoimax(const char *restrict, char **restrict, int);
-uintmax_t strtoumax(const char *restrict, char **restrict, int);
-# 27 "emuz80_6502ram_main.c" 2
+# 3 "uart3.c" 2
 
 # 1 "./uart3.h" 1
 # 21 "./uart3.h"
@@ -29154,372 +28929,46 @@ uint8_t UART3_Read(void);
 void UART3_Write(uint8_t txData);
 int getch(void);
 void putch(char txData);
-# 29 "emuz80_6502ram_main.c" 2
-# 80 "emuz80_6502ram_main.c"
-extern const unsigned char rom_EhBASIC[];
-extern const unsigned char rom_bbcbasic2[];
+# 5 "uart3.c" 2
+
+void setup_UART3() {
+
+ U3BRG = 68;
+ U3RXEN = 1;
+ U3TXEN = 1;
 
 
+ ANSELA7 = 0;
+ TRISA7 = 1;
+ U3RXPPS = 0x07;
 
-union {
- unsigned int w;
- struct {
-  unsigned char l;
-  unsigned char h;
- };
-} ab;
-# 108 "emuz80_6502ram_main.c"
-void __attribute__((picinterrupt(("irq(default),base(8)")))) Default_ISR(){}
 
-void setup_clock() {
+ ANSELA6 = 0;
+ LATA6 = 1;
+ TRISA6 = 0;
+ RA6PPS = 0x26;
 
-    OSCCON1bits.NOSC = 6;
-
-    OSCFRQbits.HFFRQ = 0;
-
- OSCFRQ = 0x08;
+ U3ON = 1;
 }
 
-void setup_6502_interface() {
-
-
-
- RA3PPS = 0x3f;
-    ANSELAbits.ANSELA3 = 0;
-
-    TRISAbits.TRISA3 = 0;
- NCO1INC = (unsigned int)(2000000UL / 30.5175781);
- NCO1CLK = 0x01;
- NCO1PFM = 0;
- NCO1OUT = 1;
- NCO1EN = 1;
-
-
-
- ANSELE2 = 0;
- LATE2 = 0;
- TRISE2 = 0;
-
-
- ANSELE0 = 0;
- LATE0 = 0;
- TRISE0 = 0;
-
-
-
- ANSELD = 0x00;
- LATD = 0x00;
- TRISD = 0x00;
-
-
- ANSELB = 0x00;
- LATB = 0x00;
- TRISB = 0x00;
-
-
- ANSELC = 0x00;
- LATC = 0x00;
- TRISC = 0x00;
-
-
-
- ANSELA0 = 0;
- RA0PPS = 0x00;
- LATA0 = 1;
- TRISA0 = 0;
-
-
- ANSELA4 = 0;
- WPUA4 = 1;
- TRISA4 = 1;
-
-
- ANSELA2 = 0;
- RA2PPS = 0x00;
- LATA2 = 1;
- TRISA2 = 0;
-
-
- ANSELA5 = 0;
- RA5PPS = 0x00;
- LATA5 = 1;
- TRISA5 = 0;
-
+uint8_t UART3_IR_status(void) {
+    return PIR9 & 0x0f;
 }
 
-void setup_CLC() {
-
-
-
- CLCIN2PPS = 0x1f;
- CLCIN3PPS = 0x1e;
- CLCIN4PPS = 0x04;
- CLCIN6PPS = 0x1d;
- CLCIN7PPS = 0x1c;
-
-
- CLCSELECT = 0;
- CLCnCON = 0x00;
-
- CLCnSEL0 = 53;
- CLCnSEL1 = 4;
- CLCnSEL2 = 42;
- CLCnSEL3 = 55;
-
- CLCnGLS0 = 0x02;
- CLCnGLS1 = 0x08;
- CLCnGLS2 = 0x20;
- CLCnGLS3 = 0x80;
-
- CLCnPOL = 0x80;
- CLCnCON = 0x82;
-
-
- CLCSELECT = 1;
- CLCnCON = 0x00;
-
- CLCnSEL0 = 53;
- CLCnSEL1 = 4;
- CLCnSEL2 = 42;
- CLCnSEL3 = 55;
-
- CLCnGLS0 = 0x02;
- CLCnGLS1 = 0x04;
- CLCnGLS2 = 0x20;
- CLCnGLS3 = 0x80;
-
- CLCnPOL = 0x80;
- CLCnCON = 0x82;
-
-
- CLCSELECT = 2;
- CLCnCON = 0x00;
-
- CLCnSEL0 = 2;
- CLCnSEL1 = 3;
- CLCnSEL2 = 6;
- CLCnSEL3 = 7;
-
- CLCnGLS0 = 0x02;
- CLCnGLS1 = 0x04;
- CLCnGLS2 = 0x20;
- CLCnGLS3 = 0x80;
-
- CLCnPOL = 0x80;
- CLCnCON = 0x82;
-
-
- CLCSELECT = 4;
- CLCnCON = 0x00;
-
- CLCnSEL0 = 53;
- CLCnSEL1 = 127;
- CLCnSEL2 = 127;
- CLCnSEL3 = 127;
-
- CLCnGLS0 = 0x1;
- CLCnGLS1 = 0x0;
- CLCnGLS2 = 0x0;
- CLCnGLS3 = 0x0;
-
- CLCnPOL = 0x82;
- CLCnCON = 0x84;
-
-
-
-
- RA5PPS = 0x01;
- RA2PPS = 0x02;
- RA0PPS = 0x05;
-
-    printf("CLC setup finished.\r\n");
+uint8_t UART3_Read(void){
+    return U3RXB;
 }
 
-void setup_busmode_6502() {
-
- ANSELD = 0x00;
- WPUD = 0xff;
- TRISD = 0xff;
-
-
- ANSELB = 0x00;
- WPUB = 0xff;
- TRISB = 0xff;
-
-
- ANSELC = 0x00;
- WPUC = 0xff;
- TRISC = 0xff;
+void UART3_Write(uint8_t txData){
+    U3TXB = txData;
 }
 
-void setup_InterruptVectorTable() {
-
- IVTLOCK = 0x55;
- IVTLOCK = 0xAA;
- IVTLOCKbits.IVTLOCKED = 0x00;
-
-
- IVTBASE = 0x000008;
-
-
- IVTLOCK = 0x55;
- IVTLOCK = 0xAA;
- IVTLOCKbits.IVTLOCKED = 0x01;
+int getch(void){
+    while(!((!U3FIFObits.RXBE))) { }
+    return UART3_Read();
 }
 
-__attribute__((inline)) uint8_t sram_read(uint16_t addr) {
-    uint8_t val;
-    LATD = *(((uint8_t *)&addr)+1);
-    LATB = addr&0x0ff;
-    LATA5 = 0;
-    (WPUC = 0xff, TRISC = 0xff);
-    val = PORTC;
-    LATA5 = 1;
-    return val;
-}
-
-uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
-    uint32_t stopaddr = endaddr;
-    uint8_t val, wval;
-    (WPUD = 0x00, WPUB = 0x00, TRISD = 0x00, TRISB = 0x00);
- for(uint32_t i = startaddr; i < endaddr; i++) {
-        ab.w = (uint16_t) (startaddr+i);
-  LATD = ab.h;
-  LATB = ab.l;
-        LATA5 = 0;
-        (WPUC = 0xff, TRISC = 0xff);
-        val = PORTC;
-  LATA5 = 1;
-
-        wval = val^0x55;
-        (WPUC = 0x00, TRISC = 0x00);
-        LATC = wval;
-        LATA2 = 0;
-        _delay((unsigned long)((1)*(64000000UL/4000000.0)));
-  LATA2 = 1;
-
-        (WPUC = 0xff, TRISC = 0xff);
-        LATA5 = 0;
-        val = PORTC;
-  LATA5 = 1;
-
-        if (wval != val) {
-            printf("error at %04lx: written %02x, read %02x.\r\n", i,wval,val);
-            stopaddr = startaddr+i;
-            break;
-        }
-
-        wval ^= 0x55;
-        (WPUC = 0x00, TRISC = 0x00);
-        LATC = wval;
-        LATA2 = 0;
-        _delay((unsigned long)((1)*(64000000UL/4000000.0)));
-  LATA2 = 1;
-
- }
-    return stopaddr;
-}
-
-uint32_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size) {
-    printf("Transferring data (%luk bytes) to SRAM...\r\n",size/1024);
-
-    (WPUD = 0x00, WPUB = 0x00, TRISD = 0x00, TRISB = 0x00);
-    (WPUC = 0x00, TRISC = 0x00);
- for(uint32_t i = 0; i < size; i++) {
-  ab.w = (uint16_t) (startaddr + i);
-  LATD = ab.h;
-  LATB = ab.l;
-        LATC = arr[i];
-  LATA2 = 0;
-        _delay((unsigned long)((1)*(64000000UL/4000000.0)));
-  LATA2 = 1;
-    }
-
-
-    uint8_t val;
-    uint32_t errcount = 0;
-    (WPUC = 0xff, TRISC = 0xff);
- for(uint32_t i = 0; i < size; i++) {
-  ab.w = (uint16_t) (startaddr + i);
-  LATD = ab.h;
-  LATB = ab.l;
-  LATA5 = 0;
-        _delay((unsigned long)((1)*(64000000UL/4000000.0)));
-        val = PORTC;
-  LATA5 = 1;
-        if (arr[i] != val) {
-            errcount += 1;
-        }
-    }
-    if ( errcount == 0 ) {
-        printf("transfer and verify done.\r\n");
-    } else {
-        printf("%lu errors detected.\r\n", errcount);
-    }
-    return errcount;
-}
-
-
-void main(void) {
-
-
-
-    setup_clock();
-    setup_6502_interface();
-    setup_UART3();
-    printf("\e[H\e[2JHello, System initialized. UART3 enabled.\r\n");
-
-    uint32_t stopaddr = memory_check(0, 0x10000);
-    printf("stopaddr = %04lx.\r\n", stopaddr);
-    transfer_to_sram(rom_EhBASIC, 0xC000, 0x4000);
-
-    setup_busmode_6502();
- printf("\r\nMEZ6502RAM %2.3fMHz\r\n",NCO1INC * 30.5175781 / 1000000);
-
-    setup_CLC();
-    setup_InterruptVectorTable();
-
-
-    printf("\r\nStarting 65C02CPU.\r\n");
-
- GIE = 1;
- LATE0 = 1;
- LATE2 = 1;
-
- while(1){
-  while(CLC5OUT);
-  ab.h = PORTD;
-  ab.l = PORTB;
-
-  if ( !RA4 ) {
-
-   if( ab.w == 0xB019 || ab.w == (0xB000 +1) ) {
-
-                putch(PORTC);
-            }
-
-   G3POL = 1;
-   G3POL = 0;
-  } else {
-
-   (WPUC = 0x00, TRISC = 0x00);
-   if( ab.w == 0xB018 ) {
-    LATC = UART3_IR_status();
-            } else if ( ab.w == (0xB000) ) {
-                LATC = ((!U3FIFObits.RXBE) ? (1<<0) : 0 ) | ((U3FIFObits.TXBE && U3CON0bits.TXEN) ? (1<<1) : 0);
-   } else if(ab.w == 0xB019 || ab.w == (0xB000 +1) ) {
-
-
-    LATC = (uint8_t) getch();
-   } else {
-    LATC = 0xff;
-            }
-
-   while(RA3);
-
-   G3POL = 1;
-   (WPUC = 0xff, TRISC = 0xff);
-   G3POL = 0;
-  }
- }
+void putch(char txData) {
+    while(!((U3FIFObits.TXBE && U3CON0bits.TXEN))) { }
+    return UART3_Write(txData);
 }
