@@ -35,6 +35,9 @@
 
 #define UART_CREG   0xB018	// Control REG
 #define UART_DREG   0xB019	// Data REG
+// data register と status/command register のアドレスを
+// 入れ換えると、使用されていないはずなのに通信に不具合がでる。
+// min_mon または ehbasic に 0xb001 への参照ルーチンが残っているのか？
 #define ACIA_DAT    0xB000
 #define ACIA_STA    0xB001
 //#define ACIA_CMD    0xB002	//
