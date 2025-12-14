@@ -80,7 +80,7 @@
 extern const unsigned char rom_EhBASIC[];
 #define ROM rom_EhBASIC
 
-//Address Bus
+//Address Bus helper struct
 union {
 	unsigned int w; //16 bits Address
 	struct {

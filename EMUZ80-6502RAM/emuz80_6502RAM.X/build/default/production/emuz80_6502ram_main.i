@@ -29155,7 +29155,7 @@ void UART3_Write(uint8_t txData);
 int getch(void);
 void putch(char txData);
 # 29 "emuz80_6502ram_main.c" 2
-# 80 "emuz80_6502ram_main.c"
+# 52 "emuz80_6502ram_main.c"
 extern const unsigned char rom_EhBASIC[];
 
 
@@ -29167,7 +29167,7 @@ union {
   unsigned char h;
  };
 } ab;
-# 107 "emuz80_6502ram_main.c"
+# 79 "emuz80_6502ram_main.c"
 void __attribute__((picinterrupt(("irq(default),base(8)")))) Default_ISR(){}
 
 void setup_clock() {
@@ -29366,17 +29366,6 @@ void setup_InterruptVectorTable() {
  IVTLOCKbits.IVTLOCKED = 0x01;
 }
 
-__attribute__((inline)) uint8_t sram_read(uint16_t addr) {
-    uint8_t val;
-    LATD = *(((uint8_t *)&addr)+1);
-    LATB = addr&0x0ff;
-    LATA5 = 0;
-    (WPUC = 0xff, TRISC = 0xff);
-    val = PORTC;
-    LATA5 = 1;
-    return val;
-}
-
 uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
     uint32_t stopaddr = endaddr;
     uint8_t val, wval;
@@ -29403,7 +29392,7 @@ uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
   LATA5 = 1;
 
         if (wval != val) {
-            printf("error at %04lx: written %02x, read %02x.\r\n", i,wval,val);
+            printf("error at %04lx: written %02x, read %02x.\r\n", i+0xC000, rom_EhBASIC[i],val);
             stopaddr = startaddr+i;
             break;
         }
@@ -29492,7 +29481,7 @@ void main(void) {
 
   if ( !RA4 ) {
 
-   if( ab.w == 0xB019 || ab.w == (0xB000 +1) ) {
+   if( ab.w == 0xB019 || ab.w == 0xB000 ) {
 
                 putch(PORTC);
             }
@@ -29504,9 +29493,9 @@ void main(void) {
    (WPUC = 0x00, TRISC = 0x00);
    if( ab.w == 0xB018 ) {
     LATC = UART3_IR_status();
-            } else if ( ab.w == (0xB000) ) {
-                LATC = ((!U3FIFObits.RXBE) ? (1<<0) : 0 ) | ((U3FIFObits.TXBE && U3CON0bits.TXEN) ? (1<<1) : 0);
-   } else if(ab.w == 0xB019 || ab.w == (0xB000 +1) ) {
+            } else if ( ab.w == 0xB001 ) {
+                LATC = ((!U3FIFObits.RXBE) ? (1<<3) : 0 );
+   } else if(ab.w == 0xB019 || ab.w == 0xB000 ) {
 
 
     LATC = (uint8_t) getch();
