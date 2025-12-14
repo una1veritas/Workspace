@@ -1,0 +1,17 @@
+import sys
+
+n = int(sys.argv[1])
+print('going to find the {}th prime.'.format(n))
+
+primes = [True]*3000
+
+nth = 0
+for i in range(2,3000):
+    if primes[i] :
+        nth += 1
+        print('{}th prime is {}.'.format(nth,i))
+        c = 2
+        while c * i < 3000:
+            primes[i * c] = False
+            c += 1
+

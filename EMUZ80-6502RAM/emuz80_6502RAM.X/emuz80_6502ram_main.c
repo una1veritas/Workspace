@@ -35,10 +35,12 @@
 
 #define UART_CREG   0xB018	// Control REG
 #define UART_DREG   0xB019	// Data REG
-#define ACIA_DAT    0xB000	// R/W
-#define ACIA_STA    0xB001	// SR
-#define ACIA_CMD    0xB002	//
-#define ACIA_CTL    0xB003	//
+#define ACIA_DAT    0xB000
+#define ACIA_STA    0xB001
+//#define ACIA_CMD    0xB002	//
+//#define ACIA_CTL    0xB003	//
+#define ACIA_RDRE (1<<3)
+#define ACIA_TDRE (1<<5)
 /*
  * ACIA (6551) Status Reg.
  * bits
@@ -402,7 +404,7 @@ void main(void) {
 			if( ab.w == UART_CREG ) {		// PIR9
 				LATC = UART3_IR_status(); // PIR9	// Out Peripheral Request Register 9, PIR9
             } else if ( ab.w == ACIA_STA ) {
-                LATC = (UART3_IsRxReady() ? (1<<3) : 0 );
+                LATC = (UART3_IsRxReady() ? ACIA_RDRE : 0 ) | (UART3_IsTxReady() ? ACIA_TDRE : 0 );
 			} else if(ab.w == UART_DREG || ab.w == ACIA_DAT ) {	
                 // U3RXB
                 //while(!U3RXIF);
