@@ -3390,8 +3390,8 @@ Version 4.0 HI-TECH Software Intermediate Code
 [e $ ! != -> _wval `i -> _val `i 2415  ]
 {
 "303
-[; ;emuz80_6502ram_main.c: 303:             printf("error at %04lx: written %02x, read %02x.\r\n", i+0xC000, rom_EhBASIC[i],val);
-[e ( _printf , , , (. :s 2C + _i -> -> 49152 `ui `ul -> *U + &U _rom_EhBASIC * -> _i `ux -> -> # *U &U _rom_EhBASIC `ui `ux `i -> _val `i ]
+[; ;emuz80_6502ram_main.c: 303:             printf("error at %04x: written %02x, read %02x.\r\n", (uint16_t)(i+0xC000), rom_EhBASIC[i],val);
+[e ( _printf , , , (. :s 2C -> -> + _i -> -> 49152 `ui `ul `us `ui -> *U + &U _rom_EhBASIC * -> _i `ux -> -> # *U &U _rom_EhBASIC `ui `ux `i -> _val `i ]
 "304
 [; ;emuz80_6502ram_main.c: 304:             stopaddr = startaddr+i;
 [e = _stopaddr + _startaddr _i ]
@@ -3437,8 +3437,8 @@ Version 4.0 HI-TECH Software Intermediate Code
 [e :UE 2410 ]
 }
 "319
-[; ;emuz80_6502ram_main.c: 319: uint32_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size) {
-[v _transfer_to_sram `(ul ~T0 @X0 1 ef3`*Cuc`ul`ul ]
+[; ;emuz80_6502ram_main.c: 319: uint16_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size) {
+[v _transfer_to_sram `(us ~T0 @X0 1 ef3`*Cuc`ul`ul ]
 {
 [e :U _transfer_to_sram ]
 [v _arr `*Cuc ~T0 @X0 1 r1 ]
@@ -3446,8 +3446,8 @@ Version 4.0 HI-TECH Software Intermediate Code
 [v _size `ul ~T0 @X0 1 r3 ]
 [f ]
 "320
-[; ;emuz80_6502ram_main.c: 320:     printf("Transferring data (%luk bytes) to SRAM...\r\n",size/1024);
-[e ( _printf , (. :s 3C / _size -> -> -> 1024 `i `l `ul ]
+[; ;emuz80_6502ram_main.c: 320:     printf("Transferring data (%uk bytes) to SRAM...\r\n", (uint16_t) (size/1024) );
+[e ( _printf , (. :s 3C -> -> / _size -> -> -> 1024 `i `l `ul `us `ui ]
 "322
 [; ;emuz80_6502ram_main.c: 322:     (WPUD = 0x00, WPUB = 0x00, TRISD = 0x00, TRISB = 0x00);
 [e ; ; ; = _WPUD -> -> 0 `i `uc = _WPUB -> -> 0 `i `uc = _TRISD -> -> 0 `i `uc = _TRISB -> -> 0 `i `uc ]
@@ -3495,9 +3495,9 @@ Version 4.0 HI-TECH Software Intermediate Code
 [; ;emuz80_6502ram_main.c: 335:     uint8_t val;
 [v _val `uc ~T0 @X0 1 a ]
 "336
-[; ;emuz80_6502ram_main.c: 336:     uint32_t errcount = 0;
-[v _errcount `ul ~T0 @X0 1 a ]
-[e = _errcount -> -> -> 0 `i `l `ul ]
+[; ;emuz80_6502ram_main.c: 336:     uint16_t errcount = 0;
+[v _errcount `us ~T0 @X0 1 a ]
+[e = _errcount -> -> 0 `i `us ]
 "337
 [; ;emuz80_6502ram_main.c: 337:     (WPUC = 0xff, TRISC = 0xff);
 [e ; = _WPUC -> -> 255 `i `uc = _TRISC -> -> 255 `i `uc ]
@@ -3536,7 +3536,7 @@ Version 4.0 HI-TECH Software Intermediate Code
 {
 "347
 [; ;emuz80_6502ram_main.c: 347:             errcount += 1;
-[e =+ _errcount -> -> -> 1 `i `l `ul ]
+[e =+ _errcount -> -> 1 `i `us ]
 "348
 [; ;emuz80_6502ram_main.c: 348:         }
 }
@@ -3551,7 +3551,7 @@ Version 4.0 HI-TECH Software Intermediate Code
 }
 "350
 [; ;emuz80_6502ram_main.c: 350:     if ( errcount == 0 ) {
-[e $ ! == _errcount -> -> -> 0 `i `l `ul 2426  ]
+[e $ ! == -> _errcount `ui -> -> 0 `i `ui 2426  ]
 {
 "351
 [; ;emuz80_6502ram_main.c: 351:         printf("transfer and verify done.\r\n");
@@ -3563,8 +3563,8 @@ Version 4.0 HI-TECH Software Intermediate Code
 [e :U 2426 ]
 {
 "353
-[; ;emuz80_6502ram_main.c: 353:         printf("%lu errors detected.\r\n", errcount);
-[e ( _printf , (. :s 5C _errcount ]
+[; ;emuz80_6502ram_main.c: 353:         printf("%u errors detected.\r\n", errcount);
+[e ( _printf , (. :s 5C -> _errcount `ui ]
 "354
 [; ;emuz80_6502ram_main.c: 354:     }
 }
@@ -3752,10 +3752,10 @@ Version 4.0 HI-TECH Software Intermediate Code
 [p f _printf 12690452 ]
 [a 8C 13 10 77 69 90 54 53 48 50 82 65 77 32 37 50 46 51 102 77 72 122 13 10 0 ]
 [a 7C 115 116 111 112 97 100 100 114 32 61 32 37 48 52 108 120 46 13 10 0 ]
-[a 2C 101 114 114 111 114 32 97 116 32 37 48 52 108 120 58 32 119 114 105 116 116 101 110 32 37 48 50 120 44 32 114 101 97 100 32 37 48 50 120 46 13 10 0 ]
+[a 2C 101 114 114 111 114 32 97 116 32 37 48 52 120 58 32 119 114 105 116 116 101 110 32 37 48 50 120 44 32 114 101 97 100 32 37 48 50 120 46 13 10 0 ]
 [a 4C 116 114 97 110 115 102 101 114 32 97 110 100 32 118 101 114 105 102 121 32 100 111 110 101 46 13 10 0 ]
-[a 5C 37 108 117 32 101 114 114 111 114 115 32 100 101 116 101 99 116 101 100 46 13 10 0 ]
+[a 5C 37 117 32 101 114 114 111 114 115 32 100 101 116 101 99 116 101 100 46 13 10 0 ]
 [a 6C 27 91 72 27 91 50 74 72 101 108 108 111 44 32 83 121 115 116 101 109 32 105 110 105 116 105 97 108 105 122 101 100 46 32 85 65 82 84 51 32 101 110 97 98 108 101 100 46 13 10 0 ]
 [a 1C 67 76 67 32 115 101 116 117 112 32 102 105 110 105 115 104 101 100 46 13 10 0 ]
 [a 9C 13 10 83 116 97 114 116 105 110 103 32 54 53 67 48 50 67 80 85 46 13 10 0 ]
-[a 3C 84 114 97 110 115 102 101 114 114 105 110 103 32 100 97 116 97 32 40 37 108 117 107 32 98 121 116 101 115 41 32 116 111 32 83 82 65 77 46 46 46 13 10 0 ]
+[a 3C 84 114 97 110 115 102 101 114 114 105 110 103 32 100 97 116 97 32 40 37 117 107 32 98 121 116 101 115 41 32 116 111 32 83 82 65 77 46 46 46 13 10 0 ]

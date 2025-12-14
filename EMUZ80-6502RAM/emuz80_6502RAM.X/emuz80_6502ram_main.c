@@ -300,7 +300,7 @@ uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
 		LATA5 = 1;		// _OE=1
         
         if (wval != val) {
-            printf("error at %04lx: written %02x, read %02x.\r\n", i+ROM_TOP, rom[i],val);
+            printf("error at %04x: written %02x, read %02x.\r\n", (uint16_t)(i+ROM_TOP), rom[i],val);
             stopaddr = startaddr+i;
             break;
         }
@@ -316,8 +316,8 @@ uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
     return stopaddr;
 }
 
-uint32_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size) {
-    printf("Transferring data (%luk bytes) to SRAM...\r\n",size/1024);
+uint16_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size) {
+    printf("Transferring data (%uk bytes) to SRAM...\r\n", (uint16_t) (size/1024) );
     
     ADDRBUS_MODE_OUTPUT;
     DATABUS_MODE_OUTPUT;
@@ -333,7 +333,7 @@ uint32_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size
     
     // verify
     uint8_t val;
-    uint32_t errcount = 0;
+    uint16_t errcount = 0;
     DATABUS_MODE_INPUT;
 	for(uint32_t i = 0; i < size; i++) {
 		ab.w = (uint16_t) (startaddr + i);
@@ -350,7 +350,7 @@ uint32_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size
     if ( errcount == 0 ) {
         printf("transfer and verify done.\r\n");
     } else {
-        printf("%lu errors detected.\r\n", errcount);
+        printf("%u errors detected.\r\n", errcount);
     }
     return errcount;
 }
