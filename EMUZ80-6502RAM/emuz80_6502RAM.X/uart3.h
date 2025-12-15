@@ -22,7 +22,7 @@ void setup_UART3(void);
 uint8_t UART3_IR_status(void);
 uint8_t UART3_Read(void);
 void UART3_Write(uint8_t txData);
-int getch(void);
+int  getch(void);
 void putch(char txData);
 
 
