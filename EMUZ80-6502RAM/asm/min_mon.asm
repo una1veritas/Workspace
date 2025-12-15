@@ -33,9 +33,9 @@ ACIA_TXD_REG_EMPTY      = 2
 ; and wait for the user to select [C]old or [W]arm start. nothing else
 ; fits in less than 128 bytes
 
-;      .org  $FE00      ;*=    $FF80             ; pretend this is in a 1/8K ROM
+      .res  $FE00-*,0   ; Adjust program to end at $FFFF
+      .org  $FE00      ;*=    $FF80             ; pretend this is in a 1/8K ROM
 
-      .res $FEEF-*,0   ; Adjust program to end at $FFFF
 
 ; reset vector points here
 
@@ -140,6 +140,8 @@ LAB_mess
                               ; sign on string
 
 ; system vectors
+
+      .res  $FFFA-*,0   ; Adjust program to end at $FFFF
 
       .org  $FFFA             ; *=    $FFFA
 
