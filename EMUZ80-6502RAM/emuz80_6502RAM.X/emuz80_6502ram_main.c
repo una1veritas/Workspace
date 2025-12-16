@@ -64,8 +64,13 @@ union {
 	};
 } ab;
 
-#define DATABUS_MODE_INPUT      (WPUC = 0xff, TRISC = 0xff)
-#define DATABUS_MODE_OUTPUT     (WPUC = 0x00, TRISC = 0x00)
+#define LOW     0
+#define HIGH    1
+
+//#define DATABUS_MODE_INPUT      (WPUC = 0xff, TRISC = 0xff)
+//#define DATABUS_MODE_OUTPUT     (WPUC = 0x00, TRISC = 0x00)
+#define DATABUS_MODE_INPUT      (TRISC = 0xff)
+#define DATABUS_MODE_OUTPUT     (TRISC = 0x00)
 #define DATABUS_RD_REG          PORTC
 #define DATABUS_WR_REG          LATC
 // Set as input(default)
@@ -322,33 +327,35 @@ uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
     return stopaddr;
 }
 
-uint16_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size) {
-    printf("Transferring data (%uk bytes) to SRAM...\r\n", (uint16_t) (size/1024) );
+uint16_t transfer_to_sram(const uint8_t arr[], const uint16_t startaddr, const uint32_t size) {
+    uint16_t errcount = 0;
+    uint8_t val;
     
+    printf("Transfer data (%uk bytes) to SRAM.\r\n", (uint16_t) (size/1024) );
     ADDRBUS_MODE_OUTPUT;
     DATABUS_MODE_OUTPUT;
 	for(uint32_t i = 0; i < size; i++) {
-		ab.w = (uint16_t) (startaddr + i);
+		ab.w = startaddr + (uint16_t) i;
 		ADDRBUS_HIGH = ab.h;
 		ADDRBUS_LOW  = ab.l;
+        
+		SRAM_WE = LOW;		// /WE=0
         DATABUS_WR_REG = arr[i];
-		LATA2 = 0;		// /WE=0
-        __delay_us(1);
-		LATA2 = 1;		// /WE=1
+        SRAM_WE = HIGH;		// /WE=1
     }
     
     // verify
-    uint8_t val;
-    uint16_t errcount = 0;
     DATABUS_MODE_INPUT;
 	for(uint32_t i = 0; i < size; i++) {
-		ab.w = (uint16_t) (startaddr + i);
+		ab.w = startaddr + (uint16_t) i;
 		ADDRBUS_HIGH = ab.h;
 		ADDRBUS_LOW  = ab.l;
-		LATA5 = 0;		// _OE=0
-        __delay_us(1);
+
+		SRAM_OE = LOW;		// _OE=0
+        asm("nop");
         val = DATABUS_RD_REG;
-		LATA5 = 1;		// _OE=1
+		SRAM_OE = HIGH;		// _OE=1
+        
         if (arr[i] != val) {
             errcount += 1;
         }
@@ -356,8 +363,9 @@ uint16_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size
     if ( errcount == 0 ) {
         printf("transfer and verify done.\r\n");
     } else {
-        printf("%u errors detected.\r\n", errcount);
+        printf("%u missmatch detected.\r\n", errcount);
     }
+
     return errcount;
 }
 
