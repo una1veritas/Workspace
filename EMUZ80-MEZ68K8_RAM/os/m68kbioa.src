@@ -1,0 +1,43 @@
+*
+*	Global Code addresses
+*
+	xdef	.init		* at M68KBIOA.S ( this program )
+	xdef	.wboot		* at M68KBIOA.S ( this program )
+*	xref	.memtab		* memory region table at M68KBIOS.C
+*	xref	.biosinit	* at M68KBIOS.C
+*	xref	.cbios		* at M68KBIOS.C
+
+.init:
+	lea	entry,a0	* set bios call entory vector
+	move.l	a0,trap3
+
+*
+*	Set TPA Size
+**
+* struct mrt {
+*	uint16_t count;
+*	uint32_t tpalow;
+*	uint32_t tpalen;
+*} memtab;				/* Initialized in M68KBIOA.S	*/
+*
+
+	lea	.memtab,a0		*	a0 -> Memory region table
+	move.w	#1,(a0)+		*	1 region
+	move.l	#TPA_S,(a0)+		*	TPA starts at TPA_S
+	move.l	#TPA_SIZE,(a0)+		*	Ends where CP/M begins
+
+	move	#$2000,sr
+	jsr	.biosinit
+	clr.l	d0
+	rts
+*
+.wboot:	clr.l	d0
+	jmp	_ccp
+*
+entry:	move.l	d2,-(a7)
+	move.l	d1,-(a7)
+	move.l	d0,-(a7)
+	jsr	.cbios
+	add.l	#12,a7
+	rte
+

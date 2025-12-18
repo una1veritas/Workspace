@@ -1,0 +1,54 @@
+・CBIOS.BIN、CPM68K.BINの作成
+
+windowsターミナル（Windows PowerShell)でosフォルダの階層まで移動して、
+mkall_V1.3.batのバッチファイルを起動すると、自動的にCBIOS.BIN、CPM68K.BINを
+作成します。
+その他に、いくつかバッチファイルがありますが、内容は各自で読み解いてください。
+
+バッチファイルを実行するには、以下の環境を整える必要があります。
+
+1) Windows PowerShell（Windows10、11であれば問題なく使用できるはずです。）
+2) msdos player（http://takeda-toshiya.my.coocan.jp/msdos/）
+3) Microtech Researchのクロス開発環境(Ｃコンパイラ、アセンブラ)
+	（https://archive.org/details/mri-68-k-c-cross-compiler-toolchain）
+4) Macro Assembler AS V1.42（http://john.ccac.rwth-aachen.de:8000/as/）
+5) sed（https://sourceforge.net/projects/gnuwin32/files/sed/4.2.1/?sort=filename&sortdir=asc）
+6) mot2bin.exe bin2mot.exe（https://sourceforge.net/projects/bin2mot/files/）
+
+・Windows PowerShellに関して
+
+　①初期状態では、スクリプトの実行が許可されていないため、
+　　管理者権限でWindows PowerShellを起動し、以下の文を実行してください。
+
+　　PowerShell Set-ExecutionPolicy RemoteSigned
+
+　　上記コマンドの実行は最初の一度だけです。PC再起動後も実行する必要はありません。
+　　ノーマル権限のWindows PowerShellでスクリプトが使えるようになります。
+
+　②PowerShellスクリプトファイル（.ps1）
+　　webサイト（Githubなど）からダウンロードした際、スクリプトファイルが実行禁止モードに
+　　なっています。実行するたびに、PowerShellからワーニングが出て、指示を求められます。
+　　「一度だけ実行」を指示すれば実行されますが、毎回ワーニングが出るが嫌であれば、
+　　スクリプトファイル（.ps1）のプロパティを開いて、一番下にある「セキュリティ:」項目の
+　　「許可する」のチェック項目をチェックし、スクリプトの実行を許可しておきます。
+
+・msdos playerでMicrotech Researchのクロス開発環境を実行する
+
+msdos playerでクロス開発環境を実行するために、msdosにpathを通す必要があります。
+システム環境変数のmsdos pathにasm68k.exe,mcc68k.exe,nk68k.exeのpathを追加します。
+
+・Macro Assembler AS V1.42、mot2bin.exe bin2mot.exe
+
+windowsターミナル（Windows PowerShell)で実行できるように、システム環境変数のpathを
+設定します。
+
+・システム環境変数の設定
+
+Windowsターミナルを使っている方は知っているはずですが・・・
+1)「Windowsスタート」－＞「設定」を起動
+2)「システム」－＞「バージョン情報」
+3)「システムの詳細設定」をクリック
+4)「環境変数」をクリック
+
+「環境変数」のBOXが開くので、paht, msdos pathを編集する。
+

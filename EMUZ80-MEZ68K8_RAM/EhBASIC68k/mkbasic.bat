@@ -1,0 +1,3 @@
+asw -L BASIC68K.ASM
+p2bin BASIC68K.p
+cp BASIC68K.BIN ../DISKS/.

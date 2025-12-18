@@ -1,0 +1,15 @@
+*	Vector Addresses
+*
+trap3:	equ	$8c			*	Trap 3 vector
+*
+_ccp		equ	$4BC		* V1.3
+_bdos		equ	$4CA		* V1.3
+START_BIOS	equ	$6200		* V1.3
+
+cpm		equ	$400 		*	Lowest addr of CP/M 
+TPA_S		equ	$8000
+MEM_END		equ	$80000
+TPA_SIZE	equ	MEM_END-TPA_S
+
+	org	START_BIOS
+
