@@ -36,20 +36,29 @@
 #define UART_CREG   0xB018	// Control REG
 #define UART_DREG   0xB019	// Data REG
 
-#define ACIA_DAT    0xB000
+#ifdef ACIA6850
+#define ACIA_DAT    0xB00B
 #define ACIA_STA    0xB001
 //#define ACIA_CMD    0xB002	//
 //#define ACIA_CTL    0xB003	//
-#define ACIA_RDRE (1<<3)
+#define ACIA_RDRF (1<<3)
 #define ACIA_TDRE (1<<5)
-/*
- * ACIA (6551) Status Reg.
- * bits
- * 0 -- parity err, 1 -- framin err, 2 -- overrun,
- * 3 -- Receive Data Reg. full
- * 4 -- Transmit Data Reg. empty
- * 5, 6, 7 --- /DCD, /DSR, /IRQ
- */
+#else /* ACIA 6551 */
+#define ACIA_DAT    0xB098
+#define ACIA_STA    0xB099
+#define ACIA_CMD    0xB09A
+#define ACIA_CTL    0xB09B
+#define ACIA_CTL_STOPBIT (1<<7)
+#define ACIA_CTL_DWLEN   (3<<5)
+#define ACIA_CTL_RCVCLK  (1<<4)
+#define ACIA_CTL_BAUD    (0xf)
+#define ACIA_CTL_HWRST   (0x00)
+#define ACIA_STA_PERR    (1)
+#define ACIA_STA_FERR    (1<<1)
+#define ACIA_STA_OVRUN   (1<<2)
+#define ACIA_STA_RDRF    (1<<3)
+#define ACIA_STA_TDRE    (1<<4)
+#endif
 
 //6502 ROM equivalent, see end of this file
 extern const unsigned char rom_EhBASIC[];
@@ -423,7 +432,7 @@ void main(void) {
                         LATC = UART3_IR_status(); // PIR9	// Out Peripheral Request Register 9, PIR9
                         break;
                     case (ACIA_STA & 0xff): //{
-                        LATC = (UART3_IsRxReady() ? ACIA_RDRE : 0 ) | (UART3_IsTxReady() ? ACIA_TDRE : 0 );
+                        LATC = (UART3_IsRxReady() ? ACIA_STA_RDRF : 0 ) | (UART3_IsTxReady() ? ACIA_STA_TDRE : 0 );
                         break;
                     case (UART_DREG & 0xff):
                     case (ACIA_DAT & 0xff): //} else if(ab.w == UART_DREG /* || ab.w == ACIA_DAT */ ) {	
