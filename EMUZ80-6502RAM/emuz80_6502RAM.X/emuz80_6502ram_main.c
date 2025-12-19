@@ -35,30 +35,18 @@
 
 #define UART_CREG   0xB018	// Control REG
 #define UART_DREG   0xB019	// Data REG
-
-#ifdef ACIA6850
-#define ACIA_DAT    0xB00B
-#define ACIA_STA    0xB001
-//#define ACIA_CMD    0xB002	//
-//#define ACIA_CTL    0xB003	//
-#define ACIA_RDRF (1<<3)
-#define ACIA_TDRE (1<<5)
-#else /* ACIA 6551 */
-#define ACIA_DAT    0xB098
-#define ACIA_STA    0xB099
-#define ACIA_CMD    0xB09A
-#define ACIA_CTL    0xB09B
-#define ACIA_CTL_STOPBIT (1<<7)
-#define ACIA_CTL_DWLEN   (3<<5)
-#define ACIA_CTL_RCVCLK  (1<<4)
-#define ACIA_CTL_BAUD    (0xf)
-#define ACIA_CTL_HWRST   (0x00)
-#define ACIA_STA_PERR    (1)
-#define ACIA_STA_FERR    (1<<1)
-#define ACIA_STA_OVRUN   (1<<2)
-#define ACIA_STA_RDRF    (1<<3)
-#define ACIA_STA_TDRE    (1<<4)
-#endif
+#define ACIA_DAT    0xB000	// R/W
+#define ACIA_STA    0xB001	// SR
+#define ACIA_CMD    0xB002	//
+#define ACIA_CTL    0xB003	//
+/*
+ * ACIA (6551) Status Reg.
+ * bits
+ * 0 -- parity err, 1 -- framin err, 2 -- overrun,
+ * 3 -- Receive Data Reg. full
+ * 4 -- Transmit Data Reg. empty
+ * 5, 6, 7 --- /DCD, /DSR, /IRQ
+ */
 
 //6502 ROM equivalent, see end of this file
 extern const unsigned char rom_EhBASIC[];
@@ -73,13 +61,8 @@ union {
 	};
 } ab;
 
-#define LOW     0
-#define HIGH    1
-
-//#define DATABUS_MODE_INPUT      (WPUC = 0xff, TRISC = 0xff)
-//#define DATABUS_MODE_OUTPUT     (WPUC = 0x00, TRISC = 0x00)
-#define DATABUS_MODE_INPUT      (TRISC = 0xff)
-#define DATABUS_MODE_OUTPUT     (TRISC = 0x00)
+#define DATABUS_MODE_INPUT      (WPUC = 0xff, TRISC = 0xff)
+#define DATABUS_MODE_OUTPUT     (WPUC = 0x00, TRISC = 0x00)
 #define DATABUS_RD_REG          PORTC
 #define DATABUS_WR_REG          LATC
 // Set as input(default)
@@ -90,12 +73,7 @@ union {
 #define ADDRBUS_HIGH     LATD
 #define ADDRBUS_LOW      LATB
 
-#define W65C02_RW       RA4
-#define W65C02_RESET    LATE2
-#define W65C02_BE       LATE0
-#define W65C02_RDY      LATA0
-#define SRAM_WE         LATA2
-#define SRAM_OE         LATA5
+#define W65C02_RW  RA4
 
 // Never called, logically
 void __interrupt(irq(default),base(8)) Default_ISR(){}
@@ -260,6 +238,8 @@ void setup_CLC() {
 	RA5PPS = 0x01;		// CLC1OUT -> RA5 -> /OE
 	RA2PPS = 0x02;		// CLC2OUT -> RA2 -> /WE
 	RA0PPS = 0x05;		// CLC5OUT -> RA0 -> RDY
+
+    printf("CLC setup finished.\r\n");
 }
 
 void setup_busmode_6502() {
@@ -320,7 +300,7 @@ uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
 		LATA5 = 1;		// _OE=1
         
         if (wval != val) {
-            printf("error at %04x: written %02x, read %02x.\r\n", (uint16_t)(i+ROM_TOP), rom[i],val);
+            printf("error at %04lx: written %02x, read %02x.\r\n", i+ROM_TOP, rom[i],val);
             stopaddr = startaddr+i;
             break;
         }
@@ -336,35 +316,33 @@ uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
     return stopaddr;
 }
 
-uint16_t transfer_to_sram(const uint8_t arr[], const uint16_t startaddr, const uint32_t size) {
-    uint16_t errcount = 0;
-    uint8_t val;
+uint32_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size) {
+    printf("Transferring data (%luk bytes) to SRAM...\r\n",size/1024);
     
-    printf("Transfer data (%uk bytes) to SRAM.\r\n", (uint16_t) (size/1024) );
     ADDRBUS_MODE_OUTPUT;
     DATABUS_MODE_OUTPUT;
 	for(uint32_t i = 0; i < size; i++) {
-		ab.w = startaddr + (uint16_t) i;
+		ab.w = (uint16_t) (startaddr + i);
 		ADDRBUS_HIGH = ab.h;
 		ADDRBUS_LOW  = ab.l;
-        
-		SRAM_WE = LOW;		// /WE=0
         DATABUS_WR_REG = arr[i];
-        SRAM_WE = HIGH;		// /WE=1
+		LATA2 = 0;		// /WE=0
+        __delay_us(1);
+		LATA2 = 1;		// /WE=1
     }
     
     // verify
+    uint8_t val;
+    uint32_t errcount = 0;
     DATABUS_MODE_INPUT;
 	for(uint32_t i = 0; i < size; i++) {
-		ab.w = startaddr + (uint16_t) i;
+		ab.w = (uint16_t) (startaddr + i);
 		ADDRBUS_HIGH = ab.h;
 		ADDRBUS_LOW  = ab.l;
-
-		SRAM_OE = LOW;		// _OE=0
-        asm("nop");
+		LATA5 = 0;		// _OE=0
+        __delay_us(1);
         val = DATABUS_RD_REG;
-		SRAM_OE = HIGH;		// _OE=1
-        
+		LATA5 = 1;		// _OE=1
         if (arr[i] != val) {
             errcount += 1;
         }
@@ -372,9 +350,8 @@ uint16_t transfer_to_sram(const uint8_t arr[], const uint16_t startaddr, const u
     if ( errcount == 0 ) {
         printf("transfer and verify done.\r\n");
     } else {
-        printf("%u missmatch detected.\r\n", errcount);
+        printf("%lu errors detected.\r\n", errcount);
     }
-
     return errcount;
 }
 
@@ -386,17 +363,16 @@ void main(void) {
     setup_clock();
     setup_6502_interface(); // 	// BE (RE0) output pin LOW
     setup_UART3();
-    printf("\e[H\e[2JHello, This is EMUZ80-6502RAM. \r\nSystem initialized and UART3 enabled.\r\n");
+    printf("\e[H\e[2JHello, System initialized. UART3 enabled.\r\n");
 
     uint32_t stopaddr = memory_check(0, 0x10000);
-    printf("%0luk Bytes memory checked.\r\n", stopaddr/1024);
+    printf("stopaddr = %04lx.\r\n", stopaddr);
     transfer_to_sram(rom, ROM_TOP, ROM_SIZE);
     
     setup_busmode_6502();
 	printf("\r\nMEZ6502RAM %2.3fMHz\r\n",NCO1INC * 30.5175781 / 1000000);
 
     setup_CLC();
-    printf("CLC setup finished.\r\n");
     setup_InterruptVectorTable();
 	
 	// 6502 start
@@ -410,47 +386,36 @@ void main(void) {
 		while(CLC5OUT); //RDY == 1  // waiting for $Bxxx is on address bus.
 		ab.h = PORTD;				// Read address high
 		ab.l = PORTB;				// Read address low
-        if (ab.h == 0xB0) {
-        //6502 -> PIC IO write cycle
-            if ( !W65C02_RW ) /*(!RA4)*/ {
-                // 6502 Write then PIC Read and Out
-                switch (ab.l) {
-                    case (UART_DREG & 0xff):
-                    case (ACIA_DAT & 0xff):  // if( ab.w == UART_DREG /* || ab.w == ACIA_DAT */ ) {	// U3TXB
-                        //while(!U3TXIF);
-                        putch(PORTC); //U3TXB = PORTC;			// Write into	U3TXB
-                        break;
-                }
-                //Release RDY (D-FF reset)
-                G3POL = 1;
-                G3POL = 0;
-            } else {
-                //PIC In and Write then 6502 Read
-                DATABUS_MODE_OUTPUT; //TRISC = 0x00;				// Set Data Bus as output
-                switch(ab.l) {
-                    case (UART_CREG & 0xff): // if( ab.w == UART_CREG ) {		// PIR9
-                        LATC = UART3_IR_status(); // PIR9	// Out Peripheral Request Register 9, PIR9
-                        break;
-                    case (ACIA_STA & 0xff): //{
-                        LATC = (UART3_IsRxReady() ? ACIA_STA_RDRF : 0 ) | (UART3_IsTxReady() ? ACIA_STA_TDRE : 0 );
-                        break;
-                    case (UART_DREG & 0xff):
-                    case (ACIA_DAT & 0xff): //} else if(ab.w == UART_DREG /* || ab.w == ACIA_DAT */ ) {	
-                        // U3RXB
-                        //while(!U3RXIF);
-                        LATC = (uint8_t) getch(); //LATC = U3RXB;			// Out U3RXB
-                        break;
-                    default:
-                        LATC = 0xff;			// Invalid address
-                        break;
-                }
-                // Detect CLK falling edge
-                while(RA3);
-                //Release RDY (D-FF reset)
-                G3POL = 1;
-                DATABUS_MODE_INPUT; //TRISC = 0xff;				// Set Data Bus as input
-                G3POL = 0;
+		//6502 -> PIC IO write cycle
+		if ( !W65C02_RW ) /*(!RA4)*/ {
+            // 6502 Write then PIC Read and Out
+			if( ab.w == UART_DREG || ab.w == ACIA_DAT ) {	// U3TXB
+                //while(!U3TXIF);
+                putch(PORTC); //U3TXB = PORTC;			// Write into	U3TXB
             }
-        }
+			//Release RDY (D-FF reset)
+			G3POL = 1;
+			G3POL = 0;
+		} else {
+    		//PIC In and Write then 6502 Read
+			DATABUS_MODE_OUTPUT; //TRISC = 0x00;				// Set Data Bus as output
+			if( ab.w == UART_CREG ) {		// PIR9
+				LATC = UART3_IR_status(); // PIR9	// Out Peripheral Request Register 9, PIR9
+            } else if ( ab.w == ACIA_STA ) {
+                LATC = (UART3_IsRxReady() ? (1<<3) : 0 );
+			} else if(ab.w == UART_DREG || ab.w == ACIA_DAT ) {	
+                // U3RXB
+                //while(!U3RXIF);
+				LATC = (uint8_t) getch(); //LATC = U3RXB;			// Out U3RXB
+			} else {						// Empty
+				LATC = 0xff;			// Invalid address
+            }
+			// Detect CLK falling edge
+			while(RA3);
+			//Release RDY (D-FF reset)
+			G3POL = 1;
+			DATABUS_MODE_INPUT; //TRISC = 0xff;				// Set Data Bus as input
+			G3POL = 0;
+		}
 	}
 }
