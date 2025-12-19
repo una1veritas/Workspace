@@ -84,8 +84,8 @@ union {
 #define ADDRBUS_HIGH     LATD
 #define ADDRBUS_LOW      LATB
 
-#define W65C02_RW  RA4
-#define W65C02_RDY LATA0
+#define W65C02_RW   RA4
+#define W65C02_RDY  LATA0
 #define W65C02_RST  LATE2
 #define W65C02_BE   LATE0
 
@@ -308,7 +308,7 @@ uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
         DATABUS_MODE_OUTPUT;
         DATABUS_WR_REG = wval;
         LATA2 = 0;		// /WE=0
-        __delay_us(1);
+        asm("nop");
 		LATA2 = 1;		// /WE=1
         
         DATABUS_MODE_INPUT;
@@ -326,7 +326,7 @@ uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
         DATABUS_MODE_OUTPUT;
         DATABUS_WR_REG = wval;
         LATA2 = 0;		// /WE=0
-        __delay_us(1);
+        asm("nop");
 		LATA2 = 1;		// /WE=1
         
 	}
@@ -344,7 +344,7 @@ uint16_t transfer_to_sram(const uint8_t arr[], uint16_t startaddr, uint32_t size
 		ADDRBUS_LOW  = ab.l;
         DATABUS_WR_REG = arr[i];
 		LATA2 = 0;		// /WE=0
-        __delay_us(1);
+        asm("nop"); //__delay_us(1);
 		LATA2 = 1;		// /WE=1
     }
     
@@ -357,7 +357,7 @@ uint16_t transfer_to_sram(const uint8_t arr[], uint16_t startaddr, uint32_t size
 		ADDRBUS_HIGH = ab.h;
 		ADDRBUS_LOW  = ab.l;
 		LATA5 = 0;		// _OE=0
-        __delay_us(1);
+        asm("nop"); //__delay_us(1);
         val = DATABUS_RD_REG;
 		LATA5 = 1;		// _OE=1
         if (arr[i] != val) {
