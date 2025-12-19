@@ -35,10 +35,16 @@
 
 #define UART_CREG   0xB018	// Control REG
 #define UART_DREG   0xB019	// Data REG
-#define ACIA_DAT    0xB000	// R/W
-#define ACIA_STA    0xB001	// SR
-#define ACIA_CMD    0xB002	//
-#define ACIA_CTL    0xB003	//
+
+//6551 style
+#define ACIA_DAT    0xB098
+#define ACIA_STA    0xB099 
+#define ACIA_CMD    0xB09A
+#define ACIA_CTL    0xB09B
+
+#define ACIA_STA_PERR   (1<<0)
+#define ACIA_STA_RDRF   (1<<3)
+#define ACIA_STA_TDRE   (1<<4)
 /*
  * ACIA (6551) Status Reg.
  * bits
@@ -61,6 +67,11 @@ union {
 	};
 } ab;
 
+#define HIGH 1
+#define LOW  0
+#define INPUT   0xff
+#define OUTPUT  0x00
+
 #define DATABUS_MODE_INPUT      (WPUC = 0xff, TRISC = 0xff)
 #define DATABUS_MODE_OUTPUT     (WPUC = 0x00, TRISC = 0x00)
 #define DATABUS_RD_REG          PORTC
@@ -74,7 +85,13 @@ union {
 #define ADDRBUS_LOW      LATB
 
 #define W65C02_RW  RA4
+#define W65C02_RDY LATA0
+#define W65C02_RST  LATE2
+#define W65C02_BE   LATE0
 
+#define SRAM_WE    LATA2
+#define SRAM_OE    LATA5
+    
 // Never called, logically
 void __interrupt(irq(default),base(8)) Default_ISR(){}
 
@@ -316,7 +333,7 @@ uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
     return stopaddr;
 }
 
-uint32_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size) {
+uint16_t transfer_to_sram(const uint8_t arr[], uint16_t startaddr, uint32_t size) {
     printf("Transferring data (%luk bytes) to SRAM...\r\n",size/1024);
     
     ADDRBUS_MODE_OUTPUT;
@@ -333,7 +350,7 @@ uint32_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size
     
     // verify
     uint8_t val;
-    uint32_t errcount = 0;
+    uint16_t errcount = 0;
     DATABUS_MODE_INPUT;
 	for(uint32_t i = 0; i < size; i++) {
 		ab.w = (uint16_t) (startaddr + i);
@@ -350,7 +367,7 @@ uint32_t transfer_to_sram(const uint8_t arr[], uint32_t startaddr, uint32_t size
     if ( errcount == 0 ) {
         printf("transfer and verify done.\r\n");
     } else {
-        printf("%lu errors detected.\r\n", errcount);
+        printf("%u errors detected.\r\n", errcount);
     }
     return errcount;
 }
@@ -389,9 +406,11 @@ void main(void) {
 		//6502 -> PIC IO write cycle
 		if ( !W65C02_RW ) /*(!RA4)*/ {
             // 6502 Write then PIC Read and Out
-			if( ab.w == UART_DREG || ab.w == ACIA_DAT ) {	// U3TXB
+			if( ab.w == UART_DREG ) {	// U3TXB
                 //while(!U3TXIF);
                 putch(PORTC); //U3TXB = PORTC;			// Write into	U3TXB
+            } else if ( ab.w == ACIA_DAT ) {
+                putch(PORTC); 
             }
 			//Release RDY (D-FF reset)
 			G3POL = 1;
@@ -402,11 +421,13 @@ void main(void) {
 			if( ab.w == UART_CREG ) {		// PIR9
 				LATC = UART3_IR_status(); // PIR9	// Out Peripheral Request Register 9, PIR9
             } else if ( ab.w == ACIA_STA ) {
-                LATC = (UART3_IsRxReady() ? (1<<3) : 0 );
-			} else if(ab.w == UART_DREG || ab.w == ACIA_DAT ) {	
+                LATC = (UART3_IsRxReady() ? ACIA_STA_RDRF : 0 ) | (UART3_IsTxReady() ? ACIA_STA_TDRE : 0 );
+			} else if(ab.w == UART_DREG ) {	
                 // U3RXB
                 //while(!U3RXIF);
 				LATC = (uint8_t) getch(); //LATC = U3RXB;			// Out U3RXB
+            } else if ( ab.w == ACIA_DAT ) {
+                LATC = (uint8_t) getch();
 			} else {						// Empty
 				LATC = 0xff;			// Invalid address
             }
