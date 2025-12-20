@@ -81,23 +81,31 @@ LAB_dowarm
 
 ; byte out to simulated ACIA
 
-ACIAout
-      ;STA   ACIAsimwr         ; save byte to simulated ACIA
+ACIAout                       ; put byte to simulated ACIA
+      PHA
+      LDA   #ACIA_TDRE
+ACIAout_wait
+      BIT   ACIAStatus
+      BEQ   ACIAout_wait
+
+      PLA
       STA   ACIAData
       RTS
 
 ; byte in from simulated ACIA
 
-ACIAin
-      ;LDA   ACIAsimrd         ; get byte from simulated ACIA
-      LDA   ACIAData
+ACIAin                        ; get byte from simulated ACIA
+      LDA   #ACIA_RDRF        ; set RDRF bit
+      BIT   ACIAStatus        ; perform AND with ACIA status bits
+      BEQ   LAB_nobyw         ; branch if the result is Zero
 
-      BEQ   LAB_nobyw         ; branch if no byte waiting
+      LDA   ACIAData          ; read Rx data register
 
       SEC                     ; flag byte received
       RTS
 
 LAB_nobyw
+      LDA   #$0               ; (seems 0 is the value when no byte received)
       CLC                     ; flag no byte received
 no_load                       ; empty load vector for EhBASIC
 no_save                       ; empty save vector for EhBASIC
