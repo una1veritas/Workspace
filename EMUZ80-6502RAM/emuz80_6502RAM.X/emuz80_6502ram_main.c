@@ -56,10 +56,10 @@
 #define ROM_SIZE        0x4000  //0x0120 //0x4000		// 16K bytes
 
 //6502 ROM equivalent, see end of this file
-extern const unsigned char rom_EhBASIC[];
+//extern const unsigned char rom_EhBASIC[];
 extern const unsigned char rom_ehbasic_acia[];
 //extern const unsigned char rom_wozmon[];
-#define rom rom_ehbasic_acia
+#define ROM rom_ehbasic_acia
 //rom_EhBASIC
 
 //Address Bus helper struct
@@ -321,7 +321,7 @@ uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
 		LATA5 = 1;		// _OE=1
         
         if (wval != val) {
-            printf("error at %04lx: written %02x, read %02x.\r\n", i+ROM_TOP, rom[i],val);
+            printf("error at %04x: written %02x, read %02x.\r\n", (uint16_t) (startaddr+i), wval,val);
             stopaddr = startaddr+i;
             break;
         }
@@ -388,7 +388,7 @@ void main(void) {
 
     uint32_t stopaddr = memory_check(0, 0x10000);
     printf("Read/write test stopped after %lu kbytes checked.\r\n", stopaddr/1024);
-    transfer_to_sram(rom, ROM_TOP, ROM_SIZE);
+    transfer_to_sram(ROM, ROM_TOP, ROM_SIZE);
     
     setup_busmode_6502();
 	printf("\r\nMEZ6502RAM %2.3fMHz\r\n",NCO1INC * 30.5175781 / 1000000);
@@ -415,7 +415,7 @@ void main(void) {
                     //while(!U3TXIF);
                     putch(PORTC); //U3TXB = PORTC;			// Write into	U3TXB
                 } else if ( ab.w == ACIA6551_DAT ) {
-                    putch(PORTC); 
+                    UART3_Write(PORTC); 
                 }
                 //Release RDY (D-FF reset)
                 G3POL = 1;
@@ -436,11 +436,7 @@ void main(void) {
                         LATC =  0;
                     }
                 } else if ( ab.w == ACIA6551_DAT ) {
-                    if ( UART3_IsRxReady() ) {
-                        LATC = UART3_Read(); //(uint8_t) getch(); //LATC = U3RXB;			// Out U3RXB
-                    } else {
-                        LATC =  0;
-                    }
+                    LATC = UART3_Read(); //(uint8_t) getch(); //LATC = U3RXB;			// Out U3RXB
                 } else {						// Empty
                     LATC = 0xff;			// Invalid address
                 }
