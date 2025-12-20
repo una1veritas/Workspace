@@ -35,10 +35,10 @@
 #define UART_DREG   0xB019	// Data REG
 
 //6551 style
-#define ACIA6551_CTL    0xB018
-#define ACIA6551_DAT    0xB019
-#define ACIA6551_STA    0xB02A
-#define ACIA6551_CMD    0xB02B
+#define ACIA6551_DAT    0xB000
+#define ACIA6551_STA    0xB001
+#define ACIA6551_CTL    0xB002
+#define ACIA6551_CMD    0xB003
 
 #define ACIA6551_STA_PERR   (1<<0)
 #define ACIA6551_STA_RDRF   (1<<3)
@@ -415,7 +415,7 @@ void main(void) {
                     //while(!U3TXIF);
                     putch(PORTC); //U3TXB = PORTC;			// Write into	U3TXB
                 } else if ( ab.w == ACIA6551_DAT ) {
-                    UART3_Write(PORTC); 
+                    putch(PORTC); //UART3_Write(PORTC); 
                 }
                 //Release RDY (D-FF reset)
                 G3POL = 1;
@@ -436,7 +436,12 @@ void main(void) {
                         LATC =  0;
                     }
                 } else if ( ab.w == ACIA6551_DAT ) {
-                    LATC = UART3_Read(); //(uint8_t) getch(); //LATC = U3RXB;			// Out U3RXB
+                    //LATC = UART3_Read(); //(uint8_t) getch(); //LATC = U3RXB;			// Out U3RXB
+                    if ( UART3_IsRxReady() ) {
+                        LATC = UART3_Read(); //(uint8_t) getch(); //LATC = U3RXB;			// Out U3RXB
+                    } else {
+                        LATC =  0;
+                    }
                 } else {						// Empty
                     LATC = 0xff;			// Invalid address
                 }

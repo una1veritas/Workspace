@@ -7999,7 +7999,7 @@ StrTab
 EndTab
 
 LAB_MSZM
-      .byte $0D,$0A,"Memory size ",$00
+      .byte $0D,$0A,"Memory size (or return)",$00
 
 LAB_SMSG
       .byte " Bytes free",$0D,$0A,$0A

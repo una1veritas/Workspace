@@ -1,18 +1,13 @@
 # Adjust the run address to match the .org in the source code
-all: ehbasic.bin basic2.bin wozmon.bin
+
+ehbasic: basic.asm min_mon.asm
+	ca65 -g -l min_mon.lst --feature labels_without_colons -o ehbasic.o min_mon.asm
+	ld65 -C ~/share/cc65/cfg/none.cfg -vm -m ehbasic.map -o ehbasic.bin ehbasic.o
+	srec_cat ehbasic.bin -binary -o rom_ehbasic.c -C-Array rom_ehbasic
 
 ehbasic.mon: ehbasic.bin
 	bintomon -v -l 0xc000 ehbasic.bin > ehbasic.mon
 
-ehbasic.bin: ehbasic.o
-	cl65 -C none.cfg -m ehbasic.map -o ehbasic.bin ./ehbasic.o
-	ld65 -C ~/share/cc65/cfg/none.cfg -vm -m ehbasic.map -o ehbasic.bin ehbasic.o
-
-ehbasic.o: basic.asm min_mon.asm
-	ca65 -g -l min_mon.lst --feature labels_without_colons -o ehbasic.o min_mon.asm
-
-rom_ehbasic.c: ehbasic.bin
-	srec_cat ehbasic.bin -binary -o rom_ehbasic.c -C-Array rom_ehbasic
 
 basic2.o: basic2.asm mos.asm
 	ca65 -g -l basic2.lst --feature labels_without_colons -o basic2.o basic2.asm
