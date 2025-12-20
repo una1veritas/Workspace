@@ -16,13 +16,13 @@ NMI_vec     = IRQ_vec+$0A     ; NMI code vector
 
 IN              = $0200         ;  Input buffer to $027F
 
-ACIA            = $B000         ; 6850 ACIA
-ACIAControl     = ACIA+0
-ACIAStatus      = ACIA+0
-ACIAData        = ACIA+1
-
-ACIA_RXD_REG_FULL       = 1
-ACIA_TXD_REG_EMPTY      = 2
+ACIA            = $B098         ; 6850 ACIA
+ACIAData        = ACIA+0
+ACIAStatus      = ACIA+1
+ACIAControl     = ACIA+2
+ACIACommand     = ACIA+3
+ACIA_RDRF       = $8
+ACIA_TDRE       = $10
 
 ;IO_AREA     = $B000           ; set I/O area for this monitor
 
