@@ -29,7 +29,7 @@
 
 #define _XTAL_FREQ 64000000UL
 
-#define CLK_6502_FREQ   2000000UL	// 6502 clock frequency(Max 16MHz) 1MHz=1000000UL
+#define CLK_6502_FREQ   4000000UL	// 6502 clock frequency(Max 16MHz) 1MHz=1000000UL
 #define ROM_TOP         0xC000		// ROM TOP Address
 #define ROM_SIZE        0x4000		// 16K bytes
 

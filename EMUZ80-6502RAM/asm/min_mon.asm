@@ -16,7 +16,7 @@ NMI_vec     = IRQ_vec+$0A     ; NMI code vector
 
 IN              = $0200         ;  Input buffer to $027F
 
-ACIA            = $B098         ; 6850 ACIA
+ACIA            = $B098         ; 6551 ACIA
 ACIAData        = ACIA+0
 ACIAStatus      = ACIA+1
 ACIAControl     = ACIA+2

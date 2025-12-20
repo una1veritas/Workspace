@@ -1,7 +1,7 @@
 # Adjust the run address to match the .org in the source code
 all: ehbasic
 
-ehbasic: ehbasic.bin rom_ehbasic.c
+ehbasic: ehbasic.bin rom.c
 
 ehbasic.mon: ehbasic.bin
 	bintomon -v -l 0xc000 ehbasic.bin > ehbasic.mon
@@ -11,8 +11,8 @@ ehbasic.bin: basic.asm min_mon.asm
 #	cl65 -C none.cfg -m ehbasic.map -o ehbasic.bin ./ehbasic.o
 	ld65 -C ~/share/cc65/cfg/none.cfg -vm -m ehbasic.map -o ehbasic.bin ehbasic.o
 
-rom_ehbasic.c: ehbasic.bin
-	srec_cat ehbasic.bin -binary -o rom_ehbasic.c -C-Array rom_ehbasic
+rom.c: ehbasic.bin
+	srec_cat ehbasic.bin -binary -o rom.c -C-Array rom_ehbasic
 
 basic2.o: basic2.asm mos.asm
 	ca65 -g -l basic2.lst --feature labels_without_colons -o basic2.o basic2.asm
@@ -30,6 +30,6 @@ wozmon.o: wozmon.asm
 	ca65 -g -l wozmon.lst --feature labels_without_colons -o wozmon.o wozmon.asm
 
 clean:
-	$(RM) *.o *.lst *.map *.bin *.run *.mon *.c1p rom_*.c
+	$(RM) *.o *.lst *.map *.bin *.run *.mon *.c1p rom*.c
 
 distclean: clean
