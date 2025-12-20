@@ -415,7 +415,8 @@ void main(void) {
                     //while(!U3TXIF);
                     putch(PORTC); //U3TXB = PORTC;			// Write into	U3TXB
                 } else if ( ab.w == ACIA6551_DAT ) {
-                    putch(PORTC); //UART3_Write(PORTC); 
+                    //putch(PORTC); 
+                    UART3_Write(PORTC); 
                 }
                 //Release RDY (D-FF reset)
                 G3POL = 1;

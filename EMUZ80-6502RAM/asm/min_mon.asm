@@ -16,7 +16,6 @@ NMI_vec     = IRQ_vec+$0A     ; NMI code vector
 
 IN              = $0200         ;  Input buffer to $027F
 
-
 ACIA            = $B000         ; 6551 ACIA
 ACIAData        = ACIA+0
 ACIAStatus      = ACIA+1
@@ -84,6 +83,14 @@ LAB_dowarm
 
 ACIAout
       ;STA   ACIAsimwr         ; save byte to simulated ACIA
+
+      PHA
+      LDA   #ACIA_TDRE
+Wait_ACIA_TXReady:
+      BIT   ACIAStatus
+      BEQ   Wait_ACIA_TXReady
+
+      PLA
       STA   ACIAData
       RTS
 
