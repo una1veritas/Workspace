@@ -101,7 +101,7 @@ ACIAin                        ; get byte from simulated ACIA
 
       LDA   ACIAData          ; read Rx data register
 
-      SEC                     ; flag byte received
+      SEC                     ; set carry as byte received flag
       RTS
 
 LAB_nobyw

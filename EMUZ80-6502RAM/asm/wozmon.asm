@@ -18,10 +18,11 @@ MODE            = $2B           ;  $00=XAM, $7F=STOR, $AE=BLOCK XAM
 
 IN              = $0200         ;  Input buffer to $027F
 
-ACIA            = $B000         ; 6850 ACIA
-ACIAControl     = ACIA+0
-ACIAStatus      = ACIA+0
-ACIAData        = ACIA+1
+ACIA            = $B098         ; 6551 ACIA
+ACIA_DATA       = ACIA         ; 6551 ACIA Data Register
+ACIA_STATUS     = ACIA+1         ; 6551 ACIA Status Register
+ACIA_CMD        = ACIA+2         ; 6551 ACIA Command Register
+ACIA_CTRL       = ACIA+3         ; 6551 ACIA Control Register
 
                .org $fee0   ;$C000
 

@@ -26,15 +26,15 @@ MODE            = $2B           ; $00=XAM, $7F=STOR, $AE=BLOCK XAM
 ; Other Variables
 
 IN              = $0200         ; Input buffer to $027F
-DATA            = $C300         ; 6551 ACIA Data Register
-STATUS          = $C301         ; 6551 ACIA Status Register
-CMD             = $C302         ; 6551 ACIA Command Register
-CTRL            = $C303         ; 6551 ACIA Control Register
+DATA            = $B098         ; 6551 ACIA Data Register
+STATUS          = $B099         ; 6551 ACIA Status Register
+CMD             = $B09A         ; 6551 ACIA Command Register
+CTRL            = $B09B         ; 6551 ACIA Control Register
 
 
 ; Two possible addressing options - select one
-               .org $7F00       ; In the 32K RAM area at 7F00-7FFF
-;              .org $A000       ; In the EEPROM on the multi I/O board at A000-A0FF
+;               .org $7F00       ; In the 32K RAM area at 7F00-7FFF
+               .org $A000       ; In the EEPROM on the multi I/O board at A000-A0FF
 
                .export RESET
 
@@ -58,10 +58,10 @@ GETLINE:        LDA #$8D        ; CR.
 BACKSPACE:      DEY             ; Back up text index.
                 BMI GETLINE     ; Beyond start of line, reinitialize.
 NEXTCHAR:       LDA STATUS      ; Key ready?
-                AND #$08
+                AND #$08        ; RDRF
                 BEQ NEXTCHAR    ; Loop until ready.
                 LDA DATA        ; Load character.
-                ORA #$80        ; Set B7.
+                ORA #$80        ; Set Bit 7.
                 STA IN,Y        ; Add to text buffer.
                 JSR ECHO        ; Display character.
                 CMP #$8D        ; CR?
@@ -163,7 +163,7 @@ ECHO:           PHA
                 AND #$7F
                 STA DATA
 POLL:           LDA STATUS
-                AND #$10
+                AND #$10        ; TDRE
                 BEQ POLL        ; No, wait for display.
                 PLA
                 RTS             ; Return.
