@@ -14,7 +14,7 @@ extern "C" {
 
 #include <stdint.h>
 
-#define UART3_IsRxReady() (!U3FIFObits.RXBE)
+#define UART3_IsRxReady() (! U3FIFObits.RXBE)
 #define UART3_IsTxReady() (U3FIFObits.TXBE && U3CON0bits.TXEN)
 #define UART3_IsTxDone()  (U3ERRIRbits.TXMTIF)
 

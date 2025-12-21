@@ -37,21 +37,27 @@
 //6551 style
 #define ACIA_DAT    0xB098
 #define ACIA_STA    0xB099 
-#define ACIA_CMD    0xB09A
-#define ACIA_CTL    0xB09B
+//#define ACIA_CMD    0xB09A
+//#define ACIA_CTL    0xB09B
 
 #define ACIA_STA_PERR   (1<<0)
+#define ACIA_STA_FERR   (1<<1)
+#define ACIA_STA_OVRUN  (1<<2)
 #define ACIA_STA_RDRF   (1<<3)
 #define ACIA_STA_TDRE   (1<<4)
 /*
  * ACIA (6551) Status Reg.
  * bits
- * 0 -- parity err, 1 -- framin err, 2 -- overrun,
+ * 0 -- parity err, 1 -- framing err, 2 -- overrun,
  * 3 -- Receive Data Reg. full
  * 4 -- Transmit Data Reg. empty
  * 5, 6, 7 --- /DCD, /DSR, /IRQ
  */
-
+//6850 style
+// CS0, CS1, /CS2, RS, R/W
+// xxx,RS=1,R/W -> Rx/Tx
+// xxx,RS=0,R/W -> Status/Control
+// from bit 0 to 7 ... RDRF, TDRE, /DTD, /CTS, FE, OVRN, /IRQ
 
 #define ROM_TOP         0xC000		// ROM TOP Address
 #define ROM_SIZE        0x4000		// 16K bytes
@@ -93,7 +99,7 @@ union {
 
 #define SRAM_WE    LATA2
 #define SRAM_OE    LATA5
-    
+
 // Never called, logically
 void __interrupt(irq(default),base(8)) Default_ISR(){}
 
@@ -336,7 +342,7 @@ uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
 }
 
 uint16_t transfer_to_sram(const uint8_t arr[], uint16_t startaddr, uint32_t size) {
-    printf("Transferring data (%luk bytes) to SRAM...\r\n",size/1024);
+    printf("Transferring %luk bytes data to SRAM...\r\n",size/1024);
     
     ADDRBUS_MODE_OUTPUT;
     DATABUS_MODE_OUTPUT;
@@ -385,7 +391,7 @@ void main(void) {
     printf("\e[H\e[2JHello, System initialized. UART3 enabled.\r\n");
 
     uint32_t stopaddr = memory_check(0, 0x10000);
-    printf("stopaddr = %04lx.\r\n", stopaddr);
+    printf("read/write check... %luk bytes succeeded.\r\n", stopaddr/1024);
     transfer_to_sram(ROM, ROM_TOP, ROM_SIZE);
     
     setup_busmode_6502();

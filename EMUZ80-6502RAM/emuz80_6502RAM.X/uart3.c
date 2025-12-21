@@ -24,7 +24,9 @@ void setup_UART3() {
 }
 
 uint8_t UART3_IR_status(void) {
-    return PIR9 & 0x0f;
+    // from bit 0 to 3 ... U3RXIF, U3TXIF, U3EIF (framing err), U3IF, 
+    // bit 5 ... CLC4IF
+    return PIR9;
 }
 
 uint8_t UART3_Read(void){

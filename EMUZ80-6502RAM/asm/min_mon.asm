@@ -16,15 +16,15 @@ NMI_vec     = IRQ_vec+$0A     ; NMI code vector
 
 IN              = $0200         ;  Input buffer to $027F
 
+;IO_AREA     = $B000           ; set I/O area for this monitor
+
 ACIA            = $B098         ; 6551 ACIA
 ACIAData        = ACIA+0
 ACIAStatus      = ACIA+1
-ACIAControl     = ACIA+2
-ACIACommand     = ACIA+3
+; ACIACommand     = ACIA+2
+; ACIAControl     = ACIA+3
 ACIA_RDRF       = $8
 ACIA_TDRE       = $10
-
-;IO_AREA     = $B000           ; set I/O area for this monitor
 
 ;ACIAsimwr   = IO_AREA         ; IO_AREA+$01    ; simulated ACIA write port
 ;ACIAsimrd   = IO_AREA         ; IO_AREA+$04    ; simulated ACIA read port
@@ -79,25 +79,25 @@ LAB_nokey
 LAB_dowarm
       JMP   LAB_WARM          ; do EhBASIC warm start
 
-; byte out to simulated ACIA
+; byte out, waits TDRE
 
 ACIAout                       ; put byte to simulated ACIA
       PHA
-      LDA   #ACIA_TDRE
+      LDA   #ACIA_TDRE        ; TDRE bit mask
 ACIAout_wait
-      BIT   ACIAStatus
-      BEQ   ACIAout_wait
+      BIT   ACIAStatus        ; AND A
+      BEQ   ACIAout_wait      ; if Zero (TDRE not set) then go to wait loop
 
       PLA
       STA   ACIAData
       RTS
 
-; byte in from simulated ACIA
+; byte in, non-blocking
 
 ACIAin                        ; get byte from simulated ACIA
-      LDA   #ACIA_RDRF        ; set RDRF bit
+      LDA   #ACIA_RDRF        ; set RDRF bit mask
       BIT   ACIAStatus        ; perform AND with ACIA status bits
-      BEQ   LAB_nobyw         ; branch if the result is Zero
+      BEQ   LAB_nobyw         ; branch if Zero (RDRF is not set)
 
       LDA   ACIAData          ; read Rx data register
 
