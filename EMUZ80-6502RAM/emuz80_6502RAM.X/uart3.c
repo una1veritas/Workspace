@@ -4,8 +4,27 @@
 #include "uart3.h"
 
 void setup_UART3() {
+    //6551 Speed setting x 8
+    static uint16_t baud[] = {
+        0, // 16 x External CLOCK
+        0, // 120
+        0, // 300
+        0, // 600
+        0, // 1200
+        0, // 2400
+        0, // 4800
+        416, // 9600
+        277, // 14400
+        207, // 19200
+        138, // 28800
+        103, // 38400
+        68, // 57600
+        51, // 76800
+        34, // 115200
+        25, // 153600
+    };
     // UART3 initialize
-	U3BRG = 68; // 19200  //416;	// Console Serial Baud rate 9600bps @ 64MHz
+	U3BRG = baud[12]; // 57600 // 9600  //416;	// Console Serial Baud rate 9600bps @ 64MHz
 	U3RXEN = 1;		// Receiver enable
 	U3TXEN = 1;		// Transmitter enable
 

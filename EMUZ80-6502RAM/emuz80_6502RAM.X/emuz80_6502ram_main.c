@@ -37,7 +37,7 @@
 //6551 style
 #define ACIA_DAT    0xB098
 #define ACIA_STA    0xB099 
-//#define ACIA_CMD    0xB09A
+#define ACIA_CMD    0xB09A
 //#define ACIA_CTL    0xB09B
 
 #define ACIA_STA_PERR   (1<<0)
