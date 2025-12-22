@@ -16,15 +16,15 @@ NMI_vec     = IRQ_vec+$0A     ; NMI code vector
 
 IN              = $0200         ;  Input buffer to $027F
 
-ACIA            = $B000         ; 6551 ACIA
+;IO_AREA     = $B000           ; set I/O area for this monitor
+
+ACIA            = $B098         ; 6551 ACIA
 ACIAData        = ACIA+0
 ACIAStatus      = ACIA+1
-ACIAControl     = ACIA+2
-ACIACommand     = ACIA+3
+; ACIACommand     = ACIA+2
+; ACIAControl     = ACIA+3
 ACIA_RDRF       = $8
 ACIA_TDRE       = $10
-
-;IO_AREA     = $B000           ; set I/O area for this monitor
 
 ;ACIAsimwr   = IO_AREA         ; IO_AREA+$01    ; simulated ACIA write port
 ;ACIAsimrd   = IO_AREA         ; IO_AREA+$04    ; simulated ACIA read port
@@ -33,8 +33,8 @@ ACIA_TDRE       = $10
 ; and wait for the user to select [C]old or [W]arm start. nothing else
 ; fits in less than 128 bytes
 
-      .res  $FE00-*,0   ; Adjust program to end at $FFFF
-      .org  $FE00      ;*=    $FF80             ; pretend this is in a 1/8K ROM
+      .res  $EA00-*,0  ; monitor from $F0000
+      .org  $EA00      ;*=    $FF80             ; pretend this is in a 1/8K ROM
 
 
 ; reset vector points here
@@ -79,33 +79,33 @@ LAB_nokey
 LAB_dowarm
       JMP   LAB_WARM          ; do EhBASIC warm start
 
-; byte out to simulated ACIA
+; byte out, waits TDRE
 
-ACIAout
-      ;STA   ACIAsimwr         ; save byte to simulated ACIA
-
+ACIAout                       ; put byte to simulated ACIA
       PHA
-      LDA   #ACIA_TDRE
-Wait_ACIA_TXReady:
-      BIT   ACIAStatus
-      BEQ   Wait_ACIA_TXReady
+      LDA   #ACIA_TDRE        ; TDRE bit mask
+ACIAout_wait
+      BIT   ACIAStatus        ; AND A
+      BEQ   ACIAout_wait      ; if Zero (TDRE not set) then go to wait loop
 
       PLA
       STA   ACIAData
       RTS
 
-; byte in from simulated ACIA
+; byte in, non-blocking
 
-ACIAin
-      ;LDA   ACIAsimrd         ; get byte from simulated ACIA
-      LDA   ACIAData
+ACIAin                        ; get byte from simulated ACIA
+      LDA   #ACIA_RDRF        ; set RDRF bit mask
+      BIT   ACIAStatus        ; perform AND with ACIA status bits
+      BEQ   LAB_nobyw         ; branch if Zero (RDRF is not set)
 
-      BEQ   LAB_nobyw         ; branch if no byte waiting
+      LDA   ACIAData          ; read Rx data register
 
-      SEC                     ; flag byte received
+      SEC                     ; set carry as byte received flag
       RTS
 
 LAB_nobyw
+      LDA   #$0               ; (seems 0 is the value when no byte received)
       CLC                     ; flag no byte received
 no_load                       ; empty load vector for EhBASIC
 no_save                       ; empty save vector for EhBASIC
@@ -149,8 +149,11 @@ LAB_mess
 
 ; system vectors
 
-      .res  $FFFA-*,0   ; Adjust program to end at $FFFF
+      .res  $FE00-*,0   ; Adjust program to end at $FFFF
 
+      .include "wozmon_ACIA6551.asm"
+
+      .res  $FFFA-*,0   ; Adjust program to end at $FFFF
       .org  $FFFA             ; *=    $FFFA
 
       .word NMI_vec           ; NMI vector

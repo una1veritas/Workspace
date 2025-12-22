@@ -18,11 +18,12 @@ MODE            = $2B           ;  $00=XAM, $7F=STOR, $AE=BLOCK XAM
 
 IN              = $0200         ;  Input buffer to $027F
 
-ACIA            = $B018         ; 6551 ACIA
-ACIAData        = ACIA+1
-ACIAStatus      = ACIA+2
-ACIAControl     = ACIA+0
-ACIACommand     = ACIA+3
+ACIA            = $B098         ; 6850 ACIA type I/O
+ACIA_DATA       = ACIA          ; 6551 ACIA Data Register
+ACIA_STAT       = ACIA+1        ; 6551 ACIA Status/Command Register
+
+ACIA_RDRF       = $01
+ACIA_TDRE       = $02
 
                .org $fee0   ;$C000
 
@@ -34,7 +35,7 @@ RESET:          CLD             ; Clear decimal arithmetic mode.
                 CLI
                 LDY #$7F
                 LDA #$15        ; Set ACIA to 8N1 and divide by 16 clock
-                STA ACIAControl
+                STA ACIA_CTRL
 
 NOTCR:          CMP #'_'+$80    ; "_"?
                 BEQ BACKSPACE   ; Yes.
@@ -49,11 +50,11 @@ GETLINE:        LDA #$8D        ; CR.
                 LDY #$01        ; Initialize text index.
 BACKSPACE:      DEY             ; Back up text index.
                 BMI GETLINE     ; Beyond start of line, reinitialize.
-NEXTCHAR:       LDA ACIAStatus  ; Key ready?
+NEXTCHAR:       LDA ACIA_STAT   ; Key ready?
                 AND #$01
                 CMP #$01  
                 BNE NEXTCHAR    ; Loop until ready.
-                LDA ACIAData    ; Load character
+                LDA ACIA_DATA    ; Load character
                 ORA #$80        ; B7 should be ‘1’.
                 STA IN,Y        ; Add to text buffer.
                 JSR ECHO        ; Display character.
@@ -153,14 +154,14 @@ PRHEX:          AND #$0F        ; Mask LSD for hex print.
                 BCC ECHO        ; Yes, output it.
                 ADC #$06        ; Add offset for letter.
 ECHO:           PHA
-ECHO1:          LDA ACIAStatus
+ECHO1:          LDA ACIA_STAT
                 AND #$02
                 CMP #$02
                 BNE ECHO1       ; No, wait for display.
                 PLA
                 PHA
                 AND #$7F        ; Clear B7
-                STA ACIAData    ; Output character.
+                STA ACIA_DATA   ; Output character.
                 CMP #$0D        ; CR?
                 BNE RET
                 LDA #$0A        ; If so, send LF
