@@ -23,12 +23,12 @@ extern "C" {
 #pragma config PR1WAY = ON		// PRLOCKED One-Way Set Enable bit (PRLOCKED bit can be cleared and set only once)
 #pragma config CSWEN = ON		// Clock Switch Enable bit (Writing to NOSC and NDIV is allowed)
 #pragma config FCMEN = ON		// Fail-Safe Clock Monitor Enable bit (Fail-Safe Clock Monitor enabled)
-//#ifndef _18F47Q43
-#pragma config JTAGEN = OFF
 #pragma config FCMEN = ON       // Fail-Safe Clock Monitor Enable bit (Fail-Safe Clock Monitor enabled)
+#ifndef _18F47Q43
+#pragma config JTAGEN = OFF
 #pragma config FCMENP = OFF
 #pragma config FCMENS = OFF
-//#endif
+#endif
 
 // CONFIG3
 #pragma config MCLRE = EXTMCLR	// MCLR Enable bit (If LVP = 0, MCLR pin is MCLR; If LVP = 1, RE3 pin function is MCLR )
@@ -69,16 +69,19 @@ extern "C" {
 #pragma config WRTSAF = OFF	 	// SAF Write protection bit (SAF not Write Protected)
 #pragma config WRTAPP = OFF	 	// Application Block write protection bit (Application Block not write protected)
 
+#ifndef _18F47Q43
 // CONFIG9
 #pragma config BOOTPINSEL = RC5 // CRC on boot output pin selection (CRC on boot output pin is RC5)
 #pragma config BPEN = OFF       // CRC on boot output pin enable bit (CRC on boot output pin disabled)
 #pragma config ODCON = OFF      // CRC on boot output pin open drain bit (Pin drives both high-going and low-going signals)
+#endif
 
 // CONFIG10
 #pragma config CP = OFF			// PFM and Data EEPROM Code Protection bit (PFM and Data EEPROM code protection disabled)
 // #pragma config statements should precede project file includes.
 // Use project enums instead of #define for ON and OFF.
 
+#ifndef _18F47Q43
 // CONFIG11
 #pragma config BOOTSCEN = OFF   // CRC on boot scan enable for boot area (CRC on boot will not include the boot area of program memory in its calculation)
 #pragma config BOOTCOE = HALT   // CRC on boot Continue on Error for boot areas bit (CRC on boot will stop device if error is detected in boot areas)
@@ -160,6 +163,7 @@ extern "C" {
 
 // CONFIG35
 #pragma config CRCERESL = hFF   // Non-Boot Sector Expected Result for CRC on boot bits 7-0 (Bits 7:0 of CRCERES are 0xFF)
+#endif
 
 #ifdef	__cplusplus
 }
