@@ -25,15 +25,16 @@ MODE            = $2B           ; $00=XAM, $7F=STOR, $AE=BLOCK XAM
 
 ; Other Variables
 
-IN              = $0200         ; Input buffer to $027F
-DATA            = $C300         ; 6551 ACIA Data Register
-STATUS          = $C301         ; 6551 ACIA Status Register
-CMD             = $C302         ; 6551 ACIA Command Register
-CTRL            = $C303         ; 6551 ACIA Control Register
+INBUF           = $0200         ; Input buffer to $027F
+
+DATA            = $B098         ; 6551 ACIA Data Register
+STATUS          = $B099         ; 6551 ACIA Status Register
+CMD             = $B09A         ; 6551 ACIA Command Register
+CTRL            = $B09B         ; 6551 ACIA Control Register
 
 
 ; Two possible addressing options - select one
-               .org $7F00       ; In the 32K RAM area at 7F00-7FFF
+               .org $FE00       ; In the 32K RAM area at 7F00-7FFF
 ;              .org $A000       ; In the EEPROM on the multi I/O board at A000-A0FF
 
                .export RESET
@@ -54,15 +55,17 @@ ESCAPE:         LDA #'\'+$80    ; "\".
                 JSR ECHO        ; Output it.
 GETLINE:        LDA #$8D        ; CR.
                 JSR ECHO        ; Output it.
+                LDA #$0A
+                JSR ECHO
                 LDY #$01        ; Initialize text index.
 BACKSPACE:      DEY             ; Back up text index.
                 BMI GETLINE     ; Beyond start of line, reinitialize.
 NEXTCHAR:       LDA STATUS      ; Key ready?
-                AND #$08
+                AND #$08        ; RDRF
                 BEQ NEXTCHAR    ; Loop until ready.
                 LDA DATA        ; Load character.
                 ORA #$80        ; Set B7.
-                STA IN,Y        ; Add to text buffer.
+                STA INBUF,Y     ; Add to text buffer.
                 JSR ECHO        ; Display character.
                 CMP #$8D        ; CR?
                 BNE NOTCR       ; No.
@@ -72,7 +75,7 @@ NEXTCHAR:       LDA STATUS      ; Key ready?
 SETSTOR:        ASL             ; Leaves $7B if setting STOR mode.
 SETMODE:        STA MODE        ; $00=XAM, $7B=STOR, $AE=BLOCK XAM.
 BLSKIP:         INY             ; Advance text index.
-NEXTITEM:       LDA IN,Y        ; Get character.
+NEXTITEM:       LDA INBUF,Y     ; Get character.
                 CMP #$8D        ; CR?
                 BEQ GETLINE     ; Yes, done this line.
                 CMP #'.'+$80    ; "."?
@@ -85,7 +88,7 @@ NEXTITEM:       LDA IN,Y        ; Get character.
                 STX L           ; $00->L.
                 STX H           ;  and H.
                 STY YSAV        ; Save Y for comparison.
-NEXTHEX:        LDA IN,Y        ; Get character for hex test.
+NEXTHEX:        LDA INBUF,Y        ; Get character for hex test.
                 EOR #$B0        ; Map digits to $0-9.
                 CMP #$0A        ; Digit?
                 BCC DIG         ; Yes.
@@ -125,6 +128,8 @@ SETADR:         LDA L-1,X       ; Copy hex data to
 NXTPRNT:        BNE PRDATA      ; NE means no address to print.
                 LDA #$8D        ; CR.
                 JSR ECHO        ; Output it.
+                LDA #$8A
+                JSR ECHO
                 LDA XAMH        ; ‘Examine index’ high-order byte.
                 JSR PRBYTE      ; Output it in hex format.
                 LDA XAML        ; Low-order ‘examine index’ byte.
@@ -163,7 +168,7 @@ ECHO:           PHA
                 AND #$7F
                 STA DATA
 POLL:           LDA STATUS
-                AND #$10
+                AND #$10        ; TDRE
                 BEQ POLL        ; No, wait for display.
                 PLA
                 RTS             ; Return.

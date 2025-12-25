@@ -26,11 +26,16 @@ basic2.bin: basic2.o
 rom_basic2: 
 	srec_cat basic2.bin -binary -o rom_basic2.c -C-Array rom_basic2 
 
+wozmon: wozmon.bin wozmon.c
+
 wozmon.bin: wozmon.o
 	cl65 -C none.cfg -m wozmon.map -o wozmon.bin wozmon.o
 
-wozmon.o: wozmon.asm
-	ca65 -g -l wozmon.lst --feature labels_without_colons -o wozmon.o wozmon.asm
+wozmon.o: wozmon_ACIA6551.asm
+	ca65 -g -l wozmon.lst --feature labels_without_colons -o wozmon.o wozmon_ACIA6551.asm
+
+wozmon.c: wozmon.bin
+	srec_cat wozmon.bin -binary -o rom.c -C-Array rom_wozmon_acia6551
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.run *.mon *.c1p rom*.c

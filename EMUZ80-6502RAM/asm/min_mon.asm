@@ -33,8 +33,8 @@ ACIA_TDRE       = $10
 ; and wait for the user to select [C]old or [W]arm start. nothing else
 ; fits in less than 128 bytes
 
-      .res  $FE00-*,0   ; Adjust program to end at $FFFF
-      .org  $FE00      ;*=    $FF80             ; pretend this is in a 1/8K ROM
+      .res  $EA00-*,0  ; monitor from $F0000
+      .org  $EA00      ;*=    $FF80             ; pretend this is in a 1/8K ROM
 
 
 ; reset vector points here
@@ -149,8 +149,11 @@ LAB_mess
 
 ; system vectors
 
-      .res  $FFFA-*,0   ; Adjust program to end at $FFFF
+      .res  $FE00-*,0   ; Adjust program to end at $FFFF
 
+      .include "wozmon_ACIA6551.asm"
+
+      .res  $FFFA-*,0   ; Adjust program to end at $FFFF
       .org  $FFFA             ; *=    $FFFA
 
       .word NMI_vec           ; NMI vector
