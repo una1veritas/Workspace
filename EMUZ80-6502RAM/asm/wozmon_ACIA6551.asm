@@ -45,7 +45,7 @@ RESET:          CLD             ; Clear decimal arithmetic mode.
                 STA CTRL        ; Initialize ACIA
                 LDA #$0B
                 STA CMD
-NOTCR:          CMP #'_'+$80    ; "_"?
+NOTCR:          CMP #$08+$80    ;'_'+$80    ; "_"?
                 BEQ BACKSPACE   ; Yes.
                 CMP #$9B        ; ESC?
                 BEQ ESCAPE      ; Yes.
