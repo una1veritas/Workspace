@@ -65,7 +65,7 @@ void main(void)
 	devio_init();
 	setup_sd();
 
-	printf("Board: %s\r\n", board_name);
+	printf("Board: %s\n\r", board_name);
 
     mem_init();
     if (disk_init() < 0) while (1);
@@ -73,7 +73,7 @@ void main(void)
 	GIE = 1;             // Global interrupt enable
 
 	selection = 1;		// default : unimon68k
-	printf("\r\nSelect(unimon68k = 1, basic68k = 2, CP/M-68K = 3) : ");
+	printf("\n\rSelect(unimon68k = 1, basic68k = 2, CP/M-68K = 3) : ");
 	while (1) {
 		c = (uint8_t)getch();  // Wait for input char
 		if ( c == '1' || c == '2' || c == '3' ) {
@@ -83,7 +83,7 @@ void main(void)
 		}
 		if ( c == 0x0d || c == 0x0a ) break;
 	}
-	printf("\r\n");
+	printf("\n\r");
 
 	c = chk_dsk();
 
@@ -102,7 +102,7 @@ void main(void)
 				while(1);
 			}
 			if ( open_dskimg() < 0 ) {
-		        printf("No boot disk.\r\n");
+		        printf("No boot disk.\n\r");
 				while(1);
 			}
 			setup_cpm();
@@ -118,7 +118,7 @@ void main(void)
     // Start MC68008
     //
 	printf("Use NCO1 %2.3fMHz\r\n",NCO1INC * 30.5175781 / 1000000);
-    printf("\r\n");
+    printf("\n\r");
 	
     start_M68K();
 	board_event_loop();
@@ -170,7 +170,7 @@ static int load_program(uint8_t *fname, uint32_t load_adr) {
 static int disk_init(void)
 {
     if (f_mount(&fs, "0://", 1) != FR_OK) {
-        printf("Failed to mount SD Card.\r\n");
+        printf("Failed to mount SD Card.\n\r");
         return -2;
     }
 
@@ -191,7 +191,7 @@ static int chk_dsk(void)
     // Select disk image folder
     //
     if (f_opendir(&fsdir, "/")  != FR_OK) {
-        printf("Failed to open SD Card.\r\n");
+        printf("Failed to open SD Card.\n\r");
 		while(1);
     }
 
@@ -200,7 +200,7 @@ static int chk_dsk(void)
 	while (f_readdir(&fsdir, &fileinfo) == FR_OK && fileinfo.fname[0] != 0) {
 		if (strcmp(fileinfo.fname, cpmdir) == 0) {
 			selection = CPM;
-			printf("Detect %s\r\n", fileinfo.fname);
+			printf("Detect %s\n\r", fileinfo.fname);
 			break;
 		}
 	}
@@ -222,7 +222,7 @@ static int open_dskimg(void) {
         char * const buf = (char *)tmp_buf[0];
         sprintf(buf, "%s/DRIVE%c.DSK", fileinfo.fname, drive_letter);
         if (f_open(&files[num_files], buf, FA_READ|FA_WRITE) == FR_OK) {
-        	printf("Image file %s/DRIVE%c.DSK is assigned to drive %c\r\n",
+        	printf("Image file %s/DRIVE%c.DSK is assigned to drive %c\n\r",
                    fileinfo.fname, drive_letter, drive_letter);
 			cpm_drives[drv].filep = &files[num_files];
 			if (cpm_drives[0].filep == NULL) return -4;
@@ -238,7 +238,7 @@ static void setup_cpm(void) {
 	int flg;
 
 	cpmio_init();
-	printf("\r\n");
+	printf("\n\r");
 
 	sprintf((char *)buf, "%s/%s", fileinfo.fname, cpm68k);
 	flg = load_program((uint8_t *)buf, CPM68K_OFF);

@@ -1,0 +1,100 @@
+;
+;	SuperMEZ80-CPM Trampoline at the zero page
+;
+;	Copyright (C) 2023 by Hanyazou
+;
+; Permission is hereby granted, free of charge, to any person
+; obtaining a copy of this software and associated documentation
+; files (the "Software"), to deal in the Software without
+; restriction, including without limitation the rights to use,
+; copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the
+; Software is furnished to do so, subject to the following
+; conditions:
+;
+; The above copyright notice and this permission notice shall be
+; included in all copies or substantial portions of the Software.
+;
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+; OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+; HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+; OTHER DEALINGS IN THE SOFTWARE.
+;
+	.include "supermez80_asm.inc"
+;
+;	start of zero page
+;
+;	Note: The condition bits are not affected by OUT, NOP, JP and JR instructions
+;
+	ORG	0		; reset vector
+CLEANUP_START:
+TGTINV_GATE:
+	OUT (MON_ENTER),A
+	JR EXIT
+RESTORE_SP:
+	LD SP,0000h		; restore original SP
+
+	DEFS	0008H - $, 0	; NOP
+	ORG	0008H		; RST 08H interrupt vector
+	OUT	(MON_CLEANUP),A
+	NOP
+	EI			; will be replaced by mon_cleanup()
+	RETI			; will be replaced by mon_cleanup()
+
+EXIT:
+	; Set the origial SP
+	LD	HL,(SAVED_SP)
+	LD	SP,RESTORE_SP+3
+	PUSH	HL
+
+	; update return address
+	INC	HL
+	INC	HL
+	LD	SP,HL
+	LD	HL,(SAVED_PC)
+	PUSH	HL
+
+	; restore registers
+	LD	SP,SAVED_IY
+	POP	IY
+	POP	IX
+	POP	HL
+	POP	DE
+	POP	BC
+	POP	AF
+	JR	RESTORE_SP
+
+;
+;	work area
+;	the structure of this area must be identical to struct trampoline_work_s in monitor.c
+SAVED_IY:
+	DEFW	0
+SAVED_IX:
+	DEFW	0
+SAVED_HL:
+	DEFW	0
+SAVED_DE:
+	DEFW	0
+SAVED_BC:
+	DEFW	0
+SAVED_AF:
+	DEFW	0
+INT_STACK:
+FAKE_RET_ADDR:
+	DEFW	RESTORE_SP
+SAVED_PC:
+	DEFW	0
+SAVED_SP:
+	DEFW	0
+CLEANUP_CODE_LOCATION:
+	DEFW	0
+NMI_FLAG:
+	DEFB	0
+WORK_RFU:
+	DEFB	0
+
+	END

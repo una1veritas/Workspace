@@ -19,10 +19,9 @@
 #include "../../drivers/SDCard.h"
 #include "../../drivers/picregister.h"
 
-#include "../../drivers/SPI.h"
-
 #define SPI_PREFIX      SPI_SD
 #define SPI_HW_INST     SPI1
+#include "../../drivers/SPI.h"
 
 #define M68K_ADBUS		B
 #define M68K_ADR_H		D
@@ -65,8 +64,7 @@
 
 #define CMD_REQ CLC3OUT
 
-//#include "m68k8_cmn.c"
-#include "m68k8_cmn.h"
+#include "m68k8_cmn.c"
 
 static void reset_ioreq(void);
 void bus_master_operation(void);
@@ -235,7 +233,7 @@ void setup_sd(void) {
     static int retry;
     for (retry = 0; 1; retry++) {
         if (20 <= retry) {
-            printf("No SD Card?\r\n");
+            printf("No SD Card?\n\r");
             while(1);
         }
 //        if (SDCard_init(SPI_CLOCK_100KHZ, SPI_CLOCK_2MHZ, /* timeout */ 100) == SDCARD_SUCCESS)

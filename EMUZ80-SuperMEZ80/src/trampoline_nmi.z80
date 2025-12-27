@@ -1,0 +1,91 @@
+;
+;	SuperMEZ80-CPM Trampoline at the zero page
+;
+;	Copyright (C) 2023 by Hanyazou
+;
+; Permission is hereby granted, free of charge, to any person
+; obtaining a copy of this software and associated documentation
+; files (the "Software"), to deal in the Software without
+; restriction, including without limitation the rights to use,
+; copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the
+; Software is furnished to do so, subject to the following
+; conditions:
+;
+; The above copyright notice and this permission notice shall be
+; included in all copies or substantial portions of the Software.
+;
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+; OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+; HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+; OTHER DEALINGS IN THE SOFTWARE.
+;
+	.include "supermez80_asm.inc"
+;
+;	start of zero page
+;
+;	Note: The condition bits are not affected by OUT, NOP, JP and JR instructions
+;
+TGTINV_GATE	EQU	0000h	; reset vector
+
+;
+;	NMI interrupt vector
+;
+	ORG	0066H		; NMI interrupt vector
+	OUT	(MON_PREPARE_NMI),A
+	NOP
+	LD	(SAVED_SP),SP
+	LD	SP,INT_STACK
+	PUSH	AF
+	LD	A,1
+	LD	(NMI_FLAG),A
+	PUSH	BC
+	PUSH	DE
+	PUSH	HL
+	PUSH	IX
+	PUSH	IY
+
+	LD	SP,(SAVED_SP)	; Load original SP
+	POP	HL		; Save return address
+	LD	(SAVED_PC),HL
+
+	LD	HL,TGTINV_GATE
+	LD	(HL),0D3h	; OUT (MON_ENTER_NMI),A
+	INC	HL
+	LD	(HL),MON_ENTER_NMI
+	JP	TGTINV_GATE
+
+;
+;	work area
+;	the structure of this area must be identical to struct trampoline_work_s in monitor.c
+SAVED_IY:
+	DEFW	0
+SAVED_IX:
+	DEFW	0
+SAVED_HL:
+	DEFW	0
+SAVED_DE:
+	DEFW	0
+SAVED_BC:
+	DEFW	0
+SAVED_AF:
+	DEFW	0
+INT_STACK:
+FAKE_RET_ADDR:
+	DEFW	0
+SAVED_PC:
+	DEFW	0
+SAVED_SP:
+	DEFW	0
+CLEANUP_CODE_LOCATION:
+	DEFW	0
+NMI_FLAG:
+	DEFB	0
+WORK_RFU:
+	DEFB	0
+
+	END
