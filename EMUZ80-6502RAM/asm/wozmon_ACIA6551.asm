@@ -57,6 +57,8 @@ GETLINE:        LDA #$8D        ; CR.
                 JSR ECHO        ; Output it.
                 LDA #$0A
                 JSR ECHO
+                LDA #'*'+$80
+                JSR ECHO
                 LDY #$01        ; Initialize text index.
 BACKSPACE:      DEY             ; Back up text index.
                 BMI GETLINE     ; Beyond start of line, reinitialize.

@@ -23,7 +23,7 @@ void SYSTEM_Initialize(void)
     PIN_MANAGER_Initialize();
     NCO1_Initialize();
     UART3_Initialize();
-    //INTERRUPT_Initialize();
+    INTERRUPT_Initialize();
 }
 
 void CLOCK_Initialize(void)
@@ -177,11 +177,11 @@ void PIN_MANAGER_Initialize(void)
     TRISC5  = OUTPUT;
     WPUC5   = HIGH;
     
-	// 74LS373 C (LE) RE2
+	// ALE 74LS373 C (LE) RE2
 	LATE2   = HIGH;     // pass thru
 	TRISE2  = OUTPUT;	// Set as input
     
-	// 74LS373 /LAT_OE (/OC) RC3
+	// ALE_OE 74LS373 /LAT_OE (/OC) RC3
     LATC3   = HIGH;     // output disable
     TRISC3  = OUTPUT;
 
@@ -200,8 +200,8 @@ void PIN_MANAGER_Initialize(void)
     LATA    = 0x00;
     TRISA   |= 0x0f; // OUTPUT
     
-    // R/W RA4
-    TRISA4  = OUTPUT;
+    // CPU R/W RA4
+    TRISA4  = INPUT;
     
     
     // SPI_SS/ /LED (RC7)
