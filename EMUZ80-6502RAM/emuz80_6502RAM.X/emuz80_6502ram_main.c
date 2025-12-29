@@ -103,8 +103,6 @@ union {
 #define SRAM_WE     LATA2
 #define SRAM_OE     LATA5
 
-// Never called, logically
-void __interrupt(irq(default),base(8)) Default_ISR(){}
 
 void setup_systemclock() {
     /* set HFINTOSC Oscillator */
@@ -290,6 +288,10 @@ void setup_busmode_6502() {
 }
 
 void setup_InterruptVectorTable() {
+#ifdef UART3RX_INTERRUPT
+    INTCON0bits.IPEN = 1;
+#endif
+
     GIE = 0;
 // Unlock IVT
 	IVTLOCK = 0x55;
@@ -304,6 +306,12 @@ void setup_InterruptVectorTable() {
 	IVTLOCK = 0xAA;
 	IVTLOCKbits.IVTLOCKED = 0x01;
     GIE = 1;
+
+#ifdef UART3RX_INTERRUPT
+    // Assign peripheral interrupt priority vectors
+    IPR9bits.U3RXIP = 1;
+    IPR9bits.U3IP = 1;
+#endif
 }
 
 uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
@@ -389,6 +397,10 @@ uint16_t transfer_to_sram(const uint8_t arr[], uint16_t startaddr, uint32_t size
     return errcount;
 }
 
+// Never called, logically
+void __interrupt(irq(default),base(8)) Default_ISR(){}
+
+
 // main routine
 void main(void) {
 
@@ -398,6 +410,7 @@ void main(void) {
     setup_port(); // 	// BE (RE0) output pin LOW
     setup_6502_clock(); // NCO1 --> RA3
     setup_UART3();
+    
     printf("\e[H\e[2JHello, System initialized. UART3 enabled.\r\n");
 
     uint32_t stopaddr = memory_check(0, 0x10000);
