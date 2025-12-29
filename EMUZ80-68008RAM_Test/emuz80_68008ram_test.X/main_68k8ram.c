@@ -17,6 +17,8 @@
 #include <ctype.h>
 #include <string.h>
 
+#include "pic18common.h"
+
 #include "system.h"
 #include "uart3.h"
 /*
@@ -38,10 +40,11 @@ void busmode_DMA(void) {
     // Ensure BUSREQ ACKed.
     SRAM_CE_MODE = OUTPUT;
     SRAM_WE_MODE = OUTPUT;
-    MC68K8_RW_MODE = OUTPUT;
-    ADBUS_MODE = PORT_INPUT;
-    ABUS_MID_MODE = PORT_INPUT;
-    ABUS_HIGH4_MODE |= PORT_INPUT & 0x0f;
+    ADBUS_MODE   = PORT_OUTPUT;
+    ABUS_MID_MODE = PORT_OUTPUT;
+    ABUS_HIGH4_MODE = (ABUS_HIGH4_MODE & 0xf0) | PORT_OUTPUT & 0x0f;
+    ALE_OE_MODE = OUTPUT; 
+    ALE_MODE = OUTPUT; 
     ALE_OE = LOW; // enable
     ALE = LOW;    // disable
 }
@@ -50,14 +53,14 @@ void set_addr_bus(uint32_t addr20) {
     ADBUS_MODE = PORT_OUTPUT;
     ALE = HIGH; // latch enable
     ADBUS_OUT = addr20 & 0xff;
-    ALE = LOW;
-    addr20 >>= 8;
-    ABUS_MID_OUT = addr20 & 0xff;
-    addr20 >>= 8;
-    ABUS_HIGH4_OUT = (ABUS_HIGH4_OUT & 0xF0) | addr20 & 0x0f;
+    //addr20 >>= 8;
+    ABUS_MID_OUT = 0; //addr20 & 0xff;
+    //addr20 >>= 8;
+    ABUS_HIGH4_OUT = (ABUS_HIGH4_OUT & 0xF0); // | addr20 & 0x0f;
 }
 
 void set_data_bus(const uint8_t data) {
+    ALE = LOW;
     ADBUS_WPU = 0x00;
     ADBUS_MODE = PORT_OUTPUT;
     ADBUS_OUT = data;
@@ -108,15 +111,32 @@ int main(void)
     INTERRUPT_GlobalInterruptEnable(); //INTCON0bits.GIE = 1
     
     busmode_DMA();
-    
-    for (uint32_t addr = 0; addr < 64; ++addr) {
-        if ( (addr & 0x0f) == 0 ) {
-            printf("\r\n");
-        } 
-        printf("%02x ", sram_read(addr));
+    for(;;) {
+        for (uint32_t addr = 0; addr < 64; ++addr) {
+            if ( (addr & 0x0f) == 0 ) {
+                printf("\r\n");
+            } 
+            printf("%02x ", sram_read(addr));
+        }
+        printf("\r\n");
+        for (uint32_t addr = 0; addr < 64; ++addr) {
+            if ( UART3_IsRxReady() ) {
+                rxbyte = UART3_Read();
+            } else {
+                rxbyte = addr & 0xff;
+            }
+            sram_write(addr, rxbyte);
+        }
+        printf("\r\n");
+        for (uint32_t addr = 0; addr < 64; ++addr) {
+            if ( (addr & 0x0f) == 0 ) {
+                printf("\r\n");
+            } 
+            printf("%02x ", sram_read(addr));
+        }
+        printf("\r\n\r\n\r\n");
+        __delay_ms(1000);
     }
-    printf("\r\n");
-    for(;;);
     
     for(;;) {
         while ( UART3_IsRxReady() ) {

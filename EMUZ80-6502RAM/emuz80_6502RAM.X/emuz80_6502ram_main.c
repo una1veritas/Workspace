@@ -115,21 +115,23 @@ void setup_systemclock() {
 	OSCFRQ = 0x08;	// 64MHz internal OSC
 }
 
-void setup_6502_interface() {
-
+void setup_6502_clock() {
     // NCO1 setup as clock source to PH2IN on RA3 
     // 6502 clock (RA3) by NCO FDC mode
 	RA3PPS = 0x3f;	// RA1 assign NCO1
     ANSELAbits.ANSELA3 = 0; //ANSELA3 = 0;	// Disable analog function
 	//TRISA3 = 0;		// NCO output pin
     TRISAbits.TRISA3 = 0;
+    
 	NCO1INC = (unsigned int)(CLK_6502_FREQ / 30.5175781);
 	NCO1CLK = 0x01; // (0<<5 | 0x1 ) NCO output is active for 1 input clock periods, Clock source HFINTOSC
 	NCO1PFM = 0;	// FDC mode (fixed to 50% duty)
 	NCO1OUT = 1;	// NCO output enable
 	NCO1EN = 1;		// NCO enable
     // NCO1 setup finished
+}
 
+void setup_port() {
 	// /RESET (RE2) output pin
 	ANSELE2 = 0;	// Disable analog function
 	LATE2 = 0;		// /Reset = Low
@@ -288,6 +290,7 @@ void setup_busmode_6502() {
 }
 
 void setup_InterruptVectorTable() {
+    GIE = 0;
 // Unlock IVT
 	IVTLOCK = 0x55;
 	IVTLOCK = 0xAA;
@@ -300,6 +303,7 @@ void setup_InterruptVectorTable() {
 	IVTLOCK = 0x55;
 	IVTLOCK = 0xAA;
 	IVTLOCKbits.IVTLOCKED = 0x01;
+    GIE = 1;
 }
 
 uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
@@ -391,7 +395,8 @@ void main(void) {
 	//unsigned int i;
     
     setup_systemclock();
-    setup_6502_interface(); // 	// BE (RE0) output pin LOW
+    setup_port(); // 	// BE (RE0) output pin LOW
+    setup_6502_clock(); // NCO1 --> RA3
     setup_UART3();
     printf("\e[H\e[2JHello, System initialized. UART3 enabled.\r\n");
 

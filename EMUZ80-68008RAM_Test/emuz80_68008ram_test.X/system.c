@@ -17,6 +17,8 @@
 #include "system.h"
 #include "uart3.h"
 
+#include "pic18common.h"
+
 void SYSTEM_Initialize(void)
 {
     CLOCK_Initialize();
