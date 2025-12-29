@@ -68,17 +68,24 @@ extern const unsigned char rom_ehbasic_acia[];
 
 //Address Bus helper struct
 union {
-	unsigned int w; //16 bits Address
+	uint16_t w; //16 bits Address
 	struct {
-		unsigned char l;	//Address low
-		unsigned char h;	//Address high
+		uint8_t l;	//Address low
+		uint8_t h;	//Address high
 	};
 } ab;
 
+
 #define HIGH 1
 #define LOW  0
-#define INPUT   0xff
-#define OUTPUT  0x00
+#define INPUT   1
+#define PORT_INPUT  0xff
+#define OUTPUT  0
+#define PORT_OUTPUT 0x00
+#define PORT_WPU_ON    0xff
+#define PORT_WPU_OFF   0x00
+#define WPU_ON  1
+#define WPU_OFF 0
 
 #define DATABUS_MODE_INPUT      (WPUC = 0xff, TRISC = 0xff)
 #define DATABUS_MODE_OUTPUT     (WPUC = 0x00, TRISC = 0x00)
@@ -115,18 +122,16 @@ void setup_systemclock() {
 
 void setup_6502_clock() {
     // NCO1 setup as clock source to PH2IN on RA3 
-    // 6502 clock (RA3) by NCO FDC mode
-	RA3PPS = 0x3f;	// RA1 assign NCO1
-    ANSELAbits.ANSELA3 = 0; //ANSELA3 = 0;	// Disable analog function
-	//TRISA3 = 0;		// NCO output pin
-    TRISAbits.TRISA3 = 0;
-    
 	NCO1INC = (unsigned int)(CLK_6502_FREQ / 30.5175781);
 	NCO1CLK = 0x01; // (0<<5 | 0x1 ) NCO output is active for 1 input clock periods, Clock source HFINTOSC
 	NCO1PFM = 0;	// FDC mode (fixed to 50% duty)
-	NCO1OUT = 1;	// NCO output enable
 	NCO1EN = 1;		// NCO enable
     // NCO1 setup finished
+
+    // 6502 clock (RA3) by NCO FDC mode
+	RA3PPS = 0x3f;	// RA3 assign NCO1
+    ANSELA3 = 0; //ANSELA3 = 0;	// Disable analog function
+    TRISA3 = 0;
 }
 
 void setup_port() {
@@ -287,9 +292,134 @@ void setup_busmode_6502() {
 	TRISC = 0xff;	// Set as input(default)
 }
 
+inline void set_addr_bus(const uint16_t addr) {
+    //ADDRBUS_MODE_OUTPUT;
+    ADDRBUS_HIGH_WR = ((uint8_t *)&addr)[1]; //*(((uint8_t *) & addr) + 1); //LATD = ab.h;
+    ADDRBUS_LOW_WR  = (uint8_t) addr; //LATB = ab.l;
+}
+
+uint8_t sram_read(const uint16_t addr) {
+    uint8_t data;
+    set_addr_bus(addr);
+    SRAM_OE = LOW; //LATA5 = 0;		// _OE=0
+    NOP(); //__delay_us(1);
+    data = DATABUS_RD;
+	SRAM_OE = HIGH; //LATA5 = 1;		// _OE=1
+    return data;
+}
+
+void sram_write(const uint16_t addr, const uint8_t data) {
+    set_addr_bus(addr);
+    DATABUS_WR = data;
+    SRAM_WE = LOW; //LATA2 = 0;		// /WE=0
+    NOP(); //__delay_us(1);
+    SRAM_WE = HIGH; //LATA2 = 1;		// /WE=1    
+}
+
+uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
+    uint32_t stopaddr = endaddr;
+    uint8_t val, wval;
+    uint16_t addr16;
+    
+    ADDRBUS_MODE_OUTPUT;
+	for(uint32_t i = startaddr; i < endaddr; i++) {
+        addr16 = (uint16_t) (startaddr+i);
+        /*
+		ADDRBUS_HIGH_WR = *((uint8_t *)&addr16); //LATD = ab.h;
+		ADDRBUS_LOW_WR  = *(((uint8_t *)&addr16)+1); //LATB = ab.l;
+        DATABUS_MODE_INPUT;
+        SRAM_OE = LOW; //LATA5 = 0;		// _OE=0
+        val = DATABUS_RD;
+		SRAM_OE = HIGH; //LATA5 = 1;		// _OE=1
+         */
+        DATABUS_MODE_INPUT;
+        val = sram_read(addr16);
+        
+        wval = val^0x55;
+        DATABUS_MODE_OUTPUT;
+        /*
+        DATABUS_WR = wval;
+        SRAM_WE = LOW;		// /WE=0
+        asm("nop");
+		SRAM_WE = HIGH; //LATA2 = 1;		// /WE=1
+        */
+        sram_write(addr16, wval);
+
+        DATABUS_MODE_INPUT;
+        /*
+        SRAM_OE = LOW;  //LATA5 = 0;		// _OE=0
+        val = DATABUS_RD;
+		SRAM_OE = HIGH; //LATA5 = 1;		// _OE=1
+        */
+        val = sram_read(addr16);
+        if (wval != val) {
+            printf("error at %04lx: written %02x, read %02x.\r\n", startaddr+i, wval,val);
+            stopaddr = startaddr+i;
+            break;
+        }
+        
+        wval ^= 0x55;
+        DATABUS_MODE_OUTPUT;
+        /*
+        DATABUS_WR = wval;
+        SRAM_WE = LOW;  // LATA2 = 0;		// /WE=0
+        asm("nop");
+		SRAM_WE = HIGH; //LATA2 = 1;		// /WE=1
+        */
+        sram_write(addr16, wval);
+	}
+    return stopaddr;
+}
+
+uint16_t transfer_to_sram(const uint8_t arr[], uint16_t startaddr, uint32_t size) {
+    printf("Transferring %luk bytes data to SRAM...\r\n",size/1024);
+    
+    ADDRBUS_MODE_OUTPUT;
+    DATABUS_MODE_OUTPUT;
+	for(uint32_t i = 0; i < size; i++) {
+        /*
+		ab.w = (uint16_t) (startaddr + i);
+		ADDRBUS_HIGH_WR = ab.h;
+		ADDRBUS_LOW_WR  = ab.l;
+        DATABUS_WR = arr[i];
+		SRAM_WE = LOW; //LATA2 = 0;		// /WE=0
+        NOP(); //__delay_us(1);
+		SRAM_WE = HIGH; //LATA2 = 1;		// /WE=1
+         * */
+        sram_write((startaddr + (uint16_t) i), arr[i]);
+    }
+    
+    // verify
+    uint8_t val;
+    uint16_t errcount = 0;
+    DATABUS_MODE_INPUT;
+	for(uint32_t i = 0; i < size; i++) {
+        /*
+		ab.w = (uint16_t) (startaddr + i);
+		ADDRBUS_HIGH_WR = ab.h;
+		ADDRBUS_LOW_WR  = ab.l;
+		SRAM_OE = LOW; //LATA5 = 0;		// _OE=0
+        NOP(); //__delay_us(1);
+        val = DATABUS_RD;
+		SRAM_OE = HIGH; //LATA5 = 1;		// _OE=1
+        */
+        val = sram_read( startaddr + (uint16_t) i );
+        if (arr[i] != val) {
+            errcount += 1;
+        }
+    }
+    if ( errcount == 0 ) {
+        printf("transfer and verify done.\r\n");
+    } else {
+        printf("%u errors detected.\r\n", errcount);
+    }
+    return errcount;
+}
+
+
 void setup_InterruptVectorTable() {
 #ifdef UART3RX_INTERRUPT
-    INTCON0bits.IPEN = 1;
+    INTCON0bits.IPEN = 1;  // Interrupt Priority Enabled
 #endif
 
     GIE = 0;
@@ -312,89 +442,6 @@ void setup_InterruptVectorTable() {
     IPR9bits.U3RXIP = 1;
     IPR9bits.U3IP = 1;
 #endif
-}
-
-uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
-    uint32_t stopaddr = endaddr;
-    uint8_t val, wval;
-    uint16_t addr16;
-    
-    ADDRBUS_MODE_OUTPUT;
-	for(uint32_t i = startaddr; i < endaddr; i++) {
-        /*ab.w*/ addr16 = (uint16_t) (startaddr+i);
-		ADDRBUS_HIGH_WR = *((uint8_t *)&addr16); //LATD = ab.h;
-		ADDRBUS_LOW_WR  = *(((uint8_t *)&addr16)+1); //LATB = ab.l;
-        SRAM_OE = LOW; //LATA5 = 0;		// _OE=0
-        DATABUS_MODE_INPUT;
-        val = DATABUS_RD;
-		SRAM_OE = HIGH; //LATA5 = 1;		// _OE=1
-        
-        wval = val^0x55;
-        DATABUS_MODE_OUTPUT;
-        DATABUS_WR = wval;
-        SRAM_WE = LOW;		// /WE=0
-        asm("nop");
-		SRAM_WE = HIGH; //LATA2 = 1;		// /WE=1
-        
-        DATABUS_MODE_INPUT;
-        SRAM_OE = LOW;  //LATA5 = 0;		// _OE=0
-        val = DATABUS_RD;
-		SRAM_OE = HIGH; //LATA5 = 1;		// _OE=1
-        
-        if (wval != val) {
-            printf("error at %04lx: written %02x, read %02x.\r\n", startaddr+i, wval,val);
-            stopaddr = startaddr+i;
-            break;
-        }
-        
-        wval ^= 0x55;
-        DATABUS_MODE_OUTPUT;
-        DATABUS_WR = wval;
-        SRAM_WE = LOW;  // LATA2 = 0;		// /WE=0
-        asm("nop");
-		SRAM_WE = HIGH; //LATA2 = 1;		// /WE=1
-        
-	}
-    return stopaddr;
-}
-
-uint16_t transfer_to_sram(const uint8_t arr[], uint16_t startaddr, uint32_t size) {
-    printf("Transferring %luk bytes data to SRAM...\r\n",size/1024);
-    
-    ADDRBUS_MODE_OUTPUT;
-    DATABUS_MODE_OUTPUT;
-	for(uint32_t i = 0; i < size; i++) {
-		ab.w = (uint16_t) (startaddr + i);
-		ADDRBUS_HIGH_WR = ab.h;
-		ADDRBUS_LOW_WR  = ab.l;
-        DATABUS_WR = arr[i];
-		SRAM_WE = LOW; //LATA2 = 0;		// /WE=0
-        asm("nop"); //__delay_us(1);
-		SRAM_WE = HIGH; //LATA2 = 1;		// /WE=1
-    }
-    
-    // verify
-    uint8_t val;
-    uint16_t errcount = 0;
-    DATABUS_MODE_INPUT;
-	for(uint32_t i = 0; i < size; i++) {
-		ab.w = (uint16_t) (startaddr + i);
-		ADDRBUS_HIGH_WR = ab.h;
-		ADDRBUS_LOW_WR  = ab.l;
-		SRAM_OE = LOW; //LATA5 = 0;		// _OE=0
-        asm("nop"); //__delay_us(1);
-        val = DATABUS_RD;
-		SRAM_OE = HIGH; //LATA5 = 1;		// _OE=1
-        if (arr[i] != val) {
-            errcount += 1;
-        }
-    }
-    if ( errcount == 0 ) {
-        printf("transfer and verify done.\r\n");
-    } else {
-        printf("%u errors detected.\r\n", errcount);
-    }
-    return errcount;
 }
 
 // Never called, logically
