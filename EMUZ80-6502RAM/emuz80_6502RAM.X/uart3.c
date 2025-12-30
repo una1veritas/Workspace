@@ -32,6 +32,7 @@ void UART3_GeneralISR(void);
 #endif
 
 void setup_UART3() {
+    /*
     //6551 Speed setting x 8
     static uint16_t baud[] = {
         416, // dummy 16 x External CLOCK
@@ -51,16 +52,17 @@ void setup_UART3() {
         34,  // 115200
         25,  // 153600
     };
+     * */
     /* interrupt */
 #ifdef UART3RX_INTERRUPT
     PIE9bits.U3RXIE = 0;   
     UART3_RxInterruptHandler = UART3_ReceiveISR; 
-    PIE9bits.U3IE = 0;
-    UART3_GeneralInterruptHandler = UART3_GeneralISR;
 #endif
     
     // UART3 initialize
-	U3BRG = baud[12]; // 57600 // 9600  //416;	// Console Serial Baud rate 9600bps @ 64MHz
+	U3BRG = 277; //68; // normal speed setting. baud[12]; // 57600 // 9600  //416;	// Console Serial Baud rate 9600bps @ 64MHz
+    // U3CON0 = 0xb0 (10110000))
+    U3BRGS = 1;
 	U3RXEN = 1;		// Receiver enable
 	U3TXEN = 1;		// Transmitter enable
 
@@ -75,6 +77,7 @@ void setup_UART3() {
 	TRISA6 = 0;		// TX set as output
 	RA6PPS = 0x26;	//RA6->UART3:TX3;
 
+    // U3CON1 = 0x80
 	U3ON = 1;		// Serial port enable
     
 #ifdef UART3RX_INTERRUPT
@@ -85,7 +88,6 @@ void setup_UART3() {
     uart3RxTail = 0;
     uart3RxCount = 0;
     PIE9bits.U3RXIE = 1;
-    PIE9bits.U3IE = 1;
 #endif
 }
 
@@ -111,19 +113,9 @@ uint8_t UART3_Read(void) {
     return readValue;
 }
 
-void __interrupt(irq(IRQ_U3), base(8)) UART3_General_Vector_ISR(void)
-{
-    UART3_GeneralISR();
-}
-
-void UART3_GeneralISR(void)
-{
-    // WUIF must be cleared by software to clear UxIF
-    U3UIRbits.WUIF = 0;
-    if(NULL != UART3_GeneralErrorInterruptHandler)
-    {
-        (*UART3_GeneralErrorInterruptHandler)();
-    }
+void __interrupt(irq(IRQ_U3RX), base(8)) UART3_Receive_Vector_ISR(void)
+{   
+    UART3_ReceiveISR();
 }
 
 void UART3_ReceiveISR(void) {

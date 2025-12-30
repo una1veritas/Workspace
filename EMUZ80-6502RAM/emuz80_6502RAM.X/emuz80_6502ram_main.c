@@ -29,7 +29,7 @@
 
 #define _XTAL_FREQ 64000000UL
 
-#define CLK_6502_FREQ   4000000UL	// 6502 clock frequency(Max 16MHz) 1MHz=1000000UL
+#define CLK_6502_FREQ   8000000UL	// 6502 clock frequency(Max 16MHz) 1MHz=1000000UL
 
 #define UART_CREG   0xB018	// Control REG
 #define UART_DREG   0xB019	// Data REG
