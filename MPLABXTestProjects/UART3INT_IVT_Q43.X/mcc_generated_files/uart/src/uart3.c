@@ -11,7 +11,7 @@
 */
 
 /*
-© [2025] Microchip Technology Inc. and its subsidiaries.
+ï¿½ [2025] Microchip Technology Inc. and its subsidiaries.
 
     Subject to your compliance with these terms, you may use Microchip 
     software and any derivatives exclusively with Microchip products. 
@@ -124,6 +124,8 @@ void UART3_Initialize(void)
     uart3RxTail = 0;
     uart3RxCount = 0;
     PIE9bits.U3RXIE = 1;
+    
+    // ANSELR7 = 0 and other PPS setting is done in pin initializing function
 }
 
 void UART3_Deinitialize(void)

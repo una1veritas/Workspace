@@ -86,9 +86,9 @@ void PIN_MANAGER_Initialize(void)
     ODCONE = 0x0;
 
     /**
-    TRISx registers set all input
+    TRISx registers set all input except RA6 (TX3)
     */
-    TRISA = 0xBF;   // except R6 (ßTX)
+    TRISA = 0xBF;
     TRISB = 0xFF;
     TRISC = 0xFF;
     TRISD = 0xFF;
@@ -142,6 +142,8 @@ void PIN_MANAGER_Initialize(void)
     /**
     PPS registers
     */
+    // UART3
+    ANSELA7 = 0;
     U3RXPPS = 0x7; //RA7->UART3:RX3;
     RA6PPS = 0x26;  //RA6->UART3:TX3;
 
