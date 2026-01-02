@@ -1,17 +1,20 @@
 /**
- * Interrupt Manager Generated Driver File.
+ * CLOCK Generated Driver Header File 
+ * 
+ * @file clock.h
+ * 
+ * @defgroup clockdriver Clock Driver
+ * 
+ * @brief This file contains the API prototypes and other data types for the Clock driver.
  *
- * @file interrupt.c
- * 
- * @ingroup interrupt 
- * 
- * @brief This file contains the API implementation for the Interrupt Manager driver.
- * 
- * @version Interrupt Manager Driver Version 2.1.3
+ * @version Driver Version 2.0.4
+ *
+ * @version Package Version 4.3.7
+ *
 */
 
 /*
-ï¿½ [2026] Microchip Technology Inc. and its subsidiaries.
+© [2026] Microchip Technology Inc. and its subsidiaries.
 
     Subject to your compliance with these terms, you may use Microchip 
     software and any derivatives exclusively with Microchip products. 
@@ -31,39 +34,28 @@
     THIS SOFTWARE.
 */
 
-#include "../../system/interrupt.h"
-#include "../../system/system.h"
-#include <stdbool.h>
+#ifndef CLOCK_H
+#define	CLOCK_H
 
-void  INTERRUPT_Initialize (void)
-{
-    INTCON0bits.IPEN = 1;
+#ifndef _XTAL_FREQ
+/**
+    @ingroup clock control 
+    @def system frequency
+    @misradeviation{@required, 21.1} Defining the system frequency using the _XTAL_FREQ macro is required by the XC8 compiler for the built-in delay functions.
+*/
+/* cppcheck-suppress misra-c2012-21.1 */
+#define _XTAL_FREQ 64000000U
+#endif
 
-    bool state = (unsigned char)GIE;
-    GIE = 0;
-    IVTLOCK = 0x55;
-    IVTLOCK = 0xAA;
-    IVTLOCKbits.IVTLOCKED = 0x00; // unlock IVT
+/**
+ * @ingroup clockdriver
+ * @brief Initializes all the Internal Oscillator sources and the clock switch configurations. 
+ * @param None.
+ * @return None.
+ */
+void CLOCK_Initialize(void);
 
-    IVTBASEU = 0;
-    IVTBASEH = 0;
-    IVTBASEL = 8;
-
-    IVTLOCK = 0x55;
-    IVTLOCK = 0xAA;
-    IVTLOCKbits.IVTLOCKED = 0x01; // lock IVT
-
-    GIE = state;
-    // Assign peripheral interrupt priority vectors
-    IPR9bits.U3RXIP = 1;
-
-}
-
-void __interrupt(irq(default),base(8)) Default_ISR()
-{
-}
-
-
+#endif	/* CLOCK_H */
 /**
  End of File
 */

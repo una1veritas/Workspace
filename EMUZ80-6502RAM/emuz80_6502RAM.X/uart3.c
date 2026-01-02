@@ -21,7 +21,7 @@ static volatile uint8_t uart3RxBuffer[UART3_RX_BUFFER_SIZE];
  */
  /* cppcheck-suppress misra-c2012-19.2 */
 static volatile uart3_status_t uart3RxLastError;
-void (*UART3_RxInterruptHandler)(void);
+//void (*UART3_RxInterruptHandler)(void);
 
 void UART3_ReceiveISR(void);
 
@@ -52,7 +52,7 @@ void setup_UART3() {
     /* interrupt */
 #ifdef UART3RX_INTERRUPT
     PIE9bits.U3RXIE = 0;   
-    UART3_RxInterruptHandler = UART3_ReceiveISR; 
+    //UART3_RxInterruptHandler = UART3_ReceiveISR; 
 #endif
     
     // UART3 initialize

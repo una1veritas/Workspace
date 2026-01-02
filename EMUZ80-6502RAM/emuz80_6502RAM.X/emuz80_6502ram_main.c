@@ -403,7 +403,7 @@ void setup_InterruptVectorTable() {
 
 #ifdef UART3RX_INTERRUPT
     // Assign peripheral interrupt priority vectors
-    IPR9bits.U3RXIP = 1;
+    IPR9bits.U3RXIP = 1;    // Assign peripheral interrupt priority vectors
     IPR9bits.U3IP = 1;
 #endif
 }

@@ -141,7 +141,6 @@ int main(void)
     // Disable the Global Low Interrupts 
     //INTERRUPT_GlobalInterruptLowDisable(); 
 
-    SYSTEM_Initialize();
     
     printf("In the terminal, send 'ON' to turn the LED on, and 'OFF' to turn it off.\r\n");
     printf("Note: commands 'ON' and 'OFF' are case sensitive.\r\n");

@@ -11,7 +11,7 @@
 */
 
 /*
-ï¿½ [2026] Microchip Technology Inc. and its subsidiaries.
+© [2026] Microchip Technology Inc. and its subsidiaries.
 
     Subject to your compliance with these terms, you may use Microchip 
     software and any derivatives exclusively with Microchip products. 
@@ -40,7 +40,7 @@
   Section: Macro Declarations
 */
 
-#define UART3_RX_BUFFER_SIZE (256U) //buffer size should be 2^n
+#define UART3_RX_BUFFER_SIZE (128U) //buffer size should be 2^n
 #define UART3_RX_BUFFER_MASK (UART3_RX_BUFFER_SIZE - 1U)
 
 /**
@@ -55,7 +55,7 @@ static volatile uint8_t uart3RxBuffer[UART3_RX_BUFFER_SIZE];
  * The UART error status necessitates checking the bitfield and accessing the status within the group byte therefore the use of a union is essential.
  */
  /* cppcheck-suppress misra-c2012-19.2 */
-//static volatile uart3_status_t uart3RxStatusBuffer[UART3_RX_BUFFER_SIZE];
+static volatile uart3_status_t uart3RxStatusBuffer[UART3_RX_BUFFER_SIZE];
 
  /**
  * @misradeviation{@advisory,19.2}
@@ -68,6 +68,15 @@ static volatile uart3_status_t uart3RxLastError;
   Section: UART3 APIs
 */
 
+static void (*UART3_FramingErrorHandler)(void);
+static void (*UART3_OverrunErrorHandler)(void);
+static void (*UART3_ParityErrorHandler)(void);
+void (*UART3_RxInterruptHandler)(void);
+static void (*UART3_RxCompleteInterruptHandler)(void) = NULL;
+
+static void UART3_DefaultFramingErrorCallback(void);
+static void UART3_DefaultOverrunErrorCallback(void);
+static void UART3_DefaultParityErrorCallback(void);
 void UART3_ReceiveISR(void);
 
 /**
@@ -77,7 +86,7 @@ void UART3_ReceiveISR(void);
 void UART3_Initialize(void)
 {
     PIE9bits.U3RXIE = 0;   
-    //UART3_RxInterruptHandler = UART3_ReceiveISR; 
+    UART3_RxInterruptHandler = UART3_ReceiveISR; 
 
     // Set the UART3 module to the options selected in the user interface.
 
@@ -106,9 +115,9 @@ void UART3_Initialize(void)
     //TXCIE disabled; RXFOIE disabled; RXBKIE disabled; FERIE disabled; CERIE disabled; ABDOVE disabled; PERIE disabled; TXMTIE disabled; 
     U3ERRIE = 0x0;
 
-    //UART3_FramingErrorCallbackRegister(UART3_DefaultFramingErrorCallback);
-    //UART3_OverrunErrorCallbackRegister(UART3_DefaultOverrunErrorCallback);
-    //UART3_ParityErrorCallbackRegister(UART3_DefaultParityErrorCallback);
+    UART3_FramingErrorCallbackRegister(UART3_DefaultFramingErrorCallback);
+    UART3_OverrunErrorCallbackRegister(UART3_DefaultOverrunErrorCallback);
+    UART3_ParityErrorCallbackRegister(UART3_DefaultParityErrorCallback);
 
     uart3RxLastError.status = 0;  
     uart3RxHead = 0;
@@ -235,7 +244,7 @@ bool UART3_IsTxDone(void)
 
 size_t UART3_ErrorGet(void)
 {
-    //uart3RxLastError.status = uart3RxStatusBuffer[(uart3RxTail) & UART3_RX_BUFFER_MASK].status;
+    uart3RxLastError.status = uart3RxStatusBuffer[(uart3RxTail) & UART3_RX_BUFFER_MASK].status;
 
     return uart3RxLastError.status;
 }
@@ -268,17 +277,31 @@ void UART3_ReceiveISR(void)
     uint8_t tempRxHead;
 
     // use this default receive interrupt handler code
-    //uart3RxStatusBuffer[uart3RxHead].status = 0;
-    uart3RxLastError.status = 0;
+    uart3RxStatusBuffer[uart3RxHead].status = 0;
 
-    if(true == U3ERRIRbits.FERIF) {
-        uart3RxLastError.ferr = 1;
+    if(true == U3ERRIRbits.FERIF)
+    {
+        uart3RxStatusBuffer[uart3RxHead].ferr = 1;
+        if(NULL != UART3_FramingErrorHandler)
+        {
+            UART3_FramingErrorHandler();
+        } 
     }
-    if(true == U3ERRIRbits.RXFOIF) {
-        uart3RxLastError.oerr = 1;
+    if(true == U3ERRIRbits.RXFOIF)
+    {
+        uart3RxStatusBuffer[uart3RxHead].oerr = 1;
+        if(NULL != UART3_OverrunErrorHandler)
+        {
+            UART3_OverrunErrorHandler();
+        }   
     }   
-    if(true == U3ERRIRbits.PERIF) {
-        uart3RxLastError.perr = 1;
+    if(true == U3ERRIRbits.PERIF)
+    {
+        uart3RxStatusBuffer[uart3RxHead].perr = 1;
+        if(NULL != UART3_ParityErrorHandler)
+        {
+            UART3_ParityErrorHandler();
+        }   
     }  
  
     regValue = U3RXB;
@@ -295,6 +318,10 @@ void UART3_ReceiveISR(void)
 		uart3RxCount++;
 	}   
     
+    if(NULL != UART3_RxCompleteInterruptHandler)
+    {
+        (*UART3_RxCompleteInterruptHandler)();
+    } 
 }
 
 void UART3_Write(uint8_t txData)
@@ -320,3 +347,54 @@ void putch(char txData)
     }
     return UART3_Write(txData);   
 }
+
+
+
+
+
+static void UART3_DefaultFramingErrorCallback(void)
+{
+    
+}
+
+static void UART3_DefaultOverrunErrorCallback(void)
+{
+    
+}
+
+static void UART3_DefaultParityErrorCallback(void)
+{
+    
+}
+
+void UART3_FramingErrorCallbackRegister(void (* callbackHandler)(void))
+{
+    if(NULL != callbackHandler)
+    {
+        UART3_FramingErrorHandler = callbackHandler;
+    }
+}
+
+void UART3_OverrunErrorCallbackRegister(void (* callbackHandler)(void))
+{
+    if(NULL != callbackHandler)
+    {
+        UART3_OverrunErrorHandler = callbackHandler;
+    }    
+}
+
+void UART3_ParityErrorCallbackRegister(void (* callbackHandler)(void))
+{
+    if(NULL != callbackHandler)
+    {
+        UART3_ParityErrorHandler = callbackHandler;
+    } 
+}
+void UART3_RxCompleteCallbackRegister(void (* callbackHandler)(void))
+{
+    if(NULL != callbackHandler)
+    {
+       UART3_RxCompleteInterruptHandler = callbackHandler; 
+    }   
+}
+

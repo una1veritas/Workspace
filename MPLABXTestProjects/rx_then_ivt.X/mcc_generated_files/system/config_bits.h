@@ -1,17 +1,19 @@
 /**
- * Interrupt Manager Generated Driver File.
+ * Configuration Bits Generated Driver Header File
+ * 
+ * @file config_bits.h
+ * 
+ * @defgroup config_bitsdriver CONFIGBITS Driver 
+ * 
+ * @brief This file contains the API prototype for the Configuration Bits driver.
  *
- * @file interrupt.c
- * 
- * @ingroup interrupt 
- * 
- * @brief This file contains the API implementation for the Interrupt Manager driver.
- * 
- * @version Interrupt Manager Driver Version 2.1.3
+ * @version Driver Version 2.0.2
+ *
+ * @version Package Version 5.3.5
 */
 
 /*
-ï¿½ [2026] Microchip Technology Inc. and its subsidiaries.
+© [2026] Microchip Technology Inc. and its subsidiaries.
 
     Subject to your compliance with these terms, you may use Microchip 
     software and any derivatives exclusively with Microchip products. 
@@ -31,39 +33,12 @@
     THIS SOFTWARE.
 */
 
-#include "../../system/interrupt.h"
-#include "../../system/system.h"
-#include <stdbool.h>
+#ifndef CONFIG_BITS_H
+#define	CONFIG_BITS_H
 
-void  INTERRUPT_Initialize (void)
-{
-    INTCON0bits.IPEN = 1;
+#include "../system/clock.h"
 
-    bool state = (unsigned char)GIE;
-    GIE = 0;
-    IVTLOCK = 0x55;
-    IVTLOCK = 0xAA;
-    IVTLOCKbits.IVTLOCKED = 0x00; // unlock IVT
-
-    IVTBASEU = 0;
-    IVTBASEH = 0;
-    IVTBASEL = 8;
-
-    IVTLOCK = 0x55;
-    IVTLOCK = 0xAA;
-    IVTLOCKbits.IVTLOCKED = 0x01; // lock IVT
-
-    GIE = state;
-    // Assign peripheral interrupt priority vectors
-    IPR9bits.U3RXIP = 1;
-
-}
-
-void __interrupt(irq(default),base(8)) Default_ISR()
-{
-}
-
-
+#endif	/* CONFIG_BITS_H */
 /**
  End of File
 */
