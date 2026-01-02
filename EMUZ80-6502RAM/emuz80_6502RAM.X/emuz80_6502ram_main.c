@@ -79,13 +79,20 @@ union {
 #define HIGH 1
 #define LOW  0
 #define INPUT   1
-#define PORT_INPUT  0xff
 #define OUTPUT  0
+#define PORT_INPUT  0xff
 #define PORT_OUTPUT 0x00
 #define PORT_WPU_ON    0xff
 #define PORT_WPU_OFF   0x00
 #define WPU_ON  1
 #define WPU_OFF 0
+
+#define bitmode(pin, mode) (TRIS##pin = mode)
+#define bitmodewpu(pin)    (TRIS##pin = mode, WPU##pin = mode)
+#define bitwrite(pin, val) (LAT##pin, val) 
+#define bitread(pin)       (PORT##pin) 
+#define portmodewpu(port, mode8)    (TRIS##por = mode8, WPU##port = mode8)
+#define portwrite(port, val8)    (LAT##port = val8)
 
 #define DATABUS_MODE_INPUT      (WPUC = 0xff, TRISC = 0xff)
 #define DATABUS_MODE_OUTPUT     (WPUC = 0x00, TRISC = 0x00)
@@ -324,33 +331,14 @@ uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
     ADDRBUS_MODE_OUTPUT;
 	for(uint32_t i = startaddr; i < endaddr; i++) {
         addr16 = (uint16_t) (startaddr+i);
-        /*
-		ADDRBUS_HIGH_WR = *((uint8_t *)&addr16); //LATD = ab.h;
-		ADDRBUS_LOW_WR  = *(((uint8_t *)&addr16)+1); //LATB = ab.l;
-        DATABUS_MODE_INPUT;
-        SRAM_OE = LOW; //LATA5 = 0;		// _OE=0
-        val = DATABUS_RD;
-		SRAM_OE = HIGH; //LATA5 = 1;		// _OE=1
-         */
         DATABUS_MODE_INPUT;
         val = sram_read(addr16);
         
         wval = val^0x55;
         DATABUS_MODE_OUTPUT;
-        /*
-        DATABUS_WR = wval;
-        SRAM_WE = LOW;		// /WE=0
-        asm("nop");
-		SRAM_WE = HIGH; //LATA2 = 1;		// /WE=1
-        */
         sram_write(addr16, wval);
 
         DATABUS_MODE_INPUT;
-        /*
-        SRAM_OE = LOW;  //LATA5 = 0;		// _OE=0
-        val = DATABUS_RD;
-		SRAM_OE = HIGH; //LATA5 = 1;		// _OE=1
-        */
         val = sram_read(addr16);
         if (wval != val) {
             printf("error at %04lx: written %02x, read %02x.\r\n", startaddr+i, wval,val);
@@ -360,12 +348,6 @@ uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
         
         wval ^= 0x55;
         DATABUS_MODE_OUTPUT;
-        /*
-        DATABUS_WR = wval;
-        SRAM_WE = LOW;  // LATA2 = 0;		// /WE=0
-        asm("nop");
-		SRAM_WE = HIGH; //LATA2 = 1;		// /WE=1
-        */
         sram_write(addr16, wval);
 	}
     return stopaddr;
@@ -377,15 +359,6 @@ uint16_t transfer_to_sram(const uint8_t arr[], uint16_t startaddr, uint32_t size
     ADDRBUS_MODE_OUTPUT;
     DATABUS_MODE_OUTPUT;
 	for(uint32_t i = 0; i < size; i++) {
-        /*
-		ab.w = (uint16_t) (startaddr + i);
-		ADDRBUS_HIGH_WR = ab.h;
-		ADDRBUS_LOW_WR  = ab.l;
-        DATABUS_WR = arr[i];
-		SRAM_WE = LOW; //LATA2 = 0;		// /WE=0
-        NOP(); //__delay_us(1);
-		SRAM_WE = HIGH; //LATA2 = 1;		// /WE=1
-         * */
         sram_write((startaddr + (uint16_t) i), arr[i]);
     }
     
@@ -394,15 +367,6 @@ uint16_t transfer_to_sram(const uint8_t arr[], uint16_t startaddr, uint32_t size
     uint16_t errcount = 0;
     DATABUS_MODE_INPUT;
 	for(uint32_t i = 0; i < size; i++) {
-        /*
-		ab.w = (uint16_t) (startaddr + i);
-		ADDRBUS_HIGH_WR = ab.h;
-		ADDRBUS_LOW_WR  = ab.l;
-		SRAM_OE = LOW; //LATA5 = 0;		// _OE=0
-        NOP(); //__delay_us(1);
-        val = DATABUS_RD;
-		SRAM_OE = HIGH; //LATA5 = 1;		// _OE=1
-        */
         val = sram_read( startaddr + (uint16_t) i );
         if (arr[i] != val) {
             errcount += 1;
