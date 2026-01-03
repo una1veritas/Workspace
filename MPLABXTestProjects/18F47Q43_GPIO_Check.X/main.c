@@ -32,15 +32,21 @@
     EXCEED AMOUNT OF FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR 
     THIS SOFTWARE.
 */
-#include "mcc_generated_files/system/system.h"
 
-/*
-    Main application
-*/
+#include <xc.h>
+#include "config_bits.h"
+
+#include <stdint.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "pic18common.h"
+#include "system.h"
+
+/*
+    Main application
+*/
 
 #define MAX_COMMAND_LEN         (8U)
 #define LINEFEED_CHAR           ((uint8_t)'\n')
@@ -54,29 +60,25 @@ void UART_ExecuteCommand(char *command);
 void UART_ProcessCommand(void);
 
 void IO_LED_SetLow() {
-    pinmode(B0, OUTPUT);
-    pinmode(B1, INPUT);
     pinwrite(B0, LOW);
     pinwrite(B1, LOW);
     pinwrite(B2, LOW);
     pinwrite(B3, LOW);
     pinwrite(B4, LOW);
     pinwrite(B5, LOW);
-    LATA0 = HIGH;
-    LATA1 = LOW;
+    pinwrite(B6, LOW);
+    pinwrite(B7, LOW);
 }
 
 void IO_LED_SetHigh() {
-    pinmode(B0, OUTPUT);
-    pinmode(B1, INPUT);
     pinwrite(B0, HIGH);
     pinwrite(B1, HIGH);
     pinwrite(B2, HIGH);
     pinwrite(B3, HIGH);
     pinwrite(B4, HIGH);
     pinwrite(B5, HIGH);
-    LATA0 = LOW;
-    LATA1 = HIGH;
+    pinwrite(B6, HIGH);
+    pinwrite(B7, HIGH);
 }
 
 void UART_ExecuteCommand(char *command)
@@ -122,9 +124,76 @@ void UART_ProcessCommand(void)
     }
 }
 
-int main(void)
+void io_init() {
+    
+    // UART3
+    // RX
+    pinmode(A7, INPUT);
+    pinADmode(A7, DIGITAL);
+    U3RXPPS = 0x7; //RA7->UART3:RX3;
+    // TX
+    pinmode(A6, OUTPUT);
+    RA6PPS = 0x26;  //RA6->UART3:TX3;
+    
+    //NCO1
+    RA3PPS = 0x3F;  //RA3->NCO1:NCO1;
+
+    LATB = 0;
+    portmode(B, PORT_OUTPUT);
+}
+void NCO1_init(void){
+
+    //NPWS 1_clk; NCKS HFINTOSC; 
+    NCO1CLK = 0x1;
+    //NCOACC 0x0; 
+    NCO1ACCU = 0x0;
+    //NCOACC 0x0; 
+    NCO1ACCH = 0x0;
+    //NCOACC 0x0; 
+    NCO1ACCL = 0x0;
+    //NCOINC 0; 
+    NCO1INCU = 0x0;
+    //NCOINC 128; 
+    NCO1INCH = 0x80;
+    //NCOINC 0; 
+    NCO1INCL = 0x0;
+    //NEN enabled; NPOL active_hi; NPFM FDC_mode; 
+    NCO1CON = 0x80;
+}
+ 
+void __interrupt(irq(NCO1),base(8)) NCO1_ISR()
 {
-    SYSTEM_Initialize();
+   // Clear the NCO interrupt flag
+    PIR6bits.NCO1IF = 0;
+}
+
+bool NCO1_GetOutputStatus(void) 
+{
+	return (NCO1CONbits.OUT);
+}
+
+void system_init(void) {
+    
+    // Clock initialize
+    // Set the CLOCK CONTROL module to the options selected in the user interface.
+    OSCCON1 = (0 << _OSCCON1_NDIV_POSN)   // NDIV 1
+        | (6 << _OSCCON1_NOSC_POSN);  // NOSC HFINTOSC    
+    OSCFRQ = (8 << _OSCFRQ_HFFRQ_POSN);  // HFFRQ 64_MHz
+    
+    pins_default();
+    io_init();
+    NCO1_init();
+    
+    UART3_init();
+    
+    INTERRUPT_Initialize();
+}
+
+
+int main(void) {
+    
+    system_init();
+
     // If using interrupts in PIC18 High/Low Priority Mode you need to enable the Global High and Low Interrupts 
     // If using interrupts in PIC Mid-Range Compatibility Mode you need to enable the Global Interrupts 
     // Use the following macros to: 

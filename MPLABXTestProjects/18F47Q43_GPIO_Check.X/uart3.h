@@ -43,7 +43,6 @@
 */
 /* cppcheck-suppress misra-c2012-21.6 */
 #include <stdio.h>
-#include "../system/system.h"
 
 #ifdef __cplusplus  // Provide C++ Compatibility
 
@@ -79,7 +78,7 @@ typedef union {
  * @param None.
  * @return None.
  */
-void UART3_Initialize(void);
+void UART3_init(void);
 
 /**
  * @ingroup uart3

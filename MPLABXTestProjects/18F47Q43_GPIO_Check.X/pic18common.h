@@ -25,7 +25,6 @@ extern "C" {
 #define PORT_WPUON  0xff
 #define PORT_WPUOFF 0x00
 
-
 #define ANALOG      1
 #define DIGITAL     0
 #define PORT_DIGITAL    0x00
@@ -39,6 +38,7 @@ extern "C" {
 #define pinmodewpu(pin)    (TRIS##pin = mode, WPU##pin = mode)
 #define pinwrite(pin, val) (LAT##pin = val) 
 #define pinread(pin)       (PORT##pin) 
+#define pinADmode(pin, val)        (ANSEL##pin = val)
 #define portmode(port, mode8)       (TRIS##port = mode8)
 #define portmodewpu(port, mode8)    (TRIS##port = mode8, WPU##port = mode8)
 #define portwrite(port, val8)       (LAT##port = val8)

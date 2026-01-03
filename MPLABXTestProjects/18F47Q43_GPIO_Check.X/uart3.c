@@ -1,40 +1,9 @@
-/**
- * UART3 Generated Driver API Header File
- * 
- * @file uart3.c
- * 
- * @ingroup uart3
- * 
- * @brief This is the generated driver implementation file for the UART3 driver using the Universal Asynchronous Receiver and Transmitter (UART) module.
- *
- * @version UART3 Driver Version 3.0.9
-*/
 
-/*
-� [2026] Microchip Technology Inc. and its subsidiaries.
+#include <xc.h>
+#include <stdint.h>
+#include <stdbool.h>
 
-    Subject to your compliance with these terms, you may use Microchip 
-    software and any derivatives exclusively with Microchip products. 
-    You are responsible for complying with 3rd party license terms  
-    applicable to your use of 3rd party software (including open source  
-    software) that may accompany Microchip software. SOFTWARE IS ?AS IS.? 
-    NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS 
-    SOFTWARE, INCLUDING ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT,  
-    MERCHANTABILITY, OR FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT 
-    WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE, 
-    INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY 
-    KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF 
-    MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE 
-    FORESEEABLE. TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP?S 
-    TOTAL LIABILITY ON ALL CLAIMS RELATED TO THE SOFTWARE WILL NOT 
-    EXCEED AMOUNT OF FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR 
-    THIS SOFTWARE.
-*/
-
-/**
-  Section: Included Files
-*/
-#include "../uart3.h"
+#include "uart3.h"
 
 /**
   Section: Macro Declarations
@@ -74,10 +43,10 @@ void UART3_ReceiveISR(void);
   Section: UART3  APIs
 */
 
-void UART3_Initialize(void)
+void UART3_init(void)
 {
     PIE9bits.U3RXIE = 0;   
-    //UART3_RxInterruptHandler = UART3_ReceiveISR; 
+    // directed UART3_ReceiveISR as UART3_RxInterruptHandler
 
     // Set the UART3 module to the options selected in the user interface.
 
@@ -93,10 +62,12 @@ void UART3_Initialize(void)
     U3CON1 = 0x80;
     //FLO off; TXPOL not inverted; STP Transmit 1Stop bit, receiver verifies first Stop bit; RXPOL not inverted; RUNOVF RX input shifter stops all activity; 
     U3CON2 = 0x0;
+    // BRG value 1666 = 57600 baud in high speed mode
     //BRGL 130; 
-    U3BRGL = 0x82;
+    //U3BRGL = 0x82;
     //BRGH 6; 
-    U3BRGH = 0x6;
+    //U3BRGH = 0x6;
+    U3BRG = 1666;
     //TXBE empty; STPMD in middle of first Stop bit; TXWRE No error; 
     U3FIFO = 0x2E;
     //ABDIE disabled; ABDIF Auto-baud not enabled or not complete; WUIF WUE not enabled by software; 
