@@ -89,14 +89,17 @@ void io_init() {
     
     //NCO1
     RA3PPS = 0x3F;  //RA3->NCO1:NCO1;
-
-    LATB = 0;
+    pinADmode(A3, DIGITAL); //ANSELA3 = 0;	// Disable analog function
+    pinmode(A3, OUTPUT);
+    
+    portwrite(B, 0);
     portmode(B, PORT_OUTPUT);
 }
 
 void NCO1_init(void){
 
     //NPWS 1_clk; NCKS HFINTOSC; 
+    // (0<<5 | 0x1 ) NCO output is active for 1 input clock periods, Clock source HFINTOSC
     NCO1CLK = 0x1;
     //NCOACC 0x0; 
     NCO1ACCU = 0x0;
@@ -104,12 +107,15 @@ void NCO1_init(void){
     NCO1ACCH = 0x0;
     //NCOACC 0x0; 
     NCO1ACCL = 0x0;
+    // NCO1INC = (unsigned int)(CLK_6502_FREQ / 30.5175781);
+    // 1MHz --> 0x008000
     //NCOINC 0; 
     NCO1INCU = 0x0;
     //NCOINC 128; 
     NCO1INCH = 0x80;
     //NCOINC 0; 
     NCO1INCL = 0x0;
+    
     //NEN enabled; NPOL active_hi; NPFM FDC_mode; 
     NCO1CON = 0x80;
 }

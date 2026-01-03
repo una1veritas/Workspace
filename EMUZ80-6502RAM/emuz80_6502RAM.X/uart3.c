@@ -30,23 +30,23 @@ void UART3_ReceiveISR(void);
 void setup_UART3() {
     /*
     //6551 Speed setting x 8
-    static uint16_t baud[] = {
-        416, // dummy 16 x External CLOCK
-        416, // dummy 120
-        416, // dummy 300
-        416, // dummy 600
-        416, // dummy 1200
-        416, // dummy 2400
-        416, // dummy 4800
-        416, // 9600
-        277, // 14400
-        207, // 19200
-        138, // 28800
-        103, // 38400
-        68,  // 57600
-        51,  // 76800
-        34,  // 115200
-        25,  // 153600
+    static uint32_t baud[] = {
+        0, // dummy 16 x External CLOCK
+        //133332, // dummy 120
+        53332, // dummy 300
+        26666, // dummy 600
+        13332, // dummy 1200
+        6666, // dummy 2400
+        3332, // dummy 4800
+        1666, // 9600
+        1110, // 14400
+        832, // 19200
+        555, // 28800
+        416, // 38400
+        277,  // 57600
+        207,  // 76800
+        138,  // 115200
+        103,  // 153600
     };
      * */
     /* interrupt */
@@ -57,30 +57,36 @@ void setup_UART3() {
     
     // UART3 initialize
     /*
-         //P1L 0x0; 
+    //P1L 0x0; 
     U3P1L = 0x0;
     //P2L 0x0; 
     U3P2L = 0x0;
     //P3L 0x0; 
     U3P3L = 0x0;
+    */
+    // U3CON0 = 0xB0 (10110000))
     //MODE Asynchronous 8-bit mode; RXEN enabled; TXEN enabled; ABDEN disabled; BRGS high speed; 
-    U3CON0 = 0xB0;
-    //SENDB disabled; BRKOVR disabled; RXBIMD Set RXBKIF on rising RX input; WUE disabled; ON enabled; 
-    U3CON1 = 0x80;
-    //FLO off; TXPOL not inverted; STP Transmit 1Stop bit, receiver verifies first Stop bit; RXPOL not inverted; RUNOVF RX input shifter stops all activity; 
-    U3CON2 = 0x0;
-*/
-   // U3CON0 = 0xB0 (10110000))
     U3BRGS = 1;
 	U3RXEN = 1;		// Receiver enable
 	U3TXEN = 1;		// Transmitter enable
 
-	U3BRG = 277; //68; // normal speed setting. baud[12]; // 57600 // 9600  //416;	// Console Serial Baud rate 9600bps @ 64MHz
+	U3BRG = 277; // normal speed setting 68. baud[12]; // 57600 // 9600  //416;	// Console Serial Baud rate 9600bps @ 64MHz
 
     // U3CON1 = 0x80
 	U3ON = 1;		// Serial port enable
     //FLO off; TXPOL not inverted; STP Transmit 1Stop bit, receiver verifies first Stop bit; RXPOL not inverted; RUNOVF RX input shifter stops all activity; 
+    
+    //FLO off; TXPOL not inverted; STP Transmit 1Stop bit, receiver verifies first Stop bit; RXPOL not inverted; RUNOVF RX input shifter stops all activity; 
+    //U3CON2
     U3CON2 = 0x0;
+    
+    //TXCIF equal; RXFOIF not overflowed; RXBKIF No Break detected; FERIF no error; CERIF No Checksum error; ABDOVF Not overflowed; PERIF no parity error; TXMTIF empty; 
+    // (1<<7) Transmit Shift Register Empty (possibly not requested to set)
+    U3ERRIR = 0x80;
+    
+    //All error interrupts dsiabled.
+    //TXCIE disabled; RXFOIE disabled; RXBKIE disabled; FERIE disabled; CERIE disabled; ABDOVE disabled; PERIE disabled; TXMTIE disabled; 
+    U3ERRIE = 0x0;
     
     // UART3 PPS Receiver
 	ANSELA7 = 0;	// Disable analog function
