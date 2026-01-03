@@ -18,6 +18,7 @@ void pins_default(void);
 void port_init(void);
 void NCO1_init(void);
 //bool NCO1_GetOutputStatus(void);
+void INTERRUPT_Initialize (void);
 
 #endif	/* SYSTEM_H */
 

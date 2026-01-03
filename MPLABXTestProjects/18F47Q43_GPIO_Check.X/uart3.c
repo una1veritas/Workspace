@@ -62,12 +62,11 @@ void UART3_init(void)
     U3CON1 = 0x80;
     //FLO off; TXPOL not inverted; STP Transmit 1Stop bit, receiver verifies first Stop bit; RXPOL not inverted; RUNOVF RX input shifter stops all activity; 
     U3CON2 = 0x0;
-    // BRG value 1666 = 57600 baud in high speed mode
+    // BRG value 1666 = 9600 baud in high speed mode
     //BRGL 130; 
-    //U3BRGL = 0x82;
+    U3BRGL = 0x82;
     //BRGH 6; 
-    //U3BRGH = 0x6;
-    U3BRG = 1666;
+    U3BRGH = 0x6;
     //TXBE empty; STPMD in middle of first Stop bit; TXWRE No error; 
     U3FIFO = 0x2E;
     //ABDIE disabled; ABDIF Auto-baud not enabled or not complete; WUIF WUE not enabled by software; 

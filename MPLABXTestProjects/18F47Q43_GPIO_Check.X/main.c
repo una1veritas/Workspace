@@ -40,6 +40,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "pic18common.h"
 #include "system.h"
@@ -56,71 +57,22 @@ static char command[MAX_COMMAND_LEN];
 static uint8_t index = 0;
 static uint8_t readMessage;
 
-void UART_ExecuteCommand(char *command);
-void UART_ProcessCommand(void);
+void LED_out(char c);
+void UART_ProcessInput(void);
 
-void IO_LED_SetLow() {
-    pinwrite(B0, LOW);
-    pinwrite(B1, LOW);
-    pinwrite(B2, LOW);
-    pinwrite(B3, LOW);
-    pinwrite(B4, LOW);
-    pinwrite(B5, LOW);
-    pinwrite(B6, LOW);
-    pinwrite(B7, LOW);
+void LED_out(char c) {
+    portwrite(B, c);
 }
 
-void IO_LED_SetHigh() {
-    pinwrite(B0, HIGH);
-    pinwrite(B1, HIGH);
-    pinwrite(B2, HIGH);
-    pinwrite(B3, HIGH);
-    pinwrite(B4, HIGH);
-    pinwrite(B5, HIGH);
-    pinwrite(B6, HIGH);
-    pinwrite(B7, HIGH);
-}
-
-void UART_ExecuteCommand(char *command)
-{
-    if(strcmp(command, "ON") == 0)
-    {
-        IO_LED_SetHigh();
-        (void)printf("OK, LED ON.\r\n");
-    }
-    else if (strcmp(command, "OFF") == 0)
-    {
-        IO_LED_SetLow();
-        (void)printf("OK, LED OFF.\r\n");
-    }
-    else
-    {
-        (void)printf("Incorrect command.\r\n");
-    }
-}
-
-void UART_ProcessCommand(void)
-{
-    if(UART3_IsRxReady())
-    {
-        readMessage = UART3_Read();
-        if ( (readMessage != LINEFEED_CHAR) && (readMessage != CARRIAGERETURN_CHAR) ) 
-        {
-            command[index++] = readMessage;
-            UART3_Write(readMessage);
-            if (index > MAX_COMMAND_LEN) 
-            {
-                (index) = 0;
-            }
-        }
+void UART_ProcessInput(void) {
+    char c;
     
-        if (readMessage == CARRIAGERETURN_CHAR) 
-        {
-            UART3_Write('\r');
-             command[index] = '\0';
-             index = 0;
-             UART_ExecuteCommand(command);
-         }
+    if(UART3_IsRxReady()) {
+        c = UART3_Read();
+        if ( isprint(c) ) {
+            putch(c);
+        }
+        LED_out(c);
     }
 }
 
@@ -141,6 +93,7 @@ void io_init() {
     LATB = 0;
     portmode(B, PORT_OUTPUT);
 }
+
 void NCO1_init(void){
 
     //NPWS 1_clk; NCKS HFINTOSC; 
@@ -160,7 +113,8 @@ void NCO1_init(void){
     //NEN enabled; NPOL active_hi; NPFM FDC_mode; 
     NCO1CON = 0x80;
 }
- 
+
+/*
 void __interrupt(irq(NCO1),base(8)) NCO1_ISR()
 {
    // Clear the NCO interrupt flag
@@ -171,6 +125,7 @@ bool NCO1_GetOutputStatus(void)
 {
 	return (NCO1CONbits.OUT);
 }
+*/
 
 void system_init(void) {
     
@@ -189,34 +144,50 @@ void system_init(void) {
     INTERRUPT_Initialize();
 }
 
+void  INTERRUPT_Initialize (void)
+{
+    INTCON0bits.IPEN = 1; // interrupt priorities are enabled
+
+    bool state = (unsigned char) GlobalInterruptHigh;
+    GlobalInterruptHigh = INT_DISABLE;
+    IVTLOCK = 0x55;
+    IVTLOCK = 0xAA;
+    IVTLOCKbits.IVTLOCKED = 0x00; // unlock IVT
+
+    IVTBASEU = 0;
+    IVTBASEH = 0;
+    IVTBASEL = 8;
+
+    IVTLOCK = 0x55;
+    IVTLOCK = 0xAA;
+    IVTLOCKbits.IVTLOCKED = 0x01; // lock IVT
+
+    GlobalInterruptHigh = state;
+    // Assign peripheral interrupt priority vectors
+    IPR9bits.U3RXIP = 1; //UART3 Receive Interrupt Priority
+
+}
+
+void __interrupt(irq(default),base(8)) Default_ISR()
+{
+}
+
 
 int main(void) {
     
     system_init();
-
-    // If using interrupts in PIC18 High/Low Priority Mode you need to enable the Global High and Low Interrupts 
-    // If using interrupts in PIC Mid-Range Compatibility Mode you need to enable the Global Interrupts 
-    // Use the following macros to: 
-
+    
     // Enable the Global High Interrupts 
-    INTERRUPT_GlobalInterruptHighEnable(); 
+    GlobalInterruptHigh = INT_ENABLE; 
 
-    // Disable the Global High Interrupts 
-    //INTERRUPT_GlobalInterruptHighDisable(); 
-
-    // Enable the Global Low Interrupts 
-    //INTERRUPT_GlobalInterruptLowEnable(); 
-
-    // Disable the Global Low Interrupts 
-    //INTERRUPT_GlobalInterruptLowDisable(); 
 
     
     printf("In the terminal, send 'ON' to turn the LED on, and 'OFF' to turn it off.\r\n");
     printf("Note: commands 'ON' and 'OFF' are case sensitive.\r\n");
     
-    UART_ExecuteCommand("OFF");
+    LED_out(0);
     while(1)
     {
-        UART_ProcessCommand();
+        UART_ProcessInput();
     }
 }

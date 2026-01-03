@@ -56,26 +56,43 @@ void setup_UART3() {
 #endif
     
     // UART3 initialize
-	U3BRG = 277; //68; // normal speed setting. baud[12]; // 57600 // 9600  //416;	// Console Serial Baud rate 9600bps @ 64MHz
-    // U3CON0 = 0xb0 (10110000))
+    /*
+         //P1L 0x0; 
+    U3P1L = 0x0;
+    //P2L 0x0; 
+    U3P2L = 0x0;
+    //P3L 0x0; 
+    U3P3L = 0x0;
+    //MODE Asynchronous 8-bit mode; RXEN enabled; TXEN enabled; ABDEN disabled; BRGS high speed; 
+    U3CON0 = 0xB0;
+    //SENDB disabled; BRKOVR disabled; RXBIMD Set RXBKIF on rising RX input; WUE disabled; ON enabled; 
+    U3CON1 = 0x80;
+    //FLO off; TXPOL not inverted; STP Transmit 1Stop bit, receiver verifies first Stop bit; RXPOL not inverted; RUNOVF RX input shifter stops all activity; 
+    U3CON2 = 0x0;
+*/
+   // U3CON0 = 0xB0 (10110000))
     U3BRGS = 1;
 	U3RXEN = 1;		// Receiver enable
 	U3TXEN = 1;		// Transmitter enable
 
-	// UART3 Receiver
+	U3BRG = 277; //68; // normal speed setting. baud[12]; // 57600 // 9600  //416;	// Console Serial Baud rate 9600bps @ 64MHz
+
+    // U3CON1 = 0x80
+	U3ON = 1;		// Serial port enable
+    //FLO off; TXPOL not inverted; STP Transmit 1Stop bit, receiver verifies first Stop bit; RXPOL not inverted; RUNOVF RX input shifter stops all activity; 
+    U3CON2 = 0x0;
+    
+    // UART3 PPS Receiver
 	ANSELA7 = 0;	// Disable analog function
 	TRISA7 = 1;		// RX set as input
 	U3RXPPS = 0x07;     //RA7->UART3:RX3;
 
 	// UART3 Transmitter
 	ANSELA6 = 0;	// Disable analog function
-	LATA6 = 1;		// Default level
+	LATA6 = 1;		// initialize by Default level
 	TRISA6 = 0;		// TX set as output
 	RA6PPS = 0x26;	//RA6->UART3:TX3;
 
-    // U3CON1 = 0x80
-	U3ON = 1;		// Serial port enable
-    
 #ifdef UART3RX_INTERRUPT
     /* interrupt & buffering */
     uart3RxLastError.status = 0;  

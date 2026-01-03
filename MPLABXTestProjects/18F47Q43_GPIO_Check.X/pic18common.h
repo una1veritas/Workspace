@@ -42,6 +42,7 @@ extern "C" {
 #define portmode(port, mode8)       (TRIS##port = mode8)
 #define portmodewpu(port, mode8)    (TRIS##port = mode8, WPU##port = mode8)
 #define portwrite(port, val8)       (LAT##port = val8)
+#define portread(port)       (PORT##port)
 
 #ifdef	__cplusplus
 }
