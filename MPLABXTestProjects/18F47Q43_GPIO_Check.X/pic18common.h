@@ -14,35 +14,33 @@ extern "C" {
 
 #define HIGH    1
 #define LOW     0
-
+#define ON      1
+#define OFF     0
 #define INPUT   1
 #define OUTPUT  0
+#define ENABLE  1
+#define DISABLE 0
+
 #define PORT_INPUT  0xff
 #define PORT_OUTPUT 0x00
-    
-#define WPUON      1
-#define WPUOFF     0
-#define PORT_WPUON  0xff
-#define PORT_WPUOFF 0x00
+#define PORT_ON     0xff
+#define PORT_OFF    0x00
 
-#define ANALOG      1
-#define DIGITAL     0
-#define PORT_DIGITAL    0x00
-#define PORT_ANALOG     0xff
-#define PORT_WPU_ON     0xff
-#define PORT_WPU_OFF    0x00
 #define WPU_ON      1
 #define WPU_OFF     0
 
 #define pinmode(pin, mode) (TRIS##pin = mode)
-#define pinmodewpu(pin)    (TRIS##pin = mode, WPU##pin = mode)
+// weak pull-up on then input mode (both by setting high)), 
+// and weak pull-up off then output mode (both by setting low))
+#define pinmodewpu(pin, mode)    (WPU##pin = mode, TRIS##pin = mode)
 #define pinwrite(pin, val) (LAT##pin = val) 
 #define pinread(pin)       (PORT##pin) 
-#define pinADmode(pin, val)        (ANSEL##pin = val)
+#define pinanalog(pin, val)        (ANSEL##pin = val)
 #define portmode(port, mode8)       (TRIS##port = mode8)
 #define portmodewpu(port, mode8)    (TRIS##port = mode8, WPU##port = mode8)
 #define portwrite(port, val8)       (LAT##port = val8)
 #define portread(port)       (PORT##port)
+#define portanalog(pin, val8)        (ANSEL##pin = val)
 
 #ifdef	__cplusplus
 }

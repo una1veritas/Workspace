@@ -10,7 +10,10 @@
 #endif
 
 #include "uart3.h"
-#include "interrupt.h"
+
+#define GlobalInterruptHigh     (INTCON0bits.GIE)
+#define GlobalInterrupt         (INTCON0bits.GIE)
+#define GlobalInterruptLow      (INTCON0bits.GIEL)
 
 void system_init(void);
 void pins_default(void);
@@ -18,7 +21,8 @@ void pins_default(void);
 void port_init(void);
 void NCO1_init(void);
 //bool NCO1_GetOutputStatus(void);
-void INTERRUPT_Initialize (void);
+void Interrupt_init(void);
+void CLC_init(void);
 
 #endif	/* SYSTEM_H */
 

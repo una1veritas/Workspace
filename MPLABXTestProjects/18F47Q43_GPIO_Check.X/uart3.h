@@ -87,7 +87,7 @@ void UART3_init(void);
  * @param None.
  * @return None.
  */
-void UART3_Deinitialize(void);
+void UART3_deinit(void);
 
 /**
  * @ingroup uart3

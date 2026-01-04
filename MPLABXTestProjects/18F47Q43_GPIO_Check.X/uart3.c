@@ -56,17 +56,16 @@ void UART3_init(void)
     U3P2L = 0x0;
     //P3L 0x0; 
     U3P3L = 0x0;
-    //MODE Asynchronous 8-bit mode; RXEN enabled; TXEN enabled; ABDEN disabled; BRGS high speed; 
+    //MODE Asynchronous 8-bit mode; RXEN enabled; TXEN enabled; ABDEN disabled; BRGS = 1 high speed; 
     U3CON0 = 0xB0;
     //SENDB disabled; BRKOVR disabled; RXBIMD Set RXBKIF on rising RX input; WUE disabled; ON enabled; 
     U3CON1 = 0x80;
     //FLO off; TXPOL not inverted; STP Transmit 1Stop bit, receiver verifies first Stop bit; RXPOL not inverted; RUNOVF RX input shifter stops all activity; 
     U3CON2 = 0x0;
     // BRG value 1666 = 9600 baud in high speed mode
-    //BRGL 130; 
-    U3BRGL = 0x82;
-    //BRGH 6; 
-    U3BRGH = 0x6;
+    //U3BRGL = 0x15;
+    //U3BRGH = 0x1;
+    U3BRG = 277;
     //TXBE empty; STPMD in middle of first Stop bit; TXWRE No error; 
     U3FIFO = 0x2E;
     //ABDIE disabled; ABDIF Auto-baud not enabled or not complete; WUIF WUE not enabled by software; 
@@ -87,7 +86,7 @@ void UART3_init(void)
     PIE9bits.U3RXIE = 1;
 }
 
-void UART3_Deinitialize(void)
+void UART3_deinit(void)
 {
     PIE9bits.U3RXIE = 0;   
     U3RXB = 0x00;
@@ -116,6 +115,7 @@ void UART3_Disable(void)
     U3CON1bits.ON = 0; 
 }
 
+/*
 void UART3_TransmitEnable(void)
 {
     U3CON0bits.TXEN = 1;
@@ -187,6 +187,8 @@ void UART3_ReceiveInterruptDisable(void)
 {
     PIE9bits.U3RXIE = 0;
 }
+
+ */
 
 bool UART3_IsRxReady(void)
 {
@@ -282,6 +284,7 @@ int getch(void)
     return UART3_Read();
 }
 
+// call back for printf
 void putch(char txData)
 {
     while(!(UART3_IsTxReady()))
