@@ -63,7 +63,7 @@
 #include <xc.h>
 #include <stdio.h>
 
-#define Z80_CLK 2500000UL // Z80 clock frequency(Max 16MHz)
+#define Z80_CLK 2000000UL // Z80 clock frequency(Max 16MHz)
 
 #define ROM_SIZE 0x4000 //16K bytes
 #define RAM_SIZE 0x1000 //4K bytes

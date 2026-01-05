@@ -77,7 +77,7 @@ void PIN_MANAGER_Initialize(void)
     LATD = 0x0;
     LATE = 0x0;
     /**
-    ODx registers
+    ODx registers open drain off
     */
     ODCONA = 0x0;
     ODCONB = 0x0;
@@ -86,7 +86,7 @@ void PIN_MANAGER_Initialize(void)
     ODCONE = 0x0;
 
     /**
-    TRISx registers all input
+    TRISx registers set all input except RA6 (TX3)
     */
     TRISA = 0xBF;
     TRISB = 0xFF;
@@ -114,7 +114,7 @@ void PIN_MANAGER_Initialize(void)
 
 
     /**
-    SLRCONx registers
+    SLRCONx registers maximum slew rate
     */
     SLRCONA = 0xFF;
     SLRCONB = 0xFF;
@@ -123,13 +123,13 @@ void PIN_MANAGER_Initialize(void)
     SLRCONE = 0x7;
 
     /**
-    INLVLx registers
+    INLVLx registers ST mode (INLVL=1, default) mode use rising threshold around 1.3V
     */
-    INLVLA = 0xFF;
-    INLVLB = 0xFF;
-    INLVLC = 0xFF;
-    INLVLD = 0xFF;
-    INLVLE = 0xF;
+    INLVLA = 0;//0xFF;
+    INLVLB = 0;//0xFF;
+    INLVLC = 0;//0xFF;
+    INLVLD = 0;//0xFF;
+    INLVLE = 0;//0xF;
 
    /**
     RxyI2C | RxyFEAT registers   
@@ -142,11 +142,13 @@ void PIN_MANAGER_Initialize(void)
     /**
     PPS registers
     */
+    // UART3
+    ANSELA7 = 0;
     U3RXPPS = 0x7; //RA7->UART3:RX3;
     RA6PPS = 0x26;  //RA6->UART3:TX3;
 
    /**
-    IOCx registers 
+    IOCx registers interrupt on pin change 
     */
     IOCAP = 0x0;
     IOCAN = 0x0;
@@ -161,59 +163,6 @@ void PIN_MANAGER_Initialize(void)
     IOCEN = 0x0;
     IOCEF = 0x0;
 
-    // /RESET /HALT (RE0) output pin, starts LOW
-	LATE0   = LOW;		// /Reset = Low
-	TRISE0 = OUTPUT;		// Set as output
-
-	// /BR (RE1) _BR BUSREQUEST output pin, starts LOW
-	LATE1   = LOW;		// BE = Low
-	TRISE1  = OUTPUT;		// Set as output
-
-    // /BG bus grant RC2
-    LATC2   = 0;
-    TRISC2  = INPUT;
-    WPUC2   = HIGH;
-
-    // /DTACK RC5
-    LATC5   = HIGH;
-    TRISC5  = OUTPUT;
-    WPUC5   = HIGH;
-    
-	// ALE 74LS373 C (LE) RE2
-	LATE2   = HIGH;     // pass thru
-	TRISE2  = OUTPUT;	// Set as input
-    
-	// ALE_OE 74LS373 /LAT_OE (/OC) RC3
-    LATC3   = HIGH;     // output disable
-    TRISC3  = OUTPUT;
-
-	// D0 - D7/A0 - A7 pin
-	LATB   = 0x00;
-	TRISB  = 0xff;	// Set as input
-    WPUD   = 0xff;  // weak pull up
-
-	// Address bus A8 - A15 pin
-    // setting the whole 8 bits on port
-	LATD    = 0x00;
-	TRISD   = 0xff; // Set as input
-    WPUD    = 0xff; // weak pull up
-    
-    // A16 - A19 (RA0 - RA4, only A19 (RA3) is pull-downed by hardware))
-    LATA    = 0x00;
-    TRISA   |= 0x0f; // OUTPUT
-    
-    // CPU R/W RA4
-    TRISA4  = INPUT;
-    
-    
-    // SPI_SS/ /LED (RC7)
-    LATC7   = HIGH;
-    TRISC7  = OUTPUT;
-    
-    // AS (RC1), DS (RC0))
-    TRISC0  = INPUT;
-    TRISC1  = INPUT;
-    
 }
 
 /*

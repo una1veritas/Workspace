@@ -16,16 +16,19 @@ extern "C" {
 #define INPUT   1
 #define OUTPUT  0
 #define PORT_INPUT  0xff
-#define PORT_OUTPUT 0xff
+#define PORT_OUTPUT 0x00
+    
+#define WPUON      1
+#define WPUOFF     0
+#define PORT_WPUON  0xff
+#define PORT_WPUOFF 0x00
 
 #define HIGH    1
 #define LOW     0
 
 #define ANALOG      1
 #define DIGITAL     0
-
-#define PULL_UP_ENABLED      1
-#define PULL_UP_DISABLED     0
+#define PORT_DIGITAL 0x00
 
 #ifdef	__cplusplus
 }
