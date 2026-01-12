@@ -63,16 +63,16 @@
 #include <xc.h>
 #include <stdio.h>
 
-#define Z80_CLK 2000000UL // Z80 clock frequency(Max 16MHz)
+#define Z80_CLK     4000000UL // Z80 clock frequency(Max 16MHz)
 
-#define ROM_SIZE 0x4000 //16K bytes
-#define RAM_SIZE 0x1000 //4K bytes
-#define RAM_TOP 0x8000 //RAM top address
-#define RAM_END RAM_TOP+RAM_SIZE
-#define UART_DREG 0xE000 //Data REG
-#define UART_CREG 0xE001 //Control REG
+#define ROM_SIZE    0x4000 //16K bytes
+#define RAM_SIZE    0x1000 //4K bytes
+#define RAM_TOP     0x8000 //RAM top address
+#define RAM_END     RAM_TOP+RAM_SIZE
+#define UART_DREG   0xE000 //Data REG
+#define UART_CREG   0xE001 //Control REG
 
-#define _XTAL_FREQ 64000000UL
+#define _XTAL_FREQ  64000000UL
 
 //Z80 ROM equivalent, see end of this file
 extern const unsigned char rom[];
@@ -202,7 +202,7 @@ void main(void) {
     NCO1EN = 1;   // NCO enable
 
     // UART3 initialize
-    U3BRG = 416; // 9600bps @ 64MHz
+    U3BRG =  416; // 9600bps @ 64MHz
     U3RXEN = 1; // Receiver enable
     U3TXEN = 1; // Transmitter enable
 

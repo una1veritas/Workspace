@@ -50,15 +50,17 @@ void CLOCK_Initialize(void)
 }
 
 void NCO1_Initialize(void) {
-    // NCO1 setup as clock source to PH2IN on RA3 
+    // NCO1 setup as clock source to MC68008 CLK (34) on RA3 
     // CPU clock (RA5) by NCO FDC mode
 
-	RA5PPS = 0x3f;	// RA15 --> NCO1
-    ANSELAbits.ANSELA5 = 0; // Disable analog function
+	RA5PPS = 0x3f;	// RA5 --> NCO1
+    ANSELAbits.ANSELA5 = DISABLE; // Disable analog function
 	//TRISA5 = 0;		// NCO output pin
-    TRISAbits.TRISA5 = 0;
+    TRISAbits.TRISA5 = OUTPUT;
+    WPUAbits.WPUA5 = DISABLE;
+    
 	NCO1INC = (unsigned int)(CLK_68008_FREQ / 30.5175781);
-	NCO1CLK = 0x00; // (0<<5 | 0x1 ) NCO output is active for 1 input clock periods, Clock source HFINTOSC
+	NCO1CLK = 0x01; // (0<<5 | 0x1 ) NCO output is active for 1 input clock periods, Clock source HFINTOSC
 	NCO1PFM = 0;	// FDC mode (fixed to 50% duty)
 	NCO1OUT = 1;	// NCO output enable
 	NCO1EN = 1;		// NCO enable
@@ -86,7 +88,7 @@ void PIN_MANAGER_Initialize(void)
     ODCONE = 0x0;
 
     /**
-    TRISx registers set all input except RA6 (TX3)
+    TRISx registers set all input except RA6 (TX3) and RA5 (NCO1)
     */
     TRISA = 0xBF;
     TRISB = 0xFF;
@@ -143,9 +145,7 @@ void PIN_MANAGER_Initialize(void)
     PPS registers
     */
     // UART3
-    ANSELA7 = 0;
-    U3RXPPS = 0x7; //RA7->UART3:RX3;
-    RA6PPS = 0x26;  //RA6->UART3:TX3;
+    // NCO1
 
    /**
     IOCx registers interrupt on pin change 

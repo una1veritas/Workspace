@@ -13,6 +13,7 @@
 /**
   Section: Included Files
 */
+#include "pic18common.h"
 #include "uart3.h"
 
 /**
@@ -91,10 +92,13 @@ void UART3_Initialize(void)
     uart3RxCount = 0;
     PIE9bits.U3RXIE = 1;
     
-    /*
-    U3RXPPS = 0x7; //RA7->UART3:RX3;
+    // UART3
+    ANSELAbits.ANSELA7 = DISABLE; // Disable analog function
+    U3RXPPS = 0x7;  //RA7->UART3:RX3;
+
+	TRISAbits.TRISA6 = OUTPUT;
     RA6PPS = 0x26;  //RA6->UART3:TX3;
-     */
+
 }
 
 void UART3_Deinitialize(void)

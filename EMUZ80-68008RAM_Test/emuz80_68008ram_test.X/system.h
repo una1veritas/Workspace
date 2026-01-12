@@ -21,15 +21,11 @@ extern "C" {
 #define _XTAL_FREQ 64000000U
 //#endif
 
-#define CLK_68008_FREQ   8000UL
+#define CLK_68008_FREQ   8000000UL
 
 void CLOCK_Initialize(void);
 
-
-
 void PIN_MANAGER_Initialize (void);
-
-//void PIN_MANAGER_IOC(void);
 
 void NCO1_Initialize(void);
 
