@@ -221,12 +221,13 @@ int main(void)
     
     SYSTEM_Initialize();
     //board_pin_setup();
+    /*
     TRISB = PORT_INPUT;
     WPUD = PORT_WPUOFF;
     LATD = 0x00;
     TRISD = PORT_OUTPUT;
     WPUD = PORT_WPUOFF;
-    
+    */
     printf("\e[H\e[2J");
     printf("Hello World!\r\n");
     printf("Type characters in the terminal, to have them echoed back ...\r\n");
