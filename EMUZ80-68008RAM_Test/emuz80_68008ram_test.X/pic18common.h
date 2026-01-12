@@ -29,18 +29,28 @@ extern "C" {
 #define WPU_ON      1
 #define WPU_OFF     0
 
-#define pinmode(pin, mode) (TRIS##pin = mode)
+#define MACROCAT(x,y)   _MACROCAT(x,y)
+#define _MACROCAT(x,y)  x ## y
+    
+#define pinmode(pin, mode)  ( MACROCAT(TRIS, pin) = mode)
 // weak pull-up on then input mode (both by setting high)), 
-// and weak pull-up off then output mode (both by setting low))
-#define pinmodewpu(pin, mode)    (WPU##pin = mode, TRIS##pin = mode)
-#define pinwrite(pin, val) (LAT##pin = val) 
-#define pinread(pin)       (PORT##pin) 
-#define pinanalog(pin, val)        (ANSEL##pin = val)
-#define portmode(port, mode8)       (TRIS##port = mode8)
-#define portmodewpu(port, mode8)    (TRIS##port = mode8, WPU##port = mode8)
-#define portwrite(port, val8)       (LAT##port = val8)
-#define portread(port)       (PORT##port)
-#define portanalog(pin, val8)        (ANSEL##pin = val)
+#define pinmodewpu(pin, mode)    ( MACROCAT(WPU, pin) = mode, MACROCAT(TRIS, pin) = mode)
+#define portmode(port, modebyte)        ( MACROCAT(TRIS,port) = modebyte)
+#define portmodewpu(port, modebyte)     ( MACROCAT(TRIS,port) = modebyte, MACROCAT(WPU,port) = modebyte)
+#define TRIS(pinport)           ( MACROCAT(TRIS, pinport) )
+#define WPU(pinport)            ( MACROCAT(WPU, pinport))
+
+#define pinwrite(pin, val)              ( MACROCAT(LAT,pin) = val ) 
+#define portwrite(port, modebyte)       ( MACROCAT(LAT,port) = modebyte)
+#define LAT(pinport)                    ( MACROCAT(TRIS, pinport) )
+
+#define pinread(pin)                    ( MACROCAT(R,pin) ) 
+#define portread(port)                  ( MACROCAT(PORT, port) )
+#define PORT(port)                      ( MACROCAT(PORT, port) )
+
+#define pinanalogmode(pin, mode)       ( MACROCAT(ANSEL,pin) = val)
+#define portanalogmode(port, modebyte)        ( MACROCAT(ANSEL,pin) = modebyte)
+#define ANSEL(pinport, onoff)           (MACROCAT(ANSEL, pinport) = onoff)
 
 #ifdef	__cplusplus
 }
