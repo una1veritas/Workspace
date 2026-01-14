@@ -10,7 +10,7 @@
  * @version UART3 Driver Version 3.0.9
 */
 /*
-© [2026] Microchip Technology Inc. and its subsidiaries.
+ï¿½ [2026] Microchip Technology Inc. and its subsidiaries.
 
     Subject to your compliance with these terms, you may use Microchip 
     software and any derivatives exclusively with Microchip products. 
@@ -43,7 +43,6 @@
 */
 /* cppcheck-suppress misra-c2012-21.6 */
 #include <stdio.h>
-#include "../system/system.h"
 
 #ifdef __cplusplus  // Provide C++ Compatibility
 
@@ -79,7 +78,7 @@ typedef union {
  * @param None.
  * @return None.
  */
-void UART3_Initialize(void);
+void UART3_init(void);
 
 /**
  * @ingroup uart3
@@ -88,7 +87,7 @@ void UART3_Initialize(void);
  * @param None.
  * @return None.
  */
-void UART3_Deinitialize(void);
+void UART3_deinit(void);
 
 /**
  * @ingroup uart3
@@ -269,46 +268,6 @@ uint8_t UART3_Read(void);
  * @return None.
  */
 void UART3_Write(uint8_t txData);
-
-/**
- * @ingroup uart3
- * @brief Calls the function upon UART3 framing error.
- * @param callbackHandler - Function pointer called when the framing error condition occurs
- * @return None.
- */
-void UART3_FramingErrorCallbackRegister(void (* callbackHandler)(void));
-
-/**
- * @ingroup uart3
- * @brief Calls the function upon UART3 overrun error.
- * @param callbackHandler - Function pointer called when the overrun error condition occurs
- * @return None.
- */
-void UART3_OverrunErrorCallbackRegister(void (* callbackHandler)(void));
-
-/**
- * @ingroup uart3
- * @brief Calls the function upon UART3 parity error.
- * @param callbackHandler - Function pointer called when the parity error condition occurs
- * @return None.
- */
-void UART3_ParityErrorCallbackRegister(void (* callbackHandler)(void));
-
-/**
- * @ingroup uart3
- * @brief This indicates the function called when the receiver interrupt occurs.
- * @pre Initialize the UART3 module with the receive interrupt enabled.
- * @param None.
- * @return None.
- */
-extern void (*UART3_RxInterruptHandler)(void);
-/**
- * @ingroup uart3
- * @brief Registers the function to be called when the receiver interrupt occurs
- * @param callbackHandler - Function pointer called when the receiver interrupt condition occurs
- * @return None.
- */
-void UART3_RxCompleteCallbackRegister(void (* callbackHandler)(void));
 
 /**
  * @ingroup uart3

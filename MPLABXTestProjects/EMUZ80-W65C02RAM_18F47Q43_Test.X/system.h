@@ -20,7 +20,7 @@
 void system_init(void);
 void pins_default(void);
 //void PIN_MANAGER_IOC(void);
-void port_init(void);
+void W65C02_interface_init(void);
 void NCO1_init(void);
 //bool NCO1_GetOutputStatus(void);
 void Interrupt_init(void);

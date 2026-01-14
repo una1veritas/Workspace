@@ -12,27 +12,6 @@
  * @version Package Version: 3.1.2
 */
 
-/*
-� [2026] Microchip Technology Inc. and its subsidiaries.
-
-    Subject to your compliance with these terms, you may use Microchip 
-    software and any derivatives exclusively with Microchip products. 
-    You are responsible for complying with 3rd party license terms  
-    applicable to your use of 3rd party software (including open source  
-    software) that may accompany Microchip software. SOFTWARE IS ?AS IS.? 
-    NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS 
-    SOFTWARE, INCLUDING ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT,  
-    MERCHANTABILITY, OR FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT 
-    WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE, 
-    INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY 
-    KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF 
-    MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE 
-    FORESEEABLE. TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP?S 
-    TOTAL LIABILITY ON ALL CLAIMS RELATED TO THE SOFTWARE WILL NOT 
-    EXCEED AMOUNT OF FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR 
-    THIS SOFTWARE.
-*/
-
 #include <xc.h>
 #include "config_bits.h"
 
@@ -45,9 +24,6 @@
 #include "pic18common.h"
 #include "system.h"
 
-/*
-    Main application
-*/
 
 #define MAX_COMMAND_LEN         (8U)
 #define LINEFEED_CHAR           ((uint8_t)'\n')
@@ -61,40 +37,26 @@ void LED_out(char c);
 void UART_ProcessInput(void);
 
 void LED_out(char c) {
-    portwrite(B, c);
+    portwrite(B, c); // address bus is set as output
 }
 
 void UART_ProcessInput(void) {
     char c;
     
-    if(UART3_IsRxReady()) {
-        c = UART3_Read();
-        if ( isprint(c) ) {
-            putch(c);
+    c = UART3_Read();
+    if ( isprint(c) ) {
+        putch(c);
+    } else {
+        printf("<%d>", c);
+        putch(c);
+        if ( c == '\r' ) {
+            putch('\n');
         }
-        LED_out(c);
     }
+    LED_out(c);
 }
 
-void io_init() {
-    
-    // UART3
-    // RX
-    pinmode(A7, INPUT);
-    pinanalog(A7, DISABLE);
-    U3RXPPS = 0x7; //RA7->UART3:RX3; default value 
-    // TX
-    pinmode(A6, OUTPUT);
-    RA6PPS = 0x26;  //RA6->UART3:TX3;
-    
-    //NCO1
-    RA3PPS = 0x3F;  //RA3->NCO1:NCO1;
-    pinanalog(A3, DISABLE); //ANSELA3 = 0;	// Disable analog function
-    pinmode(A3, OUTPUT);
-    
-    portwrite(B, 0);
-    portmode(B, PORT_OUTPUT);
-
+void W65C02_interface_init() {
     // specific pins & ports
     // only to change/to ensure from default setting in pins_default
     
@@ -143,7 +105,11 @@ void io_init() {
 }
 
 void NCO1_init(void){
-
+    // NCO1 pin
+    RA3PPS = 0x3F;  //RA3->NCO1:NCO1;
+    pinanalog(A3, DISABLE); //ANSELA3 = 0;	// Disable analog function
+    pinmode(A3, OUTPUT);
+    
     //NPWS 1_clk; NCKS HFINTOSC; 
     // (0<<5 | 0x1 ) NCO output is active for 1 input clock periods, Clock source HFINTOSC
     NCO1CLK = 0x1;
@@ -181,16 +147,16 @@ bool NCO1_GetOutputStatus(void)
 
 void system_init(void) {
     
-    // Clock initialize
+    // HFINTOSC Clock initialize
     // Set the CLOCK CONTROL module to the options selected in the user interface.
     OSCCON1 = (0 << _OSCCON1_NDIV_POSN)   // NDIV 1
         | (6 << _OSCCON1_NOSC_POSN);  // NOSC HFINTOSC    
     OSCFRQ = (8 << _OSCFRQ_HFFRQ_POSN);  // HFFRQ 64_MHz
     
     pins_default();
-    io_init();
-    NCO1_init();
     
+    W65C02_interface_init();
+    NCO1_init();
     UART3_init();
     
     CLC_init();
@@ -225,6 +191,9 @@ void __interrupt(irq(default),base(8)) Default_ISR()
 {
 }
 
+/* UART3 ISR is defined in uart3.c */
+
+
 int main(void) {
     
     system_init();
@@ -238,7 +207,9 @@ int main(void) {
     LED_out(0);
     while(1)
     {
-        UART_ProcessInput();
+        if ( UART3_IsRxReady() ) {
+            UART_ProcessInput();
+        }
     }
 }
 

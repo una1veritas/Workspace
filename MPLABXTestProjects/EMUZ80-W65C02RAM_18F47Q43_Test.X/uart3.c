@@ -42,7 +42,26 @@ void UART3_ReceiveISR(void);
 
 /**
   Section: UART3  APIs
-*/
+    //6551 Speed setting x 8
+    static uint32_t baud[] = {
+        0, // dummy 16 x External CLOCK
+        //133332, // dummy 120
+        53332, // dummy 300
+        26666, // dummy 600
+        13332, // dummy 1200
+        6666, // dummy 2400
+        3332, // dummy 4800
+        1666, // 9600
+        1110, // 14400
+        832, // 19200
+        555, // 28800
+        416, // 38400
+        277,  // 57600
+        207,  // 76800
+        138,  // 115200
+        103,  // 153600
+    };
+     **/
 
 void UART3_init(void)
 {
@@ -52,7 +71,7 @@ void UART3_init(void)
     // UART3 I/O pins
     // RX
     pinmode(A7, INPUT);
-    pinanalog(A7, DISABLE);
+    pinanalogmode(A7, DISABLE);
     U3RXPPS = 0x7; //RA7->UART3:RX3; default value 
     // TX
     pinmode(A6, OUTPUT);

@@ -94,6 +94,7 @@
 
 #include <xc.h>
 #include <stdio.h>
+#include <ctype.h>
 
 //#define DEBUG
 
@@ -414,7 +415,13 @@ void main(void) {
 			ab.h = PORTD;					// Read address high
 			ab.l = PORTB;					// Read address low
 			if(ab.w == UART_DREG) {			// UART data register
-				U3TXB = PORTC;				// Write into U3 TX buffer
+                uint8_t c = PORTC;
+                //if ( isprint(c) ) {
+                U3TXB = c;				// Write into U3 TX buffer
+                //} else {
+                //    printf("<%d>", c);
+                //    //U3TXB = c;				// Write into U3 TX buffer
+                //}
 			}
 		}
 #endif

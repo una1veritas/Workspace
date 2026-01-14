@@ -14,8 +14,6 @@ extern "C" {
 
 #define HIGH    1
 #define LOW     0
-#define ON      1
-#define OFF     0
 #define INPUT   1
 #define OUTPUT  0
 #define ENABLE  1
