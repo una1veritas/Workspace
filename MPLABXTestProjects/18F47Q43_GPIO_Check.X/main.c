@@ -60,12 +60,12 @@ void W65C02_interface_init() {
     // specific pins & ports
     // only to change/to ensure from default setting in pins_default
     
-    // /RESET (RE2) output pin    
+    // /RESB (RESET) and HALT (RE2) output pin    
 	pinwrite(E2, LOW);      //LATE2 = 0;		// /Reset = Low
 	pinmode(E2, OUTPUT);    //TRISE2 = 0;		// Set as output
 
 	// BE (RE0) output pin
-	pinwrite(E0, LOW); //LATE0 = 0;		// BE = Low, bus request
+	pinwrite(E0, LOW);   //LATE0 = 0;		// BE = Low, bus request
 	pinmode(E0, OUTPUT); //TRISE0 = 0;		// Set as output
 
     // memory and I/O buses */
@@ -145,24 +145,6 @@ bool NCO1_GetOutputStatus(void)
 }
 */
 
-void system_init(void) {
-    
-    // HFINTOSC Clock initialize
-    // Set the CLOCK CONTROL module to the options selected in the user interface.
-    OSCCON1 = (0 << _OSCCON1_NDIV_POSN)   // NDIV 1
-        | (6 << _OSCCON1_NOSC_POSN);  // NOSC HFINTOSC    
-    OSCFRQ = (8 << _OSCFRQ_HFFRQ_POSN);  // HFFRQ 64_MHz
-    
-    pins_default();
-    
-    W65C02_interface_init();
-    NCO1_init();
-    UART3_init();
-    
-    CLC_init();
-    Interrupt_init();
-}
-
 void  Interrupt_init(void)
 {
     INTCON0bits.IPEN = 1; // interrupt priorities are enabled
@@ -192,6 +174,24 @@ void __interrupt(irq(default),base(8)) Default_ISR()
 }
 
 /* UART3 ISR is defined in uart3.c */
+
+void system_init(void) {
+    
+    // HFINTOSC Clock initialize
+    // Set the CLOCK CONTROL module to the options selected in the user interface.
+    OSCCON1 = (0 << _OSCCON1_NDIV_POSN)   // NDIV 1
+        | (6 << _OSCCON1_NOSC_POSN);  // NOSC HFINTOSC    
+    OSCFRQ = (8 << _OSCFRQ_HFFRQ_POSN);  // HFFRQ 64_MHz
+    
+    pins_default();
+    
+    W65C02_interface_init();
+    NCO1_init();
+    UART3_init();
+    
+    //CLC_init();
+    Interrupt_init();
+}
 
 
 int main(void) {
