@@ -332,14 +332,9 @@ void UART_ProcessInput(void) {
     char c;
     
     c = UART3_Read();
-    sram_write(0, c);
     if ( isprint(c) ) {
-        c = 0xff;
-        c = sram_read(0);
         putch(c);
     } else {
-        c = 0x55;
-        c = sram_read(0);
         printf("<%d>", c);
         putch(c);
         if ( c == '\r' ) {
@@ -348,18 +343,45 @@ void UART_ProcessInput(void) {
     }
 }
 
+uint16_t load_rom(const uint8_t rom[], const uint16_t dst_addr, const uint16_t bytesize) {
+    // returns the number of read/write check failures
+    uint16_t errors = 0;
+    uint8_t onebyte;
+    for(uint16_t bytecount = 0; bytecount < bytesize; ++bytecount) {
+        sram_write(dst_addr + bytecount, rom[bytecount]);
+    }
+    for(uint16_t bytecount = 0; bytecount < bytesize; ++bytecount) {
+        onebyte = sram_read(dst_addr + bytecount);
+        if ( onebyte != rom[bytecount] ) {
+            if ( errors == 0 ) {
+                printf("the first error occurred at %04x.\n", dst_addr + bytecount);
+            }
+            ++errors;
+        }
+    }
+    return errors;
+}
+
 int main(void) {
+    uint16_t errcount;
     
     system_init();
     
     // Enable the Global High Interrupts 
     GlobalInterruptHigh = ENABLE; 
     
-    set_busmode_DMA();
-
     printf("\e[H\e[2JHello, System initialized. UART3 enabled.\r\n");
     printf("CLC init is skipped.\r\n");
-    printf("This program simply echos back.\r\n");
+
+    set_busmode_DMA();
+    printf("loading rom... ");
+    errcount = load_rom(ROM, ROM_TOP, ROM_SIZE);
+    if (! errcount) {
+        printf("\r%u kb loaded from %04x with no errors.\r\n", ROM_SIZE/1024, ROM_TOP);
+    } else {
+        printf("\r%u errors occurred during loading rom.\r\n", errcount);
+    }
+    printf("Now this program simply echos back.\r\n");
 
     while(1)
     {
