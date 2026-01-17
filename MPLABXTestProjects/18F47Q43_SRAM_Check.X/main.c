@@ -182,63 +182,6 @@ void sram_write(const uint16_t addr, const uint8_t data) {
     SRAM_WE = HIGH; //LATA2 = 1;		// /WE=1    
 }
 
-uint32_t memory_check(uint32_t startaddr, uint32_t endaddr) {
-    uint32_t stopaddr = endaddr;
-    uint8_t val, wval;
-    uint16_t addr16;
-    
-    ADDRBUS_MODE_OUTPUT;
-	for(uint32_t i = startaddr; i < endaddr; i++) {
-        addr16 = (uint16_t) (startaddr+i);
-        DATABUS_MODE_INPUT;
-        val = sram_read(addr16);
-        
-        wval = val^0x55;
-        DATABUS_MODE_OUTPUT;
-        sram_write(addr16, wval);
-
-        DATABUS_MODE_INPUT;
-        val = sram_read(addr16);
-        if (wval != val) {
-            printf("error at %04lx: written %02x, read %02x.\r\n", startaddr+i, wval,val);
-            stopaddr = startaddr+i;
-            break;
-        }
-        
-        wval ^= 0x55;
-        DATABUS_MODE_OUTPUT;
-        sram_write(addr16, wval);
-	}
-    return stopaddr;
-}
-
-uint16_t transfer_to_sram(const uint8_t arr[], uint16_t startaddr, uint32_t size) {
-    printf("Transferring %luk bytes data to SRAM...\r\n",size/1024);
-    
-    ADDRBUS_MODE_OUTPUT;
-    DATABUS_MODE_OUTPUT;
-	for(uint32_t i = 0; i < size; i++) {
-        sram_write((startaddr + (uint16_t) i), arr[i]);
-    }
-    
-    // verify
-    uint8_t val;
-    uint16_t errcount = 0;
-    DATABUS_MODE_INPUT;
-	for(uint32_t i = 0; i < size; i++) {
-        val = sram_read( startaddr + (uint16_t) i );
-        if (arr[i] != val) {
-            errcount += 1;
-        }
-    }
-    if ( errcount == 0 ) {
-        printf("transfer and verify done.\r\n");
-    } else {
-        printf("%u errors detected.\r\n", errcount);
-    }
-    return errcount;
-}
-
 void NCO1_init(void){
     // NCO1 pin
     RA3PPS = 0x3F;  //RA3->NCO1:NCO1;
@@ -329,9 +272,11 @@ void system_init(void) {
 }
 
 void UART_ProcessInput(void) {
+    static uint16_t count = 0;
     char c;
     
     c = UART3_Read();
+    sram_write(count++, c);
     if ( isprint(c) ) {
         putch(c);
     } else {
@@ -341,6 +286,17 @@ void UART_ProcessInput(void) {
             putch('\n');
         }
     }
+    if ( count/32 > 0 && (count % 32) == 0 ) {
+        printf("\r\n%04x: ", count - 32);
+        for(uint16_t i = 0; i < 32; ++i) {
+            c = sram_read(count - 32 + i);
+            if ( isprint(c) )
+                printf("%c", sram_read(count - 32 + i));
+            else
+                printf("<%d>", sram_read(count - 32 + i));
+        }
+        printf("\r\n");
+    } 
 }
 
 uint16_t load_rom(const uint8_t rom[], const uint16_t dst_addr, const uint16_t bytesize) {
@@ -371,7 +327,7 @@ int main(void) {
     GlobalInterruptHigh = ENABLE; 
     
     printf("\e[H\e[2JHello, System initialized. UART3 enabled.\r\n");
-    printf("CLC init is skipped.\r\n");
+    printf("CLC init was skipped.\r\n");
 
     set_busmode_DMA();
     printf("loading rom... ");
@@ -381,8 +337,10 @@ int main(void) {
     } else {
         printf("\r%u errors occurred during loading rom.\r\n", errcount);
     }
+    
+    //set_busmode_6502();
     printf("Now this program simply echos back.\r\n");
-
+    
     while(1)
     {
         if ( UART3_IsRxReady() ) {
