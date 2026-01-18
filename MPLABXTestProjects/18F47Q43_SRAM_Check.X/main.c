@@ -69,14 +69,14 @@
 #define ADDRBUS_HIGH_RD    PORTD
 #define ADDRBUS_LOW_RD     PORTB
 
-#define W65C02_CLK  RA3
-#define W65C02_RW   RA4
-#define W65C02_RDY  LATA0
-#define W65C02_RST  LATE2
-#define W65C02_BE   LATE0
+#define W65C02_CLK  A3
+#define W65C02_RW   A4
+#define W65C02_RDY  A0
+#define W65C02_RST  E2
+#define W65C02_BE   E0
 
-#define SRAM_WE     LATA2
-#define SRAM_OE     LATA5
+#define SRAM_WE     A2
+#define SRAM_OE     A5
 
 
 #define ROM_TOP         0xC000		// ROM TOP Address
@@ -87,6 +87,8 @@
 extern const unsigned char rom_ehbasic_acia[];
 #define ROM rom_ehbasic_acia
 
+uint8_t sram_read(const uint16_t);
+void sram_write(const uint16_t, const uint8_t);
 
 void W65C02_interface_init() {
 	// /RESET (RE2) output pin
@@ -132,61 +134,12 @@ void W65C02_interface_init() {
 
 }
 
-void set_busmode_DMA() {
-    // ensure to avoid bus conflict
-    W65C02_BE = LOW;
-    SRAM_OE = HIGH;
-    SRAM_WE = HIGH; 
-    
-    DATABUS_MODE_INPUT;
-    ADDRBUS_MODE_OUTPUT;
-}
-
-void set_busmode_6502() {
-    DATABUS_MODE_INPUT;
-    ADDRBUS_MODE_INPUT;
-    
-    //========== CLC output pin assign ===========
-	// 1,2,5,6 = Port A, C
-	// 3,4,7,8 = Port B, D
-	RA5PPS = 0x01;		// CLC1OUT -> RA5 -> /OE
-	RA2PPS = 0x02;		// CLC2OUT -> RA2 -> /WE
-	RA0PPS = 0x05;		// CLC5OUT -> RA0 -> RDY
-}
-
-inline void set_addr_bus(const uint16_t addr) {
-    //ADDRBUS_MODE_OUTPUT;
-    ADDRBUS_HIGH_WR = ((uint8_t *)&addr)[1]; //*(((uint8_t *) & addr) + 1); //LATD = ab.h;
-    ADDRBUS_LOW_WR  = (uint8_t) addr; //LATB = ab.l;
-}
-
-uint8_t sram_read(const uint16_t addr) {
-    uint8_t data;
-    SRAM_WE = HIGH;
-    DATABUS_MODE_INPUT;
-    set_addr_bus(addr);
-    SRAM_OE = LOW; //LATA5 = 0;		// _OE=0
-    NOP(); //__delay_us(1);
-    data = DATABUS_RD;
-	SRAM_OE = HIGH; //LATA5 = 1;		// _OE=1
-    return data;
-}
-
-void sram_write(const uint16_t addr, const uint8_t data) {
-	SRAM_OE = HIGH; 
-    DATABUS_MODE_OUTPUT;
-    set_addr_bus(addr);
-    DATABUS_WR = data;
-    SRAM_WE = LOW; //LATA2 = 0;		// /WE=0
-    NOP(); //__delay_us(1);
-    SRAM_WE = HIGH; //LATA2 = 1;		// /WE=1    
-}
-
 void NCO1_init(void){
+    uint32_t NCOxINC_val = (uint32_t) (CLK_6502_FREQ / 30.5175781);
     // NCO1 pin
-    RA3PPS = 0x3F;  //RA3->NCO1:NCO1;
-    pinanalog(A3, DISABLE); //ANSELA3 = 0;	// Disable analog function
-    pinmode(A3, OUTPUT);
+    PPS(W65C02_CLK) = 0x3f;         //RA3PPS = 0x3F;  //RA3->NCO1:NCO1;
+    ANSEL(W65C02_CLK) = DISABLE;    //ANSELA3 = 0;	// Disable analog function
+    MODE(W65C02_CLK) = OUTPUT;
     
     //NPWS 1_clk; NCKS HFINTOSC; 
     // (0<<5 | 0x1 ) NCO output is active for 1 input clock periods, Clock source HFINTOSC
@@ -195,16 +148,17 @@ void NCO1_init(void){
     NCO1ACCU = 0x0;
     //NCOACC 0x0; 
     NCO1ACCH = 0x0;
-    //NCOACC 0x0; 
+    //NCOACC 0x0;    
     NCO1ACCL = 0x0;
+    
     // NCO1INC = (unsigned int)(CLK_6502_FREQ / 30.5175781);
     // 1MHz --> 0x008000
     //NCOINC 0; 
-    NCO1INCU = 0x0;
+    NCO1INCU = (uint8_t) (NCOxINC_val>>16); //0x0;
     //NCOINC 128; 
-    NCO1INCH = 0x80;
+    NCO1INCH = (uint8_t) (NCOxINC_val>>8); //0x80;
     //NCOINC 0; 
-    NCO1INCL = 0x0;
+    NCO1INCL = (uint8_t) (NCOxINC_val); //0x0;
     
     //NEN enabled; NPOL active_hi; NPFM FDC_mode; 
     NCO1CON = 0x80;
@@ -267,7 +221,7 @@ void system_init(void) {
     NCO1_init();
     UART3_init();
     
-    //CLC_init();
+    CLC_init();
     Interrupt_init();
 }
 
@@ -299,13 +253,90 @@ void UART_ProcessInput(void) {
     } 
 }
 
+void set_busmode_DMA() {
+    // ensure to avoid bus conflict
+    OUT(W65C02_BE) = LOW;
+    OUT(SRAM_OE) = HIGH;
+    OUT(SRAM_WE) = HIGH; 
+    
+    // set PPS OUTPUT selection to LATxy
+    RA5PPS = 0x00;		// LATxy
+	RA2PPS = 0x00;
+	RA0PPS = 0x00;
+    
+    DATABUS_MODE_INPUT;
+    ADDRBUS_MODE_OUTPUT;
+}
+
+void set_busmode_6502() {
+    DATABUS_MODE_INPUT;
+    ADDRBUS_MODE_INPUT;
+    
+    //========== CLC output pin assign ===========
+	RA5PPS = 0x01;		// CLC1OUT -> RA5 -> /OE
+	RA2PPS = 0x02;		// CLC2OUT -> RA2 -> /WE
+	RA0PPS = 0x05;		// CLC5OUT -> RA0 -> RDY
+}
+
+inline void set_addr_bus(const uint16_t addr) {
+    uint8_t * ptr = (uint8_t *) & addr;
+    //ADDRBUS_MODE_OUTPUT;
+    ADDRBUS_LOW_WR  = *ptr++;   //(uint8_t) addr; //LATB = ab.l;
+    ADDRBUS_HIGH_WR = *ptr;     //((uint8_t *)&addr)[1]; //*(((uint8_t *) & addr) + 1); //LATD = ab.h;
+}
+
+inline uint16_t get_addr_bus() {
+    uint16_t addr;
+    uint8_t * ptr = (uint8_t *) &addr;
+    //ADDRBUS_MODE_INPUT;
+    *ptr++ = ADDRBUS_LOW_RD;
+    *ptr   = ADDRBUS_HIGH_RD;
+    return addr;
+}
+
+uint8_t sram_read(const uint16_t addr) {
+    uint8_t data;
+    OUT(SRAM_WE) = HIGH;
+    DATABUS_MODE_INPUT;
+    set_addr_bus(addr);
+    OUT(SRAM_OE) = LOW; //LATA5 = 0;		// _OE=0
+    NOP(); //__delay_us(1);
+    data = DATABUS_RD;
+	OUT(SRAM_OE) = HIGH; //LATA5 = 1;		// _OE=1
+    return data;
+}
+
+void sram_write(const uint16_t addr, const uint8_t data) {
+	OUT(SRAM_OE) = HIGH; 
+    DATABUS_MODE_OUTPUT;
+    set_addr_bus(addr);
+    DATABUS_WR = data;
+    OUT(SRAM_WE) = LOW; //LATA2 = 0;		// /WE=0
+    NOP(); //__delay_us(1);
+    OUT(SRAM_WE) = HIGH; //LATA2 = 1;		// /WE=1    
+}
+
+void sram_block_write(uint16_t addr, const uint8_t data[], const uint16_t bytes) {
+	OUT(SRAM_OE) = HIGH; 
+    DATABUS_MODE_OUTPUT;
+    for(uint16_t bytecount = 0; bytecount < bytes; ++bytecount, ++addr) {
+        set_addr_bus(addr);
+        DATABUS_WR = data[bytecount];
+        OUT(SRAM_WE) = LOW; //LATA2 = 0;		// /WE=0
+        NOP(); //__delay_us(1);
+        OUT(SRAM_WE) = HIGH; //LATA2 = 1;		// /WE=1    
+    }
+}
 uint16_t load_rom(const uint8_t rom[], const uint16_t dst_addr, const uint16_t bytesize) {
     // returns the number of read/write check failures
     uint16_t errors = 0;
     uint8_t onebyte;
+    /*
     for(uint16_t bytecount = 0; bytecount < bytesize; ++bytecount) {
         sram_write(dst_addr + bytecount, rom[bytecount]);
     }
+     * */
+    sram_block_write(dst_addr, rom, bytesize);
     for(uint16_t bytecount = 0; bytecount < bytesize; ++bytecount) {
         onebyte = sram_read(dst_addr + bytecount);
         if ( onebyte != rom[bytecount] ) {
@@ -327,7 +358,6 @@ int main(void) {
     GlobalInterruptHigh = ENABLE; 
     
     printf("\e[H\e[2JHello, System initialized. UART3 enabled.\r\n");
-    printf("CLC init was skipped.\r\n");
 
     set_busmode_DMA();
     printf("loading rom... ");
@@ -338,7 +368,6 @@ int main(void) {
         printf("\r%u errors occurred during loading rom.\r\n", errcount);
     }
     
-    //set_busmode_6502();
     printf("Now this program simply echos back.\r\n");
     
     while(1)
@@ -347,5 +376,57 @@ int main(void) {
             UART_ProcessInput();
         }
     }
+    
+    /* 6502 activation and I/O process loop */
+    //set_busmode_6502();
+	OUT(W65C02_BE) = HIGH; //LATE0 = 1;			// BE = High
+	OUT(W65C02_RST) = HIGH; //LATE2 = 1;			// Release reset
+    
+    uint16_t addr;
+	while(1){
+		while(CLC5OUT); //RDY == 1  // waiting for $Bxxx is on address bus.
+		addr = get_addr_bus();
+		//6502 -> PIC IO write cycle
+		if ( ! PIN(W65C02_RW) ) /*(!RA4)*/ {
+            // 6502 Write then PIC Read and process
+			if( addr == UART_DREG ) {	// U3TXB
+                //while(!U3TXIF);
+                putch(DATABUS_RD); //U3TXB = PORTC;			// Write into	U3TXB
+            } else if ( addr == ACIA_DAT ) {
+                //putch(PORTC);
+                UART3_Write(DATABUS_RD);
+            }
+			//Release RDY (D-FF reset)
+			G3POL = 1;
+			G3POL = 0;
+		} else { //W65C02 is write/output mode
+    		//PIC write then 6502 Read
+			DATABUS_MODE_OUTPUT; //TRISC = 0x00;				// Set Data Bus as output
+			if( addr == UART_CREG ) {		// PIR9
+				DATABUS_WR = PIR9; //UART3_IR_status(); // PIR9	// Out Peripheral Request Register 9, PIR9
+            } else if ( addr == ACIA_STA ) {
+                DATABUS_WR = (UART3_IsRxReady() ? ACIA_STA_RDRF : 0 ) | (UART3_IsTxReady() ? ACIA_STA_TDRE : 0 );
+			} else if ( addr == UART_DREG ) {	
+                // U3RXB
+                //while(!U3RXIF);
+				DATABUS_WR = (uint8_t) getch(); //LATC = U3RXB;			// Out U3RXB
+            } else if ( addr == ACIA_DAT ) {
+                //LATC = (uint8_t) getch();
+                //if (UART3_IsRxReady()) {
+                    DATABUS_WR = UART3_Read();
+                //} else {
+                //    LATC = 0;
+               // }
+			} else {						// Empty
+				DATABUS_WR = 0xff;			// Invalid address
+            }
+			// Detect CLK falling edge
+			while ( PIN(W65C02_CLK) ); //RA3);
+			//Release RDY (D-FF reset)
+			G3POL = 1;
+			DATABUS_MODE_INPUT; //TRISC = 0xff;				// Set Data Bus as input
+			G3POL = 0;
+		}
+	}
 }
 

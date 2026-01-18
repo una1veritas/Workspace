@@ -28,18 +28,24 @@ extern "C" {
 #define _CCAT(x,y)  x##y
 
 #define pinmode(pin, mode) (CCAT(TRIS, pin) = mode)
-// weak pull-up on then input mode (both by setting high)), 
-// and weak pull-up off then output mode (both by setting low))
+// input with weak pull-up, output without w pull-up
+#define pinwpu(pin, endis)  ( CCAT(WPU, pin) = endis)
 #define pinmodewpu(pin, mode)    ( CCAT(WPU,pin) = mode, CCAT(TRIS,pin) = mode)
 #define pinwrite(pin, val) ( CCAT(LAT,pin) = val) 
 #define pinread(pin)       ( CCAT(PORT,pin) ) 
-#define pinanalog(pin, val)        ( CCAT(ANSEL, pin) = val)
 
 #define portmode(port, mode8)       ( CCAT(TRIS,port) = mode8)
 #define portmodewpu(port, mode8)    ( CCAT(TRIS,port) = mode8, CCAT(WPU,port) = mode8)
 #define portwrite(port, val8)       ( CCAT(LAT,port) = val8)
-#define portread(port)       ( CCAT(PORT,port) )
-#define portanalog(port, val8)        ( CCAT(ANSEL,port) = val8)
+#define portread(port)              ( CCAT(PORT,port) )
+
+#define MODE(pinport)   ( CCAT(TRIS, pinport) )
+#define PIN(pin)        ( CCAT(R, pin) )
+#define PORTIN(port)      ( CCAT(PORT, port) )
+#define OUT(pinport)    ( CCAT(LAT, pinport) )
+#define ANSEL(pinport)  ( CCAT(ANSEL, pinport) )
+#define WPU(pinport)    ( CCAT(WPU, pinport) )
+#define PPS(pin)        ( CCAT(CCAT(R,pin), PPS) )
 
 #ifdef	__cplusplus
 }

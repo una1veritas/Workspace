@@ -51,12 +51,12 @@ void UART3_init(void)
 
     // UART3 I/O pins
     // RX
-    pinmode(A7, INPUT);
-    pinanalog(A7, DISABLE);
+    MODE(A7) = INPUT;
+    ANSEL(A7) = DISABLE;
     U3RXPPS = 0x7; //RA7->UART3:RX3; default value 
     // TX
-    pinmode(A6, OUTPUT);
-    RA6PPS = 0x26;  //RA6->UART3:TX3;
+    MODE(A6) = OUTPUT;
+    PPS(A6) = 0x26; //RA6PPS = 0x26;  //RA6->UART3:TX3;
     
     // Set the UART3 module to the options selected in the user interface.
 
