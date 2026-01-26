@@ -41,7 +41,7 @@ extern "C" {
 
 #define MODE(pinport)   ( CCAT(TRIS, pinport) )
 #define PIN(pin)        ( CCAT(R, pin) )
-#define PORTIN(port)      ( CCAT(PORT, port) )
+#define PORTIN(port)    ( CCAT(PORT, port) )
 #define OUT(pinport)    ( CCAT(LAT, pinport) )
 #define ANSEL(pinport)  ( CCAT(ANSEL, pinport) )
 #define WPU(pinport)    ( CCAT(WPU, pinport) )
