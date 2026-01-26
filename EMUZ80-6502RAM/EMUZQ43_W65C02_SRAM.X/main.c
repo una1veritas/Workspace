@@ -28,12 +28,12 @@
 #define _XTAL_FREQ 64000000UL
 #endif
 
-#define CLK_6502_FREQ   2000000UL	// 6502 clock frequency(Max 16MHz) 1MHz=1000000UL
+#define CLK_6502_FREQ   4000000UL	// 6502 clock frequency(Max 16MHz) 1MHz=1000000UL
 
 #define UART_CREG   0xB018	// Control REG
 #define UART_DREG   0xB019	// Data REG
 
-//6551 style
+//6551 style ACIA emulation
 #define ACIA_DAT    0xB098
 #define ACIA_STA    0xB099 
 #define ACIA_CMD    0xB09A
@@ -92,12 +92,12 @@ void sram_write(const uint16_t, const uint8_t);
 
 void W65C02_interface_init() {
 	// /RESET (RE2) output pin
-	LATE2 = 0;		// /Reset = Low
-	TRISE2 = 0;		// Set as output
+	OUT(W65C02_RST) = LOW; //LATE2 = 0;		// /Reset = Low
+	MODE(W65C02_RST) = OUTPUT; //TRISE2 = 0;		// Set as output
 
 	// BE (RE0) output pin
-	LATE0 = 0;		// BE = Low
-	TRISE0 = 0;		// Set as output
+	OUT(W65C02_BE) = LOW; //LATE0 = 0;		// BE = Low
+	MODE(W65C02_BE) = OUTPUT; //TRISE0 = 0;		// Set as output
 
 	// Address bus A15-A8 pin
     // setting the whole 8 bits on port
@@ -225,6 +225,7 @@ void system_init(void) {
     Interrupt_init();
 }
 
+/*
 void UART_ProcessInput(void) {
     static uint16_t count = 0;
     char c;
@@ -252,6 +253,7 @@ void UART_ProcessInput(void) {
         printf("\r\n");
     } 
 }
+*/
 
 void set_busmode_DMA() {
     // ensure to avoid bus conflict
@@ -358,16 +360,17 @@ int main(void) {
     GlobalInterruptHigh = ENABLE; 
     
     printf("\e[H\e[2JHello, System initialized. UART3 enabled.\r\n");
-
+    printf("\r\nEMUZQ43_W65C02_SRAM cpu clock %2.3fMHz\r\n", CLK_6502_FREQ/(double)1000000);
     set_busmode_DMA();
     printf("loading rom... ");
     errcount = load_rom(ROM, ROM_TOP, ROM_SIZE);
+    printf("\r%u kb loaded from %04x, ", ROM_SIZE/1024, ROM_TOP);
     if (! errcount) {
-        printf("\r%u kb loaded from %04x with no errors.\r\n", ROM_SIZE/1024, ROM_TOP);
+        printf("no error occurred.\r\n");
     } else {
-        printf("\r%u errors occurred during loading rom.\r\n", errcount);
+        printf("warning: %u errors occurred.\r\n", errcount);
     }
-    
+    /*
     printf("Now this program simply echos back.\r\n");
     
     while(1)
@@ -376,19 +379,24 @@ int main(void) {
             UART_ProcessInput();
         }
     }
-    
+    */
     /* 6502 activation and I/O process loop */
-    //set_busmode_6502();
+    printf("Change to 6502 bus master mode, activating CLC output.\r\n");
+    set_busmode_6502();
 	OUT(W65C02_BE) = HIGH; //LATE0 = 1;			// BE = High
 	OUT(W65C02_RST) = HIGH; //LATE2 = 1;			// Release reset
+    //while (1);
+    printf("BE and RST released.\r\n");
     
     uint16_t addr;
 	while(1){
-		while(CLC5OUT); //RDY == 1  // waiting for $Bxxx is on address bus.
+		while(CLC5OUT) {}  //RDY == 1  // waiting for $Bxxx is on address bus.
+        GlobalInterruptHigh = DISABLE;
 		addr = get_addr_bus();
 		//6502 -> PIC IO write cycle
-		if ( ! PIN(W65C02_RW) ) /*(!RA4)*/ {
-            // 6502 Write then PIC Read and process
+		if ( ! PIN(W65C02_RW) ) {
+            // W65C02_RW is low, data has written on DATABUS
+            // Write then PIC Read and process
 			if( addr == UART_DREG ) {	// U3TXB
                 //while(!U3TXIF);
                 putch(DATABUS_RD); //U3TXB = PORTC;			// Write into	U3TXB
@@ -399,7 +407,8 @@ int main(void) {
 			//Release RDY (D-FF reset)
 			G3POL = 1;
 			G3POL = 0;
-		} else { //W65C02 is write/output mode
+		} else { 
+            //W65C02_RW is high, ready to read
     		//PIC write then 6502 Read
 			DATABUS_MODE_OUTPUT; //TRISC = 0x00;				// Set Data Bus as output
 			if( addr == UART_CREG ) {		// PIR9
@@ -425,8 +434,9 @@ int main(void) {
 			//Release RDY (D-FF reset)
 			G3POL = 1;
 			DATABUS_MODE_INPUT; //TRISC = 0xff;				// Set Data Bus as input
-			G3POL = 0;
+			G3POL = 0;            
 		}
+        GlobalInterruptHigh = ENABLE;
 	}
 }
 
