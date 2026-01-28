@@ -113,12 +113,12 @@ void W65C02_interface_init() {
 	TRISC = 0x00;	// Set as output
 
 
-	// RDY (RA0) output pin Low = Halt
+	// W65C02_RDY RDY (RA0) output pin Low = Halt
 	RA0PPS = 0x00;	// LATA0 -> RA0
 	LATA0 = 1;		// RDY = High
 	TRISA0 = 0;		// Set as output
 
-	// R/W (RA4) input pin
+	// W65C02_RW R/W (RA4) input pin
 	WPUA4 = 1;		// Week pull up
 	TRISA4 = 1;		// Set as input
 
