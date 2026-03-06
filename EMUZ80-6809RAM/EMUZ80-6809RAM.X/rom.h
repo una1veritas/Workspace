@@ -12,7 +12,6 @@
 extern "C" {
 #endif
 
-//6809 ROM equivalent, see end of this file
 extern const unsigned char rom[];
 
 
