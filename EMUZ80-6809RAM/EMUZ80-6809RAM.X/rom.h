@@ -12,8 +12,10 @@
 extern "C" {
 #endif
 
-extern const unsigned char rom[];
+#define ROM_TOP     0xC000		// ROM TOP Address
+#define ROM_SIZE    0x4000		// 16K bytes
 
+    extern const unsigned char rom[];
 
 #ifdef	__cplusplus
 }

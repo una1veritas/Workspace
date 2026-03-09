@@ -263,7 +263,7 @@ void main(void) {
 
 	// DMA/BREQ (RE0) output pin
 	ANSELE0 = 0;	// Disable analog function
-	LATE0 = 1;		// DMA/BREQ = High
+	LATE0 = 0; //1;		// DMA/BREQ = High
 	TRISE0 = 0;		// Set as output
 
 	// Address bus A15-A8 pin
@@ -288,8 +288,9 @@ void main(void) {
 	NCO1INC = (unsigned int)(400000UL / 30.5175781);
 	NCO1CLK = 0x00; // Clock source Fosc
 	NCO1PFM = 0;	// FDC mode
-	NCO1OUT = 1;	// NCO output enable
+//	NCO1OUT = 1;	// NCO output enable
 	NCO1EN = 1;		// NCO enable
+    NCO1OUT = 0;	// don't start NCO output
 
 	// MRDY (RA0) output pin Low = Halt
 	ANSELA0 = 0;	// Disable analog function
@@ -338,7 +339,6 @@ void main(void) {
 	U3ON = 1;		// Serial port enable
 
 	printf("\r\nMEZ6809RAM \r\n");
-    printf("NCO Clock started.\r\n");
     
 	i = 0;
 	do {
@@ -365,7 +365,7 @@ void main(void) {
 
 	while(RA1);
 	while(!RA1);
-	LATE0 = 1;			// DMA/BREQ = High
+	//LATE0 = 1;			// DMA/BREQ = High
 	__delay_us(30);
 	} while (i < ROM_SIZE);
 
@@ -385,11 +385,14 @@ void main(void) {
 	WPUC = 0xff;	// Week pull up
 	TRISC = 0xff;	// Set as input(default)
 
+	printf("ROM contents loaded.\r\n");
+    
 	NCO1EN = 0;		// NCO disable
 	NCO1INC = (unsigned int)(CLK_6809 / 30.5175781);
 	NCO1EN = 1;		// NCO enable
+    NCO1OUT = 1;	// start NCO output
 
-	printf("%2.3fMHz\r\n",NCO1INC * 30.5175781 / 4 / 1000000);
+	printf("NCO started @ %2.3fMHz\r\n",NCO1INC * 30.5175781 / 4 / 1000000);
 
 	//========== CLC input pin assign ===========
 	// 0,1,4,5 = Port A, C
@@ -488,9 +491,12 @@ void main(void) {
 	// CLC VI enable
 	CLC5IF = 0;			// Clear the CLC5 interrupt flag
 	CLC5IE = 1;			// Enabling CLC5 interrupt
-
+    
+	printf("CLC setup finished. Release Reset.\r\n");
+    
 	// 6809 start
 	GIE = 1;			// Global interrupt enable
+    LATE0 = 1;
 	LATE2 = 1;			// Release reset
 
 	while(1);			// All things come to those who wait
