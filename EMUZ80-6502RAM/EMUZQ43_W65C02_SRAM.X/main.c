@@ -405,7 +405,7 @@ int main(void) {
                 UART3_Write(DATABUS_RD);
             }
 			//Release RDY (D-FF reset)
-			G3POL = 1;
+			G3POL = 1;  //CLCxCONHbits.G3POL =1
 			G3POL = 0;
 		} else { 
             //W65C02_RW is high, ready to read
