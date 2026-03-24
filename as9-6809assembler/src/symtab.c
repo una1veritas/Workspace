@@ -1,14 +1,22 @@
+#include <string.h>
+
+#include "as.h"
+#include "util.h"
+#include "symtab.h"
+#include "table9.h"
+#include "pseudo.h"
+
 /*
  *      install --- add a symbol to the table
  */
-int install(char *str, int val, int override = YES)
+int install(char *str, int val, int override) /* = YES) */
 //char    *str;
 //int     val;
 //int     override;
 {
 	struct link *lp;
 	struct nlist *np, *p, *backp;
-	struct nlist* lookup();
+	//struct nlist* lookup();
 	int i;
 
 	if (!alpha(*str)) {

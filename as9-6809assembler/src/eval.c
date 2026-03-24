@@ -37,6 +37,13 @@
  *      ascii constant ::= ''' any printing char;
  *
  */
+
+#include "as.h"
+#include "eval.h"
+#include "util.h"
+#include "symtab.h"
+#include "ffwd.h"
+
 int eval()
 {
 	int     left,right;     /* left and right terms for expression */
@@ -85,8 +92,8 @@ int eval()
 /*
  *      is_op --- is character an expression operator?
  */
-is_op(c)
-char c;
+unsigned int is_op(char c)
+//char c;
 {
 	if( any(c,"+-*/&%|^<>"))
 		return(YES);
@@ -97,13 +104,13 @@ char c;
 /*
  *      get_term --- evaluate a single item in an expression
  */
-get_term()
+unsigned char get_term(void)
 {
 	char    hold[MAXBUF];
 	char    *tmp;
 	int     val = 0;        /* local value being built */
 	int     minus;          /* unary minus flag */
-	struct nlist *lookup();
+	//struct nlist *lookup();
 
 	if( *Optr == '-' ){
 		Optr++;

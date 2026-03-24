@@ -8,8 +8,8 @@
 #ifndef SRC_SYMTAB_H_
 #define SRC_SYMTAB_H_
 
-int install(char * str, int val); //, int override);
+int install(char * str, int val, int override);
 struct oper * mne_look(char * str);
-
+struct nlist * lookup(char * name);
 
 #endif /* SRC_SYMTAB_H_ */

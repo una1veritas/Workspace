@@ -352,8 +352,8 @@ void do_gen(int op, int mode)
 /*
  *      do_indexed --- handle all wierd stuff for indexed addressing
  */
-do_indexed(op)
-int op;
+void do_indexed(int op)
+//int op;
 {
 	int     pbyte;
 	int     j,k;
@@ -525,8 +525,8 @@ int op;
  *      abd_index --- a,b or d indexed
  */
 
-abd_index(pbyte)
-int pbyte;
+void abd_index(int pbyte)
+//int pbyte;
 {
 	int     k;
 
@@ -540,8 +540,8 @@ int pbyte;
 /*
  *      rtype --- return register type in post-byte format
  */
-rtype(r)
-int r;
+unsigned char rtype(int r)
+//int r;
 {
 	switch(r){
 	case RX:        return(0x00);
@@ -576,7 +576,7 @@ int set_mode()
 /*
  *      regnum --- return register number of *Optr
  */
-regnum()
+unsigned char regnum(void)
 {
 	if( head(Optr,"D" ))return(RD);
 	if( head(Optr,"d" ))return(RD);

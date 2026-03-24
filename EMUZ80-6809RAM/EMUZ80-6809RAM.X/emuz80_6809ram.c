@@ -28,7 +28,7 @@
 #include "pic18common.h"
 
 #define _XTAL_FREQ  64000000UL
-#define CLK_6809    8000000UL	// 6809 clock frequency(Max 16MHz) 1MHz=1000000UL
+#define CLK_6809    4000000UL	// 6809 clock frequency(Max 16MHz) 1MHz=1000000UL
 
 #define UART_DREG 0x8019	// Data REG
 #define UART_CREG 0x8018	// Control REG
@@ -332,7 +332,7 @@ void main(void) {
 
 	printf("\r\nMEZ6809RAM \r\n");
     
-    printf("Loading ROM contents.\r\n");
+    printf("Lowering /BREQ and loading ROM contents.\r\n");
     
     start_clock();
     // load rom[] to sram

@@ -1,3 +1,5 @@
+#ifndef _AS_H_
+#define _AS_H_
 /*
  *      machine independent definitions and global variables
  */
@@ -137,4 +139,6 @@ void make_pass(void);
 void re_init(void);
 int parse_line(void);
 void process();
+void PrintHelp (char * );
 
+#endif /* _AS_H_ */

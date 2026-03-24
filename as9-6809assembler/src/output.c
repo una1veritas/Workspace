@@ -1,9 +1,12 @@
+#include "as.h"
+
 /*
  *  stable --- prints the symbol table in alphabetical order
  */
-stable(ptr)
 
-struct nlist *ptr;
+
+void stable(struct nlist *ptr)
+//struct nlist *ptr;
 {
   if (ptr != NULL)
     {
@@ -15,9 +18,8 @@ struct nlist *ptr;
 /*
  *  cross  --  prints the cross reference table 
  */
-cross(point)
-
-struct nlist *point;
+void cross(struct nlist *point)
+//struct nlist *point;
 {
 struct link *tp;
 int i = 1;

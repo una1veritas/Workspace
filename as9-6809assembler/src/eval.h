@@ -10,6 +10,7 @@
 
 
 int eval();
-
+unsigned char get_term(void);
+unsigned int is_op(char c);
 
 #endif /* SRC_EVAL_H_ */

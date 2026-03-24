@@ -2,9 +2,11 @@
  *	fatal --- fatal error handler
  */
 
+#include "as.h"
+#include "util.h"
 
-fatal(str)
-char	*str;
+void fatal(char * str)
+//char	*str;
 {
 	printf("\nFatal: %s\n",str);
 //	exit(-1);
@@ -28,8 +30,8 @@ void error(char * str)
  *	warn --- trivial error in a line
  *			print line number and error
  */
-warn(str)
-char	*str;
+void warn(char * str)
+//char	*str;
 {
 	if(N_files > 1)
 		printf("%s,",cur_file);
@@ -74,7 +76,7 @@ void eword(int wd)
 /*
  *	emit --- emit a byte to code file
  */
-void emit(int byte)
+unsigned char emit(int byte)
 {
 #ifdef DEBUG
 	printf("%2x @ %4x\n",byte,Pc);
@@ -89,6 +91,8 @@ void emit(int byte)
 	Pc++;
 	if(E_total == E_LIMIT)
 		f_record();
+	//
+	return NO;
 }
 
 /*
@@ -174,9 +178,9 @@ void print_line()
 /*
  *	any --- does str contain c?
  */
-any(c,str)
-char	c;
-char	*str;
+unsigned char any(char c, char * str)
+//char	c;
+//char	*str;
 {
 	while(*str != EOS)
 		if(*str++ == c)
@@ -232,8 +236,8 @@ int head(char * str1, char * str2)
 /*
  *	alpha --- is character a legal letter
  */
-alpha(c)
-char c;
+unsigned char alpha(char c)
+//char c;
 {
 	if( c<= 'z' && c>= 'a' )return(YES);
 	if( c<= 'Z' && c>= 'A' )return(YES);
@@ -244,8 +248,8 @@ char c;
 /*
  *	alphan --- is character a legal letter or digit
  */
-alphan(c)
-char c;
+unsigned char alphan(char c)
+//char c;
 {
 	if( alpha(c) )return(YES);
 	if( c<= '9' && c>= '0' )return(YES);
@@ -267,8 +271,8 @@ char c;
  *	alloc --- allocate memory
  */
 char *
-alloc(nbytes)
-int nbytes;
+alloc(int nbytes)
+//int nbytes;
 {
 	void *malloc();
 

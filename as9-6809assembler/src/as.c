@@ -22,8 +22,8 @@
 static char *rcs_id = "Mirage asm09 2012 <gordon@gjcp.net>";
 
 //char mapdn();
-char *alloc();
-void PrintHelp (char *pszName);
+//char *alloc();
+//void PrintHelp (char *pszName);
 /*
  *	as ---	cross assembler main program
  */
@@ -254,15 +254,15 @@ void process()
 
 	if(*Op==EOS){		/* no mnemonic */
 		if(*Label != EOS)
-			install(Label,Pc);
+			install(Label,Pc, YES);
 		}
 	else if( (i = mne_look(Op))== NULL)
 		error("Unrecognized Mnemonic");
 	else if( i->class == PSEUDO )
 		do_pseudo(i->opcode);
 	else{
-		if( *Label )install(Label,Pc);
-		if(Cflag)Cycles = i->cycles;
+		if ( *Label ) install(Label,Pc, YES);
+		if (Cflag) Cycles = i->cycles;
 		do_op(i->opcode,i->class);
 		if(Cflag)Ctotal += Cycles;
 		}
