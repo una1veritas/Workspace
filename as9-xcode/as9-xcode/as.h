@@ -6,8 +6,6 @@
 
 #include <stdio.h>
 
-#define DEBUG
-
 #define TRUE (1==1)
 #define FALSE (1==0)
 
@@ -140,7 +138,7 @@ void initialize(void);
 void make_pass(void);
 void re_init(void);
 int parse_line(void);
-void process();
+void process(void);
 void PrintHelp (char * );
 
 #endif /* _AS_H_ */

@@ -26,14 +26,13 @@
  */
 char    **Argv = 0;              /* pointer to file names        */
 
-
-char cur_file[64];	// current filename
-
 int     Cfn = 0;                 /* Current file number 1...n    */
 int     Cflag = 0;              /* cycle count flag */
 int     CREflag = 0;            /* cross reference table flag */
 int     Cycles = 0;             /* # of cycles per instruction  */
 long    Ctotal = 0;             /* # of cycles seen so far */
+
+char cur_file[64];      // current filename
 
 int     Err_count =0;           /* total number of errors       */
 int     E_bytes[E_LIMIT] = {0}; /* Emitted held bytes           */
@@ -59,21 +58,20 @@ char    Op[MAXOP] = {0};        /* opcode mnemonic on current line      */
 char    Operand[MAXBUF] = {0};  /* remainder of line after op           */
 
 int     Old_pc = 0;            	/* Program Counter at beginning */
-char    *Optr =0;               /* pointer into current Operand field   */
+char    *Optr = 0;               /* pointer into current Operand field   */
 char    Obj_name[64];
 
 int     Page_num = 2;           /* page number */
 int     P_force = 0;			/* force listing line to include Old_pc */
-int     P_total =0;             /* current number of bytes collected    */
+int     P_total = 0;             /* current number of bytes collected    */
 int     Pass = 0;                /* Current pass #               */
 int     Pc = 0;                  /* Program Counter              */
 int     P_bytes[P_LIMIT] = {0}; /* Bytes collected for listing  */
 
-int     Result =0;              /* result of expression evaluation      */
-struct  nlist *root;            /* root node of the tree */
+int     Result = 0;              /* result of expression evaluation      */
+struct  nlist * root;            /* root node of the tree */
 
 int srcarg;
-
 int     Sflag = 0;              /* symbol table flag, 0=no symbol */
 int     Lflag = 0;              /* listing flag 0=nolist, 1=list*/
 
@@ -226,7 +224,7 @@ void initialize(void)
 	localinit();	/* target machine specific init. */
 }
 
-void re_init()
+void re_init(void)
 {
 #ifdef DEBUG
 	printf("Reinitializing\n");
@@ -239,7 +237,7 @@ void re_init()
 	fwdreinit();
 }
 
-void make_pass() {
+void make_pass(void) {
 	//char	*fgets();
 
 #ifdef DEBUG
@@ -263,7 +261,7 @@ void make_pass() {
 /*
  *	parse_line --- split input line into label, op and operand
  */
-int parse_line()
+int parse_line(void)
 {
 	register char *ptrfrm = Line;
 	register char *ptrto = Label;
@@ -302,7 +300,7 @@ int parse_line()
 /*
  *	process --- determine mnemonic class and act on it
  */
-void process()
+void process(void)
 {
 	register struct oper *i;
 	//struct oper *mne_look();
