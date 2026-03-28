@@ -269,12 +269,12 @@ int parse_line()
 	register char *ptrto = Label;
 	//char	*skip_white();
 
-	if( *ptrfrm == '*' || *ptrfrm == '\n' )
+	if( *ptrfrm == '*' || *ptrfrm == ';' || *ptrfrm == '\n' )
 		return(0);	/* a comment line */
 
-	while( delim(*ptrfrm)== NO )
+	while( delim(*ptrfrm) == NO )
 		*ptrto++ = *ptrfrm++;
-	if(*--ptrto != ':')ptrto++;     /* allow trailing : */
+	if (*--ptrto != ':') ptrto++;     /* allow trailing : */
 	*ptrto = EOS;
 
 	ptrfrm = skip_white(ptrfrm);

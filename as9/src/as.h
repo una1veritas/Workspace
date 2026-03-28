@@ -6,7 +6,7 @@
 
 #include <stdio.h>
 
-#define DEBUG
+//#define DEBUG
 
 #define TRUE (1==1)
 #define FALSE (1==0)
@@ -131,7 +131,7 @@ struct oper {   /* an entry in the mnemonic table */
 
 extern struct  nlist *root;            /* root node of the tree */
   
-extern FILE    *Objfil; 	// =0;             /* object file's file descriptor*/
+extern FILE    * Objfil; 	// =0;             /* object file's file descriptor*/
 extern char    Obj_name[64];
 
 // ----------------------

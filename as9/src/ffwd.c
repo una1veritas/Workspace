@@ -3,6 +3,7 @@
  */
 #include <fcntl.h>
 #include <unistd.h>
+
 #include "util.h"
 #include "ffwd.h"
 #include "as.h"
@@ -12,18 +13,18 @@
 #define	ABS		0	/* absolute seek */
 
 int	Forward =0;		/* temp file's file descriptor	*/
-char	Fwd_name[] = { "Fwd_refs" } ;
+char	Fwd_name[] = "Fwd_refs" ;
 
 /*
  *      fwdinit --- initialize forward ref file
  */
 void fwdinit(void)
 {
-	Forward = creat(Fwd_name,FILEMODE);
+	Forward = creat(Fwd_name, FILEMODE);
 	if(Forward <0)
 		fatal("Can't create temp file");
 	close(Forward); /* close and reopen for reads and writes */
-	Forward = open(Fwd_name,UPDATE);
+	Forward = open(Fwd_name, UPDATE);
 	if(Forward <0)
 		fatal("Forward ref file has gone.");
 #ifndef DEBUG
@@ -51,8 +52,8 @@ void fwdreinit()
  */
 void fwdmark(void)
 {
-	write(Forward,&Cfn,sizeof(Cfn));
-	write(Forward,&Line_num,sizeof(Line_num));
+	write(Forward, &Cfn, sizeof(Cfn));
+	write(Forward, &Line_num, sizeof(Line_num));
 }
 
 /*
