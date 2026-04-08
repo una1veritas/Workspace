@@ -76,21 +76,21 @@ extern int     Result; // =0;              /* result of expression evaluation   
 extern int     Force_word; // =0;          /* Result should be a word when set     */
 extern int     Force_byte; // =0;          /* Result should be a byte when set     */
 extern int     Pc; // =0;                  /* Program Counter              */
-int     Old_pc =0;              /* Program Counter at beginning */
+extern int     Old_pc; 	// =0;              /* Program Counter at beginning */
 
-int     Last_sym =0;            /* result of last lookup        */
+extern int     Last_sym;	// =0;            /* result of last lookup        */
 
-int     Pass =0;                /* Current pass #               */
-int     N_files =0;             /* Number of files to assemble  */
-FILE    *Fd =0;                 /* Current input file structure */
-int     Cfn =0;                 /* Current file number 1...n    */
-int     Ffn =0;                 /* forward ref file #           */
-int     F_ref =0;               /* next line with forward ref   */
+extern int     Pass;	// =0;                /* Current pass #               */
+extern int     N_files; 	// =0;             /* Number of files to assemble  */
+extern FILE    *Fd; 	// =0;                 /* Current input file structure */
+extern int     Cfn; 	// =0;                 /* Current file number 1...n    */
+extern int     Ffn; 	// =0;                 /* forward ref file #           */
+extern int     F_ref; 	// =0;               /* next line with forward ref   */
 extern char    **Argv; // =0;              /* pointer to file names        */
 
-int     E_total =0;             /* total # bytes for one line   */
-int     E_bytes[E_LIMIT] = {0}; /* Emitted held bytes           */
-int     E_pc =0;                /* Pc at beginning of collection*/
+extern int     E_total; 	// =0;             /* total # bytes for one line   */
+extern int     E_bytes[E_LIMIT]; 	// = {0}; /* Emitted held bytes           */
+extern int     E_pc; 	// =0;                /* Pc at beginning of collection*/
 
 extern int     Lflag; // = 0;              /* listing flag 0=nolist, 1=list*/
 

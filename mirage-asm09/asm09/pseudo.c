@@ -7,8 +7,12 @@
 #include "eval.h"
 #include "util.h"
 
+#ifndef FALSE
 #define FALSE   0
+#endif
+#ifndef TRUE
 #define TRUE    1
+#endif
 
 #define RMB     0       /* Reserve Memory Bytes         */
 #define FCB     1       /* Form Constant Bytes          */
@@ -53,7 +57,7 @@ void do_pseudo(
 int op /* which op */
 ) {
         char    fccdelim;
-        int     j;
+        // int     j;
         int     fill;
         //char    *skip_white();
 
