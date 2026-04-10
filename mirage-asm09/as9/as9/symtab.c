@@ -84,35 +84,32 @@ int     override
 /*
  *      lookup --- find string in symbol table
  */
-struct nlist *
-lookup(
-char    *name
-) {
+struct nlist*
+lookup(char *name) {
 	struct nlist *np;
-	int     i;
+	int i;
 
-        np = root;
-         while (np != NULL)
-          {
-            i = strcmp(name,np->name);
-             if (i == 0)
-               {
-                 Last_sym = np->def;
-                 return (np);
-               }
-             else if (i < 0)
-                 np = np->Lnext;
-                else np = np->Rnext;
-          }
-      Last_sym = 0;
-      if (Pass == 2)
-          error ("symbol Undefined on pass 2");
-        return (NULL); 
+	np = root;
+	while (np != NULL) {
+		i = strcmp(name, np->name);
+		if (i == 0) {
+			Last_sym = np->def;
+			return (np);
+		} else if (i < 0)
+			np = np->Lnext;
+		else
+			np = np->Rnext;
+	}
+	Last_sym = 0;
+	if (Pass == 2)
+		error("symbol Undefined on pass 2");
+	return (NULL);
 }
 
 
 #define NMNE (sizeof(table)/ sizeof(struct oper))
 #define NPSE (sizeof(pseudo)/ sizeof(struct oper))
+
 /*
  *      mne_look --- mnemonic lookup
  *
@@ -123,12 +120,14 @@ struct oper *
 mne_look(
 char    *str
 ) {
-	struct oper *low,*high,*mid;
-	int     cond;
+	//struct oper *low,*high,*mid;
+	//int     cond;
+    int ix;
 
 	/* Search machine mnemonics first */
-	low =  &table[0];
-	high = &table[ NMNE-1 ];
+	//low =  &table[0];
+	//high = &table[ NMNE-1 ];
+    /*
 	while (low <= high){
 		mid = low + (high-low)/2;
 		if( ( cond = strcmp(str,mid->mnemonic)) < 0)
@@ -138,8 +137,17 @@ char    *str
 		else
 			return(mid);
 	}
+     */
+    /*
+     * Since the table[] and pseudo[] are small, just do a linear search instead of a binary search
+     */
+    for (ix = 0; ix < NMNE && table[ix].mnemonic != NULL; ++ix) {
+        if ( strcmp(str, table[ix].mnemonic) == 0 )
+            return &table[ix];
+    }
 
 	/* Check for pseudo ops */
+    /*
 	low =  &pseudo[0];
 	high = &pseudo[ NPSE-1 ];
 	while (low <= high){
@@ -151,6 +159,11 @@ char    *str
 		else
 			return(mid);
 	}
+     */
+    for (ix = 0; ix < NPSE && pseudo[ix].mnemonic != NULL; ++ix) {
+        if ( strcmp(str, pseudo[ix].mnemonic) == 0 )
+            return &pseudo[ix];
+    }
 
 	return(NULL);
 }

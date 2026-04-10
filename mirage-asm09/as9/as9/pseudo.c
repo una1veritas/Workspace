@@ -7,13 +7,6 @@
 #include "eval.h"
 #include "util.h"
 
-#ifndef FALSE
-#define FALSE   0
-#endif
-#ifndef TRUE
-#define TRUE    1
-#endif
-
 #define RMB     0       /* Reserve Memory Bytes         */
 #define FCB     1       /* Form Constant Bytes          */
 #define FDB     2       /* Form Double Bytes (words)    */
@@ -34,7 +27,7 @@ struct oper pseudo[20] = {
 {"equ",  PSEUDO, EQU,    0},
 {"fcb",  PSEUDO, FCB,    0},
 {"fcc",  PSEUDO, FCC,    0},
-{"fccz",  PSEUDO, FCCZ,  0},
+{"fccz", PSEUDO, FCCZ,  0},
 {"fdb",  PSEUDO, FDB,    0},
 {"fill", PSEUDO, FILL,   0},
 {"nam",  PSEUDO, NULL_OP,0},

@@ -12,6 +12,4 @@ extern struct oper pseudo[20];
 
 void do_pseudo(int op);
 
-
-
 #endif /* ASM09_PSEUDO_H_ */

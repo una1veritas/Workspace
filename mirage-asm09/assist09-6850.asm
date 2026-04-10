@@ -429,7 +429,7 @@ CMD3    LBSR   READ             ; OBTAIN NEXT CHARACTER
 * GOT COMMAND, NOW SEARCH TABLES
 CMDGOT  SUBA   #CR              ; SET ZERO IF CARRIAGE RETURN
         STA    -3,U             ; SETUP FLAG
-        LDX    <VECTAB+.CMDL1   ; START WITH FIRST CMD LIST
+        LDX    <VECTAB+XCMDL1   ; .CMDL1 <-- typo?  ; START WITH FIRST CMD LIST
 CMDSCH  LDB    ,X+              ; LOAD ENTRY LENGTH
         BPL    CMDSME           ; BRANCH IF NOT LIST END
         LDX    <VECTAB+.CMDL2   ; NOW TO SECOND CMD LITS
@@ -594,7 +594,7 @@ ZSPACE  LDA     #'              ; LOAD BLANK
 ZVSWTH  LDA     1,S             ; LOAD REQUESTERS A
         CMPA    #HIVTR          ; ? SUB-CODE TOO HIGH
         BHI     ZOTCH3          ; IGNORE CALL IF SO
-        LDY     <VECTAB+.AVTBL  ; LOAD VECTOR TABLE ADDRESS
+        LDY     <VECTAB+XAVTBL  ; .AVTBL <-- typo? ; LOAD VECTOR TABLE ADDRESS
         LDU     A,Y             ; U=OLD ENTRY
         STU     4,S             ; RETURN OLD VALUE TO CALLERS X
         STX     -2,S            ; ? X=0

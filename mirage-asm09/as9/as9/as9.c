@@ -8,8 +8,8 @@
 
 #include <string.h>
 #include <unistd.h>
-
 #include <ctype.h>
+
 #include "as.h"
 #include "util.h"
 #include "output.h"
@@ -18,9 +18,8 @@
 #include "symtab.h"
 #include "pseudo.h"
 
-/* global vars */
 
-/* global variables */
+/* global vars */
 int srcarg;
 char cur_file[64];	// current filename
 int     Line_num =0;            /* current line number          */
@@ -179,8 +178,12 @@ int main(int argc, char **argv) {
 	}
 
 	fprintf(Objfil,"S9030000FC\n"); /* at least give a decent ending */
-	if (Err_count) exit(Err_count);
-	else return 0;
+    if (Err_count) {
+        fprintf(stderr, "error ocurred %d time.\n", Err_count);
+        exit(Err_count);
+    } else {
+        return 0;
+    }
 }
 
 void PrintHelp (char *pszName)
@@ -236,19 +239,19 @@ void make_pass(void) {
 	//char	*fgets();
 
 #ifdef DEBUG
-	printf("Pass %d\n",Pass);
+	printf("Pass %d\n", Pass);
 #endif
-	while( fgets(Line, MAXBUF-1, Fd) != (char *)NULL ){
+	while (fgets(Line, MAXBUF - 1, Fd) != (char*) NULL) {
 		Line_num++;
-		P_force = 0;	/* No force unless bytes emitted */
+		P_force = 0; /* No force unless bytes emitted */
 		N_page = 0;
-		   if(parse_line())
+		if (parse_line())
 			process();
-		if(Pass == 2 && Lflag && !N_page)
+		if (Pass == 2 && Lflag && !N_page)
 			print_line();
-		P_total = 0;	/* reset byte count */
-		Cycles = 0;	/* and per instruction cycle count */
-		}
+		P_total = 0; /* reset byte count */
+		Cycles = 0; /* and per instruction cycle count */
+	}
 	f_record();
 }
 
@@ -262,11 +265,13 @@ int parse_line(void)
 	register char *ptrto = Label;
 	//char	*skip_white();
 
-	if( *ptrfrm == '*' || *ptrfrm == '\n' )
-		return(0);	/* a comment line */
+	//if ( *ptrfrm == '*' || *ptrfrm == '\n' )
+	if ( *ptrfrm == '*' || *ptrfrm == ';' || *ptrfrm == '\n' )
+		return (0);	/* a comment line */
 
-	while( delim(*ptrfrm)== NO )
+	while( delim(*ptrfrm)== NO ) {
 		*ptrto++ = *ptrfrm++;
+	}
 	if(*--ptrto != ':')ptrto++;     /* allow trailing : */
 	*ptrto = EOS;
 
@@ -299,22 +304,26 @@ void process(void)
 {
 	register struct oper *i;
 	// struct oper *mne_look();
+	char tmp[32];
 
 	Old_pc = Pc;		/* setup `old' program counter */
 	Optr = Operand; 	/* point to beginning of operand field */
 
-	if(*Op==EOS){		/* no mnemonic */
+	if (*Op == EOS) {		/* no mnemonic */
 		if(*Label != EOS)
-			install(Label, Pc, 0); 	// <-- assumes the default val of override is 0
-		}
-	else if( (i = mne_look(Op))== NULL)
-		error("Unrecognized Mnemonic");
-	else if( i->class == PSEUDO )
+			install(Label, Pc, 0); 	// <-- lacking the 3rd arg; assumes the default val of override is 0
+	} else if( (i = mne_look(Op))== NULL) {
+		sprintf(tmp,"Unrecognized Mnemonic %.8s", Op);
+		error(tmp);
+	} else if( i->class == PSEUDO ) {
 		do_pseudo(i->opcode);
-	else{
-		if( *Label )install(Label,Pc, 0); 	// <-- assumes the default val of override is 0
-		if(Cflag)Cycles = i->cycles;
+	} else {
+		if ( *Label )
+			install(Label,Pc, 0); 	// <-- lacking the 4rd arg; assumes the default val of override is 0
+		if (Cflag)
+			Cycles = i->cycles;
 		do_op(i->opcode,i->class);
-		if(Cflag)Ctotal += Cycles;
-		}
+		if (Cflag)
+			Ctotal += Cycles;
+	}
 }

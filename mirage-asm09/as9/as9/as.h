@@ -12,6 +12,13 @@
 #define NO      0
 #define ERR     (-1)
 
+#ifndef FALSE
+#define FALSE   0
+#endif
+#ifndef TRUE
+#define TRUE    1
+#endif
+
 #define MAXBUF  128
 #define MAXOP   10      /* longest mnemonic */
 #define MAXLAB  16
@@ -120,7 +127,7 @@ struct nlist { /* basic symbol table entry */
 };
 
 struct oper {   /* an entry in the mnemonic table */
-        char    *mnemonic;      /* its name */
+        char *  mnemonic;      /* its name */
         char    class;          /* its class */
         int     opcode;         /* its base opcode */
         char    cycles;         /* its base # of cycles */
