@@ -55,8 +55,8 @@ int eval(void)
 #ifdef DEBUG
 	printf("Evaluating %s\n",Optr);
 #endif
-	Force_byte = false;
-	Force_word = false;
+	Force_byte = NO;
+	Force_word = NO;
 	if(*Optr=='<'){
 		Force_byte++;
 		Optr++;
@@ -89,7 +89,7 @@ int eval(void)
 	printf("Result=%x\n",Result);
 	printf("Force_byte=%d  Force_word=%d\n",Force_byte,Force_word);
 #endif
-	return(true);
+	return(YES);
 }
 
 /*
@@ -101,7 +101,7 @@ int is_op(char c)
 	//if( any(c,"+-*/&%|^<>"))
 	//	return(YES);
 	//return(NO);
-	return strchr("+-*/&%|^<>", c) != NULL ? true : false;
+	return strchr("+-*/&%|^<>", c) != NULL ? YES : NO;
 }
 
 
@@ -118,10 +118,10 @@ int get_term(void)
 
 	if( *Optr == '-' ){
 		Optr++;
-		minus =true;
+		minus =YES;
 		}
 	else
-		minus = false;
+		minus = NO;
 
 	while( *Optr == '#' ) Optr++;
 
@@ -165,7 +165,7 @@ int get_term(void)
 		while(alphan(*Optr))
 			*tmp++ = *Optr++;
 		*tmp = EOS;
-		if(lookup(hold) != NULL)
+		if(lookup(nlist, hold) != NULL)
 			val = Last_sym;
 		else{
 			if(Pass==1){    /* forward ref here */

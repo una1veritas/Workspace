@@ -5,13 +5,22 @@
 #ifndef _AS_H_
 #define _AS_H_
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <iostream>
+#include <cstdlib>
+#include <string>
 
-#include <stdbool.h>
+#include <set>
 
+#define YES     1
+#define NO      0
 #define ERR     (-1)
+
+#ifndef FALSE
+#define FALSE   0
+#endif
+#ifndef TRUE
+#define TRUE    1
+#endif
 
 #define MAXBUF  128
 #define MAXOP   10      /* longest mnemonic */
@@ -107,35 +116,41 @@ extern int     N_page; 	// = 0;             /* new page flag */
 extern int     Page_num; 	// = 2;           /* page number */
 extern int     CREflag; 	// = 0;            /* cross reference table flag */
 
-struct link { /* linked list to hold line numbers */
-       int L_num; /* line number */
-       struct link *next; /* pointer to next node */
+
+struct link { // linked list to hold line numbers
+	int L_num; // line number
+	link *next; // pointer to next node
+
+	int line_number() const { return L_num; }
+	link * next_node() const { return next; }
 };
 
-struct nlist { /* basic symbol table entry */
-        char    *name;
-        int     def;
-        struct nlist *Lnext ; /* left node of the tree leaf */
-        struct nlist *Rnext; /* right node of the tree leaf */ 
-        struct link *L_list; /* pointer to linked list of line numbers */
+struct namedef { /* a name definition for forward reference */
+	const char * name;
+	int def;
+	struct link * L_list; /* pointer to linked list of line numbers */
+
+	namedef(const char *n, int d, struct link * llist = NULL) : name(n), def(d), L_list(llist) {}
+
 };
 
-/*
- * 	name_def --- a simple structure to hold a name and a value as nlist element.
- */
-typedef struct name_def {
-		char    *name;
-		int     def;
-} name_def;
+extern std::set<namedef> nlist;
+//struct nlist { /* basic symbol table entry */
+//        char    *name;
+//        int     def;
+//        struct nlist *Lnext ; /* left node of the tree leaf */
+//        struct nlist *Rnext; /* right node of the tree leaf */
+//        struct link *L_list; /* pointer to linked list of line numbers */
+//};
 
 struct oper {   /* an entry in the mnemonic table */
-        char *  mnemonic;      /* its name */
-        char    class;          /* its class */
-        int     opcode;         /* its base opcode */
-        char    cycles;         /* its base # of cycles */
+        const char *  mnemonic;      /* its name */
+        const char    opclass;          /* its class */
+        const int     opcode;         /* its base opcode */
+        const char    cycles;         /* its base # of cycles */
 };
 
-extern struct  nlist *root;            /* root node of the tree */
+extern struct nlist *root;            /* root node of the tree */
   
 extern FILE    *Objfil; 	// =0;             /* object file's file descriptor */
 extern char    Obj_name[64];
@@ -147,7 +162,6 @@ void make_pass(void);
 void re_init(void);
 int parse_line(void);
 void process(void);
-
 
 //int compare_name_def(const void *a, const void *b);
 

@@ -53,7 +53,7 @@ void localinit(void)
  *	Called with the base opcode and it's class. Optr points to
  *	the beginning of the operand field.
  */
-void do_op(int opcode, int class)
+void do_op(int opcode, int opclass)
 //int opcode;	/* base opcode */
 //int class;	/* mnemonic class */
 {
@@ -65,7 +65,7 @@ void do_op(int opcode, int class)
 
 	amode = set_mode();     /* pickup indicated addressing mode */
 
-	switch(class){
+	switch(opclass){
 		case INH:                       /* inherent addressing */
 			emit(opcode);
 			return;

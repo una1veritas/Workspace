@@ -9,46 +9,48 @@
 /*
  *      install --- add a symbol to the table
  */
-int install(const char *str, const int val, const bool override) {
+int install(const std::set<namedef> & namelist, const char *str, const int val, const int override) {
 	struct link *lp;
-	struct nlist *np, *p, *backp;
+	namedef * np;
+	//struct nlist *np, *p, *backp;
 	//struct nlist *lookup();
 	int i;
 
 	if (!alpha(*str)) {
 		error("Illegal Symbol Name");
-		return  false;
+		return (NO);
 	}
-	if ((np = lookup(str)) != NULL) {
+	if ((np = lookup(namelist, str)) != NULL) {
 		if (override) {
 			np->def = val;
-			return  true;
+			return (YES);
 		} else {
 			if (Pass == 2) {
 				if (np->def == val)
-					return  true;
+					return (YES);
 				else {
 					error("Phasing Error");
-					return  false;
+					return (NO);
 				}
 			}
 			error("Symbol Redefined");
-			return  false;
+			return (NO);
 		}
 	}
 	/* enter new symbol */
-#ifdef DEBUG
+//#ifdef DEBUG
 	printf("Installing %s as %d\n",str,val);
-#endif
-	np = (struct nlist*) alloc(sizeof(struct nlist));
+//#endif
+	//(struct nlist*) alloc(sizeof(struct nlist));
+	/*
 	if (np == (struct nlist*) ERR) {
 		error("Symbol table full");
-		return  false;
+		return (NO);
 	}
 	np->name = (char*) alloc((int) strlen(str) + 1);
 	if (np->name == (char*) ERR) {
 		error("Symbol table full");
-		return  false;
+		return (NO);
 	}
 	strcpy(np->name, str);
 	np->def = val;
@@ -56,8 +58,10 @@ int install(const char *str, const int val, const bool override) {
 	np->Rnext = NULL;
 	lp = (struct link*) alloc(sizeof(struct link));
 	np->L_list = lp;
+	*/
 	lp->L_num = Line_num;
 	lp->next = NULL;
+	/*
 	p = root;
 	backp = NULL;
 	while (p != NULL) {
@@ -74,36 +78,32 @@ int install(const char *str, const int val, const bool override) {
 		backp->Lnext = np;
 	else
 		backp->Rnext = np;
-	return  true;
+		*/
+	namelist.insert(namedef(str, val, lp));
+	return (YES);
 }
 
 /*
  *      lookup --- find string in symbol table
  */
-struct nlist*
-lookup(const char *name) {
+const namedef *
+lookup(const std::set<namedef> & namelist, const char *name) {
 	struct nlist *np;
 	int i;
 	char tmp[64];
 
-	np = root;
-	while (np != NULL) {
-		i = strcmp(name, np->name);
-		if (i == 0) {
-			Last_sym = np->def;
-			return (np);
-		} else if (i < 0)
-			np = np->Lnext;
-		else
-			np = np->Rnext;
+	auto it = namelist.find(namedef(name, 0));
+	if (it != namelist.end()) {
+		Last_sym = it->def;
+		return it;
 	}
 	Last_sym = 0;
 	if (Pass == 2) {
-		sprintf(tmp, "symbol Undefined on pass 2, %.24s",name);
+		sprintf(tmp, "symbol Undefined on pass 2, %.24s", name);
         error (tmp);
         //error("symbol Undefined on pass 2");
 	}
-	return (NULL);
+	return NULL;
 }
 
 
@@ -116,7 +116,10 @@ lookup(const char *name) {
  *      Return pointer to an oper structure if found.
  *      Searches both the machine mnemonic table and the pseudo table.
  */
-struct oper* mne_look(const char *str) {
+struct oper *
+mne_look(
+char    *str
+) {
 	//struct oper *low,*high,*mid;
 	//int     cond;
     int ix;
@@ -163,14 +166,4 @@ struct oper* mne_look(const char *str) {
     }
 
 	return(NULL);
-}
-
-void free_symtab(struct nlist *ptr) {
-	if (ptr != NULL) {
-	  free_symtab (ptr->Lnext);
-	  free_symtab (ptr->Rnext);
-	  free (ptr->name);
-	  free (ptr->L_list);
-	  free (ptr);
-	}
 }

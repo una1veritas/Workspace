@@ -9,8 +9,11 @@
 #define ASM09_SYMTAB_H_
 
 
-int install(char *str, int val, int override);
-struct oper * mne_look(char * str);
-struct nlist * lookup(char * name);
+int install(const char *str, const int val, const bool override);
+struct oper * mne_look(const char * str);
+struct nlist * lookup(const char * name);
+
+
+void free_symtab(struct nlist *ptr);
 
 #endif /* ASM09_SYMTAB_H_ */

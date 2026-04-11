@@ -3,13 +3,14 @@
 	as.c - part of as9 6809 assembler
 */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+#include <cstdlib>
 
-#include <string.h>
+#include <string>
+
 #include <unistd.h>
-#include <ctype.h>
-#include <search.h>
+
+#include <cctype>
 
 #include "as.h"
 #include "util.h"
@@ -68,11 +69,11 @@ int     CREflag = 0;            /* cross reference table flag */
 FILE    *Objfil =0;             /* object file's file descriptor*/
 char    Obj_name[64];
 
-struct  nlist * root;
+std::set<namedef> nlist; //struct  nlist * root;
 
 /* end of global vars */
 
-static char *rcs_id = "Mirage asm09 2012 <gordon@gjcp.net>";
+static const std::string rcs_id = "Mirage asm09 2012 <gordon@gjcp.net>";
 
 void PrintHelp (char *pszName);
 
@@ -157,12 +158,7 @@ int main(int argc, char **argv) {
 		srcarg++;
 	}
 
-	if (Err_count) {
-		printf("exit on %d errors.\n", Err_count);
-		printf("freeing symtab.\n");
-		free_symtab(root);
-		exit(Err_count);
-	}
+	if (Err_count) exit(Err_count);
 	
 	Pass++;
 	re_init();
@@ -182,17 +178,14 @@ int main(int argc, char **argv) {
 		
 		if (Sflag == 1) {
 			printf ("\f");
-			stable (root);
+			stable (nlist); //root);
 		}
 		if (CREflag == 1) {
 			printf ("\f");
-			cross (root);
+			cross (nlist); //root);
 		}
 		srcarg++;
 	}
-
-	printf("freeing symtab.\n");
-	free_symtab(root);
 
 	fprintf(Objfil,"S9030000FC\n"); /* at least give a decent ending */
     if (Err_count) {
@@ -214,7 +207,7 @@ void PrintHelp (char *pszName)
   fprintf (stderr, "            o [file] - specify output filename\n");
   //fprintf (stderr, "            h  - this listing\n");
   //fprintf (stderr, "            V  - print version information\n");
-  fprintf (stderr, "  Version:  %s\n", rcs_id);
+  std::cerr << "  Version:  " << rcs_id << std::endl; //fprintf (stderr, "  Version:  %s\n", rcs_id);
 }
 
 void initialize(void)
@@ -276,34 +269,32 @@ void make_pass(void) {
 /*
  *	parse_line --- split input line into label, op and operand
  */
-int parse_line(void) {
+int parse_line(void)
+{
 	char *ptrfrm = Line;
 	char *ptrto = Label;
 	//char	*skip_white();
 
 	//if ( *ptrfrm == '*' || *ptrfrm == '\n' )
-	if ( any(*ptrfrm, "*;\n") == true ) {   //*ptrfrm == '*' || *ptrfrm == ';' || *ptrfrm == '\n' )
+	if ( any(*ptrfrm, "*;\n") == YES ) {   //*ptrfrm == '*' || *ptrfrm == ';' || *ptrfrm == '\n' )
 		return (0);	/* a comment line */
 	}
-	while( delim(*ptrfrm)== false ) {
+	while( delim(*ptrfrm)== NO ) {
 		*ptrto++ = *ptrfrm++;
 	}
 	if(*--ptrto != ':')
 		ptrto++;     /* allow trailing : */
 	*ptrto = EOS;
-	if ( ! (strlen(Label) < MAXLAB) ) {
-		printf("Label too long %s\n", Label);
-	}
 
 	ptrfrm = skip_white(ptrfrm);
 
-	if ( any(*ptrfrm, "*;\n") == true ) {
+	if ( any(*ptrfrm, "*;\n") == YES ) {
 		return (1);	/* a line with just a label */
 	}
 
 	/* next field is opcode */
 	ptrto = Op;
-	while( delim(*ptrfrm) == false)
+	while( delim(*ptrfrm) == NO)
 		*ptrto++ = mapdn(*ptrfrm++);
 	*ptrto = EOS;
 
@@ -334,20 +325,20 @@ void process(void) {
 	Old_pc = Pc;		/* setup `old' program counter */
 	Optr = Operand; 	/* point to beginning of operand field */
 
-	if (*Op == EOS) {		/* false mnemonic */
+	if (*Op == EOS) {		/* no mnemonic */
 		if(*Label != EOS)
-			install(Label, Pc, 0); 	// <-- lacking the 3rd arg; assumes the default val of override is 0
+			install(nlist, Label, Pc, 0); 	// <-- lacking the 3rd arg; assumes the default val of override is 0
 	} else if( (i = mne_look(Op))== NULL) {
-		sprintf(tmp,"Unrecognized Mnemonic %.8s", Op);
+		snprintf(tmp, sizeof(tmp), "Unrecognized Mnemonic %.8s", Op);
 		error(tmp);
-	} else if( i->class == PSEUDO ) {
+	} else if( i->opclass == PSEUDO ) {
 		do_pseudo(i->opcode);
 	} else {
 		if ( *Label )
 			install(Label,Pc, 0); 	// <-- lacking the 4rd arg; assumes the default val of override is 0
 		if (Cflag)
 			Cycles = i->cycles;
-		do_op(i->opcode,i->class);
+		do_op(i->opcode,i->opclass);
 		if (Cflag)
 			Ctotal += Cycles;
 	}

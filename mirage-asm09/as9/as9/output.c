@@ -14,9 +14,11 @@ struct nlist *ptr
       stable (ptr->Rnext);
     }
 }
+
 /*
  *  cross  --  prints the cross reference table 
  */
+
 void cross(struct nlist * point)
 //struct nlist *point;
 {
@@ -41,3 +43,4 @@ int i = 1;
       cross (point->Rnext);
     }
 }
+

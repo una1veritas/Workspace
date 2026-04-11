@@ -8,10 +8,8 @@
 #include "as.h"
 #include "util.h"
 
-void fatal(
-char	*str
-){
-	printf("\nFatal: %s\n",str);
+void fatal(const char *str){
+	printf("\nFatal: %s\n", str);
 //	exit(-1);
 }
 
@@ -19,7 +17,7 @@ char	*str
  *	error --- error in a line
  *			print line number and error
  */
-void error(char	*str) {
+void error(const char	*str) {
 	if(N_files > 1)
 		printf("%s,",cur_file);
 
@@ -31,7 +29,7 @@ void error(char	*str) {
  *	warn --- trivial error in a line
  *			print line number and error
  */
-void warning(char *str) {
+void warning(const char *str) {
 	if(N_files > 1)
 		printf("%s,",cur_file);
 
@@ -77,7 +75,7 @@ int byte
 #endif
 	if(Pass==1){
 		Pc++;
-		return true;
+		return(YES);
 		}
 	if(P_total < P_LIMIT)
 		P_bytes[P_total++] = byte;
@@ -86,7 +84,7 @@ int byte
 	if(E_total == E_LIMIT)
 		f_record();
 
-	return true;
+	return(YES);
 }
 
 /*
@@ -121,7 +119,7 @@ void f_record(void)
 	E_total = 0;
 }
 
-char	*hexstr = { "0123456789ABCDEF" } ;
+const char hexstr[] = "0123456789ABCDEF" ;
 
 void hexout(
 int	byte
@@ -185,8 +183,8 @@ const char	*str
 ) {
 	while(*str != EOS)
 		if(*str++ == c)
-			return true;
-	return false;
+			return(YES);
+	return(NO);
 }
 /*
  *	mapdn --- convert A-Z to a-z
@@ -219,19 +217,16 @@ int i
 /*
  *	head --- is str2 the head of str1?
  */
-int head(
-char *str1,
-char *str2
-) {
+int head(const char *str1, const char *str2) {
 	while( *str1 != EOS && *str2 != EOS){
 		if( *str1 != *str2 )break;
 		str1++;
 		str2++;
 		}
-	if(*str1 == *str2)return true;
+	if(*str1 == *str2)return(YES);
 	if(*str2==EOS)
-		if( any(*str1," \t\n\r,+-];*") )return true;
-	return false;
+		if( any(*str1," \t\n\r,+-];*") )return(YES);
+	return(NO);
 }
 
 /*
@@ -240,11 +235,11 @@ char *str2
 int alpha(
 char c
 ) {
-	if( c<= 'z' && c>= 'a' )return true;
-	if( c<= 'Z' && c>= 'A' )return true;
-	if( c== '_' )return true;
-	if( c== '.' )return true;
-	return false;
+	if( c<= 'z' && c>= 'a' )return(YES);
+	if( c<= 'Z' && c>= 'A' )return(YES);
+	if( c== '_' )return(YES);
+	if( c== '.' )return(YES);
+	return(NO);
 }
 /*
  *	alphan --- is character a legal letter or digit
@@ -252,10 +247,10 @@ char c
 int alphan(
 char c
 ){
-	if( alpha(c) )return true;
-	if( c<= '9' && c>= '0' )return true;
-	if( c == '$' )return true;      /* allow imbedded $ */
-	return false;
+	if( alpha(c) )return(YES);
+	if( c<= '9' && c>= '0' )return(YES);
+	if( c == '$' )return(YES);      /* allow imbedded $ */
+	return(NO);
 }
 
 /*
@@ -264,13 +259,14 @@ char c
 int white(
 char c
 ) {
-	if( c == TAB || c == BLANK || c == '\n' )return true;
-	return false;
+	if( c == TAB || c == BLANK || c == '\n' )return(YES);
+	return(NO);
 }
 
 /*
  *	alloc --- allocate memory
  */
+/*
 char *
 alloc(
 int nbytes
@@ -279,3 +275,4 @@ int nbytes
 
 	return(malloc(nbytes));
 }
+*/
