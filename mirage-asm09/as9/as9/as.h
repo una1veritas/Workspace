@@ -8,16 +8,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define YES     1
-#define NO      0
-#define ERR     (-1)
+#include <stdbool.h>
 
-#ifndef FALSE
-#define FALSE   0
-#endif
-#ifndef TRUE
-#define TRUE    1
-#endif
+//#define YES     1
+//#define NO      0
+#define YES     true
+#define NO      false
+#define ERR     (-1)
 
 #define MAXBUF  128
 #define MAXOP   10      /* longest mnemonic */

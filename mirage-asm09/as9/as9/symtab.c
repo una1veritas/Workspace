@@ -10,9 +10,9 @@
  *      install --- add a symbol to the table
  */
 int install(
-char    *str,
-int     val,
-int     override
+const char    *str,
+const int     val,
+const int     override
 ) {
         struct link *lp;
 	struct nlist *np, *p, *backp;
@@ -85,7 +85,7 @@ int     override
  *      lookup --- find string in symbol table
  */
 struct nlist*
-lookup(char *name) {
+lookup(const char *name) {
 	struct nlist *np;
 	int i;
 
@@ -118,7 +118,7 @@ lookup(char *name) {
  */
 struct oper *
 mne_look(
-char    *str
+const char    *str
 ) {
 	//struct oper *low,*high,*mid;
 	//int     cond;

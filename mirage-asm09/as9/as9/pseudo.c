@@ -55,7 +55,7 @@ int op /* which op */
         //char    *skip_white();
 
 	if( op != EQU && op != SET && *Label )
-		install(Label,Pc,FALSE);
+		install(Label,Pc, false);
 
         P_force++;
         switch(op){
@@ -143,7 +143,7 @@ int op /* which op */
                                 break;
                                 }
                         if( eval() ){
-				install(Label,Result,FALSE);
+				install(Label,Result, false);
                                 Old_pc = Result;        /* override normal */
                                 }
                         else
@@ -155,7 +155,7 @@ int op /* which op */
                                 break;
                                 }
                         if( eval() ){
-				install(Label,Result,TRUE);
+				install(Label,Result, true);
                                 Old_pc = Result;        /* override normal */
                                 }
                         else

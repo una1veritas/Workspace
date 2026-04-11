@@ -148,7 +148,10 @@ int main(int argc, char **argv) {
 		srcarg++;
 	}
 
-	if (Err_count) exit(Err_count);
+	if (Err_count) {
+		printf("error ocurred %d time. Exit.\n", Err_count);
+		exit(Err_count);
+	}
 	
 	Pass++;
 	re_init();
