@@ -68,7 +68,7 @@
 
 /* global variables */
 extern int srcarg;
-extern char cur_file[64];	// current filename
+extern char 	cur_file[64];	// current filename
 extern int     Line_num; // =0;            /* current line number          */
 extern int     Err_count; // =0;           /* total number of errors       */
 extern char    Line[MAXBUF]; // = {0};     /* input line buffer            */
@@ -115,7 +115,7 @@ struct link { /* linked list to hold line numbers */
        struct link *next; /* pointer to next node */
 };
 
-struct nlist { /* basic symbol table entry */
+struct nlist { /* basic symbol binary tree node/entry */
         char    *name;
         int     def;
         struct nlist *Lnext ; /* left node of the tree leaf */

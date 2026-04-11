@@ -150,6 +150,7 @@ int main(int argc, char **argv) {
 
 	if (Err_count) {
 		printf("error ocurred %d time. Exit.\n", Err_count);
+		free_symtab(root);
 		exit(Err_count);
 	}
 	
@@ -179,6 +180,8 @@ int main(int argc, char **argv) {
 		}
 		srcarg++;
 	}
+
+	free_symtab(root);
 
 	fprintf(Objfil,"S9030000FC\n"); /* at least give a decent ending */
     if (Err_count) {

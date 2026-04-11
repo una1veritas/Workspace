@@ -167,3 +167,13 @@ const char    *str
 
 	return(NULL);
 }
+
+void free_symtab(struct nlist * root) {
+		if (root == NULL)
+		return;
+	free_symtab(root->Lnext);
+	free_symtab(root->Rnext);
+	free(root->name);
+	free(root->L_list);
+	free(root);
+}

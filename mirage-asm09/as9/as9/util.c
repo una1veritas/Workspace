@@ -7,7 +7,7 @@
 #include "util.h"
 
 void fatal(
-char	*str
+const char	*str
 ){
 	printf("\nFatal: %s\n",str);
 //	exit(-1);
@@ -17,7 +17,7 @@ char	*str
  *	error --- error in a line
  *			print line number and error
  */
-void error(char	*str) {
+void error(const char	*str) {
 	if(N_files > 1)
 		printf("%s,",cur_file);
 
@@ -177,8 +177,8 @@ void print_line(void)
  *	any --- does str contain c?
  */
 int any(
-char	c,
-char	*str
+const char	c,
+const char	*str
 ) {
 	while(*str != EOS)
 		if(*str++ == c)
