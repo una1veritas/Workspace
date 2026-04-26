@@ -48,6 +48,18 @@ static void emuz80_common_sys_init()
     ANSEL(Z80_ADDR_H) = 0x00;
     #endif
 
+    #ifdef TTL_INPUT_LEVEL
+    /**
+    set the input level to 0, TTL level, to be compatible w/ NMOS CPU
+    */
+    INLVLA = 0xc0;  // except A6 and A7 for UART
+    INLVLB = 0x00;  // Z80ADDR_L
+    INLVLC = 0x00;  // Z80_DATA
+    INLVLE = 0xf8;  // Z80_WR, Z80_RESET, Z80_NMI
+    INLVLD6 = 0;    // Z80_A14         D6
+    INLVLD7 = 0;    // Z80_A15         D7
+    #endif
+
     // RESET output pin
     LAT(Z80_RESET) = 0;         // Reset
     TRIS(Z80_RESET) = 0;        // Set as output
