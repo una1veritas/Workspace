@@ -9,7 +9,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <ctype.h>
-#include <search.h>
 
 #include "as.h"
 #include "util.h"
@@ -75,14 +74,6 @@ struct  nlist * root;
 static char *rcs_id = "Mirage asm09 2012 <gordon@gjcp.net>";
 
 void PrintHelp (char *pszName);
-
-/*
-int compare_name_def(const void *a, const void *b) {
-	const name_def *na = a;
-	const name_def *nb = b;
-	return strcmp(na->name, nb->name);
-}
-*/
 /*
  *	as ---	cross assembler main program
  */
@@ -158,8 +149,7 @@ int main(int argc, char **argv) {
 	}
 
 	if (Err_count) {
-		printf("exit on %d errors.\n", Err_count);
-		printf("freeing symtab.\n");
+		printf("error ocurred %d time. Exit.\n", Err_count);
 		free_symtab(root);
 		exit(Err_count);
 	}
@@ -191,7 +181,6 @@ int main(int argc, char **argv) {
 		srcarg++;
 	}
 
-	printf("freeing symtab.\n");
 	free_symtab(root);
 
 	fprintf(Objfil,"S9030000FC\n"); /* at least give a decent ending */
@@ -276,40 +265,31 @@ void make_pass(void) {
 /*
  *	parse_line --- split input line into label, op and operand
  */
-int parse_line(void) {
-	char *ptrfrm = Line;
-	char *ptrto = Label;
+int parse_line(void)
+{
+	register char *ptrfrm = Line;
+	register char *ptrto = Label;
 	//char	*skip_white();
 
 	//if ( *ptrfrm == '*' || *ptrfrm == '\n' )
-	if ( any(*ptrfrm, "*;\n") == true ) {   //*ptrfrm == '*' || *ptrfrm == ';' || *ptrfrm == '\n' )
+	if ( *ptrfrm == '*' || *ptrfrm == ';' || *ptrfrm == '\n' )
 		return (0);	/* a comment line */
-	}
-	while( delim(*ptrfrm)== false ) {
+
+	while( delim(*ptrfrm)== NO ) {
 		*ptrto++ = *ptrfrm++;
 	}
-	if(*--ptrto != ':')
-		ptrto++;     /* allow trailing : */
+	if(*--ptrto != ':')ptrto++;     /* allow trailing : */
 	*ptrto = EOS;
-	if ( ! (strlen(Label) < MAXLAB) ) {
-		printf("Label too long %s\n", Label);
-	}
 
 	ptrfrm = skip_white(ptrfrm);
 
-	if ( any(*ptrfrm, "*;\n") == true ) {
-		return (1);	/* a line with just a label */
-	}
-
-	/* next field is opcode */
 	ptrto = Op;
-	while( delim(*ptrfrm) == false)
+	while( delim(*ptrfrm) == NO)
 		*ptrto++ = mapdn(*ptrfrm++);
 	*ptrto = EOS;
 
 	ptrfrm = skip_white(ptrfrm);
 
-	/* rest of line is operand */
 	ptrto = Operand;
 	while( *ptrfrm != NEWLINE )
 		*ptrto++ = *ptrfrm++;
@@ -326,15 +306,16 @@ int parse_line(void) {
 /*
  *	process --- determine mnemonic class and act on it
  */
-void process(void) {
-	struct oper *i;
+void process(void)
+{
+	register struct oper *i;
 	// struct oper *mne_look();
 	char tmp[32];
 
 	Old_pc = Pc;		/* setup `old' program counter */
 	Optr = Operand; 	/* point to beginning of operand field */
 
-	if (*Op == EOS) {		/* false mnemonic */
+	if (*Op == EOS) {		/* no mnemonic */
 		if(*Label != EOS)
 			install(Label, Pc, 0); 	// <-- lacking the 3rd arg; assumes the default val of override is 0
 	} else if( (i = mne_look(Op))== NULL) {

@@ -79,7 +79,7 @@ int main() {
         // tsearch inserts the value if not found, returns pointer to node
         namedef * new_node = new_namedef(values[i].name, values[i].def);
         if (new_node != NULL) {
-            tsearch(new_node, &root, compare_namedef);
+            void * result = tsearch(new_node, &root, compare_namedef);
             printf("inserted. %s\n", values[i].name);
         } else {
 			fprintf(stderr, "Failed to create node for %s\n", values[i].name);
