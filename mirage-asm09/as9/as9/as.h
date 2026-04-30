@@ -7,15 +7,18 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include <stdbool.h>
 
+//#define YES     1
+//#define NO      0
+#define YES     true
+#define NO      false
 #define ERR     (-1)
 
 #define MAXBUF  128
 #define MAXOP   10      /* longest mnemonic */
-#define MAXLAB  16		/* the upper bound of label length */
+#define MAXLAB  16
 #define E_LIMIT 32
 #define P_LIMIT 64
 
@@ -65,7 +68,7 @@
 
 /* global variables */
 extern int srcarg;
-extern char cur_file[64];	// current filename
+extern char 	cur_file[64];	// current filename
 extern int     Line_num; // =0;            /* current line number          */
 extern int     Err_count; // =0;           /* total number of errors       */
 extern char    Line[MAXBUF]; // = {0};     /* input line buffer            */
@@ -112,21 +115,13 @@ struct link { /* linked list to hold line numbers */
        struct link *next; /* pointer to next node */
 };
 
-struct nlist { /* basic symbol table entry */
+struct nlist { /* basic symbol binary tree node/entry */
         char    *name;
         int     def;
         struct nlist *Lnext ; /* left node of the tree leaf */
         struct nlist *Rnext; /* right node of the tree leaf */ 
         struct link *L_list; /* pointer to linked list of line numbers */
 };
-
-/*
- * 	name_def --- a simple structure to hold a name and a value as nlist element.
- */
-typedef struct name_def {
-		char    *name;
-		int     def;
-} name_def;
 
 struct oper {   /* an entry in the mnemonic table */
         char *  mnemonic;      /* its name */
@@ -137,7 +132,7 @@ struct oper {   /* an entry in the mnemonic table */
 
 extern struct  nlist *root;            /* root node of the tree */
   
-extern FILE    *Objfil; 	// =0;             /* object file's file descriptor */
+extern FILE    *Objfil; 	// =0;             /* object file's file descriptor*/
 extern char    Obj_name[64];
 
 
@@ -147,8 +142,5 @@ void make_pass(void);
 void re_init(void);
 int parse_line(void);
 void process(void);
-
-
-//int compare_name_def(const void *a, const void *b);
 
 #endif /* _AS_H_ */

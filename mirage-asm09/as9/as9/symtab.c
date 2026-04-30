@@ -9,72 +9,76 @@
 /*
  *      install --- add a symbol to the table
  */
-int install(const char *str, const int val, const bool override) {
-	struct link *lp;
+int install(
+const char    *str,
+const int     val,
+const int     override
+) {
+        struct link *lp;
 	struct nlist *np, *p, *backp;
 	//struct nlist *lookup();
-	int i;
+	int     i;
 
-	if (!alpha(*str)) {
+	if( !alpha(*str) ){
 		error("Illegal Symbol Name");
-		return  false;
+		return(NO);
 	}
-	if ((np = lookup(str)) != NULL) {
-		if (override) {
-			np->def = val;
-			return  true;
-		} else {
-			if (Pass == 2) {
-				if (np->def == val)
-					return  true;
-				else {
+	if( (np = lookup(str)) != NULL ){
+	    if (override) {
+	    	np -> def = val;
+	    	return (YES);
+		}
+	    else {
+			if( Pass==2 ){
+				if( np->def == val )
+					return(YES);
+				else{
 					error("Phasing Error");
-					return  false;
+					return(NO);
+					}
 				}
-			}
 			error("Symbol Redefined");
-			return  false;
+			return(NO);
 		}
 	}
 	/* enter new symbol */
 #ifdef DEBUG
 	printf("Installing %s as %d\n",str,val);
 #endif
-	np = (struct nlist*) alloc(sizeof(struct nlist));
-	if (np == (struct nlist*) ERR) {
+	np = (struct nlist *) alloc(sizeof(struct nlist));
+	if( np == (struct nlist *)ERR ){
 		error("Symbol table full");
-		return  false;
-	}
-	np->name = (char*) alloc((int) strlen(str) + 1);
-	if (np->name == (char*) ERR) {
+		return(NO);
+		}
+	np->name = (char *) alloc((int) strlen(str)+1);
+	if( np->name == (char *)ERR ){
 		error("Symbol table full");
-		return  false;
-	}
-	strcpy(np->name, str);
+		return(NO);
+		}
+	strcpy(np->name,str);
 	np->def = val;
-	np->Lnext = NULL;
-	np->Rnext = NULL;
-	lp = (struct link*) alloc(sizeof(struct link));
-	np->L_list = lp;
-	lp->L_num = Line_num;
-	lp->next = NULL;
-	p = root;
-	backp = NULL;
-	while (p != NULL) {
-		backp = p;
-		i = strcmp(str, p->name);
-		if (i < 0)
-			p = p->Lnext;
-		else
-			p = p->Rnext;
-	}
-	if (backp == NULL)
-		root = np;
-	else if (strcmp(str, backp->name) < 0)
-		backp->Lnext = np;
-	else
-		backp->Rnext = np;
-	return  true;
+	np->Lnext = NULL;  
+        np->Rnext = NULL;
+           lp = (struct link *) alloc(sizeof(struct link));
+           np->L_list = lp;
+           lp->L_num = Line_num;
+           lp->next = NULL;
+        p = root;
+          backp = NULL;
+           while (p != NULL) 
+            {
+              backp = p;
+              i = strcmp (str,p->name);
+               if (i<0)
+                   p=p->Lnext;
+                  else p=p->Rnext;
+            }
+          if (backp == NULL)
+              root = np;
+             else if (strcmp(str,backp->name)<0)
+                  backp->Lnext = np;
+                 else backp->Rnext = np;
+          return (YES);  
 }
 
 /*
@@ -84,7 +88,6 @@ struct nlist*
 lookup(const char *name) {
 	struct nlist *np;
 	int i;
-	char tmp[64];
 
 	np = root;
 	while (np != NULL) {
@@ -98,11 +101,8 @@ lookup(const char *name) {
 			np = np->Rnext;
 	}
 	Last_sym = 0;
-	if (Pass == 2) {
-		sprintf(tmp, "symbol Undefined on pass 2, %.24s",name);
-        error (tmp);
-        //error("symbol Undefined on pass 2");
-	}
+	if (Pass == 2)
+		error("symbol Undefined on pass 2");
 	return (NULL);
 }
 
@@ -116,7 +116,10 @@ lookup(const char *name) {
  *      Return pointer to an oper structure if found.
  *      Searches both the machine mnemonic table and the pseudo table.
  */
-struct oper* mne_look(const char *str) {
+struct oper *
+mne_look(
+const char    *str
+) {
 	//struct oper *low,*high,*mid;
 	//int     cond;
     int ix;
@@ -165,12 +168,12 @@ struct oper* mne_look(const char *str) {
 	return(NULL);
 }
 
-void free_symtab(struct nlist *ptr) {
-	if (ptr != NULL) {
-	  free_symtab (ptr->Lnext);
-	  free_symtab (ptr->Rnext);
-	  free (ptr->name);
-	  free (ptr->L_list);
-	  free (ptr);
-	}
+void free_symtab(struct nlist * root) {
+		if (root == NULL)
+		return;
+	free_symtab(root->Lnext);
+	free_symtab(root->Rnext);
+	free(root->name);
+	free(root->L_list);
+	free(root);
 }
