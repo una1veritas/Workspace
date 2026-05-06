@@ -317,7 +317,7 @@ void process(void)
 
 	if (*Op == EOS) {		/* no mnemonic */
 		if(*Label != EOS)
-			install(Label, Pc, 0); 	// <-- lacking the 3rd arg; assumes the default val of override is 0
+			install(Label, Pc, false); 	// <-- lacking the 3rd arg; assumes the default val of override is 0
 	} else if( (i = mne_look(Op))== NULL) {
 		sprintf(tmp,"Unrecognized Mnemonic %.8s", Op);
 		error(tmp);
@@ -325,7 +325,7 @@ void process(void)
 		do_pseudo(i->opcode);
 	} else {
 		if ( *Label )
-			install(Label,Pc, 0); 	// <-- lacking the 4rd arg; assumes the default val of override is 0
+			install(Label,Pc, false); 	// <-- lacking the 4rd arg; assumes the default val of override is 0
 		if (Cflag)
 			Cycles = i->cycles;
 		do_op(i->opcode,i->class);

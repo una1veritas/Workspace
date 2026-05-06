@@ -8,7 +8,7 @@
 #ifndef ASM09_SYMTAB_H_
 #define ASM09_SYMTAB_H_
 
-int install(const char *str, const int val, const int override);
+int install(const char *str, const int val, /* const int */ const bool override);
 struct oper * mne_look(const char * str);
 struct nlist * lookup(const char * name);
 

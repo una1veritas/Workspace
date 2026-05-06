@@ -12,7 +12,8 @@
 int install(
 const char    *str,
 const int     val,
-const int     override
+//const int     override
+const bool     override
 ) {
         struct link *lp;
 	struct nlist *np, *p, *backp;

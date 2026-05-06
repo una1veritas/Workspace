@@ -9,7 +9,7 @@
 /*
  *      install --- add a symbol to the table
  */
-int install(const std::set<namedef> & namelist, const char *str, const int val, const int override) {
+int install(const std::set<namedef> & namelist, const char *str, const int val, /* const int override */ const bool override) {
 	struct link *lp;
 	namedef * np;
 	//struct nlist *np, *p, *backp;
