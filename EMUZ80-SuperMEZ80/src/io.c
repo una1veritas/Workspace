@@ -189,11 +189,11 @@ void hw_ctrl_write(uint8_t val)
         return;
     }
     if (val & HW_CTRL_RESET) {
-        printf("\n\rReset by IO port %02XH\n\r", HW_CTRL);
+        printf("\r\nReset by IO port %02XH\r\n", HW_CTRL);
         RESET();
     }
     if (val & HW_CTRL_HALT) {
-        printf("\n\rHALT by IO port %02XH\n\r", HW_CTRL);
+        printf("\r\nHALT by IO port %02XH\r\n", HW_CTRL);
         while (1);
     }
 }
@@ -205,19 +205,19 @@ int cpm_disk_read(unsigned int drive, uint32_t lba, void *buf, unsigned int sect
     int track, sector;
 
     if (num_drives <= drive || drives[drive].filep == NULL) {
-        printf("invalid drive %d\n\r", drive);
+        printf("invalid drive %d\r\n", drive);
         return -1;
     }
 
     FIL *filep = drives[drive].filep;
     FRESULT fres;
     if ((fres = f_lseek(filep, lba * SECTOR_SIZE)) != FR_OK) {
-        printf("f_lseek(): ERROR %d\n\r", fres);
+        printf("f_lseek(): ERROR %d\r\n", fres);
         return -1;
     }
     while (result < sectors) {
         if ((fres = f_read(filep, buf, SECTOR_SIZE, &n)) != FR_OK || n != SECTOR_SIZE) {
-            printf("f_read(): ERROR res=%d, n=%d\n\r", fres, n);
+            printf("f_read(): ERROR res=%d, n=%d\r\n", fres, n);
             return result;
         }
         buf = (void*)((uint8_t*) + SECTOR_SIZE);
@@ -232,7 +232,7 @@ int cpm_trsect_to_lba(unsigned int drive, unsigned int track, unsigned int secto
     if (lba)
         *lba = 0xdeadbeefUL;  // fail safe
     if (num_drives <= drive || drives[drive].filep == NULL) {
-        printf("invalid drive %d\n\r", drive);
+        printf("invalid drive %d\r\n", drive);
         return -1;
     }
     if (lba)
@@ -248,7 +248,7 @@ int cpm_trsect_from_lba(unsigned int drive, unsigned int *track, unsigned int *s
     if (sector)
         *sector = 0xbeef;  // fail safe
     if (num_drives <= drive || drives[drive].filep == NULL) {
-        printf("invalid drive %d\n\r", drive);
+        printf("invalid drive %d\r\n", drive);
         return -1;
     }
     if (track)
@@ -287,12 +287,12 @@ void try_to_invoke_monitor(void) {
         // Break key was received.
         // Attempts to become a bassmaster.
         #ifdef CPM_MON_DEBUG
-        printf("\n\rAttempts to become a bassmaster ...\n\r");
+        printf("\r\nAttempts to become a bassmaster ...\r\n");
         #endif
 
         if (board_io_event()) { // Check /IORQ
             #ifdef CPM_MON_DEBUG
-            printf("/IORQ is active\n\r");
+            printf("/IORQ is active\r\n");
             #endif
             // Let I/O handler to handle the break key if /IORQ is detected if /IORQ is detected
             return;
@@ -304,7 +304,7 @@ void try_to_invoke_monitor(void) {
             // Withdraw /BUSREQ and let I/O handler to handle the break key if /IORQ is detected
             set_busrq_pin(1);
             #ifdef CPM_MON_DEBUG
-            printf("Withdraw /BUSREQ because /IORQ is active\n\r");
+            printf("Withdraw /BUSREQ because /IORQ is active\r\n");
             #endif
             return;
         }
@@ -387,7 +387,7 @@ void io_handle() {
             set_data_pins(*disk_datap++);
         } else
         if (DEBUG_DISK) {
-            printf("DISK: OP=%02x D/T/S=%d/%3d/%3d            ADDR=%01x%02x%02x (RD IGNORED)\n\r",
+            printf("DISK: OP=%02x D/T/S=%d/%3d/%3d            ADDR=%01x%02x%02x (RD IGNORED)\r\n",
                    disk_op, disk_drive, disk_track, disk_sector, mmu_bank, disk_dmah, disk_dmal);
         }
         break;
@@ -398,7 +398,7 @@ void io_handle() {
         set_data_pins(hw_ctrl_read());
         break;
     default:
-        printf("WARNING: unknown I/O read %d (%02XH)\n\r", io_addr, io_addr);
+        printf("WARNING: unknown I/O read %d (%02XH)\r\n", io_addr, io_addr);
         invoke_monitor = 1;
         set_data_pins(0xff);    // Invalid data
         break;
@@ -446,7 +446,7 @@ void io_handle() {
             }
         } else
         if (DEBUG_DISK) {
-            printf("DISK: OP=%02x D/T/S=%d/%3d/%3d            ADDR=%01x%02x%02x (WR IGNORED)\n\r",
+            printf("DISK: OP=%02x D/T/S=%d/%3d/%3d            ADDR=%01x%02x%02x (WR IGNORED)\r\n",
                    disk_op, disk_drive, disk_track, disk_sector, mmu_bank, disk_dmah, disk_dmal);
         }
         break;
@@ -472,7 +472,7 @@ void io_handle() {
         if ((DEBUG_DISK_READ  && (disk_op == DISK_OP_DMA_READ  || disk_op == DISK_OP_READ )) ||
             (DEBUG_DISK_WRITE && (disk_op == DISK_OP_DMA_WRITE || disk_op == DISK_OP_WRITE))) {
             if (DEBUG_DISK_VERBOSE && !(debug.disk_mask & (1 << disk_drive))) {
-                printf("DISK: OP=%02x D/T/S=%d/%3d/%3d            ADDR=%01x%02x%02x ... \n\r",
+                printf("DISK: OP=%02x D/T/S=%d/%3d/%3d            ADDR=%01x%02x%02x ... \r\n",
                        disk_op, disk_drive, disk_track, disk_sector,
                        mmu_bank, disk_dmah, disk_dmal);
             }
@@ -499,7 +499,7 @@ void io_handle() {
         do_bus_master = 1;
         break;
     default:
-        printf("WARNING: unknown I/O write %d, %d (%02XH, %02XH)\n\r", io_addr, io_data, io_addr,
+        printf("WARNING: unknown I/O write %d, %d (%02XH, %02XH)\r\n", io_addr, io_data, io_addr,
                io_data);
         invoke_monitor = 1;
         break;
@@ -549,7 +549,7 @@ void io_handle() {
         io_stat_ = IO_STAT_INTERRUPTED;
         // new line if some output from the target
         if (prev_output_chars != io_output_chars) {
-            printf("\n\r");
+            printf("\r\n");
             prev_output_chars = io_output_chars;
         }
         if (io_addr == MON_ENTER_NMI)
@@ -617,7 +617,7 @@ void io_handle() {
     unsigned int n;
     FRESULT fres;
     if ((fres = f_lseek(filep, sector * SECTOR_SIZE)) != FR_OK) {
-        printf("f_lseek(): ERROR %d\n\r", fres);
+        printf("f_lseek(): ERROR %d\r\n", fres);
         disk_stat = DISK_ST_ERROR;
         goto disk_io_done;
     }
@@ -628,7 +628,7 @@ void io_handle() {
 
         // read from the DISK
         if ((fres = f_read(filep, disk_buf, SECTOR_SIZE, &n)) != FR_OK || n != SECTOR_SIZE) {
-            printf("f_read(): ERROR res=%d, n=%d\n\r", fres, n);
+            printf("f_read(): ERROR res=%d, n=%d\r\n", fres, n);
             disk_stat = DISK_ST_ERROR;
             goto disk_io_done;
         }
@@ -652,7 +652,7 @@ void io_handle() {
             #ifdef CPM_MEM_DEBUG
             // read back the SRAM
             uint32_t addr = ((uint32_t)mmu_bank << 16) | ((uint16_t)disk_dmah << 8) | disk_dmal;
-            printf("f_read(): SRAM address: %04x\n\r", addr);
+            printf("f_read(): SRAM address: %04x\r\n", addr);
             dma_read_from_sram(addr, disk_buf, SECTOR_SIZE);
             util_hexdump_sum("RAM: ", disk_buf, SECTOR_SIZE);
             #endif  // CPM_MEM_DEBUG
@@ -690,12 +690,12 @@ void io_handle() {
 
         // write buffer to the DISK
         if ((fres = f_write(filep, disk_buf, SECTOR_SIZE, &n)) != FR_OK || n != SECTOR_SIZE) {
-            printf("f_write(): ERROR res=%d, n=%d\n\r", fres, n);
+            printf("f_write(): ERROR res=%d, n=%d\r\n", fres, n);
             disk_stat = DISK_ST_ERROR;
             goto disk_io_done;
         }
         if ((fres = f_sync(filep)) != FR_OK) {
-            printf("f_sync(): ERROR %d\n\r", fres);
+            printf("f_sync(): ERROR %d\r\n", fres);
             disk_stat = DISK_ST_ERROR;
             goto disk_io_done;
         }
@@ -712,7 +712,7 @@ void io_handle() {
     if (((DEBUG_DISK_READ  && (disk_op == DISK_OP_DMA_READ  || disk_op == DISK_OP_READ )) ||
          (DEBUG_DISK_WRITE && (disk_op == DISK_OP_DMA_WRITE || disk_op == DISK_OP_WRITE))) &&
         !(debug.disk_mask & (1 << disk_drive))) {
-        printf("DISK: OP=%02x D/T/S=%d/%3d/%3d x%3d=%5ld ADDR=%01x%02x%02x ... ST=%02x\n\r",
+        printf("DISK: OP=%02x D/T/S=%d/%3d/%3d x%3d=%5ld ADDR=%01x%02x%02x ... ST=%02x\r\n",
                disk_op, disk_drive, disk_track, disk_sector, drives[disk_drive].sectors, sector,
                mmu_bank, disk_dmah, disk_dmal, disk_stat);
     }
@@ -742,7 +742,7 @@ int io_wait_write(uint8_t wait_io_addr, uint8_t *result_io_data)
     uint8_t io_data;
 
     #ifdef CPM_IO_DEBUG
-    printf("%s: %3d      (%02XH     ) ...\n\r", __func__, wait_io_addr, wait_io_addr);
+    printf("%s: %3d      (%02XH     ) ...\r\n", __func__, wait_io_addr, wait_io_addr);
     #endif
 
     assert(io_stat() == IO_STAT_NOT_STARTED ||
@@ -766,7 +766,7 @@ int io_wait_write(uint8_t wait_io_addr, uint8_t *result_io_data)
             // This might be a dirty hack. But works well?
             //
             #ifdef CPM_IO_DEBUG
-            printf("%s: %3d      (%02XH     ) ... disk_stat=%02Xh\n\r", __func__,
+            printf("%s: %3d      (%02XH     ) ... disk_stat=%02Xh\r\n", __func__,
                    wait_io_addr, wait_io_addr, disk_stat);
             #endif
             // Let Z80 read the data
@@ -783,7 +783,7 @@ int io_wait_write(uint8_t wait_io_addr, uint8_t *result_io_data)
 
         if (rd_pin() == 0 || (io_addr != UART_DREG && io_addr != wait_io_addr)) {
             // something wrong
-            printf("%s: ERROR: I/O %5s %3d, %3d (%02XH, %02XH) while waiting for %d (%02XH)\n\r",
+            printf("%s: ERROR: I/O %5s %3d, %3d (%02XH, %02XH) while waiting for %d (%02XH)\r\n",
                    __func__, rd_pin() == 0 ? "read" : "write",
                    io_addr, io_data, io_addr, io_data, wait_io_addr, wait_io_addr);
             invoke_monitor = 1;
@@ -810,7 +810,7 @@ int io_wait_write(uint8_t wait_io_addr, uint8_t *result_io_data)
     bus_master(1);
 
     #ifdef CPM_IO_DEBUG
-    printf("%s: %3d, %3d (%02XH, %02XH) ... result=%d\n\r", __func__, io_addr, io_data,
+    printf("%s: %3d, %3d (%02XH, %02XH) ... result=%d\r\n", __func__, io_addr, io_data,
            io_addr, io_data,result);
     #endif
 
@@ -830,7 +830,7 @@ int io_invoke_target_cpu_prepare(int *saved_status)
             return -1;
         }
         if (!is_board_nmi_available() && !is_board_int_available()) {
-            printf("WARNING: %s: no interrupts line available\n\r", __func__);
+            printf("WARNING: %s: no interrupts line available\r\n", __func__);
             available = 0;
             return -1;
         }
@@ -855,7 +855,7 @@ int io_invoke_target_cpu_prepare(int *saved_status)
     }
 
     #ifdef CPM_IO_DEBUG
-    printf("%s: mon_setup()\n\r", __func__);
+    printf("%s: mon_setup()\r\n", __func__);
     #endif
     bus_master(1);
     mon_setup();            // Hook NMI handler and assert /NMI
@@ -863,7 +863,7 @@ int io_invoke_target_cpu_prepare(int *saved_status)
     io_wait_write(is_board_nmi_available() ? MON_PREPARE_NMI : MON_PREPARE, NULL);
 
     #ifdef CPM_IO_DEBUG
-    printf("%s: mon_prepare()\n\r", __func__);
+    printf("%s: mon_prepare()\r\n", __func__);
     #endif
     if (is_board_nmi_available())  // Install the trampoline code
         mon_prepare_nmi();
@@ -873,7 +873,7 @@ int io_invoke_target_cpu_prepare(int *saved_status)
     io_stat_ = IO_STAT_PREPINVOKE;
 
     #ifdef CPM_IO_DEBUG
-    printf("%s: mon_enter()\n\r", __func__);
+    printf("%s: mon_enter()\r\n", __func__);
     #endif
     if (is_board_nmi_available())  // Now we can use the trampoline
         mon_enter_nmi();
@@ -919,7 +919,7 @@ void io_invoke_target_cpu_teardown(int *saved_status)
     assert(io_stat() == IO_STAT_MONITOR);
 
     #ifdef CPM_IO_DEBUG
-    printf("%s: mon_leave()\n\r", __func__);
+    printf("%s: mon_leave()\r\n", __func__);
     #endif
     mon_leave();
     io_stat_ = IO_STAT_INTERRUPTED;
@@ -927,12 +927,12 @@ void io_invoke_target_cpu_teardown(int *saved_status)
     io_wait_write(MON_CLEANUP, NULL);
 
     #ifdef CPM_IO_DEBUG
-    printf("%s: mon_cleanup() ...\n\r", __func__);
+    printf("%s: mon_cleanup() ...\r\n", __func__);
     #endif
     mon_cleanup();
 
     #ifdef CPM_IO_DEBUG
-    printf("%s: mon_cleanup() ... done\n\r", __func__);
+    printf("%s: mon_cleanup() ... done\r\n", __func__);
     #endif
     io_stat_ = IO_STAT_STOPPED;
 

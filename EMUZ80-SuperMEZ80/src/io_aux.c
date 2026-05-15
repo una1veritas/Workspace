@@ -62,7 +62,7 @@ static void aux_file_timer_callback(timer_t *timer) {
     FRESULT fr;
 
     #ifdef CPM_IO_AUX_DEBUG
-    printf("%s: close %s\n\r", __func__, aux_file_name);
+    printf("%s: close %s\r\n", __func__, aux_file_name);
     #endif
     if (aux_status == AUX_CLOSED) {
         return;
@@ -83,7 +83,7 @@ static int aux_out_conv(uint8_t *c) {
     if (*c == 0x00 || *c == '\r') {
         // ignore 00h and 0Dh (Carriage Return)
         #ifdef CPM_IO_AUX_DEBUG_VERBOSE
-        printf("%s: ignore %02Xh\n\r", __func__, *c);
+        printf("%s: ignore %02Xh\r\n", __func__, *c);
         #endif
         return 1;
     }
@@ -91,7 +91,7 @@ static int aux_out_conv(uint8_t *c) {
     if (*c == 0x1a) {
         // 1Ah (EOF)
         #ifdef CPM_IO_AUX_DEBUG_VERBOSE
-        printf("%s: %02Xh is EOF\n\r", __func__, *c);
+        printf("%s: %02Xh is EOF\r\n", __func__, *c);
         #endif
         timer_expire(&aux_timer);  // close the file immediately
         return 1;
@@ -103,14 +103,14 @@ static int aux_out_conv(uint8_t *c) {
 static int aux_in_conv(uint8_t *c) {
     if (*c == 0x00) {
         #ifdef CPM_IO_AUX_DEBUG_VERBOSE
-        printf("%s: ignore %02Xh\n\r", __func__, *c);
+        printf("%s: ignore %02Xh\r\n", __func__, *c);
         #endif
         return 1;
     }
     if (*c == '\n') {
         // convert LF (\n 0Ah) to CRLF (\r 0Dh, \n 0Ah)
         #ifdef CPM_IO_AUX_DEBUG_VERBOSE
-        printf("%s: convert LF (\\n 0Ah) to CRLF (\\r 0Dh, \\n 0Ah)\n\r", __func__);
+        printf("%s: convert LF (\\n 0Ah) to CRLF (\\r 0Dh, \\n 0Ah)\r\n", __func__);
         #endif
         *c = '\r';
         aux_in_line_feed = 1;
@@ -123,21 +123,21 @@ static int aux_file_open(char *file_name, BYTE mode) {
     FRESULT fr;
 
     if (aux_status != AUX_CLOSED) {
-        ERROR(printf("aux: internal status error\n\r"));
+        ERROR(printf("aux: internal status error\r\n"));
         return 0;
     }
 
     if (aux_filep == NULL) {
         aux_filep = get_file();
         if (aux_filep == NULL) {
-            ERROR(printf("aux: can not allocate file\n\r"));
+            ERROR(printf("aux: can not allocate file\r\n"));
             aux_status = AUX_CLOSED;
             return -1;
         }
         aux_error = 0;
         aux_file_name = file_name;
         #ifdef CPM_IO_AUX_DEBUG
-        printf("%s: open %s\n\r", __func__, aux_file_name);
+        printf("%s: open %s\r\n", __func__, aux_file_name);
         #endif
         fr = f_open(aux_filep, aux_file_name, mode);
         if (fr != FR_OK) {
@@ -183,7 +183,7 @@ void aux_file_write(uint8_t c) {
     UINT bw;
     fr = f_write(aux_filep, &c, 1, &bw);
     #ifdef CPM_IO_AUX_DEBUG_VERBOSE
-    printf("%s: f_write: fr=%d, bw=%d, c=%02Xh\n\r", __func__, fr, bw, c);
+    printf("%s: f_write: fr=%d, bw=%d, c=%02Xh\r\n", __func__, fr, bw, c);
     #endif
     if (fr != FR_OK || bw != 1) {
         ERROR(util_fatfs_error(fr, "f_write(/AUXOUT.TXT) failed"));
@@ -211,7 +211,7 @@ void aux_file_read(uint8_t *c) {
         aux_in_line_feed = 0;
         *c = '\n';
         #ifdef CPM_IO_AUX_DEBUG_VERBOSE
-        printf("%s: insert LF (\\n %02Xh)\n\r", __func__, *c);
+        printf("%s: insert LF (\\n %02Xh)\r\n", __func__, *c);
         #endif
         return;
     }
@@ -219,9 +219,9 @@ void aux_file_read(uint8_t *c) {
     fr = f_read(aux_filep, c, 1, &br);
     #ifdef CPM_IO_AUX_DEBUG_VERBOSE
     if (br == 0) {
-        printf("%s: f_read: fr=%d, br=0\n\r", __func__, fr);
+        printf("%s: f_read: fr=%d, br=0\r\n", __func__, fr);
     } else {
-        printf("%s: f_read: fr=%d, br=%d, c=%02Xh\n\r", __func__, fr, br, *c);
+        printf("%s: f_read: fr=%d, br=%d, c=%02Xh\r\n", __func__, fr, br, *c);
     }
     #endif
     if (fr != FR_OK || br != 1) {
@@ -234,7 +234,7 @@ void aux_file_read(uint8_t *c) {
             aux_in_offset = 0;  // rewind file position
         }
         #ifdef CPM_IO_AUX_DEBUG_VERBOSE
-        printf("%s: reached EOF\n\r", __func__);
+        printf("%s: reached EOF\r\n", __func__);
         #endif
         *c = 0x1a;  // return EOF at end of file or some error
         return;
@@ -245,7 +245,7 @@ void aux_file_read(uint8_t *c) {
         goto read_one_more;
     }
     #ifdef CPM_IO_AUX_DEBUG_VERBOSE
-    printf("%s: return %02Xh\n\r", __func__, *c);
+    printf("%s: return %02Xh\r\n", __func__, *c);
     #endif
 }
 
@@ -255,16 +255,16 @@ void aux_modem_write(uint8_t c) {
     }
     if (aux_status != AUX_MODEM_SENDING) {
         timer_expire(&aux_timer);  // close the file immediately
-        printf("waiting for file transfer request via the terminal ...\n\r");
+        printf("waiting for file transfer request via the terminal ...\r\n");
         if (modem_send_open("AUXOUT.TXT", MODEM_XFER_UNKNOWN_FILE_SIZE) != 0) {
-            ERROR(printf("modem_send_open() failed\n\r"));
+            ERROR(printf("modem_send_open() failed\r\n"));
             return;
         }
         aux_status = AUX_MODEM_SENDING;
     }
 
     if (modem_write(&c, 1) != 1) {
-        ERROR(printf("modem_write() failed\n\r"));
+        ERROR(printf("modem_write() failed\r\n"));
         goto exit;
     }
     aux_error = 0;
@@ -290,11 +290,11 @@ void aux_modem_read(uint8_t *c) {
         modem_xfer_printf(MODEM_XFER_LOG_DEBUG, "|%s(%d)\r\n", __func__, __LINE__);
         timer_expire(&aux_timer);  // close immediately
         #ifdef CPM_IO_AUX_DEBUG
-        printf("%s: modem_recv_open()\n\r", __func__);
+        printf("%s: modem_recv_open()\r\n", __func__);
         printf("key_input_count=%d drop_count=%d\r\n", key_input_count, key_input_drop_count);
         #endif
         if (modem_recv_open() != 0) {
-            printf("modem_recv_open() failed\n\r");
+            printf("modem_recv_open() failed\r\n");
             *c = 0x1a;  // EOF
             goto  exit;
         }
@@ -304,7 +304,7 @@ void aux_modem_read(uint8_t *c) {
 
     if ((n = modem_read(c, 1)) != 1) {
         if (n < 0) {
-            printf("modem_read() failed\n\r");
+            printf("modem_read() failed\r\n");
         }
         timer_expire(&aux_timer);  // close immediately
         *c = 0x1a;  // EOF

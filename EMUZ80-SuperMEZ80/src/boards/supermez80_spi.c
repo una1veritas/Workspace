@@ -185,7 +185,7 @@ static void supermez80_spi_disk_init()
                        // so I made them static variables to get around it.
     for (retry = 0; 1; retry++) {
         if (20 <= retry) {
-            printf("No SD Card?\n\r");
+            printf("No SD Card?\r\n");
             while(1);
         }
         if (SDCard_init(SPI_CLOCK_100KHZ, SPI_CLOCK_5MHZ, /* timeout */ 100) == SDCARD_SUCCESS)
@@ -378,7 +378,7 @@ static void supermez80_spi_setup_addrbus(uint32_t addr)
     if (no_mcp23s08_warn && (addr & HIGH_ADDR_MASK) != 0) {
         no_mcp23s08_warn = 0;
         if (!mcp23s08_is_alive(MCP23S08_ctx)) {
-            printf("WARNING: no GPIO expander to control higher address\n\r");
+            printf("WARNING: no GPIO expander to control higher address\r\n");
         }
     }
     int pending = mcp23s08_set_pending(MCP23S08_ctx, 1);

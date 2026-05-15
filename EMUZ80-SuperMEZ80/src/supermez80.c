@@ -62,7 +62,7 @@ void start_z80(void);
 void main(void)
 {
     sys_init();
-    printf("Board: %s\n\r", board_name());
+    printf("Board: %s\r\n", board_name());
     if (disk_init() < 0)
         while (1);
     io_init();
@@ -93,12 +93,12 @@ void main(void)
     if (NCO1EN) {
         unsigned long khz = ((uint32_t) NCO1INC * 61 / 2) / 1000;
         if (1000 < khz) {
-            printf("NCO1: %.2f MHz\n\r", (double)khz / 1000.0);
+            printf("NCO1: %.2f MHz\r\n", (double)khz / 1000.0);
         } else {
-            printf("NCO1: %.2f KHz\n\r", (double)khz);
+            printf("NCO1: %.2f KHz\r\n", (double)khz);
         }
     }
-    printf("\n\r");
+    printf("\r\n");
     start_z80();
 
     while(1) {
@@ -121,7 +121,7 @@ FIL *get_file(void)
     for (int i = 0; i < NUM_FILES; i++) {
         if (file_available & (1L << i)) {
             file_available &= ~(1L << i);
-            // printf("%s: allocate %d, available=%04x\n\r", __func__, i, file_available);
+            // printf("%s: allocate %d, available=%04x\r\n", __func__, i, file_available);
             return &files[i];
         }
     }
@@ -153,7 +153,7 @@ int disk_init(void)
     static FATFS fs;
     board_disk_init();
     if (f_mount(&fs, "0://", 1) != FR_OK) {
-        printf("Failed to mount SD Card.\n\r");
+        printf("Failed to mount SD Card.\r\n");
         return -2;
     }
 
@@ -171,7 +171,7 @@ int menu_select(void)
     // Select disk image folder
     //
     if (f_opendir(&fsdir, "/")  != FR_OK) {
-        printf("Failed to open SD Card..\n\r");
+        printf("Failed to open SD Card..\r\n");
         return -3;
     }
  restart:
@@ -180,12 +180,12 @@ int menu_select(void)
     int preferred = -1;
     f_rewinddir(&fsdir);
     if (is_board_disk_name_available() && board_disk_name()[0]) {
-        printf("Preferred disk image: %s\n\r", board_disk_name());
+        printf("Preferred disk image: %s\r\n", board_disk_name());
     }
     while (f_readdir(&fsdir, &fileinfo) == FR_OK && fileinfo.fname[0] != 0) {
         if (strncmp(fileinfo.fname, "CPMDISKS", 8) == 0 ||
             strncmp(fileinfo.fname, "CPMDIS~", 7) == 0) {
-            printf("%d: %s\n\r", i, fileinfo.fname);
+            printf("%d: %s\r\n", i, fileinfo.fname);
             if (is_board_disk_name_available() && board_disk_name()[0] &&
                 strncmp(fileinfo.fname, "CPMDISKS.", 9) == 0 &&
                 strncmp(fileinfo.fname + 9, board_disk_name(), 3) == 0) {
@@ -200,7 +200,7 @@ int menu_select(void)
     if (0 <= preferred) {
         selection = preferred;
     }
-    printf("M: Monitor prompt\n\r");
+    printf("M: Monitor prompt\r\n");
     if (1 < i) {
         if (0 <= selection) {
             printf("Select[%d]: ", selection);
@@ -214,14 +214,14 @@ int menu_select(void)
                 break;
             }
             if (c == 'm' || c == 'M') {
-                printf("M\n\r");
+                printf("M\r\n");
                 while (mon_prompt() != MON_CMD_EXIT);
                 goto restart;
             }
             if ((c == 0x0d || c == 0x0a) && 0 <= selection)
                 break;
         }
-        printf("%d\n\r", selection);
+        printf("%d\r\n", selection);
         f_rewinddir(&fsdir);
         i = 0;
         while (f_readdir(&fsdir, &fileinfo) == FR_OK && fileinfo.fname[0] != 0) {
@@ -232,7 +232,7 @@ int menu_select(void)
                 i++;
             }
         }
-        printf("%s is selected.\n\r", fileinfo.fname);
+        printf("%s is selected.\r\n", fileinfo.fname);
     } else {
         strcpy(fileinfo.fname, "CPMDISKS");
     }
@@ -253,17 +253,17 @@ int menu_select(void)
         }
         FIL *filep = get_file();
         if (filep == NULL) {
-            printf("Too many files\n\r");
+            printf("Too many files\r\n");
             break;
         }
         if (f_open(filep, buf, FA_READ|FA_WRITE) == FR_OK) {
-            printf("Image file %s is assigned to drive %c\n\r", buf, drive_letter);
+            printf("Image file %s is assigned to drive %c\r\n", buf, drive_letter);
             drives[drive].filep = filep;
         }
     }
     util_memfree(buf);
     if (drives[0].filep == NULL) {
-        printf("No boot disk.\n\r");
+        printf("No boot disk.\r\n");
         return -4;
     }
 

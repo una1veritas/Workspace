@@ -107,7 +107,7 @@ void SPI(configure)(struct SPI *ctx_, int clock_speed, uint8_t bit_order, uint8_
         SPIx(CON1bits).CKE = 1; // Output data changes on transition from Active to Idle clock state
         SPIx(CON1bits).CKP = 0; // Idle state for SCK is low level
     } else {
-        printf("%s: ERROR: mode %d is not supported\n\r", __func__, data_mode);
+        printf("%s: ERROR: mode %d is not supported\r\n", __func__, data_mode);
         while (1);
     }
 
@@ -136,7 +136,7 @@ void SPI(configure)(struct SPI *ctx_, int clock_speed, uint8_t bit_order, uint8_
         SPIx(BAUD) = 2;     // 64 MHz / (2 * ( 2 + 1)) = 10.7 MHz
         break;
     default:
-        printf("%s: ERROR: clock speed %d is not supported\n\r", __func__, clock_speed);
+        printf("%s: ERROR: clock speed %d is not supported\r\n", __func__, clock_speed);
         break;
     }
 }

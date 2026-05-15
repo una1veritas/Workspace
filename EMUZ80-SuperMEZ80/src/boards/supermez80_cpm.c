@@ -204,7 +204,7 @@ static void supermez80_cpm_disk_init()
     static int retry;
     for (retry = 0; 1; retry++) {
         if (20 <= retry) {
-            printf("No SD Card?\n\r");
+            printf("No SD Card?\r\n");
             while(1);
         }
         if (SDCard_init(SPI_CLOCK_100KHZ, SPI_CLOCK_8MHZ, /* timeout */ 100) == SDCARD_SUCCESS)

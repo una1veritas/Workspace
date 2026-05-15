@@ -54,23 +54,23 @@ DSTATUS disk_initialize(BYTE pdrv)
 {
     uint8_t buf[128];
 
-    dprintf(("disk_initialize(%d)...\n\r", pdrv));
+    dprintf(("disk_initialize(%d)...\r\n", pdrv));
     if (pdrv != 0) {
-        dprintf(("physical driver != 0\n\r"));
+        dprintf(("physical driver != 0\r\n"));
         return STA_NODISK;
     }
 
     // read MBR partition table at sector 0
-    dprintf(("read MBR partition table at sector 0\n\r"));
+    dprintf(("read MBR partition table at sector 0\r\n"));
     if (SDCard_read512(0, 384, buf, 128) != SDCARD_SUCCESS) {
-        dprintf(("failed to read sector 0\n\r"));
+        dprintf(("failed to read sector 0\r\n"));
         return STA_NODISK;
     } else {
         if (debug_flags)
             util_hexdump("", buf, 128);
     }
     if (buf[126] != 0x55 || buf[127] != 0xaa) {
-        dprintf(("no MBR signature\n\r"));
+        dprintf(("no MBR signature\r\n"));
         return STA_NODISK;
     }
     //
@@ -83,14 +83,14 @@ DSTATUS disk_initialize(BYTE pdrv)
     //
     if (buf[66] != 0x01 && buf[66] != 0x04 && buf[66] != 0x06 &&
         buf[66] != 0x0b && buf[66] != 0x0c && buf[66] != 0x0e) {
-        dprintf(("no FAT32 partition\n\r"));
+        dprintf(("no FAT32 partition\r\n"));
         return STA_NODISK;
     }
     start_lba = buf[73];
     start_lba = (start_lba << 8) | buf[72];
     start_lba = (start_lba << 8) | buf[71];
     start_lba = (start_lba << 8) | buf[70];
-    dprintf(("partition starts at sector %ld\n\r", start_lba));
+    dprintf(("partition starts at sector %ld\r\n", start_lba));
 
     return 0;
 }
@@ -98,11 +98,11 @@ DSTATUS disk_initialize(BYTE pdrv)
 DSTATUS disk_status(BYTE pdrv)
 {
     if (pdrv != 0) {
-        dprintf(("physical driver != 0\n\r"));
+        dprintf(("physical driver != 0\r\n"));
         return STA_NODISK;
     }
     if (start_lba == INVALID_LBA) {
-        dprintf(("no valid volume\n\r"));
+        dprintf(("no valid volume\r\n"));
         return STA_NODISK;
     }
     return 0;
@@ -110,11 +110,11 @@ DSTATUS disk_status(BYTE pdrv)
 
 DRESULT disk_read(BYTE pdrv, BYTE* buff, LBA_t sector, UINT count)
 {
-    drprintf(("disk_read:  pdrv=%d, sector=%ld, count=%d\n\r", pdrv, sector, count));
+    drprintf(("disk_read:  pdrv=%d, sector=%ld, count=%d\r\n", pdrv, sector, count));
 
     for (int i = 0; i < count; i++) {
         if (SDCard_read512(start_lba + sector, 0, buff, SECTOR_SIZE) != SDCARD_SUCCESS) {
-            dprintf(("failed to read sector %ld\n\r", sector));
+            dprintf(("failed to read sector %ld\r\n", sector));
             return RES_ERROR;
         }
         if ((debug_flags & FATDISK_DEBUG_READ) && (debug_flags & FATDISK_DEBUG_VERBOSE)) {
@@ -129,11 +129,11 @@ DRESULT disk_read(BYTE pdrv, BYTE* buff, LBA_t sector, UINT count)
 
 DRESULT disk_write(BYTE pdrv, const BYTE* buff, LBA_t sector, UINT count)
 {
-    dwprintf(("disk_write: pdrv=%d, sector=%ld, count=%d\n\r", pdrv, sector, count));
+    dwprintf(("disk_write: pdrv=%d, sector=%ld, count=%d\r\n", pdrv, sector, count));
 
     for (int i = 0; i < count; i++) {
         if (SDCard_write512(start_lba + sector, 0, buff, SECTOR_SIZE) != SDCARD_SUCCESS) {
-            dprintf(("failed to write sector %ld\n\r", sector));
+            dprintf(("failed to write sector %ld\r\n", sector));
             return RES_ERROR;
         }
         if ((debug_flags & FATDISK_DEBUG_WRITE) && (debug_flags & FATDISK_DEBUG_VERBOSE)) {
@@ -160,11 +160,11 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void* buff)
     case GET_BLOCK_SIZE:
     case CTRL_TRIM:
     default:
-        printf("disk_ioctl: pdrv=%d, cmd=%d: Not handled.\n\r", pdrv, cmd);
+        printf("disk_ioctl: pdrv=%d, cmd=%d: Not handled.\r\n", pdrv, cmd);
         break;
     }
 
-    dprintf(("disk_ioctl: pdrv=%d, cmd=%d, buff=0x%lx: res=%d\n\r", pdrv, cmd, (long)buff, res));
+    dprintf(("disk_ioctl: pdrv=%d, cmd=%d, buff=0x%lx: res=%d\r\n", pdrv, cmd, (long)buff, res));
     return res;
 }
 

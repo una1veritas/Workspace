@@ -105,7 +105,7 @@ void mcp23s08_init(struct MCP23S08 *ctx, int clock_speed, uint8_t addr)
     ctx->addr = addr;
     ctx->dir = 0xff;  // all ports are setup as input
     ctx->olat = 0;
-    dprintf(("\n\rMCP23S08: initialize ...\n\r"));
+    dprintf(("\r\nMCP23S08: initialize ...\r\n"));
 
     SPI(begin)(ctx->spi);
     SPI(configure)(ctx->spi, clock_speed, SPI_MSBFIRST, SPI_MODE0);
@@ -149,7 +149,7 @@ int mcp23s08_probe(struct MCP23S08 *ctx, int clock_speed, uint8_t addr)
         uint8_t val = test_vector[i].val;
         mcp23S08_reg_write(ctx, reg, val);
         uint8_t v = mcp23S08_reg_read(ctx, reg);
-        dprintf(("MCP23S08: probe %8s: %02x %s %02x\n\r", reg_names[reg], val,
+        dprintf(("MCP23S08: probe %8s: %02x %s %02x\r\n", reg_names[reg], val,
                  (v == val)?"==":"!=", v));
         if (v != val) {
             result = (int)(i + 1);
@@ -256,7 +256,7 @@ void mcp23s08_dump_regs(struct MCP23S08 *ctx, const char *header)
     for (unsigned int i = 0; i < sizeof(reg_names)/sizeof(*reg_names); i++) {
         uint8_t val;
         val = mcp23S08_reg_read(ctx, i);
-        dprintf(("%sMCP23S08:%8s: %02x\n\r", header, reg_names[i], val));
+        dprintf(("%sMCP23S08:%8s: %02x\r\n", header, reg_names[i], val));
     }
     #endif  // MCP23S08_DEBUG
 }

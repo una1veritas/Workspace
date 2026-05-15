@@ -64,7 +64,7 @@ void mem_init()
         dma_read_from_sram(addr, tmp_buf[1], TMP_BUF_SIZE);
         if (memcmp(tmp_buf[0], tmp_buf[1], TMP_BUF_SIZE) != 0) {
             #ifdef CPM_MMU_DEBUG
-            printf("\nMemory error at %06lXH\n\r", addr);
+            printf("\nMemory error at %06lXH\r\n", addr);
             util_addrdump("WR: ", addr, tmp_buf[0], TMP_BUF_SIZE);
             util_addrdump("RD: ", addr, tmp_buf[1], TMP_BUF_SIZE);
             #endif
@@ -94,7 +94,7 @@ void mem_init()
         //dma_write_to_sram(addr, tmp_buf[0], TMP_BUF_SIZE);
         dma_read_from_sram(addr, tmp_buf[1], TMP_BUF_SIZE);
         if (memcmp(tmp_buf[0], tmp_buf[1], TMP_BUF_SIZE) != 0) {
-            printf("\nMemory error at %06lXH\n\r", addr);
+            printf("\nMemory error at %06lXH\r\n", addr);
             util_addrdump("CA: ", addr, tmp_buf[0], TMP_BUF_SIZE);
             util_addrdump("RD: ", addr, tmp_buf[1], TMP_BUF_SIZE);
             while (1);
@@ -109,7 +109,7 @@ void mem_init()
         dma_write_to_sram(0x1c000, tmp_buf[1], TMP_BUF_SIZE);
         dma_read_from_sram(0x0c000, tmp_buf[0], TMP_BUF_SIZE);
         if (memcmp(tmp_buf[0], tmp_buf[1], TMP_BUF_SIZE) != 0) {
-            printf("\nMemory error at %06lXH\n\r", addr);
+            printf("\nMemory error at %06lXH\r\n", addr);
             util_addrdump("EX: ", 0x0c000, tmp_buf[1], TMP_BUF_SIZE);
             util_addrdump("RD: ", 0x0c000, tmp_buf[0], TMP_BUF_SIZE);
             while (1);
@@ -118,7 +118,7 @@ void mem_init()
     #endif  // CPM_MMU_DEBUG
 
     mmu_num_banks = (int)(mmu_mem_size / 0x10000);
-    printf("Memory 000000 - %06lXH %d KB OK\r\n", addr, (int)(mmu_mem_size / 1024));
+    printf("Memory 000000 - %06lXH %d KB OK\r\n\r\n", addr, (int)(mmu_mem_size / 1024));
 #endif  // !CPM_MMU_EXERCISE
 
     util_memfree(tmp_buf[0]);
@@ -143,7 +143,7 @@ static void __memcpy_on_target(uint16_t dest, uint16_t src, uint8_t *buf, unsign
     };
 
     #ifdef CPM_MEMCPY_DEBUG
-    printf("%22s: %04X to %04X, %u bytes\n\r", __func__, src, dest, len);
+    printf("%22s: %04X to %04X, %u bytes\r\n", __func__, src, dest, len);
     #endif
 
     assert(sizeof(params) == 5);
@@ -174,7 +174,7 @@ static void write_to_sram_low_addr(uint32_t dest, const /*void*/ uint8_t *buf, u
     int bank = phys_addr_bank(dest);
 
     #ifdef CPM_MEMCPY_DEBUG
-    printf("%22s: addr=  %04X, len=%4u, gap=%04X\n\r", __func__, addr, len, addr_gap_mask);
+    printf("%22s: addr=  %04X, len=%4u, gap=%04X\r\n", __func__, addr, len, addr_gap_mask);
     #endif
 
     if (!(addr & addr_gap_mask || (addr + len - 1) & addr_gap_mask)) {
@@ -202,7 +202,7 @@ void dma_write_to_sram(uint32_t dest, const void *buf, unsigned int len)
     uint16_t second_half = 0;
 
     #ifdef CPM_MEMCPY_DEBUG
-    printf("%22s: addr=%06lX, len=%4u\n\r", __func__, dest, len);
+    printf("%22s: addr=%06lX, len=%4u\r\n", __func__, dest, len);
     #endif
 
     if ((uint32_t)~high_addr_mask + 1 < (uint32_t)addr + len)
@@ -226,7 +226,7 @@ static void read_from_sram_low_addr(uint32_t src, /*void*/ uint8_t *buf, unsigne
     int bank = phys_addr_bank(src);
 
     #ifdef CPM_MEMCPY_DEBUG
-    printf("%22s: addr=  %04X, len=%4u\n\r", __func__, addr, len);
+    printf("%22s: addr=  %04X, len=%4u\r\n", __func__, addr, len);
     #endif
 
     if (!(addr & addr_gap_mask || (addr + len - 1) & addr_gap_mask)) {
@@ -254,7 +254,7 @@ void dma_read_from_sram(uint32_t src, void *buf, unsigned int len)
     uint16_t second_half = 0;
 
     #ifdef CPM_MEMCPY_DEBUG
-    printf("%22s: addr=%06lX, len=%4u\n\r", __func__, src, len);
+    printf("%22s: addr=%06lX, len=%4u\r\n", __func__, src, len);
     #endif
 
     if ((uint32_t)~high_addr_mask + 1 < (uint32_t)addr + len)
@@ -319,10 +319,10 @@ void __read_sram_regions(const mem_region_t *regions, unsigned int n, int bank)
 void mmu_bank_config(int nbanks)
 {
     #ifdef CPM_MMU_DEBUG
-    printf("mmu_bank_config: %d\n\r", nbanks);
+    printf("mmu_bank_config: %d\r\n", nbanks);
     #endif
     if (mmu_num_banks < nbanks)
-        printf("WARNING: too many banks requested. (request is %d)\n\r", nbanks);
+        printf("WARNING: too many banks requested. (request is %d)\r\n", nbanks);
     if (mmu_bank_config_callback)
         (*mmu_bank_config_callback)();
 }
@@ -330,7 +330,7 @@ void mmu_bank_config(int nbanks)
 void mmu_bank_select(int bank)
 {
     #ifdef CPM_MMU_DEBUG
-    printf("mmu_bank_select: %d\n\r", bank);
+    printf("mmu_bank_select: %d\r\n", bank);
     #endif
     if (mmu_bank == bank)
         return;
@@ -341,7 +341,7 @@ void mmu_bank_select(int bank)
         #endif
         {
             first_time = 0;
-            printf("ERROR: bank %d is not available.\n\r", bank);
+            printf("ERROR: bank %d is not available.\r\n", bank);
             invoke_monitor = 1;
         }
     }

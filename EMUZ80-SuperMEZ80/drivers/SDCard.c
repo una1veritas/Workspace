@@ -59,7 +59,7 @@ int SDCard_init(int initial_clock_speed, int clock_speed, uint16_t timeout)
     SPI(begin)(spi);
 
     uint8_t buf[5];
-    dprintf(("\n\rSD Card: initialize ...\n\r"));
+    dprintf(("\r\nSD Card: initialize ...\r\n"));
 
     SPI(configure)(spi, initial_clock_speed, SPI_MSBFIRST, SPI_MODE0);
     SPI(begin_transaction)(spi);
@@ -68,18 +68,18 @@ int SDCard_init(int initial_clock_speed, int clock_speed, uint16_t timeout)
 
     // CMD0 go idle state
     SDCard_command(0, 0, buf, 1);
-    dprintf(("SD Card: CMD0, R1=%02x\n\r", buf[0]));
+    dprintf(("SD Card: CMD0, R1=%02x\r\n", buf[0]));
     if (buf[0] != SDCARD_R1_IDLE_STATE) {
-        dprintf(("SD Card: timeout\n\r"));
+        dprintf(("SD Card: timeout\r\n"));
         return SDCARD_TIMEOUT;
     }
 
     // CMD8 send interface condition
     SDCard_command(8, 0x000001aa, buf, 5);
-    dprintf(("SD Card: CMD8, R7=%02x %02x %02x %02x %02x\n\r",
+    dprintf(("SD Card: CMD8, R7=%02x %02x %02x %02x %02x\r\n",
              buf[0], buf[1], buf[2], buf[3], buf[4]));
     if (buf[0] != SDCARD_R1_IDLE_STATE || (buf[3] & 0x01) != 0x01 || buf[4] != 0xaa) {
-        dprintf(("SD Card: not supoprted\n\r"));
+        dprintf(("SD Card: not supoprted\r\n"));
         return SDCARD_NOTSUPPORTED;
     }
 
@@ -90,42 +90,42 @@ int SDCard_init(int initial_clock_speed, int clock_speed, uint16_t timeout)
         if (buf[0] == 0x00)
             break;
     }
-    dprintf(("SD Card: ACMD41, R1=%02x\n\r", buf[0]));
+    dprintf(("SD Card: ACMD41, R1=%02x\r\n", buf[0]));
     if (buf[0] != 0x00) {
-        dprintf(("SD Card: ACMD41 response is %02x\n\r", buf[0]));
+        dprintf(("SD Card: ACMD41 response is %02x\r\n", buf[0]));
         return SDCARD_TIMEOUT;
     }
 
     // CMD58 read OCR register
     SDCard_command(58, 0, buf, 5);
-    dprintf(("SD Card: CMD58, R3=%02x %02x %02x %02x %02x\n\r",
+    dprintf(("SD Card: CMD58, R3=%02x %02x %02x %02x %02x\r\n",
              buf[0], buf[1], buf[2], buf[3], buf[4]));
     if (buf[0] & 0xfe) {
-        dprintf(("SD Card: unexpected response %02x\n\r", buf[0]));
+        dprintf(("SD Card: unexpected response %02x\r\n", buf[0]));
         return SDCARD_BADRESPONSE;
     }
     if (!(buf[1] & 0x40)) {
-        dprintf(("SD Card: CCS (Card Capacity Status) is 0\n\r"));
+        dprintf(("SD Card: CCS (Card Capacity Status) is 0\r\n"));
         return SDCARD_NOTSUPPORTED;
     }
-    dprintf(("SD Card: SDHC or SDXC card detected\n\r"));
+    dprintf(("SD Card: SDHC or SDXC card detected\r\n"));
 
     if (!(buf[1] & 0x80)) {
-        dprintf(("SD Card: Card power up status bis is 0\n\r"));
+        dprintf(("SD Card: Card power up status bis is 0\r\n"));
         return SDCARD_BADRESPONSE;
     }
-    dprintf(("SD Card: ready.\n\r"));
+    dprintf(("SD Card: ready.\r\n"));
 
     // CMD59 turn on CRC
     SDCard_command(59, 1, buf, 1);
     if (buf[0] != 0x00) {
-        dprintf(("SD Card: CMD59 response is %02x\n\r", buf[0]));
+        dprintf(("SD Card: CMD59 response is %02x\r\n", buf[0]));
         return SDCARD_BADRESPONSE;
     }
 
     SPI(configure)(spi, clock_speed, SPI_MSBFIRST, SPI_MODE0);
 
-    dprintf(("SD Card: initialize ... succeeded\n\r"));
+    dprintf(("SD Card: initialize ... succeeded\r\n"));
 
     return SDCARD_SUCCESS;
 }
@@ -174,7 +174,7 @@ int SDCard_read512(uint32_t addr, unsigned int offs, void *buf, unsigned int cou
     uint16_t crc, resp_crc;
     int retry = 5;
 
-    drprintf(("SD Card:  read512: addr=%8ld, offs=%d, count=%d\n\r", addr, offs, count));
+    drprintf(("SD Card:  read512: addr=%8ld, offs=%d, count=%d\r\n", addr, offs, count));
 
  retry:
     result = __SDCard_command_r1(17, addr, &response);
@@ -217,7 +217,7 @@ int SDCard_read512(uint32_t addr, unsigned int offs, void *buf, unsigned int cou
     resp_crc = (uint16_t)SPI(receive_byte)(spi) << 8;
     resp_crc |= SPI(receive_byte)(spi);
     if (ctx_.calc_read_crc && resp_crc != crc) {
-        dprintf(("SD Card: read512: CRC error (%04x != %04x, retry=%d)\n\r",
+        dprintf(("SD Card: read512: CRC error (%04x != %04x, retry=%d)\r\n",
                  crc, resp_crc, retry));
         if (--retry < 1) {
             result = SDCARD_CRC_ERROR;
@@ -242,7 +242,7 @@ int SDCard_write512(uint32_t addr, unsigned int offs, const void *buf, unsigned 
     uint16_t crc;
     int retry = 5;
 
-    dwprintf(("SD Card: write512: addr=%8ld, offs=%d, count=%d\n\r", addr, offs, count));
+    dwprintf(("SD Card: write512: addr=%8ld, offs=%d, count=%d\r\n", addr, offs, count));
     if ((debug_flags & SDCARD_DEBUG_WRITE) && (debug_flags & SDCARD_DEBUG_VERBOSE)) {
         util_addrdump("SD: ", (addr * 512) + offs, buf, count);
     }
@@ -279,14 +279,14 @@ int SDCard_write512(uint32_t addr, unsigned int offs, const void *buf, unsigned 
 
     response = __SDCard_wait_response(0xff, 3000);
     if (response == 0xff) {
-        dprintf(("SD Card: write512: failed to get token, timeout\n\r"));
+        dprintf(("SD Card: write512: failed to get token, timeout\r\n"));
         result = SDCARD_TIMEOUT;
         goto done;
     }
     if ((response & 0x1f) != 0x05) {
-        dprintf(("SD Card: write512: token is %02x\n\r", response));
+        dprintf(("SD Card: write512: token is %02x\r\n", response));
         if ((response & 0x1f) == 0x0b) {
-            dprintf(("SD Card: write512: CRC error (retry=%d)\n\r", retry));
+            dprintf(("SD Card: write512: CRC error (retry=%d)\r\n", retry));
             if (--retry < 1) {
                 result = SDCARD_CRC_ERROR;
                 goto done;
@@ -301,7 +301,7 @@ int SDCard_write512(uint32_t addr, unsigned int offs, const void *buf, unsigned 
 
     response = __SDCard_wait_response(0x00, 30000);
     if (response == 0x00) {
-        dprintf(("SD Card: write512: timeout, response is %02x\n\r", response));
+        dprintf(("SD Card: write512: timeout, response is %02x\r\n", response));
         result = SDCARD_TIMEOUT;
         goto done;
     }

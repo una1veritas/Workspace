@@ -125,7 +125,7 @@ void mon_show_registers(void)
     printf("DE: %04X  ", z80_context.w.de);
     printf("HL: %04X  ", z80_context.w.hl);
     printf("IX: %04X  ", z80_context.w.ix);
-    printf("IY: %04X\n\r", z80_context.w.iy);
+    printf("IY: %04X\r\n", z80_context.w.iy);
     printf("MMU: bank %02X  ", mmu_bank);
     printf("STATUS: %c%c%c%c%c%c%c%c",
            (z80_context.w.af & 0x80) ? 'S' : '-',
@@ -136,7 +136,7 @@ void mon_show_registers(void)
            (z80_context.w.af & 0x04) ? 'P' : '-',
            (z80_context.w.af & 0x02) ? 'N' : '-',
            (z80_context.w.af & 0x01) ? 'C' : '-');
-    printf("\n\r");
+    printf("\r\n");
 }
 
 static void uninstall_nmi_vector(void)
@@ -325,7 +325,7 @@ void mon_assert_interrupt(void)
     if (is_board_int_available()) {
         set_int_pin(0);
     } else {
-        printf("%s: no interrupt pin\n\r", __func__);
+        printf("%s: no interrupt pin\r\n", __func__);
     }
 }
 
@@ -338,7 +338,7 @@ void mon_setup(void)
         if (!(is_board_rd_available() && is_board_wr_available())) {
             // INT handling requires both RD and WR connected to distinguish between
             // I/O read/write and Interrupt request/acknowledge
-            printf("%s: interrupt is not available\n\r", __func__);
+            printf("%s: interrupt is not available\r\n", __func__);
             return;
         }
         install_rst_vector(mmu_bank);
@@ -394,7 +394,7 @@ void mon_start()
     const unsigned int bufsize = 64;
     uint8_t *buf = util_memalloc(bufsize);
     #ifdef CPM_MON_DEBUG
-    printf("Start monitor\n\r");
+    printf("Start monitor\r\n");
     #endif
 
     mon_cur_addr = phys_addr(z80_context.w.pc);
@@ -408,7 +408,7 @@ void mon_start()
     }
 
     if (!z80_context.w.nmi && mon_bp_installed && mon_cur_addr == mon_bp_addr + 1) {
-        printf("Break at %04lX\n\r", mon_bp_addr);
+        printf("Break at %04lX\r\n", mon_bp_addr);
         dma_write_to_sram(mon_bp_addr, &mon_bp_saved_inst, 1);
         z80_context.w.pc--;
         mon_bp_installed = 0;
@@ -493,7 +493,7 @@ void edit_line(char *line, unsigned int maxlen, unsigned int start, unsigned int
             }
             line[pos++] = (char)c;
         } else {
-            printf("<%d>\n\r", c);
+            printf("<%d>\r\n", c);
         }
     }
 }
@@ -754,7 +754,7 @@ int mon_parse(char *line, unsigned int *command, char *args[MON_MAX_ARGS])
     mon_remove_space(&line);
     if (*line == '\0' && last_command_idx != MON_INVALID_CMD_INDEX) {
         *command = last_command_idx;
-        printf("\r%s%s\n\r", mon_prompt_str, mon_cmds[last_command_idx].name);
+        printf("\r%s%s\r\n", mon_prompt_str, mon_cmds[last_command_idx].name);
         return 0;
     }
     last_command_idx = MON_INVALID_CMD_INDEX;
@@ -779,14 +779,14 @@ int mon_parse(char *line, unsigned int *command, char *args[MON_MAX_ARGS])
     if (nmatches < 1){
         // Unknown command
         #ifdef CPM_MON_DEBUG
-        printf("not match: %s\n\r", line);
+        printf("not match: %s\r\n", line);
         #endif
-        printf("Unknown command: %s\n\r", line);
+        printf("Unknown command: %s\r\n", line);
         return -1;
     }
     if (1 < nmatches){
         // Ambiguous command
-        printf("Ambiguous command %s\n\r", line);
+        printf("Ambiguous command %s\r\n", line);
         return -2;
     }
     // Read command name
@@ -818,7 +818,7 @@ int mon_parse(char *line, unsigned int *command, char *args[MON_MAX_ARGS])
     }
     if (*line != '\0') {
         // Some garbage found
-        printf("Invalid argument: '%s'\n\r", line);
+        printf("Invalid argument: '%s'\r\n", line);
         return -3;
     }
 
@@ -836,7 +836,7 @@ int mon_cmd_help(int argc, char *args[])
         printf("%s", mon_cmds[cmd_idx].name);
         if (mon_cmds[cmd_idx].argument)
             printf(" %s", mon_cmds[cmd_idx].argument);
-        printf("\n\r    %s\n\r", mon_cmds[cmd_idx].description);
+        printf("\r\n    %s\r\n", mon_cmds[cmd_idx].description);
     }
     return MON_CMD_OK;
 }
@@ -895,7 +895,7 @@ int mon_cmd_disassemble(int argc, char *args[])
         len -= done;
         addr += done;
         #ifdef CPM_MON_DEBUG
-        printf("addr=%lx, done=%d, len=%d, n=%d, leftover=%d\n\r", addr, done, len, n, leftovers);
+        printf("addr=%lx, done=%d, len=%d, n=%d, leftover=%d\r\n", addr, done, len, n, leftovers);
         #endif
         for (unsigned int i = 0; i < leftovers; i++)
             buf[i] = buf[bufsize - leftovers + i];
@@ -903,7 +903,7 @@ int mon_cmd_disassemble(int argc, char *args[])
     mon_cur_addr = addr;
 
     #ifdef CPM_MON_DEBUG
-    printf("mon_cur_addr=%lx\n\r", mon_cur_addr);
+    printf("mon_cur_addr=%lx\r\n", mon_cur_addr);
     #endif
     util_memfree(buf);
 
@@ -956,12 +956,12 @@ int mon_cmd_diskread(int argc, char *args[])
     for (i = 0; i < len; i++) {
         if (cpm_trsect_from_lba(drive, &track, &sector, lba) ||
             cpm_disk_read(drive, lba, buf, 1) != 1) {
-            printf("DISK:  read D/T/S=%d/%3d/%3d x%3d=%5ld: ERROR\n\r",
+            printf("DISK:  read D/T/S=%d/%3d/%3d x%3d=%5ld: ERROR\r\n",
                    drive, track, sector, drives[drive].sectors, lba);
             util_memfree(buf);
             return MON_CMD_ERROR;
         }
-        printf("DISK:  read D/T/S=%d/%3d/%3d x%3d=%5ld: OK\n\r",
+        printf("DISK:  read D/T/S=%d/%3d/%3d x%3d=%5ld: OK\r\n",
                drive, track, sector, drives[drive].sectors, lba);
         util_hexdump("", buf, SECTOR_SIZE);
         lba++;
@@ -989,11 +989,11 @@ int mon_cmd_sdread(int argc, char *args[])
 
     for (i = 0; i < count; i++) {
         if (SDCard_read512(lba, 0, buf, 512) != SDCARD_SUCCESS) {
-            printf("SD Card:  read512: sector=%ld: ERROR\n\r", lba);
+            printf("SD Card:  read512: sector=%ld: ERROR\r\n", lba);
             util_memfree(buf);
             return MON_CMD_ERROR;
         }
-        printf("SD Card:  read512: sector=%ld: OK\n\r", lba);
+        printf("SD Card:  read512: sector=%ld: OK\r\n", lba);
         util_hexdump("", buf, 512);
         lba++;
     }
@@ -1021,17 +1021,17 @@ int mon_cmd_status(int argc, char *args[])
 
     mon_show_registers();
 
-    printf("\n\r");
-    printf("stack:\n\r");
+    printf("\r\n");
+    printf("stack:\r\n");
     dma_read_from_sram(phys_addr(sp & ~0xfU), buf, bufsize);
     util_addrdump("", phys_addr(sp & ~0xfU), buf, bufsize);
 
-    printf("\n\r");
-    printf("program:\n\r");
+    printf("\r\n");
+    printf("program:\r\n");
     dma_read_from_sram(phys_addr(pc & ~0xfU), buf, bufsize);
     util_addrdump("", phys_addr(pc & ~0xfU), buf, bufsize);
 
-    printf("\n\r");
+    printf("\r\n");
     disas_ops(disas_z80, phys_addr(pc), &buf[pc & 0xf], 16, 16, NULL);
     util_memfree(buf);
 
@@ -1051,7 +1051,7 @@ int mon_cmd_breakpoint(int argc, char *args[])
         }
 
         mon_bp_addr = mon_strtoval(args[0]);  // new break point address
-        printf("Set breakpoint at %04lX\n\r", mon_bp_addr);
+        printf("Set breakpoint at %04lX\r\n", mon_bp_addr);
 
         // save and replace the instruction at the break point with RST instruction
         dma_read_from_sram(mon_bp_addr, &mon_bp_saved_inst, 1);
@@ -1060,9 +1060,9 @@ int mon_cmd_breakpoint(int argc, char *args[])
         install_rst_vector(mmu_bank);
     } else {
         if (mon_bp_installed) {
-            printf("Breakpoint is %04lX\n\r", mon_bp_addr);
+            printf("Breakpoint is %04lX\r\n", mon_bp_addr);
         } else {
-            printf("Breakpoint is not set\n\r");
+            printf("Breakpoint is not set\r\n");
         }
     }
     return MON_CMD_OK;
@@ -1071,11 +1071,11 @@ int mon_cmd_breakpoint(int argc, char *args[])
 int mon_cmd_clearbreakpoint(int argc, char *args[])
 {
     if (mon_bp_installed) {
-        printf("Clear breakpoint at %04lX\n\r", mon_bp_addr);
+        printf("Clear breakpoint at %04lX\r\n", mon_bp_addr);
         dma_write_to_sram(mon_bp_addr, &mon_bp_saved_inst, 1);
         mon_bp_installed = 0;
     } else {
-        printf("Breakpoint is not set\n\r");
+        printf("Breakpoint is not set\r\n");
     }
     return MON_CMD_OK;
 }
@@ -1130,12 +1130,12 @@ int mon_cmd_set(int argc, char *args[])
         for (i = 0; i < UTIL_ARRAYSIZEOF(variables); i++) {
             ptr = variables[i].ptr;
             if (variables[i].attr & VA_I32)
-                printf("%s=%ld (%lXh)\n\r", variables[i].name, *(uint32_t*)ptr, *(uint32_t*)ptr);
+                printf("%s=%ld (%lXh)\r\n", variables[i].name, *(uint32_t*)ptr, *(uint32_t*)ptr);
             else
             if (variables[i].attr & VA_I16)
-                printf("%s=%d (%Xh)\n\r", variables[i].name, *(uint16_t*)ptr, *(uint16_t*)ptr);
+                printf("%s=%d (%Xh)\r\n", variables[i].name, *(uint16_t*)ptr, *(uint16_t*)ptr);
             else
-                printf("%s=%d (%Xh)\n\r", variables[i].name, *(uint8_t*)ptr, *(uint8_t*)ptr);
+                printf("%s=%d (%Xh)\r\n", variables[i].name, *(uint8_t*)ptr, *(uint8_t*)ptr);
         }
         return MON_CMD_OK;
     }
@@ -1148,7 +1148,7 @@ int mon_cmd_set(int argc, char *args[])
 
     // error if no entry is found
     if (UTIL_ARRAYSIZEOF(variables) <= i) {
-        printf("Unknown variable '%s'\n\r", args[0]);
+        printf("Unknown variable '%s'\r\n", args[0]);
         return MON_CMD_OK;
     }
 
@@ -1167,12 +1167,12 @@ int mon_cmd_set(int argc, char *args[])
     // show name and value of the variable
     ptr = variables[i].ptr;
     if (variables[i].attr & VA_I32)
-        printf("%s=%ld (%lXh)\n\r", variables[i].name, *(uint32_t*)ptr, *(uint32_t*)ptr);
+        printf("%s=%ld (%lXh)\r\n", variables[i].name, *(uint32_t*)ptr, *(uint32_t*)ptr);
     else
     if (variables[i].attr & VA_I16)
-        printf("%s=%d (%Xh)\n\r", variables[i].name, *(uint16_t*)ptr, *(uint16_t*)ptr);
+        printf("%s=%d (%Xh)\r\n", variables[i].name, *(uint16_t*)ptr, *(uint16_t*)ptr);
     else
-        printf("%s=%d (%Xh)\n\r", variables[i].name, *(uint8_t*)ptr, *(uint8_t*)ptr);
+        printf("%s=%d (%Xh)\r\n", variables[i].name, *(uint8_t*)ptr, *(uint8_t*)ptr);
 
     return MON_CMD_OK;
 }
@@ -1185,7 +1185,7 @@ int mon_cmd_write(int argc, char *args[])
     if (args[0] != NULL && *args[0] != '\0')
         addr = mon_strtoval(args[0]);
     if (args[1] == NULL || *args[1] == '\0') {
-        printf("write [addr],val\n\r");
+        printf("write [addr],val\r\n");
         return MON_CMD_OK;
     }
 
@@ -1226,16 +1226,16 @@ int mon_prompt(void)
     sprintf(line, "%s", mon_prompt_str);
     edit_line(line, sizeof(line), prompt_len, prompt_len);
 
-    printf("\n\r");
+    printf("\r\n");
     #ifdef CPM_MON_DEBUG
     util_hexdump("edit_line: ", line, sizeof(line));
-    printf("command: %s\n\r", input);
+    printf("command: %s\r\n", input);
     #endif
 
     unsigned int command;
     argc = mon_parse(input, &command, args);
     if (argc < 0) {
-        printf("type 'help' to see the list of available commands\n\r");
+        printf("type 'help' to see the list of available commands\r\n");
         return 0;
     }
 
@@ -1247,19 +1247,19 @@ int mon_prompt(void)
         else
             printf("  null");
     }
-    printf(" (argc=%d)\n\r", argc);
+    printf(" (argc=%d)\r\n", argc);
     #endif
 
     int result = mon_cmds[command].function(argc, args);
     if (result == MON_CMD_ERROR) {
-        printf("Error\n\r");
+        printf("Error\r\n");
     }
     return result;
 }
 
 void mon_leave(void)
 {
-    // printf("Leave monitor\n\r");
+    // printf("Leave monitor\r\n");
 
     install_trampoline_cleanup();
 
@@ -1269,7 +1269,7 @@ void mon_leave(void)
 
 void mon_cleanup(void)
 {
-    // printf("\n\rCleanup monitor\n\r");
+    // printf("\r\nCleanup monitor\r\n");
 
     uninstall_trampoline();
     uninstall_nmi_vector();

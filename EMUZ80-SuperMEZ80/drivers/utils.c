@@ -42,7 +42,7 @@ void util_hexdump(const char *header, const void *addr, unsigned int size)
         }
         if ((i % 16) == 15) {
             chars[16] = '\0';
-            printf(" %s\n\r", chars);
+            printf(" %s\r\n", chars);
         }
     }
 }
@@ -63,7 +63,7 @@ void util_addrdump(const char *header, uint32_t addr_offs, const void *addr, uns
         }
         if ((i % 16) == 15) {
             chars[16] = '\0';
-            printf(" %s\n\r", chars);
+            printf(" %s\r\n", chars);
         }
     }
 }
@@ -76,7 +76,7 @@ void util_hexdump_sum(const char *header, const void *addr, unsigned int size)
     const uint8_t *p = addr;
     for (int i = 0; i < size; i++)
         sum += *p++;
-    printf("%s%53s CHECKSUM: %02x\n\r", header, "", sum);
+    printf("%s%53s CHECKSUM: %02x\r\n", header, "", sum);
 }
 
 int util_stricmp(const char *a, const char *b)
@@ -118,8 +118,8 @@ void util_fatfs_error(FRESULT fres, char *msg)
     }
 
     if (i < UTIL_ARRAYSIZEOF(errmsgs)) {
-        printf("%s, %s\n\r", msg, errmsgs[i].errmsg);
+        printf("%s, %s\r\n", msg, errmsgs[i].errmsg);
     } else {
-        printf("%s, %d\n\r", msg, fres);
+        printf("%s, %d\r\n", msg, fres);
     }
 }

@@ -92,7 +92,7 @@ unsigned int disas_ops(const disas_inst_desc_t *ids, uint32_t addr, uint8_t *ins
                 else
                     printf("   ");
             }
-            printf("%s\n\r", buf);
+            printf("%s\r\n", buf);
         }
         result += n;
         addr += (unsigned)n;

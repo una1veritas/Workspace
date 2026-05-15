@@ -66,7 +66,7 @@ static void emuz80_common_sys_init()
 
     // UART3 initialize
     // U3BRG = 416;        // 9600bps @ 64MHz
-    U3BRG = (_XTAL_FREQ/16)/57600UL+1; //(_XTAL_FREQ/16)/115200+1;
+    U3BRG = (_XTAL_FREQ/16)/115200UL+1; //(_XTAL_FREQ/16)/115200UL+1;
     //U3BRG = (_XTAL_FREQ/16)/230400+1;
     //U3BRG = (_XTAL_FREQ/16)/460800+1;
     U3RXEN = 1;         // Receiver enable
@@ -421,10 +421,10 @@ static void emuz80_common_wait_for_programmer()
     // Give a chance to use PRC (RB6/A6) and PRD (RB7/A7) to PIC programer.
     // It must prevent Z80 from driving A6 and A7 while this period.
     //
-    printf("\n\r");
+    printf("\r\n");
     printf("wait for programmer ...\r");
     __delay_ms(200);
     printf("                       \r");
 
-    printf("\n\r");
+    printf("\r\n");
 }

@@ -64,7 +64,7 @@ void SPI(configure)(struct SPI *ctxx2, int clock_speed, uint8_t bit_order, uint8
         ctx->clock_delay = 0;   // Maximum speed w/o any wait (1~2 MHz)
         break;
     default:
-        printf("%s: ERROR: clock speed %d is not supported\n\r", __func__, clock_speed);
+        printf("%s: ERROR: clock speed %d is not supported\r\n", __func__, clock_speed);
         break;
     }
 

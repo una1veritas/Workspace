@@ -37,7 +37,7 @@ int mon_cmd_send(int argc, char *args[])
     FIL *filep;
 
     if (args[0] == NULL || *args[0] == '\0') {
-        printf("usage: send file\n\r");
+        printf("usage: send file\r\n");
         return MON_CMD_OK;
     }
 
@@ -49,7 +49,7 @@ int mon_cmd_send(int argc, char *args[])
 
     filep = get_file();
     if (filep == NULL) {
-        printf("too many files\n\r");
+        printf("too many files\r\n");
         return MON_CMD_OK;
     }
     fr = f_open(filep, args[0], FA_READ);
@@ -65,9 +65,9 @@ int mon_cmd_send(int argc, char *args[])
     } else {
         file_name = args[0];
     }
-    printf("waiting for file transfer request via the terminal ...\n\r");
+    printf("waiting for file transfer request via the terminal ...\r\n");
     if (modem_send_open(file_name, (uint32_t)fileinfo.fsize) != 0) {
-        printf("modem_send_open() failed\n\r");
+        printf("modem_send_open() failed\r\n");
         put_file(filep);
         return MON_CMD_OK;
     }
@@ -78,7 +78,7 @@ int mon_cmd_send(int argc, char *args[])
         fr = f_read(filep, modem_buf, MODEM_XFER_BUF_SIZE, &n);
         if (fr != FR_OK ||
             (n != MODEM_XFER_BUF_SIZE && xfer_size + n != (uint32_t)fileinfo.fsize)) {
-            modem_xfer_printf(MODEM_XFER_LOG_ERROR, "read(%s) failed at %lu/%lu\n\r",
+            modem_xfer_printf(MODEM_XFER_LOG_ERROR, "read(%s) failed at %lu/%lu\r\n",
                               args[0], (unsigned long)xfer_size, (unsigned long)fileinfo.fsize);
             modem_cancel();
             break;
@@ -101,11 +101,11 @@ int mon_cmd_send(int argc, char *args[])
 int mon_cmd_recv(int argc, char *args[])
 {
     if (modem_recv_open() != 0) {
-        printf("modem_recv_open() failed\n\r");
+        printf("modem_recv_open() failed\r\n");
         return MON_CMD_OK;
     }
     if (modem_recv_to_save() != 0) {
-        printf("\n\rmodem_recv_to_save() failed\n\r");
+        printf("\r\nmodem_recv_to_save() failed\r\n");
     }
     modem_close();
 
@@ -122,7 +122,7 @@ int mon_cmd_pwd(int argc, char *args[])
     if (fr != FR_OK) {
         mon_fatfs_error(fr, "f_getcwd() failed");
     } else {
-        printf("%s\n\r", buf);
+        printf("%s\r\n", buf);
     }
 
     util_memfree(buf);
@@ -150,7 +150,7 @@ int mon_cmd_cd(int argc, char *args[])
 static void show_fileinfo(FILINFO *fileinfo, uint8_t in_detail)
 {
     if (in_detail) {
-        printf("%cr%c %c%c %8ld %u-%02u-%02u %02u:%02u %s\n\r",
+        printf("%cr%c %c%c %8ld %u-%02u-%02u %02u:%02u %s\r\n",
                (fileinfo->fattrib & AM_DIR) ? 'd' : '-',
                (fileinfo->fattrib & AM_RDO) ? '-' : 'w',
                (fileinfo->fattrib & AM_HID) ? 'h' : '-',
@@ -163,7 +163,7 @@ static void show_fileinfo(FILINFO *fileinfo, uint8_t in_detail)
                (fileinfo->ftime >> 5) & 63,
                fileinfo->fname);
     } else {
-        printf("%s%s\n\r", fileinfo->fname, (fileinfo->fattrib & AM_DIR) ? "/" : "");
+        printf("%s%s\r\n", fileinfo->fname, (fileinfo->fattrib & AM_DIR) ? "/" : "");
     }
 }
 
@@ -221,7 +221,7 @@ int mon_cmd_mkdir(int argc, char *args[])
     FRESULT fr;
 
     if (args[0] == NULL || *args[0] == '\0') {
-        printf("usage: mkdir directory\n\r");
+        printf("usage: mkdir directory\r\n");
         return MON_CMD_OK;
     }
 
@@ -248,7 +248,7 @@ int mon_cmd_rm(int argc, char *args[])
         recursive = 1;
     }
     if (args[i] == NULL || args[i] == 0) {
-        printf("usage: rm [-r] file or directory\n\r");
+        printf("usage: rm [-r] file or directory\r\n");
         return MON_CMD_OK;
     }
     file = args[i];
@@ -337,7 +337,7 @@ int mon_cmd_mv(int argc, char *args[])
     FRESULT fr;
 
     if (args[0] == NULL || *args[0] == '\0' || args[1] == NULL || *args[1] == '\0') {
-        printf("usage: mv old_name new_name\n\r");
+        printf("usage: mv old_name new_name\r\n");
         return MON_CMD_OK;
     }
 

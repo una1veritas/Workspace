@@ -57,7 +57,7 @@ static char *msgtmpbuf = NULL;
 static int __modem_open(void)
 {
     if (modem_in_use) {
-        printf("%s: medem is busy\n\r", __func__);
+        printf("%s: medem is busy\r\n", __func__);
         return -1;
     }
 
@@ -75,7 +75,7 @@ static int __modem_open(void)
     if (msgbuf == NULL || msgtmpbuf == NULL || modem_buf == NULL) {
         modem_error = 1;
         modem_close();
-        printf("%s: memory allocation failed\n\r", __func__);
+        printf("%s: memory allocation failed\r\n", __func__);
         return -1;
     }
 
@@ -98,10 +98,10 @@ int modem_send_open(char *file_name, uint32_t size)
     ymodem_send_init(&ctx, modem_buf);
     res = ymodem_send_header(&ctx, file_name, size);
     if (res != MODEM_XFER_RES_OK) {
-        modem_xfer_printf(MODEM_XFER_LOG_ERROR, "ymodem_send_header() failed, %d\n\r", res);
+        modem_xfer_printf(MODEM_XFER_LOG_ERROR, "ymodem_send_header() failed, %d\r\n", res);
         modem_error = 1;
         modem_close();
-        printf("%s(%d): failed\n\r", __func__, __LINE__);
+        printf("%s(%d): failed\r\n", __func__, __LINE__);
         return -1;
     }
     modem_on_line = 1;
@@ -136,7 +136,7 @@ int modem_send(void)
 
     res = ymodem_send_block(&ctx);
     if (res != MODEM_XFER_RES_OK) {
-        modem_xfer_printf(MODEM_XFER_LOG_ERROR, "ymodem_send_block() failed, %d\n\r", res);
+        modem_xfer_printf(MODEM_XFER_LOG_ERROR, "ymodem_send_block() failed, %d\r\n", res);
         modem_on_line = 0;
         modem_error = 1;
         return -1;
@@ -281,7 +281,7 @@ void modem_close(void)
         } else {
             res = ymodem_send_end(&ctx);
             if (res != MODEM_XFER_RES_OK) {
-                modem_xfer_printf(MODEM_XFER_LOG_ERROR, "ymodem_send_end() failed, %d\n\r", res);
+                modem_xfer_printf(MODEM_XFER_LOG_ERROR, "ymodem_send_end() failed, %d\r\n", res);
             }
         }
         modem_on_line = 0;
@@ -304,15 +304,15 @@ void modem_close(void)
 
     // flush message buffer
     if (modem_receiving) {
-        printf("\n\r");
+        printf("\r\n");
     }
     if (msgbuf != NULL && msglen != 0) {
         #ifdef DEBUG
-        printf("---------- %d bytes\n\r", msglen);
+        printf("---------- %d bytes\r\n", msglen);
         #endif
-        printf("%s\n\r", msgbuf);
+        printf("%s\r\n", msgbuf);
         #ifdef DEBUG
-        printf("----------\n\r");
+        printf("----------\r\n");
         #endif
         msglen = 0;
         msgbuf[0] = '\0';
