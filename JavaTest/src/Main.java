@@ -2,11 +2,12 @@
 public class Main {
 
 	public static void main(String[] args) {
-		Test t = new Test(8);
+		PrintJob t = new PrintJob("223", "me", 56);
+		JobNode n = new JobNode(t);
 		
 		// TODO Auto-generated method stub
 		System.out.println("Do something.");
-		System.out.println(t.specificValue);
+		System.out.println(n.left);
 
 	}
 
