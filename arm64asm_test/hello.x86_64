@@ -1,0 +1,18 @@
+.global _main
+.text
+
+_main:
+    ; 1. write() システムコールを呼び出す
+    movq    $1, %rdi            ; 第1引数: stdout
+    leaq    message(%rip), %rsi ; 第2引数: 文字列のアドレス
+    movq    $13, %rdx           ; 第3引数: 文字列の長さ
+    movq    $0x2000004, %rax    ; システムコール番号 4 (write)
+    syscall                     ; 実行
+
+    ; 2. exit() システムコールを呼び出す
+    xorq    %rdi, %rdi          ; 第1引数: 終了ステータス 0
+    movq    $0x2000001, %rax    ; システムコール番号 1 (exit)
+    syscall                     ; 実行
+
+message:
+    .ascii  "Hello, World\n"
