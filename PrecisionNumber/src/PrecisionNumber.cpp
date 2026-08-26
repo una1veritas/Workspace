@@ -260,7 +260,7 @@ int main() {
 	cout << "pn1 / pn2: " << (pn1/pn2) << endl;
 	cout << "as floating-point (double) / " << double(pn1/pn2) << endl;
 	cout << "as int + " << int(pn1+pn2) << endl;
-	cout << "pn2^2 " << (pn2*pn2) << endl;
+	cout << "pn2^2 " << (pn2*ingarrapn2) << endl;
 	PrecisionNumber pi6th = PrecisionNumber::pi() / uint64_t(6);
 	cout << "pi = " << PrecisionNumber::pi() << endl;
 	cout << "pi/6 = " << pi6th << endl;
