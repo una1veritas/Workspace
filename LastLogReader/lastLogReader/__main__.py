@@ -1,6 +1,6 @@
 import subprocess
 import sys
-
+from datetime import datetime
 
 def get_boot_shutdown_history():
     print("macOSのシステム履歴から起動/終了時刻を抽出中...")
@@ -24,16 +24,31 @@ def get_boot_shutdown_history():
                 # 例: reboot   ~                         Mon Aug 31 09:30
                 parts = line.split()
                 # 曜日 月 日 時刻 を抽出
-                time_str = " ".join(parts[3:7])
-                print(f"🟢 起動 (Boot)   : {time_str}")
+                # print(parts)
+                dow, mon_name = parts[2], parts[3]
+                date = int(parts[4])
+                hour = int(parts[5].split(':')[0])
+                minute = int(parts[5].split(':')[1])
+                year = 2026  # 年は適宜設定してください
+                # print(f"{dow} {date} {mon_name} {year} {parts[5]}")
+                dt = datetime.strptime(f"{dow} {date} {mon_name} {year} {parts[5]}", "%a %d %b %Y %H:%M")
+                print(f"{dt.strftime('%Y-%m-%d %H:%M')} 🟢 起動 (Boot) ")
                 count += 1
 
             # 終了ログの整形
             elif "shutdown" in line:
                 # 例: shutdown ~                         Mon Aug 31 00:15
                 parts = line.split()
-                time_str = " ".join(parts[3:7])
-                print(f"🔴 終了 (Shutdown): {time_str}")
+                # 曜日 月 日 時刻 を抽出
+                # print(parts)
+                dow, mon_name = parts[2], parts[3]
+                date = int(parts[4])
+                hour = int(parts[5].split(':')[0])
+                minute = int(parts[5].split(':')[1])
+                year = 2026  # 年は適宜設定してください
+                # print(f"{dow} {date} {mon_name} {year} {parts[5]}")
+                dt = datetime.strptime(f"{dow} {date} {mon_name} {year} {parts[5]}", "%a %d %b %Y %H:%M")
+                print(f"{dt.strftime('%Y-%m-%d %H:%M')} 🔴 終了 (Shutdown): ")
                 count += 1
 
         if count == 0:
