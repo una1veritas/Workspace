@@ -6,10 +6,11 @@ Created on 2026/11/05
 import cv2
 from retinaface import RetinaFace
 import os
+from statistics import fmean
 
 if __name__ == '__main__':
     folder_path = "/Users/sin/Library/Mobile Documents/com~apple~CloudDocs/Documents/data/face_detect"
-    image_filename = "L1040669_3k.JPG"
+    image_filename = "L1040668_3k.JPG"
     image_path = os.path.join(folder_path, image_filename)  # 4/3 デジカメから書き出したJPEG画像
     
     score_threshold = 0.5  # 信頼度の閾値を設定
@@ -38,9 +39,9 @@ if __name__ == '__main__':
         print(f"結果画像を {output_filename} として保存しました。")
         cvs_filename = image_filename.split(".")[0] + "_result.cvs"
         with open(cvs_filename, "w") as f:
-            f.write("x_min,y_min,x_max,y_max\n")
+            f.write("x_center,y_center,x_min,y_min,x_max,y_max\n")
             for box in boxes:
-                f.write(f"{box[0]},{box[1]},{box[2]},{box[3]}\n")
+                f.write(f"{fmean([box[0],box[2]])},{fmean([box[1],box[3]])},{box[0]},{box[1]},{box[2]},{box[3]}\n")
         print(f"検出結果の座標を {cvs_filename} として保存しました。")
     else:
         print("顔が検出されませんでした。")
